@@ -79,7 +79,7 @@ const generateSuggestedTodos = async () => {
   isGenerating.value = true
   try {
     const response = await getAIResponse(
-      '请根据我的历史待办事项为我生成 5 个建议的待办事项，如果无法很好预测则自己生成对自我提升最佳的具体一点的待办事项。'
+      '请根据我的历史待办事项为我生成 5 个建议的待办事项，如果无法很好预测，则生成五个对自我提升最佳的具体一点的待办事项，生成长度适当，不要使用 markdown 语法返回。'
     )
     suggestedTodos.value = response.split('\n').filter((todo: string) => todo.trim() !== '')
     showSuggestedTodos.value = true
