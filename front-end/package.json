@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "vite",
     "build": "vue-tsc -b && vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test": "vitest"
   },
   "dependencies": {
     "axios": "^1.7.7",
@@ -16,6 +17,9 @@
     "@vitejs/plugin-vue": "^5.1.2",
     "typescript": "^5.5.3",
     "vite": "^5.4.1",
-    "vue-tsc": "^2.0.29"
+    "vue-tsc": "^2.0.29",
+    "@vue/test-utils": "^2.4.5",
+    "jsdom": "^24.0.0",
+    "vitest": "^1.4.0"
   }
 }

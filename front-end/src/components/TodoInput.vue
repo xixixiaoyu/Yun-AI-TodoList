@@ -38,20 +38,15 @@ const addTodo = () => {
 </script>
 
 <template>
-  <div class="add-todo">
+  <form @submit.prevent="addTodo" class="add-todo">
     <div class="input-wrapper">
-      <input
-        v-model.trim="newTodo"
-        @keyup.enter="addTodo"
-        placeholder="添加新的待办事项..."
-        :maxlength="maxLength"
-      />
+      <input v-model.trim="newTodo" placeholder="添加新的待办事项..." :maxlength="maxLength" />
       <span class="char-count">
         {{ charCount }}
       </span>
     </div>
-    <button @click="addTodo" class="add-btn">添加</button>
-  </div>
+    <button type="submit" class="add-btn">添加</button>
+  </form>
   <p v-if="errorMessage || duplicateError" class="error-message">
     {{ errorMessage || duplicateError }}
   </p>

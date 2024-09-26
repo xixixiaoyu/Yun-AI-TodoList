@@ -48,6 +48,7 @@ export function useTodos() {
         todos: todosClone
       })
     }
+    saveHistory() // 确保每次更新历史记录时都保存到 localStorage
   }
 
   const addTodo = (text: string) => {
@@ -99,6 +100,7 @@ export function useTodos() {
     const historyItem = history.value.find(item => item.date === date)
     if (historyItem) {
       todos.value = JSON.parse(JSON.stringify(historyItem.todos))
+      saveTodos() // 确保保存恢复后的状态
     }
   }
 
