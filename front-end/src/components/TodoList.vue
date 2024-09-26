@@ -111,6 +111,10 @@ const showAIChat = ref(false)
 const toggleAIChat = () => {
   showAIChat.value = !showAIChat.value
 }
+
+const closeHistory = () => {
+  showHistory.value = false
+}
 </script>
 
 <template>
@@ -196,6 +200,7 @@ const toggleAIChat = () => {
       @restore="restoreHistory"
       @deleteItem="deleteHistoryItem"
       @deleteAll="deleteAllHistory"
+      @close="closeHistory"
     />
   </transition>
 </template>

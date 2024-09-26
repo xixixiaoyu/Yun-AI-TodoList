@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { defineProps, defineEmits } from 'vue'
+import { defineProps, defineEmits, onMounted, onUnmounted } from 'vue'
 
 interface Todo {
   id: number
@@ -16,7 +16,7 @@ const props = defineProps<{
   history: HistoryItem[]
 }>()
 
-const emit = defineEmits(['restore', 'deleteItem', 'deleteAll'])
+const emit = defineEmits(['restore', 'deleteItem', 'deleteAll', 'close'])
 
 const restoreHistory = (date: string) => {
   emit('restore', date)
@@ -41,12 +41,28 @@ const getTodoSummary = (todos: Todo[]) => {
   const completed = todos.filter(todo => todo.completed).length
   return `${completed}/${total} 已完成`
 }
+
+const handleEscKey = (event: KeyboardEvent) => {
+  if (event.key === 'Escape') {
+    emit('close')
+  }
+}
+
+onMounted(() => {
+  document.addEventListener('keydown', handleEscKey)
+})
+
+onUnmounted(() => {
+  document.removeEventListener('keydown', handleEscKey)
+})
 </script>
 
 <template>
   <div class="history-sidebar">
-    <h2>历史记录</h2>
-    <button @click="deleteAllHistory" class="delete-all-btn">删除全部</button>
+    <div class="history-header">
+      <h2>历史记录</h2>
+      <button @click="$emit('close')" class="close-button">&times;</button>
+    </div>
     <ul>
       <li v-for="item in history" :key="item.date" @click="restoreHistory(item.date)">
         <div class="history-item-header">
@@ -137,5 +153,25 @@ h3 {
 .delete-all-btn:hover,
 .delete-item-btn:hover {
   opacity: 1;
+}
+
+.history-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.close-button {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: #5d6d7e;
+  transition: color 0.3s ease;
+}
+
+.close-button:hover {
+  color: #e74c3c;
 }
 </style>
