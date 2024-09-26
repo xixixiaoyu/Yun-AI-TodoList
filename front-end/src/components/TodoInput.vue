@@ -61,12 +61,15 @@ const addTodo = () => {
 .add-todo {
   display: flex;
   margin-bottom: 1rem;
+  flex-wrap: wrap;
 }
 
 .input-wrapper {
   position: relative;
   flex-grow: 1;
   display: flex;
+  min-width: 200px;
+  margin-bottom: 0.5rem;
 }
 
 input {
@@ -75,7 +78,7 @@ input {
   padding-right: 3rem;
   font-size: 1rem;
   border: 1px solid #d5d8dc;
-  border-radius: 5px 0 0 5px;
+  border-radius: 5px;
   outline: none;
   transition: all 0.3s ease;
 }
@@ -100,9 +103,10 @@ input:focus {
   background-color: #85c1e9;
   color: white;
   border: none;
-  border-radius: 0 5px 5px 0;
+  border-radius: 5px;
   cursor: pointer;
   transition: all 0.3s ease;
+  margin-left: 0.5rem;
 }
 
 .add-btn:hover {
@@ -113,5 +117,22 @@ input:focus {
   color: #e74c3c;
   font-size: 0.9rem;
   margin-top: 0.5rem;
+  width: 100%;
+}
+
+@media (max-width: 768px) {
+  .add-todo {
+    flex-direction: column;
+  }
+
+  .input-wrapper {
+    margin-bottom: 0.5rem;
+    width: 100%;
+  }
+
+  .add-btn {
+    width: 100%;
+    margin-left: 0;
+  }
 }
 </style>

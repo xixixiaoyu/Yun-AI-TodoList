@@ -185,6 +185,7 @@ onUnmounted(() => {
 <style scoped>
 .todo-list {
   max-width: 800px;
+  width: 90%;
   margin: 0 auto;
   padding: 2rem;
   background-color: rgba(255, 255, 255, 0.9);
@@ -209,7 +210,7 @@ h1 {
 
 .todo-grid.multi-column {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   gap: 1rem;
 }
 
@@ -235,6 +236,26 @@ h1 {
 
 .history-icon.active svg {
   fill: #e74c3c;
+}
+
+@media (max-width: 768px) {
+  .todo-list {
+    width: 95%;
+    padding: 1rem;
+  }
+
+  h1 {
+    font-size: 1.8rem;
+  }
+
+  .todo-grid.multi-column {
+    grid-template-columns: 1fr;
+  }
+
+  .history-icon {
+    top: 5px;
+    right: 5px;
+  }
 }
 
 .slide-enter-active,

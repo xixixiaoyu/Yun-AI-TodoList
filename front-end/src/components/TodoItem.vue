@@ -50,7 +50,8 @@ const formattedTitle = computed(() => {
   background-color: #f8f9f9;
   border-radius: 5px;
   transition: all 0.3s ease;
-  width: 500px;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .todo-item:hover {
@@ -131,5 +132,21 @@ const formattedTitle = computed(() => {
 
 .delete-btn:hover {
   opacity: 1;
+}
+
+@media (max-width: 768px) {
+  .todo-item {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .todo-content {
+    width: 100%;
+    margin-bottom: 0.5rem;
+  }
+
+  .delete-btn {
+    align-self: flex-end;
+  }
 }
 </style>
