@@ -105,6 +105,12 @@ const cancelSuggestedTodos = () => {
 const updateSuggestedTodo = (index: number, newText: string) => {
   suggestedTodos.value[index] = newText
 }
+
+const showAIChat = ref(false)
+
+const toggleAIChat = () => {
+  showAIChat.value = !showAIChat.value
+}
 </script>
 
 <template>
@@ -120,6 +126,15 @@ const updateSuggestedTodo = (index: number, newText: string) => {
             />
           </svg>
           <span class="sr-only">历史记录</span>
+        </button>
+        <button @click="toggleAIChat" class="icon-button">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
+            <path fill="none" d="M0 0h24v24H0z" />
+            <path
+              d="M12 2c5.52 0 10 4.48 10 10s-4.48 10-10 10S2 17.52 2 12 6.48 2 12 2zm0 18c4.42 0 8-3.58 8-8s-3.58-8-8-8-8 3.58-8 8 3.58 8 8 8zm0-3c-2.33 0-4.32-1.45-5.12-3.5h1.67c.69 1.19 1.97 2 3.45 2s2.75-.81 3.45-2h1.67c-.8 2.05-2.79 3.5-5.12 3.5z"
+            />
+          </svg>
+          <span>AI 助手</span>
         </button>
       </div>
     </div>
@@ -151,6 +166,9 @@ const updateSuggestedTodo = (index: number, newText: string) => {
       @confirm="handleConfirm"
       @cancel="handleCancel"
     />
+    <Transition name="slide-fade">
+      <AIChatDialog v-if="showAIChat" @close="toggleAIChat" />
+    </Transition>
 
     <!-- 新增：建议待办事项确认对话框 -->
     <div v-if="showSuggestedTodos" class="suggested-todos-dialog">
