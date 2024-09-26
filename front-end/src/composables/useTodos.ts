@@ -51,11 +51,33 @@ export function useTodos() {
   }
 
   const addTodo = (text: string) => {
+    const newId = Math.max(0, ...todos.value.map(todo => todo.id)) + 1
     todos.value.push({
-      id: Date.now(),
+      id: newId,
       text,
       completed: false
     })
+  }
+
+  // 新增：批量添加待办事项的函数
+  const addMultipleTodos = (texts: string[]): string[] => {
+    let maxId = Math.max(0, ...todos.value.map(todo => todo.id))
+    const duplicates: string[] = []
+    const newTodos = texts
+      .filter(text => {
+        if (todos.value.some(todo => todo.text === text)) {
+          duplicates.push(text)
+          return false
+        }
+        return true
+      })
+      .map(text => ({
+        id: ++maxId,
+        text,
+        completed: false
+      }))
+    todos.value.push(...newTodos)
+    return duplicates
   }
 
   const toggleTodo = (id: number) => {
@@ -97,6 +119,7 @@ export function useTodos() {
     todos,
     history,
     addTodo,
+    addMultipleTodos, // 记得在返回对象中添加这个新函数
     toggleTodo,
     removeTodo,
     clearActiveTodos,
