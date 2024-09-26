@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, nextTick, onMounted, onUnmounted } from 'vue'
+import { ref, nextTick, onMounted, onUnmounted, watch } from 'vue'
 import { getAIResponse } from '../services/deepseekService'
 
 const emit = defineEmits(['close'])
@@ -25,8 +25,6 @@ const sendMessage = async () => {
     chatHistory.value.push({ role: 'ai', content: '抱歉，获取 AI 回复时出现错误。请稍后再试。' })
   } finally {
     isLoading.value = false
-    await nextTick()
-    scrollToBottom()
   }
 }
 
@@ -44,10 +42,18 @@ const handleEscKey = (event: KeyboardEvent) => {
 
 onMounted(() => {
   document.addEventListener('keydown', handleEscKey)
+  scrollToBottom()
 })
 
 onUnmounted(() => {
   document.removeEventListener('keydown', handleEscKey)
+})
+
+// 监听 chatHistory 的变化，当有新消息时滚动到底部
+watch(chatHistory, () => {
+  nextTick(() => {
+    scrollToBottom()
+  })
 })
 </script>
 
@@ -83,35 +89,28 @@ onUnmounted(() => {
 .ai-chat-dialog {
   position: fixed;
   top: 0;
-  right: 20px;
-  width: 90%;
-  height: 90%;
-  max-width: 500px;
-  max-height: 700px;
-  background-color: #ffffff;
-  border: 1px solid #e0e0e0;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: #f8f9fa;
   display: flex;
   flex-direction: column;
   overflow: hidden;
   z-index: 1000;
-  border-radius: 20px;
 }
 
 .dialog-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 20px 25px;
+  padding: 20px 40px;
   background-color: #3498db;
   color: white;
-  border-top-left-radius: 20px;
-  border-top-right-radius: 20px;
 }
 
 .dialog-header h2 {
   margin: 0;
-  font-size: 22px;
+  font-size: 28px;
   font-weight: 500;
 }
 
@@ -119,7 +118,7 @@ onUnmounted(() => {
   background: none;
   border: none;
   color: white;
-  font-size: 28px;
+  font-size: 36px;
   cursor: pointer;
   transition: all 0.2s ease;
 }
@@ -132,26 +131,27 @@ onUnmounted(() => {
   flex-grow: 1;
   display: flex;
   flex-direction: column;
-  padding: 25px;
+  padding: 30px 40px;
   overflow: hidden;
 }
 
 .chat-history {
   flex-grow: 1;
   overflow-y: auto;
-  margin-bottom: 25px;
+  margin-bottom: 30px;
   display: flex;
   flex-direction: column;
-  padding-right: 15px;
+  padding-right: 20px;
 }
 
 .chat-history .user,
 .chat-history .ai {
   max-width: 80%;
-  margin-bottom: 20px;
+  margin-bottom: 25px;
   padding: 15px 20px;
   border-radius: 18px;
-  line-height: 1.5;
+  line-height: 1.6;
+  font-size: 16px;
 }
 
 .chat-history .user {
@@ -162,21 +162,23 @@ onUnmounted(() => {
 
 .chat-history .ai {
   align-self: flex-start;
-  background-color: #f0f0f0;
+  background-color: white;
   color: #333;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
 .chat-input {
   display: flex;
-  gap: 15px;
+  gap: 20px;
+  padding: 0 40px 30px;
 }
 
 .chat-input input {
   flex-grow: 1;
-  padding: 15px;
+  padding: 15px 20px;
   font-size: 16px;
   border: 1px solid #d5d8dc;
-  border-radius: 25px;
+  border-radius: 30px;
   outline: none;
   transition: all 0.3s ease;
 }
@@ -187,12 +189,12 @@ onUnmounted(() => {
 }
 
 .chat-input button {
-  padding: 15px 25px;
+  padding: 15px 30px;
   font-size: 16px;
   background-color: #3498db;
   color: white;
   border: none;
-  border-radius: 25px;
+  border-radius: 30px;
   cursor: pointer;
   transition: all 0.3s ease;
 }
@@ -226,13 +228,20 @@ onUnmounted(() => {
 }
 
 @media (max-width: 768px) {
-  .ai-chat-dialog {
-    top: 10px;
-    right: 10px;
-    width: calc(100% - 20px);
-    height: calc(100% - 20px);
-    max-width: none;
-    max-height: none;
+  .dialog-header {
+    padding: 15px 20px;
+  }
+
+  .dialog-header h2 {
+    font-size: 24px;
+  }
+
+  .dialog-content {
+    padding: 20px;
+  }
+
+  .chat-input {
+    padding: 0 20px 20px;
   }
 }
 </style>
