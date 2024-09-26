@@ -1,47 +1,34 @@
 <script setup lang="ts">
-import { ref, computed, onMounted, watch, nextTick, onUnmounted } from 'vue'
+import { ref, computed, onMounted, watch, onUnmounted } from 'vue'
 import TodoInput from './TodoInput.vue'
 import TodoFilters from './TodoFilters.vue'
 import TodoItem from './TodoItem.vue'
 import HistorySidebar from './HistorySidebar.vue'
 import ChatComponent from './ChatComponent.vue'
 import ConfirmDialog from './ConfirmDialog.vue'
+import { useTodos } from '../composables/useTodos'
+import { useLayout } from '../composables/useLayout'
+import { useErrorHandler } from '../composables/useErrorHandler'
+import { useConfirmDialog } from '../composables/useConfirmDialog'
 
-interface Todo {
-  id: number
-  text: string
-  completed: boolean
-}
+const {
+  todos,
+  history,
+  addTodo,
+  toggleTodo,
+  removeTodo,
+  clearActiveTodos,
+  restoreHistory,
+  deleteHistoryItem,
+  deleteAllHistory
+} = useTodos()
+const { isMultiColumn, checkLayout } = useLayout()
+const { error: duplicateError, showError } = useErrorHandler()
+const { showConfirmDialog, confirmDialogConfig, handleConfirm, handleCancel } = useConfirmDialog()
 
-interface HistoryItem {
-  date: string
-  todos: Todo[]
-}
-
-const MAX_TODO_LENGTH = 50
-
-const todos = ref<Todo[]>([])
 const filter = ref('active')
-const history = ref<HistoryItem[]>([])
 const showHistory = ref(false)
-const isMultiColumn = ref(false)
-const duplicateError = ref('')
-const showConfirmDialog = ref(false)
-const confirmDialogConfig = ref({
-  title: '',
-  message: '',
-  confirmText: '',
-  cancelText: '',
-  action: null as (() => void) | null
-})
-const showHistoryConfirmDialog = ref(false)
-const historyConfirmDialogConfig = ref({
-  title: '',
-  message: '',
-  confirmText: '',
-  cancelText: '',
-  action: null as (() => void) | null
-})
+const MAX_TODO_LENGTH = 50 // 定义最大待办事项长度
 
 const filteredTodos = computed(() => {
   if (filter.value === 'active') {
@@ -49,7 +36,7 @@ const filteredTodos = computed(() => {
   } else if (filter.value === 'completed') {
     return todos.value.filter(todo => todo.completed)
   }
-  return todos.value // 默认返回所有待办事项
+  return todos.value
 })
 
 const historicalTodos = computed(() => {
@@ -57,158 +44,18 @@ const historicalTodos = computed(() => {
 })
 
 onMounted(() => {
-  const storedTodos = localStorage.getItem('todos')
-  if (storedTodos) {
-    todos.value = JSON.parse(storedTodos)
-  }
-  const storedHistory = localStorage.getItem('todoHistory')
-  if (storedHistory) {
-    history.value = JSON.parse(storedHistory)
-  }
   checkLayout()
   window.addEventListener('resize', checkLayout)
 })
 
-watch(
-  todos,
-  newTodos => {
-    localStorage.setItem('todos', JSON.stringify(newTodos))
-    saveToHistory()
-  },
-  { deep: true }
-)
-
-watch(
-  history,
-  newHistory => {
-    localStorage.setItem('todoHistory', JSON.stringify(newHistory))
-  },
-  { deep: true }
-)
-
-const addTodo = (text: string) => {
-  if (todos.value.some(todo => todo.text === text)) {
-    duplicateError.value = '该待办事项已存在'
-    setTimeout(() => {
-      duplicateError.value = ''
-    }, 3000)
-    return
-  }
-  todos.value.push({
-    id: Date.now(),
-    text,
-    completed: false
-  })
-  duplicateError.value = '' // 清除错误信息
-}
-
-const toggleTodo = (id: number) => {
-  const todo = todos.value.find(todo => todo.id === id)
-  if (todo) {
-    todo.completed = !todo.completed
-  }
-}
-
-const removeTodo = (id: number) => {
-  todos.value = todos.value.filter(todo => todo.id !== id)
-}
-
-const saveToHistory = () => {
-  const today = new Date().toISOString().split('T')[0]
-  const todosClone = JSON.parse(JSON.stringify(todos.value))
-  const existingIndex = history.value.findIndex(item => item.date === today)
-
-  if (existingIndex !== -1) {
-    history.value[existingIndex].todos = todosClone
-  } else {
-    history.value.push({
-      date: today,
-      todos: todosClone
-    })
-  }
-}
-
-const toggleHistory = () => {
-  showHistory.value = !showHistory.value
-}
-
-const restoreHistory = (date: string) => {
-  const historyItem = history.value.find(item => item.date === date)
-  if (historyItem) {
-    todos.value = JSON.parse(JSON.stringify(historyItem.todos))
-  }
-}
-
-const deleteHistoryItem = (date: string) => {
-  showHistoryConfirmDialog.value = true
-  historyConfirmDialogConfig.value = {
-    title: '删除历史记录',
-    message: `确定要删除 ${date} 的历史记录吗？此操作不可撤销。`,
-    confirmText: '确定删除',
-    cancelText: '取消',
-    action: () => {
-      history.value = history.value.filter(item => item.date !== date)
-    }
-  }
-}
-
-const deleteAllHistory = () => {
-  showHistoryConfirmDialog.value = true
-  historyConfirmDialogConfig.value = {
-    title: '删除所有历史记录',
-    message: '确定要删除所有历史记录吗？此操作不可撤销。',
-    confirmText: '确定删除',
-    cancelText: '取消',
-    action: () => {
-      history.value = []
-    }
-  }
-}
-
-const handleHistoryConfirm = () => {
-  if (historyConfirmDialogConfig.value.action) {
-    historyConfirmDialogConfig.value.action()
-  }
-  showHistoryConfirmDialog.value = false
-}
-
-const handleHistoryCancel = () => {
-  showHistoryConfirmDialog.value = false
-}
-
-const checkLayout = async () => {
-  await nextTick()
-  const todoList = document.querySelector('.todo-list') as HTMLElement
-  const todoGrid = document.querySelector('.todo-grid') as HTMLElement
-  if (todoList && todoGrid) {
-    const listHeight = todoList.offsetHeight
-    const windowHeight = window.innerHeight
-    isMultiColumn.value = listHeight > windowHeight * 0.9
-  }
-}
-
-watch(
-  filteredTodos,
-  () => {
-    checkLayout()
-  },
-  { deep: true }
-)
+watch(filteredTodos, checkLayout, { deep: true })
 
 onUnmounted(() => {
   window.removeEventListener('resize', checkLayout)
 })
 
-const addMultipleTodos = (newTodos: string[]) => {
-  newTodos.forEach(text => {
-    if (!todos.value.some(todo => todo.text === text)) {
-      todos.value.push({
-        id: Date.now() + Math.random(),
-        text,
-        completed: false
-      })
-    }
-  })
+const toggleHistory = () => {
+  showHistory.value = !showHistory.value
 }
 
 const hasActiveTodos = computed(() => {
@@ -222,21 +69,18 @@ const clearActive = () => {
     message: '确定要清除所有未完成的待办事项吗？此操作不可撤销。',
     confirmText: '确定清除',
     cancelText: '取消',
-    action: () => {
-      todos.value = todos.value.filter(todo => todo.completed)
+    action: clearActiveTodos
+  }
+}
+
+const addMultipleTodos = (newTodos: string[]) => {
+  newTodos.forEach(text => {
+    if (!todos.value.some(todo => todo.text === text)) {
+      addTodo(text)
+    } else {
+      showError('待办事项已存在')
     }
-  }
-}
-
-const handleConfirm = () => {
-  if (confirmDialogConfig.value.action) {
-    confirmDialogConfig.value.action()
-  }
-  showConfirmDialog.value = false
-}
-
-const handleCancel = () => {
-  showConfirmDialog.value = false
+  })
 }
 </script>
 
@@ -276,15 +120,6 @@ const handleCancel = () => {
       :cancelText="confirmDialogConfig.cancelText"
       @confirm="handleConfirm"
       @cancel="handleCancel"
-    />
-    <ConfirmDialog
-      :show="showHistoryConfirmDialog"
-      :title="historyConfirmDialogConfig.title"
-      :message="historyConfirmDialogConfig.message"
-      :confirmText="historyConfirmDialogConfig.confirmText"
-      :cancelText="historyConfirmDialogConfig.cancelText"
-      @confirm="handleHistoryConfirm"
-      @cancel="handleHistoryCancel"
     />
   </div>
   <transition name="slide">

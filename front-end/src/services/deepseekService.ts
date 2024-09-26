@@ -3,7 +3,18 @@ import axios from 'axios'
 const API_KEY = 'sk-5b553cc761aa4ef4b9482fd35ef1392f'
 const API_URL = 'https://api.deepseek.com'
 
-export async function getSuggestedTodos(userMessage: string, historicalTodos: string[]) {
+interface AIResponse {
+  choices: {
+    message: {
+      content: string
+    }
+  }[]
+}
+
+export async function getSuggestedTodos(
+  userMessage: string,
+  historicalTodos: string[]
+): Promise<string> {
   try {
     const historicalTodosContext =
       historicalTodos.length > 0
@@ -12,7 +23,7 @@ export async function getSuggestedTodos(userMessage: string, historicalTodos: st
           )}\n\n请根据这些历史待办事项来生成建议。`
         : '用户没有历史待办事项。'
 
-    const response = await axios.post(
+    const response = await axios.post<AIResponse>(
       `${API_URL}/v1/chat/completions`,
       {
         model: 'deepseek-coder',
