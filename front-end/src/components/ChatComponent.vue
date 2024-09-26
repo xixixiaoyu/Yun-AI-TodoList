@@ -37,7 +37,7 @@ const generateSuggestedTodos = async () => {
   isLoading.value = true
   try {
     const response = await getSuggestedTodos(
-      '请根据我的历史待办事项为我生成 5 个建议的待办事项',
+      '请根据我的历史待办事项为我生成 5 个建议的待办事项，如果无法很好预测则自己生成对自我提升最佳的具体一点的待办事项。',
       props.historicalTodos
     )
     const todos = response.split('\n').filter((todo: string) => todo.trim() !== '')

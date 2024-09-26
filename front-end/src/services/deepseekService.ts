@@ -15,12 +15,13 @@ export async function getSuggestedTodos(
   userMessage: string,
   historicalTodos: string[]
 ): Promise<string> {
+  console.log(historicalTodos)
   try {
     const historicalTodosContext =
       historicalTodos.length > 0
         ? `以下是用户的历史待办事项：\n${historicalTodos.join(
             '\n'
-          )}\n\n请根据这些历史待办事项来生成建议。`
+          )}\n\n请根据这些历史待办事项来生成预测的待办事项，如果无法很好预测则自己生成对自我提升最佳的具体一点的待办事项。`
         : '用户没有历史待办事项。'
 
     const response = await axios.post<AIResponse>(

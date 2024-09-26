@@ -118,6 +118,7 @@ const formattedTitle = computed(() => {
 }
 
 .delete-btn {
+  width: 50px;
   background-color: #e74c3c;
   color: white;
   border: none;
