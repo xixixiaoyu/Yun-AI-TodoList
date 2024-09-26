@@ -7,7 +7,7 @@ import HistorySidebar from './HistorySidebar.vue'
 import ChatComponent from './ChatComponent.vue'
 import ConfirmDialog from './ConfirmDialog.vue'
 import { useTodos } from '../composables/useTodos'
-import { useLayout } from '../composables/useLayout'
+// 删除 import { useLayout } from '../composables/useLayout'
 import { useErrorHandler } from '../composables/useErrorHandler'
 import { useConfirmDialog } from '../composables/useConfirmDialog'
 
@@ -22,7 +22,7 @@ const {
   deleteHistoryItem,
   deleteAllHistory
 } = useTodos()
-const { isMultiColumn, checkLayout } = useLayout()
+// 删除 const { isMultiColumn, checkLayout } = useLayout()
 const { error: duplicateError, showError } = useErrorHandler()
 const { showConfirmDialog, confirmDialogConfig, handleConfirm, handleCancel } = useConfirmDialog()
 
@@ -43,16 +43,17 @@ const historicalTodos = computed(() => {
   return history.value.flatMap(item => item.todos.map(todo => todo.text))
 })
 
-onMounted(() => {
-  checkLayout()
-  window.addEventListener('resize', checkLayout)
-})
+// 删除以下代码块
+// onMounted(() => {
+//   checkLayout()
+//   window.addEventListener('resize', checkLayout)
+// })
 
-watch(filteredTodos, checkLayout, { deep: true })
+// watch(filteredTodos, checkLayout, { deep: true })
 
-onUnmounted(() => {
-  window.removeEventListener('resize', checkLayout)
-})
+// onUnmounted(() => {
+//   window.removeEventListener('resize', checkLayout)
+// })
 
 const toggleHistory = () => {
   showHistory.value = !showHistory.value
@@ -89,7 +90,7 @@ const addMultipleTodos = (newTodos: string[]) => {
     <h1>我的待办事项</h1>
     <TodoInput :maxLength="MAX_TODO_LENGTH" @add="addTodo" :duplicateError="duplicateError" />
     <TodoFilters v-model:filter="filter" />
-    <div class="todo-grid" :class="{ 'multi-column': isMultiColumn }">
+    <div class="todo-grid">
       <TodoItem
         v-for="todo in filteredTodos"
         :key="todo.id"
@@ -135,7 +136,7 @@ const addMultipleTodos = (newTodos: string[]) => {
 
 <style scoped>
 .todo-list {
-  max-width: 800px;
+  max-width: 600px; /* 调整最大宽度以适应单栏布局 */
   width: 90%;
   margin: 0 auto;
   padding: 2rem;
@@ -159,11 +160,7 @@ h1 {
   flex-direction: column;
 }
 
-.todo-grid.multi-column {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 1rem;
-}
+/* 删除 .todo-grid.multi-column 相关样式 */
 
 .history-icon {
   position: absolute;
@@ -199,14 +196,7 @@ h1 {
     font-size: 1.8rem;
   }
 
-  .todo-grid.multi-column {
-    grid-template-columns: 1fr;
-  }
-
-  .history-icon {
-    top: 5px;
-    right: 5px;
-  }
+  /* 删除 .todo-grid.multi-column 相关媒体查询样式 */
 }
 
 .slide-enter-active,
