@@ -5,6 +5,7 @@ import TodoFilters from './TodoFilters.vue'
 import TodoItem from './TodoItem.vue'
 import HistorySidebar from './HistorySidebar.vue'
 import ChatComponent from './ChatComponent.vue'
+import ConfirmDialog from './ConfirmDialog.vue'
 
 interface Todo {
   id: number
@@ -25,6 +26,22 @@ const history = ref<HistoryItem[]>([])
 const showHistory = ref(false)
 const isMultiColumn = ref(false)
 const duplicateError = ref('')
+const showConfirmDialog = ref(false)
+const confirmDialogConfig = ref({
+  title: '',
+  message: '',
+  confirmText: '',
+  cancelText: '',
+  action: null as (() => void) | null
+})
+const showHistoryConfirmDialog = ref(false)
+const historyConfirmDialogConfig = ref({
+  title: '',
+  message: '',
+  confirmText: '',
+  cancelText: '',
+  action: null as (() => void) | null
+})
 
 const filteredTodos = computed(() => {
   if (filter.value === 'active') {
@@ -33,6 +50,10 @@ const filteredTodos = computed(() => {
     return todos.value.filter(todo => todo.completed)
   }
   return todos.value // 默认返回所有待办事项
+})
+
+const historicalTodos = computed(() => {
+  return history.value.flatMap(item => item.todos.map(todo => todo.text))
 })
 
 onMounted(() => {
@@ -119,11 +140,40 @@ const restoreHistory = (date: string) => {
 }
 
 const deleteHistoryItem = (date: string) => {
-  history.value = history.value.filter(item => item.date !== date)
+  showHistoryConfirmDialog.value = true
+  historyConfirmDialogConfig.value = {
+    title: '删除历史记录',
+    message: `确定要删除 ${date} 的历史记录吗？此操作不可撤销。`,
+    confirmText: '确定删除',
+    cancelText: '取消',
+    action: () => {
+      history.value = history.value.filter(item => item.date !== date)
+    }
+  }
 }
 
 const deleteAllHistory = () => {
-  history.value = []
+  showHistoryConfirmDialog.value = true
+  historyConfirmDialogConfig.value = {
+    title: '删除所有历史记录',
+    message: '确定要删除所有历史记录吗？此操作不可撤销。',
+    confirmText: '确定删除',
+    cancelText: '取消',
+    action: () => {
+      history.value = []
+    }
+  }
+}
+
+const handleHistoryConfirm = () => {
+  if (historyConfirmDialogConfig.value.action) {
+    historyConfirmDialogConfig.value.action()
+  }
+  showHistoryConfirmDialog.value = false
+}
+
+const handleHistoryCancel = () => {
+  showHistoryConfirmDialog.value = false
 }
 
 const checkLayout = async () => {
@@ -160,6 +210,34 @@ const addMultipleTodos = (newTodos: string[]) => {
     }
   })
 }
+
+const hasActiveTodos = computed(() => {
+  return todos.value.some(todo => !todo.completed)
+})
+
+const clearActive = () => {
+  showConfirmDialog.value = true
+  confirmDialogConfig.value = {
+    title: '清除未完成的待办事项',
+    message: '确定要清除所有未完成的待办事项吗？此操作不可撤销。',
+    confirmText: '确定清除',
+    cancelText: '取消',
+    action: () => {
+      todos.value = todos.value.filter(todo => todo.completed)
+    }
+  }
+}
+
+const handleConfirm = () => {
+  if (confirmDialogConfig.value.action) {
+    confirmDialogConfig.value.action()
+  }
+  showConfirmDialog.value = false
+}
+
+const handleCancel = () => {
+  showConfirmDialog.value = false
+}
 </script>
 
 <template>
@@ -176,7 +254,12 @@ const addMultipleTodos = (newTodos: string[]) => {
         @remove="removeTodo"
       />
     </div>
-    <ChatComponent @addTodos="addMultipleTodos" />
+    <div class="clear-buttons">
+      <button v-if="filter === 'active' && hasActiveTodos" @click="clearActive" class="clear-btn">
+        清除待完成
+      </button>
+    </div>
+    <ChatComponent @addTodos="addMultipleTodos" :historicalTodos="historicalTodos" />
     <button @click="toggleHistory" class="history-icon" :class="{ active: showHistory }">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
         <path fill="none" d="M0 0h24v24H0z" />
@@ -185,6 +268,24 @@ const addMultipleTodos = (newTodos: string[]) => {
         />
       </svg>
     </button>
+    <ConfirmDialog
+      :show="showConfirmDialog"
+      :title="confirmDialogConfig.title"
+      :message="confirmDialogConfig.message"
+      :confirmText="confirmDialogConfig.confirmText"
+      :cancelText="confirmDialogConfig.cancelText"
+      @confirm="handleConfirm"
+      @cancel="handleCancel"
+    />
+    <ConfirmDialog
+      :show="showHistoryConfirmDialog"
+      :title="historyConfirmDialogConfig.title"
+      :message="historyConfirmDialogConfig.message"
+      :confirmText="historyConfirmDialogConfig.confirmText"
+      :cancelText="historyConfirmDialogConfig.cancelText"
+      @confirm="handleHistoryConfirm"
+      @cancel="handleHistoryCancel"
+    />
   </div>
   <transition name="slide">
     <HistorySidebar
@@ -306,5 +407,39 @@ h1 {
 .fade-enter-from,
 .fade-leave-to {
   opacity: 0;
+}
+
+.clear-buttons {
+  display: flex;
+  justify-content: center;
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+}
+
+.clear-btn {
+  padding: 0.5rem 1rem;
+  font-size: 0.9rem;
+  background-color: #e74c3c;
+  color: white;
+  border: none;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.clear-btn:hover {
+  background-color: #c0392b;
+}
+
+@media (max-width: 768px) {
+  .clear-buttons {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .clear-btn {
+    width: 100%;
+    margin-bottom: 0.5rem;
+  }
 }
 </style>

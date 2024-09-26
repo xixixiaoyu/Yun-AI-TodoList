@@ -24,10 +24,11 @@ const setFilter = (newFilter: string) => {
   display: flex;
   justify-content: center;
   margin-bottom: 1rem;
+  flex-wrap: wrap;
+  gap: 0.5rem;
 }
 
 .filter-buttons button {
-  margin: 0 0.5rem;
   padding: 0.5rem 1rem;
   font-size: 0.9rem;
   background-color: #f8f9f9;
@@ -42,5 +43,26 @@ const setFilter = (newFilter: string) => {
   background-color: #85c1e9;
   color: white;
   border-color: #85c1e9;
+}
+
+.clear-btn {
+  background-color: #e74c3c !important;
+  color: white !important;
+  border-color: #e74c3c !important;
+}
+
+.clear-btn:hover {
+  background-color: #c0392b !important;
+  border-color: #c0392b !important;
+}
+
+@media (max-width: 768px) {
+  .filter-buttons {
+    flex-direction: column;
+  }
+
+  .filter-buttons button {
+    width: 100%;
+  }
 }
 </style>

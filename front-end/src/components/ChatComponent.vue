@@ -6,6 +6,10 @@ const userMessage = ref('')
 const aiResponse = ref('')
 const isLoading = ref(false)
 
+const props = defineProps<{
+  historicalTodos: string[]
+}>()
+
 const emit = defineEmits(['addTodos'])
 
 const sendMessage = async () => {
@@ -13,7 +17,7 @@ const sendMessage = async () => {
 
   isLoading.value = true
   try {
-    const response = await getSuggestedTodos(userMessage.value)
+    const response = await getSuggestedTodos(userMessage.value, props.historicalTodos)
     aiResponse.value = response
   } catch (error) {
     console.error('Error getting AI response:', error)
@@ -24,9 +28,26 @@ const sendMessage = async () => {
 }
 
 const addSuggestedTodos = () => {
-  const todos = aiResponse.value.split('\n').filter(todo => todo.trim() !== '')
+  const todos = aiResponse.value.split('\n').filter((todo: string) => todo.trim() !== '')
   emit('addTodos', todos)
   aiResponse.value = ''
+}
+
+const generateSuggestedTodos = async () => {
+  isLoading.value = true
+  try {
+    const response = await getSuggestedTodos(
+      '请根据我的历史待办事项为我生成 5 个建议的待办事项',
+      props.historicalTodos
+    )
+    const todos = response.split('\n').filter((todo: string) => todo.trim() !== '')
+    emit('addTodos', todos)
+  } catch (error) {
+    console.error('Error generating suggested todos:', error)
+    aiResponse.value = '抱歉，生成建议待办事项时出现错误。请稍后再试。'
+  } finally {
+    isLoading.value = false
+  }
 }
 </script>
 
@@ -41,6 +62,9 @@ const addSuggestedTodos = () => {
         :disabled="isLoading"
       />
       <button @click="sendMessage" :disabled="isLoading">发送</button>
+      <button @click="generateSuggestedTodos" :disabled="isLoading" class="generate-btn">
+        生成建议待办事项
+      </button>
     </div>
     <div v-if="isLoading" class="loading">正在思考中...</div>
     <div v-else-if="aiResponse" class="ai-response">
@@ -111,5 +135,32 @@ button:disabled {
 
 .ai-response p {
   margin-bottom: 1rem;
+}
+
+.generate-btn {
+  margin-left: 0.5rem;
+  background-color: #2ecc71;
+}
+
+.generate-btn:hover {
+  background-color: #27ae60;
+}
+
+/* 为了适应新按钮，可能需要调整一下布局 */
+.chat-input {
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+@media (max-width: 768px) {
+  .chat-input {
+    flex-direction: column;
+  }
+
+  .chat-input button {
+    width: 100%;
+    margin-left: 0;
+    margin-top: 0.5rem;
+  }
 }
 </style>
