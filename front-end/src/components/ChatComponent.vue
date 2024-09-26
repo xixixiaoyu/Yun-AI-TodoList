@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import { getSuggestedTodos } from '../services/deepseekService'
+import { getAIResponse } from '../services/deepseekService'
 
 const userMessage = ref('')
 const aiResponse = ref('')
@@ -19,7 +19,7 @@ const sendMessage = async () => {
 
   isLoading.value = true
   try {
-    const response = await getSuggestedTodos(userMessage.value, props.historicalTodos)
+    const response = await getAIResponse(userMessage.value)
     aiResponse.value = response
   } catch (error) {
     console.error('Error getting AI response:', error)
@@ -38,9 +38,8 @@ const addSuggestedTodos = () => {
 const generateSuggestedTodos = async () => {
   isLoading.value = true
   try {
-    const response = await getSuggestedTodos(
-      '请根据我的历史待办事项为我生成 5 个建议的待办事项，如果无法很好预测则自己生成对自我提升最佳的具体一点的待办事项。',
-      props.historicalTodos
+    const response = await getAIResponse(
+      '请根据我的历史待办事项为我生成 5 个建议的待办事项，如果无法很好预测则自己生成对自我提升最佳的具体一点的待办事项。'
     )
     suggestedTodos.value = response.split('\n').filter((todo: string) => todo.trim() !== '')
     aiResponse.value = '以下是为您生成的建议待办事项：\n' + suggestedTodos.value.join('\n')

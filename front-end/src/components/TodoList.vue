@@ -10,6 +10,7 @@ import { useTodos } from '../composables/useTodos'
 // 删除 import { useLayout } from '../composables/useLayout'
 import { useErrorHandler } from '../composables/useErrorHandler'
 import { useConfirmDialog } from '../composables/useConfirmDialog'
+import AIChatDialog from './AIChatDialog.vue'
 
 const {
   todos,
@@ -83,10 +84,35 @@ const addMultipleTodos = (newTodos: string[]) => {
     }
   })
 }
+
+const showAIChat = ref(false)
+
+const toggleAIChat = () => {
+  showAIChat.value = !showAIChat.value
+}
 </script>
 
 <template>
   <div class="todo-list">
+    <div class="header-actions">
+      <button @click="toggleHistory" class="history-icon" :class="{ active: showHistory }">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
+          <path fill="none" d="M0 0h24v24H0z" />
+          <path
+            d="M12 2c5.52 0 10 4.48 10 10s-4.48 10-10 10S2 17.52 2 12 6.48 2 12 2zm0 18c4.42 0 8-3.58 8-8s-3.58-8-8-8-8 3.58-8 8 3.58 8 8 8zm0-3c-2.33 0-4.32-1.45-5.12-3.5h1.67c.69 1.19 1.97 2 3.45 2s2.75-.81 3.45-2h1.67c-.8 2.05-2.79 3.5-5.12 3.5z"
+          />
+        </svg>
+      </button>
+      <button @click="toggleAIChat" class="ai-chat-button">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
+          <path fill="none" d="M0 0h24v24H0z" />
+          <path
+            d="M12 2c5.52 0 10 4.48 10 10s-4.48 10-10 10S2 17.52 2 12 6.48 2 12 2zm0 18c4.42 0 8-3.58 8-8s-3.58-8-8-8-8 3.58-8 8 3.58 8 8 8zm0-3c-2.33 0-4.32-1.45-5.12-3.5h1.67c.69 1.19 1.97 2 3.45 2s2.75-.81 3.45-2h1.67c-.8 2.05-2.79 3.5-5.12 3.5z"
+          />
+        </svg>
+        AI 助手
+      </button>
+    </div>
     <h1>我的待办事项</h1>
     <TodoInput :maxLength="MAX_TODO_LENGTH" @add="addTodo" :duplicateError="duplicateError" />
     <TodoFilters v-model:filter="filter" />
@@ -105,14 +131,6 @@ const addMultipleTodos = (newTodos: string[]) => {
       </button>
     </div>
     <ChatComponent @addTodos="addMultipleTodos" :historicalTodos="historicalTodos" />
-    <button @click="toggleHistory" class="history-icon" :class="{ active: showHistory }">
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
-        <path fill="none" d="M0 0h24v24H0z" />
-        <path
-          d="M12 2c5.52 0 10 4.48 10 10s-4.48 10-10 10S2 17.52 2 12 6.48 2 12 2zm0 18c4.42 0 8-3.58 8-8s-3.58-8-8-8-8 3.58-8 8 3.58 8 8 8zm1-8h4v2h-6V7h2v5z"
-        />
-      </svg>
-    </button>
     <ConfirmDialog
       :show="showConfirmDialog"
       :title="confirmDialogConfig.title"
@@ -122,6 +140,9 @@ const addMultipleTodos = (newTodos: string[]) => {
       @confirm="handleConfirm"
       @cancel="handleCancel"
     />
+    <Transition name="slide-fade">
+      <AIChatDialog v-if="showAIChat" @close="toggleAIChat" />
+    </Transition>
   </div>
   <transition name="slide">
     <HistorySidebar
@@ -136,13 +157,13 @@ const addMultipleTodos = (newTodos: string[]) => {
 
 <style scoped>
 .todo-list {
-  max-width: 600px; /* 调整最大宽度以适应单栏布局 */
+  max-width: 600px;
   width: 90%;
   margin: 0 auto;
   padding: 2rem;
   background-color: rgba(255, 255, 255, 0.9);
-  border-radius: 15px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  border-radius: var(--border-radius);
+  box-shadow: var(--box-shadow);
   backdrop-filter: blur(10px);
   position: relative;
 }
@@ -162,28 +183,44 @@ h1 {
 
 /* 删除 .todo-grid.multi-column 相关样式 */
 
-.history-icon {
-  position: absolute;
-  top: 10px;
-  right: 10px;
+.header-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-bottom: 1rem;
+}
+
+.history-icon,
+.ai-chat-button {
   background: none;
   border: none;
   cursor: pointer;
   padding: 5px;
   transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  border-radius: calc(var(--border-radius) / 2);
 }
 
-.history-icon svg {
+.history-icon svg,
+.ai-chat-button svg {
   fill: #85c1e9;
   transition: all 0.3s ease;
 }
 
-.history-icon:hover svg {
+.history-icon:hover svg,
+.ai-chat-button:hover svg {
   fill: #5dade2;
 }
 
 .history-icon.active svg {
   fill: #e74c3c;
+}
+
+.ai-chat-button {
+  color: #85c1e9;
+  font-weight: bold;
 }
 
 @media (max-width: 768px) {
@@ -266,5 +303,16 @@ h1 {
     width: 100%;
     margin-bottom: 0.5rem;
   }
+}
+
+.slide-fade-enter-active,
+.slide-fade-leave-active {
+  transition: all 0.3s ease;
+}
+
+.slide-fade-enter-from,
+.slide-fade-leave-to {
+  transform: translateX(100%);
+  opacity: 0;
 }
 </style>

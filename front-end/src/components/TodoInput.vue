@@ -78,7 +78,7 @@ input {
   padding-right: 3rem;
   font-size: 1rem;
   border: 1px solid #d5d8dc;
-  border-radius: 5px;
+  border-radius: calc(var(--border-radius) / 2);
   outline: none;
   transition: all 0.3s ease;
 }
@@ -103,7 +103,7 @@ input:focus {
   background-color: #85c1e9;
   color: white;
   border: none;
-  border-radius: 5px;
+  border-radius: calc(var(--border-radius) / 2);
   cursor: pointer;
   transition: all 0.3s ease;
   margin-left: 0.5rem;

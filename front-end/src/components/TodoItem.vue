@@ -48,7 +48,8 @@ const formattedTitle = computed(() => {
   padding: 0.7rem;
   margin-bottom: 0.5rem;
   background-color: #f8f9f9;
-  border-radius: 5px;
+  border-radius: calc(var(--border-radius) / 2);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   transition: all 0.3s ease;
   width: 100%;
   box-sizing: border-box;
@@ -122,7 +123,7 @@ const formattedTitle = computed(() => {
   background-color: #e74c3c;
   color: white;
   border: none;
-  border-radius: 5px;
+  border-radius: calc(var(--border-radius) / 2);
   padding: 0.25rem 0.5rem;
   font-size: 0.8rem;
   cursor: pointer;
