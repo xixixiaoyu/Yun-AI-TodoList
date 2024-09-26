@@ -6,6 +6,8 @@ const userMessage = ref('')
 const aiResponse = ref('')
 const isLoading = ref(false)
 
+const suggestedTodos = ref<string[]>([])
+
 const props = defineProps<{
   historicalTodos: string[]
 }>()
@@ -28,9 +30,9 @@ const sendMessage = async () => {
 }
 
 const addSuggestedTodos = () => {
-  const todos = aiResponse.value.split('\n').filter((todo: string) => todo.trim() !== '')
-  emit('addTodos', todos)
+  emit('addTodos', suggestedTodos.value)
   aiResponse.value = ''
+  suggestedTodos.value = []
 }
 
 const generateSuggestedTodos = async () => {
@@ -40,8 +42,8 @@ const generateSuggestedTodos = async () => {
       '请根据我的历史待办事项为我生成 5 个建议的待办事项，如果无法很好预测则自己生成对自我提升最佳的具体一点的待办事项。',
       props.historicalTodos
     )
-    const todos = response.split('\n').filter((todo: string) => todo.trim() !== '')
-    emit('addTodos', todos)
+    suggestedTodos.value = response.split('\n').filter((todo: string) => todo.trim() !== '')
+    aiResponse.value = '以下是为您生成的建议待办事项：\n' + suggestedTodos.value.join('\n')
   } catch (error) {
     console.error('Error generating suggested todos:', error)
     aiResponse.value = '抱歉，生成建议待办事项时出现错误。请稍后再试。'
@@ -69,7 +71,9 @@ const generateSuggestedTodos = async () => {
     <div v-if="isLoading" class="loading">正在思考中...</div>
     <div v-else-if="aiResponse" class="ai-response">
       <p>{{ aiResponse }}</p>
-      <button @click="addSuggestedTodos">添加建议的待办事项</button>
+      <button v-if="suggestedTodos.length > 0" @click="addSuggestedTodos">
+        添加建议的待办事项
+      </button>
     </div>
   </div>
 </template>
