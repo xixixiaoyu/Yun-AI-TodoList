@@ -11,17 +11,16 @@ import TodoList from './components/TodoList.vue'
 <style>
 body {
   font-family: 'Helvetica Neue', Arial, sans-serif;
-  background: linear-gradient(135deg, #ffeaa7 0%, #fab1a0 100%);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 100vh;
+  background: linear-gradient(135deg, #e0eafc 0%, #cfdef3 100%);
   margin: 0;
+  padding: 0;
+  min-height: 100vh;
 }
 
 .app {
-  width: 100%;
-  max-width: 500px;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
   padding: 2rem;
 }
 </style>
