@@ -41,7 +41,7 @@ const addTodo = () => {
   <div class="add-todo">
     <div class="input-wrapper">
       <input
-        v-model="newTodo"
+        v-model.trim="newTodo"
         @keyup.enter="addTodo"
         placeholder="添加新的待办事项..."
         :maxlength="maxLength"

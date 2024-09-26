@@ -51,7 +51,7 @@ const getTodoSummary = (todos: Todo[]) => {
       <li v-for="item in history" :key="item.date" @click="restoreHistory(item.date)">
         <div class="history-item-header">
           <h3>{{ formatDate(item.date) }}</h3>
-          <button @click="event => deleteHistoryItem(event, item.date)" class="delete-item-btn">
+          <button @click.stop="deleteHistoryItem($event, item.date)" class="delete-item-btn">
             删除
           </button>
         </div>

@@ -31,7 +31,7 @@ const filteredTodos = computed(() => {
   } else if (filter.value === 'completed') {
     return todos.value.filter(todo => todo.completed)
   }
-  return todos.value
+  return todos.value // 默认返回所有待办事项
 })
 
 onMounted(() => {
@@ -93,14 +93,15 @@ const removeTodo = (id: number) => {
 
 const saveToHistory = () => {
   const today = new Date().toISOString().split('T')[0]
+  const todosClone = JSON.parse(JSON.stringify(todos.value))
   const existingIndex = history.value.findIndex(item => item.date === today)
 
   if (existingIndex !== -1) {
-    history.value[existingIndex].todos = JSON.parse(JSON.stringify(todos.value))
+    history.value[existingIndex].todos = todosClone
   } else {
     history.value.push({
       date: today,
-      todos: JSON.parse(JSON.stringify(todos.value))
+      todos: todosClone
     })
   }
 }

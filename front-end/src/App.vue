@@ -1,5 +1,12 @@
 <script setup lang="ts">
+import { onErrorCaptured } from 'vue'
 import TodoList from './components/TodoList.vue'
+
+onErrorCaptured((err, instance, info) => {
+  console.error('Captured error:', err, instance, info)
+  // 这里可以添加错误处理逻辑，比如显示一个错误提示
+  return false // 阻止错误继续传播
+})
 </script>
 
 <template>
