@@ -4,12 +4,12 @@ import TodoInput from './TodoInput.vue'
 import TodoFilters from './TodoFilters.vue'
 import TodoItem from './TodoItem.vue'
 import HistorySidebar from './HistorySidebar.vue'
-import ChatComponent from './ChatComponent.vue'
 import ConfirmDialog from './ConfirmDialog.vue'
 import { useTodos } from '../composables/useTodos'
 import { useErrorHandler } from '../composables/useErrorHandler'
 import { useConfirmDialog } from '../composables/useConfirmDialog'
 import AIChatDialog from './AIChatDialog.vue'
+import { getAIResponse } from '../services/deepseekService'
 
 const {
   todos,
@@ -71,10 +71,39 @@ const addMultipleTodos = (newTodos: string[]) => {
   })
 }
 
-const showAIChat = ref(false)
+const suggestedTodos = ref<string[]>([])
+const showSuggestedTodos = ref(false)
+const isGenerating = ref(false)
 
-const toggleAIChat = () => {
-  showAIChat.value = !showAIChat.value
+const generateSuggestedTodos = async () => {
+  isGenerating.value = true
+  try {
+    const response = await getAIResponse(
+      '请根据我的历史待办事项为我生成 5 个建议的待办事项，如果无法很好预测则自己生成对自我提升最佳的具体一点的待办事项。'
+    )
+    suggestedTodos.value = response.split('\n').filter((todo: string) => todo.trim() !== '')
+    showSuggestedTodos.value = true
+  } catch (error) {
+    console.error('生成建议待办事项时出错:', error)
+    showError('生成建议待办事项时出错，请稍后再试。')
+  } finally {
+    isGenerating.value = false
+  }
+}
+
+const confirmSuggestedTodos = () => {
+  addMultipleTodos(suggestedTodos.value)
+  showSuggestedTodos.value = false
+  suggestedTodos.value = []
+}
+
+const cancelSuggestedTodos = () => {
+  showSuggestedTodos.value = false
+  suggestedTodos.value = []
+}
+
+const updateSuggestedTodo = (index: number, newText: string) => {
+  suggestedTodos.value[index] = newText
 }
 </script>
 
@@ -91,15 +120,6 @@ const toggleAIChat = () => {
             />
           </svg>
           <span class="sr-only">历史记录</span>
-        </button>
-        <button @click="toggleAIChat" class="icon-button">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
-            <path fill="none" d="M0 0h24v24H0z" />
-            <path
-              d="M12 2c5.52 0 10 4.48 10 10s-4.48 10-10 10S2 17.52 2 12 6.48 2 12 2zm0 18c4.42 0 8-3.58 8-8s-3.58-8-8-8-8 3.58-8 8 3.58 8 8 8zm0-3c-2.33 0-4.32-1.45-5.12-3.5h1.67c.69 1.19 1.97 2 3.45 2s2.75-.81 3.45-2h1.67c-.8 2.05-2.79 3.5-5.12 3.5z"
-            />
-          </svg>
-          <span>AI 助手</span>
         </button>
       </div>
     </div>
@@ -118,8 +138,10 @@ const toggleAIChat = () => {
       <button v-if="filter === 'active' && hasActiveTodos" @click="clearActive" class="clear-btn">
         清除待完成
       </button>
+      <button @click="generateSuggestedTodos" class="generate-btn" :disabled="isGenerating">
+        {{ isGenerating ? '正在生成...' : '生成建议待办事项' }}
+      </button>
     </div>
-    <ChatComponent @addTodos="addMultipleTodos" :historicalTodos="historicalTodos" />
     <ConfirmDialog
       :show="showConfirmDialog"
       :title="confirmDialogConfig.title"
@@ -129,9 +151,25 @@ const toggleAIChat = () => {
       @confirm="handleConfirm"
       @cancel="handleCancel"
     />
-    <Transition name="slide-fade">
-      <AIChatDialog v-if="showAIChat" @close="toggleAIChat" />
-    </Transition>
+
+    <!-- 新增：建议待办事项确认对话框 -->
+    <div v-if="showSuggestedTodos" class="suggested-todos-dialog">
+      <h3>建议的待办事项</h3>
+      <p>请确认或修改以下建议的待办事项：</p>
+      <ul>
+        <li v-for="(todo, index) in suggestedTodos" :key="index">
+          <input
+            :value="todo"
+            @input="(event: Event) => updateSuggestedTodo(index, (event.target as HTMLInputElement).value)"
+            class="suggested-todo-input"
+          />
+        </li>
+      </ul>
+      <div class="dialog-actions">
+        <button @click="confirmSuggestedTodos" class="confirm-btn">确认添加</button>
+        <button @click="cancelSuggestedTodos" class="cancel-btn">取消</button>
+      </div>
+    </div>
   </div>
   <transition name="slide">
     <HistorySidebar
@@ -237,6 +275,27 @@ h1 {
   background-color: #c0392b;
 }
 
+.generate-btn {
+  padding: 0.5rem 1rem;
+  font-size: 0.9rem;
+  background-color: #2ecc71;
+  color: white;
+  border: none;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-left: 0.5rem;
+}
+
+.generate-btn:hover:not(:disabled) {
+  background-color: #27ae60;
+}
+
+.generate-btn:disabled {
+  background-color: #95a5a6;
+  cursor: not-allowed;
+}
+
 @media (max-width: 768px) {
   .todo-list {
     width: 95%;
@@ -304,5 +363,62 @@ h1 {
 .fade-enter-from,
 .fade-leave-to {
   opacity: 0;
+}
+
+.suggested-todos-dialog {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: white;
+  padding: 2rem;
+  border-radius: var(--border-radius);
+  box-shadow: var(--box-shadow);
+  z-index: 1000;
+  max-width: 90%;
+  width: 400px;
+}
+
+.suggested-todo-input {
+  width: 100%;
+  padding: 0.5rem;
+  margin-bottom: 0.5rem;
+  border: 1px solid #d5d8dc;
+  border-radius: calc(var(--border-radius) / 2);
+}
+
+.dialog-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.confirm-btn,
+.cancel-btn {
+  padding: 0.5rem 1rem;
+  font-size: 0.9rem;
+  border: none;
+  border-radius: calc(var(--border-radius) / 2);
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.confirm-btn {
+  background-color: #2ecc71;
+  color: white;
+}
+
+.confirm-btn:hover {
+  background-color: #27ae60;
+}
+
+.cancel-btn {
+  background-color: #e74c3c;
+  color: white;
+}
+
+.cancel-btn:hover {
+  background-color: #c0392b;
 }
 </style>
