@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, onMounted, watch, onUnmounted } from 'vue'
+import { ref, computed } from 'vue'
 import TodoInput from './TodoInput.vue'
 import TodoFilters from './TodoFilters.vue'
 import TodoItem from './TodoItem.vue'
@@ -7,7 +7,6 @@ import HistorySidebar from './HistorySidebar.vue'
 import ChatComponent from './ChatComponent.vue'
 import ConfirmDialog from './ConfirmDialog.vue'
 import { useTodos } from '../composables/useTodos'
-// 删除 import { useLayout } from '../composables/useLayout'
 import { useErrorHandler } from '../composables/useErrorHandler'
 import { useConfirmDialog } from '../composables/useConfirmDialog'
 import AIChatDialog from './AIChatDialog.vue'
@@ -23,13 +22,12 @@ const {
   deleteHistoryItem,
   deleteAllHistory
 } = useTodos()
-// 删除 const { isMultiColumn, checkLayout } = useLayout()
 const { error: duplicateError, showError } = useErrorHandler()
 const { showConfirmDialog, confirmDialogConfig, handleConfirm, handleCancel } = useConfirmDialog()
 
 const filter = ref('active')
 const showHistory = ref(false)
-const MAX_TODO_LENGTH = 50 // 定义最大待办事项长度
+const MAX_TODO_LENGTH = 50
 
 const filteredTodos = computed(() => {
   if (filter.value === 'active') {
@@ -43,18 +41,6 @@ const filteredTodos = computed(() => {
 const historicalTodos = computed(() => {
   return history.value.flatMap(item => item.todos.map(todo => todo.text))
 })
-
-// 删除以下代码块
-// onMounted(() => {
-//   checkLayout()
-//   window.addEventListener('resize', checkLayout)
-// })
-
-// watch(filteredTodos, checkLayout, { deep: true })
-
-// onUnmounted(() => {
-//   window.removeEventListener('resize', checkLayout)
-// })
 
 const toggleHistory = () => {
   showHistory.value = !showHistory.value
@@ -94,26 +80,29 @@ const toggleAIChat = () => {
 
 <template>
   <div class="todo-list">
-    <div class="header-actions">
-      <button @click="toggleHistory" class="history-icon" :class="{ active: showHistory }">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
-          <path fill="none" d="M0 0h24v24H0z" />
-          <path
-            d="M12 2c5.52 0 10 4.48 10 10s-4.48 10-10 10S2 17.52 2 12 6.48 2 12 2zm0 18c4.42 0 8-3.58 8-8s-3.58-8-8-8-8 3.58-8 8 3.58 8 8 8zm0-3c-2.33 0-4.32-1.45-5.12-3.5h1.67c.69 1.19 1.97 2 3.45 2s2.75-.81 3.45-2h1.67c-.8 2.05-2.79 3.5-5.12 3.5z"
-          />
-        </svg>
-      </button>
-      <button @click="toggleAIChat" class="ai-chat-button">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
-          <path fill="none" d="M0 0h24v24H0z" />
-          <path
-            d="M12 2c5.52 0 10 4.48 10 10s-4.48 10-10 10S2 17.52 2 12 6.48 2 12 2zm0 18c4.42 0 8-3.58 8-8s-3.58-8-8-8-8 3.58-8 8 3.58 8 8 8zm0-3c-2.33 0-4.32-1.45-5.12-3.5h1.67c.69 1.19 1.97 2 3.45 2s2.75-.81 3.45-2h1.67c-.8 2.05-2.79 3.5-5.12 3.5z"
-          />
-        </svg>
-        AI 助手
-      </button>
+    <div class="header">
+      <h1>我的待办事项</h1>
+      <div class="header-actions">
+        <button @click="toggleHistory" class="icon-button" :class="{ active: showHistory }">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
+            <path fill="none" d="M0 0h24v24H0z" />
+            <path
+              d="M13 3c-4.97 0-9 4.03-9 9H1l3.89 3.89.07.14L9 12H6c0-3.87 3.13-7 7-7s7 3.13 7 7-3.13 7-7 7c-1.93 0-3.68-.79-4.94-2.06l-1.42 1.42C8.27 19.99 10.51 21 13 21c4.97 0 9-4.03 9-9s-4.03-9-9-9zm-1 5v5l4.28 2.54.72-1.21-3.5-2.08V8H12z"
+            />
+          </svg>
+          <span class="sr-only">历史记录</span>
+        </button>
+        <button @click="toggleAIChat" class="icon-button">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
+            <path fill="none" d="M0 0h24v24H0z" />
+            <path
+              d="M12 2c5.52 0 10 4.48 10 10s-4.48 10-10 10S2 17.52 2 12 6.48 2 12 2zm0 18c4.42 0 8-3.58 8-8s-3.58-8-8-8-8 3.58-8 8 3.58 8 8 8zm0-3c-2.33 0-4.32-1.45-5.12-3.5h1.67c.69 1.19 1.97 2 3.45 2s2.75-.81 3.45-2h1.67c-.8 2.05-2.79 3.5-5.12 3.5z"
+            />
+          </svg>
+          <span>AI 助手</span>
+        </button>
+      </div>
     </div>
-    <h1>我的待办事项</h1>
     <TodoInput :maxLength="MAX_TODO_LENGTH" @add="addTodo" :duplicateError="duplicateError" />
     <TodoFilters v-model:filter="filter" />
     <div class="todo-grid">
@@ -125,7 +114,7 @@ const toggleAIChat = () => {
         @remove="removeTodo"
       />
     </div>
-    <div class="clear-buttons">
+    <div class="actions">
       <button v-if="filter === 'active' && hasActiveTodos" @click="clearActive" class="clear-btn">
         清除待完成
       </button>
@@ -168,114 +157,69 @@ const toggleAIChat = () => {
   position: relative;
 }
 
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
 h1 {
   color: #5d6d7e;
   font-size: 2.2rem;
-  margin-bottom: 1.5rem;
-  text-align: center;
   font-weight: 300;
+  margin: 0;
+}
+
+.header-actions {
+  display: flex;
+  gap: 1rem;
 }
 
 .todo-grid {
   display: flex;
   flex-direction: column;
+  gap: 1rem;
+  margin-bottom: 2rem;
 }
 
-/* 删除 .todo-grid.multi-column 相关样式 */
-
-.header-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 10px;
-  margin-bottom: 1rem;
-}
-
-.history-icon,
-.ai-chat-button {
+.icon-button {
   background: none;
   border: none;
   cursor: pointer;
-  padding: 5px;
-  transition: all 0.3s ease;
   display: flex;
   align-items: center;
-  gap: 5px;
-  border-radius: calc(var(--border-radius) / 2);
-}
-
-.history-icon svg,
-.ai-chat-button svg {
-  fill: #85c1e9;
+  gap: 0.5rem;
+  color: #85c1e9;
+  font-weight: bold;
   transition: all 0.3s ease;
 }
 
-.history-icon:hover svg,
-.ai-chat-button:hover svg {
-  fill: #5dade2;
+.icon-button svg {
+  fill: currentColor;
 }
 
-.history-icon.active svg {
-  fill: #e74c3c;
+.icon-button:hover,
+.icon-button.active {
+  color: #5dade2;
 }
 
-.ai-chat-button {
-  color: #85c1e9;
-  font-weight: bold;
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
 }
 
-@media (max-width: 768px) {
-  .todo-list {
-    width: 95%;
-    padding: 1rem;
-  }
-
-  h1 {
-    font-size: 1.8rem;
-  }
-
-  /* 删除 .todo-grid.multi-column 相关媒体查询样式 */
-}
-
-.slide-enter-active,
-.slide-leave-active {
-  transition: transform 0.3s ease;
-}
-
-.slide-enter-from,
-.slide-leave-to {
-  transform: translateX(100%);
-}
-
-.list-enter-active,
-.list-leave-active {
-  transition: all 0.5s ease;
-}
-
-.list-enter-from {
-  opacity: 0;
-  transform: translateX(-30px);
-}
-
-.list-leave-to {
-  opacity: 0;
-  transform: translateX(30px);
-}
-
-.fade-enter-active,
-.fade-leave-active {
-  transition: opacity 0.3s ease;
-}
-
-.fade-enter-from,
-.fade-leave-to {
-  opacity: 0;
-}
-
-.clear-buttons {
+.actions {
   display: flex;
   justify-content: center;
-  margin-top: 1rem;
-  margin-bottom: 1rem;
+  margin-bottom: 2rem;
 }
 
 .clear-btn {
@@ -294,25 +238,71 @@ h1 {
 }
 
 @media (max-width: 768px) {
-  .clear-buttons {
+  .todo-list {
+    width: 95%;
+    padding: 1rem;
+  }
+
+  .header {
     flex-direction: column;
-    align-items: center;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+
+  h1 {
+    font-size: 1.8rem;
+  }
+
+  .header-actions {
+    width: 100%;
+    justify-content: space-between;
   }
 
   .clear-btn {
     width: 100%;
-    margin-bottom: 0.5rem;
   }
 }
 
+.slide-enter-active,
+.slide-leave-active,
 .slide-fade-enter-active,
 .slide-fade-leave-active {
   transition: all 0.3s ease;
 }
 
+.slide-enter-from,
+.slide-leave-to {
+  transform: translateX(100%);
+}
+
 .slide-fade-enter-from,
 .slide-fade-leave-to {
   transform: translateX(100%);
+  opacity: 0;
+}
+
+.list-enter-active,
+.list-leave-active {
+  transition: all 0.5s ease;
+}
+
+.list-enter-from {
+  opacity: 0;
+  transform: translateY(-30px);
+}
+
+.list-leave-to {
+  opacity: 0;
+  transform: translateY(30px);
+}
+
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.3s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
   opacity: 0;
 }
 </style>

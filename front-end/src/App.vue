@@ -28,6 +28,5 @@ body {
   display: flex;
   justify-content: center;
   align-items: flex-start;
-  padding: 2rem;
 }
 </style>

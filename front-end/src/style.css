@@ -70,11 +70,6 @@ button:focus-visible {
   padding: 2rem;
   text-align: center;
   box-sizing: border-box;
-  /* 删除以下两行 */
-  /* border-radius: var(--border-radius); */
-  /* box-shadow: var(--box-shadow); */
-  /* 删除背景色 */
-  /* background-color: rgba(255, 255, 255, 0.9); */
 }
 
 @media (prefers-color-scheme: light) {
