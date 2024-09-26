@@ -12,7 +12,8 @@ export async function getSuggestedTodos(userMessage: string) {
         messages: [
           {
             role: 'system',
-            content: '你是一个智能助手，专门帮助用户规划每日待办事项和回答相关问题。'
+            content:
+              '你是一个智能助手，专门帮助用户规划每日待办事项和回答相关问题。请提供简洁明了的回答，每个待办事项单独一行。'
           },
           {
             role: 'user',
@@ -28,8 +29,7 @@ export async function getSuggestedTodos(userMessage: string) {
       }
     )
 
-    const aiResponse = response.data.choices[0].message.content
-    return aiResponse.split('\n').filter((item: string) => item.trim() !== '')
+    return response.data.choices[0].message.content
   } catch (error) {
     console.error('Error fetching AI response:', error)
     throw error

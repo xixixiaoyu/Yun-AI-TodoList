@@ -4,6 +4,7 @@ import TodoInput from './TodoInput.vue'
 import TodoFilters from './TodoFilters.vue'
 import TodoItem from './TodoItem.vue'
 import HistorySidebar from './HistorySidebar.vue'
+import ChatComponent from './ChatComponent.vue'
 
 interface Todo {
   id: number
@@ -147,6 +148,18 @@ watch(
 onUnmounted(() => {
   window.removeEventListener('resize', checkLayout)
 })
+
+const addMultipleTodos = (newTodos: string[]) => {
+  newTodos.forEach(text => {
+    if (!todos.value.some(todo => todo.text === text)) {
+      todos.value.push({
+        id: Date.now() + Math.random(),
+        text,
+        completed: false
+      })
+    }
+  })
+}
 </script>
 
 <template>
@@ -163,6 +176,7 @@ onUnmounted(() => {
         @remove="removeTodo"
       />
     </div>
+    <ChatComponent @addTodos="addMultipleTodos" />
     <button @click="toggleHistory" class="history-icon" :class="{ active: showHistory }">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
         <path fill="none" d="M0 0h24v24H0z" />
