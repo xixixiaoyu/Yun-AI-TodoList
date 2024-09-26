@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, nextTick } from 'vue'
+import { ref, nextTick, onMounted, onUnmounted } from 'vue'
 import { getAIResponse } from '../services/deepseekService'
 
 const emit = defineEmits(['close'])
@@ -35,6 +35,20 @@ const scrollToBottom = () => {
     chatHistoryRef.value.scrollTop = chatHistoryRef.value.scrollHeight
   }
 }
+
+const handleEscKey = (event: KeyboardEvent) => {
+  if (event.key === 'Escape') {
+    emit('close')
+  }
+}
+
+onMounted(() => {
+  document.addEventListener('keydown', handleEscKey)
+})
+
+onUnmounted(() => {
+  document.removeEventListener('keydown', handleEscKey)
+})
 </script>
 
 <template>
@@ -56,7 +70,10 @@ const scrollToBottom = () => {
           placeholder="询问 AI 助手..."
           :disabled="isLoading"
         />
-        <button @click="sendMessage" :disabled="isLoading">发送</button>
+        <button @click="sendMessage" :disabled="isLoading">
+          <span v-if="!isLoading">发送</span>
+          <span v-else class="loading-spinner"></span>
+        </button>
       </div>
     </div>
   </div>
@@ -66,19 +83,19 @@ const scrollToBottom = () => {
 .ai-chat-dialog {
   position: fixed;
   top: 0;
-  right: 0;
-  width: 100%;
-  height: 100%;
-  max-width: 1000px;
+  right: 20px;
+  width: 90%;
+  height: 90%;
+  max-width: 500px;
+  max-height: 700px;
   background-color: #ffffff;
-  border-left: 1px solid #e0e0e0;
-  box-shadow: -5px 0 15px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e0e0e0;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
   display: flex;
   flex-direction: column;
   overflow: hidden;
   z-index: 1000;
-  border-radius: var(--border-radius) 0 0 var(--border-radius);
-  box-shadow: var(--box-shadow);
+  border-radius: 20px;
 }
 
 .dialog-header {
@@ -86,13 +103,15 @@ const scrollToBottom = () => {
   justify-content: space-between;
   align-items: center;
   padding: 20px 25px;
-  background-color: #85c1e9;
+  background-color: #3498db;
   color: white;
+  border-top-left-radius: 20px;
+  border-top-right-radius: 20px;
 }
 
 .dialog-header h2 {
   margin: 0;
-  font-size: 24px;
+  font-size: 22px;
   font-weight: 500;
 }
 
@@ -100,7 +119,7 @@ const scrollToBottom = () => {
   background: none;
   border: none;
   color: white;
-  font-size: 32px;
+  font-size: 28px;
   cursor: pointer;
   transition: all 0.2s ease;
 }
@@ -131,20 +150,19 @@ const scrollToBottom = () => {
   max-width: 80%;
   margin-bottom: 20px;
   padding: 15px 20px;
-  border-radius: calc(var(--border-radius) / 2);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  border-radius: 18px;
   line-height: 1.5;
 }
 
 .chat-history .user {
   align-self: flex-end;
-  background-color: #e1f5fe;
-  color: #01579b;
+  background-color: #3498db;
+  color: white;
 }
 
 .chat-history .ai {
   align-self: flex-start;
-  background-color: #f5f5f5;
+  background-color: #f0f0f0;
   color: #333;
 }
 
@@ -158,29 +176,29 @@ const scrollToBottom = () => {
   padding: 15px;
   font-size: 16px;
   border: 1px solid #d5d8dc;
-  border-radius: calc(var(--border-radius) / 2);
+  border-radius: 25px;
   outline: none;
   transition: all 0.3s ease;
 }
 
 .chat-input input:focus {
-  border-color: #85c1e9;
-  box-shadow: 0 0 0 2px rgba(133, 193, 233, 0.2);
+  border-color: #3498db;
+  box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
 }
 
 .chat-input button {
   padding: 15px 25px;
   font-size: 16px;
-  background-color: #85c1e9;
+  background-color: #3498db;
   color: white;
   border: none;
-  border-radius: calc(var(--border-radius) / 2);
+  border-radius: 25px;
   cursor: pointer;
   transition: all 0.3s ease;
 }
 
-.chat-input button:hover {
-  background-color: #5dade2;
+.chat-input button:hover:not(:disabled) {
+  background-color: #2980b9;
 }
 
 .chat-input button:disabled {
@@ -188,10 +206,33 @@ const scrollToBottom = () => {
   cursor: not-allowed;
 }
 
+.loading-spinner {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  border: 2px solid #ffffff;
+  border-radius: 50%;
+  border-top: 2px solid #3498db;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
 @media (max-width: 768px) {
   .ai-chat-dialog {
-    width: 100%;
+    top: 10px;
+    right: 10px;
+    width: calc(100% - 20px);
+    height: calc(100% - 20px);
     max-width: none;
+    max-height: none;
   }
 }
 </style>
