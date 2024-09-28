@@ -34,11 +34,11 @@ const MAX_TODO_LENGTH = 50
 
 const filteredTodos = computed(() => {
 	if (filter.value === 'active') {
-		return todos.value.filter(todo => !todo.completed)
+		return todos.value.filter(todo => todo && !todo.completed)
 	} else if (filter.value === 'completed') {
-		return todos.value.filter(todo => todo.completed)
+		return todos.value.filter(todo => todo && todo.completed)
 	}
-	return todos.value
+	return todos.value.filter(todo => todo !== null && todo !== undefined)
 })
 
 const historicalTodos = computed(() => {
@@ -50,7 +50,7 @@ const toggleHistory = () => {
 }
 
 const hasActiveTodos = computed(() => {
-	return todos.value.some(todo => !todo.completed)
+	return todos.value.some(todo => todo && !todo.completed)
 })
 
 const clearActive = () => {
@@ -124,7 +124,7 @@ const isSorting = ref(false)
 const sortActiveTodosWithAI = async () => {
 	isSorting.value = true
 	try {
-		const activeTodos = todos.value.filter(todo => !todo.completed)
+		const activeTodos = todos.value.filter(todo => todo && !todo.completed)
 		const todoTexts = activeTodos.map(todo => todo.text).join('\n')
 		const prompt = `请对以下每行待办事项按照最佳优先级进行排序，只返回排序后（升序）的编号（如 1,3,2,4）：\n${todoTexts}`
 		console.log('prompt', prompt)

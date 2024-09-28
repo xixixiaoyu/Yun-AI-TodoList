@@ -57,11 +57,12 @@ export function useTodos() {
 
 		// 检查是否存在重复的待办事项
 		const isDuplicate = todos.value.some(
-			todo => todo.text.toLowerCase() === trimmedText.toLowerCase()
+			todo => todo && todo.text.toLowerCase() === trimmedText.toLowerCase()
 		)
 		if (isDuplicate) return false
 
-		const newId = Math.max(0, ...todos.value.map(todo => todo.id)) + 1
+		const newId =
+			Math.max(0, ...todos.value.filter(todo => todo !== null).map(todo => todo.id)) + 1
 		todos.value.push({
 			id: newId,
 			text: trimmedText,
@@ -92,18 +93,18 @@ export function useTodos() {
 	}
 
 	const toggleTodo = (id: number) => {
-		const todo = todos.value.find(todo => todo.id === id)
+		const todo = todos.value.find(todo => todo && todo.id === id)
 		if (todo) {
 			todo.completed = !todo.completed
 		}
 	}
 
 	const removeTodo = (id: number) => {
-		todos.value = todos.value.filter(todo => todo.id !== id)
+		todos.value = todos.value.filter(todo => todo && todo.id !== id)
 	}
 
 	const clearActiveTodos = () => {
-		todos.value = todos.value.filter(todo => todo.completed)
+		todos.value = todos.value.filter(todo => todo && todo.completed)
 	}
 
 	const restoreHistory = (date: string) => {
@@ -123,10 +124,12 @@ export function useTodos() {
 	}
 
 	const updateTodosOrder = (newOrder: number[]) => {
-		const activeTodos = todos.value.filter(todo => !todo.completed)
-		const completedTodos = todos.value.filter(todo => todo.completed)
+		const activeTodos = todos.value.filter(todo => todo && !todo.completed)
+		const completedTodos = todos.value.filter(todo => todo && todo.completed)
 
-		const reorderedActiveTodos = newOrder.map(index => activeTodos[index - 1])
+		const reorderedActiveTodos = newOrder
+			.map(index => activeTodos[index - 1])
+			.filter(todo => todo !== undefined)
 		todos.value = [...reorderedActiveTodos, ...completedTodos]
 	}
 

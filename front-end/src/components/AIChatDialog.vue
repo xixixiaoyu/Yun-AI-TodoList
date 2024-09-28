@@ -47,8 +47,15 @@ const sendMessage = async () => {
 	}
 }
 
+const removeDuplicates = (text: string): string => {
+	const sentences = text.split('。').filter(s => s.trim() !== '')
+	const uniqueSentences = Array.from(new Set(sentences))
+	return uniqueSentences.join('。') + '。'
+}
+
 const sanitizeContent = (content: string) => {
-	const rawHtml = marked.parse(content)
+	const deduplicatedContent = removeDuplicates(content)
+	const rawHtml = marked.parse(deduplicatedContent)
 	return DOMPurify.sanitize(rawHtml)
 }
 
@@ -143,10 +150,10 @@ watch(
 .ai-chat-dialog {
 	font-family: 'LXGW WenKai Screen', sans-serif;
 	position: fixed;
-	top: 0;
-	left: 0;
-	width: 100%;
-	height: 100%;
+	top: -60%;
+	left: -50%;
+	width: 200%;
+	height: 220%;
 	background-color: #fff6f6;
 	display: flex;
 	flex-direction: column;

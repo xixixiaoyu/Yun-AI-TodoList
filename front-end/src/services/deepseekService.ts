@@ -75,7 +75,6 @@ export async function getAIStreamResponse(
 	onChunk: (chunk: string) => void
 ): Promise<void> {
 	let buffer = ''
-	let lastChunk = ''
 
 	try {
 		await axios.post(
@@ -86,7 +85,7 @@ export async function getAIStreamResponse(
 					{
 						role: 'system',
 						content:
-							'你是一个智能助手，可以回答各种问题并提供帮助。请保持简洁，避免重复。',
+							'你是一个智能助手，可以回答各种问题并提供帮助。请保持简洁，避免重复。每次回复时，请检查并确保不会重复相同的短语或句子。',
 					},
 					{
 						role: 'user',
@@ -117,10 +116,9 @@ export async function getAIStreamResponse(
 							}
 							try {
 								const parsedData: AIStreamResponse = JSON.parse(jsonData)
-								const content = parsedData.choices[0].delta.content
-								if (content && content !== lastChunk) {
+								const content = parsedData.choices[0]?.delta?.content
+								if (content) {
 									onChunk(content)
-									lastChunk = content
 								}
 							} catch (error) {
 								console.error('解析 JSON 时出错:', error)
@@ -128,6 +126,7 @@ export async function getAIStreamResponse(
 						}
 					}
 				},
+				timeout: 30000, // 设置 30 秒超时
 			}
 		)
 	} catch (error) {
