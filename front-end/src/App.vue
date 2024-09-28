@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import { onErrorCaptured, computed, ref } from 'vue'
+import { onErrorCaptured, computed, ref, onMounted } from 'vue'
 import { useTheme } from './composables/useTheme'
 import { useI18n } from 'vue-i18n'
 
-const { theme, systemTheme } = useTheme()
+const { theme, systemTheme, initTheme } = useTheme()
 const { locale } = useI18n()
 
 onErrorCaptured((err, instance, info) => {
@@ -18,6 +18,10 @@ const currentTheme = computed(() => {
 const toggleLanguage = () => {
 	locale.value = locale.value === 'zh' ? 'en' : 'zh'
 }
+
+onMounted(() => {
+	initTheme()
+})
 </script>
 
 <template>
@@ -31,7 +35,7 @@ const toggleLanguage = () => {
 
 <style>
 :root {
-	--bg-color: #e0eafc;
+	--bg-color: #e2eafb;
 	--text-color: #333;
 	--card-bg-color: rgba(255, 255, 255, 0.9);
 	--card-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
@@ -80,17 +84,15 @@ body {
 	-webkit-font-smoothing: var(--font-smoothing);
 	-moz-osx-font-smoothing: var(--font-smoothing);
 	font-weight: var(--font-weight);
-	transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 .app {
 	color: var(--text-color);
 }
 
-/* 添加全局过渡效果 */
+/* 移除全局过渡效果 */
 * {
-	transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease,
-		box-shadow 0.3s ease;
+	transition: none;
 }
 
 .language-toggle {

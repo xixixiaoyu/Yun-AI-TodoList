@@ -19,6 +19,10 @@ export function useTheme() {
 	const updateTheme = () => {
 		const currentTheme = theme.value === 'auto' ? systemTheme.value : theme.value
 		document.documentElement.setAttribute('data-theme', currentTheme)
+		// 添加这一行来立即更新背景颜色
+		document.body.style.backgroundColor = getComputedStyle(document.documentElement)
+			.getPropertyValue('--bg-color')
+			.trim()
 	}
 
 	watch(
@@ -34,11 +38,11 @@ export function useTheme() {
 		systemTheme.value = e.matches ? 'dark' : 'light'
 	}
 
-	onMounted(() => {
+	const initTheme = () => {
+		updateTheme()
 		const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
 		mediaQuery.addListener(handleSystemThemeChange)
-		updateTheme()
-	})
+	}
 
 	onUnmounted(() => {
 		const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
@@ -49,5 +53,6 @@ export function useTheme() {
 		theme,
 		systemTheme,
 		toggleTheme,
+		initTheme,
 	}
 }
