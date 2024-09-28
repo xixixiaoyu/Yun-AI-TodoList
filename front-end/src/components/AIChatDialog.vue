@@ -1,6 +1,8 @@
 <script setup lang="ts">
-import { ref, nextTick, onMounted, onUnmounted, watch } from 'vue'
+import { ref, nextTick, onMounted, onUnmounted, watch, computed } from 'vue'
 import { getAIResponse } from '../services/deepseekService'
+import { marked } from 'marked'
+import DOMPurify from 'dompurify'
 
 const emit = defineEmits(['close'])
 
@@ -10,238 +12,385 @@ const isLoading = ref(false)
 const chatHistoryRef = ref<HTMLDivElement | null>(null)
 
 const sendMessage = async () => {
-  if (!userMessage.value.trim()) return
+	if (!userMessage.value.trim()) return
 
-  const userMessageContent = userMessage.value
-  chatHistory.value.push({ role: 'user', content: userMessageContent })
-  userMessage.value = ''
-  isLoading.value = true
+	const userMessageContent = userMessage.value
+	chatHistory.value.push({ role: 'user', content: userMessageContent })
+	userMessage.value = ''
+	isLoading.value = true
 
-  try {
-    const response = await getAIResponse(userMessageContent)
-    chatHistory.value.push({ role: 'ai', content: response })
-  } catch (error) {
-    console.error('Error getting AI response:', error)
-    chatHistory.value.push({ role: 'ai', content: '抱歉，获取 AI 回复时出现错误。请稍后再试。' })
-  } finally {
-    isLoading.value = false
-  }
+	try {
+		const response = await getAIResponse(userMessageContent)
+		chatHistory.value.push({ role: 'ai', content: response })
+	} catch (error) {
+		console.error('Error getting AI response:', error)
+		chatHistory.value.push({
+			role: 'ai',
+			content: '抱歉，获取 AI 回复时出现错误。请稍后再试。',
+		})
+	} finally {
+		isLoading.value = false
+	}
 }
 
+const sanitizeContent = (content: string) => {
+	const rawHtml = marked(content)
+	return DOMPurify.sanitize(rawHtml)
+}
+
+const sanitizedMessages = computed(() => {
+	return chatHistory.value.map(message => ({
+		...message,
+		sanitizedContent:
+			message.role === 'ai' ? sanitizeContent(message.content) : message.content,
+	}))
+})
+
 const scrollToBottom = () => {
-  if (chatHistoryRef.value) {
-    chatHistoryRef.value.scrollTop = chatHistoryRef.value.scrollHeight
-  }
+	if (chatHistoryRef.value) {
+		chatHistoryRef.value.scrollTop = chatHistoryRef.value.scrollHeight
+	}
 }
 
 const handleEscKey = (event: KeyboardEvent) => {
-  if (event.key === 'Escape') {
-    emit('close')
-  }
+	if (event.key === 'Escape') {
+		emit('close')
+	}
 }
 
 onMounted(() => {
-  document.addEventListener('keydown', handleEscKey)
-  scrollToBottom()
+	document.addEventListener('keydown', handleEscKey)
 })
 
 onUnmounted(() => {
-  document.removeEventListener('keydown', handleEscKey)
+	document.removeEventListener('keydown', handleEscKey)
 })
 
-// 监听 chatHistory 的变化，当有新消息时滚动到底部
-watch(chatHistory, () => {
-  nextTick(() => {
-    scrollToBottom()
-  })
-})
+watch(
+	chatHistory,
+	() => {
+		nextTick(() => {
+			scrollToBottom()
+		})
+	},
+	{ deep: true, immediate: true }
+)
 </script>
 
 <template>
-  <div class="ai-chat-dialog">
-    <div class="dialog-header">
-      <h2>AI 助手</h2>
-      <button @click="$emit('close')" class="close-button">&times;</button>
-    </div>
-    <div class="dialog-content">
-      <div ref="chatHistoryRef" class="chat-history">
-        <div v-for="(message, index) in chatHistory" :key="index" :class="message.role">
-          <p>{{ message.content }}</p>
-        </div>
-      </div>
-      <div class="chat-input">
-        <input
-          v-model="userMessage"
-          @keyup.enter="sendMessage"
-          placeholder="询问 AI 助手..."
-          :disabled="isLoading"
-        />
-        <button @click="sendMessage" :disabled="isLoading">
-          <span v-if="!isLoading">发送</span>
-          <span v-else class="loading-spinner"></span>
-        </button>
-      </div>
-    </div>
-  </div>
+	<div class="ai-chat-dialog">
+		<div class="dialog-header">
+			<h2>AI 助手</h2>
+			<button @click="$emit('close')" class="close-button" aria-label="关闭">
+				<svg
+					xmlns="http://www.w3.org/2000/svg"
+					viewBox="0 0 24 24"
+					fill="currentColor"
+					width="24"
+					height="24"
+				>
+					<path
+						d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"
+					/>
+				</svg>
+			</button>
+		</div>
+		<div class="dialog-content">
+			<div ref="chatHistoryRef" class="chat-history">
+				<div
+					v-for="(message, index) in sanitizedMessages"
+					:key="index"
+					class="message-container"
+					:class="message.role"
+				>
+					<div class="message-content">
+						<p v-if="message.role === 'user'">{{ message.content }}</p>
+						<div v-else v-html="message.sanitizedContent"></div>
+					</div>
+				</div>
+			</div>
+			<div class="chat-input">
+				<input
+					v-model="userMessage"
+					@keyup.enter="sendMessage"
+					placeholder="询问 AI 助手..."
+					:disabled="isLoading"
+				/>
+				<button @click="sendMessage" :disabled="isLoading">
+					<span v-if="!isLoading">发送</span>
+					<span v-else class="loading-spinner"></span>
+				</button>
+			</div>
+		</div>
+	</div>
 </template>
 
 <style scoped>
 .ai-chat-dialog {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: #f8f9fa;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  z-index: 1000;
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	background-color: #fff6f6;
+	display: flex;
+	flex-direction: column;
+	overflow: hidden;
+	z-index: 1000;
+	font-family: 'LXGW WenKai Screen', sans-serif;
+	border-radius: 20px;
 }
 
 .dialog-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 20px 40px;
-  background-color: #3498db;
-  color: white;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	padding: 15px 25px;
+	background-color: #ff9a8b;
+	color: white;
+	box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
 
 .dialog-header h2 {
-  margin: 0;
-  font-size: 28px;
-  font-weight: 500;
+	margin: 0;
+	font-size: 24px;
+	font-weight: 500;
 }
 
 .close-button {
-  background: none;
-  border: none;
-  color: white;
-  font-size: 36px;
-  cursor: pointer;
-  transition: all 0.2s ease;
+	background: none;
+	border: none;
+	color: white;
+	cursor: pointer;
+	transition: all 0.2s ease;
+	padding: 5px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
 }
 
 .close-button:hover {
-  transform: scale(1.1);
+	transform: scale(1.1);
 }
 
 .dialog-content {
-  flex-grow: 1;
-  display: flex;
-  flex-direction: column;
-  padding: 30px 40px;
-  overflow: hidden;
+	flex-grow: 1;
+	display: flex;
+	flex-direction: column;
+	padding: 20px;
+	overflow: hidden;
 }
 
 .chat-history {
-  flex-grow: 1;
-  overflow-y: auto;
-  margin-bottom: 30px;
-  display: flex;
-  flex-direction: column;
-  padding-right: 20px;
+	flex-grow: 1;
+	overflow-y: auto;
+	margin-bottom: 20px;
+	display: flex;
+	flex-direction: column;
+	padding-right: 10px;
+	scroll-behavior: smooth;
 }
 
-.chat-history .user,
-.chat-history .ai {
-  max-width: 80%;
-  margin-bottom: 25px;
-  padding: 15px 20px;
-  border-radius: 18px;
-  line-height: 1.6;
-  font-size: 16px;
+.message-container {
+	max-width: 80%;
+	margin-bottom: 10px;
+	animation: fadeIn 0.3s ease-out;
 }
 
-.chat-history .user {
-  align-self: flex-end;
-  background-color: #3498db;
-  color: white;
+.message-content {
+	padding: 6px 10px;
+	border-radius: 18px;
+	line-height: 1.6;
+	font-size: 16px;
 }
 
-.chat-history .ai {
-  align-self: flex-start;
-  background-color: white;
-  color: #333;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+@keyframes fadeIn {
+	from {
+		opacity: 0;
+		transform: translateY(10px);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+.user {
+	align-self: flex-end;
+}
+
+.user .message-content {
+	background-color: #ff9a8b;
+	color: white;
+}
+
+.ai {
+	align-self: flex-start;
+}
+
+.ai .message-content {
+	background-color: #ffecd2;
+	color: #3c3c3c;
+	box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
 .chat-input {
-  display: flex;
-  gap: 20px;
-  padding: 0 40px 30px;
+	display: flex;
+	gap: 10px;
+	padding: 0 10px 10px;
 }
 
 .chat-input input {
-  flex-grow: 1;
-  padding: 15px 20px;
-  font-size: 16px;
-  border: 1px solid #d5d8dc;
-  border-radius: 30px;
-  outline: none;
-  transition: all 0.3s ease;
+	flex-grow: 1;
+	padding: 12px 16px;
+	font-size: 16px;
+	border: 1px solid #ffd3c5;
+	border-radius: 24px;
+	outline: none;
+	transition: all 0.3s ease;
+	background-color: #fff0eb;
 }
 
 .chat-input input:focus {
-  border-color: #3498db;
-  box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+	border-color: #ff9a8b;
+	box-shadow: 0 0 0 2px rgba(255, 154, 139, 0.2);
 }
 
 .chat-input button {
-  padding: 15px 30px;
-  font-size: 16px;
-  background-color: #3498db;
-  color: white;
-  border: none;
-  border-radius: 30px;
-  cursor: pointer;
-  transition: all 0.3s ease;
+	padding: 12px 24px;
+	font-size: 16px;
+	background-color: #ff9a8b;
+	color: white;
+	border: none;
+	border-radius: 24px;
+	cursor: pointer;
+	transition: all 0.3s ease;
 }
 
 .chat-input button:hover:not(:disabled) {
-  background-color: #2980b9;
+	background-color: #ff8c7f;
+	transform: translateY(-2px);
+	box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 .chat-input button:disabled {
-  background-color: #bdc3c7;
-  cursor: not-allowed;
+	background-color: #ffc1b5;
+	cursor: not-allowed;
 }
 
 .loading-spinner {
-  display: inline-block;
-  width: 20px;
-  height: 20px;
-  border: 2px solid #ffffff;
-  border-radius: 50%;
-  border-top: 2px solid #3498db;
-  animation: spin 1s linear infinite;
+	display: inline-block;
+	width: 20px;
+	height: 20px;
+	border: 2px solid #ffffff;
+	border-radius: 50%;
+	border-top: 2px solid #ff9a8b;
+	animation: spin 1s linear infinite;
 }
 
 @keyframes spin {
-  0% {
-    transform: rotate(0deg);
-  }
-  100% {
-    transform: rotate(360deg);
-  }
+	0% {
+		transform: rotate(0deg);
+	}
+	100% {
+		transform: rotate(360deg);
+	}
 }
 
 @media (max-width: 768px) {
-  .dialog-header {
-    padding: 15px 20px;
-  }
+	.dialog-header {
+		padding: 12px 16px;
+	}
 
-  .dialog-header h2 {
-    font-size: 24px;
-  }
+	.dialog-header h2 {
+		font-size: 20px;
+	}
 
-  .dialog-content {
-    padding: 20px;
-  }
+	.dialog-content {
+		padding: 16px;
+	}
 
-  .chat-input {
-    padding: 0 20px 20px;
-  }
+	.chat-input {
+		padding: 0 16px 16px;
+	}
+}
+
+/* 添加 Markdown 渲染相关的样式 */
+.ai :deep(h1),
+.ai :deep(h2),
+.ai :deep(h3),
+.ai :deep(h4),
+.ai :deep(h5),
+.ai :deep(h6) {
+	margin-top: 0.8em;
+	margin-bottom: 0.4em;
+	font-weight: bold;
+}
+
+.ai :deep(p) {
+	margin-bottom: 0.8em;
+}
+
+.ai :deep(ul),
+.ai :deep(ol) {
+	margin-bottom: 0.8em;
+	padding-left: 1.5em;
+}
+
+.ai :deep(li) {
+	margin-bottom: 0.4em;
+}
+
+.ai :deep(code) {
+	background-color: rgba(0, 0, 0, 0.05);
+	padding: 0.2em 0.4em;
+	border-radius: 3px;
+	font-family: monospace;
+}
+
+.ai :deep(pre) {
+	background-color: rgba(0, 0, 0, 0.05);
+	padding: 0.8em;
+	border-radius: 5px;
+	overflow-x: auto;
+}
+
+.ai :deep(pre code) {
+	background-color: transparent;
+	padding: 0;
+}
+
+.ai :deep(blockquote) {
+	border-left: 4px solid #ff9a8b;
+	padding-left: 0.8em;
+	margin-left: 0;
+	margin-right: 0;
+	font-style: italic;
+}
+
+.ai :deep(a) {
+	color: #ff9a8b;
+	text-decoration: none;
+}
+
+.ai :deep(a:hover) {
+	text-decoration: underline;
+}
+
+.ai :deep(table) {
+	border-collapse: collapse;
+	margin-bottom: 0.8em;
+	width: 100%;
+}
+
+.ai :deep(th),
+.ai :deep(td) {
+	border: 1px solid #ddd;
+	padding: 0.4em;
+}
+
+.ai :deep(th) {
+	background-color: rgba(0, 0, 0, 0.05);
+	font-weight: bold;
 }
 </style>
