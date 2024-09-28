@@ -68,6 +68,7 @@ export function useTodos() {
 			text: trimmedText,
 			completed: false,
 		})
+		saveToHistory()
 		return true
 	}
 

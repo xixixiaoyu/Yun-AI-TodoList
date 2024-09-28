@@ -16,7 +16,7 @@
 		"highlight.js": "^11.10.0",
 		"marked": "^14.1.2",
 		"vue": "^3.4.37",
-		"vue-router": "^4.4.5"
+		"vue-router": "^4.0.0"
 	},
 	"devDependencies": {
 		"@types/dompurify": "^3.0.5",
