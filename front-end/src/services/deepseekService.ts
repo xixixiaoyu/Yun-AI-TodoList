@@ -1,4 +1,4 @@
-const API_KEY = 'sk-5b553cc761aa4ef4b9482fd35ef1392f'
+const API_KEY = import.meta.env.VITE_DEEPSEEK_API_KEY
 const API_URL = 'https://api.deepseek.com/v1/chat/completions'
 
 interface AIStreamResponse {

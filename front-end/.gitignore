@@ -22,3 +22,11 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# 环境变量文件
+.env
+.env.local
+.env.*.local
+
+# 但是不要忽略示例环境变量文件
+!.env.example
