@@ -11,6 +11,7 @@ import { useConfirmDialog } from '../composables/useConfirmDialog'
 import { getAIResponse } from '../services/deepseekService'
 import { useTheme } from '../composables/useTheme'
 import { useI18n } from 'vue-i18n'
+import DailyInspiration from './DailyInspiration.vue'
 
 const {
 	todos,
@@ -170,185 +171,200 @@ const themeTooltip = computed(() => {
 </script>
 
 <template>
-	<div class="todo-list" :class="{ 'is-loading': isLoading }">
-		<!-- 添加 loading 遮罩层 -->
-		<div v-if="isLoading" class="loading-overlay">
-			<div class="loading-spinner"></div>
-			<p>{{ t('sorting') }}</p>
-		</div>
-		<div class="header">
-			<h1>{{ t('appTitle') }}</h1>
-			<div class="header-actions">
-				<button
-					@click="toggleTheme"
-					class="icon-button theme-toggle"
-					:title="themeTooltip"
-					:aria-label="themeTooltip"
-				>
-					<svg
-						v-if="themeIcon === 'moon'"
-						xmlns="http://www.w3.org/2000/svg"
-						viewBox="0 0 24 24"
-						width="24"
-						height="24"
-						fill="currentColor"
-					>
-						<path
-							d="M12 3a9 9 0 1 0 9 9c0-.46-.04-.92-.1-1.36a5.389 5.389 0 0 1-4.4 2.26 5.403 5.403 0 0 1-3.14-9.8c-.44-.06-.9-.1-1.36-.1z"
-						/>
-					</svg>
-					<svg
-						v-else-if="themeIcon === 'sun'"
-						xmlns="http://www.w3.org/2000/svg"
-						viewBox="0 0 24 24"
-						width="24"
-						height="24"
-						fill="currentColor"
-					>
-						<path
-							d="M12 7a5 5 0 1 1 0 10 5 5 0 0 1 0-10zm0 2a3 3 0 1 0 0 6 3 3 0 0 0 0-6zm0-4V3a1 1 0 0 1 2 0v2a1 1 0 0 1-2 0zm0 18v-2a1 1 0 0 1 2 0v2a1 1 0 0 1-2 0zm10-10h2a1 1 0 0 1 0 2h-2a1 1 0 0 1 0-2zM2 12h2a1 1 0 0 1 0 2H2a1 1 0 0 1 0-2zm16.95-5.66l1.414-1.414a1 1 0 0 1 1.414 1.414l-1.414 1.414a1 1 0 0 1-1.414-1.414zm-14.9 14.9l1.414-1.414a1 1 0 0 1 1.414 1.414l-1.414 1.414a1 1 0 0 1-1.414-1.414zm14.9 0a1 1 0 0 1-1.414 1.414l-1.414-1.414a1 1 0 0 1 1.414-1.414l1.414 1.414zm-14.9-14.9a1 1 0 0 1-1.414-1.414l1.414-1.414a1 1 0 0 1 1.414 1.414l-1.414 1.414z"
-						/>
-					</svg>
-					<svg
-						v-else
-						xmlns="http://www.w3.org/2000/svg"
-						viewBox="0 0 24 24"
-						width="24"
-						height="24"
-						fill="currentColor"
-					>
-						<path
-							d="M12 18a6 6 0 1 1 0-12 6 6 0 0 1 0 12zm0-2a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM11 1h2v3h-2V1zm0 19h2v3h-2v-3zM3.515 4.929l1.414-1.414L7.05 5.636 5.636 7.05 3.515 4.93zM16.95 18.364l1.414-1.414 2.121 2.121-1.414 1.414-2.121-2.121zm2.121-14.85l1.414 1.415-2.121 2.121-1.414-1.414 2.121-2.121zM5.636 16.95l1.414 1.414-2.121 2.121-1.414-1.414 2.121-2.121zM23 11v2h-3v-2h3zM4 11v2H1v-2h3z"
-						/>
-					</svg>
-				</button>
-				<button
-					@click="toggleHistory"
-					class="icon-button"
-					:class="{ active: showHistory }"
-				>
-					<svg
-						xmlns="http://www.w3.org/2000/svg"
-						viewBox="0 0 24 24"
-						width="24"
-						height="24"
-					>
-						<path fill="none" d="M0 0h24v24H0z" />
-						<path
-							d="M13 3c-4.97 0-9 4.03-9 9H1l3.89 3.89.07.14L9 12H6c0-3.87 3.13-7 7-7s7 3.13 7 7-3.13 7-7 7c-1.93 0-3.68-.79-4.94-2.06l-1.42 1.42C8.27 19.99 10.51 21 13 21c4.97 0 9-4.03 9-9s-4.03-9-9-9zm-1 5v5l4.28 2.54.72-1.21-3.5-2.08V8H12z"
-						/>
-					</svg>
-					<span class="sr-only">{{ t('history') }}</span>
-				</button>
-				<router-link to="/ai-assistant" class="icon-button">
-					<svg
-						xmlns="http://www.w3.org/2000/svg"
-						viewBox="0 0 24 24"
-						width="24"
-						height="24"
-						fill="currentColor"
-					>
-						<path
-							d="M13.5 2.6v2.8H12v-2.8h1.5zm5.1 2.1l-2 2-1.1-1.1 2-2 1.1 1.1zm-10.2 0l1.1-1.1 2 2-1.1 1.1-2-2zm5.1 1.3c-3.3 0-6 2.7-6 6s2.7 6 6 6 6-2.7 6-6-2.7-6-6-6zm0 10.5c-2.5 0-4.5-2-4.5-4.5s2-4.5 4.5-4.5 4.5 2 4.5 4.5-2 4.5-4.5 4.5zM5.5 19.4l-2-2 1.1-1.1 2 2-1.1 1.1zm13-2l2 2-1.1 1.1-2-2 1.1-1.1zM12 21.4v-2.8h1.5v2.8H12z"
-						/>
-					</svg>
-					<span>{{ t('aiAssistant') }}</span>
-				</router-link>
+	<div class="todo-container">
+		<DailyInspiration class="daily-inspiration" />
+		<div class="todo-list" :class="{ 'is-loading': isLoading }">
+			<!-- 添加 loading 遮罩层 -->
+			<div v-if="isLoading" class="loading-overlay">
+				<div class="loading-spinner"></div>
+				<p>{{ t('sorting') }}</p>
 			</div>
-		</div>
-		<TodoInput
-			:maxLength="MAX_TODO_LENGTH"
-			@add="handleAddTodo"
-			:duplicateError="duplicateError"
-			:placeholder="t('addTodo')"
-		/>
-		<TodoFilters v-model:filter="filter" />
-		<div class="todo-grid">
-			<TodoItem
-				v-for="todo in filteredTodos"
-				:key="todo.id"
-				:todo="todo"
-				@toggle="toggleTodo"
-				@remove="removeTodo"
+			<div class="header">
+				<h1>{{ t('appTitle') }}</h1>
+				<div class="header-actions">
+					<button
+						@click="toggleTheme"
+						class="icon-button theme-toggle"
+						:title="themeTooltip"
+						:aria-label="themeTooltip"
+					>
+						<svg
+							v-if="themeIcon === 'moon'"
+							xmlns="http://www.w3.org/2000/svg"
+							viewBox="0 0 24 24"
+							width="24"
+							height="24"
+							fill="currentColor"
+						>
+							<path
+								d="M12 3a9 9 0 1 0 9 9c0-.46-.04-.92-.1-1.36a5.389 5.389 0 0 1-4.4 2.26 5.403 5.403 0 0 1-3.14-9.8c-.44-.06-.9-.1-1.36-.1z"
+							/>
+						</svg>
+						<svg
+							v-else-if="themeIcon === 'sun'"
+							xmlns="http://www.w3.org/2000/svg"
+							viewBox="0 0 24 24"
+							width="24"
+							height="24"
+							fill="currentColor"
+						>
+							<path
+								d="M12 7a5 5 0 1 1 0 10 5 5 0 0 1 0-10zm0 2a3 3 0 1 0 0 6 3 3 0 0 0 0-6zm0-4V3a1 1 0 0 1 2 0v2a1 1 0 0 1-2 0zm0 18v-2a1 1 0 0 1 2 0v2a1 1 0 0 1-2 0zm10-10h2a1 1 0 0 1 0 2h-2a1 1 0 0 1 0-2zM2 12h2a1 1 0 0 1 0 2H2a1 1 0 0 1 0-2zm16.95-5.66l1.414-1.414a1 1 0 0 1 1.414 1.414l-1.414 1.414a1 1 0 0 1-1.414-1.414zm-14.9 14.9l1.414-1.414a1 1 0 0 1 1.414 1.414l-1.414 1.414a1 1 0 0 1-1.414-1.414zm14.9 0a1 1 0 0 1-1.414 1.414l-1.414-1.414a1 1 0 0 1 1.414-1.414l1.414 1.414zm-14.9-14.9a1 1 0 0 1-1.414-1.414l1.414-1.414a1 1 0 0 1 1.414 1.414l-1.414 1.414z"
+							/>
+						</svg>
+						<svg
+							v-else
+							xmlns="http://www.w3.org/2000/svg"
+							viewBox="0 0 24 24"
+							width="24"
+							height="24"
+							fill="currentColor"
+						>
+							<path
+								d="M12 18a6 6 0 1 1 0-12 6 6 0 0 1 0 12zm0-2a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM11 1h2v3h-2V1zm0 19h2v3h-2v-3zM3.515 4.929l1.414-1.414L7.05 5.636 5.636 7.05 3.515 4.93zM16.95 18.364l1.414-1.414 2.121 2.121-1.414 1.414-2.121-2.121zm2.121-14.85l1.414 1.415-2.121 2.121-1.414-1.414 2.121-2.121zM5.636 16.95l1.414 1.414-2.121 2.121-1.414-1.414 2.121-2.121zM23 11v2h-3v-2h3zM4 11v2H1v-2h3z"
+							/>
+						</svg>
+					</button>
+					<button
+						@click="toggleHistory"
+						class="icon-button"
+						:class="{ active: showHistory }"
+					>
+						<svg
+							xmlns="http://www.w3.org/2000/svg"
+							viewBox="0 0 24 24"
+							width="24"
+							height="24"
+						>
+							<path fill="none" d="M0 0h24v24H0z" />
+							<path
+								d="M13 3c-4.97 0-9 4.03-9 9H1l3.89 3.89.07.14L9 12H6c0-3.87 3.13-7 7-7s7 3.13 7 7-3.13 7-7 7c-1.93 0-3.68-.79-4.94-2.06l-1.42 1.42C8.27 19.99 10.51 21 13 21c4.97 0 9-4.03 9-9s-4.03-9-9-9zm-1 5v5l4.28 2.54.72-1.21-3.5-2.08V8H12z"
+							/>
+						</svg>
+						<span class="sr-only">{{ t('history') }}</span>
+					</button>
+					<router-link to="/ai-assistant" class="icon-button">
+						<svg
+							xmlns="http://www.w3.org/2000/svg"
+							viewBox="0 0 24 24"
+							width="24"
+							height="24"
+							fill="currentColor"
+						>
+							<path
+								d="M13.5 2.6v2.8H12v-2.8h1.5zm5.1 2.1l-2 2-1.1-1.1 2-2 1.1 1.1zm-10.2 0l1.1-1.1 2 2-1.1 1.1-2-2zm5.1 1.3c-3.3 0-6 2.7-6 6s2.7 6 6 6 6-2.7 6-6-2.7-6-6-6zm0 10.5c-2.5 0-4.5-2-4.5-4.5s2-4.5 4.5-4.5 4.5 2 4.5 4.5-2 4.5-4.5 4.5zM5.5 19.4l-2-2 1.1-1.1 2 2-1.1 1.1zm13-2l2 2-1.1 1.1-2-2 1.1-1.1zM12 21.4v-2.8h1.5v2.8H12z"
+							/>
+						</svg>
+						<span>{{ t('aiAssistant') }}</span>
+					</router-link>
+				</div>
+			</div>
+			<TodoInput
+				:maxLength="MAX_TODO_LENGTH"
+				@add="handleAddTodo"
+				:duplicateError="duplicateError"
+				:placeholder="t('addTodo')"
 			/>
-		</div>
-		<div class="actions">
-			<button
-				v-if="filter === 'active' && hasActiveTodos"
-				@click="clearActive"
-				class="clear-btn"
-			>
-				{{ t('clearCompleted') }}
-			</button>
-			<button
-				@click="generateSuggestedTodos"
-				class="generate-btn"
-				:disabled="isGenerating"
-			>
-				{{ isGenerating ? t('generating') : t('generateSuggestions') }}
-			</button>
-			<!-- 新增：AI 排序按钮 -->
-			<button
-				v-if="hasActiveTodos"
-				@click="sortActiveTodosWithAI"
-				class="sort-btn"
-				:disabled="isSorting"
-			>
-				<span>{{ t('aiPrioritySort') }}</span>
-			</button>
-		</div>
-		<ConfirmDialog
-			:show="showConfirmDialog"
-			:title="confirmDialogConfig.title"
-			:message="confirmDialogConfig.message"
-			:confirmText="confirmDialogConfig.confirmText"
-			:cancelText="confirmDialogConfig.cancelText"
-			@confirm="handleConfirm"
-			@cancel="handleCancel"
-		/>
-
-		<!-- 新增：建议待办事项确认对话框 -->
-		<div v-if="showSuggestedTodos" class="suggested-todos-dialog">
-			<h3>{{ t('suggestedTodos') }}</h3>
-			<p>{{ t('confirmOrModify') }}</p>
-			<ul>
-				<li v-for="(todo, index) in suggestedTodos" :key="index">
-					<input
-						:value="todo"
-						@input="(event: Event) => updateSuggestedTodo(index, (event.target as HTMLInputElement).value)"
-						class="suggested-todo-input"
-					/>
-				</li>
-			</ul>
-			<div class="dialog-actions">
-				<button @click="confirmSuggestedTodos" class="confirm-btn">
-					{{ t('confirmAdd') }}
+			<TodoFilters v-model:filter="filter" />
+			<div class="todo-grid">
+				<TodoItem
+					v-for="todo in filteredTodos"
+					:key="todo.id"
+					:todo="todo"
+					@toggle="toggleTodo"
+					@remove="removeTodo"
+				/>
+			</div>
+			<div class="actions">
+				<button
+					v-if="filter === 'active' && hasActiveTodos"
+					@click="clearActive"
+					class="clear-btn"
+				>
+					{{ t('clearCompleted') }}
 				</button>
-				<button @click="cancelSuggestedTodos" class="cancel-btn">
-					{{ t('cancel') }}
+				<button
+					@click="generateSuggestedTodos"
+					class="generate-btn"
+					:disabled="isGenerating"
+				>
+					{{ isGenerating ? t('generating') : t('generateSuggestions') }}
+				</button>
+				<!-- 新增：AI 排序按钮 -->
+				<button
+					v-if="hasActiveTodos"
+					@click="sortActiveTodosWithAI"
+					class="sort-btn"
+					:disabled="isSorting"
+				>
+					<span>{{ t('aiPrioritySort') }}</span>
 				</button>
 			</div>
+			<ConfirmDialog
+				:show="showConfirmDialog"
+				:title="confirmDialogConfig.title"
+				:message="confirmDialogConfig.message"
+				:confirmText="confirmDialogConfig.confirmText"
+				:cancelText="confirmDialogConfig.cancelText"
+				@confirm="handleConfirm"
+				@cancel="handleCancel"
+			/>
+
+			<!-- 新增：建议待办事项确认对话框 -->
+			<div v-if="showSuggestedTodos" class="suggested-todos-dialog">
+				<h3>{{ t('suggestedTodos') }}</h3>
+				<p>{{ t('confirmOrModify') }}</p>
+				<ul>
+					<li v-for="(todo, index) in suggestedTodos" :key="index">
+						<input
+							:value="todo"
+							@input="(event: Event) => updateSuggestedTodo(index, (event.target as HTMLInputElement).value)"
+							class="suggested-todo-input"
+						/>
+					</li>
+				</ul>
+				<div class="dialog-actions">
+					<button @click="confirmSuggestedTodos" class="confirm-btn">
+						{{ t('confirmAdd') }}
+					</button>
+					<button @click="cancelSuggestedTodos" class="cancel-btn">
+						{{ t('cancel') }}
+					</button>
+				</div>
+			</div>
 		</div>
+		<transition name="slide">
+			<HistorySidebar
+				v-if="showHistory"
+				:history="history"
+				@restore="restoreHistory"
+				@deleteItem="deleteHistoryItem"
+				@deleteAll="deleteAllHistory"
+				@close="closeHistory"
+			/>
+		</transition>
 	</div>
-	<transition name="slide">
-		<HistorySidebar
-			v-if="showHistory"
-			:history="history"
-			@restore="restoreHistory"
-			@deleteItem="deleteHistoryItem"
-			@deleteAll="deleteAllHistory"
-			@close="closeHistory"
-		/>
-	</transition>
 </template>
 
 <style scoped>
+.todo-container {
+	position: relative;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	width: 100%;
+	max-width: 1200px;
+	margin: 0 auto;
+	padding: 0 1rem;
+	box-sizing: border-box;
+}
+
 .todo-list {
+	width: 100%;
+	max-width: 600px;
+	margin: 0 auto;
 	font-family: 'LXGW WenKai Screen', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
 		Oxygen-Sans, Ubuntu, Cantarell, 'Helvetica Neue', sans-serif;
-	max-width: 600px;
-	width: 90%;
-	margin: 0 auto;
 	padding: 2rem;
 	background-color: var(--card-bg-color);
 	border-radius: var(--border-radius);
@@ -356,6 +372,7 @@ const themeTooltip = computed(() => {
 	backdrop-filter: blur(10px);
 	position: relative;
 	min-height: 300px;
+	box-sizing: border-box;
 }
 
 .header {
@@ -425,6 +442,7 @@ h1 {
 	justify-content: center;
 	gap: 0.5rem;
 	margin-bottom: 1rem;
+	flex-wrap: wrap; /* 允许按钮在需要时换行 */
 }
 
 .clear-btn,
@@ -445,6 +463,7 @@ h1 {
 	transition: all 0.3s ease;
 	font-weight: var(--font-weight);
 	letter-spacing: 0.5px;
+	margin-bottom: 0.5rem; /* 添加底部间距，防止按钮紧贴 */
 }
 
 .clear-btn:hover {
@@ -532,40 +551,61 @@ h1 {
 	}
 }
 
-@media (max-width: 768px) {
+@media (min-width: 1201px) {
+	.todo-container {
+		padding-left: 1rem;
+		padding-right: 1rem;
+	}
+}
+
+@media (max-width: 1200px) {
+	.todo-container {
+		padding-left: 1rem;
+		padding-right: 1rem;
+	}
+
 	.todo-list {
-		width: 95%;
+		width: 100%;
+		max-width: 600px;
+	}
+}
+
+@media (max-width: 768px) {
+	.todo-container {
+		padding: 0 1rem;
+	}
+
+	.todo-list {
+		width: 100%;
+		max-width: 100%;
 		padding: 1rem;
 	}
 
-	.header {
-		flex-direction: column;
-		align-items: flex-start;
-		gap: 1rem;
-	}
-
-	h1 {
-		font-size: 1.8rem;
-	}
-
-	.header-actions {
-		width: 100%;
-		justify-content: space-between;
-	}
-
-	.clear-btn {
-		width: 100%;
-	}
-
 	.actions {
-		flex-direction: column;
-		align-items: stretch;
+		flex-direction: column; /* 在小屏幕上垂直排列按钮 */
+		align-items: stretch; /* 让按钮宽度填满容器 */
 	}
 
 	.clear-btn,
 	.generate-btn,
 	.sort-btn {
-		width: 100%;
+		width: 100%; /* 按钮宽度填满容器 */
+		margin-bottom: 0.5rem; /* 增加按钮之间的间距 */
+	}
+
+	.header {
+		flex-direction: column; /* 标题和操作按钮垂直排列 */
+		align-items: flex-start;
+	}
+
+	.header-actions {
+		margin-top: 1rem; /* 增加标题和操作按钮之间的间距 */
+		width: 100%; /* 让操作按钮占满宽度 */
+		justify-content: space-between; /* 均匀分布操作按钮 */
+	}
+
+	h1 {
+		font-size: 2rem; /* 减小标题字体大小 */
 	}
 }
 

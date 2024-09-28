@@ -84,6 +84,7 @@ body {
 	-webkit-font-smoothing: var(--font-smoothing);
 	-moz-osx-font-smoothing: var(--font-smoothing);
 	font-weight: var(--font-weight);
+	padding-top: 2rem; /* 添加顶部内边距 */
 }
 
 .app {

@@ -40,5 +40,8 @@
 	"aiStreamError": "AI 流式响应出错",
 	"generateSuggestionsError": "生成建议时出错",
 	"confirm": "确认",
-	"cancel": "取消"
+	"cancel": "取消",
+	"dailyInspiration": "每日激励",
+	"refresh": "换一句",
+	"refreshing": "刷新中..."
 }
