@@ -1,5 +1,17 @@
+@font-face {
+  font-family: 'LXGW WenKai Screen';
+  src: url('./assets/fonts/LXGWWenKaiScreen.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+html {
+  font-family: 'LXGW WenKai Screen', sans-serif;
+}
+
 :root {
-  font-family: 'Nunito', 'Helvetica Neue', Arial, sans-serif;
+  font-family: 'LXGW WenKai Screen', '微软雅黑', 'Microsoft YaHei', '宋体', SimSun, sans-serif;
   line-height: 1.6;
   font-weight: 400;
 
