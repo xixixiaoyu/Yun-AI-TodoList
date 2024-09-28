@@ -41,7 +41,7 @@ const sendMessage = async () => {
 
 		// 添加语言指示到消息中
 		const languageInstruction =
-			locale.value === 'zh' ? '请用中文回复。' : '请用英文或者用户输入的语言回复。'
+			locale.value === 'zh' ? '请用中文回复。' : '请用英文回复。'
 		messages.unshift({ role: 'system', content: languageInstruction })
 
 		await getAIStreamResponse(messages, chunk => {
