@@ -22,6 +22,7 @@ const {
 	restoreHistory,
 	deleteHistoryItem,
 	deleteAllHistory,
+	updateTodosOrder,
 } = useTodos()
 const { error: duplicateError, showError } = useErrorHandler()
 const { showConfirmDialog, confirmDialogConfig, handleConfirm, handleCancel } =
@@ -71,7 +72,7 @@ const generateSuggestedTodos = async () => {
 	isGenerating.value = true
 	try {
 		const response = await getAIResponse(
-			'请根据我的历史待办事项为我生成 5 个建议的待办事项，如果无法很好预测，则生成五个对自我提升最佳的具体一点的待办事项，生成长度适当，不要使用 markdown 语法返回，不用返回多余内容，直接返回建议待办事项即���。'
+			'请根据我的历史待办事项为我生成 5 个建议的待办事项，如果无法很好预测，则生成五个对自我提升最佳的具体一点的待办事项，生成长度适当，不要使用 markdown 语法返回，不用返回多余内容，直接返回建议待办事项即。'
 		)
 		suggestedTodos.value = response
 			.split('\n')
@@ -111,6 +112,27 @@ const toggleAIChat = () => {
 
 const closeHistory = () => {
 	showHistory.value = false
+}
+
+const isSorting = ref(false)
+
+const sortActiveTodosWithAI = async () => {
+	isSorting.value = true
+	try {
+		const activeTodos = todos.value.filter(todo => !todo.completed)
+		const todoTexts = activeTodos.map(todo => todo.text).join('\n')
+		const prompt = `请对以下待办事项按照最佳优先级进行排序，只返回排序后的编号（如 1,3,2,4），不要返回多余内容：\n${todoTexts}`
+
+		const response = await getAIResponse(prompt)
+		const newOrder = response.split(',').map(Number)
+
+		updateTodosOrder(newOrder)
+	} catch (error) {
+		console.error('AI 排序出错:', error)
+		showError('AI 排序失败，请稍后再试。')
+	} finally {
+		isSorting.value = false
+	}
 }
 </script>
 
@@ -182,6 +204,15 @@ const closeHistory = () => {
 				:disabled="isGenerating"
 			>
 				{{ isGenerating ? '正在生成...' : '生成建议待办事项' }}
+			</button>
+			<!-- 新增：AI 排序按钮 -->
+			<button
+				v-if="hasActiveTodos"
+				@click="sortActiveTodosWithAI"
+				class="sort-btn"
+				:disabled="isSorting"
+			>
+				{{ isSorting ? 'AI 排序中...' : 'AI 优先级排序' }}
 			</button>
 		</div>
 		<ConfirmDialog
@@ -466,5 +497,20 @@ h1 {
 
 .cancel-btn:hover {
 	background-color: #f4511e;
+}
+
+.sort-btn {
+	background-color: #3498db;
+	color: white;
+	margin-left: 0.5rem;
+}
+
+.sort-btn:hover:not(:disabled) {
+	background-color: #2980b9;
+}
+
+.sort-btn:disabled {
+	background-color: #95a5a6;
+	cursor: not-allowed;
 }
 </style>
