@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, nextTick, onMounted, onUnmounted, watch, computed } from 'vue'
-import { getAIResponse } from '../services/deepseekService'
+import { getAIStreamResponse } from '../services/deepseekService'
 import { marked } from 'marked'
 import DOMPurify from 'dompurify'
 
@@ -10,6 +10,7 @@ const userMessage = ref('')
 const chatHistory = ref<{ role: 'user' | 'ai'; content: string }[]>([])
 const isLoading = ref(false)
 const chatHistoryRef = ref<HTMLDivElement | null>(null)
+const currentAIResponse = ref('')
 
 const sendMessage = async () => {
 	if (!userMessage.value.trim()) return
@@ -18,23 +19,35 @@ const sendMessage = async () => {
 	chatHistory.value.push({ role: 'user', content: userMessageContent })
 	userMessage.value = ''
 	isLoading.value = true
+	currentAIResponse.value = ''
+
+	chatHistory.value.push({ role: 'ai', content: '' })
+	const currentMessageIndex = chatHistory.value.length - 1
 
 	try {
-		const response = await getAIResponse(userMessageContent)
-		chatHistory.value.push({ role: 'ai', content: response })
-	} catch (error) {
-		console.error('Error getting AI response:', error)
-		chatHistory.value.push({
-			role: 'ai',
-			content: '抱歉，获取 AI 回复时出现错误。请稍后再试。',
+		await getAIStreamResponse(userMessageContent, chunk => {
+			if (chunk === '[DONE]') {
+				isLoading.value = false
+				return
+			}
+			currentAIResponse.value += chunk
+			chatHistory.value[currentMessageIndex].content = currentAIResponse.value
+			nextTick(() => {
+				scrollToBottom()
+			})
 		})
+	} catch (error) {
+		console.error('获取 AI 回复时出错:', error)
+		chatHistory.value[currentMessageIndex].content =
+			'抱歉,获取 AI 回复时出现错误。请稍后再试。'
+		isLoading.value = false
 	} finally {
 		isLoading.value = false
 	}
 }
 
 const sanitizeContent = (content: string) => {
-	const rawHtml = marked(content)
+	const rawHtml = marked.parse(content)
 	return DOMPurify.sanitize(rawHtml)
 }
 
