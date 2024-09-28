@@ -77,8 +77,13 @@ export async function getAIResponse(userMessage: string): Promise<string> {
 	}
 }
 
+export interface Message {
+	role: 'system' | 'user' | 'assistant'
+	content: string
+}
+
 export async function getAIStreamResponse(
-	userMessage: string,
+	messages: Message[],
 	onChunk: (chunk: string) => void
 ): Promise<void> {
 	let buffer = ''
@@ -100,15 +105,12 @@ export async function getAIStreamResponse(
 						role: 'system',
 						content: '你是一个智能助手，可以回答各种问题并提供帮助。',
 					},
-					{
-						role: 'user',
-						content: userMessage,
-					},
+					...messages, // 包含历史消息
 				],
 				temperature: temperature,
 				stream: true,
 			}),
-			signal, // 添加 signal 以支持中断
+			signal,
 		})
 
 		if (!response.ok) {

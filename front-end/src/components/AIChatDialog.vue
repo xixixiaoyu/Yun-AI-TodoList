@@ -1,8 +1,14 @@
 <script setup lang="ts">
 import { ref, nextTick, onMounted, onUnmounted, watch, computed } from 'vue'
-import { getAIStreamResponse, abortCurrentRequest } from '../services/deepseekService'
+import {
+	getAIStreamResponse,
+	abortCurrentRequest,
+	Message,
+} from '../services/deepseekService'
 import { marked } from 'marked'
 import DOMPurify from 'dompurify'
+import hljs from 'highlight.js'
+import 'highlight.js/styles/github.css' // 您可以选择其他样式
 
 const emit = defineEmits(['close'])
 
@@ -11,6 +17,7 @@ const chatHistory = ref<{ role: 'user' | 'ai'; content: string }[]>([])
 const chatHistoryRef = ref<HTMLDivElement | null>(null)
 const currentAIResponse = ref('')
 const isGenerating = ref(false)
+const inputRef = ref<HTMLTextAreaElement | null>(null)
 
 const sendMessage = async () => {
 	if (!userMessage.value.trim()) return
@@ -21,32 +28,53 @@ const sendMessage = async () => {
 	isGenerating.value = true
 	currentAIResponse.value = ''
 
-	chatHistory.value.push({ role: 'ai', content: '' })
-	const currentMessageIndex = chatHistory.value.length - 1
-
 	try {
-		await getAIStreamResponse(userMessageContent, chunk => {
+		// 创建一个包含历史消息的数组，但不包括空的 AI 回复
+		const messages: Message[] = chatHistory.value
+			.filter(msg => msg.content.trim() !== '') // 过滤掉空消息
+			.map(msg => ({
+				role: msg.role === 'user' ? 'user' : 'assistant',
+				content: msg.content,
+			}))
+
+		let aiResponse = ''
+		await getAIStreamResponse(messages, chunk => {
 			if (chunk === '[DONE]' || chunk === '[ABORTED]') {
 				isGenerating.value = false
 				return
 			}
-			currentAIResponse.value += chunk
-			chatHistory.value[currentMessageIndex].content = currentAIResponse.value
+			aiResponse += chunk
+			currentAIResponse.value = aiResponse
 			nextTick(scrollToBottom)
 		})
+
+		// 在接收到完整响应后，再将 AI 回复添加到聊天历史
+		chatHistory.value.push({ role: 'ai', content: aiResponse })
 	} catch (error) {
 		console.error('获取 AI 回复时出错:', error)
-		chatHistory.value[currentMessageIndex].content =
-			'抱歉，获取 AI 回复时出现错误。请稍后再试。'
+		chatHistory.value.push({
+			role: 'ai',
+			content: '抱歉，获取 AI 回复时出现错误。请稍后再试。',
+		})
 	} finally {
 		isGenerating.value = false
 		currentAIResponse.value = ''
+		nextTick(() => {
+			if (inputRef.value) {
+				inputRef.value.focus()
+			}
+		})
 	}
 }
 
 const stopGenerating = () => {
 	abortCurrentRequest()
 	isGenerating.value = false
+	nextTick(() => {
+		if (inputRef.value) {
+			inputRef.value.focus()
+		}
+	})
 }
 
 const sanitizeContent = (content: string): string => {
@@ -74,8 +102,20 @@ const handleEscKey = (event: KeyboardEvent) => {
 	}
 }
 
+const newline = (event: KeyboardEvent) => {
+	const textarea = event.target as HTMLTextAreaElement
+	const start = textarea.selectionStart
+	const end = textarea.selectionEnd
+	const value = textarea.value
+	textarea.value = value.substring(0, start) + '\n' + value.substring(end)
+	textarea.selectionStart = textarea.selectionEnd = start + 1
+}
+
 onMounted(() => {
 	document.addEventListener('keydown', handleEscKey)
+	if (inputRef.value) {
+		inputRef.value.focus()
+	}
 })
 
 onUnmounted(() => {
@@ -118,12 +158,14 @@ watch(chatHistory, scrollToBottom, { deep: true, immediate: true })
 				</div>
 			</div>
 			<div class="chat-input">
-				<input
+				<textarea
+					ref="inputRef"
 					v-model="userMessage"
-					@keyup.enter="sendMessage"
-					placeholder="询问 AI 助手..."
+					@keydown.enter.exact.prevent="sendMessage"
+					@keydown.enter.shift.exact="newline"
+					placeholder="询问 AI 助手... (按 Shift + Enter 换行，Enter 发送)"
 					:disabled="isGenerating"
-				/>
+				></textarea>
 				<button v-if="!isGenerating" @click="sendMessage">发送</button>
 				<button v-else @click="stopGenerating" class="stop-btn">停止</button>
 			</div>
@@ -247,7 +289,7 @@ watch(chatHistory, scrollToBottom, { deep: true, immediate: true })
 	padding: 0 10px 10px;
 }
 
-.chat-input input {
+.chat-input textarea {
 	flex-grow: 1;
 	padding: 12px 16px;
 	font-size: 16px;
@@ -256,9 +298,12 @@ watch(chatHistory, scrollToBottom, { deep: true, immediate: true })
 	outline: none;
 	transition: all 0.3s ease;
 	background-color: #fff0eb;
+	resize: vertical;
+	max-height: 150px;
+	font-family: inherit;
 }
 
-.chat-input input:focus {
+.chat-input textarea:focus {
 	border-color: #ff9a8b;
 	box-shadow: 0 0 0 2px rgba(255, 154, 139, 0.2);
 }
@@ -357,15 +402,19 @@ watch(chatHistory, scrollToBottom, { deep: true, immediate: true })
 }
 
 .ai :deep(pre) {
-	background-color: rgba(0, 0, 0, 0.05);
-	padding: 0.8em;
-	border-radius: 5px;
-	overflow-x: auto;
+	background-color: #f6f8fa;
+	border-radius: 6px;
+	padding: 16px;
+	overflow: auto;
 }
 
 .ai :deep(pre code) {
 	background-color: transparent;
 	padding: 0;
+}
+
+.ai :deep(.hljs) {
+	background: transparent;
 }
 
 .ai :deep(blockquote) {

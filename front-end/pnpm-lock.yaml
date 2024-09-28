@@ -14,6 +14,9 @@ importers:
       dompurify:
         specifier: ^3.1.7
         version: 3.1.7
+      highlight.js:
+        specifier: ^11.10.0
+        version: 11.10.0
       marked:
         specifier: ^14.1.2
         version: 14.1.2
@@ -604,6 +607,10 @@ packages:
   he@1.2.0:
     resolution: {integrity: sha512-F/1DnUGPopORZi0ni+CvrCgHQ5FyEAHRLSApuYWMmrbSwoN2Mn/7k+Gl38gJnR7yyDZk6WLXwiGod1JOWNDKGw==}
     hasBin: true
+
+  highlight.js@11.10.0:
+    resolution: {integrity: sha512-SYVnVFswQER+zu1laSya563s+F8VDGt7o35d4utbamowvUNLLMovFqwCLSocpZTz3MgaSRA1IbqRWZv97dtErQ==}
+    engines: {node: '>=12.0.0'}
 
   html-encoding-sniffer@4.0.0:
     resolution: {integrity: sha512-Y22oTqIU4uuPgEemfz7NDJz6OeKf12Lsu+QC+s3BVpda64lTiMYCyGwg5ki4vFxkMwQdeZDl2adZoqUgdFuTgQ==}
@@ -1558,6 +1565,8 @@ snapshots:
       path-scurry: 1.11.1
 
   he@1.2.0: {}
+
+  highlight.js@11.10.0: {}
 
   html-encoding-sniffer@4.0.0:
     dependencies:
