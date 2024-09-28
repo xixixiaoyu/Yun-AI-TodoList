@@ -145,7 +145,6 @@ watch(chatHistory, scrollToBottom, { deep: true, immediate: true })
 	flex-direction: column;
 	overflow: hidden;
 	z-index: 1000;
-	border-radius: 20px;
 }
 
 .dialog-header {

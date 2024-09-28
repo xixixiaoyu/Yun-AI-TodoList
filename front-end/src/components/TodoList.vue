@@ -74,7 +74,7 @@ const generateSuggestedTodos = async () => {
 		const response = await getAIResponse(
 			`请根据我的历史待办事项：${JSON.stringify(
 				historicalTodos.value
-			)}，为我预测生成 5 个建议的待办事项，直接输出待办事项结果，返回格式如“看《人类简史》,散步三十分钟”，如果无法很好预测生成，则生成五个对自我提升最佳的具体一点的待办事项。`
+			)}，为我预测生成 5 个建议的待办事项，直接输出待办事项结果，返回格式如"看《人类简史》,散步三十分钟"，如果无法很好预测生成，则生成五个对自我提升最佳的具体一点的待办事项。`
 		)
 		console.log('response', response)
 		console.log('response.split', response.split(','))
@@ -128,7 +128,7 @@ const sortActiveTodosWithAI = async () => {
 	try {
 		const activeTodos = todos.value.filter(todo => todo && !todo.completed)
 		const todoTexts = activeTodos.map(todo => todo.text).join('\n')
-		const prompt = `请对以下每行待办事项按照最佳优先级进行排序，只返回排序后（升序）的编号（如 1,3,2,4）：\n${todoTexts}`
+		const prompt = `请对以下每项待办事项按照最佳优先级顺序进行排序，只返回排序后的编号（如 1,3,2,4）：\n${todoTexts}`
 		console.log('prompt', prompt)
 		const response = await getAIResponse(prompt)
 		if (!response) {
@@ -238,8 +238,7 @@ const handleAddTodo = (text: string) => {
 				class="sort-btn"
 				:disabled="isSorting"
 			>
-				<span v-if="!isSorting">AI 优先级排序</span>
-				<span v-else class="loading-spinner"></span>
+				<span>AI 优先级排序</span>
 			</button>
 		</div>
 		<ConfirmDialog
@@ -301,6 +300,7 @@ const handleAddTodo = (text: string) => {
 	box-shadow: var(--box-shadow);
 	backdrop-filter: blur(10px);
 	position: relative;
+	min-height: 300px;
 }
 
 .header {
@@ -365,12 +365,23 @@ h1 {
 .actions {
 	display: flex;
 	justify-content: center;
-	margin-bottom: 2rem;
+	gap: 0.5rem;
+	margin-bottom: 1rem;
+}
+
+.clear-btn,
+.generate-btn,
+.sort-btn {
+	padding: 0.5rem 1rem;
+	font-size: 0.9rem;
+	min-width: 120px;
+	height: 36px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
 }
 
 .clear-btn {
-	padding: 0.5rem 1rem;
-	font-size: 0.9rem;
 	background-color: #ffa8a8;
 	color: white;
 	border: none;
@@ -384,15 +395,12 @@ h1 {
 }
 
 .generate-btn {
-	padding: 0.5rem 1rem;
-	font-size: 0.9rem;
 	background-color: #ff9a8b;
 	color: white;
 	border: none;
 	border-radius: 20px;
 	cursor: pointer;
 	transition: all 0.3s ease;
-	margin-left: 0.5rem;
 }
 
 .generate-btn:hover:not(:disabled) {
@@ -402,6 +410,83 @@ h1 {
 .generate-btn:disabled {
 	background-color: #95a5a6;
 	cursor: not-allowed;
+}
+
+.sort-btn {
+	background-color: #3498db;
+	color: white;
+	position: relative;
+}
+
+.sort-btn:hover:not(:disabled) {
+	background-color: #2980b9;
+}
+
+.sort-btn:disabled {
+	background-color: #95a5a6;
+	cursor: not-allowed;
+}
+
+.loading-spinner {
+	display: inline-block;
+	width: 20px;
+	height: 20px;
+	border: 2px solid #ffffff;
+	border-radius: 50%;
+	border-top: 2px solid #3498db;
+	animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+	0% {
+		transform: rotate(0deg);
+	}
+	100% {
+		transform: rotate(360deg);
+	}
+}
+
+.todo-list.is-loading {
+	pointer-events: none;
+	opacity: 0.7;
+}
+
+.loading-overlay {
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background-color: rgba(255, 255, 255, 0.8);
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+	z-index: 1000;
+}
+
+.loading-overlay p {
+	margin-top: 1rem;
+	font-size: 1.2rem;
+	color: #3498db;
+}
+
+.loading-spinner {
+	width: 50px;
+	height: 50px;
+	border: 4px solid #3498db;
+	border-top: 4px solid transparent;
+	border-radius: 50%;
+	animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+	0% {
+		transform: rotate(0deg);
+	}
+	100% {
+		transform: rotate(360deg);
+	}
 }
 
 @media (max-width: 768px) {
@@ -426,6 +511,17 @@ h1 {
 	}
 
 	.clear-btn {
+		width: 100%;
+	}
+
+	.actions {
+		flex-direction: column;
+		align-items: stretch;
+	}
+
+	.clear-btn,
+	.generate-btn,
+	.sort-btn {
 		width: 100%;
 	}
 }
@@ -528,83 +624,5 @@ h1 {
 
 .cancel-btn:hover {
 	background-color: #f4511e;
-}
-
-.sort-btn {
-	background-color: #3498db;
-	color: white;
-	margin-left: 0.5rem;
-	position: relative;
-}
-
-.sort-btn:hover:not(:disabled) {
-	background-color: #2980b9;
-}
-
-.sort-btn:disabled {
-	background-color: #95a5a6;
-	cursor: not-allowed;
-}
-
-.loading-spinner {
-	display: inline-block;
-	width: 20px;
-	height: 20px;
-	border: 2px solid #ffffff;
-	border-radius: 50%;
-	border-top: 2px solid #3498db;
-	animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-	0% {
-		transform: rotate(0deg);
-	}
-	100% {
-		transform: rotate(360deg);
-	}
-}
-
-.todo-list.is-loading {
-	pointer-events: none;
-	opacity: 0.7;
-}
-
-.loading-overlay {
-	position: absolute;
-	top: 0;
-	left: 0;
-	right: 0;
-	bottom: 0;
-	background-color: rgba(255, 255, 255, 0.8);
-	display: flex;
-	flex-direction: column;
-	justify-content: center;
-	align-items: center;
-	z-index: 1000;
-}
-
-.loading-overlay p {
-	margin-top: 1rem;
-	font-size: 1.2rem;
-	color: #3498db;
-}
-
-.loading-spinner {
-	width: 50px;
-	height: 50px;
-	border: 4px solid #3498db;
-	border-top: 4px solid transparent;
-	border-radius: 50%;
-	animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-	0% {
-		transform: rotate(0deg);
-	}
-	100% {
-		transform: rotate(360deg);
-	}
 }
 </style>
