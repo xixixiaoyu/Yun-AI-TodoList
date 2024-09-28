@@ -8,8 +8,8 @@ import ConfirmDialog from './ConfirmDialog.vue'
 import { useTodos } from '../composables/useTodos'
 import { useErrorHandler } from '../composables/useErrorHandler'
 import { useConfirmDialog } from '../composables/useConfirmDialog'
-import AIChatDialog from './AIChatDialog.vue'
 import { getAIResponse } from '../services/deepseekService'
+import { useRouter } from 'vue-router'
 
 const {
 	todos,
@@ -111,12 +111,6 @@ const updateSuggestedTodo = (index: number, newText: string) => {
 	suggestedTodos.value[index] = newText
 }
 
-const showAIChat = ref(false)
-
-const toggleAIChat = () => {
-	showAIChat.value = !showAIChat.value
-}
-
 const closeHistory = () => {
 	showHistory.value = false
 }
@@ -159,6 +153,8 @@ const handleAddTodo = (text: string) => {
 		showError('该待办事项已存在，请勿重复添加。')
 	}
 }
+
+const router = useRouter()
 </script>
 
 <template>
@@ -189,7 +185,7 @@ const handleAddTodo = (text: string) => {
 					</svg>
 					<span class="sr-only">历史记录</span>
 				</button>
-				<button @click="toggleAIChat" class="icon-button">
+				<router-link to="/ai-assistant" class="icon-button">
 					<svg
 						xmlns="http://www.w3.org/2000/svg"
 						viewBox="0 0 24 24"
@@ -202,7 +198,7 @@ const handleAddTodo = (text: string) => {
 						/>
 					</svg>
 					<span>AI 助手</span>
-				</button>
+				</router-link>
 			</div>
 		</div>
 		<TodoInput
@@ -254,12 +250,6 @@ const handleAddTodo = (text: string) => {
 			@confirm="handleConfirm"
 			@cancel="handleCancel"
 		/>
-
-		<teleport to="body">
-			<Transition name="slide-fade">
-				<AIChatDialog v-if="showAIChat" @close="toggleAIChat" />
-			</Transition>
-		</teleport>
 
 		<!-- 新增：建议待办事项确认对话框 -->
 		<div v-if="showSuggestedTodos" class="suggested-todos-dialog">

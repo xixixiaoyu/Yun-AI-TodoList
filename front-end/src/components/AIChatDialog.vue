@@ -10,8 +10,6 @@ import DOMPurify from 'dompurify'
 import hljs from 'highlight.js'
 import 'highlight.js/styles/github.css' // 您可以选择其他样式
 
-const emit = defineEmits(['close'])
-
 const userMessage = ref('')
 const chatHistory = ref<{ role: 'user' | 'ai'; content: string }[]>([])
 const chatHistoryRef = ref<HTMLDivElement | null>(null)
@@ -95,12 +93,6 @@ const scrollToBottom = () => {
 	}
 }
 
-const handleEscKey = (event: KeyboardEvent) => {
-	if (event.key === 'Escape') {
-		emit('close')
-	}
-}
-
 const newline = (event: KeyboardEvent) => {
 	const textarea = event.target as HTMLTextAreaElement
 	const start = textarea.selectionStart
@@ -111,14 +103,9 @@ const newline = (event: KeyboardEvent) => {
 }
 
 onMounted(() => {
-	document.addEventListener('keydown', handleEscKey)
 	if (inputRef.value) {
 		inputRef.value.focus()
 	}
-})
-
-onUnmounted(() => {
-	document.removeEventListener('keydown', handleEscKey)
 })
 
 watch([chatHistory, currentAIResponse], scrollToBottom, { deep: true, immediate: true })
@@ -128,7 +115,7 @@ watch([chatHistory, currentAIResponse], scrollToBottom, { deep: true, immediate:
 	<div class="ai-chat-dialog">
 		<div class="dialog-header">
 			<h2>AI 助手</h2>
-			<button @click="$emit('close')" class="close-button" aria-label="关闭">
+			<router-link to="/" class="close-button" aria-label="关闭">
 				<svg
 					xmlns="http://www.w3.org/2000/svg"
 					viewBox="0 0 24 24"
@@ -140,7 +127,7 @@ watch([chatHistory, currentAIResponse], scrollToBottom, { deep: true, immediate:
 						d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"
 					/>
 				</svg>
-			</button>
+			</router-link>
 		</div>
 		<div class="dialog-content">
 			<div ref="chatHistoryRef" class="chat-history">
