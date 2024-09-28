@@ -77,7 +77,7 @@ const generateSuggestedTodos = async () => {
 	isGenerating.value = true
 	try {
 		const response = await getAIResponse(
-			`${t('generateSuggestionsPrompt')}:${JSON.stringify(historicalTodos.value)}`,
+			`${t('generateSuggestionsPrompt')}`,
 			locale.value,
 			1.5
 		)
@@ -97,7 +97,7 @@ const generateSuggestedTodos = async () => {
 const confirmSuggestedTodos = () => {
 	const duplicates = addMultipleTodos(suggestedTodos.value)
 	if (duplicates.length > 0) {
-		showError(`${t('duplicateError')}:${duplicates.join(', ')}`)
+		showError(`${t('duplicateError')}：${duplicates.join(', ')}`)
 	}
 	showSuggestedTodos.value = false
 	suggestedTodos.value = []
