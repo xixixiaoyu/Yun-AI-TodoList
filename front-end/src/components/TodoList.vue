@@ -72,15 +72,20 @@ const generateSuggestedTodos = async () => {
 	isGenerating.value = true
 	try {
 		const response = await getAIResponse(
-			'请根据我的历史待办事项为我生成 5 个建议的待办事项，如果无法很好预测，则生成五个对自我提升最佳的具体一点的待办事项，生成长度适当，不要使用 markdown 语法返回，不用返回多余内容，直接返回建议待办事项即。'
+			`请根据我的历史待办事项：${JSON.stringify(
+				historicalTodos.value
+			)}，为我生成 5 个建议的待办事项，如果无法很好预测，则生成五个对自我提升最佳的具体一点的待办事项，生成长度适当，不要使用 markdown 语法返回，不用返回多余内容，直接返回建议待办事项即可。`
 		)
 		suggestedTodos.value = response
 			.split('\n')
 			.filter((todo: string) => todo.trim() !== '')
+			.slice(0, 5) // 确保只有 5 个建议
 		showSuggestedTodos.value = true
 	} catch (error) {
 		console.error('生成建议待办事项时出错:', error)
-		showError('生成建议待办事项时出错，请稍后再试。')
+		showError(
+			error instanceof Error ? error.message : '生成建议待办事项时出错，请稍后再试。'
+		)
 	} finally {
 		isGenerating.value = false
 	}
@@ -121,23 +126,42 @@ const sortActiveTodosWithAI = async () => {
 	try {
 		const activeTodos = todos.value.filter(todo => !todo.completed)
 		const todoTexts = activeTodos.map(todo => todo.text).join('\n')
-		const prompt = `请对以下待办事项按照最佳优先级进行排序，只返回排序后的编号（如 1,3,2,4），不要返回多余内容：\n${todoTexts}`
-
+		const prompt = `请对以下每行待办事项按照最佳优先级进行排序，只返回排序后（升序）的编号（如 1,3,2,4）：\n${todoTexts}`
+		console.log('prompt', prompt)
 		const response = await getAIResponse(prompt)
+		if (!response) {
+			throw new Error('AI 返回了空响应')
+		}
 		const newOrder = response.split(',').map(Number)
-
+		if (newOrder.length !== activeTodos.length) {
+			throw new Error('AI 返回的排序数量与待办事项数量不匹配')
+		}
 		updateTodosOrder(newOrder)
 	} catch (error) {
 		console.error('AI 排序出错:', error)
-		showError('AI 排序失败，请稍后再试。')
+		showError(error instanceof Error ? error.message : 'AI 排序失败，请稍后再试。')
 	} finally {
 		isSorting.value = false
+	}
+}
+
+const isLoading = computed(() => isSorting.value)
+
+const handleAddTodo = (text: string) => {
+	const success = addTodo(text)
+	if (!success) {
+		showError('该待办事项已存在，请勿重复添加。')
 	}
 }
 </script>
 
 <template>
-	<div class="todo-list">
+	<div class="todo-list" :class="{ 'is-loading': isLoading }">
+		<!-- 添加 loading 遮罩层 -->
+		<div v-if="isLoading" class="loading-overlay">
+			<div class="loading-spinner"></div>
+			<p>AI 正在排序中，请稍候...</p>
+		</div>
 		<div class="header">
 			<h1>todo</h1>
 			<div class="header-actions">
@@ -177,7 +201,7 @@ const sortActiveTodosWithAI = async () => {
 		</div>
 		<TodoInput
 			:maxLength="MAX_TODO_LENGTH"
-			@add="addTodo"
+			@add="handleAddTodo"
 			:duplicateError="duplicateError"
 		/>
 		<TodoFilters v-model:filter="filter" />
@@ -212,7 +236,8 @@ const sortActiveTodosWithAI = async () => {
 				class="sort-btn"
 				:disabled="isSorting"
 			>
-				{{ isSorting ? 'AI 排序中...' : 'AI 优先级排序' }}
+				<span v-if="!isSorting">AI 优先级排序</span>
+				<span v-else class="loading-spinner"></span>
 			</button>
 		</div>
 		<ConfirmDialog
@@ -261,6 +286,7 @@ const sortActiveTodosWithAI = async () => {
 
 <style scoped>
 .todo-list {
+	font-family: 'LXGW WenKai Screen', sans-serif;
 	max-width: 600px;
 	width: 90%;
 	margin: 0 auto;
@@ -503,6 +529,7 @@ h1 {
 	background-color: #3498db;
 	color: white;
 	margin-left: 0.5rem;
+	position: relative;
 }
 
 .sort-btn:hover:not(:disabled) {
@@ -512,5 +539,67 @@ h1 {
 .sort-btn:disabled {
 	background-color: #95a5a6;
 	cursor: not-allowed;
+}
+
+.loading-spinner {
+	display: inline-block;
+	width: 20px;
+	height: 20px;
+	border: 2px solid #ffffff;
+	border-radius: 50%;
+	border-top: 2px solid #3498db;
+	animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+	0% {
+		transform: rotate(0deg);
+	}
+	100% {
+		transform: rotate(360deg);
+	}
+}
+
+.todo-list.is-loading {
+	pointer-events: none;
+	opacity: 0.7;
+}
+
+.loading-overlay {
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background-color: rgba(255, 255, 255, 0.8);
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+	z-index: 1000;
+}
+
+.loading-overlay p {
+	margin-top: 1rem;
+	font-size: 1.2rem;
+	color: #3498db;
+}
+
+.loading-spinner {
+	width: 50px;
+	height: 50px;
+	border: 4px solid #3498db;
+	border-top: 4px solid transparent;
+	border-radius: 50%;
+	animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+	0% {
+		transform: rotate(0deg);
+	}
+	100% {
+		transform: rotate(360deg);
+	}
 }
 </style>

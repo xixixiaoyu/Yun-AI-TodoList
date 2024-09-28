@@ -44,6 +44,7 @@ const formattedTitle = computed(() => {
 
 <style scoped>
 .todo-item {
+	font-family: 'LXGW WenKai Screen', sans-serif;
 	display: flex;
 	justify-content: space-between;
 	align-items: center;

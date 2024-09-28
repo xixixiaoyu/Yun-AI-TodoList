@@ -18,6 +18,7 @@ interface AIStreamResponse {
 }
 
 const temperature = 0.5
+
 export async function getAIResponse(userMessage: string): Promise<string> {
 	try {
 		const response = await axios.post<AIStreamResponse>(
@@ -27,7 +28,7 @@ export async function getAIResponse(userMessage: string): Promise<string> {
 				messages: [
 					{
 						role: 'system',
-						content: '你是一个智能助手,可以回答各种问题并提供帮助。',
+						content: '你是一个智能助手，可以回答各种问题并提供帮助。',
 					},
 					{
 						role: 'user',
@@ -42,13 +43,30 @@ export async function getAIResponse(userMessage: string): Promise<string> {
 					Authorization: `Bearer ${API_KEY}`,
 					'Content-Type': 'application/json',
 				},
+				timeout: 30000, // 设置 30 秒超时
 			}
 		)
 
-		return response.data.choices[0].delta.content || ''
+		if (response.data && response.data.choices && response.data.choices.length > 0) {
+			// 修改这里：检查 message 属性而不是 delta
+			return response.data.choices[0].message?.content || ''
+		} else {
+			throw new Error('无效的 AI 响应格式')
+		}
 	} catch (error) {
-		console.error('Error fetching AI response:', error)
-		throw error
+		console.error('获取 AI 响应时出错:', error)
+		if (axios.isAxiosError(error)) {
+			if (error.response) {
+				throw new Error(
+					`API 错误: ${error.response.status} - ${
+						error.response.data.error?.message || '未知错误'
+					}`
+				)
+			} else if (error.request) {
+				throw new Error('无法连接到 AI 服务，请检查您的网络连接')
+			}
+		}
+		throw new Error('生成建议待办事项时出现未知错误')
 	}
 }
 
@@ -57,6 +75,7 @@ export async function getAIStreamResponse(
 	onChunk: (chunk: string) => void
 ): Promise<void> {
 	let buffer = ''
+	let lastChunk = ''
 
 	try {
 		await axios.post(
@@ -66,7 +85,8 @@ export async function getAIStreamResponse(
 				messages: [
 					{
 						role: 'system',
-						content: '你是一个智能助手,可以回答各种问题并提供帮助。',
+						content:
+							'你是一个智能助手，可以回答各种问题并提供帮助。请保持简洁，避免重复。',
 					},
 					{
 						role: 'user',
@@ -98,11 +118,12 @@ export async function getAIStreamResponse(
 							try {
 								const parsedData: AIStreamResponse = JSON.parse(jsonData)
 								const content = parsedData.choices[0].delta.content
-								if (content) {
+								if (content && content !== lastChunk) {
 									onChunk(content)
+									lastChunk = content
 								}
 							} catch (error) {
-								console.error('Error parsing JSON:', error)
+								console.error('解析 JSON 时出错:', error)
 							}
 						}
 					}
@@ -110,7 +131,7 @@ export async function getAIStreamResponse(
 			}
 		)
 	} catch (error) {
-		console.error('Error fetching AI response:', error)
+		console.error('获取 AI 响应时出错:', error)
 		throw error
 	}
 }

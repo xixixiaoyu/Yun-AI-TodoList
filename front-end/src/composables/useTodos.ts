@@ -51,13 +51,23 @@ export function useTodos() {
 		saveHistory() // 确保每次更新历史记录时都保存到 localStorage
 	}
 
-	const addTodo = (text: string) => {
+	const addTodo = (text: string): boolean => {
+		const trimmedText = text.trim()
+		if (trimmedText === '') return false
+
+		// 检查是否存在重复的待办事项
+		const isDuplicate = todos.value.some(
+			todo => todo.text.toLowerCase() === trimmedText.toLowerCase()
+		)
+		if (isDuplicate) return false
+
 		const newId = Math.max(0, ...todos.value.map(todo => todo.id)) + 1
 		todos.value.push({
 			id: newId,
-			text,
+			text: trimmedText,
 			completed: false,
 		})
+		return true
 	}
 
 	// 新增：批量添加待办事项的函数

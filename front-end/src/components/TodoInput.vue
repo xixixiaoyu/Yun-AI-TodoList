@@ -58,6 +58,7 @@ const addTodo = () => {
 
 <style scoped>
 .add-todo {
+	font-family: 'LXGW WenKai Screen', sans-serif;
 	display: flex;
 	margin-bottom: 1rem;
 	flex-wrap: wrap;

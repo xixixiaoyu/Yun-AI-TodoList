@@ -39,10 +39,11 @@ const sendMessage = async () => {
 	} catch (error) {
 		console.error('获取 AI 回复时出错:', error)
 		chatHistory.value[currentMessageIndex].content =
-			'抱歉,获取 AI 回复时出现错误。请稍后再试。'
+			'抱歉，获取 AI 回复时出现错误。请稍后再试。'
 		isLoading.value = false
 	} finally {
 		isLoading.value = false
+		currentAIResponse.value = '' // 重置当前响应
 	}
 }
 
@@ -140,6 +141,7 @@ watch(
 
 <style scoped>
 .ai-chat-dialog {
+	font-family: 'LXGW WenKai Screen', sans-serif;
 	position: fixed;
 	top: 0;
 	left: 0;
@@ -150,7 +152,6 @@ watch(
 	flex-direction: column;
 	overflow: hidden;
 	z-index: 1000;
-	font-family: 'LXGW WenKai Screen', sans-serif;
 	border-radius: 20px;
 }
 
