@@ -12,6 +12,7 @@ import { getAIResponse } from '../services/deepseekService'
 import { useTheme } from '../composables/useTheme'
 import { useI18n } from 'vue-i18n'
 import DailyInspiration from './DailyInspiration.vue'
+import Clock from './Clock.vue'
 
 const {
 	todos,
@@ -172,6 +173,7 @@ const themeTooltip = computed(() => {
 
 <template>
 	<div class="todo-container">
+		<Clock class="top-clock" />
 		<DailyInspiration class="daily-inspiration" />
 		<div class="todo-list" :class="{ 'is-loading': isLoading }">
 			<!-- 添加 loading 遮罩层 -->
@@ -377,8 +379,8 @@ const themeTooltip = computed(() => {
 
 .header {
 	display: flex;
-	justify-content: space-between;
-	align-items: center;
+	flex-direction: column;
+	align-items: flex-start;
 	margin-bottom: 2rem;
 }
 
@@ -388,9 +390,11 @@ h1 {
 	font-weight: 700;
 	margin: 0;
 	text-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);
+	margin-bottom: 0.5rem;
 }
 
 .header-actions {
+	margin-top: 1rem;
 	display: flex;
 	gap: 1rem;
 }
@@ -579,6 +583,7 @@ h1 {
 		width: 100%;
 		max-width: 100%;
 		padding: 1rem;
+		margin-top: 1rem; /* 为固定位置的时钟和每日激励留出空间 */
 	}
 
 	.actions {
@@ -744,5 +749,13 @@ h1 {
 	.todo-list {
 		backdrop-filter: blur(20px);
 	}
+}
+
+.top-clock {
+	position: fixed;
+	top: 1rem;
+	left: 50%;
+	transform: translateX(-50%);
+	z-index: 1001;
 }
 </style>
