@@ -34,8 +34,9 @@ const setFilter = (newFilter: string) => {
 .filter-buttons button {
 	padding: 0.5rem 1rem;
 	font-size: 0.9rem;
-	background-color: #f8f9f9;
-	border: 1px solid #d5d8dc;
+	background-color: var(--filter-btn-bg);
+	color: var(--filter-btn-text);
+	border: 1px solid var(--filter-btn-border);
 	border-radius: 20px;
 	cursor: pointer;
 	transition: all 0.3s ease;
@@ -43,20 +44,9 @@ const setFilter = (newFilter: string) => {
 
 .filter-buttons button.active,
 .filter-buttons button:hover {
-	background-color: #85c1e9;
-	color: white;
-	border-color: #85c1e9;
-}
-
-.clear-btn {
-	background-color: #e74c3c !important;
-	color: white !important;
-	border-color: #e74c3c !important;
-}
-
-.clear-btn:hover {
-	background-color: #c0392b !important;
-	border-color: #c0392b !important;
+	background-color: var(--filter-btn-active-bg);
+	color: var(--filter-btn-active-text);
+	border-color: var(--filter-btn-active-border);
 }
 
 @media (max-width: 768px) {

@@ -167,7 +167,7 @@ watch([chatHistory, currentAIResponse], scrollToBottom, { deep: true, immediate:
 	left: 0;
 	width: 100vw;
 	height: 100vh;
-	background-color: #fff6f6;
+	background-color: var(--bg-color);
 	display: flex;
 	flex-direction: column;
 	overflow: hidden;
@@ -179,8 +179,8 @@ watch([chatHistory, currentAIResponse], scrollToBottom, { deep: true, immediate:
 	justify-content: space-between;
 	align-items: center;
 	padding: 15px 25px;
-	background-color: #ff9a8b;
-	color: white;
+	background-color: var(--button-bg-color);
+	color: var(--card-bg-color);
 	box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
 
@@ -193,7 +193,7 @@ watch([chatHistory, currentAIResponse], scrollToBottom, { deep: true, immediate:
 .close-button {
 	background: none;
 	border: none;
-	color: white;
+	color: var(--card-bg-color);
 	cursor: pointer;
 	transition: all 0.2s ease;
 	padding: 5px;
@@ -212,7 +212,7 @@ watch([chatHistory, currentAIResponse], scrollToBottom, { deep: true, immediate:
 	flex-direction: column;
 	padding: 20px;
 	overflow: hidden;
-	height: calc(100% - 60px); /* 减去头部高度 */
+	height: calc(100% - 60px);
 }
 
 .chat-history {
@@ -254,8 +254,8 @@ watch([chatHistory, currentAIResponse], scrollToBottom, { deep: true, immediate:
 }
 
 .user .message-content {
-	background-color: #ff9a8b;
-	color: white;
+	background-color: var(--button-bg-color);
+	color: var(--card-bg-color);
 }
 
 .ai {
@@ -263,8 +263,8 @@ watch([chatHistory, currentAIResponse], scrollToBottom, { deep: true, immediate:
 }
 
 .ai .message-content {
-	background-color: #ffecd2;
-	color: #3c3c3c;
+	background-color: var(--input-bg-color);
+	color: var(--text-color);
 	box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
@@ -278,26 +278,27 @@ watch([chatHistory, currentAIResponse], scrollToBottom, { deep: true, immediate:
 	flex-grow: 1;
 	padding: 12px 16px;
 	font-size: 16px;
-	border: 1px solid #ffd3c5;
+	border: 1px solid var(--input-border-color);
 	border-radius: 24px;
 	outline: none;
 	transition: all 0.3s ease;
-	background-color: #fff0eb;
+	background-color: var(--input-bg-color);
+	color: var(--text-color);
 	resize: vertical;
 	max-height: 150px;
 	font-family: inherit;
 }
 
 .chat-input textarea:focus {
-	border-color: #ff9a8b;
+	border-color: var(--button-bg-color);
 	box-shadow: 0 0 0 2px rgba(255, 154, 139, 0.2);
 }
 
 .chat-input button {
 	padding: 12px 24px;
 	font-size: 16px;
-	background-color: #ff9a8b;
-	color: white;
+	background-color: var(--button-bg-color);
+	color: var(--card-bg-color);
 	border: none;
 	border-radius: 24px;
 	cursor: pointer;
@@ -305,52 +306,14 @@ watch([chatHistory, currentAIResponse], scrollToBottom, { deep: true, immediate:
 }
 
 .chat-input button:hover:not(:disabled) {
-	background-color: #ff8c7f;
+	background-color: var(--button-hover-bg-color);
 	transform: translateY(-2px);
 	box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 .chat-input button:disabled {
-	background-color: #ffc1b5;
+	background-color: var(--input-border-color);
 	cursor: not-allowed;
-}
-
-.loading-spinner {
-	display: inline-block;
-	width: 20px;
-	height: 20px;
-	border: 2px solid #ffffff;
-	border-radius: 50%;
-	border-top: 2px solid #ff9a8b;
-	animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-	0% {
-		transform: rotate(0deg);
-	}
-	100% {
-		transform: rotate(360deg);
-	}
-}
-
-@media (max-width: 768px) {
-	.dialog-header {
-		padding: 12px 16px;
-	}
-
-	.dialog-header h2 {
-		font-size: 20px;
-	}
-
-	.dialog-content {
-		padding: 16px;
-		height: calc(100% - 52px); /* 调整移动端头部高度 */
-	}
-
-	.chat-input {
-		padding: 0 16px 16px;
-	}
 }
 
 /* 添加 Markdown 渲染相关的样式 */
@@ -363,6 +326,7 @@ watch([chatHistory, currentAIResponse], scrollToBottom, { deep: true, immediate:
 	margin-top: 0.8em;
 	margin-bottom: 0.4em;
 	font-weight: bold;
+	color: var(--text-color);
 }
 
 .ai :deep(p) {
@@ -380,14 +344,15 @@ watch([chatHistory, currentAIResponse], scrollToBottom, { deep: true, immediate:
 }
 
 .ai :deep(code) {
-	background-color: rgba(0, 0, 0, 0.05);
+	background-color: var(--input-bg-color);
 	padding: 0.2em 0.4em;
 	border-radius: 3px;
 	font-family: monospace;
+	color: var(--text-color);
 }
 
 .ai :deep(pre) {
-	background-color: #f6f8fa;
+	background-color: var(--input-bg-color);
 	border-radius: 6px;
 	padding: 16px;
 	overflow: auto;
@@ -403,15 +368,16 @@ watch([chatHistory, currentAIResponse], scrollToBottom, { deep: true, immediate:
 }
 
 .ai :deep(blockquote) {
-	border-left: 4px solid #ff9a8b;
+	border-left: 4px solid var(--button-bg-color);
 	padding-left: 0.8em;
 	margin-left: 0;
 	margin-right: 0;
 	font-style: italic;
+	color: var(--text-color);
 }
 
 .ai :deep(a) {
-	color: #ff9a8b;
+	color: var(--button-bg-color);
 	text-decoration: none;
 }
 
@@ -427,20 +393,39 @@ watch([chatHistory, currentAIResponse], scrollToBottom, { deep: true, immediate:
 
 .ai :deep(th),
 .ai :deep(td) {
-	border: 1px solid #ddd;
+	border: 1px solid var(--input-border-color);
 	padding: 0.4em;
 }
 
 .ai :deep(th) {
-	background-color: rgba(0, 0, 0, 0.05);
+	background-color: var(--input-bg-color);
 	font-weight: bold;
 }
 
 .stop-btn {
-	background-color: #e74c3c;
+	background-color: var(--button-hover-bg-color);
 }
 
 .stop-btn:hover {
-	background-color: #c0392b;
+	background-color: var(--button-bg-color);
+}
+
+@media (max-width: 768px) {
+	.dialog-header {
+		padding: 12px 16px;
+	}
+
+	.dialog-header h2 {
+		font-size: 20px;
+	}
+
+	.dialog-content {
+		padding: 16px;
+		height: calc(100% - 52px);
+	}
+
+	.chat-input {
+		padding: 0 16px 16px;
+	}
 }
 </style>

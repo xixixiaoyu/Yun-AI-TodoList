@@ -50,22 +50,23 @@ const formattedTitle = computed(() => {
 	align-items: center;
 	padding: 0.7rem;
 	margin-bottom: 0.5rem;
-	background-color: #fff6f6;
-	border: 1px solid #ffe0e0;
+	background-color: var(--input-bg-color);
+	border: 1px solid var(--input-border-color);
 	transition: all 0.3s ease;
 	width: 100%;
 	box-sizing: border-box;
+	border-radius: 8px;
 }
 
 .todo-item:hover {
-	background-color: #fff0f0;
 	transform: translateY(-2px);
 	box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
 }
 
 .todo-item.completed .text-content {
 	text-decoration: line-through;
-	color: #95a5a6;
+	opacity: 0.6;
+	color: var(--completed-todo-text-color);
 }
 
 .todo-content {
@@ -86,6 +87,7 @@ const formattedTitle = computed(() => {
 	cursor: pointer;
 	flex-grow: 1;
 	min-width: 0;
+	color: var(--todo-text-color);
 }
 
 .text-content {
@@ -99,7 +101,7 @@ const formattedTitle = computed(() => {
 	display: inline-block;
 	width: 18px;
 	height: 18px;
-	border: 2px solid #ff9a8b;
+	border: 2px solid var(--button-bg-color);
 	border-radius: 50%;
 	vertical-align: middle;
 	transition: all 0.3s ease;
@@ -109,15 +111,24 @@ const formattedTitle = computed(() => {
 }
 
 .checkbox.checked {
-	background-color: #ff9a8b;
+	background-color: var(--button-bg-color);
+}
+
+.checkbox.checked::after {
+	content: '✓';
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	color: var(--card-bg-color);
+	font-size: 12px;
 }
 
 .delete-btn {
-	width: 50px;
-	background-color: #ffa8a8;
-	color: white;
+	background-color: var(--button-bg-color);
+	color: var(--card-bg-color);
 	border: none;
-	border-radius: calc(var(--border-radius) / 2);
+	border-radius: 4px;
 	padding: 0.25rem 0.5rem;
 	font-size: 0.8rem;
 	cursor: pointer;
@@ -127,7 +138,8 @@ const formattedTitle = computed(() => {
 }
 
 .delete-btn:hover {
-	background-color: #ff9a9a;
+	opacity: 1;
+	background-color: var(--button-hover-bg-color);
 }
 
 @media (max-width: 768px) {

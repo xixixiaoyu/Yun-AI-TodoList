@@ -9,6 +9,7 @@ import { useTodos } from '../composables/useTodos'
 import { useErrorHandler } from '../composables/useErrorHandler'
 import { useConfirmDialog } from '../composables/useConfirmDialog'
 import { getAIResponse } from '../services/deepseekService'
+import { useTheme } from '../composables/useTheme'
 
 const {
 	todos,
@@ -26,6 +27,7 @@ const {
 const { error: duplicateError, showError } = useErrorHandler()
 const { showConfirmDialog, confirmDialogConfig, handleConfirm, handleCancel } =
 	useConfirmDialog()
+const { theme, toggleTheme } = useTheme()
 
 const filter = ref('active')
 const showHistory = ref(false)
@@ -147,6 +149,26 @@ const handleAddTodo = (text: string) => {
 		showError('该待办事项已存在，请勿重复添加。')
 	}
 }
+
+const themeIcon = computed(() => {
+	if (theme.value === 'auto') {
+		return 'auto'
+	}
+	return theme.value === 'light' ? 'moon' : 'sun'
+})
+
+const themeTooltip = computed(() => {
+	switch (theme.value) {
+		case 'light':
+			return '切换到深色模式'
+		case 'dark':
+			return '切换到自动模式'
+		case 'auto':
+			return '切换到浅色模式'
+		default:
+			return '切换主题模式'
+	}
+})
 </script>
 
 <template>
@@ -159,6 +181,49 @@ const handleAddTodo = (text: string) => {
 		<div class="header">
 			<h1>todo</h1>
 			<div class="header-actions">
+				<button
+					@click="toggleTheme"
+					class="icon-button theme-toggle"
+					:title="themeTooltip"
+					:aria-label="themeTooltip"
+				>
+					<svg
+						v-if="themeIcon === 'moon'"
+						xmlns="http://www.w3.org/2000/svg"
+						viewBox="0 0 24 24"
+						width="24"
+						height="24"
+						fill="currentColor"
+					>
+						<path
+							d="M12 3a9 9 0 1 0 9 9c0-.46-.04-.92-.1-1.36a5.389 5.389 0 0 1-4.4 2.26 5.403 5.403 0 0 1-3.14-9.8c-.44-.06-.9-.1-1.36-.1z"
+						/>
+					</svg>
+					<svg
+						v-else-if="themeIcon === 'sun'"
+						xmlns="http://www.w3.org/2000/svg"
+						viewBox="0 0 24 24"
+						width="24"
+						height="24"
+						fill="currentColor"
+					>
+						<path
+							d="M12 7a5 5 0 1 1 0 10 5 5 0 0 1 0-10zm0 2a3 3 0 1 0 0 6 3 3 0 0 0 0-6zm0-4V3a1 1 0 0 1 2 0v2a1 1 0 0 1-2 0zm0 18v-2a1 1 0 0 1 2 0v2a1 1 0 0 1-2 0zm10-10h2a1 1 0 0 1 0 2h-2a1 1 0 0 1 0-2zM2 12h2a1 1 0 0 1 0 2H2a1 1 0 0 1 0-2zm16.95-5.66l1.414-1.414a1 1 0 0 1 1.414 1.414l-1.414 1.414a1 1 0 0 1-1.414-1.414zm-14.9 14.9l1.414-1.414a1 1 0 0 1 1.414 1.414l-1.414 1.414a1 1 0 0 1-1.414-1.414zm14.9 0a1 1 0 0 1-1.414 1.414l-1.414-1.414a1 1 0 0 1 1.414-1.414l1.414 1.414zm-14.9-14.9a1 1 0 0 1-1.414-1.414l1.414-1.414a1 1 0 0 1 1.414 1.414l-1.414 1.414z"
+						/>
+					</svg>
+					<svg
+						v-else
+						xmlns="http://www.w3.org/2000/svg"
+						viewBox="0 0 24 24"
+						width="24"
+						height="24"
+						fill="currentColor"
+					>
+						<path
+							d="M12 18a6 6 0 1 1 0-12 6 6 0 0 1 0 12zm0-2a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM11 1h2v3h-2V1zm0 19h2v3h-2v-3zM3.515 4.929l1.414-1.414L7.05 5.636 5.636 7.05 3.515 4.93zM16.95 18.364l1.414-1.414 2.121 2.121-1.414 1.414-2.121-2.121zm2.121-14.85l1.414 1.415-2.121 2.121-1.414-1.414 2.121-2.121zM5.636 16.95l1.414 1.414-2.121 2.121-1.414-1.414 2.121-2.121zM23 11v2h-3v-2h3zM4 11v2H1v-2h3z"
+						/>
+					</svg>
+				</button>
 				<button
 					@click="toggleHistory"
 					class="icon-button"
@@ -276,14 +341,15 @@ const handleAddTodo = (text: string) => {
 
 <style scoped>
 .todo-list {
-	font-family: 'LXGW WenKai Screen', sans-serif;
+	font-family: 'LXGW WenKai Screen', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+		Oxygen-Sans, Ubuntu, Cantarell, 'Helvetica Neue', sans-serif;
 	max-width: 600px;
 	width: 90%;
 	margin: 0 auto;
 	padding: 2rem;
-	background-color: rgba(255, 255, 255, 0.9);
+	background-color: var(--card-bg-color);
 	border-radius: var(--border-radius);
-	box-shadow: var(--box-shadow);
+	box-shadow: var(--card-shadow);
 	backdrop-filter: blur(10px);
 	position: relative;
 	min-height: 300px;
@@ -301,6 +367,7 @@ h1 {
 	font-size: 2.6rem;
 	font-weight: 700;
 	margin: 0;
+	text-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);
 }
 
 .header-actions {
@@ -322,9 +389,10 @@ h1 {
 	display: flex;
 	align-items: center;
 	gap: 0.5rem;
-	color: #ff9a8b;
+	color: var(--text-color);
 	font-weight: bold;
 	transition: all 0.3s ease;
+	opacity: 0.8;
 }
 
 .icon-button svg {
@@ -334,6 +402,7 @@ h1 {
 .icon-button:hover,
 .icon-button.active {
 	color: #ff7e67;
+	opacity: 1;
 }
 
 .sr-only {
@@ -365,32 +434,22 @@ h1 {
 	display: flex;
 	align-items: center;
 	justify-content: center;
-}
-
-.clear-btn {
-	background-color: #ffa8a8;
-	color: white;
+	background-color: var(--button-bg-color);
+	color: var(--text-color);
 	border: none;
 	border-radius: 20px;
 	cursor: pointer;
 	transition: all 0.3s ease;
+	font-weight: var(--font-weight);
+	letter-spacing: 0.5px;
 }
 
 .clear-btn:hover {
-	background-color: #ff9a9a;
-}
-
-.generate-btn {
-	background-color: #ff9a8b;
-	color: white;
-	border: none;
-	border-radius: 20px;
-	cursor: pointer;
-	transition: all 0.3s ease;
+	background-color: var(--button-hover-bg-color);
 }
 
 .generate-btn:hover:not(:disabled) {
-	background-color: #ff8c7f;
+	background-color: var(--button-hover-bg-color);
 }
 
 .generate-btn:disabled {
@@ -398,14 +457,8 @@ h1 {
 	cursor: not-allowed;
 }
 
-.sort-btn {
-	background-color: #3498db;
-	color: white;
-	position: relative;
-}
-
 .sort-btn:hover:not(:disabled) {
-	background-color: #2980b9;
+	background-color: var(--button-hover-bg-color);
 }
 
 .sort-btn:disabled {
@@ -443,7 +496,8 @@ h1 {
 	left: 0;
 	right: 0;
 	bottom: 0;
-	background-color: rgba(255, 255, 255, 0.8);
+	background-color: var(--card-bg-color);
+	opacity: 0.9;
 	display: flex;
 	flex-direction: column;
 	justify-content: center;
@@ -454,7 +508,7 @@ h1 {
 .loading-overlay p {
 	margin-top: 1rem;
 	font-size: 1.2rem;
-	color: #3498db;
+	color: var(--text-color);
 }
 
 .loading-spinner {
@@ -560,7 +614,8 @@ h1 {
 	top: 50%;
 	left: 50%;
 	transform: translate(-50%, -50%);
-	background-color: white;
+	background-color: var(--card-bg-color);
+	color: var(--text-color);
 	padding: 2rem;
 	border-radius: var(--border-radius);
 	box-shadow: var(--box-shadow);
@@ -573,8 +628,10 @@ h1 {
 	width: 100%;
 	padding: 0.5rem;
 	margin-bottom: 0.5rem;
-	border: 1px solid #d5d8dc;
+	border: 1px solid var(--input-border-color);
 	border-radius: calc(var(--border-radius) / 2);
+	background-color: var(--input-bg-color);
+	color: var(--text-color);
 }
 
 .dialog-actions {
@@ -610,5 +667,39 @@ h1 {
 
 .cancel-btn:hover {
 	background-color: #f4511e;
+}
+
+.theme-toggle {
+	margin-right: 10px;
+	position: relative;
+}
+
+/* 可以考虑添加一个自定义的工具提示样式，如果你想要更好的视觉效果 */
+.theme-toggle::after {
+	content: attr(title);
+	position: absolute;
+	bottom: 100%;
+	left: 50%;
+	transform: translateX(-50%);
+	background-color: var(--text-color);
+	color: var(--bg-color);
+	padding: 5px 10px;
+	border-radius: 4px;
+	font-size: 12px;
+	white-space: nowrap;
+	opacity: 0;
+	visibility: hidden;
+	transition: opacity 0.3s, visibility 0.3s;
+}
+
+.theme-toggle:hover::after {
+	opacity: 1;
+	visibility: visible;
+}
+
+@media (prefers-color-scheme: dark) {
+	.todo-list {
+		backdrop-filter: blur(20px);
+	}
 }
 </style>

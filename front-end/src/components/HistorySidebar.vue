@@ -84,14 +84,15 @@ onMounted(() => {
 	position: fixed;
 	top: 0;
 	right: 0;
-	background-color: rgba(255, 255, 255, 0.95);
+	background-color: var(--card-bg-color);
 	box-shadow: -2px 0 10px rgba(0, 0, 0, 0.1);
 	overflow-y: auto;
 	padding: 1.5rem;
+	color: var(--text-color);
 }
 
 h2 {
-	color: #5d6d7e;
+	color: var(--text-color);
 	margin-bottom: 1.5rem;
 	font-weight: 300;
 	font-size: 1.8rem;
@@ -105,14 +106,15 @@ ul {
 li {
 	margin-bottom: 1rem;
 	padding: 1rem;
-	background-color: #f8f9f9;
+	background-color: var(--input-bg-color);
 	border-radius: 8px;
 	cursor: pointer;
 	transition: all 0.3s ease;
 }
 
 li:hover {
-	background-color: #eaf2f8;
+	background-color: var(--button-bg-color);
+	color: var(--card-bg-color);
 }
 
 .history-item-header {
@@ -124,19 +126,20 @@ li:hover {
 
 h3 {
 	margin: 0;
-	color: #5d6d7e;
+	color: inherit;
 	font-weight: 400;
 }
 
 .todo-summary {
 	font-size: 0.9rem;
-	color: #7f8c8d;
+	color: inherit;
+	opacity: 0.8;
 }
 
 .delete-all-btn,
 .delete-item-btn {
-	background-color: #e74c3c;
-	color: white;
+	background-color: var(--button-bg-color);
+	color: var(--card-bg-color);
 	border: none;
 	border-radius: 5px;
 	padding: 0.4rem 0.8rem;
@@ -153,6 +156,7 @@ h3 {
 .delete-all-btn:hover,
 .delete-item-btn:hover {
 	opacity: 1;
+	background-color: var(--button-hover-bg-color);
 }
 
 .history-header {
@@ -167,11 +171,11 @@ h3 {
 	border: none;
 	font-size: 1.5rem;
 	cursor: pointer;
-	color: #5d6d7e;
+	color: var(--text-color);
 	transition: color 0.3s ease;
 }
 
 .close-button:hover {
-	color: #e74c3c;
+	color: var(--button-bg-color);
 }
 </style>

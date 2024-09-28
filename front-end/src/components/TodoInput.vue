@@ -95,22 +95,25 @@ input:focus {
 	transform: translateY(-50%);
 	font-size: 0.8rem;
 	color: #7f8c8d;
+	opacity: 0.7;
 }
 
 .add-btn {
 	padding: 0.7rem 1rem;
 	font-size: 1rem;
-	background-color: #4caf50;
-	color: white;
+	background-color: var(--button-bg-color);
+	color: var(--text-color);
 	border: none;
 	border-radius: calc(var(--border-radius) / 2);
 	cursor: pointer;
 	transition: all 0.3s ease;
 	margin-left: 0.5rem;
+	font-weight: var(--font-weight);
+	letter-spacing: 0.5px;
 }
 
 .add-btn:hover {
-	background-color: #45a049;
+	background-color: var(--button-hover-bg-color);
 }
 
 .error-message {
@@ -118,6 +121,7 @@ input:focus {
 	font-size: 0.9rem;
 	margin-top: 0.5rem;
 	width: 100%;
+	font-weight: var(--font-weight);
 }
 
 @media (max-width: 768px) {
@@ -137,8 +141,12 @@ input:focus {
 }
 
 .add-todo input {
-	border: 1px solid #ffe0e0;
+	background-color: var(--input-bg-color);
+	border-color: var(--input-border-color);
+	color: var(--text-color);
 	transition: all 0.3s ease;
+	font-weight: var(--font-weight);
+	letter-spacing: 0.5px;
 }
 
 .add-todo input:focus {
@@ -147,10 +155,17 @@ input:focus {
 }
 
 .add-btn {
-	background-color: #ff9a8b;
+	background-color: var(--button-bg-color);
+	color: var(--text-color);
 }
 
 .add-btn:hover {
-	background-color: #ff8c7f;
+	background-color: var(--button-hover-bg-color);
+}
+
+@media (prefers-color-scheme: dark) {
+	.add-todo input {
+		box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2) inset;
+	}
 }
 </style>
