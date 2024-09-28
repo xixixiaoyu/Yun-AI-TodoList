@@ -154,7 +154,7 @@ export async function getAIStreamResponse(
 		}
 	} catch (error) {
 		if (error instanceof Error && error.name === 'AbortError') {
-			console.log('请求被中断')
+			console.warn('请求被中断')
 			onChunk('[ABORTED]')
 		} else {
 			console.error('获取 AI 响应时出错:', error)

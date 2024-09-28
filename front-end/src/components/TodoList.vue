@@ -75,8 +75,6 @@ const generateSuggestedTodos = async () => {
 				historicalTodos.value
 			)}，为我预测生成 5 个建议的待办事项，直接输出待办事项结果，返回格式如"看《人类简史》,散步三十分钟"，如果无法很好预测生成，则生成五个对自我提升最佳的具体一点的待办事项。`
 		)
-		console.log('response', response)
-		console.log('response.split', response.split(','))
 		suggestedTodos.value = response
 			.split(',')
 			.filter((todo: string) => todo.trim() !== '')
@@ -124,14 +122,11 @@ const sortActiveTodosWithAI = async () => {
 			.map((todo, index) => `${index + 1}. ${todo.text}`)
 			.join('\n')
 		const prompt = `请对以下每项待办事项按照最佳优先级顺序进行排序，只返回排序后的编号（如 1,3,2,4）：\n${todoTexts}`
-		console.log('prompt', prompt)
 		const response = await getAIResponse(prompt)
 		if (!response) {
 			throw new Error('AI 返回了空响应')
 		}
 		const newOrder = response.split(',').map(Number)
-		console.log('newOrder', newOrder)
-		console.log('activeTodos', activeTodos)
 		if (newOrder.length !== activeTodos.length) {
 			throw new Error('AI 返回的排序数量与待办事项数量不匹配')
 		}
