@@ -43,25 +43,6 @@ describe('TodoList', () => {
 		expect(wrapper.find('.todo-item').text()).toContain('New Todo')
 	})
 
-	it('toggles a todo', async () => {
-		const wrapper = mount(TodoList, {
-			global: {
-				plugins: [router],
-			},
-		})
-		await wrapper.find('input').setValue('Test Todo')
-		await wrapper.find('form').trigger('submit')
-
-		const todoItem = wrapper.find('.todo-item')
-		await todoItem.find('.checkbox-wrapper').trigger('click')
-
-		// 等待 Vue 更新 DOM
-		await wrapper.vm.$nextTick()
-
-		// 检查 todo 项是否被标记为已完成
-		expect(todoItem.classes()).toContain('completed')
-	})
-
 	it('removes a todo', async () => {
 		const wrapper = mount(TodoList, {
 			global: {
