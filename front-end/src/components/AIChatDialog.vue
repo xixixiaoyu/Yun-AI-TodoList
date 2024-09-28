@@ -28,34 +28,33 @@ const sendMessage = async () => {
 	isGenerating.value = true
 	currentAIResponse.value = ''
 
+	// 添加一个空的 AI 回复占位符
+	const aiResponseIndex = chatHistory.value.length
+	chatHistory.value.push({ role: 'ai', content: '' })
+
 	try {
-		// 创建一个包含历史消息的数组，但不包括空的 AI 回复
 		const messages: Message[] = chatHistory.value
-			.filter(msg => msg.content.trim() !== '') // 过滤掉空消息
+			.filter(msg => msg.content.trim() !== '')
 			.map(msg => ({
 				role: msg.role === 'user' ? 'user' : 'assistant',
 				content: msg.content,
 			}))
 
-		let aiResponse = ''
 		await getAIStreamResponse(messages, chunk => {
 			if (chunk === '[DONE]' || chunk === '[ABORTED]') {
 				isGenerating.value = false
 				return
 			}
-			aiResponse += chunk
-			currentAIResponse.value = aiResponse
+			// 更新当前的 AI 响应
+			currentAIResponse.value += chunk
+			// 同时更新聊天历史中的 AI 回复
+			chatHistory.value[aiResponseIndex].content = currentAIResponse.value
 			nextTick(scrollToBottom)
 		})
-
-		// 在接收到完整响应后，再将 AI 回复添加到聊天历史
-		chatHistory.value.push({ role: 'ai', content: aiResponse })
 	} catch (error) {
 		console.error('获取 AI 回复时出错:', error)
-		chatHistory.value.push({
-			role: 'ai',
-			content: '抱歉，获取 AI 回复时出现错误。请稍后再试。',
-		})
+		chatHistory.value[aiResponseIndex].content =
+			'抱歉，获取 AI 回复时出现错误。请稍后再试。'
 	} finally {
 		isGenerating.value = false
 		currentAIResponse.value = ''
@@ -122,7 +121,7 @@ onUnmounted(() => {
 	document.removeEventListener('keydown', handleEscKey)
 })
 
-watch(chatHistory, scrollToBottom, { deep: true, immediate: true })
+watch([chatHistory, currentAIResponse], scrollToBottom, { deep: true, immediate: true })
 </script>
 
 <template>

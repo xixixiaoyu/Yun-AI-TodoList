@@ -127,7 +127,9 @@ const sortActiveTodosWithAI = async () => {
 	isSorting.value = true
 	try {
 		const activeTodos = todos.value.filter(todo => todo && !todo.completed)
-		const todoTexts = activeTodos.map(todo => todo.text).join('\n')
+		const todoTexts = activeTodos
+			.map((todo, index) => `${index + 1}. ${todo.text}`)
+			.join('\n')
 		const prompt = `请对以下每项待办事项按照最佳优先级顺序进行排序，只返回排序后的编号（如 1,3,2,4）：\n${todoTexts}`
 		console.log('prompt', prompt)
 		const response = await getAIResponse(prompt)
@@ -135,6 +137,8 @@ const sortActiveTodosWithAI = async () => {
 			throw new Error('AI 返回了空响应')
 		}
 		const newOrder = response.split(',').map(Number)
+		console.log('newOrder', newOrder)
+		console.log('activeTodos', activeTodos)
 		if (newOrder.length !== activeTodos.length) {
 			throw new Error('AI 返回的排序数量与待办事项数量不匹配')
 		}
