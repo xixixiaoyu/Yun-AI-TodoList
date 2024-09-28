@@ -57,7 +57,6 @@ describe('TodoList', () => {
 
 		// 等待 Vue 更新 DOM
 		await wrapper.vm.$nextTick()
-		await new Promise(resolve => setTimeout(resolve, 0))
 
 		// 检查 todo 项是否被标记为已完成
 		expect(todoItem.classes()).toContain('completed')
