@@ -26,9 +26,13 @@ export function abortCurrentRequest() {
 
 export async function getAIResponse(
 	userMessage: string,
+	language: string = 'zh',
 	temperature: number = 0.5
 ): Promise<string> {
 	try {
+		const languageInstruction =
+			language === 'zh' ? '请用中文回复。' : '请用英文或者用户输入的语言回复。'
+
 		const response = await fetch(API_URL, {
 			method: 'POST',
 			headers: {
@@ -40,7 +44,7 @@ export async function getAIResponse(
 				messages: [
 					{
 						role: 'system',
-						content: '你是一个智能助手，可以回答各种问题并提供帮助。',
+						content: `你是一个智能助手，可以回答各种问题并提供帮助。${languageInstruction}`,
 					},
 					{
 						role: 'user',

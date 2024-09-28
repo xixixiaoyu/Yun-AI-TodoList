@@ -31,7 +31,7 @@ const { error: duplicateError, showError } = useErrorHandler()
 const { showConfirmDialog, confirmDialogConfig, handleConfirm, handleCancel } =
 	useConfirmDialog()
 const { theme, toggleTheme } = useTheme()
-const { t } = useI18n()
+const { t, locale } = useI18n()
 
 const filter = ref('active')
 const showHistory = ref(false)
@@ -77,7 +77,9 @@ const generateSuggestedTodos = async () => {
 	isGenerating.value = true
 	try {
 		const response = await getAIResponse(
-			`${t('generateSuggestionsPrompt')}:${JSON.stringify(historicalTodos.value)}`
+			`${t('generateSuggestionsPrompt')}:${JSON.stringify(historicalTodos.value)}`,
+			locale.value,
+			1.5
 		)
 		suggestedTodos.value = response
 			.split(',')
@@ -124,7 +126,7 @@ const sortActiveTodosWithAI = async () => {
 			.map((todo, index) => `${index + 1}. ${todo.text}`)
 			.join('\n')
 		const prompt = `${t('sortPrompt')}:\n${todoTexts}`
-		const response = await getAIResponse(prompt)
+		const response = await getAIResponse(prompt, locale.value, 0.1)
 		if (!response) {
 			throw new Error(t('aiEmptyResponseError'))
 		}

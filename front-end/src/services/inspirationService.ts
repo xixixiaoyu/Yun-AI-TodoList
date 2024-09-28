@@ -3,7 +3,7 @@ import { getAIResponse } from './deepseekService'
 const INSPIRATION_KEY = 'dailyInspiration'
 const INSPIRATION_DATE_KEY = 'dailyInspirationDate'
 
-export async function getDailyInspiration(): Promise<string> {
+export async function getDailyInspiration(language: string): Promise<string> {
 	const storedDate = localStorage.getItem(INSPIRATION_DATE_KEY)
 	const today = new Date().toDateString()
 
@@ -14,14 +14,15 @@ export async function getDailyInspiration(): Promise<string> {
 		}
 	}
 
-	return refreshInspiration()
+	return refreshInspiration(language)
 }
 
-export async function refreshInspiration(): Promise<string> {
+export async function refreshInspiration(language: string): Promise<string> {
+	console.log('refreshInspiration', language)
 	try {
 		const prompt =
 			'Generate a short, meaningful, and inspiring quote about life (in Chinese). The quote should provide guidance and motivation. Keep it concise, preferably under 20 words.'
-		const inspiration = await getAIResponse(prompt, 1.5)
+		const inspiration = await getAIResponse(prompt, language, 1.5)
 		localStorage.setItem(INSPIRATION_KEY, inspiration)
 		localStorage.setItem(INSPIRATION_DATE_KEY, new Date().toDateString())
 		return inspiration

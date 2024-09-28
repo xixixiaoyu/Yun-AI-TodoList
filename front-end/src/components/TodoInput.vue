@@ -99,8 +99,8 @@ input:focus {
 }
 
 .add-btn {
-	padding: 0.7rem 1rem;
-	font-size: 1rem;
+	padding: 0.5rem 0.8rem; /* 减小内边距 */
+	font-size: 0.9rem; /* 减小字体大小 */
 	background-color: var(--button-bg-color);
 	color: var(--text-color);
 	border: none;
@@ -110,6 +110,8 @@ input:focus {
 	margin-left: 0.5rem;
 	font-weight: var(--font-weight);
 	letter-spacing: 0.5px;
+	height: 42px; /* 设置固定高度 */
+	min-width: 80px; /* 设置最小宽度 */
 }
 
 .add-btn:hover {
@@ -135,8 +137,8 @@ input:focus {
 	}
 
 	.add-btn {
-		width: 100%;
-		margin-left: 0;
+		width: auto; /* 移动端下不要占满整行 */
+		padding: 0.5rem 1rem; /* 在移动端稍微增加一些内边距，以便于点击 */
 	}
 }
 

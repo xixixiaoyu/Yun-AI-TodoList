@@ -58,24 +58,24 @@ onMounted(() => {
 }
 
 [data-theme='dark'] {
-	--bg-color: #2c3e50;
-	--text-color: #ecf0f1;
-	--card-bg-color: rgba(44, 62, 80, 0.9);
-	--card-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
-	--input-bg-color: #34495e;
-	--input-border-color: #7f8c8d;
-	--button-bg-color: #3498db;
-	--button-hover-bg-color: #2980b9;
+	--bg-color: #2f2b3a;
+	--text-color: #e6e6e6;
+	--card-bg-color: rgba(65, 62, 82, 0.9);
+	--card-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+	--input-bg-color: #3d3a4d;
+	--input-border-color: #5d5a6d;
+	--button-bg-color: #8e7cc3;
+	--button-hover-bg-color: #7d6aad;
 	--font-smoothing: subpixel-antialiased;
 	--font-weight: 300;
-	--todo-text-color: #ecf0f1;
-	--completed-todo-text-color: #95a5a6;
-	--filter-btn-bg: #34495e;
-	--filter-btn-text: #ecf0f1;
-	--filter-btn-border: #7f8c8d;
-	--filter-btn-active-bg: #3498db;
-	--filter-btn-active-text: #ecf0f1;
-	--filter-btn-active-border: #3498db;
+	--todo-text-color: #e6e6e6;
+	--completed-todo-text-color: #a6a6a6;
+	--filter-btn-bg: #3d3a4d;
+	--filter-btn-text: #e6e6e6;
+	--filter-btn-border: #5d5a6d;
+	--filter-btn-active-bg: #8e7cc3;
+	--filter-btn-active-text: #ffffff;
+	--filter-btn-active-border: #8e7cc3;
 }
 
 body {

@@ -10,7 +10,7 @@ import DOMPurify from 'dompurify'
 import 'highlight.js/styles/github.css'
 import { useI18n } from 'vue-i18n'
 
-const { t } = useI18n()
+const { t, locale } = useI18n()
 
 const userMessage = ref('')
 const chatHistory = ref<{ role: 'user' | 'ai'; content: string }[]>([])
@@ -38,6 +38,11 @@ const sendMessage = async () => {
 				role: msg.role === 'user' ? 'user' : 'assistant',
 				content: msg.content,
 			}))
+
+		// 添加语言指示到消息中
+		const languageInstruction =
+			locale.value === 'zh' ? '请用中文回复。' : '请用英文或者用户输入的语言回复。'
+		messages.unshift({ role: 'system', content: languageInstruction })
 
 		await getAIStreamResponse(messages, chunk => {
 			if (chunk === '[DONE]' || chunk === '[ABORTED]') {

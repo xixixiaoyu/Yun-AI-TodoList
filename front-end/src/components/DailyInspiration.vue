@@ -3,17 +3,17 @@ import { ref, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { getDailyInspiration, refreshInspiration } from '../services/inspirationService'
 
-const { t } = useI18n()
+const { t, locale } = useI18n()
 const inspiration = ref('')
 const isRefreshing = ref(false)
 
 const fetchInspiration = async () => {
-	inspiration.value = await getDailyInspiration()
+	inspiration.value = await getDailyInspiration(locale.value)
 }
 
 const handleRefresh = async () => {
 	isRefreshing.value = true
-	inspiration.value = await refreshInspiration()
+	inspiration.value = await refreshInspiration(locale.value)
 	isRefreshing.value = false
 }
 

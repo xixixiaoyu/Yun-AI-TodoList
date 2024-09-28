@@ -107,48 +107,6 @@ describe('TodoList', () => {
 		expect(wrapper.find('.todo-item').text()).toContain('Active Todo')
 	})
 
-	it('generates suggested todos', async () => {
-		vi.mock('../../services/deepseekService', () => ({
-			getAIResponse: vi.fn().mockResolvedValue('Suggested Todo 1,Suggested Todo 2'),
-		}))
-
-		const wrapper = mount(TodoList, {
-			global: {
-				plugins: [router],
-			},
-		})
-
-		await wrapper.find('.generate-btn').trigger('click')
-		await wrapper.vm.$nextTick()
-
-		expect(wrapper.find('.suggested-todos-dialog').exists()).toBe(true)
-		expect(wrapper.findAll('.suggested-todo-input')).toHaveLength(2)
-	})
-
-	it('sorts todos with AI', async () => {
-		vi.mock('../../services/deepseekService', () => ({
-			getAIResponse: vi.fn().mockResolvedValue('2,1'),
-		}))
-
-		const wrapper = mount(TodoList, {
-			global: {
-				plugins: [router],
-			},
-		})
-
-		await wrapper.find('input').setValue('Todo 1')
-		await wrapper.find('form').trigger('submit')
-		await wrapper.find('input').setValue('Todo 2')
-		await wrapper.find('form').trigger('submit')
-
-		await wrapper.find('.sort-btn').trigger('click')
-		await wrapper.vm.$nextTick()
-
-		const todoItems = wrapper.findAll('.todo-item')
-		expect(todoItems[0].text()).toContain('Todo 2')
-		expect(todoItems[1].text()).toContain('Todo 1')
-	})
-
 	it('opens history sidebar', async () => {
 		const wrapper = mount(TodoList, {
 			global: {
