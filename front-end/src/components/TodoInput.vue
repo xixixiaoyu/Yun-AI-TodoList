@@ -2,8 +2,8 @@
 import { ref, computed } from 'vue'
 
 const props = defineProps<{
-  maxLength: number
-  duplicateError: string
+	maxLength: number
+	duplicateError: string
 }>()
 
 const emit = defineEmits(['add'])
@@ -12,122 +12,144 @@ const newTodo = ref('')
 const errorMessage = ref('')
 
 const charCount = computed(() => {
-  return `${newTodo.value.length}/${props.maxLength}`
+	return `${newTodo.value.length}/${props.maxLength}`
 })
 
 const addTodo = () => {
-  const trimmedTodo = newTodo.value.trim()
-  if (trimmedTodo.length === 0) {
-    errorMessage.value = '待办事项不能为空'
-    setTimeout(() => {
-      errorMessage.value = ''
-    }, 3000)
-    return
-  }
-  if (trimmedTodo.length > props.maxLength) {
-    errorMessage.value = `待办事项不能超过 ${props.maxLength} 个字符`
-    setTimeout(() => {
-      errorMessage.value = ''
-    }, 3000)
-    return
-  }
-  emit('add', trimmedTodo)
-  newTodo.value = ''
-  errorMessage.value = ''
+	const trimmedTodo = newTodo.value.trim()
+	if (trimmedTodo.length === 0) {
+		errorMessage.value = '待办事项不能为空'
+		setTimeout(() => {
+			errorMessage.value = ''
+		}, 3000)
+		return
+	}
+	if (trimmedTodo.length > props.maxLength) {
+		errorMessage.value = `待办事项不能超过 ${props.maxLength} 个字符`
+		setTimeout(() => {
+			errorMessage.value = ''
+		}, 3000)
+		return
+	}
+	emit('add', trimmedTodo)
+	newTodo.value = ''
+	errorMessage.value = ''
 }
 </script>
 
 <template>
-  <form @submit.prevent="addTodo" class="add-todo">
-    <div class="input-wrapper">
-      <input v-model.trim="newTodo" placeholder="添加新的待办事项..." :maxlength="maxLength" />
-      <span class="char-count">
-        {{ charCount }}
-      </span>
-    </div>
-    <button type="submit" class="add-btn">添加</button>
-  </form>
-  <p v-if="errorMessage || duplicateError" class="error-message">
-    {{ errorMessage || duplicateError }}
-  </p>
+	<form @submit.prevent="addTodo" class="add-todo">
+		<div class="input-wrapper">
+			<input
+				v-model.trim="newTodo"
+				placeholder="添加新的待办事项..."
+				:maxlength="maxLength"
+			/>
+			<span class="char-count">
+				{{ charCount }}
+			</span>
+		</div>
+		<button type="submit" class="add-btn">添加</button>
+	</form>
+	<p v-if="errorMessage || duplicateError" class="error-message">
+		{{ errorMessage || duplicateError }}
+	</p>
 </template>
 
 <style scoped>
 .add-todo {
-  display: flex;
-  margin-bottom: 1rem;
-  flex-wrap: wrap;
+	display: flex;
+	margin-bottom: 1rem;
+	flex-wrap: wrap;
 }
 
 .input-wrapper {
-  position: relative;
-  flex-grow: 1;
-  display: flex;
-  min-width: 200px;
-  margin-bottom: 0.5rem;
+	position: relative;
+	flex-grow: 1;
+	display: flex;
+	min-width: 200px;
+	margin-bottom: 0.5rem;
 }
 
 input {
-  flex-grow: 1;
-  padding: 0.7rem;
-  padding-right: 3rem;
-  font-size: 1rem;
-  border: 1px solid #d5d8dc;
-  border-radius: calc(var(--border-radius) / 2);
-  outline: none;
-  transition: all 0.3s ease;
+	flex-grow: 1;
+	padding: 0.7rem;
+	padding-right: 3rem;
+	font-size: 1rem;
+	border: 1px solid #d5d8dc;
+	border-radius: calc(var(--border-radius) / 2);
+	outline: none;
+	transition: all 0.3s ease;
 }
 
 input:focus {
-  border-color: #85c1e9;
-  box-shadow: 0 0 5px rgba(133, 193, 233, 0.5);
+	border-color: #85c1e9;
+	box-shadow: 0 0 5px rgba(133, 193, 233, 0.5);
 }
 
 .char-count {
-  position: absolute;
-  right: 0.5rem;
-  top: 50%;
-  transform: translateY(-50%);
-  font-size: 0.8rem;
-  color: #7f8c8d;
+	position: absolute;
+	right: 0.5rem;
+	top: 50%;
+	transform: translateY(-50%);
+	font-size: 0.8rem;
+	color: #7f8c8d;
 }
 
 .add-btn {
-  padding: 0.7rem 1rem;
-  font-size: 1rem;
-  background-color: #85c1e9;
-  color: white;
-  border: none;
-  border-radius: calc(var(--border-radius) / 2);
-  cursor: pointer;
-  transition: all 0.3s ease;
-  margin-left: 0.5rem;
+	padding: 0.7rem 1rem;
+	font-size: 1rem;
+	background-color: #4caf50;
+	color: white;
+	border: none;
+	border-radius: calc(var(--border-radius) / 2);
+	cursor: pointer;
+	transition: all 0.3s ease;
+	margin-left: 0.5rem;
 }
 
 .add-btn:hover {
-  background-color: #5dade2;
+	background-color: #45a049;
 }
 
 .error-message {
-  color: #e74c3c;
-  font-size: 0.9rem;
-  margin-top: 0.5rem;
-  width: 100%;
+	color: #e74c3c;
+	font-size: 0.9rem;
+	margin-top: 0.5rem;
+	width: 100%;
 }
 
 @media (max-width: 768px) {
-  .add-todo {
-    flex-direction: column;
-  }
+	.add-todo {
+		flex-direction: column;
+	}
 
-  .input-wrapper {
-    margin-bottom: 0.5rem;
-    width: 100%;
-  }
+	.input-wrapper {
+		margin-bottom: 0.5rem;
+		width: 100%;
+	}
 
-  .add-btn {
-    width: 100%;
-    margin-left: 0;
-  }
+	.add-btn {
+		width: 100%;
+		margin-left: 0;
+	}
+}
+
+.add-todo input {
+	border: 1px solid #ffe0e0;
+	transition: all 0.3s ease;
+}
+
+.add-todo input:focus {
+	border-color: #ff9a8b;
+	box-shadow: 0 0 0 2px rgba(255, 154, 139, 0.2);
+}
+
+.add-btn {
+	background-color: #ff9a8b;
+}
+
+.add-btn:hover {
+	background-color: #ff8c7f;
 }
 </style>
