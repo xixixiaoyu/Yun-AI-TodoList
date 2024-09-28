@@ -140,7 +140,7 @@ watch([chatHistory, currentAIResponse], scrollToBottom, { deep: true, immediate:
 					class="message-container"
 					:class="message.role"
 				>
-					<div class="message-content">
+					<div class="message-content" dir="ltr">
 						<p v-if="message.role === 'user'">{{ message.content }}</p>
 						<div v-else v-html="message.sanitizedContent"></div>
 					</div>
@@ -240,6 +240,9 @@ watch([chatHistory, currentAIResponse], scrollToBottom, { deep: true, immediate:
 	border-radius: 18px;
 	line-height: 1.6;
 	font-size: 16px;
+	direction: ltr;
+	unicode-bidi: isolate;
+	text-align: left;
 }
 
 @keyframes fadeIn {
