@@ -15,8 +15,6 @@ interface AIStreamResponse {
 	}[]
 }
 
-const temperature = 0.5
-
 let abortController: AbortController | null = null
 
 export function abortCurrentRequest() {
@@ -26,7 +24,10 @@ export function abortCurrentRequest() {
 	}
 }
 
-export async function getAIResponse(userMessage: string): Promise<string> {
+export async function getAIResponse(
+	userMessage: string,
+	temperature: number = 0.5
+): Promise<string> {
 	try {
 		const response = await fetch(API_URL, {
 			method: 'POST',
@@ -46,7 +47,7 @@ export async function getAIResponse(userMessage: string): Promise<string> {
 						content: userMessage,
 					},
 				],
-				temperature: temperature,
+				temperature,
 				stream: false,
 			}),
 		})
@@ -107,7 +108,7 @@ export async function getAIStreamResponse(
 					},
 					...messages, // 包含历史消息
 				],
-				temperature: temperature,
+				temperature: 0.5,
 				stream: true,
 			}),
 			signal,

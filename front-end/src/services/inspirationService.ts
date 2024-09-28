@@ -21,7 +21,7 @@ export async function refreshInspiration(): Promise<string> {
 	try {
 		const prompt =
 			'Generate a short, meaningful, and inspiring quote about life (in Chinese). The quote should provide guidance and motivation. Keep it concise, preferably under 20 words.'
-		const inspiration = await getAIResponse(prompt)
+		const inspiration = await getAIResponse(prompt, 1.5)
 		localStorage.setItem(INSPIRATION_KEY, inspiration)
 		localStorage.setItem(INSPIRATION_DATE_KEY, new Date().toDateString())
 		return inspiration
