@@ -1,12 +1,16 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 
 const props = defineProps<{
 	maxLength: number
 	duplicateError: string
+	placeholder: string
 }>()
 
 const emit = defineEmits(['add'])
+
+const { t } = useI18n()
 
 const newTodo = ref('')
 const errorMessage = ref('')
@@ -18,14 +22,14 @@ const charCount = computed(() => {
 const addTodo = () => {
 	const trimmedTodo = newTodo.value.trim()
 	if (trimmedTodo.length === 0) {
-		errorMessage.value = '待办事项不能为空'
+		errorMessage.value = t('emptyTodoError')
 		setTimeout(() => {
 			errorMessage.value = ''
 		}, 3000)
 		return
 	}
 	if (trimmedTodo.length > props.maxLength) {
-		errorMessage.value = `待办事项不能超过 ${props.maxLength} 个字符`
+		errorMessage.value = t('maxLengthError', { maxLength: props.maxLength })
 		setTimeout(() => {
 			errorMessage.value = ''
 		}, 3000)
@@ -40,16 +44,12 @@ const addTodo = () => {
 <template>
 	<form @submit.prevent="addTodo" class="add-todo">
 		<div class="input-wrapper">
-			<input
-				v-model.trim="newTodo"
-				placeholder="添加新的待办事项..."
-				:maxlength="maxLength"
-			/>
+			<input v-model.trim="newTodo" :placeholder="placeholder" :maxlength="maxLength" />
 			<span class="char-count">
 				{{ charCount }}
 			</span>
 		</div>
-		<button type="submit" class="add-btn">添加</button>
+		<button type="submit" class="add-btn">{{ t('add') }}</button>
 	</form>
 	<p v-if="errorMessage || duplicateError" class="error-message">
 		{{ errorMessage || duplicateError }}

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
 
 const props = defineProps<{
 	show: boolean
@@ -10,6 +11,8 @@ const props = defineProps<{
 }>()
 
 const emit = defineEmits(['confirm', 'cancel'])
+
+const { t } = useI18n()
 
 const isVisible = ref(props.show)
 

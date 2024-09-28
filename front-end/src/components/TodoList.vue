@@ -10,6 +10,7 @@ import { useErrorHandler } from '../composables/useErrorHandler'
 import { useConfirmDialog } from '../composables/useConfirmDialog'
 import { getAIResponse } from '../services/deepseekService'
 import { useTheme } from '../composables/useTheme'
+import { useI18n } from 'vue-i18n'
 
 const {
 	todos,
@@ -28,6 +29,7 @@ const { error: duplicateError, showError } = useErrorHandler()
 const { showConfirmDialog, confirmDialogConfig, handleConfirm, handleCancel } =
 	useConfirmDialog()
 const { theme, toggleTheme } = useTheme()
+const { t } = useI18n()
 
 const filter = ref('active')
 const showHistory = ref(false)
@@ -57,10 +59,10 @@ const hasActiveTodos = computed(() => {
 const clearActive = () => {
 	showConfirmDialog.value = true
 	confirmDialogConfig.value = {
-		title: '清除未完成的待办事项',
-		message: '确定要清除所有未完成的待办事项吗？此操作不可撤销。',
-		confirmText: '确定清除',
-		cancelText: '取消',
+		title: t('clearCompleted'),
+		message: t('confirmClearCompleted'),
+		confirmText: t('confirm'),
+		cancelText: t('cancel'),
 		action: clearActiveTodos,
 	}
 }
@@ -73,9 +75,7 @@ const generateSuggestedTodos = async () => {
 	isGenerating.value = true
 	try {
 		const response = await getAIResponse(
-			`请根据我的历史待办事项：${JSON.stringify(
-				historicalTodos.value
-			)}，为我预测生成 5 个建议的待办事项，直接输出待办事项结果，返回格式如"看《人类简史》,散步三十分钟"，如果无法很好预测生成，则生成五个对自我提升最佳的具体一点的待办事项。`
+			`${t('generateSuggestionsPrompt')}:${JSON.stringify(historicalTodos.value)}`
 		)
 		suggestedTodos.value = response
 			.split(',')
@@ -83,10 +83,8 @@ const generateSuggestedTodos = async () => {
 			.slice(0, 5) // 确保只有 5 个建议
 		showSuggestedTodos.value = true
 	} catch (error) {
-		console.error('生成建议待办事项时出错:', error)
-		showError(
-			error instanceof Error ? error.message : '生成建议待办事项时出错，请稍后再试。'
-		)
+		console.error(t('generateSuggestionsError'), error)
+		showError(error instanceof Error ? error.message : t('generateSuggestionsError'))
 	} finally {
 		isGenerating.value = false
 	}
@@ -95,7 +93,7 @@ const generateSuggestedTodos = async () => {
 const confirmSuggestedTodos = () => {
 	const duplicates = addMultipleTodos(suggestedTodos.value)
 	if (duplicates.length > 0) {
-		showError(`以下待办事项已存在：${duplicates.join(', ')}`)
+		showError(`${t('duplicateError')}:${duplicates.join(', ')}`)
 	}
 	showSuggestedTodos.value = false
 	suggestedTodos.value = []
@@ -123,19 +121,19 @@ const sortActiveTodosWithAI = async () => {
 		const todoTexts = activeTodos
 			.map((todo, index) => `${index + 1}. ${todo.text}`)
 			.join('\n')
-		const prompt = `请对以下每项待办事项按照最佳优先级顺序进行排序，只返回排序后的编号（如 1,3,2,4）：\n${todoTexts}`
+		const prompt = `${t('sortPrompt')}:\n${todoTexts}`
 		const response = await getAIResponse(prompt)
 		if (!response) {
-			throw new Error('AI 返回了空响应')
+			throw new Error(t('aiEmptyResponseError'))
 		}
 		const newOrder = response.split(',').map(Number)
 		if (newOrder.length !== activeTodos.length) {
-			throw new Error('AI 返回的排序数量与待办事项数量不匹配')
+			throw new Error(t('aiSortMismatchError'))
 		}
 		updateTodosOrder(newOrder)
 	} catch (error) {
-		console.error('AI 排序出错:', error)
-		showError(error instanceof Error ? error.message : 'AI 排序失败，请稍后再试。')
+		console.error(t('aiSortError'), error)
+		showError(error instanceof Error ? error.message : t('aiSortError'))
 	} finally {
 		isSorting.value = false
 	}
@@ -146,7 +144,7 @@ const isLoading = computed(() => isSorting.value)
 const handleAddTodo = (text: string) => {
 	const success = addTodo(text)
 	if (!success) {
-		showError('该待办事项已存在，请勿重复添加。')
+		showError(t('duplicateError'))
 	}
 }
 
@@ -160,13 +158,13 @@ const themeIcon = computed(() => {
 const themeTooltip = computed(() => {
 	switch (theme.value) {
 		case 'light':
-			return '切换到深色模式'
+			return t('switchToDarkMode')
 		case 'dark':
-			return '切换到自动模式'
+			return t('switchToAutoMode')
 		case 'auto':
-			return '切换到浅色模式'
+			return t('switchToLightMode')
 		default:
-			return '切换主题模式'
+			return t('switchToDarkMode')
 	}
 })
 </script>
@@ -176,10 +174,10 @@ const themeTooltip = computed(() => {
 		<!-- 添加 loading 遮罩层 -->
 		<div v-if="isLoading" class="loading-overlay">
 			<div class="loading-spinner"></div>
-			<p>AI 正在排序中，请稍候...</p>
+			<p>{{ t('sorting') }}</p>
 		</div>
 		<div class="header">
-			<h1>todo</h1>
+			<h1>{{ t('appTitle') }}</h1>
 			<div class="header-actions">
 				<button
 					@click="toggleTheme"
@@ -240,7 +238,7 @@ const themeTooltip = computed(() => {
 							d="M13 3c-4.97 0-9 4.03-9 9H1l3.89 3.89.07.14L9 12H6c0-3.87 3.13-7 7-7s7 3.13 7 7-3.13 7-7 7c-1.93 0-3.68-.79-4.94-2.06l-1.42 1.42C8.27 19.99 10.51 21 13 21c4.97 0 9-4.03 9-9s-4.03-9-9-9zm-1 5v5l4.28 2.54.72-1.21-3.5-2.08V8H12z"
 						/>
 					</svg>
-					<span class="sr-only">历史记录</span>
+					<span class="sr-only">{{ t('history') }}</span>
 				</button>
 				<router-link to="/ai-assistant" class="icon-button">
 					<svg
@@ -254,7 +252,7 @@ const themeTooltip = computed(() => {
 							d="M13.5 2.6v2.8H12v-2.8h1.5zm5.1 2.1l-2 2-1.1-1.1 2-2 1.1 1.1zm-10.2 0l1.1-1.1 2 2-1.1 1.1-2-2zm5.1 1.3c-3.3 0-6 2.7-6 6s2.7 6 6 6 6-2.7 6-6-2.7-6-6-6zm0 10.5c-2.5 0-4.5-2-4.5-4.5s2-4.5 4.5-4.5 4.5 2 4.5 4.5-2 4.5-4.5 4.5zM5.5 19.4l-2-2 1.1-1.1 2 2-1.1 1.1zm13-2l2 2-1.1 1.1-2-2 1.1-1.1zM12 21.4v-2.8h1.5v2.8H12z"
 						/>
 					</svg>
-					<span>AI 助手</span>
+					<span>{{ t('aiAssistant') }}</span>
 				</router-link>
 			</div>
 		</div>
@@ -262,6 +260,7 @@ const themeTooltip = computed(() => {
 			:maxLength="MAX_TODO_LENGTH"
 			@add="handleAddTodo"
 			:duplicateError="duplicateError"
+			:placeholder="t('addTodo')"
 		/>
 		<TodoFilters v-model:filter="filter" />
 		<div class="todo-grid">
@@ -279,14 +278,14 @@ const themeTooltip = computed(() => {
 				@click="clearActive"
 				class="clear-btn"
 			>
-				清除待完成
+				{{ t('clearCompleted') }}
 			</button>
 			<button
 				@click="generateSuggestedTodos"
 				class="generate-btn"
 				:disabled="isGenerating"
 			>
-				{{ isGenerating ? '正在生成...' : '生成建议待办事项' }}
+				{{ isGenerating ? t('generating') : t('generateSuggestions') }}
 			</button>
 			<!-- 新增：AI 排序按钮 -->
 			<button
@@ -295,7 +294,7 @@ const themeTooltip = computed(() => {
 				class="sort-btn"
 				:disabled="isSorting"
 			>
-				<span>AI 优先级排序</span>
+				<span>{{ t('aiPrioritySort') }}</span>
 			</button>
 		</div>
 		<ConfirmDialog
@@ -310,8 +309,8 @@ const themeTooltip = computed(() => {
 
 		<!-- 新增：建议待办事项确认对话框 -->
 		<div v-if="showSuggestedTodos" class="suggested-todos-dialog">
-			<h3>建议的待办事项</h3>
-			<p>请确认或修改以下建议的待办事项：</p>
+			<h3>{{ t('suggestedTodos') }}</h3>
+			<p>{{ t('confirmOrModify') }}</p>
 			<ul>
 				<li v-for="(todo, index) in suggestedTodos" :key="index">
 					<input
@@ -322,8 +321,12 @@ const themeTooltip = computed(() => {
 				</li>
 			</ul>
 			<div class="dialog-actions">
-				<button @click="confirmSuggestedTodos" class="confirm-btn">确认添加</button>
-				<button @click="cancelSuggestedTodos" class="cancel-btn">取消</button>
+				<button @click="confirmSuggestedTodos" class="confirm-btn">
+					{{ t('confirmAdd') }}
+				</button>
+				<button @click="cancelSuggestedTodos" class="cancel-btn">
+					{{ t('cancel') }}
+				</button>
 			</div>
 		</div>
 	</div>

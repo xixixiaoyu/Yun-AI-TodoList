@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { defineProps, defineEmits, onMounted } from 'vue'
+import { defineProps, defineEmits } from 'vue'
+import { useI18n } from 'vue-i18n'
 
 interface Todo {
 	id: number
@@ -18,6 +19,8 @@ const props = defineProps<{
 
 const emit = defineEmits(['restore', 'deleteItem', 'close'])
 
+const { t } = useI18n()
+
 const restoreHistory = (date: string) => {
 	emit('restore', date)
 }
@@ -29,7 +32,7 @@ const deleteHistoryItem = (event: Event, date: string) => {
 
 const formatDate = (dateString: string) => {
 	const date = new Date(dateString)
-	return date.toLocaleDateString('zh-CN', {
+	return date.toLocaleDateString(t('locale'), {
 		year: 'numeric',
 		month: 'long',
 		day: 'numeric',
@@ -39,7 +42,7 @@ const formatDate = (dateString: string) => {
 const getTodoSummary = (todos: Todo[]) => {
 	const total = todos.length
 	const completed = todos.filter(todo => todo.completed).length
-	return `${completed}/${total} 已完成`
+	return t('todoSummary', { completed, total })
 }
 
 const handleEscKey = (event: KeyboardEvent) => {
@@ -56,7 +59,7 @@ onMounted(() => {
 <template>
 	<div class="history-sidebar">
 		<div class="history-header">
-			<h2>历史记录</h2>
+			<h2>{{ t('history') }}</h2>
 			<button @click="$emit('close')" class="close-button">&times;</button>
 		</div>
 		<ul>
@@ -67,7 +70,7 @@ onMounted(() => {
 						@click.stop="deleteHistoryItem($event, item.date)"
 						class="delete-item-btn"
 					>
-						删除
+						{{ t('delete') }}
 					</button>
 				</div>
 				<div class="todo-summary">{{ getTodoSummary(item.todos) }}</div>

@@ -1,9 +1,13 @@
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n'
+
 defineProps<{
 	filter: string
 }>()
 
 const emit = defineEmits(['update:filter'])
+
+const { t } = useI18n()
 
 const setFilter = (newFilter: string) => {
 	emit('update:filter', newFilter)
@@ -13,10 +17,10 @@ const setFilter = (newFilter: string) => {
 <template>
 	<div class="filter-buttons">
 		<button @click="setFilter('active')" :class="{ active: filter === 'active' }">
-			待完成
+			{{ t('active') }}
 		</button>
 		<button @click="setFilter('completed')" :class="{ active: filter === 'completed' }">
-			已完成
+			{{ t('completed') }}
 		</button>
 	</div>
 </template>

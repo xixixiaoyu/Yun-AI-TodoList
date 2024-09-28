@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 
 const props = defineProps<{
 	todo: {
@@ -10,6 +11,8 @@ const props = defineProps<{
 }>()
 
 const emit = defineEmits(['toggle', 'remove'])
+
+const { t } = useI18n()
 
 const toggleTodo = () => {
 	emit('toggle', props.todo.id)
@@ -38,7 +41,7 @@ const formattedTitle = computed(() => {
 				<span class="text-content">{{ todo.text }}</span>
 			</span>
 		</div>
-		<button @click="removeTodo" class="delete-btn">删除</button>
+		<button @click="removeTodo" class="delete-btn">{{ t('delete') }}</button>
 	</div>
 </template>
 

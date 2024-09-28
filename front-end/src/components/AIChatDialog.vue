@@ -7,7 +7,10 @@ import {
 } from '../services/deepseekService'
 import { marked } from 'marked'
 import DOMPurify from 'dompurify'
-import 'highlight.js/styles/github.css' // 您可以选择其他样式
+import 'highlight.js/styles/github.css'
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
 
 const userMessage = ref('')
 const chatHistory = ref<{ role: 'user' | 'ai'; content: string }[]>([])
@@ -25,7 +28,6 @@ const sendMessage = async () => {
 	isGenerating.value = true
 	currentAIResponse.value = ''
 
-	// 添加一个空的 AI 回复占位符
 	const aiResponseIndex = chatHistory.value.length
 	chatHistory.value.push({ role: 'ai', content: '' })
 
@@ -42,16 +44,13 @@ const sendMessage = async () => {
 				isGenerating.value = false
 				return
 			}
-			// 更新当前的 AI 响应
 			currentAIResponse.value += chunk
-			// 同时更新聊天历史中的 AI 回复
 			chatHistory.value[aiResponseIndex].content = currentAIResponse.value
 			nextTick(scrollToBottom)
 		})
 	} catch (error) {
-		console.error('获取 AI 回复时出错:', error)
-		chatHistory.value[aiResponseIndex].content =
-			'抱歉，获取 AI 回复时出现错误。请稍后再试。'
+		console.error(t('aiResponseError'), error)
+		chatHistory.value[aiResponseIndex].content = t('aiResponseErrorMessage')
 	} finally {
 		isGenerating.value = false
 		currentAIResponse.value = ''
@@ -113,8 +112,8 @@ watch([chatHistory, currentAIResponse], scrollToBottom, { deep: true, immediate:
 <template>
 	<div class="ai-chat-dialog">
 		<div class="dialog-header">
-			<h2>AI 助手</h2>
-			<router-link to="/" class="close-button" aria-label="关闭">
+			<h2>{{ t('aiAssistant') }}</h2>
+			<router-link to="/" class="close-button" aria-label="close">
 				<svg
 					xmlns="http://www.w3.org/2000/svg"
 					viewBox="0 0 24 24"
@@ -148,11 +147,11 @@ watch([chatHistory, currentAIResponse], scrollToBottom, { deep: true, immediate:
 					v-model="userMessage"
 					@keydown.enter.exact.prevent="sendMessage"
 					@keydown.enter.shift.exact="newline"
-					placeholder="询问 AI 助手... (按 Shift + Enter 换行，Enter 发送)"
+					:placeholder="t('askAiAssistant')"
 					:disabled="isGenerating"
 				></textarea>
-				<button v-if="!isGenerating" @click="sendMessage">发送</button>
-				<button v-else @click="stopGenerating" class="stop-btn">停止</button>
+				<button v-if="!isGenerating" @click="sendMessage">{{ t('send') }}</button>
+				<button v-else @click="stopGenerating" class="stop-btn">{{ t('stop') }}</button>
 			</div>
 		</div>
 	</div>

@@ -1,8 +1,10 @@
 <script setup lang="ts">
-import { onErrorCaptured, computed } from 'vue'
+import { onErrorCaptured, computed, ref } from 'vue'
 import { useTheme } from './composables/useTheme'
+import { useI18n } from 'vue-i18n'
 
 const { theme, systemTheme } = useTheme()
+const { locale } = useI18n()
 
 onErrorCaptured((err, instance, info) => {
 	console.error('Captured error:', err, instance, info)
@@ -12,10 +14,17 @@ onErrorCaptured((err, instance, info) => {
 const currentTheme = computed(() => {
 	return theme.value === 'auto' ? systemTheme.value : theme.value
 })
+
+const toggleLanguage = () => {
+	locale.value = locale.value === 'zh' ? 'en' : 'zh'
+}
 </script>
 
 <template>
 	<div class="app" :class="currentTheme">
+		<button @click="toggleLanguage" class="language-toggle">
+			{{ locale === 'zh' ? 'EN' : '中文' }}
+		</button>
 		<router-view></router-view>
 	</div>
 </template>
@@ -82,5 +91,18 @@ body {
 * {
 	transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease,
 		box-shadow 0.3s ease;
+}
+
+.language-toggle {
+	position: fixed;
+	top: 10px;
+	right: 10px;
+	padding: 5px 10px;
+	background-color: var(--button-bg-color);
+	color: var(--text-color);
+	border: none;
+	border-radius: 4px;
+	cursor: pointer;
+	z-index: 1000;
 }
 </style>
