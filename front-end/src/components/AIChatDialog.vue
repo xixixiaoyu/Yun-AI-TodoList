@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, nextTick, onMounted, onUnmounted, watch, computed } from 'vue'
-import { getAIStreamResponse } from '../services/deepseekService'
+import { getAIStreamResponse, abortCurrentRequest } from '../services/deepseekService'
 import { marked } from 'marked'
 import DOMPurify from 'dompurify'
 
@@ -8,9 +8,9 @@ const emit = defineEmits(['close'])
 
 const userMessage = ref('')
 const chatHistory = ref<{ role: 'user' | 'ai'; content: string }[]>([])
-const isLoading = ref(false)
 const chatHistoryRef = ref<HTMLDivElement | null>(null)
 const currentAIResponse = ref('')
+const isGenerating = ref(false)
 
 const sendMessage = async () => {
 	if (!userMessage.value.trim()) return
@@ -18,7 +18,7 @@ const sendMessage = async () => {
 	const userMessageContent = userMessage.value
 	chatHistory.value.push({ role: 'user', content: userMessageContent })
 	userMessage.value = ''
-	isLoading.value = true
+	isGenerating.value = true
 	currentAIResponse.value = ''
 
 	chatHistory.value.push({ role: 'ai', content: '' })
@@ -26,46 +26,41 @@ const sendMessage = async () => {
 
 	try {
 		await getAIStreamResponse(userMessageContent, chunk => {
-			if (chunk === '[DONE]') {
-				isLoading.value = false
+			if (chunk === '[DONE]' || chunk === '[ABORTED]') {
+				isGenerating.value = false
 				return
 			}
 			currentAIResponse.value += chunk
 			chatHistory.value[currentMessageIndex].content = currentAIResponse.value
-			nextTick(() => {
-				scrollToBottom()
-			})
+			nextTick(scrollToBottom)
 		})
 	} catch (error) {
 		console.error('获取 AI 回复时出错:', error)
 		chatHistory.value[currentMessageIndex].content =
 			'抱歉，获取 AI 回复时出现错误。请稍后再试。'
-		isLoading.value = false
 	} finally {
-		isLoading.value = false
-		currentAIResponse.value = '' // 重置当前响应
+		isGenerating.value = false
+		currentAIResponse.value = ''
 	}
 }
 
-const removeDuplicates = (text: string): string => {
-	const sentences = text.split('。').filter(s => s.trim() !== '')
-	const uniqueSentences = Array.from(new Set(sentences))
-	return uniqueSentences.join('。') + '。'
+const stopGenerating = () => {
+	abortCurrentRequest()
+	isGenerating.value = false
 }
 
-const sanitizeContent = (content: string) => {
-	const deduplicatedContent = removeDuplicates(content)
-	const rawHtml = marked.parse(deduplicatedContent)
+const sanitizeContent = (content: string): string => {
+	const rawHtml = marked.parse(content)
 	return DOMPurify.sanitize(rawHtml)
 }
 
-const sanitizedMessages = computed(() => {
-	return chatHistory.value.map(message => ({
+const sanitizedMessages = computed(() =>
+	chatHistory.value.map(message => ({
 		...message,
 		sanitizedContent:
 			message.role === 'ai' ? sanitizeContent(message.content) : message.content,
 	}))
-})
+)
 
 const scrollToBottom = () => {
 	if (chatHistoryRef.value) {
@@ -87,15 +82,7 @@ onUnmounted(() => {
 	document.removeEventListener('keydown', handleEscKey)
 })
 
-watch(
-	chatHistory,
-	() => {
-		nextTick(() => {
-			scrollToBottom()
-		})
-	},
-	{ deep: true, immediate: true }
-)
+watch(chatHistory, scrollToBottom, { deep: true, immediate: true })
 </script>
 
 <template>
@@ -135,12 +122,10 @@ watch(
 					v-model="userMessage"
 					@keyup.enter="sendMessage"
 					placeholder="询问 AI 助手..."
-					:disabled="isLoading"
+					:disabled="isGenerating"
 				/>
-				<button @click="sendMessage" :disabled="isLoading">
-					<span v-if="!isLoading">发送</span>
-					<span v-else class="loading-spinner"></span>
-				</button>
+				<button v-if="!isGenerating" @click="sendMessage">发送</button>
+				<button v-else @click="stopGenerating" class="stop-btn">停止</button>
 			</div>
 		</div>
 	</div>
@@ -150,10 +135,11 @@ watch(
 .ai-chat-dialog {
 	font-family: 'LXGW WenKai Screen', sans-serif;
 	position: fixed;
-	top: -60%;
-	left: -50%;
-	width: 200%;
-	height: 220%;
+	overflow: hidden;
+	top: 0;
+	left: 0;
+	width: 100vw;
+	height: 100vh;
 	background-color: #fff6f6;
 	display: flex;
 	flex-direction: column;
@@ -200,6 +186,7 @@ watch(
 	flex-direction: column;
 	padding: 20px;
 	overflow: hidden;
+	height: calc(100% - 60px); /* 减去头部高度 */
 }
 
 .chat-history {
@@ -329,6 +316,7 @@ watch(
 
 	.dialog-content {
 		padding: 16px;
+		height: calc(100% - 52px); /* 调整移动端头部高度 */
 	}
 
 	.chat-input {
@@ -413,5 +401,13 @@ watch(
 .ai :deep(th) {
 	background-color: rgba(0, 0, 0, 0.05);
 	font-weight: bold;
+}
+
+.stop-btn {
+	background-color: #e74c3c;
+}
+
+.stop-btn:hover {
+	background-color: #c0392b;
 }
 </style>

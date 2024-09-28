@@ -74,10 +74,12 @@ const generateSuggestedTodos = async () => {
 		const response = await getAIResponse(
 			`请根据我的历史待办事项：${JSON.stringify(
 				historicalTodos.value
-			)}，为我生成 5 个建议的待办事项，如果无法很好预测，则生成五个对自我提升最佳的具体一点的待办事项，生成长度适当，不要使用 markdown 语法返回，不用返回多余内容，直接返回建议待办事项即可。`
+			)}，为我预测生成 5 个建议的待办事项，直接输出待办事项结果，返回格式如“看《人类简史》,散步三十分钟”，如果无法很好预测生成，则生成五个对自我提升最佳的具体一点的待办事项。`
 		)
+		console.log('response', response)
+		console.log('response.split', response.split(','))
 		suggestedTodos.value = response
-			.split('\n')
+			.split(',')
 			.filter((todo: string) => todo.trim() !== '')
 			.slice(0, 5) // 确保只有 5 个建议
 		showSuggestedTodos.value = true
@@ -249,9 +251,12 @@ const handleAddTodo = (text: string) => {
 			@confirm="handleConfirm"
 			@cancel="handleCancel"
 		/>
-		<Transition name="slide-fade">
-			<AIChatDialog v-if="showAIChat" @close="toggleAIChat" />
-		</Transition>
+
+		<teleport to="body">
+			<Transition name="slide-fade">
+				<AIChatDialog v-if="showAIChat" @close="toggleAIChat" />
+			</Transition>
+		</teleport>
 
 		<!-- 新增：建议待办事项确认对话框 -->
 		<div v-if="showSuggestedTodos" class="suggested-todos-dialog">
