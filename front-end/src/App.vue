@@ -2,6 +2,7 @@
 import { onErrorCaptured, computed, ref, onMounted } from 'vue'
 import { useTheme } from './composables/useTheme'
 import { useI18n } from 'vue-i18n'
+import { setLanguage } from './i18n'
 
 const { theme, systemTheme, initTheme } = useTheme()
 const { locale } = useI18n()
@@ -16,7 +17,8 @@ const currentTheme = computed(() => {
 })
 
 const toggleLanguage = () => {
-	locale.value = locale.value === 'zh' ? 'en' : 'zh'
+	const newLocale = locale.value === 'zh' ? 'en' : 'zh'
+	setLanguage(newLocale)
 }
 
 onMounted(() => {
