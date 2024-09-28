@@ -1,4 +1,4 @@
-import { ref, computed, watch } from 'vue'
+import { ref } from 'vue'
 
 interface Todo {
 	id: number

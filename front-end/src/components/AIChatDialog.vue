@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, nextTick, onMounted, onUnmounted, watch, computed } from 'vue'
+import { ref, nextTick, onMounted, watch, computed } from 'vue'
 import {
 	getAIStreamResponse,
 	abortCurrentRequest,
@@ -7,7 +7,6 @@ import {
 } from '../services/deepseekService'
 import { marked } from 'marked'
 import DOMPurify from 'dompurify'
-import hljs from 'highlight.js'
 import 'highlight.js/styles/github.css' // 您可以选择其他样式
 
 const userMessage = ref('')

@@ -9,7 +9,6 @@ import { useTodos } from '../composables/useTodos'
 import { useErrorHandler } from '../composables/useErrorHandler'
 import { useConfirmDialog } from '../composables/useConfirmDialog'
 import { getAIResponse } from '../services/deepseekService'
-import { useRouter } from 'vue-router'
 
 const {
 	todos,
@@ -153,8 +152,6 @@ const handleAddTodo = (text: string) => {
 		showError('该待办事项已存在，请勿重复添加。')
 	}
 }
-
-const router = useRouter()
 </script>
 
 <template>
@@ -194,7 +191,7 @@ const router = useRouter()
 						fill="currentColor"
 					>
 						<path
-							d="M13.5 2.6v2.8H12v-2.8h1.5zm5.1 2.1l-2 2-1.1-1.1 2-2 1.1 1.1zm-10.2 0l1.1-1.1 2 2-1.1 1.1-2-2zm5.1 1.3c-3.3 0-6 2.7-6 6s2.7 6 6 6 6-2.7 6-6-2.7-6-6-6zm0 10.5c-2.5 0-4.5-2-4.5-4.5s2-4.5 4.5-4.5 4.5 2 4.5 4.5-2 4.5-4.5 4.5zm-1.5-6.8v3.8l3.2 1.9.8-1.3-2.5-1.5V9.7h-1.5zm-7.5 3.8H2.6v-1.5h2.8v1.5zm16.9 0h-2.8v-1.5h2.8v1.5zM5.5 19.4l-2-2 1.1-1.1 2 2-1.1 1.1zm13-2l2 2-1.1 1.1-2-2 1.1-1.1zM12 21.4v-2.8h1.5v2.8H12z"
+							d="M13.5 2.6v2.8H12v-2.8h1.5zm5.1 2.1l-2 2-1.1-1.1 2-2 1.1 1.1zm-10.2 0l1.1-1.1 2 2-1.1 1.1-2-2zm5.1 1.3c-3.3 0-6 2.7-6 6s2.7 6 6 6 6-2.7 6-6-2.7-6-6-6zm0 10.5c-2.5 0-4.5-2-4.5-4.5s2-4.5 4.5-4.5 4.5 2 4.5 4.5-2 4.5-4.5 4.5zM5.5 19.4l-2-2 1.1-1.1 2 2-1.1 1.1zm13-2l2 2-1.1 1.1-2-2 1.1-1.1zM12 21.4v-2.8h1.5v2.8H12z"
 						/>
 					</svg>
 					<span>AI 助手</span>

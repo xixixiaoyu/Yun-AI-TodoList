@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { defineProps, defineEmits, onMounted, onUnmounted } from 'vue'
+import { defineProps, defineEmits, onMounted } from 'vue'
 
 interface Todo {
 	id: number
@@ -16,7 +16,7 @@ const props = defineProps<{
 	history: HistoryItem[]
 }>()
 
-const emit = defineEmits(['restore', 'deleteItem', 'deleteAll', 'close'])
+const emit = defineEmits(['restore', 'deleteItem', 'close'])
 
 const restoreHistory = (date: string) => {
 	emit('restore', date)
@@ -25,10 +25,6 @@ const restoreHistory = (date: string) => {
 const deleteHistoryItem = (event: Event, date: string) => {
 	event.stopPropagation()
 	emit('deleteItem', date)
-}
-
-const deleteAllHistory = () => {
-	emit('deleteAll')
 }
 
 const formatDate = (dateString: string) => {
@@ -54,10 +50,6 @@ const handleEscKey = (event: KeyboardEvent) => {
 
 onMounted(() => {
 	document.addEventListener('keydown', handleEscKey)
-})
-
-onUnmounted(() => {
-	document.removeEventListener('keydown', handleEscKey)
 })
 </script>
 
