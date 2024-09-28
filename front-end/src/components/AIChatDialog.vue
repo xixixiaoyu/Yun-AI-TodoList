@@ -74,7 +74,7 @@ const stopGenerating = () => {
 }
 
 const sanitizeContent = (content: string): string => {
-	const rawHtml = marked.parse(content)
+	const rawHtml = marked.parse(content) as string
 	return DOMPurify.sanitize(rawHtml)
 }
 

@@ -34,6 +34,11 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-pnpm-store-
 
+      - name: Create .env file
+        run: |
+          cd front-end
+          echo "VITE_API_KEY=${{ secrets.VITE_API_KEY }}" > .env
+
       - name: Install dependencies
         run: |
           cd front-end
