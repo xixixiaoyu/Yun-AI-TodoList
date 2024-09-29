@@ -131,13 +131,8 @@ export function useTodos() {
   }
 
   const updateTodosOrder = (newOrder: number[]) => {
-    const activeTodos = todos.value.filter(todo => todo && !todo.completed)
-    const completedTodos = todos.value.filter(todo => todo && todo.completed)
-
-    const reorderedActiveTodos = newOrder
-      .map(index => activeTodos[index - 1])
-      .filter(todo => todo !== undefined)
-    todos.value = [...reorderedActiveTodos, ...completedTodos]
+    const newTodos = newOrder.map(index => todos.value[index])
+    todos.value = newTodos
   }
 
   watch(todos, saveTodos, { deep: true })
