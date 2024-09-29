@@ -41,5 +41,12 @@
 	"generateSuggestionsError": "Error generating suggestions",
 	"dailyInspiration": "Daily Inspiration",
 	"refresh": "Refresh",
-	"refreshing": "Refreshing..."
+	"refreshing": "Refreshing...",
+	"pomodoroTimer": "Pomodoro Timer",
+	"workTime": "Work Time",
+	"breakTime": "Break Time",
+	"start": "Start",
+	"pause": "Pause",
+	"resume": "Resume",
+	"reset": "Reset"
 }

@@ -43,5 +43,12 @@
 	"cancel": "取消",
 	"dailyInspiration": "每日激励",
 	"refresh": "换一句",
-	"refreshing": "刷新中..."
+	"refreshing": "刷新中...",
+	"pomodoroTimer": "番茄钟",
+	"workTime": "工作时间",
+	"breakTime": "休息时间",
+	"start": "开始",
+	"pause": "暂停",
+	"resume": "继续",
+	"reset": "重置"
 }
