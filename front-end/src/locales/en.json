@@ -56,7 +56,12 @@
 	"totalWorkTime": "Total Work Time: {time} minutes",
 	"pomodorosCompleted": "Pomodoros Completed",
 	"startBreak": "Start Break",
-	"todoHeatmap": "Todo Completion Heatmap",
-	"completedTodos": "Completed Todos",
+	"todoHeatmap": "Todo Heatmap",
+	"less": "Less",
+	"more": "More",
+	"mon": "Mon",
+	"wed": "Wed",
+	"fri": "Fri",
+	"completedTodos": "completed todos",
 	"completedTodosCount": "{count} todos completed"
 }
