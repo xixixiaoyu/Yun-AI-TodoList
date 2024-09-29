@@ -17,6 +17,9 @@ importers:
       chart.js:
         specifier: ^4.4.4
         version: 4.4.4
+      chartjs-chart-matrix:
+        specifier: ^2.0.1
+        version: 2.0.1(chart.js@4.4.4)
       dompurify:
         specifier: ^3.1.7
         version: 3.1.7
@@ -505,6 +508,11 @@ packages:
   chart.js@4.4.4:
     resolution: {integrity: sha512-emICKGBABnxhMjUjlYRR12PmOXhJ2eJjEHL2/dZlWjxRAZT1D8xplLFq5M0tMQK8ja+wBS/tuVEJB5C6r7VxJA==, tarball: https://registry.npmmirror.com/chart.js/-/chart.js-4.4.4.tgz}
     engines: {pnpm: '>=8'}
+
+  chartjs-chart-matrix@2.0.1:
+    resolution: {integrity: sha512-BGfeY+/PHnITyDlc7WfnKJ1RyOfgOzIqWp/gxzzl7pUjyoGzHDcw51qd2xJF9gdT9Def7ZwOnOMm8GJUXDxI0w==, tarball: https://registry.npmmirror.com/chartjs-chart-matrix/-/chartjs-chart-matrix-2.0.1.tgz}
+    peerDependencies:
+      chart.js: '>=3.0.0'
 
   check-error@1.0.3:
     resolution: {integrity: sha512-iKEoDYaRmd1mxM90a2OEfWhjsjPpYPuQ+lMYsoxB126+t8fw7ySEO48nmDg5COTjxDI65/Y2OWpeEHk3ZOe8zg==}
@@ -1492,6 +1500,10 @@ snapshots:
   chart.js@4.4.4:
     dependencies:
       '@kurkle/color': 0.3.2
+
+  chartjs-chart-matrix@2.0.1(chart.js@4.4.4):
+    dependencies:
+      chart.js: 4.4.4
 
   check-error@1.0.3:
     dependencies:

@@ -25,16 +25,17 @@ const updateChart = () => {
   }
 
   chart = new Chart(ctx, {
-    type: 'bar',
+    type: 'line',
     data: {
       labels,
       datasets: [
         {
           label: t('pomodorosCompleted'),
           data,
-          backgroundColor: 'rgba(255, 99, 132, 0.5)',
           borderColor: 'rgb(255, 99, 132)',
-          borderWidth: 1
+          backgroundColor: 'rgba(255, 99, 132, 0.5)',
+          tension: 0.1,
+          fill: true
         }
       ]
     },
@@ -45,6 +46,19 @@ const updateChart = () => {
           beginAtZero: true,
           ticks: {
             stepSize: 1
+          }
+        }
+      },
+      plugins: {
+        tooltip: {
+          callbacks: {
+            title(context) {
+              return new Date(context[0].label).toLocaleDateString(t('locale'), {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+              })
+            }
           }
         }
       }

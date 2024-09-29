@@ -16,6 +16,7 @@ import Clock from './Clock.vue'
 import PomodoroTimer from './PomodoroTimer.vue'
 import confetti from 'canvas-confetti'
 import PomodoroStats from './PomodoroStats.vue'
+import TodoHeatmap from './TodoHeatmap.vue'
 
 const {
   todos,
@@ -357,6 +358,7 @@ onUnmounted(() => {
           </button>
         </div>
       </div>
+      <TodoHeatmap />
       <PomodoroStats />
     </div>
     <transition name="slide">

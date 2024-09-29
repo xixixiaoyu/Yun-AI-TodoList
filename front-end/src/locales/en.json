@@ -55,5 +55,8 @@
 	"pomodoroStats": "Pomodoro Statistics",
 	"totalWorkTime": "Total Work Time: {time} minutes",
 	"pomodorosCompleted": "Pomodoros Completed",
-	"startBreak": "Start Break"
+	"startBreak": "Start Break",
+	"todoHeatmap": "Todo Completion Heatmap",
+	"completedTodos": "Completed Todos",
+	"completedTodosCount": "{count} todos completed"
 }

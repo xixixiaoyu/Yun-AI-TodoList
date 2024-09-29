@@ -57,5 +57,8 @@
 	"pomodoroStats": "番茄钟统计",
 	"totalWorkTime": "总工作时间：{time} 分钟",
 	"pomodorosCompleted": "完成的番茄钟数",
-	"startBreak": "开始休息"
+	"startBreak": "开始休息",
+	"todoHeatmap": "待办事项完成热力图",
+	"completedTodos": "已完成的待办事项",
+	"completedTodosCount": "完成了 {count} 个待办事项"
 }
