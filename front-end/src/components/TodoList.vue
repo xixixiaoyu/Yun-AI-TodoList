@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import TodoInput from './TodoInput.vue'
 import TodoFilters from './TodoFilters.vue'
 import TodoItem from './TodoItem.vue'
@@ -14,6 +14,7 @@ import { useI18n } from 'vue-i18n'
 import DailyInspiration from './DailyInspiration.vue'
 import Clock from './Clock.vue'
 import PomodoroTimer from './PomodoroTimer.vue'
+import confetti from 'canvas-confetti'
 
 const {
   todos,
@@ -165,6 +166,46 @@ const themeTooltip = computed(() => {
       return t('switchToDarkMode')
   }
 })
+
+const showBigConfetti = () => {
+  confetti({
+    particleCount: 300,
+    spread: 100,
+    origin: { y: 0.6 }
+  })
+}
+
+const handlePomodoroComplete = (isBreakStarted: boolean) => {
+  if (isBreakStarted) {
+    // 只有在休息时间开始时才显示礼花效果
+    showBigConfetti()
+    // 设置一个标志，表示番茄钟已完成，以便在页面重新获得焦点时再次显示
+    localStorage.setItem('pomodoroCompleted', 'true')
+  } else {
+    // 工作时间开始时，不显示礼花，也不设置标志
+    localStorage.removeItem('pomodoroCompleted')
+  }
+}
+
+const checkPomodoroCompletion = () => {
+  if (!document.hidden) {
+    const pomodoroCompleted = localStorage.getItem('pomodoroCompleted')
+    if (pomodoroCompleted === 'true') {
+      showBigConfetti()
+      localStorage.removeItem('pomodoroCompleted')
+    }
+  }
+}
+
+// 在组件挂载时添加事件监听器
+onMounted(() => {
+  document.addEventListener('visibilitychange', checkPomodoroCompletion)
+})
+
+// 在组件卸载时移除事件监听器
+onUnmounted(() => {
+  document.removeEventListener('visibilitychange', checkPomodoroCompletion)
+})
 </script>
 
 <template>
@@ -246,7 +287,7 @@ const themeTooltip = computed(() => {
             </svg>
             <span>{{ t('aiAssistant') }}</span>
           </router-link>
-          <PomodoroTimer class="pomodoro-timer" />
+          <PomodoroTimer class="pomodoro-timer" @pomodoro-complete="handlePomodoroComplete" />
         </div>
       </div>
       <!-- 移除这里的 PomodoroTimer -->

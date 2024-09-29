@@ -29,6 +29,7 @@ const startTimer = () => {
     } else {
       isBreak.value = !isBreak.value
       timeLeft.value = isBreak.value ? BREAK_TIME : WORK_TIME
+      notifyUser()
     }
   }, 1000)
 }
@@ -56,11 +57,28 @@ const resetTimer = () => {
   timeLeft.value = WORK_TIME
 }
 
+const notifyUser = () => {
+  if ('Notification' in window) {
+    Notification.requestPermission().then(permission => {
+      if (permission === 'granted') {
+        new Notification(t('pomodoroComplete'), {
+          body: isBreak.value ? t('breakTimeStarted') : t('workTimeStarted'),
+          icon: '/favicon.ico'
+        })
+      }
+    })
+  }
+  // 修改这里，传递一个布尔值表示是否是休息时间开始
+  emit('pomodoroComplete', isBreak.value)
+}
+
 onUnmounted(() => {
   if (interval) {
     clearInterval(interval)
   }
 })
+
+const emit = defineEmits(['pomodoroComplete'])
 </script>
 
 <template>

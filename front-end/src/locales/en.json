@@ -48,5 +48,8 @@
 	"start": "Start",
 	"pause": "Pause",
 	"resume": "Resume",
-	"reset": "Reset"
+	"reset": "Reset",
+	"pomodoroComplete": "Pomodoro Complete!",
+	"breakTimeStarted": "Break time started. Time to relax!",
+	"workTimeStarted": "Work time started. Let's focus!"
 }

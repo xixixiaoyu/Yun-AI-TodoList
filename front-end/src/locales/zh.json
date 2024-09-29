@@ -50,5 +50,8 @@
 	"start": "开始",
 	"pause": "暂停",
 	"resume": "继续",
-	"reset": "重置"
+	"reset": "重置",
+	"pomodoroComplete": "番茄钟完成！",
+	"breakTimeStarted": "休息时间开始了，放松一下吧！",
+	"workTimeStarted": "工作时间开始了，继续加油！"
 }
