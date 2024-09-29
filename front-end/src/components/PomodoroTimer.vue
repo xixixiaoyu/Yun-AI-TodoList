@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, computed, onUnmounted } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { usePomodoroStats } from '../composables/usePomodoroStats'
 
 const { t } = useI18n()
 
@@ -10,8 +11,11 @@ const BREAK_TIME = 5 * 60 // 5 minutes in seconds
 const isActive = ref(false)
 const isPaused = ref(false)
 const isBreak = ref(false)
+const isWorkCompleted = ref(false)
 const timeLeft = ref(WORK_TIME)
 let interval: number | null = null
+
+const { addCompletedPomodoro } = usePomodoroStats()
 
 const formattedTime = computed(() => {
   const minutes = Math.floor(timeLeft.value / 60)
@@ -22,14 +26,26 @@ const formattedTime = computed(() => {
 const startTimer = () => {
   isActive.value = true
   isPaused.value = false
+  isWorkCompleted.value = false
   if (interval) clearInterval(interval)
   interval = setInterval(() => {
     if (timeLeft.value > 0) {
       timeLeft.value--
     } else {
-      isBreak.value = !isBreak.value
-      timeLeft.value = isBreak.value ? BREAK_TIME : WORK_TIME
-      notifyUser()
+      if (!isBreak.value) {
+        // 工作时间结束
+        isActive.value = false
+        isBreak.value = true
+        timeLeft.value = BREAK_TIME
+        isWorkCompleted.value = false
+        addCompletedPomodoro()
+        notifyUser(false)
+      } else {
+        // 休息时间结束
+        resetTimer()
+        notifyUser(true)
+      }
+      if (interval) clearInterval(interval)
     }
   }, 1000)
 }
@@ -54,22 +70,26 @@ const resetTimer = () => {
   isActive.value = false
   isPaused.value = false
   isBreak.value = false
+  isWorkCompleted.value = false
   timeLeft.value = WORK_TIME
 }
 
-const notifyUser = () => {
+const startBreak = () => {
+  startTimer()
+}
+
+const notifyUser = (isWorkTime: boolean) => {
   if ('Notification' in window) {
     Notification.requestPermission().then(permission => {
       if (permission === 'granted') {
         new Notification(t('pomodoroComplete'), {
-          body: isBreak.value ? t('breakTimeStarted') : t('workTimeStarted'),
+          body: isWorkTime ? t('workTimeStarted') : t('breakTimeStarted'),
           icon: '/favicon.ico'
         })
       }
     })
   }
-  // 修改这里，传递一个布尔值表示是否是休息时间开始
-  emit('pomodoroComplete', isBreak.value)
+  emit('pomodoroComplete', !isWorkTime)
 }
 
 onUnmounted(() => {
@@ -90,9 +110,16 @@ const emit = defineEmits(['pomodoroComplete'])
       </div>
     </div>
     <div class="timer-controls">
-      <button v-if="!isActive" @click="startTimer">{{ t('start') }}</button>
-      <button v-else-if="!isPaused" @click="pauseTimer">{{ t('pause') }}</button>
-      <button v-else @click="resumeTimer">{{ t('resume') }}</button>
+      <template v-if="!isActive && !isWorkCompleted">
+        <button @click="startTimer">{{ t('start') }}</button>
+      </template>
+      <template v-else-if="isActive">
+        <button v-if="!isPaused" @click="pauseTimer">{{ t('pause') }}</button>
+        <button v-else @click="resumeTimer">{{ t('resume') }}</button>
+      </template>
+      <template v-if="isWorkCompleted">
+        <button @click="startBreak">{{ t('startBreak') }}</button>
+      </template>
       <button @click="resetTimer">{{ t('reset') }}</button>
     </div>
   </div>
@@ -126,6 +153,7 @@ const emit = defineEmits(['pomodoroComplete'])
   font-size: 0.9rem;
   color: var(--text-color);
   opacity: 0.8;
+  margin-right: 6px;
 }
 
 .timer-controls {

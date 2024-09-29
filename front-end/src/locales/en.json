@@ -51,5 +51,9 @@
 	"reset": "Reset",
 	"pomodoroComplete": "Pomodoro Complete!",
 	"breakTimeStarted": "Break time started. Time to relax!",
-	"workTimeStarted": "Work time started. Let's focus!"
+	"workTimeStarted": "Work time started. Let's focus!",
+	"pomodoroStats": "Pomodoro Statistics",
+	"totalWorkTime": "Total Work Time: {time} minutes",
+	"pomodorosCompleted": "Pomodoros Completed",
+	"startBreak": "Start Break"
 }

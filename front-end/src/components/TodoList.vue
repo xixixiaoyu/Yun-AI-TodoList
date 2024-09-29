@@ -15,6 +15,7 @@ import DailyInspiration from './DailyInspiration.vue'
 import Clock from './Clock.vue'
 import PomodoroTimer from './PomodoroTimer.vue'
 import confetti from 'canvas-confetti'
+import PomodoroStats from './PomodoroStats.vue'
 
 const {
   todos,
@@ -356,6 +357,7 @@ onUnmounted(() => {
           </button>
         </div>
       </div>
+      <PomodoroStats />
     </div>
     <transition name="slide">
       <HistorySidebar
