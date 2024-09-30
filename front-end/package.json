@@ -26,7 +26,8 @@
 		"marked": "^14.1.2",
 		"vue": "^3.4.37",
 		"vue-i18n": "^10.0.0",
-		"vue-router": "^4.0.0"
+		"vue-router": "^4.0.0",
+		"shared": "1.0.0"
 	},
 	"devDependencies": {
 		"@types/d3": "^7.4.3",
