@@ -4,27 +4,29 @@ export function useTheme() {
 	const theme = ref(localStorage.getItem('theme') || 'auto')
 	const systemTheme = ref(getSystemTheme())
 
+	// 获取系统主题
 	function getSystemTheme() {
 		return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
 	}
 
+	// 切换主题
 	const toggleTheme = () => {
-		if (theme.value === 'auto') {
-			theme.value = systemTheme.value === 'light' ? 'dark' : 'light'
+		if (theme.value === 'light') {
+			theme.value = 'dark'
+		} else if (theme.value === 'dark') {
+			theme.value = 'auto'
 		} else {
-			theme.value = theme.value === 'light' ? 'dark' : 'auto'
+			theme.value = 'light'
 		}
 	}
 
+	// 更新主题
 	const updateTheme = () => {
 		const currentTheme = theme.value === 'auto' ? systemTheme.value : theme.value
 		document.documentElement.setAttribute('data-theme', currentTheme)
-		// 添加这一行来立即更新背景颜色
-		document.body.style.backgroundColor = getComputedStyle(document.documentElement)
-			.getPropertyValue('--bg-color')
-			.trim()
 	}
 
+	// 监听主题变化
 	watch(
 		[theme, systemTheme],
 		() => {
@@ -34,16 +36,19 @@ export function useTheme() {
 		{ immediate: true }
 	)
 
+	// 处理系统主题变化
 	const handleSystemThemeChange = (e: MediaQueryListEvent) => {
 		systemTheme.value = e.matches ? 'dark' : 'light'
 	}
 
-	const initTheme = () => {
-		updateTheme()
+	// 组件挂载时添加监听器
+	onMounted(() => {
 		const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
 		mediaQuery.addListener(handleSystemThemeChange)
-	}
+		updateTheme()
+	})
 
+	// 组件卸载时移除监听器
 	onUnmounted(() => {
 		const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
 		mediaQuery.removeListener(handleSystemThemeChange)
@@ -53,6 +58,5 @@ export function useTheme() {
 		theme,
 		systemTheme,
 		toggleTheme,
-		initTheme,
 	}
 }
