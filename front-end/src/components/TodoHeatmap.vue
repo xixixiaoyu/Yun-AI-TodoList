@@ -13,7 +13,6 @@ const cellSize = ref(11)
 const cellGap = ref(2)
 const weekWidth = computed(() => cellSize.value + cellGap.value)
 
-// 添加一个函数来更新尺寸
 const updateDimensions = () => {
 	const width = window.innerWidth
 	if (width < 768) {
@@ -25,7 +24,6 @@ const updateDimensions = () => {
 	}
 }
 
-// 在组件挂载时和窗口大小改变时更新尺寸
 onMounted(() => {
 	updateDimensions()
 	window.addEventListener('resize', updateDimensions)
@@ -68,7 +66,7 @@ const updateHeatmap = () => {
 		.style('border-radius', '5px')
 		.style('pointer-events', 'none')
 
-	const days = svg
+	svg
 		.selectAll('.day')
 		.data(d3.timeDays(startDate, endDate))
 		.enter()
@@ -98,7 +96,6 @@ const updateHeatmap = () => {
 			tooltip.transition().duration(500).style('opacity', 0)
 		})
 
-	// Add day labels
 	const dayLabels = ['', t('mon'), '', t('wed'), '', t('fri'), '']
 	svg
 		.selectAll('.day-label')
@@ -113,8 +110,7 @@ const updateHeatmap = () => {
 		.style('fill', '#767676')
 		.text(d => d)
 
-	// Add month labels
-	const monthLabels = svg
+	svg
 		.selectAll('.month-label')
 		.data(d3.timeMonths(startDate, endDate))
 		.enter()
@@ -128,13 +124,11 @@ const updateHeatmap = () => {
 		.text(d => d.toLocaleDateString(t('locale'), { month: 'short' }))
 }
 
-// 当 cellSize 或 cellGap 改变时，重新渲染热力图
 watch([cellSize, cellGap], updateHeatmap)
 
 onMounted(updateHeatmap)
 watch(() => getCompletedTodosByDate(), updateHeatmap, { deep: true })
 
-// 添加这个新的函数
 const handleWheel = (event: WheelEvent) => {
 	const container = event.currentTarget as HTMLElement
 	if (container) {
@@ -182,9 +176,9 @@ h2 {
 	overflow-x: auto;
 	padding-bottom: 1rem;
 	white-space: nowrap;
-	-webkit-overflow-scrolling: touch; /* 为 iOS 设备添加平滑滚动 */
-	scrollbar-width: thin; /* 为 Firefox 设置细滚动条 */
-	scrollbar-color: var(--button-bg-color) var(--bg-color); /* 为 Firefox 设置滚动条颜色 */
+	-webkit-overflow-scrolling: touch;
+	scrollbar-width: thin;
+	scrollbar-color: var(--button-bg-color) var(--bg-color);
 }
 
 .legend {
@@ -213,7 +207,6 @@ h2 {
 	font-size: 12px;
 }
 
-/* 响应式适配 */
 @media (max-width: 768px) {
 	.todo-heatmap {
 		padding: 0.5rem;
