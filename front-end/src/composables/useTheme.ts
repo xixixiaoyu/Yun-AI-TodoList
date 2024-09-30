@@ -11,12 +11,10 @@ export function useTheme() {
 
 	// 切换主题
 	const toggleTheme = () => {
-		if (theme.value === 'light') {
-			theme.value = 'dark'
-		} else if (theme.value === 'dark') {
-			theme.value = 'auto'
+		if (theme.value === 'auto') {
+			theme.value = systemTheme.value === 'light' ? 'dark' : 'light'
 		} else {
-			theme.value = 'light'
+			theme.value = theme.value === 'light' ? 'dark' : 'auto'
 		}
 	}
 
@@ -24,6 +22,11 @@ export function useTheme() {
 	const updateTheme = () => {
 		const currentTheme = theme.value === 'auto' ? systemTheme.value : theme.value
 		document.documentElement.setAttribute('data-theme', currentTheme)
+	}
+
+	// 初始化主题
+	const initTheme = () => {
+		updateTheme()
 	}
 
 	// 监听主题变化
@@ -58,5 +61,6 @@ export function useTheme() {
 		theme,
 		systemTheme,
 		toggleTheme,
+		initTheme, // 确保这里导出了 initTheme 函数
 	}
 }
