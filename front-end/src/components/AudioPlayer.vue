@@ -6,7 +6,7 @@ import { computed } from 'vue'
 // 导入音频文件
 import track1 from '../assets/audio/真正432Hz-适合睡眠版.mp3'
 import track2 from '../assets/audio/1 Hour NEW Headset Immersion ❤️.mp3'
-import track3 from '../assets/audio/真正432Hz-适合睡眠版.mp3'
+import track3 from '../assets/audio/ASMR-假人头麦克风保证全程1小时的良好睡眠.mp3'
 
 const { t } = useI18n()
 
@@ -171,7 +171,7 @@ watch(currentTrack, () => {
 		<div class="track-info">
 			<transition name="fade" mode="out-in">
 				<div :key="currentTrack.title" class="track-details">
-					<h3>{{ $t(currentTrack.title) }}</h3>
+					<h3 :title="currentTrack.title">{{ currentTrack.title }}</h3>
 				</div>
 			</transition>
 		</div>
@@ -203,16 +203,18 @@ watch(currentTrack, () => {
 			{{ t('loading') }}
 		</div>
 		<div v-if="error" class="error">{{ error }}</div>
-		<div class="progress">
-			<input
-				type="range"
-				min="0"
-				max="100"
-				:value="duration > 0 ? (currentTime / duration) * 100 : 0"
-				@input="updateProgress"
-				:disabled="isLoading || duration === 0"
-			/>
-			<div class="time">{{ formatTime(currentTime) }} / {{ formatTime(duration) }}</div>
+		<div class="progress-container">
+			<div class="progress">
+				<input
+					type="range"
+					min="0"
+					max="100"
+					:value="duration > 0 ? (currentTime / duration) * 100 : 0"
+					@input="updateProgress"
+					:disabled="isLoading || duration === 0"
+				/>
+				<div class="time">{{ formatTime(currentTime) }} / {{ formatTime(duration) }}</div>
+			</div>
 		</div>
 		<div class="volume-control">
 			<input
@@ -241,6 +243,15 @@ watch(currentTrack, () => {
 .track-info {
 	text-align: center;
 	margin-bottom: 1rem;
+	height: 1.5em; /* 设置固定高度 */
+	overflow: hidden; /* 隐藏溢出内容 */
+}
+
+.track-details h3 {
+	margin: 0;
+	white-space: nowrap; /* 防止文本换行 */
+	overflow: hidden; /* 隐藏溢出内容 */
+	text-overflow: ellipsis; /* 使用省略号表示溢出 */
 }
 
 .controls {
@@ -267,10 +278,18 @@ watch(currentTrack, () => {
 	background-color: var(--button-hover-bg-color);
 }
 
+.progress-container {
+	height: 50px; /* Set a fixed height for the container */
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+}
+
 .progress {
 	display: flex;
 	flex-direction: column;
 	align-items: center;
+	transition: all 0.3s ease; /* Add smooth transition */
 }
 
 .progress input[type='range'] {
@@ -393,17 +412,6 @@ watch(currentTrack, () => {
 .fade-leave-from {
 	opacity: 1;
 	transform: translateY(0);
-}
-
-.track-info {
-	position: relative;
-	height: 60px; /* Adjust based on your design */
-	overflow: hidden;
-}
-
-.track-details {
-	position: absolute;
-	width: 100%;
 }
 
 @media (max-width: 768px) {

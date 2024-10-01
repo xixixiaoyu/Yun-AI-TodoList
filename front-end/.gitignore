@@ -30,3 +30,9 @@ dist-ssr
 
 # 但是不要忽略示例环境变量文件
 !.env.example
+
+# 忽略音频文件
+*.mp3
+*.wav
+*.ogg
+*.m4a
