@@ -18,7 +18,6 @@ export async function getDailyInspiration(language: string): Promise<string> {
 }
 
 export async function refreshInspiration(language: string): Promise<string> {
-	console.log('refreshInspiration', language)
 	try {
 		const prompt = '请生成一句对人生最具指导意义或激励作用的短句'
 		const inspiration = await getAIResponse(prompt, language, 1.5)
