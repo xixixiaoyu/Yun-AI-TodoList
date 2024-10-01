@@ -18,6 +18,8 @@ import confetti from 'canvas-confetti'
 import PomodoroStats from './PomodoroStats.vue'
 import TodoHeatmap from './TodoHeatmap.vue'
 import AudioPlayer from './AudioPlayer.vue'
+import { format } from 'date-fns'
+import { zhCN } from 'date-fns/locale'
 
 const {
 	todos,
@@ -222,6 +224,11 @@ onMounted(() => {
 onUnmounted(() => {
 	document.removeEventListener('visibilitychange', checkPomodoroCompletion)
 })
+
+// 添加 formatDate 函数
+const formatDate = (date: string | Date) => {
+	return format(new Date(date), 'yyyy-MM-dd HH:mm:ss', { locale: zhCN })
+}
 </script>
 
 <template>
