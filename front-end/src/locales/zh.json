@@ -106,5 +106,20 @@
 	"wed": "周三",
 	"fri": "周五",
 	"completedTodos": "已完成的待办事项",
-	"locale": "zh-CN"
+	"locale": "zh-CN",
+	"track1": "真正432Hz-适合睡眠版",
+	"track2": "1 Hour NEW Headset Immersion ❤️",
+	"track3": "音轨 3",
+	"previous": "上一首",
+	"play": "播放",
+	"pause": "暂停",
+	"next": "下一首",
+	"track1Title": "真正 432Hz - 适合睡眠版",
+	"track2Title": "1 小时全新耳机沉浸体验 ❤️",
+	"track3Title": "真正 432Hz - 适合睡眠版",
+	"loading": "加载中...",
+	"playlist": "播放列表",
+	"volume": "音量",
+	"playError": "播放出错，请重试",
+	"audioError": "音频加载失败"
 }

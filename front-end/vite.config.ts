@@ -8,4 +8,5 @@ export default defineConfig({
 	define: {
 		'process.env': {},
 	},
+	assetsInclude: ['**/*.mp3'], // 添加这一行
 })

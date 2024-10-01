@@ -63,5 +63,22 @@
 	"wed": "Wed",
 	"fri": "Fri",
 	"completedTodos": "completed todos",
-	"completedTodosCount": "{count} todos completed"
+	"completedTodosCount": "{count} todos completed",
+	"track1": "Track 1",
+	"track2": "Track 2",
+	"track3": "Track 3",
+	"previous": "Previous",
+	"play": "Play",
+	"next": "Next",
+	"track1Title": "True 432Hz - Sleep Version",
+	"track2Title": "1 Hour NEW Headset Immersion ❤️",
+	"track3Title": "True 432Hz - Sleep Version",
+	"loading": "Loading...",
+	"playlist": "Playlist",
+	"volume": "Volume",
+	"playError": "Playback error, please try again",
+	"audioError": "Audio loading failed",
+	"sequenceMode": "Sequence Play",
+	"loopMode": "Loop Play",
+	"randomMode": "Random Play"
 }

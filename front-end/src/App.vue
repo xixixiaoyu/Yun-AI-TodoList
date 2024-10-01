@@ -115,36 +115,34 @@ body {
 	background-color: var(--button-hover-bg-color);
 }
 
-/* 添加 Forced Colors Mode 支持 */
+/* 替换 @media (forced-colors: active) 部分 */
 @media (forced-colors: active) {
 	:root {
-		--bg-color: Canvas;
-		--text-color: CanvasText;
-		--card-bg-color: Canvas;
-		--input-bg-color: Canvas;
-		--input-border-color: CanvasText;
-		--button-bg-color: ButtonFace;
-		--button-hover-bg-color: Highlight;
-		--todo-text-color: CanvasText;
-		--completed-todo-text-color: GrayText;
-		--filter-btn-bg: ButtonFace;
-		--filter-btn-text: ButtonText;
-		--filter-btn-border: ButtonText;
-		--filter-btn-active-bg: Highlight;
-		--filter-btn-active-text: HighlightText;
-		--filter-btn-active-border: HighlightText;
-	}
-
-	.language-toggle {
 		forced-color-adjust: none;
-		background-color: ButtonFace;
-		color: ButtonText;
-		border: 1px solid ButtonText;
 	}
+}
 
-	.language-toggle:hover {
-		background-color: Highlight;
-		color: HighlightText;
+.language-toggle,
+button,
+input[type='range'] {
+	forced-color-adjust: none;
+}
+
+.language-toggle {
+	background-color: ButtonFace;
+	color: ButtonText;
+	border: 1px solid ButtonText;
+}
+
+.language-toggle:hover {
+	background-color: Highlight;
+	color: HighlightText;
+}
+
+/* 添加到现有的 <style> 标签中 */
+@media (forced-colors: active) {
+	:root {
+		forced-color-adjust: none;
 	}
 }
 </style>

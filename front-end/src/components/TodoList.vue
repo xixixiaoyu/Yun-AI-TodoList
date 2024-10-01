@@ -17,6 +17,7 @@ import PomodoroTimer from './PomodoroTimer.vue'
 import confetti from 'canvas-confetti'
 import PomodoroStats from './PomodoroStats.vue'
 import TodoHeatmap from './TodoHeatmap.vue'
+import AudioPlayer from './AudioPlayer.vue'
 
 const {
 	todos,
@@ -227,6 +228,8 @@ onUnmounted(() => {
 	<div class="todo-container">
 		<Clock class="top-clock" />
 		<DailyInspiration class="daily-inspiration" />
+		<AudioPlayer class="audio-player" />
+		<!-- 新增: 音频播放器 -->
 		<div class="todo-list" :class="{ 'is-loading': isLoading }">
 			<!-- 添加 loading 遮罩层 -->
 			<div v-if="isLoading" class="loading-overlay">
@@ -275,7 +278,7 @@ onUnmounted(() => {
 							fill="currentColor"
 						>
 							<path
-								d="M12 22C6.477 22 2 17.523 2 12S6.477 2 12 2s10 4.477 10 10-4.477 10-10 10zm0-2a8 8 0 1 0 0-16 8 8 0 0 0 0 16zm-5-8h2a3 3 0 0 1 6 0h2a5 5 0 0 0-10 0z"
+								d="M12 22C6.47 22 2 17.523 2 12S6.47 2 12 2s10 4.477 10 10-4.47 10-10 10zm0-2a8 8 0 1 0 0-16 8 8 0 0 0 0 16zm-5-8h2a3 3 0 0 1 6 0h2a5 5 0 0 0-10 0z"
 							/>
 						</svg>
 					</button>
@@ -306,7 +309,7 @@ onUnmounted(() => {
 							fill="currentColor"
 						>
 							<path
-								d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm0-14c-3.31 0-6 2.69-6 6s2.69 6 6 6 6-2.69 6-6-2.69-6-6-6zm0 10c-2.21 0-4-1.79-4-4s1.79-4 4-4 4 1.79 4 4-1.79 4-4 4zm2-4c0 1.1-.9 2-2 2s-2-.9-2-2 .9-2 2-2 2 .9 2 2z"
+								d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zM9.5 9.5h5v5h-5v-5z"
 							/>
 						</svg>
 						<span>{{ t('aiAssistant') }}</span>
@@ -665,7 +668,7 @@ h1 {
 	}
 
 	.header-actions {
-		margin-top: 1rem; /* 增加标题和操作按钮之间的间�� */
+		margin-top: 1rem; /* 增加标题和操作按钮之间的间 */
 		width: 100%; /* 让操作按钮占满宽度 */
 		justify-content: space-between; /* 均匀分布操作按钮 */
 	}
@@ -834,6 +837,37 @@ h1 {
 	.pomodoro-timer {
 		order: -1; /* 在移动设备上将番茄钟计时器移到顶部 */
 		max-width: none;
+	}
+}
+
+.audio-player {
+	width: 100%;
+	max-width: 600px;
+	margin: 1rem auto;
+}
+
+@media (min-width: 1201px) {
+	.audio-player {
+		position: fixed;
+		top: calc(1rem + 150px); /* 假设每日激励卡片高度约为150px */
+		left: 1rem;
+		width: 300px;
+	}
+}
+
+@media (max-width: 1200px) {
+	.audio-player {
+		width: 100%;
+		max-width: 600px;
+		margin: 1rem auto;
+	}
+}
+
+@media (max-width: 768px) {
+	.audio-player {
+		width: calc(100% - 2rem);
+		max-width: 100%;
+		margin: 1rem auto;
 	}
 }
 </style>
