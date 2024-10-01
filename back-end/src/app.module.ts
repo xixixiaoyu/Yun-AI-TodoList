@@ -5,6 +5,11 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { HealthModule } from './health/health.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { Todo } from './entities/todo.entity';
+import { User } from './entities/user.entity';
+import { Tag } from './entities/tag.entity';
+import { Project } from './entities/project.entity';
+import { Reminder } from './entities/reminder.entity';
 
 @Module({
   imports: [
@@ -20,19 +25,16 @@ import { TypeOrmModule } from '@nestjs/typeorm';
     }),
     TypeOrmModule.forRoot({
       type: 'mysql',
-      host: 'localhost',
-      port: 3306,
-      username: 'root',
-      password: 'yun',
-      database: 'a',
+      host: process.env.DATABASE_HOST || 'localhost',
+      port: parseInt(process.env.DATABASE_PORT, 10) || 3306,
+      username: process.env.DATABASE_USERNAME || 'root',
+      password: process.env.DATABASE_PASSWORD || 'yun',
+      database: process.env.DATABASE_NAME || 'todo',
       synchronize: true,
       logging: true,
-      entities: [],
+      entities: [Todo, User, Tag, Project, Reminder],
       poolSize: 10,
       connectorPackage: 'mysql2',
-      extra: {
-        authPlugin: 'sha256_password',
-      },
     }),
     HealthModule,
   ],
