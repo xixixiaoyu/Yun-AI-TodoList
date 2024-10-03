@@ -11,6 +11,7 @@ import { Tag } from './entities/tag.entity'
 import { Project } from './entities/project.entity'
 import { Reminder } from './entities/reminder.entity'
 import { TodoModule } from './todo/todo.module'
+import { WechatModule } from './wechat/wechat.module'
 
 @Module({
 	imports: [
@@ -39,6 +40,7 @@ import { TodoModule } from './todo/todo.module'
 		}),
 		HealthModule,
 		TodoModule,
+		WechatModule,
 	],
 	controllers: [AppController],
 	providers: [AppService],
