@@ -12,9 +12,11 @@ export function useTheme() {
 	// 切换主题
 	const toggleTheme = () => {
 		if (theme.value === 'auto') {
-			theme.value = systemTheme.value === 'light' ? 'dark' : 'light'
+			theme.value = 'light'
+		} else if (theme.value === 'light') {
+			theme.value = 'dark'
 		} else {
-			theme.value = theme.value === 'light' ? 'dark' : 'auto'
+			theme.value = 'auto'
 		}
 	}
 

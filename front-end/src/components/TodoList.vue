@@ -198,19 +198,13 @@ const handleAddTodo = (text: string) => {
 
 // 计算主题图标
 const themeIcon = computed(() => {
-	switch (theme.value) {
-		case 'light':
-			return 'moon'
-		case 'dark':
-			return 'sun'
-		case 'auto':
-			return 'auto'
-		default:
-			return 'moon'
+	if (theme.value === 'auto') {
+		return 'auto'
 	}
+	return theme.value === 'light' ? 'moon' : 'sun'
 })
 
-// 计算主题切换按钮的提示文本
+// 计算主题切换提示文本
 const themeTooltip = computed(() => {
 	switch (theme.value) {
 		case 'light':
@@ -220,7 +214,7 @@ const themeTooltip = computed(() => {
 		case 'auto':
 			return t('switchToLightMode')
 		default:
-			return t('switchToDarkMode')
+			return t('switchToLightMode')
 	}
 })
 
