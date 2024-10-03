@@ -21,6 +21,9 @@ import AudioPlayer from './AudioPlayer.vue'
 import { format } from 'date-fns'
 import { zhCN } from 'date-fns/locale'
 import { useSortable } from '@vueuse/integrations/useSortable'
+import { useRouter } from 'vue-router'
+
+const router = useRouter()
 
 // 使用 useTodos 组合式函数获取待办事项相关的状态和方法
 const {
@@ -254,6 +257,10 @@ const checkPomodoroCompletion = () => {
 	}
 }
 
+const goToAiAssistant = () => {
+	router.push('/ai-assistant')
+}
+
 // 在组件挂载时添加事件监听器
 onMounted(() => {
 	document.addEventListener('visibilitychange', checkPomodoroCompletion)
@@ -286,7 +293,7 @@ const formatDate = (date: string | Date) => {
 			</div>
 			<div class="header">
 				<!-- 应用标题 -->
-				<h1>{{ t('appTitle') }}</h1>
+				<h1 style="margin-right: 10px">{{ t('appTitle') }}</h1>
 				<div class="header-actions">
 					<!-- 主题切换按钮 -->
 					<button
@@ -353,7 +360,7 @@ const formatDate = (date: string | Date) => {
 						<span class="sr-only">{{ t('history') }}</span>
 					</button>
 					<!-- AI助手链接 -->
-					<router-link to="/ai-assistant" class="icon-button">
+					<button class="icon-button" @click="goToAiAssistant">
 						<svg
 							xmlns="http://www.w3.org/2000/svg"
 							viewBox="0 0 24 24"
@@ -366,14 +373,11 @@ const formatDate = (date: string | Date) => {
 							/>
 						</svg>
 						<span>{{ t('aiAssistant') }}</span>
-					</router-link>
-					<!-- 番茄钟计时器组件 -->
-					<PomodoroTimer
-						class="pomodoro-timer"
-						@pomodoro-complete="handlePomodoroComplete"
-					/>
+					</button>
 				</div>
 			</div>
+			<!-- 番茄钟计时器组件 -->
+			<PomodoroTimer class="pomodoro-timer" @pomodoro-complete="handlePomodoroComplete" />
 			<!-- 待办事项输入组件 -->
 			<TodoInput
 				:maxLength="MAX_TODO_LENGTH"
@@ -504,9 +508,7 @@ const formatDate = (date: string | Date) => {
 
 .header {
 	display: flex;
-	flex-direction: column;
-	align-items: flex-start;
-	margin-bottom: 2rem;
+	margin-bottom: 1rem;
 }
 
 h1 {
@@ -519,11 +521,10 @@ h1 {
 }
 
 .header-actions {
-	margin-top: 1rem;
 	display: flex;
-	gap: 1rem;
 	align-items: center;
-	flex-wrap: wrap;
+	gap: 1rem;
+	margin-left: auto;
 }
 
 .todo-grid {
@@ -889,6 +890,7 @@ h1 {
 .pomodoro-timer {
 	flex-grow: 1;
 	max-width: 300px;
+	margin-bottom: 1rem;
 }
 
 @media (max-width: 768px) {
