@@ -7,7 +7,7 @@ import { computed } from 'vue'
 import track1 from '../assets/audio/真正432Hz-适合睡眠版.mp3'
 import track2 from '../assets/audio/1 Hour NEW Headset Immersion ❤️.mp3'
 import track3 from '../assets/audio/ASMR-假人头麦克风保证全程1小时的良好睡眠.mp3'
-
+import track4 from '../assets/audio/执迷不悟.mp3'
 const { t } = useI18n()
 
 const audioElement = ref<HTMLAudioElement | null>(null)
@@ -19,13 +19,14 @@ const isLoading = ref(false)
 const volume = ref(1)
 const error = ref('')
 
-const playlist = [
+const playlist = computed(() => [
 	{ title: t('track1Title'), src: track1 },
 	{ title: t('track2Title'), src: track2 },
 	{ title: t('track3Title'), src: track3 },
-]
+	{ title: t('track4Title'), src: track4 },
+])
 
-const currentTrack = ref(playlist[currentTrackIndex.value])
+const currentTrack = computed(() => playlist.value[currentTrackIndex.value])
 
 const togglePlay = async () => {
 	if (audioElement.value) {
@@ -48,8 +49,8 @@ const togglePlay = async () => {
 }
 
 const playNext = () => {
-	currentTrackIndex.value = (currentTrackIndex.value + 1) % playlist.length
-	currentTrack.value = playlist[currentTrackIndex.value]
+	const index = (currentTrackIndex.value + 1) % playlist.value.length
+	currentTrackIndex.value = index
 	resetAudioState()
 	nextTick(() => {
 		if (isPlaying.value) {
@@ -60,8 +61,7 @@ const playNext = () => {
 
 const playPrevious = () => {
 	currentTrackIndex.value =
-		(currentTrackIndex.value - 1 + playlist.length) % playlist.length
-	currentTrack.value = playlist[currentTrackIndex.value]
+		(currentTrackIndex.value - 1 + playlist.value.length) % playlist.value.length
 	resetAudioState()
 	nextTick(() => {
 		if (isPlaying.value) {
@@ -95,7 +95,6 @@ const updateProgress = (event: Event) => {
 const switchToTrack = (index: number) => {
 	if (currentTrackIndex.value === index) return
 	currentTrackIndex.value = index
-	currentTrack.value = playlist[currentTrackIndex.value]
 	// 只有当前不在播放状态时才重置音频状态
 	if (!isPlaying.value) {
 		resetAudioState()
@@ -151,16 +150,6 @@ onMounted(() => {
 			error.value = t('audioError')
 			isLoading.value = false
 		})
-	}
-})
-
-watch(currentTrack, () => {
-	if (audioElement.value) {
-		resetAudioState()
-		audioElement.value.src = currentTrack.value.src
-		if (isPlaying.value) {
-			togglePlay()
-		}
 	}
 })
 </script>

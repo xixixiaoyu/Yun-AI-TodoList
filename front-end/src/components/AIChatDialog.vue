@@ -598,8 +598,7 @@ watch([chatHistory, currentAIResponse], scrollToBottom, { deep: true, immediate:
 }
 
 .new-conversation-btn {
-	width: 70px;
-	padding: 8px;
+	padding: 8px 10px;
 	margin-bottom: 10px;
 	margin-left: 14px;
 	background-color: var(--button-bg-color);
@@ -650,7 +649,6 @@ watch([chatHistory, currentAIResponse], scrollToBottom, { deep: true, immediate:
 }
 
 .toggle-drawer-btn {
-	width: 120px;
 	border: 1px solid var(--card-bg-color);
 	color: var(--card-bg-color);
 	padding: 10px;
