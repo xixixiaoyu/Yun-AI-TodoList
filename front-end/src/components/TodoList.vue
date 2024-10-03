@@ -280,11 +280,19 @@ const formatDate = (date: string | Date) => {
 <template>
 	<div class="todo-container">
 		<!-- 顶部时钟组件 -->
-		<Clock class="top-clock" />
+		<!-- <Clock class="top-clock" /> -->
+		<!-- 番茄钟计时器组件 -->
+		<PomodoroTimer
+			class="pomodoro-timer top-clock"
+			@pomodoro-complete="handlePomodoroComplete"
+		/>
+
 		<!-- 每日灵感组件 -->
 		<DailyInspiration class="daily-inspiration" />
+
 		<!-- 音频播放器组件 -->
 		<AudioPlayer class="audio-player" />
+
 		<div class="todo-list" :class="{ 'is-loading': isLoading }">
 			<!-- 加载中遮罩层 -->
 			<div v-if="isLoading" class="loading-overlay">
@@ -376,8 +384,7 @@ const formatDate = (date: string | Date) => {
 					</button>
 				</div>
 			</div>
-			<!-- 番茄钟计时器组件 -->
-			<PomodoroTimer class="pomodoro-timer" @pomodoro-complete="handlePomodoroComplete" />
+
 			<!-- 待办事项输入组件 -->
 			<TodoInput
 				:maxLength="MAX_TODO_LENGTH"
@@ -881,10 +888,11 @@ h1 {
 
 .top-clock {
 	position: fixed;
-	top: 1rem;
+	top: 0.5rem;
 	left: 50%;
 	transform: translateX(-50%);
 	z-index: 1001;
+	padding: 0.5rem;
 }
 
 .pomodoro-timer {
