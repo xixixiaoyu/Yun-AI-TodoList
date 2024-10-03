@@ -55,6 +55,9 @@ onMounted(() => {
 	--filter-btn-active-bg: #7a89c2;
 	--filter-btn-active-text: #ffffff;
 	--filter-btn-active-border: #7a89c2;
+	--language-toggle-bg: rgba(122, 137, 194, 0.2); /* 浅色主题下的半透明背景 */
+	--language-toggle-color: #2c3e50; /* 浅色主题下的文字颜色 */
+	--language-toggle-hover-bg: rgba(122, 137, 194, 0.4); /* 浅色主题下的悬停背景 */
 }
 
 [data-theme='dark'] {
@@ -76,6 +79,9 @@ onMounted(() => {
 	--filter-btn-active-bg: #8e9ecc;
 	--filter-btn-active-text: #ffffff;
 	--filter-btn-active-border: #8e9ecc;
+	--language-toggle-bg: rgba(142, 158, 204, 0.2); /* 深色主题下的半透明背景 */
+	--language-toggle-color: #ecf0f1; /* 深色主题下的文字颜色 */
+	--language-toggle-hover-bg: rgba(142, 158, 204, 0.4); /* 深色主题下的悬停背景 */
 }
 
 body {
@@ -103,16 +109,21 @@ body {
 	top: 10px;
 	right: 10px;
 	padding: 5px 10px;
-	background-color: var(--button-bg-color);
-	color: #ffffff; /* 使用白色文字以提高可读性 */
-	border: none;
+	background-color: var(--language-toggle-bg);
+	color: var(--language-toggle-color);
+	border: 1px solid var(--language-toggle-color);
 	border-radius: 4px;
 	cursor: pointer;
 	z-index: 1000;
+	font-size: 14px;
+	font-weight: bold;
+	transition: all 0.3s ease;
 }
 
 .language-toggle:hover {
-	background-color: var(--button-hover-bg-color);
+	background-color: var(--language-toggle-hover-bg);
+	transform: translateY(-2px);
+	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 /* 替换 @media (forced-colors: active) 部分 */
