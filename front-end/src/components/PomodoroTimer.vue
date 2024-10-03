@@ -6,8 +6,8 @@ import TimerWorker from '../workers/timerWorker?worker'
 
 const { t } = useI18n()
 
-const WORK_TIME = 5 // 25 minutes in seconds
-const BREAK_TIME = 6 // 5 minutes in seconds
+const WORK_TIME = 25 * 60 // 25 minutes in seconds
+const BREAK_TIME = 5 * 60 // 5 minutes in seconds
 
 const isActive = ref(false)
 const isPaused = ref(false)
@@ -141,7 +141,7 @@ onUnmounted(() => {
 
 const emit = defineEmits(['pomodoroComplete'])
 
-// 使用 getServerTime() 替代所有的 Date.now() 调用
+// 使用 getServerTime() 服务器时间可替代所有的 Date.now() 调用
 </script>
 
 <template>

@@ -42,7 +42,6 @@ const {
 
 // 创建待办事项列表的 ref，用于拖拽排序功能
 const todoListRef = ref<HTMLElement | null>(null)
-console.log('todos', todos.value)
 // 使用 useSortable 为待办事项列表添加拖拽排序功能
 const { option } = useSortable(todoListRef, todos, {
 	animation: 150,
