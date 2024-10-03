@@ -80,5 +80,10 @@
 	"audioError": "Audio loading failed",
 	"sequenceMode": "Sequence Play",
 	"loopMode": "Loop Play",
-	"randomMode": "Random Play"
+	"randomMode": "Random Play",
+	"clearHistory": "Clear History",
+	"newConversation": "New Conversation",
+	"showConversations": "Show Conversations",
+	"hideConversations": "Hide Conversations",
+	"conversations": "Conversations"
 }

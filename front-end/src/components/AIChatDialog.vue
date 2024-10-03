@@ -19,6 +19,84 @@ const currentAIResponse = ref('')
 const isGenerating = ref(false)
 const inputRef = ref<HTMLTextAreaElement | null>(null)
 
+// 新增: 对话历史列表
+const conversationHistory = ref<
+	{ id: number; title: string; messages: { role: 'user' | 'ai'; content: string }[] }[]
+>([])
+const currentConversationId = ref<number | null>(null)
+
+// 修改: 将 showConversationList 重命名为 isDrawerOpen
+const isDrawerOpen = ref(false)
+
+// 新增: 从 localStorage 加载对话历史列表
+const loadConversationHistory = () => {
+	const savedHistory = localStorage.getItem('aiConversationHistory')
+	if (savedHistory) {
+		conversationHistory.value = JSON.parse(savedHistory)
+	}
+}
+
+// 新增: 保存对话历史列表到 localStorage
+const saveConversationHistory = () => {
+	localStorage.setItem('aiConversationHistory', JSON.stringify(conversationHistory.value))
+}
+
+// 新增: 创建新对话
+const createNewConversation = () => {
+	const newId = Date.now()
+	const newConversation = {
+		id: newId,
+		title: t('newConversation'),
+		messages: [],
+	}
+	conversationHistory.value.unshift(newConversation)
+	currentConversationId.value = newId
+	chatHistory.value = []
+	saveConversationHistory()
+}
+
+// 修改: 切换对话的函数
+const switchConversation = (id: number) => {
+	currentConversationId.value = id
+	const conversation = conversationHistory.value.find(c => c.id === id)
+	if (conversation) {
+		chatHistory.value = [...conversation.messages] // 使用扩展运算符创建新数组
+	}
+	isDrawerOpen.value = false // 切换对话后关闭抽屉
+}
+
+// 新增: 删除对话
+const deleteConversation = (id: number) => {
+	conversationHistory.value = conversationHistory.value.filter(c => c.id !== id)
+	if (currentConversationId.value === id) {
+		if (conversationHistory.value.length > 0) {
+			switchConversation(conversationHistory.value[0].id)
+		} else {
+			createNewConversation()
+		}
+	}
+	saveConversationHistory()
+}
+
+// 修改: 重命名函数
+const toggleDrawer = () => {
+	isDrawerOpen.value = !isDrawerOpen.value
+}
+
+// 新增: 点击非抽屉区域时关闭抽屉
+const closeDrawerOnOutsideClick = (event: MouseEvent) => {
+	const drawer = document.querySelector('.drawer-container')
+	const toggleButton = document.querySelector('.toggle-drawer-btn')
+	if (
+		isDrawerOpen.value &&
+		drawer &&
+		!drawer.contains(event.target as Node) &&
+		event.target !== toggleButton
+	) {
+		isDrawerOpen.value = false
+	}
+}
+
 const sendMessage = async () => {
 	if (!userMessage.value.trim()) return
 
@@ -39,7 +117,6 @@ const sendMessage = async () => {
 				content: msg.content,
 			}))
 
-		// 添加语言指示到消息中
 		const languageInstruction =
 			locale.value === 'zh' ? '请用中文回复。' : '请用英文回复。'
 		messages.unshift({ role: 'system', content: languageInstruction })
@@ -47,6 +124,21 @@ const sendMessage = async () => {
 		await getAIStreamResponse(messages, chunk => {
 			if (chunk === '[DONE]' || chunk === '[ABORTED]') {
 				isGenerating.value = false
+				// 更新当前对话的消息
+				if (currentConversationId.value !== null) {
+					const currentConversation = conversationHistory.value.find(
+						c => c.id === currentConversationId.value
+					)
+					if (currentConversation) {
+						currentConversation.messages = chatHistory.value
+						// 更新对话标题
+						if (currentConversation.messages.length === 2) {
+							currentConversation.title =
+								currentConversation.messages[0].content.slice(0, 30) + '...'
+						}
+					}
+				}
+				saveConversationHistory()
 				return
 			}
 			currentAIResponse.value += chunk
@@ -109,6 +201,13 @@ onMounted(() => {
 	if (inputRef.value) {
 		inputRef.value.focus()
 	}
+	loadConversationHistory()
+	if (conversationHistory.value.length === 0) {
+		createNewConversation()
+	} else {
+		switchConversation(conversationHistory.value[0].id)
+	}
+	document.addEventListener('click', closeDrawerOnOutsideClick)
 })
 
 watch([chatHistory, currentAIResponse], scrollToBottom, { deep: true, immediate: true })
@@ -118,6 +217,7 @@ watch([chatHistory, currentAIResponse], scrollToBottom, { deep: true, immediate:
 	<div class="ai-chat-dialog">
 		<div class="dialog-header">
 			<h2>{{ t('aiAssistant') }}</h2>
+
 			<router-link to="/" class="close-button" aria-label="close">
 				<svg
 					xmlns="http://www.w3.org/2000/svg"
@@ -133,7 +233,43 @@ watch([chatHistory, currentAIResponse], scrollToBottom, { deep: true, immediate:
 			</router-link>
 		</div>
 		<div class="dialog-content">
-			<div ref="chatHistoryRef" class="chat-history">
+			<div class="drawer-container" :class="{ 'drawer-open': isDrawerOpen }">
+				<div class="drawer">
+					<h3 class="drawer-title">{{ t('conversations') }}</h3>
+					<div class="conversation-list">
+						<div
+							v-for="conversation in conversationHistory"
+							:key="conversation.id"
+							class="conversation-item"
+							:class="{ active: currentConversationId === conversation.id }"
+							@click.stop="switchConversation(conversation.id)"
+						>
+							<span>{{ conversation.title }}</span>
+							<button
+								@click.stop="deleteConversation(conversation.id)"
+								class="delete-conversation-btn"
+							>
+								<svg
+									xmlns="http://www.w3.org/2000/svg"
+									viewBox="0 0 24 24"
+									width="18"
+									height="18"
+								>
+									<path fill="none" d="M0 0h24v24H0z" />
+									<path
+										d="M17 6h5v2h-2v13a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V8H2V6h5V3a1 1 0 0 1 1-1h8a1 1 0 0 1 1 1v3zm1 2H6v12h12V8zm-9 3h2v6H9v-6zm4 0h2v6h-2v-6zM9 4v2h6V4H9z"
+									/>
+								</svg>
+							</button>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div
+				ref="chatHistoryRef"
+				class="chat-history"
+				:class="{ 'drawer-open': isDrawerOpen }"
+			>
 				<div
 					v-for="(message, index) in sanitizedMessages"
 					:key="index"
@@ -145,6 +281,15 @@ watch([chatHistory, currentAIResponse], scrollToBottom, { deep: true, immediate:
 						<div v-else v-html="message.sanitizedContent"></div>
 					</div>
 				</div>
+			</div>
+			<div class="conversation-controls">
+				<button @click="createNewConversation" class="new-conversation-btn">
+					{{ t('newConversation') }}
+				</button>
+				<!-- 修改: 更新抽屉切换按钮 -->
+				<button @click="toggleDrawer" class="toggle-drawer-btn">
+					{{ isDrawerOpen ? t('hideConversations') : t('showConversations') }}
+				</button>
 			</div>
 			<div class="chat-input">
 				<textarea
@@ -176,6 +321,7 @@ watch([chatHistory, currentAIResponse], scrollToBottom, { deep: true, immediate:
 	flex-direction: column;
 	overflow: hidden;
 	z-index: 1000;
+	text-align: left;
 }
 
 .dialog-header {
@@ -433,6 +579,209 @@ watch([chatHistory, currentAIResponse], scrollToBottom, { deep: true, immediate:
 
 	.chat-input {
 		padding: 0 16px 16px;
+	}
+}
+
+.conversation-list {
+	overflow-y: auto;
+}
+
+.new-conversation-btn {
+	width: 6%;
+	padding: 8px;
+	margin-bottom: 10px;
+	margin-left: 14px;
+	background-color: var(--button-bg-color);
+	color: var(--card-bg-color);
+	border: none;
+	border-radius: 4px;
+	cursor: pointer;
+}
+
+.conversation-item {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	padding: 5px;
+	margin-bottom: 5px;
+	cursor: pointer;
+}
+
+.conversation-item span {
+	flex-grow: 1;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.conversation-item span.active {
+	font-weight: bold;
+}
+
+.delete-conversation-btn {
+	background: none;
+	border: none;
+	color: var(--button-bg-color);
+	cursor: pointer;
+}
+
+.dialog-content {
+	display: flex;
+}
+
+.chat-history {
+	flex-grow: 1;
+	padding-left: 20px;
+}
+
+.chat-history.full-width {
+	padding-left: 0;
+}
+
+.toggle-drawer-btn {
+	width: 10%;
+	border: 1px solid var(--card-bg-color);
+	color: var(--card-bg-color);
+	padding: 10px;
+	font-size: 14px;
+	margin-right: 10px;
+	transition: all 0.3s ease;
+	margin-left: 14px;
+	background-color: var(--button-bg-color);
+	color: var(--card-bg-color);
+	border: none;
+	border-radius: 4px;
+	cursor: pointer;
+	margin-bottom: 10px;
+}
+
+.conversation-controls {
+	display: flex;
+	align-items: center;
+}
+
+.drawer-container {
+	position: absolute;
+	top: 0;
+	left: 0;
+	height: 100%;
+	z-index: 10;
+	transition: transform 0.3s ease, box-shadow 0.3s ease;
+	transform: translateX(-100%);
+}
+
+.drawer-container.drawer-open {
+	transform: translateX(0);
+	box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.drawer {
+	width: 280px;
+	height: 100%;
+	background-color: var(--card-bg-color);
+	display: flex;
+	flex-direction: column;
+}
+
+.drawer-title {
+	padding: 16px;
+	margin: 0;
+	font-size: 18px;
+	font-weight: 600;
+	color: var(--text-color);
+	border-bottom: 1px solid var(--input-border-color);
+}
+
+.conversation-list {
+	flex-grow: 1;
+	overflow-y: auto;
+	padding: 10px;
+}
+
+.conversation-item {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	padding: 10px;
+	margin-bottom: 5px;
+	cursor: pointer;
+	border-radius: 8px;
+	transition: background-color 0.2s ease;
+}
+
+.conversation-item:hover {
+	background-color: var(--input-bg-color);
+}
+
+.conversation-item.active {
+	background-color: var(--button-bg-color);
+	color: var(--card-bg-color);
+}
+
+.conversation-item span {
+	flex-grow: 1;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	margin-right: 10px;
+}
+
+.delete-conversation-btn {
+	background: none;
+	border: none;
+	cursor: pointer;
+	opacity: 0.6;
+	transition: opacity 0.2s ease;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.delete-conversation-btn:hover {
+	opacity: 1;
+}
+
+.delete-conversation-btn svg {
+	fill: currentColor;
+}
+
+.chat-history {
+	transition: margin-left 0.3s ease;
+}
+
+.chat-history.drawer-open {
+	margin-left: 280px;
+}
+
+.toggle-drawer-btn {
+	padding: 8px 16px;
+	font-size: 14px;
+	background-color: var(--button-bg-color);
+	color: var(--card-bg-color);
+	border: none;
+	border-radius: 20px;
+	cursor: pointer;
+	transition: all 0.3s ease;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.toggle-drawer-btn:hover {
+	background-color: var(--button-hover-bg-color);
+}
+
+.toggle-drawer-btn svg {
+	margin-right: 5px;
+}
+
+@media (max-width: 768px) {
+	.drawer {
+		width: 100%;
+	}
+
+	.chat-history.drawer-open {
+		margin-left: 0;
 	}
 }
 </style>
