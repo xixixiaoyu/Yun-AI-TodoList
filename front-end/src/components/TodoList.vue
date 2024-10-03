@@ -50,7 +50,7 @@ useSortable(todoListRef, todos, {
 
 // 使用错误处理和确认对话框的组合式函数
 const { error: duplicateError, showError } = useErrorHandler()
-const { showConfirmDialog, confirmDialogConfig, handleConfform, handleCancel } =
+const { showConfirmDialog, confirmDialogConfig, handleConfirm, handleCancel } =
 	useConfirmDialog()
 
 // 使用主题和国际化的组合式函数
