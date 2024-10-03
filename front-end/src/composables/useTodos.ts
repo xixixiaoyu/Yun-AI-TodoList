@@ -53,24 +53,32 @@ export function useTodos() {
 	}
 
 	const addTodo = (text: string): boolean => {
-		const trimmedText = text.trim()
-		if (trimmedText === '') return false
+		// 检查文本是否为空或只包含空白字符
+		if (!text || text.trim() === '') {
+			return false
+		}
 
 		// 检查是否存在重复的待办事项
 		const isDuplicate = todos.value.some(
 			todo =>
-				todo && todo.text.toLowerCase() === trimmedText.toLowerCase() && !todo.completed
+				todo &&
+				todo.text &&
+				todo.text.toLowerCase() === text.toLowerCase() &&
+				!todo.completed
 		)
-		if (isDuplicate) return false
 
-		const newId =
-			Math.max(0, ...todos.value.filter(todo => todo !== null).map(todo => todo.id)) + 1
-		todos.value.push({
-			id: newId,
-			text: trimmedText,
+		if (isDuplicate) {
+			return false
+		}
+
+		const newTodo = {
+			id: Date.now(),
+			text: text.trim(),
 			completed: false,
-		})
-		saveToHistory()
+		}
+
+		todos.value.push(newTodo)
+		saveTodos()
 		return true
 	}
 

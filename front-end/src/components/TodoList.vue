@@ -20,7 +20,9 @@ import TodoHeatmap from './TodoHeatmap.vue'
 import AudioPlayer from './AudioPlayer.vue'
 import { format } from 'date-fns'
 import { zhCN } from 'date-fns/locale'
+import { useSortable } from '@vueuse/integrations/useSortable'
 
+// 使用 useTodos 组合式函数获取待办事项相关的状态和方法
 const {
 	todos,
 	history,
@@ -34,16 +36,30 @@ const {
 	deleteAllHistory,
 	updateTodosOrder,
 } = useTodos()
+
+// 创建待办事项列表的 ref，用于拖拽排序功能
+const todoListRef = ref<HTMLElement | null>(null)
+
+// 使用 useSortable 为待办事项列表添加拖拽排序功能
+useSortable(todoListRef, todos, {
+	itemKey: 'id',
+})
+
+// 使用错误处理和确认对话框的组合式函数
 const { error: duplicateError, showError } = useErrorHandler()
-const { showConfirmDialog, confirmDialogConfig, handleConfirm, handleCancel } =
+const { showConfirmDialog, confirmDialogConfig, handleConfform, handleCancel } =
 	useConfirmDialog()
+
+// 使用主题和国际化的组合式函数
 const { theme, toggleTheme } = useTheme()
 const { t, locale } = useI18n()
 
+// 定义过滤器状态和历史记录显示状态
 const filter = ref('active')
 const showHistory = ref(false)
 const MAX_TODO_LENGTH = 50
 
+// 根据过滤器计算待显示的待办事项
 const filteredTodos = computed(() => {
 	if (filter.value === 'active') {
 		return todos.value.filter(todo => todo && !todo.completed)
@@ -53,18 +69,22 @@ const filteredTodos = computed(() => {
 	return todos.value.filter(todo => todo !== null && todo !== undefined)
 })
 
+// 计算历史待办事项
 const historicalTodos = computed(() => {
 	return history.value.flatMap(item => item.todos.map(todo => todo.text))
 })
 
+// 切换历史记录显示状态
 const toggleHistory = () => {
 	showHistory.value = !showHistory.value
 }
 
+// 检查是否有未完成的待办事项
 const hasActiveTodos = computed(() => {
 	return todos.value.some(todo => todo && !todo.completed)
 })
 
+// 清除已完成的待办事项
 const clearActive = () => {
 	showConfirmDialog.value = true
 	confirmDialogConfig.value = {
@@ -76,10 +96,12 @@ const clearActive = () => {
 	}
 }
 
+// 定义建议待办事项相关的状态
 const suggestedTodos = ref<string[]>([])
 const showSuggestedTodos = ref(false)
 const isGenerating = ref(false)
 
+// 生成建议待办事项
 const generateSuggestedTodos = async () => {
 	isGenerating.value = true
 	try {
@@ -101,6 +123,7 @@ const generateSuggestedTodos = async () => {
 	}
 }
 
+// 确认添加建议待办事项
 const confirmSuggestedTodos = () => {
 	const duplicates = addMultipleTodos(suggestedTodos.value)
 	if (duplicates.length > 0) {
@@ -110,21 +133,26 @@ const confirmSuggestedTodos = () => {
 	suggestedTodos.value = []
 }
 
+// 取消添加建议待办事项
 const cancelSuggestedTodos = () => {
 	showSuggestedTodos.value = false
 	suggestedTodos.value = []
 }
 
+// 更新建议待办事项的内容
 const updateSuggestedTodo = (index: number, newText: string) => {
 	suggestedTodos.value[index] = newText
 }
 
+// 关闭历史记录侧边栏
 const closeHistory = () => {
 	showHistory.value = false
 }
 
+// 定义 AI 排序相关的状态
 const isSorting = ref(false)
 
+// 使用 AI 对未完成的待办事项进行排序
 const sortActiveTodosWithAI = async () => {
 	isSorting.value = true
 	try {
@@ -150,15 +178,22 @@ const sortActiveTodosWithAI = async () => {
 	}
 }
 
+// 计算是否正在加载中
 const isLoading = computed(() => isSorting.value)
 
+// 处理添加新待办事项
 const handleAddTodo = (text: string) => {
-	const success = addTodo(text)
-	if (!success) {
-		showError(t('duplicateError'))
+	if (text && text.trim() !== '') {
+		const success = addTodo(text)
+		if (!success) {
+			showError(t('duplicateError'))
+		}
+	} else {
+		showError(t('emptyTodoError'))
 	}
 }
 
+// 计算主题图标
 const themeIcon = computed(() => {
 	switch (theme.value) {
 		case 'light':
@@ -172,6 +207,7 @@ const themeIcon = computed(() => {
 	}
 })
 
+// 计算主题切换按钮的提示文本
 const themeTooltip = computed(() => {
 	switch (theme.value) {
 		case 'light':
@@ -185,6 +221,7 @@ const themeTooltip = computed(() => {
 	}
 })
 
+// 显示大型礼花效果
 const showBigConfetti = () => {
 	confetti({
 		particleCount: 300,
@@ -193,6 +230,7 @@ const showBigConfetti = () => {
 	})
 }
 
+// 处理番茄钟完成事件
 const handlePomodoroComplete = (isBreakStarted: boolean) => {
 	if (isBreakStarted) {
 		// 只有在休息时间开始时才显示礼花效果
@@ -205,6 +243,7 @@ const handlePomodoroComplete = (isBreakStarted: boolean) => {
 	}
 }
 
+// 检查番茄钟完成状态并显示礼花效果
 const checkPomodoroCompletion = () => {
 	if (!document.hidden) {
 		const pomodoroCompleted = localStorage.getItem('pomodoroCompleted')
@@ -225,7 +264,7 @@ onUnmounted(() => {
 	document.removeEventListener('visibilitychange', checkPomodoroCompletion)
 })
 
-// 添加 formatDate 函数
+// 格式化日期函数
 const formatDate = (date: string | Date) => {
 	return format(new Date(date), 'yyyy-MM-dd HH:mm:ss', { locale: zhCN })
 }
@@ -233,25 +272,30 @@ const formatDate = (date: string | Date) => {
 
 <template>
 	<div class="todo-container">
+		<!-- 顶部时钟组件 -->
 		<Clock class="top-clock" />
+		<!-- 每日灵感组件 -->
 		<DailyInspiration class="daily-inspiration" />
+		<!-- 音频播放器组件 -->
 		<AudioPlayer class="audio-player" />
-		<!-- 新增: 音频播放器 -->
 		<div class="todo-list" :class="{ 'is-loading': isLoading }">
-			<!-- 添加 loading 遮罩层 -->
+			<!-- 加载中遮罩层 -->
 			<div v-if="isLoading" class="loading-overlay">
 				<div class="loading-spinner"></div>
 				<p>{{ t('sorting') }}</p>
 			</div>
 			<div class="header">
+				<!-- 应用标题 -->
 				<h1>{{ t('appTitle') }}</h1>
 				<div class="header-actions">
+					<!-- 主题切换按钮 -->
 					<button
 						@click="toggleTheme"
 						class="icon-button theme-toggle"
 						:title="themeTooltip"
 						:aria-label="themeTooltip"
 					>
+						<!-- 根据当前主题显示不同的图标 -->
 						<svg
 							v-if="themeIcon === 'moon'"
 							xmlns="http://www.w3.org/2000/svg"
@@ -289,6 +333,7 @@ const formatDate = (date: string | Date) => {
 							/>
 						</svg>
 					</button>
+					<!-- 历史记录按钮 -->
 					<button
 						@click="toggleHistory"
 						class="icon-button"
@@ -307,6 +352,7 @@ const formatDate = (date: string | Date) => {
 						</svg>
 						<span class="sr-only">{{ t('history') }}</span>
 					</button>
+					<!-- AI助手链接 -->
 					<router-link to="/ai-assistant" class="icon-button">
 						<svg
 							xmlns="http://www.w3.org/2000/svg"
@@ -321,21 +367,24 @@ const formatDate = (date: string | Date) => {
 						</svg>
 						<span>{{ t('aiAssistant') }}</span>
 					</router-link>
+					<!-- 番茄钟计时器组件 -->
 					<PomodoroTimer
 						class="pomodoro-timer"
 						@pomodoro-complete="handlePomodoroComplete"
 					/>
 				</div>
 			</div>
-			<!-- 移除这里的 PomodoroTimer -->
+			<!-- 待办事项输入组件 -->
 			<TodoInput
 				:maxLength="MAX_TODO_LENGTH"
 				@add="handleAddTodo"
 				:duplicateError="duplicateError"
 				:placeholder="t('addTodo')"
 			/>
+			<!-- 待办事项过滤器组件 -->
 			<TodoFilters v-model:filter="filter" />
-			<div class="todo-grid">
+			<!-- 待办事项列表 -->
+			<div ref="todoListRef" class="todo-grid">
 				<TodoItem
 					v-for="todo in filteredTodos"
 					:key="todo.id"
@@ -344,7 +393,9 @@ const formatDate = (date: string | Date) => {
 					@remove="removeTodo"
 				/>
 			</div>
+			<!-- 操作按钮区域 -->
 			<div class="actions">
+				<!-- 清除已完成待办事项按钮 -->
 				<button
 					v-if="filter === 'active' && hasActiveTodos"
 					@click="clearActive"
@@ -352,6 +403,7 @@ const formatDate = (date: string | Date) => {
 				>
 					{{ t('clearCompleted') }}
 				</button>
+				<!-- 生成建议待办事项按钮 -->
 				<button
 					@click="generateSuggestedTodos"
 					class="generate-btn"
@@ -359,7 +411,7 @@ const formatDate = (date: string | Date) => {
 				>
 					{{ isGenerating ? t('generating') : t('generateSuggestions') }}
 				</button>
-				<!-- 新增：AI 排序按钮 -->
+				<!-- AI优先级排序按钮 -->
 				<button
 					v-if="hasActiveTodos"
 					@click="sortActiveTodosWithAI"
@@ -369,6 +421,7 @@ const formatDate = (date: string | Date) => {
 					<span>{{ t('aiPrioritySort') }}</span>
 				</button>
 			</div>
+			<!-- 确认对话框组件 -->
 			<ConfirmDialog
 				:show="showConfirmDialog"
 				:title="confirmDialogConfig.title"
@@ -379,7 +432,7 @@ const formatDate = (date: string | Date) => {
 				@cancel="handleCancel"
 			/>
 
-			<!-- 新增：建议待办事项确认对话框 -->
+			<!-- 建议待办事项确认对话框 -->
 			<div v-if="showSuggestedTodos" class="suggested-todos-dialog">
 				<h3>{{ t('suggestedTodos') }}</h3>
 				<p>{{ t('confirmOrModify') }}</p>
@@ -401,9 +454,12 @@ const formatDate = (date: string | Date) => {
 					</button>
 				</div>
 			</div>
+			<!-- 待办事项热力图组件 -->
 			<TodoHeatmap />
+			<!-- 番茄钟统计组件 -->
 			<PomodoroStats />
 		</div>
+		<!-- 历史记录侧边栏 -->
 		<transition name="slide">
 			<HistorySidebar
 				v-if="showHistory"

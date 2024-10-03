@@ -15,6 +15,8 @@
 		"postuninstall": "electron-builder install-app-deps"
 	},
 	"dependencies": {
+		"@vueuse/core": "^11.1.0",
+		"@vueuse/integrations": "^11.1.0",
 		"axios": "^1.7.7",
 		"canvas-confetti": "^1.9.3",
 		"chart.js": "^4.4.4",
@@ -25,6 +27,7 @@
 		"highlight.js": "^11.10.0",
 		"install": "^0.13.0",
 		"marked": "^14.1.2",
+		"sortablejs": "^1.15.3",
 		"vue": "^3.4.37",
 		"vue-draggable-next": "^2.2.1",
 		"vue-i18n": "^10.0.0",
