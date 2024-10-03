@@ -235,7 +235,22 @@ watch([chatHistory, currentAIResponse], scrollToBottom, { deep: true, immediate:
 		<div class="dialog-content">
 			<div class="drawer-container" :class="{ 'drawer-open': isDrawerOpen }">
 				<div class="drawer">
-					<h3 class="drawer-title">{{ t('conversations') }}</h3>
+					<div class="drawer-header">
+						<h3 class="drawer-title">{{ t('conversations') }}</h3>
+						<button @click="toggleDrawer" class="close-drawer-btn">
+							<svg
+								xmlns="http://www.w3.org/2000/svg"
+								viewBox="0 0 24 24"
+								width="24"
+								height="24"
+							>
+								<path fill="none" d="M0 0h24v24H0z" />
+								<path
+									d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"
+								/>
+							</svg>
+						</button>
+					</div>
 					<div class="conversation-list">
 						<div
 							v-for="conversation in conversationHistory"
@@ -265,11 +280,7 @@ watch([chatHistory, currentAIResponse], scrollToBottom, { deep: true, immediate:
 					</div>
 				</div>
 			</div>
-			<div
-				ref="chatHistoryRef"
-				class="chat-history"
-				:class="{ 'drawer-open': isDrawerOpen }"
-			>
+			<div ref="chatHistoryRef" class="chat-history">
 				<div
 					v-for="(message, index) in sanitizedMessages"
 					:key="index"
@@ -309,9 +320,9 @@ watch([chatHistory, currentAIResponse], scrollToBottom, { deep: true, immediate:
 
 <style scoped>
 .ai-chat-dialog {
+	overflow: hidden;
 	font-family: 'LXGW WenKai Screen', sans-serif;
 	position: fixed;
-	overflow: hidden;
 	top: 0;
 	left: 0;
 	width: 100vw;
@@ -319,7 +330,6 @@ watch([chatHistory, currentAIResponse], scrollToBottom, { deep: true, immediate:
 	background-color: var(--bg-color);
 	display: flex;
 	flex-direction: column;
-	overflow: hidden;
 	z-index: 1000;
 	text-align: left;
 }
@@ -360,7 +370,7 @@ watch([chatHistory, currentAIResponse], scrollToBottom, { deep: true, immediate:
 	flex-grow: 1;
 	display: flex;
 	flex-direction: column;
-	padding: 20px;
+	padding: 20px 0;
 	overflow: hidden;
 	height: calc(100% - 60px);
 }
@@ -371,8 +381,9 @@ watch([chatHistory, currentAIResponse], scrollToBottom, { deep: true, immediate:
 	margin-bottom: 20px;
 	display: flex;
 	flex-direction: column;
-	padding-right: 10px;
 	scroll-behavior: smooth;
+	padding-right: 20px;
+	height: 100%;
 }
 
 .message-container {
@@ -587,7 +598,7 @@ watch([chatHistory, currentAIResponse], scrollToBottom, { deep: true, immediate:
 }
 
 .new-conversation-btn {
-	width: 6%;
+	width: 70px;
 	padding: 8px;
 	margin-bottom: 10px;
 	margin-left: 14px;
@@ -639,7 +650,7 @@ watch([chatHistory, currentAIResponse], scrollToBottom, { deep: true, immediate:
 }
 
 .toggle-drawer-btn {
-	width: 10%;
+	width: 120px;
 	border: 1px solid var(--card-bg-color);
 	color: var(--card-bg-color);
 	padding: 10px;
@@ -665,14 +676,16 @@ watch([chatHistory, currentAIResponse], scrollToBottom, { deep: true, immediate:
 	top: 0;
 	left: 0;
 	height: 100%;
+	width: 280px;
 	z-index: 10;
-	transition: transform 0.3s ease, box-shadow 0.3s ease;
+	transition: transform 0.3s ease;
 	transform: translateX(-100%);
+	background-color: var(--card-bg-color);
+	box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
 }
 
 .drawer-container.drawer-open {
 	transform: translateX(0);
-	box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
 }
 
 .drawer {
@@ -684,12 +697,11 @@ watch([chatHistory, currentAIResponse], scrollToBottom, { deep: true, immediate:
 }
 
 .drawer-title {
-	padding: 16px;
+	padding: 6px 8px;
 	margin: 0;
 	font-size: 18px;
 	font-weight: 600;
 	color: var(--text-color);
-	border-bottom: 1px solid var(--input-border-color);
 }
 
 .conversation-list {
@@ -746,11 +758,8 @@ watch([chatHistory, currentAIResponse], scrollToBottom, { deep: true, immediate:
 }
 
 .chat-history {
-	transition: margin-left 0.3s ease;
-}
-
-.chat-history.drawer-open {
-	margin-left: 280px;
+	height: 100%;
+	overflow-y: auto;
 }
 
 .toggle-drawer-btn {
@@ -779,9 +788,30 @@ watch([chatHistory, currentAIResponse], scrollToBottom, { deep: true, immediate:
 	.drawer {
 		width: 100%;
 	}
+}
 
-	.chat-history.drawer-open {
-		margin-left: 0;
-	}
+.drawer-header {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	padding: 8px 16px;
+	border-bottom: 1px solid var(--input-border-color);
+}
+
+.close-drawer-btn {
+	background: none;
+	border: none;
+	cursor: pointer;
+	padding: 0;
+	color: var(--text-color);
+	transition: color 0.3s ease;
+}
+
+.close-drawer-btn:hover {
+	color: var(--button-bg-color);
+}
+
+.close-drawer-btn svg {
+	fill: currentColor;
 }
 </style>
