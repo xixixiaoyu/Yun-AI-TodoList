@@ -164,7 +164,7 @@ input[type='range'] {
 }
 
 .audio-player {
-	position: fixed;
+	position: relative;
 	z-index: 1000;
 	width: 100%;
 	max-width: 600px;

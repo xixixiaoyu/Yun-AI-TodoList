@@ -471,7 +471,6 @@ const formatDate = (date: string | Date) => {
 
 <style scoped>
 .todo-container {
-	position: relative;
 	display: flex;
 	flex-direction: column;
 	align-items: center;
