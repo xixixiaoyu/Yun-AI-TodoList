@@ -5,6 +5,7 @@ interface Todo {
 	text: string
 	completed: boolean
 	completedAt?: string
+	tags: string[] // 新增标签数组
 }
 
 interface HistoryItem {
@@ -52,7 +53,7 @@ export function useTodos() {
 		saveHistory() // 确保每次更新历史记录时都保存到 localStorage
 	}
 
-	const addTodo = (text: string): boolean => {
+	const addTodo = (text: string, tags: string[] = []): boolean => {
 		// 检查文本是否为空或只包含空白字符
 		if (!text || text.trim() === '') {
 			return false
@@ -75,6 +76,7 @@ export function useTodos() {
 			id: Date.now(),
 			text: text.trim(),
 			completed: false,
+			tags: tags, // 添加标签
 		}
 
 		todos.value.push(newTodo)
@@ -83,7 +85,7 @@ export function useTodos() {
 	}
 
 	// 新增：批量添加待办事项的函数
-	const addMultipleTodos = (texts: string[]): string[] => {
+	const addMultipleTodos = (texts: string[], tags: string[] = []): string[] => {
 		let maxId = Math.max(0, ...todos.value.map(todo => todo.id))
 		const duplicates: string[] = []
 		const newTodos = texts
@@ -98,6 +100,7 @@ export function useTodos() {
 				id: ++maxId,
 				text,
 				completed: false,
+				tags: tags, // 添加标签
 			}))
 		todos.value.push(...newTodos)
 		return duplicates
@@ -161,6 +164,15 @@ export function useTodos() {
 		return completedByDate
 	}
 
+	// 添加一个新函数来更新 todo 的标签
+	const updateTodoTags = (id: number, tags: string[]) => {
+		const todo = todos.value.find(todo => todo && todo.id === id)
+		if (todo) {
+			todo.tags = tags
+			saveTodos()
+		}
+	}
+
 	return {
 		todos,
 		history,
@@ -174,5 +186,6 @@ export function useTodos() {
 		deleteAllHistory,
 		updateTodosOrder,
 		getCompletedTodosByDate,
+		updateTodoTags,
 	}
 }

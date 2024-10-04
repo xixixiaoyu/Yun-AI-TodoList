@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { getAITagSuggestions } from '../services/deepseekService'
 
 const props = defineProps<{
 	maxLength: number
@@ -10,16 +11,18 @@ const props = defineProps<{
 
 const emit = defineEmits(['add'])
 
-const { t } = useI18n()
+const { t, locale } = useI18n()
 
 const newTodo = ref('')
+const newTags = ref('')
 const errorMessage = ref('')
+const isGeneratingTags = ref(false)
 
 const charCount = computed(() => {
 	return `${newTodo.value.length}/${props.maxLength}`
 })
 
-const addTodo = () => {
+const addTodo = async () => {
 	const trimmedTodo = newTodo.value.trim()
 	if (trimmedTodo.length === 0) {
 		errorMessage.value = t('emptyTodoError')
@@ -35,9 +38,23 @@ const addTodo = () => {
 		}, 3000)
 		return
 	}
-	emit('add', trimmedTodo)
-	newTodo.value = ''
-	errorMessage.value = ''
+
+	isGeneratingTags.value = true
+	try {
+		const suggestedTags = await getAITagSuggestions(trimmedTodo, locale.value)
+		const tags = [
+			...new Set([...newTags.value.split(',').map(tag => tag.trim()), ...suggestedTags]),
+		].filter(tag => tag !== '')
+		emit('add', trimmedTodo, tags)
+		newTodo.value = ''
+		newTags.value = ''
+		errorMessage.value = ''
+	} catch (error) {
+		console.error('生成标签时出错:', error)
+		errorMessage.value = t('tagGenerationError')
+	} finally {
+		isGeneratingTags.value = false
+	}
 }
 </script>
 
@@ -49,7 +66,12 @@ const addTodo = () => {
 				{{ charCount }}
 			</span>
 		</div>
-		<button type="submit" class="add-btn">{{ t('add') }}</button>
+		<div class="input-wrapper" style="width: 100%">
+			<input v-model.trim="newTags" :placeholder="t('addTags')" />
+		</div>
+		<button type="submit" class="add-btn" :disabled="isGeneratingTags">
+			{{ isGeneratingTags ? t('generatingTags') : t('add') }}
+		</button>
 	</form>
 	<p v-if="errorMessage || duplicateError" class="error-message">
 		{{ errorMessage || duplicateError }}
@@ -62,6 +84,7 @@ const addTodo = () => {
 	display: flex;
 	margin-bottom: 1rem;
 	flex-wrap: wrap;
+	gap: 0.5rem;
 }
 
 .input-wrapper {
@@ -69,18 +92,18 @@ const addTodo = () => {
 	flex-grow: 1;
 	display: flex;
 	min-width: 200px;
-	margin-bottom: 0.5rem;
 }
 
 input {
 	flex-grow: 1;
 	padding: 0.7rem;
-	padding-right: 3rem;
 	font-size: 1rem;
-	border: 1px solid #d5d8dc;
+	border: 1px solid var(--input-border-color);
 	border-radius: calc(var(--border-radius) / 2);
 	outline: none;
 	transition: all 0.3s ease;
+	background-color: var(--input-bg-color);
+	color: var(--text-color);
 }
 
 input:focus {
@@ -99,19 +122,18 @@ input:focus {
 }
 
 .add-btn {
-	padding: 0.5rem 0.8rem; /* 减小内边距 */
-	font-size: 0.9rem; /* 减小字体大小 */
+	padding: 0.5rem 0.8rem;
+	font-size: 0.9rem;
 	background-color: var(--button-bg-color);
 	color: var(--text-color);
 	border: none;
 	border-radius: calc(var(--border-radius) / 2);
 	cursor: pointer;
 	transition: all 0.3s ease;
-	margin-left: 0.5rem;
 	font-weight: var(--font-weight);
 	letter-spacing: 0.5px;
-	height: 42px; /* 设置固定高度 */
-	min-width: 80px; /* 设置最小宽度 */
+	height: 42px;
+	min-width: 80px;
 }
 
 .add-btn:hover {
@@ -137,37 +159,8 @@ input:focus {
 	}
 
 	.add-btn {
-		width: auto; /* 移动端下不要占满整行 */
-		padding: 0.5rem 1rem; /* 在移动端稍微增加一些内边距，以便于点击 */
-	}
-}
-
-.add-todo input {
-	background-color: var(--input-bg-color);
-	border-color: var(--input-border-color);
-	color: var(--text-color);
-	transition: all 0.3s ease;
-	font-weight: var(--font-weight);
-	letter-spacing: 0.5px;
-}
-
-.add-todo input:focus {
-	border-color: #ff9a8b;
-	box-shadow: 0 0 0 2px rgba(255, 154, 139, 0.2);
-}
-
-.add-btn {
-	background-color: var(--button-bg-color);
-	color: var(--text-color);
-}
-
-.add-btn:hover {
-	background-color: var(--button-hover-bg-color);
-}
-
-@media (prefers-color-scheme: dark) {
-	.add-todo input {
-		box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2) inset;
+		width: 100%;
+		padding: 0.5rem 1rem;
 	}
 }
 </style>

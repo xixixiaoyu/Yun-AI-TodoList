@@ -168,3 +168,17 @@ export async function getAIStreamResponse(
 		abortController = null
 	}
 }
+
+export async function getAITagSuggestions(
+	todoText: string,
+	locale: string
+): Promise<string[]> {
+	const prompt = `为以下待办事项推荐 2-3 个合适的标签，只返回标签，用逗号分隔：\n${todoText}`
+	try {
+		const response = await getAIResponse(prompt, locale, 0.7)
+		return response.split(',').map(tag => tag.trim())
+	} catch (error) {
+		console.error('获取 AI 标签建议时出错:', error)
+		return []
+	}
+}

@@ -8,6 +8,7 @@ const props = defineProps<{
 		id: number
 		text: string
 		completed: boolean
+		tags: string[]
 	}
 }>()
 
@@ -60,9 +61,14 @@ const formattedTitle = computed(() => {
 					<i class="checkbox" :class="{ checked: isCompleted }"></i>
 				</transition>
 			</span>
-			<span @click="toggleTodo" class="todo-text" :title="formattedTitle">
-				<span class="text-content">{{ formattedTitle }}</span>
-			</span>
+			<div class="todo-text-and-tags">
+				<span @click="toggleTodo" class="todo-text" :title="formattedTitle">
+					<span class="text-content">{{ formattedTitle }}</span>
+				</span>
+				<div class="todo-tags">
+					<span v-for="tag in todo.tags" :key="tag" class="tag">{{ tag }}</span>
+				</div>
+			</div>
 		</div>
 		<button @click="removeTodo" class="delete-btn">{{ t('delete') }}</button>
 	</div>
@@ -97,23 +103,25 @@ const formattedTitle = computed(() => {
 
 .todo-content {
 	display: flex;
-	align-items: center;
+	align-items: flex-start;
 	flex-grow: 1;
 	min-width: 0;
 }
 
-.checkbox-wrapper {
-	flex-shrink: 0;
-	margin-right: 10px;
+.todo-text-and-tags {
+	display: flex;
+	flex-direction: column;
+	flex-grow: 1;
+	min-width: 0;
 }
 
 .todo-text {
 	display: flex;
 	align-items: center;
 	cursor: pointer;
-	flex-grow: 1;
-	min-width: 0;
 	color: var(--todo-text-color);
+	margin-bottom: 0.25rem;
+	margin-left: 0.5rem;
 }
 
 .text-content {
@@ -168,6 +176,26 @@ const formattedTitle = computed(() => {
 	background-color: var(--button-hover-bg-color);
 }
 
+.todo-tags {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.25rem;
+	margin-top: 0.25rem;
+	margin-left: 0.5rem;
+}
+
+.tag {
+	background-color: var(--tag-bg-color, #e0e0e0);
+	color: var(--tag-text-color, #333);
+	padding: 0.1rem 0.3rem;
+	border-radius: 0.25rem;
+	font-size: 0.75rem;
+	max-width: 100px;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
 @media (max-width: 768px) {
 	.todo-item {
 		flex-direction: column;
@@ -181,6 +209,10 @@ const formattedTitle = computed(() => {
 
 	.delete-btn {
 		align-self: flex-end;
+	}
+
+	.todo-tags {
+		margin-top: 0.25rem;
 	}
 }
 </style>

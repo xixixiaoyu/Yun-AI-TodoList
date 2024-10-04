@@ -182,9 +182,9 @@ const sortActiveTodosWithAI = async () => {
 const isLoading = computed(() => isSorting.value)
 
 // 处理添加新待办事项
-const handleAddTodo = (text: string) => {
+const handleAddTodo = (text: string, tags: string[]) => {
 	if (text && text.trim() !== '') {
-		const success = addTodo(text)
+		const success = addTodo(text, tags)
 		if (!success) {
 			showError(t('duplicateError'))
 		}
@@ -329,7 +329,7 @@ const formatDate = (date: string | Date) => {
 							fill="currentColor"
 						>
 							<path
-								d="M12 22C6.47 22 2 17.523 2 12S6.47 2 12 2s10 4.477 10 10-4.47 10-10 10zm0-2a8 8 0 1 0 0-16 8 8 0 0 0 0 16zm-5-8h2a3 3 0 0 1 6 0h2a5 5 0 0 0-10 0z"
+								d="M12 22C6.47 22 2 17.523 2 12S6.47 2 12 2s10 4.477 10 10-4.47 10-10 10zm0-2a8 8 0 1 0 0-16 8 8 0 0 0 0 16zM9.5 9.5h5v5h-5v-5z"
 							/>
 						</svg>
 					</button>
@@ -428,7 +428,7 @@ const formatDate = (date: string | Date) => {
 				@cancel="handleCancel"
 			/>
 
-			<!-- 建议待办事项确认对话框 -->
+			<!-- 建议待办事确认对话框 -->
 			<div v-if="showSuggestedTodos" class="suggested-todos-dialog">
 				<h3>{{ t('suggestedTodos') }}</h3>
 				<p>{{ t('confirmOrModify') }}</p>

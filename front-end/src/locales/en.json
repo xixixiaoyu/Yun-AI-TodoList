@@ -86,5 +86,8 @@
 	"showConversations": "Show Conversations",
 	"hideConversations": "Hide Conversations",
 	"conversations": "Conversations",
-	"track4Title": "Obsessed"
+	"track4Title": "Obsessed",
+	"addTags": "Add tags (comma separated)",
+	"generatingTags": "Generating tags...",
+	"tagGenerationError": "Error generating tags, please try again"
 }
