@@ -4,8 +4,9 @@ import { useTheme } from './composables/useTheme'
 import { useI18n } from 'vue-i18n'
 import { setLanguage } from './i18n'
 import AudioPlayer from './components/AudioPlayer.vue'
+import DailyInspiration from './components/DailyInspiration.vue'
 
-const { theme, systemTheme, toggleTheme, initTheme } = useTheme()
+const { theme, systemTheme, initTheme } = useTheme()
 const { locale } = useI18n()
 
 onErrorCaptured((err, instance, info) => {
@@ -32,8 +33,10 @@ onMounted(() => {
 		<button @click="toggleLanguage" class="language-toggle">
 			{{ locale === 'zh' ? 'EN' : '中文' }}
 		</button>
-		<AudioPlayer class="audio-player" />
-
+		<div class="top-components">
+			<DailyInspiration />
+			<AudioPlayer />
+		</div>
 		<router-view />
 	</div>
 </template>
@@ -190,6 +193,36 @@ input[type='range'] {
 		width: calc(100% - 2rem);
 		max-width: 100%;
 		margin: 1rem auto;
+	}
+}
+
+.top-components {
+	display: flex;
+	flex-direction: column;
+	gap: 1rem;
+	margin-bottom: 1rem;
+}
+
+@media (min-width: 1201px) {
+	.top-components {
+		position: fixed;
+		top: 1rem;
+		left: 1rem;
+		width: 300px;
+	}
+}
+
+@media (max-width: 1200px) {
+	.top-components {
+		width: 100%;
+		max-width: 600px;
+		margin: 1rem auto;
+	}
+}
+
+@media (max-width: 768px) {
+	.top-components {
+		width: calc(100% - 2rem);
 	}
 }
 </style>

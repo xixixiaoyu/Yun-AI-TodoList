@@ -88,16 +88,6 @@ h3 {
 	cursor: not-allowed;
 }
 
-@media (min-width: 1201px) {
-	.daily-inspiration {
-		position: fixed;
-		top: 1rem;
-		left: 1rem;
-		width: 300px;
-		margin-bottom: 0;
-	}
-}
-
 @media (max-width: 1200px) {
 	.daily-inspiration {
 		position: static;
@@ -109,10 +99,8 @@ h3 {
 
 @media (max-width: 768px) {
 	.daily-inspiration {
-		position: static;
 		width: calc(100% - 2rem);
-		max-width: 100%;
-		margin: 0 auto 1rem;
+		margin: 1rem auto;
 	}
 }
 </style>

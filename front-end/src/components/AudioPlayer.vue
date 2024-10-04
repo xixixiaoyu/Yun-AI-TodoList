@@ -227,6 +227,11 @@ onMounted(() => {
 	box-shadow: var(--card-shadow);
 	padding: 1rem;
 	margin-bottom: 1rem;
+	width: 300px;
+	position: fixed;
+	top: calc(1rem + 150px); /* 假设每日激励卡片高度约为150px */
+	left: 1rem;
+	z-index: 1000;
 }
 
 .track-info {
@@ -403,20 +408,19 @@ onMounted(() => {
 	transform: translateY(0);
 }
 
+@media (max-width: 1200px) {
+	.audio-player {
+		position: static;
+		width: 100%;
+		max-width: 600px;
+		margin: 0 auto 1rem;
+	}
+}
+
 @media (max-width: 768px) {
-	.controls {
-		flex-direction: column;
-		align-items: center;
-	}
-
-	.controls button {
-		width: 100%;
-	}
-
-	.playlist-dropdown {
-		left: 0;
-		transform: none;
-		width: 100%;
+	.audio-player {
+		width: calc(100% - 2rem);
+		margin: 1rem auto;
 	}
 }
 </style>

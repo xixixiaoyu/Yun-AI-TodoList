@@ -11,7 +11,6 @@ import { useConfirmDialog } from '../composables/useConfirmDialog'
 import { getAIResponse } from '../services/deepseekService'
 import { useTheme } from '../composables/useTheme'
 import { useI18n } from 'vue-i18n'
-import DailyInspiration from './DailyInspiration.vue'
 import PomodoroTimer from './PomodoroTimer.vue'
 import confetti from 'canvas-confetti'
 import PomodoroStats from './PomodoroStats.vue'
@@ -278,9 +277,6 @@ const formatDate = (date: string | Date) => {
 			class="pomodoro-timer top-clock"
 			@pomodoro-complete="handlePomodoroComplete"
 		/>
-
-		<!-- 每日灵感组件 -->
-		<DailyInspiration class="daily-inspiration" />
 
 		<div class="todo-list" :class="{ 'is-loading': isLoading }">
 			<!-- 加载中遮罩层 -->
