@@ -89,5 +89,8 @@
 	"track4Title": "Obsessed",
 	"addTags": "Add tags (comma separated)",
 	"generatingTags": "Generating tags...",
-	"tagGenerationError": "Error generating tags, please try again"
+	"tagGenerationError": "Error generating tags, please try again",
+	"allProjects": "All Projects",
+	"newProjectName": "New project name...",
+	"addProject": "Add Project"
 }

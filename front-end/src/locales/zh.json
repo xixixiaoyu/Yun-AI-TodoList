@@ -47,7 +47,7 @@
 	"pomodoroTimer": "番茄钟",
 	"workTime": "工作时间",
 	"breakTime": "休息时间",
-	"start": "开���",
+	"start": "开始",
 	"pause": "暂停",
 	"resume": "继续",
 	"reset": "重置",
@@ -89,5 +89,10 @@
 	"track4Title": "执迷不悟",
 	"addTags": "添加标签（用逗号分隔）",
 	"generatingTags": "生成标签中...",
-	"tagGenerationError": "生成标签时出错，请重试"
+	"tagGenerationError": "生成标签时出错，请重试",
+	"allProjects": "所有项目",
+	"newProjectName": "新项目名称...",
+	"addProject": "添加项目",
+	"deleteProject": "删除项目",
+	"confirmDeleteProject": "确定要删除项目 {name} 吗？这将同时删除该项目下的所有待办事项。"
 }

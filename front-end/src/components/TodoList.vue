@@ -19,12 +19,15 @@ import { format } from 'date-fns'
 import { zhCN } from 'date-fns/locale'
 import { useSortable } from '@vueuse/integrations/useSortable'
 import { useRouter } from 'vue-router'
+import AddProjectModal from './AddProjectModal.vue'
 
 const router = useRouter()
 
 // 使用 useTodos 组合式函数获取待办事项相关的状态和方法
 const {
 	todos,
+	projects,
+	currentProjectId,
 	history,
 	addTodo,
 	addMultipleTodos,
@@ -35,6 +38,9 @@ const {
 	deleteHistoryItem,
 	deleteAllHistory,
 	updateTodosOrder,
+	addProject,
+	removeProject,
+	setCurrentProject,
 } = useTodos()
 
 // 创建待办事项列表的 ref，用于拖拽排序功能
@@ -61,12 +67,16 @@ const MAX_TODO_LENGTH = 50
 
 // 根据过滤器计算待显示的待办事项
 const filteredTodos = computed(() => {
-	if (filter.value === 'active') {
-		return todos.value.filter(todo => todo && !todo.completed)
-	} else if (filter.value === 'completed') {
-		return todos.value.filter(todo => todo && todo.completed)
+	let filtered = todos.value
+	if (currentProjectId.value !== null) {
+		filtered = filtered.filter(todo => todo.projectId === currentProjectId.value)
 	}
-	return todos.value.filter(todo => todo !== null && todo !== undefined)
+	if (filter.value === 'active') {
+		return filtered.filter(todo => todo && !todo.completed)
+	} else if (filter.value === 'completed') {
+		return filtered.filter(todo => todo && todo.completed)
+	}
+	return filtered.filter(todo => todo !== null && todo !== undefined)
 })
 
 // 计算历史待办事项
@@ -266,12 +276,52 @@ onUnmounted(() => {
 const formatDate = (date: string | Date) => {
 	return format(new Date(date), 'yyyy-MM-dd HH:mm:ss', { locale: zhCN })
 }
+
+// 添加新的 ref 来控制模态框的显示
+const showAddProjectModal = ref(false)
+
+// 修改 addNewProject 函数
+const addNewProject = (name: string) => {
+	addProject(name)
+	showAddProjectModal.value = false
+}
+
+const currentProjectName = computed(() => {
+	if (currentProjectId.value === null) {
+		return t('allProjects')
+	}
+	const currentProject = projects.value.find(p => p.id === currentProjectId.value)
+	return currentProject ? currentProject.name : ''
+})
+
+// 计算属性：获取最多3个项目
+const displayedProjects = computed(() => {
+	return [{ id: null, name: t('allProjects') }, ...projects.value.slice(0, 3)]
+})
+
+// 添加删除项目的函数
+const deleteProject = (projectId: number) => {
+	const project = projects.value.find(p => p.id === projectId)
+	if (!project) return
+
+	showConfirmDialog.value = true
+	confirmDialogConfig.value = {
+		title: t('deleteProject'),
+		message: t('confirmDeleteProject', { name: project.name }),
+		confirmText: t('confirm'),
+		cancelText: t('cancel'),
+		action: () => {
+			removeProject(projectId)
+			if (currentProjectId.value === projectId) {
+				setCurrentProject(null)
+			}
+		},
+	}
+}
 </script>
 
 <template>
 	<div class="todo-container">
-		<!-- 顶部时钟组件 -->
-		<!-- <Clock class="top-clock" /> -->
 		<!-- 番茄钟计时器组件 -->
 		<PomodoroTimer
 			class="pomodoro-timer top-clock"
@@ -329,7 +379,7 @@ const formatDate = (date: string | Date) => {
 							fill="currentColor"
 						>
 							<path
-								d="M12 22C6.47 22 2 17.523 2 12S6.47 2 12 2s10 4.477 10 10-4.47 10-10 10zm0-2a8 8 0 1 0 0-16 8 8 0 0 0 0 16zM9.5 9.5h5v5h-5v-5z"
+								d="M12 2C6.47 2 2 17.523 2 12S6.47 2 12 2s10 4.477 10 10-4.47 10-10 10-10-4.47-10-10zm0-2a8 8 0 1 0 0 16 8 8 0 0 0 0-16zM9.5 9.5h5v5h-5v-5z"
 							/>
 						</svg>
 					</button>
@@ -362,12 +412,39 @@ const formatDate = (date: string | Date) => {
 							fill="currentColor"
 						>
 							<path
-								d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zM9.5 9.5h5v5h-5v-5z"
+								d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10-4.48-10-10-10zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zM9.5 9.5h5v5h-5v-5z"
 							/>
 						</svg>
 						<span>{{ t('aiAssistant') }}</span>
 					</button>
 				</div>
+			</div>
+
+			<!-- 项目选择器和添加项目按钮 -->
+			<div class="project-header">
+				<div class="project-tabs">
+					<button
+						v-for="project in displayedProjects"
+						:key="project.id"
+						:title="project.name"
+						@click="setCurrentProject(project.id)"
+						:class="{ active: currentProjectId === project.id }"
+						class="project-tab"
+					>
+						{{ project.name }}
+						<span
+							v-if="project.id !== null"
+							class="delete-project"
+							@click.stop="deleteProject(project.id)"
+							:title="t('deleteProject')"
+						>
+							&times;
+						</span>
+					</button>
+				</div>
+				<button @click="showAddProjectModal = true" class="add-project-btn">
+					<i class="fas fa-plus"></i> {{ t('addProject') }}
+				</button>
 			</div>
 
 			<!-- 待办事项输入组件 -->
@@ -377,6 +454,7 @@ const formatDate = (date: string | Date) => {
 				:duplicateError="duplicateError"
 				:placeholder="t('addTodo')"
 			/>
+
 			<!-- 待办事项过滤器组件 -->
 			<TodoFilters v-model:filter="filter" />
 			<!-- 待办事项列表 -->
@@ -466,6 +544,12 @@ const formatDate = (date: string | Date) => {
 				@close="closeHistory"
 			/>
 		</transition>
+		<!-- 添加项目模态框 -->
+		<AddProjectModal
+			v-if="showAddProjectModal"
+			@add="addNewProject"
+			@close="showAddProjectModal = false"
+		/>
 	</div>
 </template>
 
@@ -713,8 +797,8 @@ h1 {
 	.clear-btn,
 	.generate-btn,
 	.sort-btn {
-		width: 100%; /* 按钮宽度填满容器 */
-		margin-bottom: 0.5rem; /* 增加按钮之间的间距 */
+		width: 100%; /* 按钮宽度填满容 */
+		margin-bottom: 0.5rem; /* 增加按钮之间间距 */
 	}
 
 	.header {
@@ -894,6 +978,105 @@ h1 {
 	.pomodoro-timer {
 		order: -1; /* 在移动设备上将番茄钟计时器移到顶部 */
 		max-width: none;
+	}
+}
+
+.project-header {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	margin-bottom: 1rem;
+}
+
+.project-tabs {
+	display: flex;
+	gap: 0.5rem;
+}
+
+.project-tab {
+	position: relative;
+	padding-right: 2rem; /* 为删除按钮留出空间 */
+}
+
+.delete-project {
+	position: absolute;
+	top: 50%;
+	right: 0.5rem;
+	transform: translateY(-50%);
+	cursor: pointer;
+	font-size: 1.2rem;
+	line-height: 1;
+	opacity: 0.7;
+	transition: opacity 0.3s;
+}
+
+.delete-project:hover {
+	opacity: 1;
+}
+
+.project-tab {
+	position: relative;
+	padding: 0.5rem 1rem;
+	line-height: 1;
+	background-color: var(--filter-btn-bg);
+	color: var(--filter-btn-text);
+	border: 1px solid var(--filter-btn-border);
+	border-radius: 4px;
+	cursor: pointer;
+	transition: all 0.3s ease;
+	width: 100px; /* 固定宽度 */
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.project-tab.active {
+	background-color: var(--filter-btn-active-bg);
+	color: var(--filter-btn-active-text);
+	border-color: var(--filter-btn-active-border);
+}
+
+.add-project-btn {
+	padding: 0.5rem 1rem;
+	background-color: var(--button-bg-color);
+	color: var(--button-text-color);
+	border: none;
+	border-radius: 4px;
+	cursor: pointer;
+	transition: background-color 0.3s;
+	display: flex;
+	align-items: center;
+	font-size: 1rem;
+}
+
+.add-project-btn i {
+	margin-right: 0.5rem;
+}
+
+.add-project-btn:hover {
+	background-color: var(--button-hover-bg-color);
+}
+
+.project-title {
+	font-size: 1.2rem;
+	margin: 1rem 0;
+	color: var(--text-color);
+}
+
+/* 添加响应式样式 */
+@media (max-width: 768px) {
+	.project-header {
+		flex-direction: column;
+		align-items: stretch;
+	}
+
+	.project-tabs {
+		margin-bottom: 0.5rem;
+	}
+
+	.add-project-btn {
+		width: 100%;
+		justify-content: center;
 	}
 }
 </style>

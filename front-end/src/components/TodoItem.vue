@@ -2,6 +2,7 @@
 import { computed, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import confetti from 'canvas-confetti'
+import { useTodos } from '../composables/useTodos'
 
 const props = defineProps<{
 	todo: {
@@ -9,8 +10,11 @@ const props = defineProps<{
 		text: string
 		completed: boolean
 		tags: string[]
+		projectId: number
 	}
 }>()
+
+const { projects } = useTodos()
 
 const emit = defineEmits(['toggle', 'remove'])
 
@@ -51,6 +55,11 @@ const formattedTitle = computed(() => {
 		? `${props.todo.text.slice(0, 50)}...`
 		: props.todo.text
 })
+
+const projectName = computed(() => {
+	const project = projects.value.find(p => p.id === props.todo.projectId)
+	return project ? project.name : ''
+})
 </script>
 
 <template>
@@ -67,6 +76,7 @@ const formattedTitle = computed(() => {
 				</span>
 				<div class="todo-tags">
 					<span v-for="tag in todo.tags" :key="tag" class="tag">{{ tag }}</span>
+					<span v-if="projectName" class="project-tag">{{ projectName }}</span>
 				</div>
 			</div>
 		</div>
@@ -196,6 +206,18 @@ const formattedTitle = computed(() => {
 	white-space: nowrap;
 }
 
+.project-tag {
+	background-color: var(--project-tag-bg-color, #4a5568);
+	color: var(--project-tag-text-color, #fff);
+	padding: 0.1rem 0.3rem;
+	border-radius: 0.25rem;
+	font-size: 0.75rem;
+	max-width: 150px;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
 @media (max-width: 768px) {
 	.todo-item {
 		flex-direction: column;
@@ -212,7 +234,14 @@ const formattedTitle = computed(() => {
 	}
 
 	.todo-tags {
-		margin-top: 0.25rem;
+		margin-top: 0.5rem;
+		margin-left: 0;
 	}
+}
+
+.project-name {
+	font-size: 0.8em;
+	color: var(--completed-todo-text-color);
+	margin-left: 0.5rem;
 }
 </style>

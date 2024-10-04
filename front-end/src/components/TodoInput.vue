@@ -61,13 +61,16 @@ const addTodo = async () => {
 <template>
 	<form @submit.prevent="addTodo" class="add-todo">
 		<div class="input-wrapper">
-			<input v-model.trim="newTodo" :placeholder="placeholder" :maxlength="maxLength" />
+			<input
+				v-model.trim="newTodo"
+				class="todo-input"
+				:placeholder="placeholder"
+				:maxlength="maxLength"
+			/>
 			<span class="char-count">
 				{{ charCount }}
 			</span>
-		</div>
-		<div class="input-wrapper" style="width: 100%">
-			<input v-model.trim="newTags" :placeholder="t('addTags')" />
+			<input v-model.trim="newTags" class="tag-input" :placeholder="t('addTags')" />
 		</div>
 		<button type="submit" class="add-btn" :disabled="isGeneratingTags">
 			{{ isGeneratingTags ? t('generatingTags') : t('add') }}
@@ -88,10 +91,27 @@ const addTodo = async () => {
 }
 
 .input-wrapper {
+	display: flex;
+	gap: 0.5rem;
 	position: relative;
 	flex-grow: 1;
-	display: flex;
 	min-width: 200px;
+}
+
+.tag-input {
+	flex: 0.4;
+	padding: 0.7rem;
+	font-size: 1rem;
+	border: 1px solid var(--input-border-color);
+	border-radius: calc(var(--border-radius) / 2);
+	outline: none;
+	transition: all 0.3s ease;
+	background-color: var(--input-bg-color);
+	color: var(--text-color);
+}
+
+.todo-input {
+	flex: 0.6;
 }
 
 input {
@@ -113,7 +133,7 @@ input:focus {
 
 .char-count {
 	position: absolute;
-	right: 0.5rem;
+	right: 13rem;
 	top: 50%;
 	transform: translateY(-50%);
 	font-size: 0.8rem;

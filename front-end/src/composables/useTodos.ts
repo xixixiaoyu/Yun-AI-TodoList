@@ -5,7 +5,14 @@ interface Todo {
 	text: string
 	completed: boolean
 	completedAt?: string
-	tags: string[] // 新增标签数组
+	tags: string[]
+	projectId: number // 新增字段
+}
+
+// 新增 Project 接口
+interface Project {
+	id: number
+	name: string
 }
 
 interface HistoryItem {
@@ -15,6 +22,8 @@ interface HistoryItem {
 
 export function useTodos() {
 	const todos = ref<Todo[]>([])
+	const projects = ref<Project[]>([])
+	const currentProjectId = ref<number | null>(null)
 	const history = ref<HistoryItem[]>([])
 
 	const loadTodos = () => {
@@ -25,6 +34,10 @@ export function useTodos() {
 		const storedHistory = localStorage.getItem('todoHistory')
 		if (storedHistory) {
 			history.value = JSON.parse(storedHistory)
+		}
+		const storedProjects = localStorage.getItem('projects')
+		if (storedProjects) {
+			projects.value = JSON.parse(storedProjects)
 		}
 	}
 
@@ -77,6 +90,7 @@ export function useTodos() {
 			text: text.trim(),
 			completed: false,
 			tags: tags, // 添加标签
+			projectId: currentProjectId.value || 0, // 使用当前项目 ID 或默认值
 		}
 
 		todos.value.push(newTodo)
@@ -173,9 +187,43 @@ export function useTodos() {
 		}
 	}
 
+	const addProject = (name: string) => {
+		const newProject = {
+			id: Date.now(),
+			name,
+		}
+		projects.value.push(newProject)
+		saveProjects()
+	}
+
+	const removeProject = (id: number) => {
+		projects.value = projects.value.filter(project => project.id !== id)
+		todos.value = todos.value.filter(todo => todo.projectId !== id)
+		saveProjects()
+		saveTodos()
+	}
+
+	const setCurrentProject = (id: number | null) => {
+		currentProjectId.value = id
+	}
+
+	const loadProjects = () => {
+		const storedProjects = localStorage.getItem('projects')
+		if (storedProjects) {
+			projects.value = JSON.parse(storedProjects)
+		}
+	}
+
+	const saveProjects = () => {
+		localStorage.setItem('projects', JSON.stringify(projects.value))
+	}
+
+	// 返回新增的方法和状态
 	return {
 		todos,
 		history,
+		projects,
+		currentProjectId,
 		addTodo,
 		addMultipleTodos, // 记得在返回对象中添加这个新函数
 		toggleTodo,
@@ -187,5 +235,8 @@ export function useTodos() {
 		updateTodosOrder,
 		getCompletedTodosByDate,
 		updateTodoTags,
+		addProject,
+		removeProject,
+		setCurrentProject,
 	}
 }
