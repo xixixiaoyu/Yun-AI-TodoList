@@ -3,6 +3,7 @@ import { onErrorCaptured, computed, ref, onMounted } from 'vue'
 import { useTheme } from './composables/useTheme'
 import { useI18n } from 'vue-i18n'
 import { setLanguage } from './i18n'
+import AudioPlayer from './components/AudioPlayer.vue'
 
 const { theme, systemTheme, toggleTheme, initTheme } = useTheme()
 const { locale } = useI18n()
@@ -31,7 +32,9 @@ onMounted(() => {
 		<button @click="toggleLanguage" class="language-toggle">
 			{{ locale === 'zh' ? 'EN' : '中文' }}
 		</button>
-		<router-view></router-view>
+		<AudioPlayer class="audio-player" />
+
+		<router-view />
 	</div>
 </template>
 
@@ -154,6 +157,39 @@ input[type='range'] {
 @media (forced-colors: active) {
 	:root {
 		forced-color-adjust: none;
+	}
+}
+
+.audio-player {
+	position: fixed;
+	z-index: 1000;
+	width: 100%;
+	max-width: 600px;
+	margin: 3rem auto;
+}
+
+@media (min-width: 1201px) {
+	.audio-player {
+		position: fixed;
+		top: calc(1rem + 150px); /* 假设每日激励卡片高度约为150px */
+		left: 1rem;
+		width: 300px;
+	}
+}
+
+@media (max-width: 1200px) {
+	.audio-player {
+		width: 100%;
+		max-width: 600px;
+		margin: 1rem auto;
+	}
+}
+
+@media (max-width: 768px) {
+	.audio-player {
+		width: calc(100% - 2rem);
+		max-width: 100%;
+		margin: 1rem auto;
 	}
 }
 </style>

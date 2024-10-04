@@ -16,7 +16,6 @@ import PomodoroTimer from './PomodoroTimer.vue'
 import confetti from 'canvas-confetti'
 import PomodoroStats from './PomodoroStats.vue'
 import TodoHeatmap from './TodoHeatmap.vue'
-import AudioPlayer from './AudioPlayer.vue'
 import { format } from 'date-fns'
 import { zhCN } from 'date-fns/locale'
 import { useSortable } from '@vueuse/integrations/useSortable'
@@ -282,9 +281,6 @@ const formatDate = (date: string | Date) => {
 
 		<!-- 每日灵感组件 -->
 		<DailyInspiration class="daily-inspiration" />
-
-		<!-- 音频播放器组件 -->
-		<AudioPlayer class="audio-player" />
 
 		<div class="todo-list" :class="{ 'is-loading': isLoading }">
 			<!-- 加载中遮罩层 -->
@@ -903,37 +899,6 @@ h1 {
 	.pomodoro-timer {
 		order: -1; /* 在移动设备上将番茄钟计时器移到顶部 */
 		max-width: none;
-	}
-}
-
-.audio-player {
-	width: 100%;
-	max-width: 600px;
-	margin: 1rem auto;
-}
-
-@media (min-width: 1201px) {
-	.audio-player {
-		position: fixed;
-		top: calc(1rem + 150px); /* 假设每日激励卡片高度约为150px */
-		left: 1rem;
-		width: 300px;
-	}
-}
-
-@media (max-width: 1200px) {
-	.audio-player {
-		width: 100%;
-		max-width: 600px;
-		margin: 1rem auto;
-	}
-}
-
-@media (max-width: 768px) {
-	.audio-player {
-		width: calc(100% - 2rem);
-		max-width: 100%;
-		margin: 1rem auto;
 	}
 }
 </style>
