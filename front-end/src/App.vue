@@ -168,7 +168,7 @@ input[type='range'] {
 	z-index: 1000;
 	width: 100%;
 	max-width: 600px;
-	margin: 3rem auto;
+	margin: 4rem auto;
 }
 
 @media (min-width: 1201px) {
