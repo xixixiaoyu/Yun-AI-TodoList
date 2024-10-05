@@ -173,7 +173,7 @@ export async function getAITagSuggestions(
 	todoText: string,
 	locale: string
 ): Promise<string[]> {
-	const prompt = `为以下待办事项推荐 2-3 个合适的标签，只返回标签，用逗号分隔：\n${todoText}`
+	const prompt = `为以下待办事项推荐一到三个最合适的标签，只从以下分类中选择：学习、娱乐、工作、生活、其他。只返回标签，用逗号分隔：\n${todoText}`
 	try {
 		const response = await getAIResponse(prompt, locale, 0.7)
 		return response.split(',').map(tag => tag.trim())

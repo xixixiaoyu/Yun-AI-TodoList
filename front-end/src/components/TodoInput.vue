@@ -73,9 +73,6 @@ const addTodo = async () => {
 				:placeholder="placeholder"
 				:maxlength="maxLength"
 			/>
-			<span class="char-count">
-				{{ charCount }}
-			</span>
 			<input v-model.trim="newTags" class="tag-input" :placeholder="t('addTags')" />
 		</div>
 		<button type="submit" class="add-btn" :disabled="isGeneratingTags">
@@ -135,16 +132,6 @@ input {
 input:focus {
 	border-color: #85c1e9;
 	box-shadow: 0 0 5px rgba(133, 193, 233, 0.5);
-}
-
-.char-count {
-	position: absolute;
-	right: 13rem;
-	top: 50%;
-	transform: translateY(-50%);
-	font-size: 0.8rem;
-	color: #7f8c8d;
-	opacity: 0.7;
 }
 
 .add-btn {
