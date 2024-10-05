@@ -92,5 +92,6 @@
 	"tagGenerationError": "Error generating tags, please try again",
 	"allProjects": "All Projects",
 	"newProjectName": "New project name...",
-	"addProject": "Add Project"
+	"addProject": "Add Project",
+	"tagDistribution": "Tag Distribution"
 }

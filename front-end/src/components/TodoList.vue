@@ -20,10 +20,11 @@ import { zhCN } from 'date-fns/locale'
 import { useSortable } from '@vueuse/integrations/useSortable'
 import { useRouter } from 'vue-router'
 import AddProjectModal from './AddProjectModal.vue'
+import TagsPieChart from './TagsPieChart.vue'
 
 const router = useRouter()
 
-// 使用 useTodos 组合式函数获取待办事项相关的状态和方���
+// 使用 useTodos 组合式函数获取待办事项相关的状态和方
 const {
 	todos,
 	projects,
@@ -528,6 +529,8 @@ const deleteProject = (projectId: number) => {
 					</button>
 				</div>
 			</div>
+			<!-- 添加标签饼图 -->
+			<TagsPieChart />
 			<!-- 待办事项热力图组件 -->
 			<TodoHeatmap />
 			<!-- 番茄钟统计组件 -->

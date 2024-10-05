@@ -94,5 +94,6 @@
 	"newProjectName": "新项目名称...",
 	"addProject": "添加项目",
 	"deleteProject": "删除项目",
-	"confirmDeleteProject": "确定要删除项目 {name} 吗？这将同时删除该项目下的所有待办事项。"
+	"confirmDeleteProject": "确定要删除项目 {name} 吗？这将同时删除该项目下的所有待办事项。",
+	"tagDistribution": "标签分布"
 }
