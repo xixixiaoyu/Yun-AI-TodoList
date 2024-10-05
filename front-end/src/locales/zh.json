@@ -95,5 +95,7 @@
 	"addProject": "添加项目",
 	"deleteProject": "删除项目",
 	"confirmDeleteProject": "确定要删除项目 {name} 吗？这将同时删除该项目下的所有待办事项。",
-	"tagDistribution": "标签分布"
+	"tagDistribution": "标签分布",
+	"notEnoughTags": "没有足够的标签来显示分布图",
+	"addMoreTags": "请为待办事项添加更多标签"
 }

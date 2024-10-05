@@ -93,5 +93,7 @@
 	"allProjects": "All Projects",
 	"newProjectName": "New project name...",
 	"addProject": "Add Project",
-	"tagDistribution": "Tag Distribution"
+	"tagDistribution": "Tag Distribution",
+	"notEnoughTags": "Not enough tags to display distribution",
+	"addMoreTags": "Please add more tags to your todos"
 }

@@ -530,7 +530,7 @@ const deleteProject = (projectId: number) => {
 				</div>
 			</div>
 			<!-- 添加标签饼图 -->
-			<TagsPieChart />
+			<TagsPieChart :todos="filteredTodos" />
 			<!-- 待办事项热力图组件 -->
 			<TodoHeatmap />
 			<!-- 番茄钟统计组件 -->
