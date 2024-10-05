@@ -1000,7 +1000,7 @@ h1 {
 
 .delete-project {
 	position: absolute;
-	top: 50%;
+	top: 46%;
 	right: 0.5rem;
 	transform: translateY(-50%);
 	cursor: pointer;
