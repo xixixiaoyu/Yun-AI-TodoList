@@ -39,22 +39,28 @@ const addTodo = async () => {
 		return
 	}
 
-	isGeneratingTags.value = true
-	try {
-		const suggestedTags = await getAITagSuggestions(trimmedTodo, locale.value)
-		const tags = [
-			...new Set([...newTags.value.split(',').map(tag => tag.trim()), ...suggestedTags]),
-		].filter(tag => tag !== '')
-		emit('add', trimmedTodo, tags)
-		newTodo.value = ''
-		newTags.value = ''
-		errorMessage.value = ''
-	} catch (error) {
-		console.error('生成标签时出错:', error)
-		errorMessage.value = t('tagGenerationError')
-	} finally {
-		isGeneratingTags.value = false
+	let tags = newTags.value
+		.split(',')
+		.map(tag => tag.trim())
+		.filter(tag => tag !== '')
+
+	if (tags.length === 0) {
+		isGeneratingTags.value = true
+		try {
+			const suggestedTags = await getAITagSuggestions(trimmedTodo, locale.value)
+			tags = suggestedTags.filter(tag => tag !== '')
+		} catch (error) {
+			console.error('生成标签时出错:', error)
+			errorMessage.value = t('tagGenerationError')
+		} finally {
+			isGeneratingTags.value = false
+		}
 	}
+
+	emit('add', trimmedTodo, tags)
+	newTodo.value = ''
+	newTags.value = ''
+	errorMessage.value = ''
 }
 </script>
 
