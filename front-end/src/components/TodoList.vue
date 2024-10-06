@@ -24,7 +24,7 @@ import TagsPieChart from './TagsPieChart.vue'
 
 const router = useRouter()
 
-// 使用 useTodos 组合式函数获取待办事项相关的状态和方
+// 使用 useTodos 组合函数获取待办事项相关的状态和方
 const {
 	todos,
 	projects,
@@ -42,6 +42,7 @@ const {
 	addProject,
 	removeProject,
 	setCurrentProject,
+	saveTodos,
 } = useTodos()
 
 // 创建待办事项列表的 ref，用于拖拽排序功能
@@ -167,7 +168,12 @@ const isSorting = ref(false)
 const sortActiveTodosWithAI = async () => {
 	isSorting.value = true
 	try {
+		// 修改这里：确保过滤掉 null 和 undefined 的待办事项
 		const activeTodos = todos.value.filter(todo => todo && !todo.completed)
+		if (activeTodos.length === 0) {
+			showError(t('noActiveTodosError'))
+			return
+		}
 		const todoTexts = activeTodos
 			.map((todo, index) => `${index + 1}. ${todo.text}`)
 			.join('\n')
@@ -180,7 +186,20 @@ const sortActiveTodosWithAI = async () => {
 		if (newOrder.length !== activeTodos.length) {
 			throw new Error(t('aiSortMismatchError'))
 		}
-		updateTodosOrder(newOrder)
+
+		// 修改这里：创建一个新的排序后的数组
+		const sortedTodos = newOrder.map(index => activeTodos[index - 1])
+
+		// 更新 todos 数组，保持已完成的待办事项在原位置
+		todos.value = todos.value.map(todo => {
+			if (!todo || todo.completed) {
+				return todo
+			}
+			return sortedTodos.shift() || todo
+		})
+
+		// 保存更新后的待办事项列表
+		saveTodos()
 	} catch (error) {
 		console.error(t('aiSortError'), error)
 		showError(error instanceof Error ? error.message : t('aiSortError'))
@@ -413,7 +432,7 @@ const deleteProject = (projectId: number) => {
 							fill="currentColor"
 						>
 							<path
-								d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10-4.48-10-10-10zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zM9.5 9.5h5v5h-5v-5z"
+								d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10-4.48-10-10-10zM9.5 9.5h5v5h-5v-5z"
 							/>
 						</svg>
 						<span>{{ t('aiAssistant') }}</span>

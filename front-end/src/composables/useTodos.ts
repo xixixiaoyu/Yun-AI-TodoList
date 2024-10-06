@@ -238,5 +238,6 @@ export function useTodos() {
 		addProject,
 		removeProject,
 		setCurrentProject,
+		saveTodos,
 	}
 }
