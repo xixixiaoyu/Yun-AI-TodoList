@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, watch, nextTick, computed } from 'vue'
+import { ref, onMounted, watch, nextTick, computed, inject } from 'vue'
 import { Chart, ChartData, ChartOptions } from 'chart.js/auto'
 import { useI18n } from 'vue-i18n'
 
@@ -17,6 +17,7 @@ const props = defineProps<{
 }>()
 
 const { t } = useI18n()
+const theme = inject('theme')
 
 const chartRef = ref<HTMLCanvasElement | null>(null)
 let chart: Chart | null = null
@@ -44,7 +45,9 @@ const updateChart = async () => {
 	await nextTick()
 
 	const ctx = chartRef.value?.getContext('2d')
-	if (!ctx) return
+	if (!ctx) {
+		return
+	}
 
 	const labels = Object.keys(tagCounts.value)
 	const data = Object.values(tagCounts.value)
@@ -71,13 +74,19 @@ const updateChart = async () => {
 
 	const options: ChartOptions = {
 		responsive: true,
+		maintainAspectRatio: false,
 		plugins: {
 			legend: {
 				position: 'right',
+				labels: {
+					color: theme.value === 'dark' ? '#fff' : '#000',
+					font: {
+						size: 12,
+					},
+				},
 			},
 			title: {
-				display: true,
-				text: t('tagDistribution'),
+				display: false, // 移除图表标题，我们将在外部显示
 			},
 		},
 	}
@@ -99,20 +108,23 @@ onMounted(updateChart)
 
 // 使用 watch 来监听 todos 的变化，并在变化时更新图表
 watch(() => props.todos, updateChart, { deep: true, immediate: true })
+watch(() => theme.value, updateChart)
 </script>
 
 <template>
 	<div class="tags-pie-chart">
-		<h2>{{ t('tagDistribution') }}</h2>
-		<template v-if="hasEnoughTags">
-			<canvas ref="chartRef"></canvas>
-		</template>
-		<template v-else>
-			<div class="empty-state">
-				<p>{{ t('notEnoughTags') }}</p>
-				<p>{{ t('addMoreTags') }}</p>
-			</div>
-		</template>
+		<h2 class="chart-title">{{ t('tagDistribution') }}</h2>
+		<div class="chart-container">
+			<template v-if="hasEnoughTags">
+				<canvas ref="chartRef"></canvas>
+			</template>
+			<template v-else>
+				<div class="empty-state">
+					<p>{{ t('notEnoughTags') }}</p>
+					<p>{{ t('addMoreTags') }}</p>
+				</div>
+			</template>
+		</div>
 	</div>
 </template>
 
@@ -125,9 +137,18 @@ watch(() => props.todos, updateChart, { deep: true, immediate: true })
 	box-shadow: var(--card-shadow);
 }
 
-h2 {
+.chart-title {
+	position: relative;
+	left: -42px;
 	margin-bottom: 1rem;
 	color: var(--text-color);
+	font-size: 1.2rem;
+	font-weight: bold;
+}
+
+.chart-container {
+	height: 300px;
+	position: relative;
 }
 
 .empty-state {
@@ -135,7 +156,7 @@ h2 {
 	flex-direction: column;
 	align-items: center;
 	justify-content: center;
-	height: 200px;
+	height: 100%;
 	text-align: center;
 	color: var(--text-color-light);
 }

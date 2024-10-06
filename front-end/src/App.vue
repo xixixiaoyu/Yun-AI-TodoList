@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onErrorCaptured, computed, ref, onMounted } from 'vue'
+import { onErrorCaptured, computed, onMounted, provide } from 'vue'
 import { useTheme } from './composables/useTheme'
 import { useI18n } from 'vue-i18n'
 import { setLanguage } from './i18n'
@@ -22,6 +22,8 @@ const toggleLanguage = () => {
 	const newLocale = locale.value === 'zh' ? 'en' : 'zh'
 	setLanguage(newLocale)
 }
+
+provide('theme', theme)
 
 onMounted(() => {
 	initTheme()

@@ -63,15 +63,15 @@ const projectName = computed(() => {
 </script>
 
 <template>
-	<div class="todo-item" :class="{ completed: isCompleted }">
+	<div class="todo-item" :class="{ completed: isCompleted }" @click="toggleTodo">
 		<div class="todo-content">
-			<span @click="toggleTodo" class="checkbox-wrapper">
+			<span class="checkbox-wrapper">
 				<transition name="fade">
 					<i class="checkbox" :class="{ checked: isCompleted }"></i>
 				</transition>
 			</span>
 			<div class="todo-text-and-tags">
-				<span @click="toggleTodo" class="todo-text" :title="formattedTitle">
+				<span class="todo-text" :title="formattedTitle">
 					<span class="text-content">{{ formattedTitle }}</span>
 				</span>
 				<div class="todo-tags">
