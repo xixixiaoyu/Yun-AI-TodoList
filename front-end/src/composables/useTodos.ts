@@ -67,12 +67,10 @@ export function useTodos() {
 	}
 
 	const addTodo = (text: string, tags: string[] = []): boolean => {
-		// 检查文本是否为空或只包含空白字符
 		if (!text || text.trim() === '') {
 			return false
 		}
 
-		// 检查是否存在重复的待办事项
 		const isDuplicate = todos.value.some(
 			todo =>
 				todo &&
@@ -89,8 +87,8 @@ export function useTodos() {
 			id: Date.now(),
 			text: text.trim(),
 			completed: false,
-			tags: tags, // 添加标签
-			projectId: currentProjectId.value || 0, // 使用当前项目 ID 或默认值
+			tags: tags,
+			projectId: currentProjectId.value || 0,
 		}
 
 		todos.value.push(newTodo)
@@ -135,10 +133,12 @@ export function useTodos() {
 
 	const removeTodo = (id: number) => {
 		todos.value = todos.value.filter(todo => todo && todo.id !== id)
+		saveTodos()
 	}
 
 	const clearActiveTodos = () => {
 		todos.value = todos.value.filter(todo => todo && todo.completed)
+		saveTodos()
 	}
 
 	const restoreHistory = (date: string) => {
@@ -167,10 +167,12 @@ export function useTodos() {
 
 	loadTodos() // 在初始化时加载数据
 
+	// 修改 getCompletedTodosByDate 函数
 	const getCompletedTodosByDate = () => {
 		const completedByDate: { [key: string]: number } = {}
 		todos.value.forEach(todo => {
-			if (todo.completed && todo.completedAt) {
+			// 添加空值检查
+			if (todo && todo.completed && todo.completedAt) {
 				const date = new Date(todo.completedAt).toISOString().split('T')[0]
 				completedByDate[date] = (completedByDate[date] || 0) + 1
 			}
