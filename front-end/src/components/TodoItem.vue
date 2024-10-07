@@ -80,7 +80,7 @@ const projectName = computed(() => {
 				</div>
 			</div>
 		</div>
-		<button @click="removeTodo" class="delete-btn">{{ t('delete') }}</button>
+		<button @click.stop="removeTodo" class="delete-btn">{{ t('delete') }}</button>
 	</div>
 </template>
 

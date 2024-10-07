@@ -1,10 +1,11 @@
 <script setup lang="ts">
-import { onErrorCaptured, computed, onMounted, provide } from 'vue'
+import { onErrorCaptured, computed, onMounted, provide, ref } from 'vue'
 import { useTheme } from './composables/useTheme'
 import { useI18n } from 'vue-i18n'
 import { setLanguage } from './i18n'
 import AudioPlayer from './components/AudioPlayer.vue'
 import DailyInspiration from './components/DailyInspiration.vue'
+import { useWindowSize } from '@vueuse/core'
 
 const { theme, systemTheme, initTheme } = useTheme()
 const { locale } = useI18n()
@@ -25,6 +26,9 @@ const toggleLanguage = () => {
 
 provide('theme', theme)
 
+const { width } = useWindowSize()
+const isSmallScreen = computed(() => width.value < 768)
+
 onMounted(() => {
 	initTheme()
 })
@@ -35,11 +39,13 @@ onMounted(() => {
 		<button @click="toggleLanguage" class="language-toggle">
 			{{ locale === 'zh' ? 'EN' : '中文' }}
 		</button>
-		<div class="top-components">
-			<DailyInspiration />
-			<AudioPlayer />
+		<div class="content-wrapper">
+			<router-view />
+			<div class="top-components" :class="{ 'small-screen': isSmallScreen }">
+				<AudioPlayer />
+				<DailyInspiration />
+			</div>
 		</div>
-		<router-view />
 	</div>
 </template>
 
@@ -197,33 +203,32 @@ input[type='range'] {
 	}
 }
 
-.top-components {
+.content-wrapper {
 	display: flex;
 	flex-direction: column;
-	gap: 1rem;
-	margin-bottom: 1rem;
+	min-height: 100vh;
 }
 
-@media (min-width: 1201px) {
-	.top-components {
-		position: fixed;
-		top: 1rem;
-		left: 1rem;
-		width: 300px;
-	}
+.top-components {
+	display: flex;
+	justify-content: space-between;
+	padding: 1rem;
 }
 
-@media (max-width: 1200px) {
-	.top-components {
-		width: 100%;
-		max-width: 600px;
-		margin: 1rem auto;
-	}
+.top-components.small-screen {
+	flex-direction: column;
+	order: 1;
 }
 
 @media (max-width: 768px) {
+	.content-wrapper {
+		flex-direction: column;
+	}
+
 	.top-components {
-		width: calc(100% - 2rem);
+		margin-top: 1rem;
 	}
 }
+
+/* ... 其他样式保持不变 ... */
 </style>

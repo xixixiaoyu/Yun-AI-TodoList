@@ -21,6 +21,7 @@ import { useSortable } from '@vueuse/integrations/useSortable'
 import { useRouter } from 'vue-router'
 import AddProjectModal from './AddProjectModal.vue'
 import TagsPieChart from './TagsPieChart.vue'
+import { useWindowSize } from '@vueuse/core'
 
 const router = useRouter()
 
@@ -137,7 +138,12 @@ const generateSuggestedTodos = async () => {
 
 // 确认添加建议待办事项
 const confirmSuggestedTodos = () => {
-	const duplicates = addMultipleTodos(suggestedTodos.value)
+	const duplicates = addMultipleTodos(
+		suggestedTodos.value.map(todo => ({
+			text: todo,
+			projectId: currentProjectId.value,
+		}))
+	)
 	if (duplicates.length > 0) {
 		showError(`${t('duplicateError')}：${duplicates.join(', ')}`)
 	}
@@ -341,13 +347,17 @@ const deleteProject = (projectId: number) => {
 
 // 添加新的响应式变量
 const showCharts = ref(false)
+
+const { width } = useWindowSize()
+const isSmallScreen = computed(() => width.value < 768)
 </script>
 
 <template>
-	<div class="todo-container">
+	<div class="todo-container" :class="{ 'small-screen': isSmallScreen }">
 		<!-- 番茄钟计时器组件 -->
 		<PomodoroTimer
-			class="pomodoro-timer top-clock"
+			class="pomodoro-timer"
+			:class="{ 'top-clock': !isSmallScreen }"
 			@pomodoro-complete="handlePomodoroComplete"
 		/>
 
@@ -444,7 +454,7 @@ const showCharts = ref(false)
 			</div>
 
 			<!-- 项目选择器和添加项目按钮 -->
-			<div class="project-header">
+			<div class="project-header" :class="{ 'small-screen': isSmallScreen }">
 				<div class="project-tabs">
 					<button
 						v-for="project in displayedProjects"
@@ -570,7 +580,7 @@ const showCharts = ref(false)
 			@close="showAddProjectModal = false"
 		/>
 		<!-- 添加工具栏 -->
-		<div class="toolbar">
+		<div class="toolbar" :class="{ 'small-screen': isSmallScreen }">
 			<button @click="showCharts = !showCharts" class="icon-button">
 				<svg
 					xmlns="http://www.w3.org/2000/svg"
@@ -831,13 +841,13 @@ h1 {
 
 @media (max-width: 768px) {
 	.todo-container {
-		padding: 0 1rem;
+		padding: 0.5rem;
 	}
 
 	.todo-list {
 		width: 100%;
 		max-width: 100%;
-		padding: 1rem;
+		padding: 0.5rem;
 		margin-top: 1rem; /* 为固定位置的时钟和每日激励留出空间 */
 	}
 
@@ -865,7 +875,7 @@ h1 {
 	}
 
 	h1 {
-		font-size: 2rem; /* 减小标题字体大小 */
+		font-size: 1.5rem; /* 减小标题字体大小 */
 	}
 }
 
@@ -1174,4 +1184,66 @@ h1 {
 }
 
 /* 其他现有的样式 */
+
+.todo-container.small-screen {
+	padding: 0.5rem;
+}
+
+.project-header.small-screen {
+	flex-direction: column;
+	align-items: stretch;
+}
+
+.project-header.small-screen .project-tabs {
+	margin-bottom: 0.5rem;
+}
+
+.project-header.small-screen .add-project-btn {
+	width: 100%;
+}
+
+.toolbar.small-screen {
+	position: static;
+	margin-top: 1rem;
+	display: flex;
+	justify-content: center;
+}
+
+.pomodoro-timer.small-screen {
+	position: static;
+	margin-bottom: 1rem;
+}
+
+@media (max-width: 768px) {
+	.todo-list {
+		padding: 0.5rem;
+	}
+
+	.actions {
+		flex-direction: column;
+		align-items: stretch;
+	}
+
+	.clear-btn,
+	.generate-btn,
+	.sort-btn {
+		width: 100%;
+		margin-bottom: 0.5rem;
+	}
+
+	.header {
+		flex-direction: column;
+		align-items: flex-start;
+	}
+
+	.header-actions {
+		margin-top: 1rem;
+		width: 100%;
+		justify-content: space-between;
+	}
+
+	h1 {
+		font-size: 1.5rem;
+	}
+}
 </style>

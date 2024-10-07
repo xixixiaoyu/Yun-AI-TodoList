@@ -97,24 +97,22 @@ export function useTodos() {
 	}
 
 	// 新增：批量添加待办事项的函数
-	const addMultipleTodos = (texts: string[], tags: string[] = []): string[] => {
-		let maxId = Math.max(0, ...todos.value.map(todo => todo.id))
+	const addMultipleTodos = (newTodos: { text: string; projectId: number | null }[]) => {
 		const duplicates: string[] = []
-		const newTodos = texts
-			.filter(text => {
-				if (todos.value.some(todo => todo.text === text)) {
-					duplicates.push(text)
-					return false
-				}
-				return true
-			})
-			.map(text => ({
-				id: ++maxId,
-				text,
-				completed: false,
-				tags: tags, // 添加标签
-			}))
-		todos.value.push(...newTodos)
+		newTodos.forEach(({ text, projectId }) => {
+			if (todos.value.some(todo => todo.text === text)) {
+				duplicates.push(text)
+			} else {
+				todos.value.push({
+					id: Date.now() + Math.random(),
+					text,
+					completed: false,
+					tags: [],
+					projectId: projectId || null,
+				})
+			}
+		})
+		saveTodos()
 		return duplicates
 	}
 
