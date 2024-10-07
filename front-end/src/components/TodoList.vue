@@ -291,11 +291,13 @@ const goToAiAssistant = () => {
 // 在组件挂载时添加事件监听器
 onMounted(() => {
 	document.addEventListener('visibilitychange', checkPomodoroCompletion)
+	document.addEventListener('keydown', onKeyDown)
 })
 
 // 在组件卸载时移除事件监听器
 onUnmounted(() => {
 	document.removeEventListener('visibilitychange', checkPomodoroCompletion)
+	document.removeEventListener('keydown', onKeyDown)
 })
 
 // 格式化日期函数
@@ -350,6 +352,18 @@ const showCharts = ref(false)
 
 const { width } = useWindowSize()
 const isSmallScreen = computed(() => width.value < 768)
+
+// 添加 onKeyDown 函数
+const onKeyDown = (event: KeyboardEvent) => {
+	if (event.key === 'Escape' && showCharts.value) {
+		showCharts.value = false
+	}
+}
+
+// 添加 closeCharts 函数
+const closeCharts = () => {
+	showCharts.value = false
+}
 </script>
 
 <template>
@@ -596,8 +610,8 @@ const isSmallScreen = computed(() => width.value < 768)
 		</div>
 
 		<!-- 图表详情对话框 -->
-		<div v-if="showCharts" class="charts-dialog">
-			<div class="charts-content">
+		<div v-if="showCharts" class="charts-dialog" @click="closeCharts">
+			<div class="charts-content" @click.stop>
 				<button @click="showCharts = false" class="close-btn">
 					{{ t('close') }}
 				</button>
@@ -665,7 +679,7 @@ h1 {
 .todo-grid {
 	overflow: auto;
 	display: flex;
-	height: 480px;
+	height: 492px;
 	flex-direction: column;
 	gap: 1rem;
 	margin-bottom: 2rem;
@@ -1169,6 +1183,7 @@ h1 {
 	max-width: 90%;
 	max-height: 90%;
 	overflow-y: auto;
+	position: relative; /* 添加这行 */
 }
 
 .close-btn {

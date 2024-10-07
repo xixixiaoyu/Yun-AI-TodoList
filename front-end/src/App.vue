@@ -106,6 +106,7 @@ body {
 	-webkit-font-smoothing: var(--font-smoothing);
 	-moz-osx-font-smoothing: var(--font-smoothing);
 	font-weight: var(--font-weight);
+	padding-top: 0.5rem;
 }
 
 .app {
@@ -230,5 +231,48 @@ input[type='range'] {
 	}
 }
 
-/* ... 其他样式保持不变 ... */
+.top-components {
+	display: flex;
+	flex-direction: column;
+	gap: 1rem;
+	margin-bottom: 1rem;
+}
+
+@media (min-width: 1201px) {
+	.top-components {
+		position: fixed;
+		top: 1rem;
+		left: 1rem;
+		width: 300px;
+	}
+}
+
+@media (max-width: 1200px) {
+	.top-components {
+		width: 100%;
+		max-width: 600px;
+		margin: 1rem auto;
+	}
+}
+
+/* 添加以下样式 */
+@media (min-width: 1201px) {
+	html,
+	body {
+		overflow: hidden;
+	}
+
+	.app {
+		height: 100vh;
+		overflow-y: auto;
+		scrollbar-width: none; /* Firefox */
+		-ms-overflow-style: none; /* Internet Explorer 10+ */
+	}
+
+	.app::-webkit-scrollbar {
+		/* WebKit */
+		width: 0;
+		height: 0;
+	}
+}
 </style>

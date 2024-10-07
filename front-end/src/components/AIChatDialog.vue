@@ -330,7 +330,7 @@ watch([chatHistory, currentAIResponse], scrollToBottom, { deep: true, immediate:
 	background-color: var(--bg-color);
 	display: flex;
 	flex-direction: column;
-	z-index: 1000;
+	z-index: 100000;
 	text-align: left;
 }
 
