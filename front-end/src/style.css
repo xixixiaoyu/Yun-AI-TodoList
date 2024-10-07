@@ -82,7 +82,6 @@ button:focus-visible {
   max-width: 1280px;
   width: 100%;
   margin: 0 auto;
-  padding: 2rem;
   text-align: center;
   box-sizing: border-box;
 }
@@ -103,10 +102,6 @@ button:focus-visible {
 @media (max-width: 768px) {
   body {
     font-size: 14px;
-  }
-
-  #app {
-    padding: 1rem;
   }
 
   button {

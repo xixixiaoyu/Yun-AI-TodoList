@@ -95,5 +95,8 @@
 	"addProject": "Add Project",
 	"tagDistribution": "Tag Distribution",
 	"notEnoughTags": "Not enough tags to display distribution",
-	"addMoreTags": "Please add more tags to your todos"
+	"addMoreTags": "Please add more tags to your todos",
+	"showCharts": "Show Charts",
+	"close": "Close",
+	"todoCharts": "Todo Charts"
 }

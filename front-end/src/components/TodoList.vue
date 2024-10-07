@@ -338,6 +338,9 @@ const deleteProject = (projectId: number) => {
 		},
 	}
 }
+
+// 添加新的响应式变量
+const showCharts = ref(false)
 </script>
 
 <template>
@@ -548,12 +551,6 @@ const deleteProject = (projectId: number) => {
 					</button>
 				</div>
 			</div>
-			<!-- 添加标签饼图 -->
-			<TagsPieChart :todos="filteredTodos" />
-			<!-- 待办事项热力图组件 -->
-			<TodoHeatmap />
-			<!-- 番茄钟统计组件 -->
-			<PomodoroStats />
 		</div>
 		<!-- 历史记录侧边栏 -->
 		<transition name="slide">
@@ -572,6 +569,37 @@ const deleteProject = (projectId: number) => {
 			@add="addNewProject"
 			@close="showAddProjectModal = false"
 		/>
+		<!-- 添加工具栏 -->
+		<div class="toolbar">
+			<button @click="showCharts = !showCharts" class="icon-button">
+				<svg
+					xmlns="http://www.w3.org/2000/svg"
+					viewBox="0 0 24 24"
+					width="24"
+					height="24"
+					fill="currentColor"
+				>
+					<path d="M3 3v18h18v-2H5V3H3zm4 14h2v-4H7v4zm4 0h2V7h-2v10zm4 0h2v-7h-2v7z" />
+				</svg>
+				<span class="sr-only">{{ t('showCharts') }}</span>
+			</button>
+		</div>
+
+		<!-- 图表详情对话框 -->
+		<div v-if="showCharts" class="charts-dialog">
+			<div class="charts-content">
+				<button @click="showCharts = false" class="close-btn">
+					{{ t('close') }}
+				</button>
+				<h2>{{ t('todoCharts') }}</h2>
+				<!-- 添加标签饼图 -->
+				<TagsPieChart :todos="filteredTodos" />
+				<!-- 待办事项热力图组件 -->
+				<TodoHeatmap />
+				<!-- 番茄钟统计组件 -->
+				<PomodoroStats />
+			</div>
+		</div>
 	</div>
 </template>
 
@@ -625,7 +653,9 @@ h1 {
 }
 
 .todo-grid {
+	overflow: auto;
 	display: flex;
+	height: 480px;
 	flex-direction: column;
 	gap: 1rem;
 	margin-bottom: 2rem;
@@ -978,9 +1008,8 @@ h1 {
 
 .top-clock {
 	position: fixed;
-	top: 0.5rem;
-	left: 50%;
-	transform: translateX(-50%);
+	top: 1rem;
+	left: 72%;
 	z-index: 1001;
 	padding: 0.5rem;
 }
@@ -1101,4 +1130,48 @@ h1 {
 		justify-content: center;
 	}
 }
+
+/* 添加新的样式 */
+.toolbar {
+	position: fixed;
+	top: 5rem;
+	right: 21rem;
+	z-index: 1000;
+}
+
+.charts-dialog {
+	position: fixed;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background-color: rgba(0, 0, 0, 0.5);
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	z-index: 1001;
+}
+
+.charts-content {
+	background-color: var(--card-bg-color);
+	padding: 2rem;
+	border-radius: var(--border-radius);
+	max-width: 90%;
+	max-height: 90%;
+	overflow-y: auto;
+}
+
+.close-btn {
+	position: absolute;
+	top: 1rem;
+	right: 1rem;
+	background-color: var(--button-bg-color);
+	color: var(--text-color);
+	border: none;
+	padding: 0.5rem 1rem;
+	border-radius: var(--border-radius);
+	cursor: pointer;
+}
+
+/* 其他现有的样式 */
 </style>
