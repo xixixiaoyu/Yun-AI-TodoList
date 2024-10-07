@@ -232,7 +232,7 @@ watch([chatHistory, currentAIResponse], scrollToBottom, { deep: true, immediate:
 				</svg>
 			</router-link>
 		</div>
-		<div class="dialog-content">
+		<div class="dialog-content scrollable-container">
 			<div class="drawer-container" :class="{ 'drawer-open': isDrawerOpen }">
 				<div class="drawer">
 					<div class="drawer-header">

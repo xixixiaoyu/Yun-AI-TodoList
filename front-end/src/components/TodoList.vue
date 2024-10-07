@@ -25,7 +25,7 @@ import { useWindowSize } from '@vueuse/core'
 
 const router = useRouter()
 
-// 使用 useTodos 组合函数获取待办事项相关的状态和方
+// useTodos 组合函数获取待办事项相关的状态和方
 const {
 	todos,
 	projects,
@@ -375,7 +375,7 @@ const closeCharts = () => {
 			@pomodoro-complete="handlePomodoroComplete"
 		/>
 
-		<div class="todo-list" :class="{ 'is-loading': isLoading }">
+		<div class="todo-list scrollable-container">
 			<!-- 加载中遮罩层 -->
 			<div v-if="isLoading" class="loading-overlay">
 				<div class="loading-spinner"></div>
@@ -508,7 +508,7 @@ const closeCharts = () => {
 				</button>
 			</div>
 
-			<!-- 待办事项输入组件 -->
+			<!-- 待办事项输入组��� -->
 			<TodoInput
 				:maxLength="MAX_TODO_LENGTH"
 				@add="handleAddTodo"

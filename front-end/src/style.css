@@ -109,3 +109,57 @@ button:focus-visible {
     font-size: 0.9em;
   }
 }
+
+/* 在文件末尾添加以下样式 */
+
+/* 自定义滚动条样式 */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-color);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--button-bg-color);
+  border-radius: 4px;
+  transition: all 0.3s ease;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--button-hover-bg-color);
+}
+
+/* Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--button-bg-color) var(--bg-color);
+}
+
+/* 对于特定的可滚动容器,如果需要单独设置样式 */
+.scrollable-container {
+  scrollbar-width: thin;
+  scrollbar-color: var(--button-bg-color) var(--bg-color);
+}
+
+.scrollable-container::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.scrollable-container::-webkit-scrollbar-track {
+  background: var(--bg-color);
+  border-radius: 4px;
+}
+
+.scrollable-container::-webkit-scrollbar-thumb {
+  background: var(--button-bg-color);
+  border-radius: 4px;
+}
+
+.scrollable-container::-webkit-scrollbar-thumb:hover {
+  background: var(--button-hover-bg-color);
+}
