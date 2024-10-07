@@ -447,7 +447,7 @@ const closeCharts = () => {
 								d="M13 3c-4.97 0-9 4.03-9 9H1l3.89 3.89.07.14L9 12H6c0-3.87 3.13-7 7-7s7 3.13 7 7-3.13 7-7 7c-1.93 0-3.68-.79-4.94-2.06l-1.42 1.42C8.27 19.99 10.51 21 13 21c4.97 0 9-4.03 9-9s-4.03-9-9-9zm-1 5v5l4.28 2.54.72-1.21-3.5-2.08V8H12z"
 							/>
 						</svg>
-						<span class="sr-only">{{ t('history') }}</span>
+						<span>{{ t('history') }}</span>
 					</button>
 					<!-- AI助手链接 -->
 					<button class="icon-button" @click="goToAiAssistant">
@@ -463,6 +463,20 @@ const closeCharts = () => {
 							/>
 						</svg>
 						<span>{{ t('aiAssistant') }}</span>
+					</button>
+					<button @click="showCharts = !showCharts" class="icon-button">
+						<svg
+							xmlns="http://www.w3.org/2000/svg"
+							viewBox="0 0 24 24"
+							width="24"
+							height="24"
+							fill="currentColor"
+						>
+							<path
+								d="M3 3v18h18v-2H5V3H3zm4 14h2v-4H7v4zm4 0h2V7h-2v10zm4 0h2v-7h-2v7z"
+							/>
+						</svg>
+						<span>{{ t('showCharts') }}</span>
 					</button>
 				</div>
 			</div>
@@ -593,21 +607,6 @@ const closeCharts = () => {
 			@add="addNewProject"
 			@close="showAddProjectModal = false"
 		/>
-		<!-- 添加工具栏 -->
-		<div class="toolbar" :class="{ 'small-screen': isSmallScreen }">
-			<button @click="showCharts = !showCharts" class="icon-button">
-				<svg
-					xmlns="http://www.w3.org/2000/svg"
-					viewBox="0 0 24 24"
-					width="24"
-					height="24"
-					fill="currentColor"
-				>
-					<path d="M3 3v18h18v-2H5V3H3zm4 14h2v-4H7v4zm4 0h2V7h-2v10zm4 0h2v-7h-2v7z" />
-				</svg>
-				<span class="sr-only">{{ t('showCharts') }}</span>
-			</button>
-		</div>
 
 		<!-- 图表详情对话框 -->
 		<div v-if="showCharts" class="charts-dialog" @click="closeCharts">
@@ -656,7 +655,6 @@ const closeCharts = () => {
 }
 
 .header {
-	display: flex;
 	margin-bottom: 1rem;
 }
 
@@ -674,12 +672,13 @@ h1 {
 	align-items: center;
 	gap: 1rem;
 	margin-left: auto;
+	white-space: nowrap;
 }
 
 .todo-grid {
 	overflow: auto;
 	display: flex;
-	height: 492px;
+	height: 442px;
 	flex-direction: column;
 	gap: 1rem;
 	margin-bottom: 2rem;
@@ -706,18 +705,6 @@ h1 {
 .icon-button.active {
 	color: #ff7e67;
 	opacity: 1;
-}
-
-.sr-only {
-	position: absolute;
-	width: 1px;
-	height: 1px;
-	padding: 0;
-	margin: -1px;
-	overflow: hidden;
-	clip: rect(0, 0, 0, 0);
-	white-space: nowrap;
-	border-width: 0;
 }
 
 .actions {
@@ -1155,14 +1142,6 @@ h1 {
 	}
 }
 
-/* 添加新的样式 */
-.toolbar {
-	position: fixed;
-	top: 5rem;
-	right: 21rem;
-	z-index: 1000;
-}
-
 .charts-dialog {
 	position: fixed;
 	top: 0;
@@ -1215,13 +1194,6 @@ h1 {
 
 .project-header.small-screen .add-project-btn {
 	width: 100%;
-}
-
-.toolbar.small-screen {
-	position: static;
-	margin-top: 1rem;
-	display: flex;
-	justify-content: center;
 }
 
 .pomodoro-timer.small-screen {

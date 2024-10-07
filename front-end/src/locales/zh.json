@@ -100,7 +100,7 @@
 	"addMoreTags": "请为待办事项添加更多标签",
 	"noActiveTodosError": "没有待完成的待办事项可供排序",
 	"aiSortError": "AI 排序过程中出现错误",
-	"showCharts": "显示图表",
+	"showCharts": "统计图表",
 	"close": "关闭",
 	"todoCharts": "待办事项图表"
 }

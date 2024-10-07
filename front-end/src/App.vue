@@ -106,7 +106,7 @@ body {
 	-webkit-font-smoothing: var(--font-smoothing);
 	-moz-osx-font-smoothing: var(--font-smoothing);
 	font-weight: var(--font-weight);
-	padding-top: 0.5rem;
+	padding-top: 1rem;
 }
 
 .app {
