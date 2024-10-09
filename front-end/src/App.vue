@@ -3,7 +3,7 @@ import { onErrorCaptured, computed, onMounted, provide, ref } from 'vue'
 import { useTheme } from './composables/useTheme'
 import { useI18n } from 'vue-i18n'
 import { setLanguage } from './i18n'
-import AudioPlayer from './components/AudioPlayer.vue'
+// import AudioPlayer from './components/AudioPlayer.vue'
 import DailyInspiration from './components/DailyInspiration.vue'
 import { useWindowSize } from '@vueuse/core'
 
@@ -11,17 +11,17 @@ const { theme, systemTheme, initTheme } = useTheme()
 const { locale } = useI18n()
 
 onErrorCaptured((err, instance, info) => {
-	console.error('Captured error:', err, instance, info)
-	return false
+  console.error('Captured error:', err, instance, info)
+  return false
 })
 
 const currentTheme = computed(() => {
-	return theme.value === 'auto' ? systemTheme.value : theme.value
+  return theme.value === 'auto' ? systemTheme.value : theme.value
 })
 
 const toggleLanguage = () => {
-	const newLocale = locale.value === 'zh' ? 'en' : 'zh'
-	setLanguage(newLocale)
+  const newLocale = locale.value === 'zh' ? 'en' : 'zh'
+  setLanguage(newLocale)
 }
 
 provide('theme', theme)
@@ -30,249 +30,249 @@ const { width } = useWindowSize()
 const isSmallScreen = computed(() => width.value < 768)
 
 onMounted(() => {
-	initTheme()
+  initTheme()
 })
 </script>
 
 <template>
-	<div class="app" :class="currentTheme">
-		<button @click="toggleLanguage" class="language-toggle">
-			{{ locale === 'zh' ? 'EN' : '中文' }}
-		</button>
-		<div class="content-wrapper">
-			<router-view />
-			<div class="top-components" :class="{ 'small-screen': isSmallScreen }">
-				<AudioPlayer />
-				<DailyInspiration />
-			</div>
-		</div>
-	</div>
+  <div class="app" :class="currentTheme">
+    <button @click="toggleLanguage" class="language-toggle">
+      {{ locale === 'zh' ? 'EN' : '中文' }}
+    </button>
+    <div class="content-wrapper">
+      <router-view />
+      <div class="top-components" :class="{ 'small-screen': isSmallScreen }">
+        <!-- <AudioPlayer /> -->
+        <DailyInspiration />
+      </div>
+    </div>
+  </div>
 </template>
 
 <style>
 :root {
-	--bg-color: #e2eafb;
-	--text-color: #2c3e50; /* 更深的文字颜色，提高对比度 */
-	--card-bg-color: rgba(255, 255, 255, 0.9);
-	--card-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-	--input-bg-color: #f0f4f8;
-	--input-border-color: #d0d9e1;
-	--button-bg-color: #7a89c2; /* 稍微深一点的蓝色 */
-	--button-hover-bg-color: #6b7ab3;
-	--font-smoothing: antialiased;
-	--font-weight: 400;
-	--todo-text-color: #2c3e50; /* 与主文字颜色一致 */
-	--completed-todo-text-color: #7f8c8d; /* 稍微深一点的灰色 */
-	--filter-btn-bg: #f8f9f9;
-	--filter-btn-text: #2c3e50;
-	--filter-btn-border: #d5d8dc;
-	--filter-btn-active-bg: #7a89c2;
-	--filter-btn-active-text: #ffffff;
-	--filter-btn-active-border: #7a89c2;
-	--language-toggle-bg: rgba(122, 137, 194, 0.2); /* 浅色主题下的半透明背景 */
-	--language-toggle-color: #2c3e50; /* 浅色主题下的文字颜色 */
-	--language-toggle-hover-bg: rgba(122, 137, 194, 0.4); /* 浅色主题下的悬停背景 */
+  --bg-color: #e2eafb;
+  --text-color: #2c3e50; /* 更深的文字颜色，提高对比度 */
+  --card-bg-color: rgba(255, 255, 255, 0.9);
+  --card-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  --input-bg-color: #f0f4f8;
+  --input-border-color: #d0d9e1;
+  --button-bg-color: #7a89c2; /* 稍微深一点的蓝色 */
+  --button-hover-bg-color: #6b7ab3;
+  --font-smoothing: antialiased;
+  --font-weight: 400;
+  --todo-text-color: #2c3e50; /* 与主文字颜色一致 */
+  --completed-todo-text-color: #7f8c8d; /* 稍微深一点的灰色 */
+  --filter-btn-bg: #f8f9f9;
+  --filter-btn-text: #2c3e50;
+  --filter-btn-border: #d5d8dc;
+  --filter-btn-active-bg: #7a89c2;
+  --filter-btn-active-text: #ffffff;
+  --filter-btn-active-border: #7a89c2;
+  --language-toggle-bg: rgba(122, 137, 194, 0.2); /* 浅色主题下的半透明背景 */
+  --language-toggle-color: #2c3e50; /* 浅色主题下的文字颜色 */
+  --language-toggle-hover-bg: rgba(122, 137, 194, 0.4); /* 浅色主题下的悬停背景 */
 }
 
 [data-theme='dark'] {
-	--bg-color: #2f2b3a;
-	--text-color: #ecf0f1; /* 更亮的文字颜色，提高对比度 */
-	--card-bg-color: rgba(65, 62, 82, 0.9);
-	--card-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
-	--input-bg-color: #3d3a4d;
-	--input-border-color: #5d5a6d;
-	--button-bg-color: #8e9ecc; /* 稍微亮一点的蓝色 */
-	--button-hover-bg-color: #7d8dbf;
-	--font-smoothing: subpixel-antialiased;
-	--font-weight: 300;
-	--todo-text-color: #ecf0f1; /* 与主文字颜色一致 */
-	--completed-todo-text-color: #bdc3c7; /* 稍微亮一点的灰色 */
-	--filter-btn-bg: #3d3a4d;
-	--filter-btn-text: #ecf0f1;
-	--filter-btn-border: #5d5a6d;
-	--filter-btn-active-bg: #8e9ecc;
-	--filter-btn-active-text: #ffffff;
-	--filter-btn-active-border: #8e9ecc;
-	--language-toggle-bg: rgba(142, 158, 204, 0.2); /* 深色主题下的半透明背景 */
-	--language-toggle-color: #ecf0f1; /* 深色主题下的文字颜色 */
-	--language-toggle-hover-bg: rgba(142, 158, 204, 0.4); /* 深色主题下的悬停背景 */
+  --bg-color: #2f2b3a;
+  --text-color: #ecf0f1; /* 更亮的文字颜色，提高对比度 */
+  --card-bg-color: rgba(65, 62, 82, 0.9);
+  --card-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+  --input-bg-color: #3d3a4d;
+  --input-border-color: #5d5a6d;
+  --button-bg-color: #8e9ecc; /* 稍微亮一点的蓝色 */
+  --button-hover-bg-color: #7d8dbf;
+  --font-smoothing: subpixel-antialiased;
+  --font-weight: 300;
+  --todo-text-color: #ecf0f1; /* 与主文字颜色一致 */
+  --completed-todo-text-color: #bdc3c7; /* 稍微亮一点的灰色 */
+  --filter-btn-bg: #3d3a4d;
+  --filter-btn-text: #ecf0f1;
+  --filter-btn-border: #5d5a6d;
+  --filter-btn-active-bg: #8e9ecc;
+  --filter-btn-active-text: #ffffff;
+  --filter-btn-active-border: #8e9ecc;
+  --language-toggle-bg: rgba(142, 158, 204, 0.2); /* 深色主题下的半透明背景 */
+  --language-toggle-color: #ecf0f1; /* 深色主题下的文字颜色 */
+  --language-toggle-hover-bg: rgba(142, 158, 204, 0.4); /* 深色主题下的悬停背景 */
 }
 
 body {
-	background: var(--bg-color);
-	color: var(--text-color);
-	font-family: 'LXGW WenKai Screen', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
-		Oxygen-Sans, Ubuntu, Cantarell, 'Helvetica Neue', sans-serif;
-	-webkit-font-smoothing: var(--font-smoothing);
-	-moz-osx-font-smoothing: var(--font-smoothing);
-	font-weight: var(--font-weight);
-	padding-top: 1rem;
+  background: var(--bg-color);
+  color: var(--text-color);
+  font-family: 'LXGW WenKai Screen', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+    Oxygen-Sans, Ubuntu, Cantarell, 'Helvetica Neue', sans-serif;
+  -webkit-font-smoothing: var(--font-smoothing);
+  -moz-osx-font-smoothing: var(--font-smoothing);
+  font-weight: var(--font-weight);
+  padding-top: 1rem;
 }
 
 .app {
-	color: var(--text-color);
+  color: var(--text-color);
 }
 
 /* 移除全局过渡效果 */
 * {
-	transition: none;
+  transition: none;
 }
 
 .language-toggle {
-	position: fixed;
-	top: 10px;
-	right: 10px;
-	padding: 5px 10px;
-	background-color: var(--language-toggle-bg);
-	color: var(--language-toggle-color);
-	border: 1px solid var(--language-toggle-color);
-	border-radius: 4px;
-	cursor: pointer;
-	z-index: 1000;
-	font-size: 14px;
-	font-weight: bold;
-	transition: all 0.3s ease;
+  position: fixed;
+  top: 10px;
+  right: 10px;
+  padding: 5px 10px;
+  background-color: var(--language-toggle-bg);
+  color: var(--language-toggle-color);
+  border: 1px solid var(--language-toggle-color);
+  border-radius: 4px;
+  cursor: pointer;
+  z-index: 1000;
+  font-size: 14px;
+  font-weight: bold;
+  transition: all 0.3s ease;
 }
 
 .language-toggle:hover {
-	background-color: var(--language-toggle-hover-bg);
-	transform: translateY(-2px);
-	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  background-color: var(--language-toggle-hover-bg);
+  transform: translateY(-2px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 /* 替换 @media (forced-colors: active) 部分 */
 @media (forced-colors: active) {
-	:root {
-		forced-color-adjust: none;
-	}
+  :root {
+    forced-color-adjust: none;
+  }
 }
 
 .language-toggle,
 button,
 input[type='range'] {
-	forced-color-adjust: none;
+  forced-color-adjust: none;
 }
 
 .language-toggle {
-	background-color: ButtonFace;
-	color: ButtonText;
-	border: 1px solid ButtonText;
+  background-color: ButtonFace;
+  color: ButtonText;
+  border: 1px solid ButtonText;
 }
 
 .language-toggle:hover {
-	background-color: Highlight;
-	color: HighlightText;
+  background-color: Highlight;
+  color: HighlightText;
 }
 
 /* 添加到现有的 <style> 标签中 */
 @media (forced-colors: active) {
-	:root {
-		forced-color-adjust: none;
-	}
+  :root {
+    forced-color-adjust: none;
+  }
 }
 
 .audio-player {
-	position: relative;
-	z-index: 1000;
-	width: 100%;
-	max-width: 600px;
-	margin: 4rem auto;
+  position: relative;
+  z-index: 1000;
+  width: 100%;
+  max-width: 600px;
+  margin: 4rem auto;
 }
 
 @media (min-width: 1201px) {
-	.audio-player {
-		position: fixed;
-		top: calc(1rem + 150px); /* 假设每日激励卡片高度约为150px */
-		left: 1rem;
-		width: 300px;
-	}
+  .audio-player {
+    position: fixed;
+    top: calc(1rem + 150px); /* 假设每日激励卡片高度约为150px */
+    left: 1rem;
+    width: 300px;
+  }
 }
 
 @media (max-width: 1200px) {
-	.audio-player {
-		width: 100%;
-		max-width: 600px;
-		margin: 1rem auto;
-	}
+  .audio-player {
+    width: 100%;
+    max-width: 600px;
+    margin: 1rem auto;
+  }
 }
 
 @media (max-width: 768px) {
-	.audio-player {
-		width: calc(100% - 2rem);
-		max-width: 100%;
-		margin: 1rem auto;
-	}
+  .audio-player {
+    width: calc(100% - 2rem);
+    max-width: 100%;
+    margin: 1rem auto;
+  }
 }
 
 .content-wrapper {
-	display: flex;
-	flex-direction: column;
-	min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
 }
 
 .top-components {
-	display: flex;
-	justify-content: space-between;
-	padding: 1rem;
+  display: flex;
+  justify-content: space-between;
+  padding: 1rem;
 }
 
 .top-components.small-screen {
-	flex-direction: column;
-	order: 1;
+  flex-direction: column;
+  order: 1;
 }
 
 @media (max-width: 768px) {
-	.content-wrapper {
-		flex-direction: column;
-	}
+  .content-wrapper {
+    flex-direction: column;
+  }
 
-	.top-components {
-		margin-top: 1rem;
-	}
+  .top-components {
+    margin-top: 1rem;
+  }
 }
 
 .top-components {
-	display: flex;
-	flex-direction: column;
-	gap: 1rem;
-	margin-bottom: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-bottom: 1rem;
 }
 
 @media (min-width: 1201px) {
-	.top-components {
-		position: fixed;
-		top: 1rem;
-		left: 1rem;
-		width: 300px;
-	}
+  .top-components {
+    position: fixed;
+    top: 1rem;
+    left: 1rem;
+    width: 300px;
+  }
 }
 
 @media (max-width: 1200px) {
-	.top-components {
-		width: 100%;
-		max-width: 600px;
-		margin: 1rem auto;
-	}
+  .top-components {
+    width: 100%;
+    max-width: 600px;
+    margin: 1rem auto;
+  }
 }
 
 /* 添加以下样式 */
 @media (min-width: 1201px) {
-	html,
-	body {
-		overflow: hidden;
-	}
+  html,
+  body {
+    overflow: hidden;
+  }
 
-	.app {
-		height: 100vh;
-		overflow-y: auto;
-		scrollbar-width: none; /* Firefox */
-		-ms-overflow-style: none; /* Internet Explorer 10+ */
-	}
+  .app {
+    height: 100vh;
+    overflow-y: auto;
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* Internet Explorer 10+ */
+  }
 
-	.app::-webkit-scrollbar {
-		/* WebKit */
-		width: 0;
-		height: 0;
-	}
+  .app::-webkit-scrollbar {
+    /* WebKit */
+    width: 0;
+    height: 0;
+  }
 }
 </style>
