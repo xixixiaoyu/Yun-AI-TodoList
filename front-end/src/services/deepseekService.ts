@@ -107,11 +107,13 @@ export async function getAIStreamResponse(
         messages: [
           {
             role: 'system',
-            content: '你是一个智能助手，可以回答各种问题并提供帮助。',
+            content: `你是一个智能助手，可以提供专业详尽的回答。
+                      注意中文和数字，中文和英文之间需要空格。
+                      回答请通俗易懂，自然流畅，经过彻底的研究和反复的思考，提供可靠的信息。`,
           },
           ...messages, // 包含历史消息
         ],
-        temperature: 0.7,
+        temperature: 0.5,
         stream: true,
       }),
       signal,
