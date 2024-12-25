@@ -117,9 +117,9 @@ const sendMessage = async () => {
 				content: msg.content,
 			}))
 
-		const languageInstruction =
-			locale.value === 'zh' ? '请用中文回复。' : '请用英文回复。'
-		messages.unshift({ role: 'system', content: languageInstruction })
+		// const languageInstruction =
+		// 	locale.value === 'zh' ? '请用中文回复。' : '请用英文回复。'
+		// messages.unshift({ role: 'system', content: languageInstruction })
 
 		await getAIStreamResponse(messages, chunk => {
 			if (chunk === '[DONE]' || chunk === '[ABORTED]') {
@@ -396,7 +396,7 @@ watch([chatHistory, currentAIResponse], scrollToBottom, { deep: true, immediate:
 	padding: 6px 10px;
 	border-radius: 18px;
 	line-height: 1.6;
-	font-size: 16px;
+	font-size: 14px;
 	direction: ltr;
 	unicode-bidi: isolate;
 	text-align: left;
