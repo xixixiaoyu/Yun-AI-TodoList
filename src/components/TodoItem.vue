@@ -9,7 +9,6 @@ const props = defineProps<{
 		id: number
 		text: string
 		completed: boolean
-		tags: string[]
 		projectId: number
 	}
 }>()
@@ -70,14 +69,11 @@ const projectName = computed(() => {
 					<i class="checkbox" :class="{ checked: isCompleted }"></i>
 				</transition>
 			</span>
-			<div class="todo-text-and-tags">
+			<div class="todo-text-wrapper">
 				<span class="todo-text" :title="formattedTitle">
 					<span class="text-content">{{ formattedTitle }}</span>
 				</span>
-				<div class="todo-tags">
-					<span v-for="tag in todo.tags" :key="tag" class="tag">{{ tag }}</span>
-					<span v-if="projectName" class="project-tag">{{ projectName }}</span>
-				</div>
+				<span v-if="projectName" class="project-tag">{{ projectName }}</span>
 			</div>
 		</div>
 		<button @click.stop="removeTodo" class="delete-btn">{{ t('delete') }}</button>
@@ -118,7 +114,7 @@ const projectName = computed(() => {
 	min-width: 0;
 }
 
-.todo-text-and-tags {
+.todo-text-wrapper {
 	display: flex;
 	flex-direction: column;
 	flex-grow: 1;
@@ -186,26 +182,6 @@ const projectName = computed(() => {
 	background-color: var(--button-hover-bg-color);
 }
 
-.todo-tags {
-	display: flex;
-	flex-wrap: wrap;
-	gap: 0.25rem;
-	margin-top: 0.25rem;
-	margin-left: 0.5rem;
-}
-
-.tag {
-	background-color: var(--tag-bg-color, #e0e0e0);
-	color: var(--tag-text-color, #333);
-	padding: 0.1rem 0.3rem;
-	border-radius: 0.25rem;
-	font-size: 0.75rem;
-	max-width: 100px;
-	overflow: hidden;
-	text-overflow: ellipsis;
-	white-space: nowrap;
-}
-
 .project-tag {
 	background-color: var(--project-tag-bg-color, #4a5568);
 	color: var(--project-tag-text-color, #fff);
@@ -231,11 +207,6 @@ const projectName = computed(() => {
 
 	.delete-btn {
 		align-self: flex-end;
-	}
-
-	.todo-tags {
-		margin-top: 0.5rem;
-		margin-left: 0;
 	}
 }
 

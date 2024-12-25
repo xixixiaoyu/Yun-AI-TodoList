@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { getAITagSuggestions } from '../services/deepseekService'
 
 const props = defineProps<{
 	maxLength: number
@@ -14,9 +13,7 @@ const emit = defineEmits(['add'])
 const { t, locale } = useI18n()
 
 const newTodo = ref('')
-const newTags = ref('')
 const errorMessage = ref('')
-const isGeneratingTags = ref(false)
 
 const charCount = computed(() => {
 	return `${newTodo.value.length}/${props.maxLength}`
@@ -39,27 +36,8 @@ const addTodo = async () => {
 		return
 	}
 
-	let tags = newTags.value
-		.split(',')
-		.map(tag => tag.trim())
-		.filter(tag => tag !== '')
-
-	if (tags.length === 0) {
-		isGeneratingTags.value = true
-		try {
-			const suggestedTags = await getAITagSuggestions(trimmedTodo, locale.value)
-			tags = suggestedTags.filter(tag => tag !== '')
-		} catch (error) {
-			console.error('生成标签时出错:', error)
-			errorMessage.value = t('tagGenerationError')
-		} finally {
-			isGeneratingTags.value = false
-		}
-	}
-
-	emit('add', trimmedTodo, tags)
+	emit('add', trimmedTodo, [])
 	newTodo.value = ''
-	newTags.value = ''
 	errorMessage.value = ''
 }
 </script>
@@ -73,10 +51,9 @@ const addTodo = async () => {
 				:placeholder="placeholder"
 				:maxlength="maxLength"
 			/>
-			<input v-model.trim="newTags" class="tag-input" :placeholder="t('addTags')" />
 		</div>
-		<button type="submit" class="add-btn" :disabled="isGeneratingTags">
-			{{ isGeneratingTags ? t('generatingTags') : t('add') }}
+		<button type="submit" class="add-btn">
+			{{ t('add') }}
 		</button>
 	</form>
 	<p v-if="errorMessage || duplicateError" class="error-message">
@@ -101,23 +78,7 @@ const addTodo = async () => {
 	min-width: 200px;
 }
 
-.tag-input {
-	flex: 0.4;
-	padding: 0.7rem;
-	font-size: 1rem;
-	border: 1px solid var(--input-border-color);
-	border-radius: calc(var(--border-radius) / 2);
-	outline: none;
-	transition: all 0.3s ease;
-	background-color: var(--input-bg-color);
-	color: var(--text-color);
-}
-
 .todo-input {
-	flex: 0.6;
-}
-
-input {
 	flex-grow: 1;
 	padding: 0.7rem;
 	font-size: 1rem;
