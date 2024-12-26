@@ -107,16 +107,22 @@ const toggleDrawer = () => {
 	isDrawerOpen.value = !isDrawerOpen.value
 }
 
-// 新增: 点击非抽屉区域时关闭抽屉
+// 修改: 优化关闭抽屉的处理逻辑
 const closeDrawerOnOutsideClick = (event: MouseEvent) => {
 	const drawer = document.querySelector('.drawer-container')
 	const toggleButton = document.querySelector('.toggle-drawer-btn')
+	const conversationControls = document.querySelector('.conversation-controls')
+
+	// 如果点击的是抽屉按钮或对话控制区域内的元素，不处理
 	if (
-		isDrawerOpen.value &&
-		drawer &&
-		!drawer.contains(event.target as Node) &&
-		event.target !== toggleButton
+		toggleButton?.contains(event.target as Node) ||
+		conversationControls?.contains(event.target as Node)
 	) {
+		return
+	}
+
+	// 如果抽屉打开且点击在抽屉外部，则关闭抽屉
+	if (isDrawerOpen.value && drawer && !drawer.contains(event.target as Node)) {
 		isDrawerOpen.value = false
 	}
 }
@@ -353,6 +359,7 @@ watch(chatHistory, scrollToBottom, { deep: true })
 					</div>
 				</div>
 			</div>
+			<div v-if="isDrawerOpen" class="drawer-overlay" @click="isDrawerOpen = false"></div>
 			<div ref="chatHistoryRef" class="chat-history">
 				<div
 					v-for="(message, index) in sanitizedMessages"
@@ -1124,5 +1131,34 @@ watch(chatHistory, scrollToBottom, { deep: true })
 
 .ai-typing span:nth-child(3) {
 	animation-delay: 0.4s;
+}
+
+/* 添加遮罩层样式 */
+.drawer-overlay {
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	background-color: rgba(0, 0, 0, 0.3);
+	z-index: 999;
+	display: none;
+}
+
+.drawer-container.drawer-open + .drawer-overlay {
+	display: block;
+}
+
+/* 修改抽屉容器的 z-index */
+.drawer-container {
+	position: fixed;
+	left: -300px;
+	top: 0;
+	height: 100%;
+	width: 300px;
+	background-color: var(--bg-color);
+	transition: transform 0.3s ease;
+	box-shadow: 2px 0 8px rgba(0, 0, 0, 0.1);
+	z-index: 1000;
 }
 </style>
