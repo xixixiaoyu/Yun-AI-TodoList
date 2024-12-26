@@ -1,10 +1,7 @@
 <script setup lang="ts">
 import { ref, nextTick, onMounted, watch, computed } from 'vue'
-import {
-	getAIStreamResponse,
-	abortCurrentRequest,
-	Message,
-} from '../services/deepseekService'
+import { getAIStreamResponse, abortCurrentRequest } from '../services/deepseekService'
+import { Message } from '../services/types'
 import { marked } from 'marked'
 import DOMPurify from 'dompurify'
 import hljs from 'highlight.js'

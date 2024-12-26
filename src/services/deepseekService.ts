@@ -1,21 +1,9 @@
 import { promptsConfig } from '../config/prompts'
+import { Message } from './types'
 
 const API_KEY = import.meta.env.VITE_DEEPSEEK_API_KEY
-const API_URL = 'https://api.deepseek.com/v1/chat/completions'
 
-interface AIStreamResponse {
-	id: string
-	object: string
-	created: number
-	model: string
-	choices: {
-		delta: {
-			content?: string
-		}
-		index: number
-		finish_reason: string | null
-	}[]
-}
+const API_URL = 'https://api.deepseek.com/chat/completions'
 
 let abortController: AbortController | null = null
 
@@ -24,68 +12,6 @@ export function abortCurrentRequest() {
 		abortController.abort()
 		abortController = null
 	}
-}
-
-export async function getAIResponse(
-	userMessage: string,
-	language: string = 'zh',
-	temperature: number = 0.5
-): Promise<string> {
-	try {
-		const languageInstruction = language === 'zh' ? '请用中文回复。' : '请用英文回复。'
-
-		const response = await fetch(API_URL, {
-			method: 'POST',
-			headers: {
-				Authorization: `Bearer ${API_KEY}`,
-				'Content-Type': 'application/json',
-			},
-			body: JSON.stringify({
-				model: 'deepseek-chat',
-				messages: [
-					{
-						role: 'system',
-						content: `你是一个智能助手，可以回答各种问题并提供帮助。${languageInstruction}`,
-					},
-					{
-						role: 'user',
-						content: userMessage,
-					},
-				],
-				temperature,
-				stream: false,
-			}),
-		})
-
-		if (!response.ok) {
-			throw new Error(`HTTP 错误! 状态: ${response.status}`)
-		}
-
-		const data = await response.json()
-
-		if (data && data.choices && data.choices.length > 0) {
-			return data.choices[0].message?.content || ''
-		} else {
-			throw new Error('无效的 AI 响应格式')
-		}
-	} catch (error) {
-		console.error('获取 AI 响应时出错:', error)
-		if (error instanceof Error) {
-			if (error.message.startsWith('HTTP 错误')) {
-				throw new Error(`API 错误: ${error.message}`)
-			} else if (error.message === '无效的 AI 响应格式') {
-				throw error
-			} else {
-				throw new Error('无法连接到 AI 服务，请检查您的网络连接')
-			}
-		}
-		throw new Error('生成建议待办事项时出现未知错误')
-	}
-}
-
-export interface Message {
-	role: 'system' | 'user' | 'assistant'
-	content: string
 }
 
 export async function getAIStreamResponse(
@@ -168,5 +94,62 @@ export async function getAIStreamResponse(
 		}
 	} finally {
 		abortController = null
+	}
+}
+
+export async function getAIResponse(
+	userMessage: string,
+	language: string = 'zh',
+	temperature: number = 0.5
+): Promise<string> {
+	try {
+		const languageInstruction = language === 'zh' ? '请用中文回复。' : '请用英文回复。'
+
+		const response = await fetch(API_URL, {
+			method: 'POST',
+			headers: {
+				Authorization: `Bearer ${API_KEY}`,
+				'Content-Type': 'application/json',
+			},
+			body: JSON.stringify({
+				model: 'deepseek-chat',
+				messages: [
+					{
+						role: 'system',
+						content: `你是一个智能助手，可以回答各种问题并提供帮助。${languageInstruction}`,
+					},
+					{
+						role: 'user',
+						content: userMessage,
+					},
+				],
+				temperature,
+				stream: false,
+			}),
+		})
+
+		if (!response.ok) {
+			throw new Error(`HTTP 错误! 状态: ${response.status}`)
+		}
+
+		const data = await response.json()
+
+		if (data && data.choices && data.choices.length > 0) {
+			return data.choices[0].message?.content || ''
+		} else {
+			throw new Error('无效的 AI 响应格式')
+		}
+	} catch (error) {
+		console.error('获取 AI 响应时出错:', error)
+		if (error instanceof Error) {
+			if (error.message.startsWith('HTTP 错误')) {
+				throw new Error(`API 错误: ${error.message}`)
+			} else if (error.message === '无效的 AI 响应格式') {
+				throw error
+			} else {
+				throw new Error('无法连接到 AI 服务，请检查您的网络连接')
+			}
+		}
+		throw new Error('生成建议待办事项时出现未知错误')
 	}
 }
