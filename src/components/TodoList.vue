@@ -675,7 +675,7 @@ h1 {
 .todo-grid {
 	overflow: auto;
 	display: flex;
-	height: 500px;
+	height: 460px;
 	flex-direction: column;
 	gap: 1rem;
 	margin-bottom: 2rem;
