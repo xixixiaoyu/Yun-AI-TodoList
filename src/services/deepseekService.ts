@@ -1,5 +1,5 @@
 import { promptsConfig } from '../config/prompts'
-import { Message } from './types'
+import { AIStreamResponse, Message } from './types'
 
 const API_KEY = import.meta.env.VITE_DEEPSEEK_API_KEY
 
