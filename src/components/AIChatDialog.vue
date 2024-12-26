@@ -7,10 +7,26 @@ import {
 } from '../services/deepseekService'
 import { marked } from 'marked'
 import DOMPurify from 'dompurify'
+import hljs from 'highlight.js'
 import 'highlight.js/styles/github.css'
 import { useI18n } from 'vue-i18n'
 
 const { t, locale } = useI18n()
+
+// 配置 marked 使用 highlight.js
+marked.setOptions({
+	highlight: function (code, lang) {
+		if (lang && hljs.getLanguage(lang)) {
+			try {
+				return hljs.highlight(code, { language: lang }).value
+			} catch (e) {
+				console.error(e)
+			}
+		}
+		return code // 如果没有指定语言或出错，返回原始代码
+	},
+	langPrefix: 'hljs language-',
+})
 
 const userMessage = ref('')
 const chatHistory = ref<{ role: 'user' | 'ai'; content: string }[]>([])
@@ -972,11 +988,12 @@ watch(chatHistory, scrollToBottom, { deep: true })
 }
 
 .ai :deep(pre) {
-	background-color: var(--input-bg-color);
+	background-color: #1e1e1e;
 	border-radius: 8px;
 	padding: 16px;
 	overflow: auto;
 	margin: 1em 0;
+	position: relative;
 }
 
 .ai :deep(pre code) {
@@ -984,6 +1001,52 @@ watch(chatHistory, scrollToBottom, { deep: true })
 	padding: 0;
 	font-size: 0.9em;
 	line-height: 1.5;
+	font-family: 'Fira Code', monospace;
+	color: #d4d4d4;
+}
+
+.ai :deep(pre code.hljs) {
+	background-color: transparent;
+	padding: 0;
+}
+
+/* 代码高亮主题相关的颜色 */
+.ai :deep(.hljs-keyword),
+.ai :deep(.hljs-selector-tag),
+.ai :deep(.hljs-built_in),
+.ai :deep(.hljs-name),
+.ai :deep(.hljs-tag) {
+	color: #569cd6;
+}
+
+.ai :deep(.hljs-string),
+.ai :deep(.hljs-title),
+.ai :deep(.hljs-section),
+.ai :deep(.hljs-attribute),
+.ai :deep(.hljs-literal),
+.ai :deep(.hljs-template-tag),
+.ai :deep(.hljs-template-variable),
+.ai :deep(.hljs-type),
+.ai :deep(.hljs-addition) {
+	color: #ce9178;
+}
+
+.ai :deep(.hljs-comment),
+.ai :deep(.hljs-quote),
+.ai :deep(.hljs-deletion),
+.ai :deep(.hljs-meta) {
+	color: #6a9955;
+}
+
+.ai :deep(.hljs-number),
+.ai :deep(.hljs-regexp),
+.ai :deep(.hljs-symbol),
+.ai :deep(.hljs-variable),
+.ai :deep(.hljs-template-variable),
+.ai :deep(.hljs-link),
+.ai :deep(.hljs-selector-attr),
+.ai :deep(.hljs-selector-pseudo) {
+	color: #b5cea8;
 }
 
 .ai :deep(blockquote) {
