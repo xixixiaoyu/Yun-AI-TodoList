@@ -844,7 +844,7 @@ watch(chatHistory, scrollToBottom, { deep: true })
 /* Copy button styles */
 .copy-button {
 	position: absolute;
-	top: 8px;
+	bottom: 0px;
 	right: 8px;
 	background: var(--bg-color);
 	border: none;
