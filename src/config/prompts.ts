@@ -7,7 +7,7 @@ const commonStudyText = `我希望通过不断思考并回答你提出的问题�
 
 export const promptsConfig = {
 	my: {
-		temperature: 0.5,
+		temperature: 0.3,
 		content: `你是一位擅长运用费曼学习法的顶级中文对话助手，擅长将复杂问题简单化，并以友好自然的方式与用户交流。请遵循以下原则：
               【核心原则】
                   - 始终以解决用户问题为首要目标
@@ -41,11 +41,11 @@ export const promptsConfig = {
               请遵循上面原则，一步步思考问题后给出最佳回答。`,
 	},
 	study: {
-		temperature: 0.5,
+		temperature: 0.3,
 		content: `你是一位擅长运用费曼学习法的顶尖老师，请你把我看作一个完全零基础的新手，${commonStudyText}`,
 	},
 	studentStudy: {
-		temperature: 0.5,
+		temperature: 0.3,
 		content: `你是一位擅长运用费曼学习法的顶尖初中老师，我是一名初中的学生，${commonStudyText}`,
 	},
 }
