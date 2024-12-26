@@ -158,6 +158,22 @@ const forceScrollToBottom = () => {
 	}
 }
 
+// 新增：自动调整输入框高度
+const adjustTextareaHeight = () => {
+	if (inputRef.value) {
+		inputRef.value.style.height = 'auto'
+		const newHeight = Math.min(inputRef.value.scrollHeight, 200) // 设置最大高度为200px
+		inputRef.value.style.height = `${newHeight}px`
+	}
+}
+
+// 监听输入内容变化
+watch(userMessage, () => {
+	nextTick(() => {
+		adjustTextareaHeight()
+	})
+})
+
 const sendMessage = async () => {
 	if (!userMessage.value.trim()) return
 
@@ -272,6 +288,7 @@ const clearAllConversations = () => {
 onMounted(() => {
 	if (inputRef.value) {
 		inputRef.value.focus()
+		adjustTextareaHeight() // 初始化时调整高度
 	}
 	loadConversationHistory()
 
@@ -614,7 +631,7 @@ watch(chatHistory, scrollToBottom, { deep: true })
 
 .chat-input textarea {
 	flex-grow: 1;
-	padding: 12px 16px;
+	padding: 8px 16px;
 	font-size: 15px;
 	border: 1px solid var(--input-border-color);
 	border-radius: 12px;
@@ -622,9 +639,12 @@ watch(chatHistory, scrollToBottom, { deep: true })
 	background-color: var(--input-bg-color);
 	color: var(--text-color);
 	resize: none;
-	height: 48px;
-	max-height: 150px;
+	min-height: 36px;
+	max-height: 200px;
 	font-family: inherit;
+	transition: height 0.2s ease;
+	overflow-y: hidden;
+	line-height: 1.5;
 }
 
 .chat-input textarea:focus {
@@ -639,7 +659,7 @@ watch(chatHistory, scrollToBottom, { deep: true })
 	border: none;
 	border-radius: 12px;
 	cursor: pointer;
-	height: 48px;
+	height: 36px;
 	min-width: 90px;
 	display: flex;
 	align-items: center;
