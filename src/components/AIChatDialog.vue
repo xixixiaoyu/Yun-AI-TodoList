@@ -231,6 +231,16 @@ const newline = (event: KeyboardEvent) => {
 	textarea.selectionStart = textarea.selectionEnd = start + 1
 }
 
+// 新增：复制功能
+const copyToClipboard = async (text: string) => {
+	try {
+		await navigator.clipboard.writeText(text)
+		// 可以添加一个提示，但这里我们保持简单
+	} catch (err) {
+		console.error('Failed to copy text: ', err)
+	}
+}
+
 onMounted(() => {
 	if (inputRef.value) {
 		inputRef.value.focus()
@@ -339,7 +349,30 @@ watch(chatHistory, scrollToBottom, { deep: true })
 				>
 					<div class="message-content" dir="ltr">
 						<p v-if="message.role === 'user'">{{ message.content }}</p>
-						<div v-else v-html="message.sanitizedContent"></div>
+						<div v-else class="ai-message">
+							<div v-html="message.sanitizedContent"></div>
+							<button
+								class="copy-button"
+								@click="copyToClipboard(message.content)"
+								title="复制原始内容"
+							>
+								<svg
+									xmlns="http://www.w3.org/2000/svg"
+									viewBox="0 0 24 24"
+									fill="none"
+									stroke="currentColor"
+									stroke-width="2"
+									stroke-linecap="round"
+									stroke-linejoin="round"
+								>
+									<rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+									<path
+										d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"
+									></path>
+								</svg>
+								复制
+							</button>
+						</div>
 					</div>
 				</div>
 			</div>
@@ -861,5 +894,42 @@ watch(chatHistory, scrollToBottom, { deep: true })
 
 .close-drawer-btn svg {
 	fill: currentColor;
+}
+
+.ai-message {
+	position: relative;
+	padding-bottom: 32px; /* 为复制按钮留出空间 */
+}
+
+.copy-button {
+	position: absolute;
+	bottom: 8px;
+	right: 8px;
+	background: transparent;
+	border: none;
+	padding: 4px;
+	cursor: pointer;
+	opacity: 0;
+	transition: opacity 0.2s ease;
+	color: var(--text-color);
+	border-radius: 4px;
+	display: flex;
+	align-items: center;
+	gap: 4px;
+	font-size: 12px;
+}
+
+.copy-button svg {
+	width: 14px;
+	height: 14px;
+}
+
+.ai-message:hover .copy-button {
+	opacity: 0.7;
+}
+
+.copy-button:hover {
+	opacity: 1 !important;
+	background-color: rgba(0, 0, 0, 0.1);
 }
 </style>
