@@ -108,6 +108,37 @@ const closeDrawerOnOutsideClick = (event: MouseEvent) => {
 	}
 }
 
+// 修改 scrollToBottom 函数，添加平滑滚动和延迟检查
+const scrollToBottom = () => {
+	if (chatHistoryRef.value) {
+		const element = chatHistoryRef.value
+		const isScrolledToBottom =
+			element.scrollHeight - element.scrollTop <= element.clientHeight + 100
+
+		// 只有当用户已经在底部附近时才自动滚动
+		if (isScrolledToBottom) {
+			nextTick(() => {
+				element.scrollTo({
+					top: element.scrollHeight,
+					behavior: 'smooth',
+				})
+			})
+		}
+	}
+}
+
+// 添加新的强制滚动到底部函数，用于特定场景
+const forceScrollToBottom = () => {
+	if (chatHistoryRef.value) {
+		nextTick(() => {
+			chatHistoryRef.value!.scrollTo({
+				top: chatHistoryRef.value!.scrollHeight,
+				behavior: 'smooth',
+			})
+		})
+	}
+}
+
 const sendMessage = async () => {
 	if (!userMessage.value.trim()) return
 
@@ -116,6 +147,9 @@ const sendMessage = async () => {
 	userMessage.value = ''
 	isGenerating.value = true
 	currentAIResponse.value = ''
+
+	// 用户发送消息后强制滚动到底部
+	forceScrollToBottom()
 
 	const aiResponseIndex = chatHistory.value.length
 	chatHistory.value.push({ role: 'ai', content: '' })
@@ -128,10 +162,6 @@ const sendMessage = async () => {
 				content: msg.content,
 			}))
 
-		// const languageInstruction =
-		// 	locale.value === 'zh' ? '请用中文回复。' : '请用英文回复。'
-		// messages.unshift({ role: 'system', content: languageInstruction })
-
 		await getAIStreamResponse(messages, chunk => {
 			if (chunk === '[DONE]' || chunk === '[ABORTED]') {
 				isGenerating.value = false
@@ -142,7 +172,6 @@ const sendMessage = async () => {
 					)
 					if (currentConversation) {
 						currentConversation.messages = chatHistory.value
-						// 更新对话标题
 						if (currentConversation.messages.length === 2) {
 							currentConversation.title =
 								currentConversation.messages[0].content.slice(0, 30) + '...'
@@ -154,7 +183,7 @@ const sendMessage = async () => {
 			}
 			currentAIResponse.value += chunk
 			chatHistory.value[aiResponseIndex].content = currentAIResponse.value
-			nextTick(scrollToBottom)
+			scrollToBottom() // 使用普通滚动逻辑处理流式响应
 		})
 	} catch (error) {
 		console.error(t('aiResponseError'), error)
@@ -192,12 +221,6 @@ const sanitizedMessages = computed(() =>
 			message.role === 'ai' ? sanitizeContent(message.content) : message.content,
 	}))
 )
-
-const scrollToBottom = () => {
-	if (chatHistoryRef.value) {
-		chatHistoryRef.value.scrollTop = chatHistoryRef.value.scrollHeight
-	}
-}
 
 const newline = (event: KeyboardEvent) => {
 	const textarea = event.target as HTMLTextAreaElement
@@ -237,7 +260,7 @@ onMounted(() => {
 	document.addEventListener('click', closeDrawerOnOutsideClick)
 })
 
-watch([chatHistory, currentAIResponse], scrollToBottom, { deep: true, immediate: true })
+watch(chatHistory, scrollToBottom, { deep: true })
 </script>
 
 <template>
