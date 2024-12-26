@@ -63,23 +63,25 @@ const createNewConversation = () => {
 	saveCurrentConversationId() // 保存当前会话 ID
 }
 
-// 修改: 切换对话的函数
-const switchConversation = (id: number) => {
+// 修改: 切换对话的函数，添加可选参数控制是否关闭抽屉
+const switchConversation = (id: number, closeDrawer: boolean = true) => {
 	currentConversationId.value = id
 	const conversation = conversationHistory.value.find(c => c.id === id)
 	if (conversation) {
 		chatHistory.value = [...conversation.messages]
 	}
-	isDrawerOpen.value = false
-	saveCurrentConversationId() // 保存当前会话 ID
+	if (closeDrawer) {
+		isDrawerOpen.value = false
+	}
+	saveCurrentConversationId()
 }
 
-// 新增: 删除对话
+// 修改: 删除对话时保持抽屉打开
 const deleteConversation = (id: number) => {
 	conversationHistory.value = conversationHistory.value.filter(c => c.id !== id)
 	if (currentConversationId.value === id) {
 		if (conversationHistory.value.length > 0) {
-			switchConversation(conversationHistory.value[0].id)
+			switchConversation(conversationHistory.value[0].id, false) // 不关闭抽屉
 		} else {
 			createNewConversation()
 		}
