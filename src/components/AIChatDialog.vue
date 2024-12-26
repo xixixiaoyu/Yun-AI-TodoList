@@ -480,7 +480,6 @@ watch(chatHistory, scrollToBottom, { deep: true })
 	border: none;
 	color: var(--card-bg-color);
 	cursor: pointer;
-	transition: all 0.2s ease;
 	padding: 5px;
 	display: flex;
 	align-items: center;
@@ -489,7 +488,6 @@ watch(chatHistory, scrollToBottom, { deep: true })
 }
 
 .close-button:hover {
-	transform: scale(1.1);
 	opacity: 1;
 }
 
@@ -565,18 +563,6 @@ watch(chatHistory, scrollToBottom, { deep: true })
 	border-bottom-left-radius: 4px;
 }
 
-.chat-input {
-	display: flex;
-	gap: 12px;
-	padding: 16px 20px;
-	position: sticky;
-	bottom: 0;
-	background-color: var(--bg-color);
-	z-index: 10;
-	border-top: 1px solid var(--input-border-color);
-	box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.05);
-}
-
 .chat-input textarea {
 	flex-grow: 1;
 	padding: 12px 16px;
@@ -584,19 +570,16 @@ watch(chatHistory, scrollToBottom, { deep: true })
 	border: 1px solid var(--input-border-color);
 	border-radius: 12px;
 	outline: none;
-	transition: all 0.3s ease;
 	background-color: var(--input-bg-color);
 	color: var(--text-color);
 	resize: none;
 	height: 48px;
 	max-height: 150px;
 	font-family: inherit;
-	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
 .chat-input textarea:focus {
 	border-color: var(--button-bg-color);
-	box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
 }
 
 .chat-input button {
@@ -607,7 +590,6 @@ watch(chatHistory, scrollToBottom, { deep: true })
 	border: none;
 	border-radius: 12px;
 	cursor: pointer;
-	transition: all 0.3s ease;
 	height: 48px;
 	min-width: 90px;
 	display: flex;
@@ -616,15 +598,8 @@ watch(chatHistory, scrollToBottom, { deep: true })
 	gap: 6px;
 }
 
-.chat-input button svg {
-	width: 18px;
-	height: 18px;
-}
-
 .chat-input button:hover:not(:disabled) {
-	background-color: var(--button-hover-bg-color);
-	transform: translateY(-1px);
-	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+	opacity: 0.9;
 }
 
 .chat-input button:disabled {
@@ -704,12 +679,11 @@ watch(chatHistory, scrollToBottom, { deep: true })
 	margin-bottom: 8px;
 	cursor: pointer;
 	border-radius: 8px;
-	transition: all 0.2s ease;
 	background-color: var(--input-bg-color);
 }
 
 .conversation-item:hover {
-	background-color: var(--input-border-color);
+	opacity: 0.9;
 }
 
 .conversation-item.active {
@@ -743,7 +717,6 @@ watch(chatHistory, scrollToBottom, { deep: true })
 	display: flex;
 	gap: 12px;
 	padding: 0 20px;
-	margin-bottom: 12px;
 }
 
 .new-conversation-btn,
@@ -753,10 +726,13 @@ watch(chatHistory, scrollToBottom, { deep: true })
 	border: none;
 	border-radius: 8px;
 	cursor: pointer;
-	transition: all 0.2s ease;
 	background-color: var(--input-bg-color);
 	color: var(--text-color);
-	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.new-conversation-btn:hover,
+.toggle-drawer-btn:hover {
+	opacity: 0.9;
 }
 
 .new-conversation-btn {
@@ -774,13 +750,6 @@ watch(chatHistory, scrollToBottom, { deep: true })
 	padding: 10px 14px;
 }
 
-.new-conversation-btn:hover,
-.toggle-drawer-btn:hover {
-	background-color: var(--input-border-color);
-	transform: translateY(-1px);
-	box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-}
-
 .chat-input {
 	display: flex;
 	gap: 12px;
@@ -789,8 +758,6 @@ watch(chatHistory, scrollToBottom, { deep: true })
 	bottom: 0;
 	background-color: var(--bg-color);
 	z-index: 10;
-	border-top: 1px solid var(--input-border-color);
-	box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.05);
 }
 
 .chat-input textarea {
@@ -800,19 +767,16 @@ watch(chatHistory, scrollToBottom, { deep: true })
 	border: 1px solid var(--input-border-color);
 	border-radius: 12px;
 	outline: none;
-	transition: all 0.3s ease;
 	background-color: var(--input-bg-color);
 	color: var(--text-color);
 	resize: none;
 	height: 48px;
 	max-height: 150px;
 	font-family: inherit;
-	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
 .chat-input textarea:focus {
 	border-color: var(--button-bg-color);
-	box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
 }
 
 .chat-input button {
@@ -823,7 +787,6 @@ watch(chatHistory, scrollToBottom, { deep: true })
 	border: none;
 	border-radius: 12px;
 	cursor: pointer;
-	transition: all 0.3s ease;
 	height: 48px;
 	min-width: 90px;
 	display: flex;
@@ -832,15 +795,8 @@ watch(chatHistory, scrollToBottom, { deep: true })
 	gap: 6px;
 }
 
-.chat-input button svg {
-	width: 18px;
-	height: 18px;
-}
-
 .chat-input button:hover:not(:disabled) {
-	background-color: var(--button-hover-bg-color);
-	transform: translateY(-1px);
-	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+	opacity: 0.9;
 }
 
 .chat-input button:disabled {
