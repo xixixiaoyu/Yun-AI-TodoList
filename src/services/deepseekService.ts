@@ -33,6 +33,7 @@ export async function getAIStreamResponse(
 			body: JSON.stringify({
 				model: 'deepseek-chat',
 				messages: [
+					// 系统提示
 					{
 						role: 'system',
 						content: promptsConfig.my.content,
