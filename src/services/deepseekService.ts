@@ -1,4 +1,4 @@
-import { promptsConfig } from '../config/prompt'
+import { promptsConfig } from '../config/prompts'
 
 const API_KEY = import.meta.env.VITE_DEEPSEEK_API_KEY
 const API_URL = 'https://api.deepseek.com/v1/chat/completions'
