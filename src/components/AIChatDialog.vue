@@ -41,6 +41,13 @@ const saveConversationHistory = () => {
 	localStorage.setItem('aiConversationHistory', JSON.stringify(conversationHistory.value))
 }
 
+// 新增: 保存当前会话 ID 到 localStorage
+const saveCurrentConversationId = () => {
+	if (currentConversationId.value) {
+		localStorage.setItem('currentConversationId', currentConversationId.value.toString())
+	}
+}
+
 // 新增: 创建新对话
 const createNewConversation = () => {
 	const newId = Date.now()
@@ -53,6 +60,7 @@ const createNewConversation = () => {
 	currentConversationId.value = newId
 	chatHistory.value = []
 	saveConversationHistory()
+	saveCurrentConversationId() // 保存当前会话 ID
 }
 
 // 修改: 切换对话的函数
@@ -60,9 +68,10 @@ const switchConversation = (id: number) => {
 	currentConversationId.value = id
 	const conversation = conversationHistory.value.find(c => c.id === id)
 	if (conversation) {
-		chatHistory.value = [...conversation.messages] // 使用扩展运算符创建新数组
+		chatHistory.value = [...conversation.messages]
 	}
-	isDrawerOpen.value = false // 切换对话后关闭抽屉
+	isDrawerOpen.value = false
+	saveCurrentConversationId() // 保存当前会话 ID
 }
 
 // 新增: 删除对话
@@ -202,11 +211,27 @@ onMounted(() => {
 		inputRef.value.focus()
 	}
 	loadConversationHistory()
+
+	// 从 localStorage 获取上次激活的会话 ID
+	const savedConversationId = localStorage.getItem('currentConversationId')
+
 	if (conversationHistory.value.length === 0) {
 		createNewConversation()
+	} else if (savedConversationId) {
+		// 尝试恢复上次激活的会话
+		const conversationId = parseInt(savedConversationId)
+		const exists = conversationHistory.value.some(c => c.id === conversationId)
+		if (exists) {
+			switchConversation(conversationId)
+		} else {
+			// 如果上次激活的会话不存在，切换到第一个会话
+			switchConversation(conversationHistory.value[0].id)
+		}
 	} else {
+		// 如果没有保存的会话 ID，切换到第一个会话
 		switchConversation(conversationHistory.value[0].id)
 	}
+
 	document.addEventListener('click', closeDrawerOnOutsideClick)
 })
 
