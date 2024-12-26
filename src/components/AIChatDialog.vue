@@ -260,6 +260,15 @@ const copyToClipboard = async (text: string) => {
 	}
 }
 
+const clearAllConversations = () => {
+	if (confirm(t('confirmClearAll'))) {
+		conversationHistory.value = []
+		localStorage.removeItem('aiConversationHistory')
+		localStorage.removeItem('currentConversationId')
+		createNewConversation()
+	}
+}
+
 onMounted(() => {
 	if (inputRef.value) {
 		inputRef.value.focus()
@@ -316,19 +325,39 @@ watch(chatHistory, scrollToBottom, { deep: true })
 				<div class="drawer">
 					<div class="drawer-header">
 						<h3 class="drawer-title">{{ t('conversations') }}</h3>
-						<button @click="toggleDrawer" class="close-drawer-btn">
-							<svg
-								xmlns="http://www.w3.org/2000/svg"
-								viewBox="0 0 24 24"
-								width="24"
-								height="24"
+						<div class="drawer-header-controls">
+							<button
+								@click="clearAllConversations"
+								class="clear-all-btn"
+								:title="t('clearAllConversations')"
 							>
-								<path fill="none" d="M0 0h24v24H0z" />
-								<path
-									d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"
-								/>
-							</svg>
-						</button>
+								<svg
+									xmlns="http://www.w3.org/2000/svg"
+									viewBox="0 0 24 24"
+									width="18"
+									height="18"
+									fill="currentColor"
+								>
+									<path
+										d="M15 2H9c-1.1 0-2 .9-2 2v2H3v2h2v12c0 1.1.9 2 2 2h10c1.1 0 2-.9 2-2V8h2V6h-4V4c0-1.1-.9-2-2-2zm0 2v2H9V4h6zM7 8h10v12H7V8z"
+									/>
+									<path d="M9 10h2v8H9zm4 0h2v8h-2z" />
+								</svg>
+							</button>
+							<button @click="toggleDrawer" class="close-drawer-btn">
+								<svg
+									xmlns="http://www.w3.org/2000/svg"
+									viewBox="0 0 24 24"
+									width="24"
+									height="24"
+								>
+									<path fill="none" d="M0 0h24v24H0z" />
+									<path
+										d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"
+									/>
+								</svg>
+							</button>
+						</div>
 					</div>
 					<div class="conversation-list">
 						<div
@@ -1160,5 +1189,38 @@ watch(chatHistory, scrollToBottom, { deep: true })
 	transition: transform 0.3s ease;
 	box-shadow: 2px 0 8px rgba(0, 0, 0, 0.1);
 	z-index: 1000;
+}
+
+.drawer-header {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	margin-bottom: 16px;
+	padding-bottom: 12px;
+	border-bottom: 1px solid var(--input-border-color);
+}
+
+.drawer-header-controls {
+	display: flex;
+	gap: 8px;
+	align-items: center;
+}
+
+.clear-all-btn {
+	background: none;
+	border: none;
+	cursor: pointer;
+	padding: 4px;
+	color: var(--text-color);
+	opacity: 0.7;
+	transition: all 0.2s ease;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.clear-all-btn:hover {
+	opacity: 1;
+	color: #ff4d4f;
 }
 </style>
