@@ -31,6 +31,7 @@ const chatHistoryRef = ref<HTMLDivElement | null>(null)
 const currentAIResponse = ref('')
 const isGenerating = ref(false)
 const inputRef = ref<HTMLTextAreaElement | null>(null)
+const userHasScrolled = ref(false)
 
 // 新增: 对话历史列表
 const conversationHistory = ref<
@@ -127,15 +128,15 @@ const closeDrawerOnOutsideClick = (event: MouseEvent) => {
 	}
 }
 
-// 修改 scrollToBottom 函数，添加平滑滚动和延迟检查
+// 修改 scrollToBottom 函数，减小判断阈值并考虑用户滚动状态
 const scrollToBottom = () => {
 	if (chatHistoryRef.value) {
 		const element = chatHistoryRef.value
 		const isScrolledToBottom =
-			element.scrollHeight - element.scrollTop <= element.clientHeight + 100
+			element.scrollHeight - element.scrollTop <= element.clientHeight + 30
 
-		// 只有当用户已经在底部附近时才自动滚动
-		if (isScrolledToBottom) {
+		// 只有当用户没有主动滚动或已经在底部附近时才自动滚动
+		if (!userHasScrolled || isScrolledToBottom) {
 			nextTick(() => {
 				element.scrollTo({
 					top: element.scrollHeight,
@@ -146,9 +147,26 @@ const scrollToBottom = () => {
 	}
 }
 
-// 添加新的强制滚动到底部函数，用于特定场景
+// 添加滚动事件处理函数
+const handleScroll = () => {
+	if (chatHistoryRef.value) {
+		const element = chatHistoryRef.value
+		const isAtBottom =
+			element.scrollHeight - element.scrollTop <= element.clientHeight + 30
+
+		// 只有当不在底部时才标记用户已滚动
+		if (!isAtBottom) {
+			userHasScrolled.value = true
+		} else {
+			userHasScrolled.value = false
+		}
+	}
+}
+
+// 修改 forceScrollToBottom 函数，重置用户滚动状态
 const forceScrollToBottom = () => {
 	if (chatHistoryRef.value) {
+		userHasScrolled.value = false
 		nextTick(() => {
 			chatHistoryRef.value!.scrollTo({
 				top: chatHistoryRef.value!.scrollHeight,
@@ -291,6 +309,11 @@ onMounted(() => {
 		adjustTextareaHeight() // 初始化时调整高度
 	}
 	loadConversationHistory()
+
+	// 添加滚动事件监听
+	if (chatHistoryRef.value) {
+		chatHistoryRef.value.addEventListener('scroll', handleScroll)
+	}
 
 	// 从 localStorage 获取上次激活的会话 ID
 	const savedConversationId = localStorage.getItem('currentConversationId')
