@@ -129,7 +129,7 @@ const createNewConversation = () => {
 	saveCurrentConversationId() // 保存当前会话 ID
 }
 
-// 修改: 切换对话的函数，添加可选参数控制是���关闭抽屉
+// 修改: 切换对话的函数，添加可选参数控制是否关闭抽屉
 const switchConversation = (id: number, closeDrawer: boolean = true) => {
 	currentConversationId.value = id
 	const conversation = conversationHistory.value.find(c => c.id === id)
@@ -231,9 +231,36 @@ const forceScrollToBottom = () => {
 // 新增：自动调整输入框高度
 const adjustTextareaHeight = () => {
 	if (inputRef.value) {
-		inputRef.value.style.height = 'auto'
-		const newHeight = Math.min(inputRef.value.scrollHeight, 200) // 设置最大高度为200px
-		inputRef.value.style.height = `${newHeight}px`
+		const textarea = inputRef.value
+		// 保存当前光标位置
+		const cursorPosition = textarea.selectionStart
+
+		// 调整高度
+		textarea.style.height = 'auto'
+		const newHeight = Math.min(textarea.scrollHeight, 200)
+		textarea.style.height = `${newHeight}px`
+
+		// 计算光标位置的相对位置
+		const textBeforeCursor = textarea.value.substring(0, cursorPosition)
+		const dummyElement = document.createElement('div')
+		dummyElement.style.cssText = window.getComputedStyle(textarea).cssText
+		dummyElement.style.height = 'auto'
+		dummyElement.style.position = 'absolute'
+		dummyElement.style.visibility = 'hidden'
+		dummyElement.style.whiteSpace = 'pre-wrap'
+		dummyElement.textContent = textBeforeCursor
+		document.body.appendChild(dummyElement)
+
+		// 计算光标的垂直位置
+		const cursorTop = dummyElement.offsetHeight
+		document.body.removeChild(dummyElement)
+
+		// 确保光标可见
+		const scrollTop = Math.max(0, cursorTop - textarea.clientHeight + 20)
+		textarea.scrollTop = scrollTop
+
+		// 恢复光标位置
+		textarea.setSelectionRange(cursorPosition, cursorPosition)
 	}
 }
 
@@ -351,6 +378,11 @@ const newline = (event: KeyboardEvent) => {
 	const value = textarea.value
 	textarea.value = value.substring(0, start) + '\n' + value.substring(end)
 	textarea.selectionStart = textarea.selectionEnd = start + 1
+
+	// 添加滚动到底部的逻辑
+	nextTick(() => {
+		textarea.scrollTop = textarea.scrollHeight
+	})
 }
 
 // 新增：复制功能
