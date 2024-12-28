@@ -1817,4 +1817,163 @@ watch(chatHistory, scrollToBottom, { deep: true })
 		font-size: 13px;
 	}
 }
+
+/* 优化响应式布局 */
+@media (max-width: 1200px) {
+	.message-container {
+		max-width: 90%;
+	}
+}
+
+@media (max-width: 768px) {
+	.dialog-header {
+		padding: 8px 12px;
+	}
+
+	.dialog-header h2 {
+		font-size: 18px;
+	}
+
+	.dialog-content {
+		padding: 8px 0;
+	}
+
+	.chat-history {
+		padding: 0 10px;
+		gap: 12px;
+	}
+
+	.message-container {
+		max-width: 95%;
+	}
+
+	.message-content {
+		padding: 10px 14px;
+		font-size: 14px;
+	}
+
+	.chat-input {
+		padding: 8px 10px;
+		gap: 8px;
+	}
+
+	.chat-input textarea {
+		padding: 8px 12px;
+		font-size: 14px;
+		min-height: 36px;
+	}
+
+	.input-controls {
+		gap: 6px;
+	}
+
+	.chat-input button {
+		padding: 0 12px;
+		height: 36px;
+		min-width: 70px;
+		font-size: 13px;
+	}
+
+	.drawer-container {
+		width: 85%;
+		max-width: 300px;
+		left: -85%;
+	}
+
+	.drawer-container.drawer-open {
+		transform: translateX(100%);
+	}
+
+	.conversation-controls {
+		flex-wrap: wrap;
+		padding: 0 10px;
+		margin-bottom: 8px;
+	}
+
+	.new-conversation-btn,
+	.optimize-btn,
+	.toggle-drawer-btn {
+		flex: 1;
+		min-width: auto;
+		padding: 6px 10px;
+		font-size: 13px;
+		height: 32px;
+	}
+}
+
+@media (max-width: 480px) {
+	.message-container {
+		max-width: 98%;
+	}
+
+	.chat-input {
+		padding: 6px 8px;
+	}
+
+	.input-controls {
+		flex-direction: column;
+		width: 100%;
+	}
+
+	.chat-input button {
+		width: 100%;
+		height: 34px;
+	}
+
+	.voice-btn {
+		width: 100%;
+	}
+
+	.copy-button {
+		padding: 2px 6px;
+		font-size: 11px;
+	}
+
+	.copy-button svg {
+		width: 12px;
+		height: 12px;
+	}
+}
+
+/* 优化深色模式 */
+@media (prefers-color-scheme: dark) {
+	.message-content {
+		box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+	}
+
+	.drawer-container {
+		box-shadow: 2px 0 12px rgba(0, 0, 0, 0.3);
+	}
+
+	.ai :deep(pre) {
+		background-color: rgba(0, 0, 0, 0.3);
+	}
+
+	.ai :deep(code) {
+		background-color: rgba(0, 0, 0, 0.2);
+	}
+}
+
+/* 优化高度自适应 */
+@media (max-height: 600px) {
+	.dialog-header {
+		padding: 6px 12px;
+	}
+
+	.dialog-header h2 {
+		font-size: 16px;
+	}
+
+	.chat-history {
+		gap: 10px;
+	}
+
+	.message-content {
+		padding: 8px 12px;
+	}
+
+	.chat-input textarea {
+		max-height: 120px;
+	}
+}
 </style>
