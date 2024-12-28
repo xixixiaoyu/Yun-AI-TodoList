@@ -2,7 +2,7 @@
 import { onErrorCaptured, computed, onMounted, provide, ref } from 'vue'
 import { useTheme } from './composables/useTheme'
 import { useI18n } from 'vue-i18n'
-import { setLanguage } from './i18n'
+import { setLanguage, setSystemLanguage } from './i18n'
 // import AudioPlayer from './components/AudioPlayer.vue'
 import DailyInspiration from './components/DailyInspiration.vue'
 import { useWindowSize } from '@vueuse/core'
@@ -34,6 +34,7 @@ const isSmallScreen = computed(() => width.value < 768)
 
 onMounted(() => {
 	initTheme()
+	setSystemLanguage()
 })
 </script>
 
