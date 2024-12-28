@@ -36,3 +36,6 @@ dist-ssr
 *.wav
 *.ogg
 *.m4a
+
+# 忽略构建产物
+release

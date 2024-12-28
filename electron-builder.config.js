@@ -5,7 +5,21 @@ export default {
 		output: 'release/${version}',
 		buildResources: 'build',
 	},
-	files: ['dist/**/*', 'electron/**/*', 'package.json', '!node_modules/**/*'],
+	files: [
+		'dist/**/*',
+		'electron/**/*',
+		'package.json',
+		'.env',
+		'!node_modules/**/*',
+		'!**/node_modules/*/{CHANGELOG.md,README.md,README,readme.md,readme}',
+		'!**/node_modules/*/{test,__tests__,tests,powered-test,example,examples}',
+	],
+	extraResources: [
+		{
+			from: 'node_modules/dotenv',
+			to: 'node_modules/dotenv',
+		},
+	],
 	mac: {
 		icon: 'build/icon.icns',
 		target: ['dmg', 'zip'],
@@ -71,6 +85,5 @@ export default {
 		publishAutoUpdate: true,
 	},
 	asar: true,
-	asarUnpack: ['**/*.{node,dll}', '**/node_modules/sharp/**/*'],
-	afterSign: 'scripts/notarize.js',
+	asarUnpack: ['**/*.{node,dll}', '**/node_modules/sharp/**/*', 'dist/**/*'],
 }

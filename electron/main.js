@@ -1,13 +1,17 @@
 import { app, BrowserWindow, ipcMain } from 'electron'
 import path from 'path'
 import { fileURLToPath } from 'url'
-import dotenv from 'dotenv'
+import * as dotenv from 'dotenv'
 
 // 获取 __dirname
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
 // 加载环境变量
-dotenv.config()
+const envPath = app.isPackaged
+	? path.join(process.resourcesPath, '.env')
+	: path.join(process.cwd(), '.env')
+
+dotenv.config({ path: envPath })
 
 let mainWindow = null
 
@@ -18,7 +22,7 @@ function createWindow() {
 		minWidth: 800,
 		minHeight: 600,
 		webPreferences: {
-			nodeIntegration: process.env.ELECTRON_NODE_INTEGRATION === 'true',
+			nodeIntegration: false,
 			contextIsolation: true,
 			preload: path.join(__dirname, 'preload.js'),
 		},
@@ -29,6 +33,15 @@ function createWindow() {
 	// 优雅地显示窗口
 	mainWindow.once('ready-to-show', () => {
 		mainWindow.show()
+		// 在打包环境下也打开开发者工具，方便调试
+		if (app.isPackaged) {
+			mainWindow.webContents.openDevTools()
+		}
+	})
+
+	// 添加页面加载错误处理
+	mainWindow.webContents.on('did-fail-load', (event, errorCode, errorDescription) => {
+		console.error('Page failed to load:', errorCode, errorDescription)
 	})
 
 	if (process.env.WEBPACK_DEV_SERVER_URL) {
@@ -37,7 +50,17 @@ function createWindow() {
 	} else if (process.env.ELECTRON_START_URL) {
 		mainWindow.loadURL(process.env.ELECTRON_START_URL)
 	} else {
-		mainWindow.loadURL(`file://${path.join(__dirname, '..', 'dist/index.html')}`)
+		const indexPath = app.isPackaged
+			? path.join(app.getAppPath(), 'dist', 'index.html')
+			: path.join(process.cwd(), 'dist', 'index.html')
+
+		console.log('Loading index.html from:', indexPath)
+		console.log('App path:', app.getAppPath())
+		console.log('Resource path:', process.resourcesPath)
+
+		mainWindow.loadFile(indexPath).catch(err => {
+			console.error('Failed to load index.html:', err)
+		})
 	}
 
 	// 处理窗口关闭事件

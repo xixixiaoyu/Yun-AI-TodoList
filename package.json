@@ -2,6 +2,10 @@
 	"name": "front-end",
 	"private": true,
 	"version": "0.0.0",
+	"description": "A Todo application built with Vue 3 and Electron",
+	"author": {
+		"name": "yunmu"
+	},
 	"type": "module",
 	"scripts": {
 		"dev": "vite",
@@ -13,12 +17,12 @@
 		"format": "prettier --write src/",
 		"tsc": "vue-tsc -b",
 		"electron:serve": "vite --port 3000 & wait-on tcp:3000 && cross-env ELECTRON_START_URL=http://localhost:3000 electron .",
-		"electron:build": "vite build && electron-builder --config electron-builder.config.js",
-		"electron:build:mac": "npm run electron:build -- --mac",
-		"electron:build:win": "npm run electron:build -- --win",
-		"electron:build:linux": "npm run electron:build -- --linux",
+		"electron:build:mac": "pnpm run clean && vite build && electron-builder --config electron-builder.config.js --mac",
+		"electron:build:win": "pnpm run clean && vite build && electron-builder --config electron-builder.config.js --win",
+		"electron:build:linux": "pnpm run clean && vite build && electron-builder --config electron-builder.config.js --linux",
 		"postinstall": "electron-builder install-app-deps",
-		"postuninstall": "electron-builder install-app-deps"
+		"postuninstall": "electron-builder install-app-deps",
+		"clean": "rimraf dist release"
 	},
 	"dependencies": {
 		"@vueuse/core": "^11.1.0",
@@ -56,7 +60,8 @@
 		"vitest": "^1.4.0",
 		"vue-cli-plugin-electron-builder": "^2.1.1",
 		"vue-tsc": "^2.0.29",
-		"wait-on": "^8.0.1"
+		"wait-on": "^8.0.1",
+		"rimraf": "^5.0.5"
 	},
 	"main": "electron/main.js",
 	"engines": {

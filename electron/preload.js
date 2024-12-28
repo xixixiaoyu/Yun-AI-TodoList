@@ -1,4 +1,4 @@
-import { contextBridge, ipcRenderer } from 'electron'
+const { contextBridge } = require('electron')
 
 // 定义安全的 API
 const api = {
