@@ -169,14 +169,14 @@ export async function optimizeText(text: string): Promise<string> {
 					{
 						role: 'system',
 						content:
-							'你是一个文本优化助手，可以优化用户的提问，帮助其更加清晰、专业和有条理。请直接返回优化后的文本，不要添加任何解释。',
+							'你是一个顶级的提示词优化助手，可以优化用户的提问，从而能够更好地引导模型生成用户想要的结果。请直接返回优化后的文本，不要添加任何解释。',
 					},
 					{
 						role: 'user',
-						content: `请帮我优化以下文本的表达：\n${text}`,
+						content: `请优化：\n“${text}”`,
 					},
 				],
-				temperature: 0.7,
+				temperature: 0.5,
 				stream: false,
 			}),
 		})
