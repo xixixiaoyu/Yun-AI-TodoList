@@ -95,5 +95,15 @@
 	"clearAllConversations": "Clear All Conversations",
 	"confirmClearAll": "Are you sure you want to clear all conversations? This action cannot be undone.",
 	"startListening": "Start Voice Input",
+	"stopListening": "Stop Voice Input",
+	"microphonePermissionDenied": "Please allow microphone access to use speech recognition.",
+	"browserNotSupported": "Your browser doesn't support speech recognition. Please use the latest version of Chrome or Edge.",
+	"networkError": "Network error occurred. Please check your connection and try again.",
+	"speechRecognitionError": "Speech recognition error occurred. Please try again.",
+	"initializationError": "Failed to initialize speech recognition. Please ensure your browser supports this feature and grants necessary permissions.",
+	"noSpeechDetected": "No speech detected. Please speak.",
+	"microphoneNotFound": "No microphone device found. Please check your device connection.",
+	"languageNotSupported": "Current language is not supported, switched to alternative language.",
+	"startListening": "Start Voice Input",
 	"stopListening": "Stop Voice Input"
 }

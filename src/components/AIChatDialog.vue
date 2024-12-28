@@ -355,188 +355,220 @@ const isListening = ref(false)
 const recognition = ref<any | null>(null)
 const errorCount = ref(0)
 const maxErrorRetries = 2
+const isRecognitionSupported = ref(true)
+const recognitionStatus = ref<'idle' | 'listening' | 'processing' | 'error'>('idle')
+const lastError = ref('')
+
+// 检查浏览器是否支持语音识别
+const checkSpeechRecognitionSupport = () => {
+	const SpeechRecognitionAPI = window.SpeechRecognition || window.webkitSpeechRecognition
+	if (!SpeechRecognitionAPI) {
+		isRecognitionSupported.value = false
+		console.error('当前浏览器不支持语音识别')
+		return false
+	}
+	return true
+}
 
 const initSpeechRecognition = async () => {
 	try {
-		// 1. 首先检查麦克风权限
+		// 1. 检查浏览器支持
+		if (!checkSpeechRecognitionSupport()) {
+			recognitionStatus.value = 'error'
+			lastError.value = t('browserNotSupported')
+			return
+		}
+
+		// 2. 检查麦克风权限
 		try {
 			await navigator.mediaDevices.getUserMedia({ audio: true })
 			console.log('麦克风权限已授予')
 		} catch (error) {
 			console.error('麦克风权限获取失败:', error)
-			alert('请允许使用麦克风以启用语音识别功能。')
+			recognitionStatus.value = 'error'
+			lastError.value = t('microphonePermissionDenied')
 			return
 		}
 
-		// 2. 检查语音识别 API 支持
+		// 3. 创建新的识别实例前先停止和清理旧实例
+		if (recognition.value) {
+			try {
+				recognition.value.stop()
+			} catch (e) {
+				console.log('停止旧实例:', e)
+			}
+			recognition.value = null
+		}
+
+		// 4. 创建新实例
 		const SpeechRecognitionAPI =
 			window.SpeechRecognition || window.webkitSpeechRecognition
-		if (!SpeechRecognitionAPI) {
-			console.error('当前浏览器不支持语音识别')
-			alert('您的浏览器不支持语音识别功能，请使用最新版本的Chrome或Edge浏览器。')
-			return
-		}
-
 		recognition.value = new SpeechRecognitionAPI()
 
-		// 3. 基本配置
-		recognition.value.continuous = false
-		recognition.value.interimResults = true
+		// 5. 基本配置
+		recognition.value.continuous = true // 改为持续识别
+		recognition.value.interimResults = true // 开启临时结果
+		recognition.value.maxAlternatives = 1
 
-		// 4. 设置语言（根据浏览器语言优先）
-		const browserLang = navigator.language || 'en-US'
+		// 6. 设置语言 - 根据当前界面语言自动选择
 		const preferredLang = locale.value === 'zh' ? 'zh-CN' : 'en-US'
-		recognition.value.lang = browserLang.startsWith('zh') ? 'zh-CN' : preferredLang
+		recognition.value.lang = preferredLang
+		console.log('语音识别语言设置为:', preferredLang)
 
-		// 5. 开始事件
+		// 7. 开始事件
 		recognition.value.onstart = () => {
-			console.log('语音识别开始，使用语言:', recognition.value.lang)
+			console.log('语音识别开始')
 			isListening.value = true
+			recognitionStatus.value = 'listening'
 			errorCount.value = 0
+			lastError.value = ''
 		}
 
-		// 6. 结果事件
+		// 8. 结果事件处理
 		recognition.value.onresult = (event: SpeechRecognitionEvent) => {
-			console.log('收到语音识别结果:', event)
-			const results = event.results
-			const currentResult = results[results.length - 1]
+			let interimTranscript = ''
+			let finalTranscript = ''
 
-			if (currentResult && currentResult[0]) {
-				const transcript = currentResult[0].transcript
-				const confidence = currentResult[0].confidence
-				console.log('识别文本:', transcript, '置信度:', confidence)
-
-				if (currentResult.isFinal) {
-					console.log('最终结果')
-					userMessage.value = (userMessage.value || '').trim()
-					userMessage.value += (userMessage.value ? ' ' : '') + transcript
+			for (let i = event.resultIndex; i < event.results.length; i++) {
+				const transcript = event.results[i][0].transcript
+				if (event.results[i].isFinal) {
+					finalTranscript += transcript
+				} else {
+					interimTranscript += transcript
 				}
+			}
+
+			// 处理最终结果
+			if (finalTranscript) {
+				userMessage.value = (userMessage.value || '').trim()
+				userMessage.value += (userMessage.value ? ' ' : '') + finalTranscript
+			}
+
+			// 显示临时结果（可以添加一个临时显示区域）
+			if (interimTranscript) {
+				console.log('临时识别结果:', interimTranscript)
 			}
 		}
 
-		// 7. 错误事件处理
+		// 9. 错误事件处理
 		recognition.value.onerror = (event: SpeechRecognitionErrorEvent) => {
-			console.error('语音识别错误:', event.error)
-			console.error('错误详情:', event)
+			console.error('语音识别错误:', event.error, event)
+			recognitionStatus.value = 'error'
 
 			switch (event.error) {
+				case 'no-speech':
+					lastError.value = t('noSpeechDetected')
+					restartRecognition()
+					break
+				case 'audio-capture':
+					lastError.value = t('microphoneNotFound')
+					break
+				case 'not-allowed':
+					lastError.value = t('microphonePermissionDenied')
+					break
+				case 'network':
+					lastError.value = t('networkError')
+					break
+				case 'aborted':
+					recognitionStatus.value = 'idle'
+					break
 				case 'language-not-supported':
-					errorCount.value++
-					console.log('语言不支持错误计数:', errorCount.value)
-
-					if (errorCount.value > maxErrorRetries) {
-						console.error('多次尝试后语音识别仍不可用')
-						isListening.value = false
-						alert(
-							'抱歉，当前浏览器可能不支持所选语言的语音识别，请尝试切换语言或使用其他浏览器。'
-						)
-						return
-					}
-
+					lastError.value = t('languageNotSupported')
 					// 尝试切换到备选语言
 					const currentLang = recognition.value.lang
-					const newLang = currentLang === 'zh-CN' ? 'en-US' : 'zh-CN'
-					console.log('切换到备选语言:', newLang)
+					const newLang = currentLang.startsWith('zh') ? 'en-US' : 'zh-CN'
 					recognition.value.lang = newLang
-
-					// 短暂延迟后重试
-					setTimeout(() => {
-						try {
-							recognition.value.start()
-						} catch (e) {
-							console.error('重新启动识别失败:', e)
-							isListening.value = false
-						}
-					}, 100)
+					console.log('切换到备选语言:', newLang)
+					restartRecognition()
 					break
-
-				case 'not-allowed':
-					console.error('未获得麦克风权限')
-					isListening.value = false
-					alert('请在浏览器设置中允许使用麦克风，然后重试。')
-					break
-
-				case 'network':
-					console.error('网络错误')
-					isListening.value = false
-					alert('网络连接出现问题，请检查网络后重试。')
-					break
-
-				case 'no-speech':
-					console.error('未检测到语音')
-					// 不显示警告，继续监听
-					break
-
-				case 'aborted':
-					console.error('语音识别被中断')
-					isListening.value = false
-					break
-
 				default:
-					console.error('其他错误')
-					isListening.value = false
-					if (errorCount.value === 0) {
-						alert('语音识别出现错误，请重试。')
+					lastError.value = t('speechRecognitionError')
+					if (errorCount.value < maxErrorRetries) {
+						errorCount.value++
+						restartRecognition()
 					}
 			}
 		}
 
-		// 8. 结束事件
+		// 10. 结束事件
 		recognition.value.onend = () => {
 			console.log('语音识别结束')
-			if (isListening.value && errorCount.value <= maxErrorRetries) {
-				// 如果仍在监听状态且未超过最大重试次数，尝试重新启动
-				try {
-					recognition.value.start()
-				} catch (e) {
-					console.error('重新启动识别失败:', e)
-					isListening.value = false
-				}
+			if (isListening.value && errorCount.value < maxErrorRetries) {
+				restartRecognition()
 			} else {
 				isListening.value = false
+				recognitionStatus.value = 'idle'
 			}
+		}
+
+		// 11. 音频开始事件
+		recognition.value.onaudiostart = () => {
+			console.log('开始接收音频')
+			recognitionStatus.value = 'listening'
+		}
+
+		// 12. 音频结束事件
+		recognition.value.onaudioend = () => {
+			console.log('停止接收音频')
+			recognitionStatus.value = 'processing'
 		}
 	} catch (error) {
 		console.error('初始化语音识别时出错:', error)
+		recognitionStatus.value = 'error'
+		lastError.value = t('initializationError')
 		isListening.value = false
-		alert('初始化语音识别失败，请确保浏览器支持语音识别功能并授予相关权限。')
 	}
 }
 
-// 监听语言变化
-watch(locale, newLocale => {
-	if (recognition.value) {
-		const newLang = newLocale === 'zh' ? 'zh-CN' : 'en-US'
-		recognition.value.lang = newLang
-		console.log('语言已更改为:', newLang)
+// 修改重启逻辑，添加延迟和状态检查
+const restartRecognition = () => {
+	if (isListening.value && recognition.value && recognitionStatus.value !== 'error') {
+		try {
+			setTimeout(() => {
+				if (isListening.value) {
+					recognition.value.start()
+					recognitionStatus.value = 'listening'
+				}
+			}, 500) // 增加延迟时间
+		} catch (e) {
+			console.error('重新启动识别失败:', e)
+			recognitionStatus.value = 'error'
+			isListening.value = false
+		}
 	}
-})
+}
 
-const startListening = () => {
+const startListening = async () => {
 	try {
 		if (!recognition.value) {
-			initSpeechRecognition()
+			await initSpeechRecognition()
 		}
 
-		if (recognition.value) {
-			errorCount.value = 0 // 重置错误计数
+		if (recognition.value && recognitionStatus.value !== 'error') {
+			errorCount.value = 0
+			lastError.value = ''
+			recognitionStatus.value = 'listening'
 			recognition.value.start()
 		}
 	} catch (error) {
 		console.error('启动语音识别时出错:', error)
+		recognitionStatus.value = 'error'
+		lastError.value = t('speechRecognitionError')
 		isListening.value = false
-		alert('启动语音识别失败，请重试。')
 	}
 }
 
 const stopListening = () => {
 	try {
 		if (recognition.value) {
-			recognition.value.stop()
 			isListening.value = false
+			recognitionStatus.value = 'idle'
+			recognition.value.stop()
 		}
 	} catch (error) {
 		console.error('停止语音识别时出错:', error)
+		recognitionStatus.value = 'error'
+		isListening.value = false
 	}
 }
 
@@ -765,7 +797,13 @@ watch(chatHistory, scrollToBottom, { deep: true })
 					<button
 						@click="isListening ? stopListening() : startListening()"
 						class="voice-btn"
-						:class="{ 'is-listening': isListening }"
+						:class="{
+							'is-listening': isListening,
+							'is-error': recognitionStatus === 'error',
+							'is-processing': recognitionStatus === 'processing',
+						}"
+						:disabled="!isRecognitionSupported"
+						:title="lastError || t(isListening ? 'stopListening' : 'startListening')"
 					>
 						<svg
 							xmlns="http://www.w3.org/2000/svg"
@@ -778,7 +816,8 @@ watch(chatHistory, scrollToBottom, { deep: true })
 								d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5.91-3c-.49 0-.9.36-.98.85C16.52 14.2 14.47 16 12 16s-4.52-1.8-4.93-4.15c-.08-.49-.49-.85-.98-.85-.61 0-1.09.54-1 1.14.49 3 2.89 5.35 5.91 5.78V20c0 .55.45 1 1 1s1-.45 1-1v-2.08c3.02-.43 5.42-2.78 5.91-5.78.1-.6-.39-1.14-1-1.14z"
 							/>
 						</svg>
-						{{ isListening ? t('stopListening') : t('startListening') }}
+						<span>{{ isListening ? t('stopListening') : t('startListening') }}</span>
+						<span v-if="lastError" class="error-message">{{ lastError }}</span>
 					</button>
 				</div>
 			</div>
@@ -1532,6 +1571,7 @@ watch(chatHistory, scrollToBottom, { deep: true })
 }
 
 .voice-btn {
+	position: relative;
 	padding: 0 20px;
 	font-size: 15px;
 	background-color: var(--input-bg-color);
@@ -1548,7 +1588,12 @@ watch(chatHistory, scrollToBottom, { deep: true })
 	transition: all 0.3s ease;
 }
 
-.voice-btn:hover {
+.voice-btn:disabled {
+	opacity: 0.5;
+	cursor: not-allowed;
+}
+
+.voice-btn:hover:not(:disabled) {
 	background-color: var(--button-hover-bg-color);
 	color: var(--card-bg-color);
 }
@@ -1559,15 +1604,43 @@ watch(chatHistory, scrollToBottom, { deep: true })
 	animation: pulse 1.5s infinite;
 }
 
+.voice-btn.is-error {
+	background-color: #ff4d4f;
+	color: white;
+	border-color: #ff4d4f;
+}
+
+.voice-btn.is-processing {
+	background-color: var(--button-hover-bg-color);
+	color: var(--card-bg-color);
+}
+
+.error-message {
+	position: absolute;
+	bottom: -24px;
+	left: 50%;
+	transform: translateX(-50%);
+	white-space: nowrap;
+	font-size: 12px;
+	color: #ff4d4f;
+	background-color: var(--bg-color);
+	padding: 4px 8px;
+	border-radius: 4px;
+	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
 @keyframes pulse {
 	0% {
 		opacity: 1;
+		transform: scale(1);
 	}
 	50% {
-		opacity: 0.7;
+		opacity: 0.8;
+		transform: scale(0.98);
 	}
 	100% {
 		opacity: 1;
+		transform: scale(1);
 	}
 }
 

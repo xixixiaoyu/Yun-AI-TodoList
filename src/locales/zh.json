@@ -101,5 +101,15 @@
 	"clearAllConversations": "清除所有对话",
 	"confirmClearAll": "确定要清除所有对话吗？此操作不可撤销。",
 	"startListening": "开始语音输入",
+	"stopListening": "停止语音输入",
+	"microphonePermissionDenied": "请允许使用麦克风以启用语音识别功能。",
+	"browserNotSupported": "您的浏览器不支持语音识别功能，请使用最新版本的Chrome或Edge浏览器。",
+	"networkError": "网络连接出现问题，请检查网络后重试。",
+	"speechRecognitionError": "语音识别出现错误，请重试。",
+	"initializationError": "初始化语音识别失败，请确保浏览器支持语音识别功能并授予相关权限。",
+	"noSpeechDetected": "未检测到语音，请说话。",
+	"microphoneNotFound": "未找到麦克风设备，请检查设备连接。",
+	"languageNotSupported": "当前语言不受支持，已切换到备选语言。",
+	"startListening": "开始语音输入",
 	"stopListening": "停止语音输入"
 }
