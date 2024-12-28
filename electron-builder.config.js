@@ -5,13 +5,16 @@ export default {
 		output: 'release/${version}',
 		buildResources: 'build',
 	},
-	files: ['dist/**/*', 'electron/**/*', 'package.json'],
+	files: ['dist/**/*', 'electron/**/*', 'package.json', '!node_modules/**/*'],
 	mac: {
 		icon: 'build/icon.icns',
 		target: ['dmg', 'zip'],
 		category: 'public.app-category.productivity',
 		darkModeSupport: true,
 		hardenedRuntime: true,
+		gatekeeperAssess: false,
+		entitlements: 'build/entitlements.mac.plist',
+		entitlementsInherit: 'build/entitlements.mac.plist',
 	},
 	dmg: {
 		contents: [
@@ -27,13 +30,21 @@ export default {
 				type: 'file',
 			},
 		],
+		window: {
+			width: 540,
+			height: 380,
+		},
 	},
 	win: {
 		icon: 'build/icon.ico',
 		target: [
 			{
 				target: 'nsis',
-				arch: ['x64', 'ia32'],
+				arch: ['x64'],
+			},
+			{
+				target: 'portable',
+				arch: ['x64'],
 			},
 		],
 	},
@@ -42,16 +53,24 @@ export default {
 		allowToChangeInstallationDirectory: true,
 		createDesktopShortcut: true,
 		createStartMenuShortcut: true,
+		shortcutName: 'Todo App',
+		installerIcon: 'build/icon.ico',
+		uninstallerIcon: 'build/icon.ico',
 	},
 	linux: {
 		icon: 'build/icon.png',
-		target: ['AppImage', 'deb'],
+		target: ['AppImage', 'deb', 'snap'],
 		category: 'Utility',
+		maintainer: 'Todo App Team',
+		synopsis: 'A modern todo application',
 	},
 	publish: {
 		provider: 'github',
 		releaseType: 'release',
+		private: false,
+		publishAutoUpdate: true,
 	},
 	asar: true,
-	asarUnpack: ['**/*.{node,dll}'],
+	asarUnpack: ['**/*.{node,dll}', '**/node_modules/sharp/**/*'],
+	afterSign: 'scripts/notarize.js',
 }
