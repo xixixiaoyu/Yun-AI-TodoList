@@ -140,7 +140,8 @@ body {
 	top: 1rem;
 	right: 1rem;
 	display: flex;
-	gap: 1rem;
+	gap: 0.5rem;
+	z-index: 1000;
 }
 
 .nav-button {
@@ -153,12 +154,57 @@ body {
 	font-weight: bold;
 	transition: all 0.3s ease;
 	padding: 5px 10px;
+	white-space: nowrap;
 }
 
 .nav-button:hover {
 	background-color: var(--language-toggle-hover-bg);
 	transform: translateY(-2px);
 	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* 添加响应式样式 */
+@media (max-width: 768px) {
+	.nav-bar {
+		position: fixed;
+		top: auto;
+		bottom: 0;
+		left: 0;
+		right: 0;
+		background-color: var(--card-bg-color);
+		padding: 0.5rem;
+		box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+		justify-content: space-around;
+		gap: 0.25rem;
+	}
+
+	.nav-button {
+		flex: 1;
+		font-size: 12px;
+		padding: 8px 4px;
+		text-align: center;
+		min-width: 60px;
+	}
+
+	.nav-button:hover {
+		transform: translateY(-1px);
+	}
+
+	.content-wrapper {
+		padding-bottom: 60px;
+	}
+}
+
+@media (max-width: 360px) {
+	.nav-bar {
+		gap: 0.15rem;
+	}
+
+	.nav-button {
+		font-size: 11px;
+		padding: 6px 2px;
+		min-width: 50px;
+	}
 }
 
 /* 替换 @media (forced-colors: active) 部分 */
