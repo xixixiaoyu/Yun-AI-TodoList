@@ -39,7 +39,7 @@ const togglePlay = async () => {
 				await audioElement.value.play()
 				isPlaying.value = true
 			} catch (err) {
-				console.error('播放失败:', err)
+				console.error(t('playbackError', { error: err }))
 				error.value = t('playError')
 			} finally {
 				isLoading.value = false

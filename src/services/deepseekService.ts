@@ -1,6 +1,7 @@
 import { promptsConfig } from '../config/prompts'
 import { AIStreamResponse, Message } from './types'
 import { getApiKey } from './configService'
+import i18n from '../i18n'
 
 const API_URL = 'https://api.deepseek.com/chat/completions'
 
@@ -16,7 +17,7 @@ export function abortCurrentRequest() {
 const getHeaders = () => {
 	const apiKey = getApiKey()
 	if (!apiKey) {
-		throw new Error('请先配置 API Key')
+		throw new Error(i18n.global.t('configureApiKey'))
 	}
 	return {
 		Authorization: `Bearer ${apiKey}`,
@@ -54,12 +55,12 @@ export async function getAIStreamResponse(
 		})
 
 		if (!response.ok) {
-			throw new Error(`HTTP 错误! 状态: ${response.status}`)
+			throw new Error(i18n.global.t('httpError', { status: response.status }))
 		}
 
 		const reader = response.body?.getReader()
 		if (!reader) {
-			throw new Error('无法获取响应流')
+			throw new Error(i18n.global.t('streamError'))
 		}
 
 		while (true) {
@@ -87,17 +88,17 @@ export async function getAIStreamResponse(
 							onChunk(content)
 						}
 					} catch (error) {
-						console.error('解析 JSON 时出错:', error)
+						console.error(i18n.global.t('jsonParseError', { error }))
 					}
 				}
 			}
 		}
 	} catch (error) {
 		if (error instanceof Error && error.name === 'AbortError') {
-			console.warn('请求被中断')
+			console.warn(i18n.global.t('requestAborted'))
 			onChunk('[ABORTED]')
 		} else {
-			console.error('获取 AI 响应时出错:', error)
+			console.error(i18n.global.t('aiResponseError', { error }))
 			throw error
 		}
 	} finally {
@@ -134,7 +135,7 @@ export async function getAIResponse(
 		})
 
 		if (!response.ok) {
-			throw new Error(`HTTP 错误! 状态: ${response.status}`)
+			throw new Error(i18n.global.t('httpError', { status: response.status }))
 		}
 
 		const data = await response.json()
@@ -142,20 +143,20 @@ export async function getAIResponse(
 		if (data && data.choices && data.choices.length > 0) {
 			return data.choices[0].message?.content || ''
 		} else {
-			throw new Error('无效的 AI 响应格式')
+			throw new Error(i18n.global.t('invalidAiResponse'))
 		}
 	} catch (error) {
-		console.error('获取 AI 响应时出错:', error)
+		console.error(i18n.global.t('aiResponseError', { error }))
 		if (error instanceof Error) {
 			if (error.message.startsWith('HTTP 错误')) {
-				throw new Error(`API 错误: ${error.message}`)
-			} else if (error.message === '无效的 AI 响应格式') {
+				throw new Error(i18n.global.t('apiError', { error: error.message }))
+			} else if (error.message === i18n.global.t('invalidAiResponse')) {
 				throw error
 			} else {
-				throw new Error('无法连接到 AI 服务，请检查您的网络连接')
+				throw new Error(i18n.global.t('networkConnectionError'))
 			}
 		}
-		throw new Error('生成建议待办事项时出现未知错误')
+		throw new Error(i18n.global.t('unknownError'))
 	}
 }
 
@@ -183,7 +184,7 @@ export async function optimizeText(text: string): Promise<string> {
 		})
 
 		if (!response.ok) {
-			throw new Error(`HTTP 错误! 状态: ${response.status}`)
+			throw new Error(i18n.global.t('httpError', { status: response.status }))
 		}
 
 		const data = await response.json()
@@ -191,10 +192,10 @@ export async function optimizeText(text: string): Promise<string> {
 		if (data && data.choices && data.choices.length > 0) {
 			return data.choices[0].message?.content || ''
 		} else {
-			throw new Error('无效的 AI 响应格式')
+			throw new Error(i18n.global.t('invalidAiResponse'))
 		}
 	} catch (error) {
-		console.error('优化文本时出错:', error)
+		console.error(i18n.global.t('textOptimizationError', { error }))
 		throw error
 	}
 }

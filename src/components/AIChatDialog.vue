@@ -129,7 +129,7 @@ const createNewConversation = () => {
 	saveCurrentConversationId() // 保存当前会话 ID
 }
 
-// 修改: 切换对话的函数，添加可选参数控制是���关闭抽屉
+// 修改: 切换对话的函数，添加可选参数控制是否关闭抽屉
 const switchConversation = (id: number, closeDrawer: boolean = true) => {
 	currentConversationId.value = id
 	const conversation = conversationHistory.value.find(c => c.id === id)
@@ -389,9 +389,8 @@ const newline = (event: KeyboardEvent) => {
 const copyToClipboard = async (text: string) => {
 	try {
 		await navigator.clipboard.writeText(text)
-		// 可以添加一个提示，但这里我们保持简单
 	} catch (err) {
-		console.error('Failed to copy text: ', err)
+		console.error(t('copyError', { error: err }))
 	}
 }
 
@@ -417,7 +416,7 @@ const checkSpeechRecognitionSupport = () => {
 	const SpeechRecognitionAPI = window.SpeechRecognition || window.webkitSpeechRecognition
 	if (!SpeechRecognitionAPI) {
 		isRecognitionSupported.value = false
-		console.error('当前浏览器不支持语音识别')
+		console.error(t('browserSpeechNotSupported'))
 		return false
 	}
 	return true
@@ -435,9 +434,9 @@ const initSpeechRecognition = async () => {
 		// 2. 检查麦克风权限
 		try {
 			await navigator.mediaDevices.getUserMedia({ audio: true })
-			console.log('麦克风权限已授予')
+			console.log(t('micPermissionGranted'))
 		} catch (error) {
-			console.error('麦克风权限获取失败:', error)
+			console.error(t('micPermissionError', { error }))
 			recognitionStatus.value = 'error'
 			lastError.value = t('microphonePermissionDenied')
 			return
@@ -448,7 +447,7 @@ const initSpeechRecognition = async () => {
 			try {
 				recognition.value.stop()
 			} catch (e) {
-				console.log('停止旧实例:', e)
+				console.log(t('stopOldInstance', { error: e }))
 			}
 			recognition.value = null
 		}
@@ -466,11 +465,11 @@ const initSpeechRecognition = async () => {
 		// 6. 设置语言 - 根据当前界面语言自动选择
 		const preferredLang = locale.value === 'zh' ? 'zh-CN' : 'en-US'
 		recognition.value.lang = preferredLang
-		console.log('语音识别语言设置为:', preferredLang)
+		console.log(t('speechRecognitionLang', { lang: preferredLang }))
 
 		// 7. 开始事件
 		recognition.value.onstart = () => {
-			console.log('语音识别开始')
+			console.log(t('speechRecognitionStart'))
 			isListening.value = true
 			recognitionStatus.value = 'listening'
 			errorCount.value = 0
@@ -499,13 +498,13 @@ const initSpeechRecognition = async () => {
 
 			// 显示临时结果（可以添加一个临时显示区域）
 			if (interimTranscript) {
-				console.log('临时识别结果:', interimTranscript)
+				console.log(t('interimResult', { result: interimTranscript }))
 			}
 		}
 
 		// 9. 错误事件处理
 		recognition.value.onerror = (event: SpeechRecognitionErrorEvent) => {
-			console.error('语音识别错误:', event.error, event)
+			console.error(t('speechRecognitionError', { error: event.error }), event)
 			recognitionStatus.value = 'error'
 
 			switch (event.error) {
@@ -535,7 +534,7 @@ const initSpeechRecognition = async () => {
 					const currentLang = recognition.value.lang
 					const newLang = currentLang.startsWith('zh') ? 'en-US' : 'zh-CN'
 					recognition.value.lang = newLang
-					console.log('切换到备选语言:', newLang)
+					console.log(t('switchToLanguage', { lang: newLang }))
 					restartRecognition()
 					break
 				default:
@@ -551,7 +550,7 @@ const initSpeechRecognition = async () => {
 
 		// 10. 结束事件
 		recognition.value.onend = () => {
-			console.log('语音识别结束')
+			console.log(t('speechRecognitionEnd'))
 			if (
 				isListening.value &&
 				errorCount.value < maxErrorRetries &&
@@ -566,13 +565,13 @@ const initSpeechRecognition = async () => {
 
 		// 11. 音频开始事件
 		recognition.value.onaudiostart = () => {
-			console.log('开始接收音频')
+			console.log(t('audioStart'))
 			recognitionStatus.value = 'listening'
 		}
 
 		// 12. 音频结束事件
 		recognition.value.onaudioend = () => {
-			console.log('停止接收音频')
+			console.log(t('audioEnd'))
 			recognitionStatus.value = 'processing'
 		}
 
@@ -583,13 +582,13 @@ const initSpeechRecognition = async () => {
 					recognition.value.stop()
 				}
 			} catch (e) {
-				console.error('停止语音识别时出错:', e)
+				console.error(t('stopRecognitionError', { error: e }))
 			}
 			isListening.value = false
 			recognitionStatus.value = 'idle'
 		}
 	} catch (error) {
-		console.error('初始化语音识别时出错:', error)
+		console.error(t('initRecognitionError', { error }))
 		recognitionStatus.value = 'error'
 		lastError.value = t('initializationError')
 		isListening.value = false
@@ -605,9 +604,9 @@ const restartRecognition = () => {
 					recognition.value.start()
 					recognitionStatus.value = 'listening'
 				}
-			}, 500) // 增加���迟时间
+			}, 500) // 增加延迟时间
 		} catch (e) {
-			console.error('重新启动识别失败:', e)
+			console.error(t('restartRecognitionError', { error: e }))
 			recognitionStatus.value = 'error'
 			isListening.value = false
 		}
@@ -628,7 +627,7 @@ const startListening = async () => {
 			recognition.value.start()
 		}
 	} catch (error) {
-		console.error('启动语音识别时出错:', error)
+		console.error(t('startRecognitionError', { error }))
 		recognitionStatus.value = 'error'
 		lastError.value = t('speechRecognitionError')
 		isListening.value = false
@@ -645,7 +644,7 @@ const stopListening = () => {
 			recognition.value = null
 		}
 	} catch (error) {
-		console.error('停止语音识别时出错:', error)
+		console.error(t('stopRecognitionError', { error }))
 		recognitionStatus.value = 'error'
 		isListening.value = false
 	}

@@ -16,7 +16,7 @@ import confetti from 'canvas-confetti'
 import PomodoroStats from './PomodoroStats.vue'
 import TodoHeatmap from './TodoHeatmap.vue'
 import { format } from 'date-fns'
-import { zhCN } from 'date-fns/locale'
+import { zhCN, enUS } from 'date-fns/locale'
 import { useSortable } from '@vueuse/integrations/useSortable'
 import { useRouter } from 'vue-router'
 import AddProjectModal from './AddProjectModal.vue'
@@ -297,7 +297,8 @@ onUnmounted(() => {
 
 // 格式化日期函数
 const formatDate = (date: string | Date) => {
-	return format(new Date(date), 'yyyy-MM-dd HH:mm:ss', { locale: zhCN })
+	const currentLocale = locale.value === 'zh' ? zhCN : enUS
+	return format(new Date(date), 'yyyy-MM-dd HH:mm:ss', { locale: currentLocale })
 }
 
 // 添加新的 ref 来控制模态框的显示

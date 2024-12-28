@@ -6,12 +6,10 @@ import { setLanguage, setSystemLanguage } from './i18n'
 // import AudioPlayer from './components/AudioPlayer.vue'
 import DailyInspiration from './components/DailyInspiration.vue'
 import { useWindowSize } from '@vueuse/core'
-import { useRouter } from 'vue-router'
+import router from './router'
 
 const { theme, systemTheme, initTheme } = useTheme()
 const { locale, t } = useI18n()
-
-const router = useRouter()
 
 onErrorCaptured((err, instance, info) => {
 	console.error('Captured error:', err, instance, info)
@@ -33,8 +31,12 @@ const { width } = useWindowSize()
 const isSmallScreen = computed(() => width.value < 768)
 
 onMounted(() => {
-	initTheme()
-	setSystemLanguage()
+	try {
+		initTheme()
+		setSystemLanguage()
+	} catch (error) {
+		console.error('Error initializing app:', error)
+	}
 })
 </script>
 

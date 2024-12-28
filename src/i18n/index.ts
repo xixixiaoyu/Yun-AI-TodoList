@@ -1,6 +1,6 @@
 import { createI18n } from 'vue-i18n'
-import en from './locales/en.json'
-import zh from './locales/zh.json'
+import en from '../locales/en.json'
+import zh from '../locales/zh.json'
 
 // 定义支持的语言类型
 type SupportedLocale = 'en' | 'zh'
@@ -26,13 +26,13 @@ const i18n = createI18n({
 	},
 })
 
-// 导出一个函数来更新语言设置
+// 导出函数来更新语言设置
 export function setLanguage(lang: SupportedLocale) {
 	i18n.global.locale.value = lang
 	localStorage.setItem('language', lang)
 }
 
-// 导出一个函数来自动设置系统语言
+// 导出函数来自动设置系统语言
 export function setSystemLanguage() {
 	const systemLang = detectLanguage()
 	setLanguage(systemLang)
