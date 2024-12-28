@@ -129,7 +129,7 @@ const createNewConversation = () => {
 	saveCurrentConversationId() // 保存当前会话 ID
 }
 
-// 修改: 切换对话的函数，添加可选参数控制是否关闭抽屉
+// 修改: 切换对话的函数，添加可选参数控制是���关闭抽屉
 const switchConversation = (id: number, closeDrawer: boolean = true) => {
 	currentConversationId.value = id
 	const conversation = conversationHistory.value.find(c => c.id === id)
@@ -344,6 +344,7 @@ const sanitizedMessages = computed(() =>
 )
 
 const newline = (event: KeyboardEvent) => {
+	event.preventDefault()
 	const textarea = event.target as HTMLTextAreaElement
 	const start = textarea.selectionStart
 	const end = textarea.selectionEnd
@@ -1014,7 +1015,7 @@ watch(chatHistory, scrollToBottom, { deep: true })
 
 .chat-input textarea {
 	flex-grow: 1;
-	padding: 8px 16px;
+	padding: 12px 16px;
 	font-size: 15px;
 	border: 1px solid var(--input-border-color);
 	border-radius: 12px;
@@ -1022,12 +1023,11 @@ watch(chatHistory, scrollToBottom, { deep: true })
 	background-color: var(--input-bg-color);
 	color: var(--text-color);
 	resize: none;
-	min-height: 36px;
+	min-height: 48px;
 	max-height: 200px;
 	font-family: inherit;
-	transition: height 0.2s ease;
-	overflow-y: hidden;
 	line-height: 1.5;
+	overflow-y: auto;
 }
 
 .chat-input textarea:focus {
@@ -1243,9 +1243,11 @@ watch(chatHistory, scrollToBottom, { deep: true })
 	background-color: var(--input-bg-color);
 	color: var(--text-color);
 	resize: none;
-	height: 48px;
-	max-height: 150px;
+	min-height: 48px;
+	max-height: 200px;
 	font-family: inherit;
+	line-height: 1.5;
+	overflow-y: auto;
 }
 
 .chat-input textarea:focus {
