@@ -10,9 +10,23 @@ import { useI18n } from 'vue-i18n'
 
 // 添加 Web Speech API 类型定义
 declare global {
+	type SpeechRecognitionConstructor = new () => SpeechRecognition
+
 	interface Window {
-		webkitSpeechRecognition: any
-		SpeechRecognition: any
+		webkitSpeechRecognition: SpeechRecognitionConstructor
+		SpeechRecognition: SpeechRecognitionConstructor
+	}
+
+	interface SpeechRecognition extends EventTarget {
+		continuous: boolean
+		interimResults: boolean
+		lang: string
+		onstart: (event: Event) => void
+		onresult: (event: SpeechRecognitionEvent) => void
+		onerror: (event: SpeechRecognitionErrorEvent) => void
+		onend: () => void
+		start: () => void
+		stop: () => void
 	}
 
 	interface SpeechRecognitionAlternative {
@@ -36,8 +50,9 @@ declare global {
 		[index: number]: SpeechRecognitionResult
 	}
 
-	interface SpeechRecognitionErrorEvent {
+	interface SpeechRecognitionErrorEvent extends Event {
 		readonly error: string
+		readonly message?: string
 	}
 }
 
@@ -341,27 +356,46 @@ const recognition = ref<any | null>(null)
 const errorCount = ref(0)
 const maxErrorRetries = 2
 
-const initSpeechRecognition = () => {
-	if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
-		const SpeechRecognition = window.webkitSpeechRecognition || window.SpeechRecognition
-		recognition.value = new SpeechRecognition()
+const initSpeechRecognition = async () => {
+	try {
+		// 1. 首先检查麦克风权限
+		try {
+			await navigator.mediaDevices.getUserMedia({ audio: true })
+			console.log('麦克风权限已授予')
+		} catch (error) {
+			console.error('麦克风权限获取失败:', error)
+			alert('请允许使用麦克风以启用语音识别功能。')
+			return
+		}
 
-		// 基本配置
+		// 2. 检查语音识别 API 支持
+		const SpeechRecognitionAPI =
+			window.SpeechRecognition || window.webkitSpeechRecognition
+		if (!SpeechRecognitionAPI) {
+			console.error('当前浏览器不支持语音识别')
+			alert('您的浏览器不支持语音识别功能，请使用最新版本的Chrome或Edge浏览器。')
+			return
+		}
+
+		recognition.value = new SpeechRecognitionAPI()
+
+		// 3. 基本配置
 		recognition.value.continuous = false
 		recognition.value.interimResults = true
 
-		// 设置语言
-		let selectedLang = locale.value === 'zh' ? 'zh-CN' : 'en-US'
-		recognition.value.lang = selectedLang
+		// 4. 设置语言（根据浏览器语言优先）
+		const browserLang = navigator.language || 'en-US'
+		const preferredLang = locale.value === 'zh' ? 'zh-CN' : 'en-US'
+		recognition.value.lang = browserLang.startsWith('zh') ? 'zh-CN' : preferredLang
 
-		// 开始事件
+		// 5. 开始事件
 		recognition.value.onstart = () => {
 			console.log('语音识别开始，使用语言:', recognition.value.lang)
 			isListening.value = true
-			errorCount.value = 0 // 重置错误计数
+			errorCount.value = 0
 		}
 
-		// 结果事件
+		// 6. 结果事件
 		recognition.value.onresult = (event: SpeechRecognitionEvent) => {
 			console.log('收到语音识别结果:', event)
 			const results = event.results
@@ -369,8 +403,8 @@ const initSpeechRecognition = () => {
 
 			if (currentResult && currentResult[0]) {
 				const transcript = currentResult[0].transcript
-				console.log('识别文本:', transcript)
-				console.log('置信度:', currentResult[0].confidence)
+				const confidence = currentResult[0].confidence
+				console.log('识别文本:', transcript, '置信度:', confidence)
 
 				if (currentResult.isFinal) {
 					console.log('最终结果')
@@ -380,7 +414,7 @@ const initSpeechRecognition = () => {
 			}
 		}
 
-		// 错误事件
+		// 7. 错误事件处理
 		recognition.value.onerror = (event: SpeechRecognitionErrorEvent) => {
 			console.error('语音识别错误:', event.error)
 			console.error('错误详情:', event)
@@ -393,19 +427,15 @@ const initSpeechRecognition = () => {
 					if (errorCount.value > maxErrorRetries) {
 						console.error('多次尝试后语音识别仍不可用')
 						isListening.value = false
-						alert('抱歉，语音识别功能当前不可用。请稍后再试。')
+						alert(
+							'抱歉，当前浏览器可能不支持所选语言的语音识别，请尝试切换语言或使用其他浏览器。'
+						)
 						return
 					}
 
 					// 尝试切换到备选语言
 					const currentLang = recognition.value.lang
-					let newLang
-					if (currentLang === 'zh-CN') {
-						newLang = 'en-US' // 如果中文不可用，切换到英文
-					} else {
-						newLang = 'zh-CN' // 如果英文不可用，切换到中文
-					}
-
+					const newLang = currentLang === 'zh-CN' ? 'en-US' : 'zh-CN'
 					console.log('切换到备选语言:', newLang)
 					recognition.value.lang = newLang
 
@@ -423,13 +453,23 @@ const initSpeechRecognition = () => {
 				case 'not-allowed':
 					console.error('未获得麦克风权限')
 					isListening.value = false
-					alert('请允许使用麦克风以启用语音识别功能。')
+					alert('请在浏览器设置中允许使用麦克风，然后重试。')
 					break
 
 				case 'network':
 					console.error('网络错误')
 					isListening.value = false
 					alert('网络连接出现问题，请检查网络后重试。')
+					break
+
+				case 'no-speech':
+					console.error('未检测到语音')
+					// 不显示警告，继续监听
+					break
+
+				case 'aborted':
+					console.error('语音识别被中断')
+					isListening.value = false
 					break
 
 				default:
@@ -441,7 +481,7 @@ const initSpeechRecognition = () => {
 			}
 		}
 
-		// 结束事件
+		// 8. 结束事件
 		recognition.value.onend = () => {
 			console.log('语音识别结束')
 			if (isListening.value && errorCount.value <= maxErrorRetries) {
@@ -456,9 +496,10 @@ const initSpeechRecognition = () => {
 				isListening.value = false
 			}
 		}
-	} else {
-		console.error('当前浏览器不支持语音识别')
-		alert('您的浏览器不支持语音识别功能，请使用最新版本的Chrome浏览器。')
+	} catch (error) {
+		console.error('初始化语音识别时出错:', error)
+		isListening.value = false
+		alert('初始化语音识别失败，请确保浏览器支持语音识别功能并授予相关权限。')
 	}
 }
 
