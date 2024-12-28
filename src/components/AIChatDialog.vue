@@ -129,7 +129,7 @@ const createNewConversation = () => {
 	saveCurrentConversationId() // 保存当前会话 ID
 }
 
-// 修改: 切换对话的函数，添加可选参数控制是否关闭抽屉
+// 修改: 切换对话的函数，添加可选参数控制是���关闭抽屉
 const switchConversation = (id: number, closeDrawer: boolean = true) => {
 	currentConversationId.value = id
 	const conversation = conversationHistory.value.find(c => c.id === id)
@@ -605,7 +605,7 @@ const restartRecognition = () => {
 					recognition.value.start()
 					recognitionStatus.value = 'listening'
 				}
-			}, 500) // 增加延迟时间
+			}, 500) // 增加���迟时间
 		} catch (e) {
 			console.error('重新启动识别失败:', e)
 			recognitionStatus.value = 'error'
@@ -1047,16 +1047,16 @@ watch(chatHistory, scrollToBottom, { deep: true })
 
 .chat-input textarea {
 	flex-grow: 1;
-	padding: 12px 16px;
-	font-size: 15px;
+	padding: 10px 14px;
+	font-size: 14px;
 	border: 1px solid var(--input-border-color);
-	border-radius: 12px;
+	border-radius: 10px;
 	outline: none;
 	background-color: var(--input-bg-color);
 	color: var(--text-color);
 	resize: none;
-	min-height: 48px;
-	max-height: 200px;
+	min-height: 40px;
+	max-height: 180px;
 	font-family: inherit;
 	line-height: 1.5;
 	overflow-y: auto;
@@ -1067,19 +1067,19 @@ watch(chatHistory, scrollToBottom, { deep: true })
 }
 
 .chat-input button {
-	padding: 0 20px;
-	font-size: 15px;
+	padding: 0 16px;
+	font-size: 14px;
 	background-color: var(--button-bg-color);
 	color: var(--card-bg-color);
 	border: none;
-	border-radius: 12px;
+	border-radius: 10px;
 	cursor: pointer;
-	height: 36px;
-	min-width: 90px;
+	height: 40px;
+	min-width: 80px;
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	gap: 6px;
+	gap: 4px;
 }
 
 .chat-input button:hover:not(:disabled) {
@@ -1267,16 +1267,16 @@ watch(chatHistory, scrollToBottom, { deep: true })
 
 .chat-input textarea {
 	flex-grow: 1;
-	padding: 12px 16px;
-	font-size: 15px;
+	padding: 10px 14px;
+	font-size: 14px;
 	border: 1px solid var(--input-border-color);
-	border-radius: 12px;
+	border-radius: 10px;
 	outline: none;
 	background-color: var(--input-bg-color);
 	color: var(--text-color);
 	resize: none;
-	min-height: 48px;
-	max-height: 200px;
+	min-height: 40px;
+	max-height: 180px;
 	font-family: inherit;
 	line-height: 1.5;
 	overflow-y: auto;
@@ -1287,19 +1287,19 @@ watch(chatHistory, scrollToBottom, { deep: true })
 }
 
 .chat-input button {
-	padding: 0 20px;
-	font-size: 15px;
+	padding: 0 16px;
+	font-size: 14px;
 	background-color: var(--button-bg-color);
 	color: var(--card-bg-color);
 	border: none;
-	border-radius: 12px;
+	border-radius: 10px;
 	cursor: pointer;
-	height: 48px;
-	min-width: 90px;
+	height: 40px;
+	min-width: 80px;
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	gap: 6px;
+	gap: 4px;
 }
 
 .chat-input button:hover:not(:disabled) {
@@ -1335,14 +1335,14 @@ watch(chatHistory, scrollToBottom, { deep: true })
 	.chat-input textarea {
 		padding: 10px 14px;
 		font-size: 14px;
-		height: 44px;
+		height: 40px;
 		border-radius: 10px;
 	}
 
 	.chat-input button {
 		padding: 0 16px;
 		font-size: 14px;
-		height: 44px;
+		height: 40px;
 		min-width: 80px;
 		border-radius: 10px;
 	}
@@ -1690,19 +1690,19 @@ watch(chatHistory, scrollToBottom, { deep: true })
 
 .voice-btn {
 	position: relative;
-	padding: 0 20px;
-	font-size: 15px;
+	padding: 0 16px;
+	font-size: 14px;
 	background-color: var(--input-bg-color);
 	color: var(--text-color);
 	border: 1px solid var(--input-border-color);
-	border-radius: 12px;
+	border-radius: 10px;
 	cursor: pointer;
-	height: 36px;
-	min-width: 90px;
+	height: 40px;
+	min-width: 80px;
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	gap: 6px;
+	gap: 4px;
 	transition: all 0.3s ease;
 }
 
@@ -1768,11 +1768,11 @@ watch(chatHistory, scrollToBottom, { deep: true })
 	}
 
 	.voice-btn {
-		padding: 0 16px;
-		font-size: 14px;
-		height: 44px;
-		min-width: 80px;
-		border-radius: 10px;
+		padding: 0 14px;
+		font-size: 13px;
+		height: 36px;
+		min-width: 70px;
+		border-radius: 8px;
 	}
 }
 
