@@ -1046,18 +1046,18 @@ watch(chatHistory, scrollToBottom, { deep: true })
 
 .chat-input textarea {
 	flex-grow: 1;
-	padding: 10px 14px;
+	padding: 8px 12px;
 	font-size: 14px;
 	border: 1px solid var(--input-border-color);
-	border-radius: 10px;
+	border-radius: 8px;
 	outline: none;
 	background-color: var(--input-bg-color);
 	color: var(--text-color);
 	resize: none;
-	min-height: 40px;
-	max-height: 180px;
+	min-height: 36px;
+	max-height: 120px;
 	font-family: inherit;
-	line-height: 1.5;
+	line-height: 1.4;
 	overflow-y: auto;
 }
 
@@ -1066,15 +1066,15 @@ watch(chatHistory, scrollToBottom, { deep: true })
 }
 
 .chat-input button {
-	padding: 0 16px;
-	font-size: 14px;
+	padding: 0 12px;
+	font-size: 13px;
 	background-color: var(--button-bg-color);
 	color: var(--card-bg-color);
 	border: none;
-	border-radius: 10px;
+	border-radius: 8px;
 	cursor: pointer;
-	height: 40px;
-	min-width: 80px;
+	height: 36px;
+	min-width: 70px;
 	display: flex;
 	align-items: center;
 	justify-content: center;
@@ -1256,8 +1256,8 @@ watch(chatHistory, scrollToBottom, { deep: true })
 
 .chat-input {
 	display: flex;
-	gap: 12px;
-	padding: 16px 20px;
+	gap: 8px;
+	padding: 12px 16px;
 	position: sticky;
 	bottom: 0;
 	background-color: var(--bg-color);
@@ -1266,18 +1266,18 @@ watch(chatHistory, scrollToBottom, { deep: true })
 
 .chat-input textarea {
 	flex-grow: 1;
-	padding: 10px 14px;
+	padding: 8px 12px;
 	font-size: 14px;
 	border: 1px solid var(--input-border-color);
-	border-radius: 10px;
+	border-radius: 8px;
 	outline: none;
 	background-color: var(--input-bg-color);
 	color: var(--text-color);
 	resize: none;
-	min-height: 40px;
-	max-height: 180px;
+	min-height: 36px;
+	max-height: 120px;
 	font-family: inherit;
-	line-height: 1.5;
+	line-height: 1.4;
 	overflow-y: auto;
 }
 
@@ -1286,15 +1286,15 @@ watch(chatHistory, scrollToBottom, { deep: true })
 }
 
 .chat-input button {
-	padding: 0 16px;
-	font-size: 14px;
+	padding: 0 12px;
+	font-size: 13px;
 	background-color: var(--button-bg-color);
 	color: var(--card-bg-color);
 	border: none;
-	border-radius: 10px;
+	border-radius: 8px;
 	cursor: pointer;
-	height: 40px;
-	min-width: 80px;
+	height: 36px;
+	min-width: 70px;
 	display: flex;
 	align-items: center;
 	justify-content: center;
@@ -1328,22 +1328,20 @@ watch(chatHistory, scrollToBottom, { deep: true })
 	}
 
 	.chat-input {
-		padding: 12px;
+		padding: 8px 12px;
 	}
 
 	.chat-input textarea {
-		padding: 10px 14px;
-		font-size: 14px;
-		height: 40px;
-		border-radius: 10px;
+		padding: 6px 10px;
+		font-size: 13px;
+		min-height: 32px;
 	}
 
 	.chat-input button {
-		padding: 0 16px;
-		font-size: 14px;
-		height: 40px;
-		min-width: 80px;
-		border-radius: 10px;
+		padding: 0 12px;
+		height: 36px;
+		min-width: 70px;
+		font-size: 13px;
 	}
 }
 
