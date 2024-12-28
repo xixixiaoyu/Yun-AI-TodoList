@@ -283,10 +283,6 @@ const checkPomodoroCompletion = () => {
 	}
 }
 
-const goToAiAssistant = () => {
-	router.push('/ai-assistant')
-}
-
 // 在组件挂载时添加事件监听器
 onMounted(() => {
 	document.addEventListener('visibilitychange', checkPomodoroCompletion)
@@ -428,6 +424,7 @@ const closeCharts = () => {
 								d="M12 2C6.47 2 2 17.523 2 12S6.47 2 12 2s10 4.477 10 10-4.47 10-10 10-10-4.47-10-10zm0-2a8 8 0 1 0 0 16 8 8 0 0 0 0-16zM9.5 9.5h5v5h-5v-5z"
 							/>
 						</svg>
+						{{ t('theme') }}
 					</button>
 					<!-- 历史记录按钮 -->
 					<button
@@ -448,21 +445,7 @@ const closeCharts = () => {
 						</svg>
 						<span>{{ t('history') }}</span>
 					</button>
-					<!-- AI助手链接 -->
-					<button class="icon-button" @click="goToAiAssistant">
-						<svg
-							xmlns="http://www.w3.org/2000/svg"
-							viewBox="0 0 24 24"
-							width="24"
-							height="24"
-							fill="currentColor"
-						>
-							<path
-								d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10-4.48-10-10-10zM9.5 9.5h5v5h-5v-5z"
-							/>
-						</svg>
-						<span>{{ t('aiAssistant') }}</span>
-					</button>
+
 					<button @click="showCharts = !showCharts" class="icon-button">
 						<svg
 							xmlns="http://www.w3.org/2000/svg"

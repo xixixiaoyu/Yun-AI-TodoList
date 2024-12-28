@@ -43,6 +43,9 @@ onMounted(() => {
 			<button @click="router.push('/')" class="nav-button">
 				{{ t('home') }}
 			</button>
+			<button @click="router.push('/ai-assistant')" class="nav-button">
+				{{ t('aiAssistant') }}
+			</button>
 			<button @click="router.push('/settings')" class="nav-button">
 				{{ t('settings') }}
 			</button>

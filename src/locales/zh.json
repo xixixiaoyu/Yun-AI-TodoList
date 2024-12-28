@@ -125,5 +125,7 @@
 	"dark": "深色",
 	"light": "浅色",
 	"auto": "自动",
-	"home": "首页"
+	"home": "首页",
+	"settingsSaved": "设置已保存",
+	"theme": "主题"
 }

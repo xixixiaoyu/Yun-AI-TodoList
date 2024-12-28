@@ -114,5 +114,7 @@
 	"save": "Save",
 	"clear": "Clear",
 	"show": "Show",
-	"hide": "Hide"
+	"hide": "Hide",
+	"settingsSaved": "Settings saved successfully",
+	"theme": "Theme"
 }
