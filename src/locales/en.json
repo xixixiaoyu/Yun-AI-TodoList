@@ -91,6 +91,9 @@
 	"newProjectName": "New project name...",
 	"addProject": "Add Project",
 	"showCharts": "Show Charts",
-	"close": "Close",
-	"todoCharts": "Todo Charts"
+	"todoCharts": "Todo Charts",
+	"clearAllConversations": "Clear All Conversations",
+	"confirmClearAll": "Are you sure you want to clear all conversations? This action cannot be undone.",
+	"startListening": "Start Voice Input",
+	"stopListening": "Stop Voice Input"
 }

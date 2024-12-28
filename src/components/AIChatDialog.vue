@@ -2,17 +2,50 @@
 import { ref, nextTick, onMounted, watch, computed } from 'vue'
 import { getAIStreamResponse, abortCurrentRequest } from '../services/deepseekService'
 import { Message } from '../services/types'
-import { marked } from 'marked'
+import { marked, MarkedOptions } from 'marked'
 import DOMPurify from 'dompurify'
 import hljs from 'highlight.js'
 import 'highlight.js/styles/github.css'
 import { useI18n } from 'vue-i18n'
 
+// 添加 Web Speech API 类型定义
+declare global {
+	interface Window {
+		webkitSpeechRecognition: any
+		SpeechRecognition: any
+	}
+
+	interface SpeechRecognitionAlternative {
+		readonly transcript: string
+		readonly confidence: number
+	}
+
+	interface SpeechRecognitionResult {
+		readonly length: number
+		readonly isFinal: boolean
+		[index: number]: SpeechRecognitionAlternative
+	}
+
+	interface SpeechRecognitionEvent {
+		readonly results: SpeechRecognitionResultList
+		readonly resultIndex: number
+	}
+
+	interface SpeechRecognitionResultList {
+		readonly length: number
+		[index: number]: SpeechRecognitionResult
+	}
+
+	interface SpeechRecognitionErrorEvent {
+		readonly error: string
+	}
+}
+
 const { t, locale } = useI18n()
 
 // 配置 marked 使用 highlight.js
 marked.setOptions({
-	highlight: function (code, lang) {
+	highlight: function (code: string, lang: string) {
 		if (lang && hljs.getLanguage(lang)) {
 			try {
 				return hljs.highlight(code, { language: lang }).value
@@ -20,10 +53,10 @@ marked.setOptions({
 				console.error(e)
 			}
 		}
-		return code // 如果没有指定语言或出错，返回原始代码
+		return code
 	},
 	langPrefix: 'hljs language-',
-})
+} as MarkedOptions)
 
 const userMessage = ref('')
 const chatHistory = ref<{ role: 'user' | 'ai'; content: string }[]>([])
@@ -303,12 +336,176 @@ const clearAllConversations = () => {
 	}
 }
 
+const isListening = ref(false)
+const recognition = ref<any | null>(null)
+const errorCount = ref(0)
+const maxErrorRetries = 2
+
+const initSpeechRecognition = () => {
+	if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+		const SpeechRecognition = window.webkitSpeechRecognition || window.SpeechRecognition
+		recognition.value = new SpeechRecognition()
+
+		// 基本配置
+		recognition.value.continuous = false
+		recognition.value.interimResults = true
+
+		// 设置语言
+		let selectedLang = locale.value === 'zh' ? 'zh-CN' : 'en-US'
+		recognition.value.lang = selectedLang
+
+		// 开始事件
+		recognition.value.onstart = () => {
+			console.log('语音识别开始，使用语言:', recognition.value.lang)
+			isListening.value = true
+			errorCount.value = 0 // 重置错误计数
+		}
+
+		// 结果事件
+		recognition.value.onresult = (event: SpeechRecognitionEvent) => {
+			console.log('收到语音识别结果:', event)
+			const results = event.results
+			const currentResult = results[results.length - 1]
+
+			if (currentResult && currentResult[0]) {
+				const transcript = currentResult[0].transcript
+				console.log('识别文本:', transcript)
+				console.log('置信度:', currentResult[0].confidence)
+
+				if (currentResult.isFinal) {
+					console.log('最终结果')
+					userMessage.value = (userMessage.value || '').trim()
+					userMessage.value += (userMessage.value ? ' ' : '') + transcript
+				}
+			}
+		}
+
+		// 错误事件
+		recognition.value.onerror = (event: SpeechRecognitionErrorEvent) => {
+			console.error('语音识别错误:', event.error)
+			console.error('错误详情:', event)
+
+			switch (event.error) {
+				case 'language-not-supported':
+					errorCount.value++
+					console.log('语言不支持错误计数:', errorCount.value)
+
+					if (errorCount.value > maxErrorRetries) {
+						console.error('多次尝试后语音识别仍不可用')
+						isListening.value = false
+						alert('抱歉，语音识别功能当前不可用。请稍后再试。')
+						return
+					}
+
+					// 尝试切换到备选语言
+					const currentLang = recognition.value.lang
+					let newLang
+					if (currentLang === 'zh-CN') {
+						newLang = 'en-US' // 如果中文不可用，切换到英文
+					} else {
+						newLang = 'zh-CN' // 如果英文不可用，切换到中文
+					}
+
+					console.log('切换到备选语言:', newLang)
+					recognition.value.lang = newLang
+
+					// 短暂延迟后重试
+					setTimeout(() => {
+						try {
+							recognition.value.start()
+						} catch (e) {
+							console.error('重新启动识别失败:', e)
+							isListening.value = false
+						}
+					}, 100)
+					break
+
+				case 'not-allowed':
+					console.error('未获得麦克风权限')
+					isListening.value = false
+					alert('请允许使用麦克风以启用语音识别功能。')
+					break
+
+				case 'network':
+					console.error('网络错误')
+					isListening.value = false
+					alert('网络连接出现问题，请检查网络后重试。')
+					break
+
+				default:
+					console.error('其他错误')
+					isListening.value = false
+					if (errorCount.value === 0) {
+						alert('语音识别出现错误，请重试。')
+					}
+			}
+		}
+
+		// 结束事件
+		recognition.value.onend = () => {
+			console.log('语音识别结束')
+			if (isListening.value && errorCount.value <= maxErrorRetries) {
+				// 如果仍在监听状态且未超过最大重试次数，尝试重新启动
+				try {
+					recognition.value.start()
+				} catch (e) {
+					console.error('重新启动识别失败:', e)
+					isListening.value = false
+				}
+			} else {
+				isListening.value = false
+			}
+		}
+	} else {
+		console.error('当前浏览器不支持语音识别')
+		alert('您的浏览器不支持语音识别功能，请使用最新版本的Chrome浏览器。')
+	}
+}
+
+// 监听语言变化
+watch(locale, newLocale => {
+	if (recognition.value) {
+		const newLang = newLocale === 'zh' ? 'zh-CN' : 'en-US'
+		recognition.value.lang = newLang
+		console.log('语言已更改为:', newLang)
+	}
+})
+
+const startListening = () => {
+	try {
+		if (!recognition.value) {
+			initSpeechRecognition()
+		}
+
+		if (recognition.value) {
+			errorCount.value = 0 // 重置错误计数
+			recognition.value.start()
+		}
+	} catch (error) {
+		console.error('启动语音识别时出错:', error)
+		isListening.value = false
+		alert('启动语音识别失败，请重试。')
+	}
+}
+
+const stopListening = () => {
+	try {
+		if (recognition.value) {
+			recognition.value.stop()
+			isListening.value = false
+		}
+	} catch (error) {
+		console.error('停止语音识别时出错:', error)
+	}
+}
+
 onMounted(() => {
 	if (inputRef.value) {
 		inputRef.value.focus()
-		adjustTextareaHeight() // 初始化时调整高度
+		adjustTextareaHeight()
 	}
 	loadConversationHistory()
+	initSpeechRecognition()
 
 	// 添加滚动事件监听
 	if (chatHistoryRef.value) {
@@ -499,30 +696,50 @@ watch(chatHistory, scrollToBottom, { deep: true })
 					:placeholder="t('askAiAssistant')"
 					:disabled="isGenerating"
 				></textarea>
-				<button v-if="!isGenerating" @click="sendMessage">
-					<svg
-						xmlns="http://www.w3.org/2000/svg"
-						viewBox="0 0 24 24"
-						width="18"
-						height="18"
-						fill="currentColor"
+				<div class="input-controls">
+					<button v-if="!isGenerating" @click="sendMessage">
+						<svg
+							xmlns="http://www.w3.org/2000/svg"
+							viewBox="0 0 24 24"
+							width="18"
+							height="18"
+							fill="currentColor"
+						>
+							<path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" />
+						</svg>
+						{{ t('send') }}
+					</button>
+					<button v-else @click="stopGenerating" class="stop-btn">
+						<svg
+							xmlns="http://www.w3.org/2000/svg"
+							viewBox="0 0 24 24"
+							width="18"
+							height="18"
+							fill="currentColor"
+						>
+							<path d="M6 6h12v12H6z" />
+						</svg>
+						{{ t('stop') }}
+					</button>
+					<button
+						@click="isListening ? stopListening() : startListening()"
+						class="voice-btn"
+						:class="{ 'is-listening': isListening }"
 					>
-						<path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" />
-					</svg>
-					{{ t('send') }}
-				</button>
-				<button v-else @click="stopGenerating" class="stop-btn">
-					<svg
-						xmlns="http://www.w3.org/2000/svg"
-						viewBox="0 0 24 24"
-						width="18"
-						height="18"
-						fill="currentColor"
-					>
-						<path d="M6 6h12v12H6z" />
-					</svg>
-					{{ t('stop') }}
-				</button>
+						<svg
+							xmlns="http://www.w3.org/2000/svg"
+							viewBox="0 0 24 24"
+							width="18"
+							height="18"
+							fill="currentColor"
+						>
+							<path
+								d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5.91-3c-.49 0-.9.36-.98.85C16.52 14.2 14.47 16 12 16s-4.52-1.8-4.93-4.15c-.08-.49-.49-.85-.98-.85-.61 0-1.09.54-1 1.14.49 3 2.89 5.35 5.91 5.78V20c0 .55.45 1 1 1s1-.45 1-1v-2.08c3.02-.43 5.42-2.78 5.91-5.78.1-.6-.39-1.14-1-1.14z"
+							/>
+						</svg>
+						{{ isListening ? t('stopListening') : t('startListening') }}
+					</button>
+				</div>
 			</div>
 		</div>
 	</div>
@@ -1265,5 +1482,65 @@ watch(chatHistory, scrollToBottom, { deep: true })
 .clear-all-btn:hover {
 	opacity: 1;
 	color: #ff4d4f;
+}
+
+.input-controls {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+}
+
+.voice-btn {
+	padding: 0 20px;
+	font-size: 15px;
+	background-color: var(--input-bg-color);
+	color: var(--text-color);
+	border: 1px solid var(--input-border-color);
+	border-radius: 12px;
+	cursor: pointer;
+	height: 36px;
+	min-width: 90px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 6px;
+	transition: all 0.3s ease;
+}
+
+.voice-btn:hover {
+	background-color: var(--button-hover-bg-color);
+	color: var(--card-bg-color);
+}
+
+.voice-btn.is-listening {
+	background-color: var(--button-bg-color);
+	color: var(--card-bg-color);
+	animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+	0% {
+		opacity: 1;
+	}
+	50% {
+		opacity: 0.7;
+	}
+	100% {
+		opacity: 1;
+	}
+}
+
+@media (max-width: 768px) {
+	.input-controls {
+		flex-direction: column;
+	}
+
+	.voice-btn {
+		padding: 0 16px;
+		font-size: 14px;
+		height: 44px;
+		min-width: 80px;
+		border-radius: 10px;
+	}
 }
 </style>
