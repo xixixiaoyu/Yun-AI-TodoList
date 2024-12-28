@@ -482,15 +482,19 @@ const initSpeechRecognition = async () => {
 					break
 				case 'audio-capture':
 					lastError.value = t('microphoneNotFound')
+					stopRecognition() // 停止识别并释放资源
 					break
 				case 'not-allowed':
 					lastError.value = t('microphonePermissionDenied')
+					stopRecognition() // 停止识别并释放资源
 					break
 				case 'network':
 					lastError.value = t('networkError')
+					stopRecognition() // 停止识别并释放资源
 					break
 				case 'aborted':
 					recognitionStatus.value = 'idle'
+					stopRecognition() // 停止识别并释放资源
 					break
 				case 'language-not-supported':
 					lastError.value = t('languageNotSupported')
@@ -506,6 +510,8 @@ const initSpeechRecognition = async () => {
 					if (errorCount.value < maxErrorRetries) {
 						errorCount.value++
 						restartRecognition()
+					} else {
+						stopRecognition() // 超过重试次数，停止识别并释放资源
 					}
 			}
 		}
@@ -513,7 +519,11 @@ const initSpeechRecognition = async () => {
 		// 10. 结束事件
 		recognition.value.onend = () => {
 			console.log('语音识别结束')
-			if (isListening.value && errorCount.value < maxErrorRetries) {
+			if (
+				isListening.value &&
+				errorCount.value < maxErrorRetries &&
+				recognitionStatus.value !== 'error'
+			) {
 				restartRecognition()
 			} else {
 				isListening.value = false
@@ -531,6 +541,19 @@ const initSpeechRecognition = async () => {
 		recognition.value.onaudioend = () => {
 			console.log('停止接收音频')
 			recognitionStatus.value = 'processing'
+		}
+
+		// 添加停止识别的方法
+		const stopRecognition = () => {
+			try {
+				if (recognition.value) {
+					recognition.value.stop()
+				}
+			} catch (e) {
+				console.error('停止语音识别时出错:', e)
+			}
+			isListening.value = false
+			recognitionStatus.value = 'idle'
 		}
 	} catch (error) {
 		console.error('初始化语音识别时出错:', error)
@@ -560,6 +583,7 @@ const restartRecognition = () => {
 
 const startListening = async () => {
 	try {
+		// 如果还没有初始化语音识别，先初始化
 		if (!recognition.value) {
 			await initSpeechRecognition()
 		}
@@ -584,6 +608,8 @@ const stopListening = () => {
 			isListening.value = false
 			recognitionStatus.value = 'idle'
 			recognition.value.stop()
+			// 停止后清理语音识别实例
+			recognition.value = null
 		}
 	} catch (error) {
 		console.error('停止语音识别时出错:', error)
@@ -598,7 +624,6 @@ onMounted(() => {
 		adjustTextareaHeight()
 	}
 	loadConversationHistory()
-	initSpeechRecognition()
 
 	// 添加滚动事件监听
 	if (chatHistoryRef.value) {
