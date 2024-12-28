@@ -1,9 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import TodoList from '../components/TodoList.vue'
 import AIChatDialog from '../components/AIChatDialog.vue'
-import { useI18n } from 'vue-i18n'
-
-const { t } = useI18n()
+import Settings from '../components/Settings.vue'
 
 const router = createRouter({
 	history: createWebHistory(),
@@ -12,19 +10,25 @@ const router = createRouter({
 			path: '/',
 			name: 'home',
 			component: TodoList,
-			meta: { title: t('appTitle') },
+			meta: { title: '待办事项' },
 		},
 		{
 			path: '/ai-assistant',
 			name: 'ai-assistant',
 			component: AIChatDialog,
-			meta: { title: t('aiAssistant') },
+			meta: { title: 'AI 助手' },
+		},
+		{
+			path: '/settings',
+			name: 'settings',
+			component: Settings,
+			meta: { title: '设置' },
 		},
 	],
 })
 
-router.beforeEach((to, from, next) => {
-	document.title = (to.meta.title as string) || t('appTitle')
+router.beforeEach((to: any, from: any, next: any) => {
+	document.title = to.meta.title as string
 	next()
 })
 

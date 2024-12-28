@@ -33,10 +33,6 @@ function createWindow() {
 	// 优雅地显示窗口
 	mainWindow.once('ready-to-show', () => {
 		mainWindow.show()
-		// 在打包环境下也打开开发者工具，方便调试
-		if (app.isPackaged) {
-			mainWindow.webContents.openDevTools()
-		}
 	})
 
 	// 添加页面加载错误处理
@@ -46,7 +42,6 @@ function createWindow() {
 
 	if (process.env.WEBPACK_DEV_SERVER_URL) {
 		mainWindow.loadURL(process.env.WEBPACK_DEV_SERVER_URL)
-		if (!process.env.IS_TEST) mainWindow.webContents.openDevTools()
 	} else if (process.env.ELECTRON_START_URL) {
 		mainWindow.loadURL(process.env.ELECTRON_START_URL)
 	} else {

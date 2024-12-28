@@ -1,6 +1,9 @@
 export default {
 	appId: 'com.example.todoapp',
 	productName: 'Todo App',
+	electronDownload: {
+		mirror: 'https://npmmirror.com/mirrors/electron/',
+	},
 	directories: {
 		output: 'release/${version}',
 		buildResources: 'build',
@@ -9,7 +12,6 @@ export default {
 		'dist/**/*',
 		'electron/**/*',
 		'package.json',
-		'.env',
 		'!node_modules/**/*',
 		'!**/node_modules/*/{CHANGELOG.md,README.md,README,readme.md,readme}',
 		'!**/node_modules/*/{test,__tests__,tests,powered-test,example,examples}',
@@ -50,12 +52,10 @@ export default {
 		},
 	},
 	win: {
-		icon: 'build/icon.ico',
+		sign: false,
+		signAndEditExecutable: false,
+		icon: null,
 		target: [
-			{
-				target: 'nsis',
-				arch: ['x64'],
-			},
 			{
 				target: 'portable',
 				arch: ['x64'],
@@ -68,8 +68,6 @@ export default {
 		createDesktopShortcut: true,
 		createStartMenuShortcut: true,
 		shortcutName: 'Todo App',
-		installerIcon: 'build/icon.ico',
-		uninstallerIcon: 'build/icon.ico',
 	},
 	linux: {
 		icon: 'build/icon.png',

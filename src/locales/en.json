@@ -107,5 +107,12 @@
 	"startListening": "Start Voice Input",
 	"stopListening": "Stop Voice Input",
 	"optimize": "Optimize",
-	"optimizing": "Optimizing..."
+	"optimizing": "Optimizing...",
+	"settings": "Settings",
+	"settingsApiKey": "DeepSeek API Key Configuration",
+	"enterApiKey": "Enter DeepSeek API Key",
+	"save": "Save",
+	"clear": "Clear",
+	"show": "Show",
+	"hide": "Hide"
 }

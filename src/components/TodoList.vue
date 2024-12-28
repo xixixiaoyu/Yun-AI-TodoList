@@ -1017,7 +1017,7 @@ h1 {
 .top-clock {
 	position: fixed;
 	top: 1rem;
-	left: 72%;
+	left: 4%;
 	z-index: 1001;
 	padding: 0.5rem;
 }

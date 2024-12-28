@@ -43,7 +43,7 @@ onMounted(fetchInspiration)
 	height: fit-content;
 	width: 300px;
 	position: fixed;
-	top: 1rem;
+	top: 5rem;
 	left: 1rem;
 	z-index: 1000;
 }

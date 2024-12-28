@@ -1,7 +1,6 @@
 import { promptsConfig } from '../config/prompts'
 import { AIStreamResponse, Message } from './types'
-
-const API_KEY = import.meta.env.VITE_DEEPSEEK_API_KEY
+import { getApiKey } from './configService'
 
 const API_URL = 'https://api.deepseek.com/chat/completions'
 
@@ -11,6 +10,17 @@ export function abortCurrentRequest() {
 	if (abortController) {
 		abortController.abort()
 		abortController = null
+	}
+}
+
+const getHeaders = () => {
+	const apiKey = getApiKey()
+	if (!apiKey) {
+		throw new Error('请先配置 API Key')
+	}
+	return {
+		Authorization: `Bearer ${apiKey}`,
+		'Content-Type': 'application/json',
 	}
 }
 
@@ -26,10 +36,7 @@ export async function getAIStreamResponse(
 
 		const response = await fetch(API_URL, {
 			method: 'POST',
-			headers: {
-				Authorization: `Bearer ${API_KEY}`,
-				'Content-Type': 'application/json',
-			},
+			headers: getHeaders(),
 			body: JSON.stringify({
 				model: 'deepseek-chat',
 				messages: [
@@ -108,10 +115,7 @@ export async function getAIResponse(
 
 		const response = await fetch(API_URL, {
 			method: 'POST',
-			headers: {
-				Authorization: `Bearer ${API_KEY}`,
-				'Content-Type': 'application/json',
-			},
+			headers: getHeaders(),
 			body: JSON.stringify({
 				model: 'deepseek-chat',
 				messages: [
@@ -159,10 +163,7 @@ export async function optimizeText(text: string): Promise<string> {
 	try {
 		const response = await fetch(API_URL, {
 			method: 'POST',
-			headers: {
-				Authorization: `Bearer ${API_KEY}`,
-				'Content-Type': 'application/json',
-			},
+			headers: getHeaders(),
 			body: JSON.stringify({
 				model: 'deepseek-chat',
 				messages: [
@@ -173,7 +174,7 @@ export async function optimizeText(text: string): Promise<string> {
 					},
 					{
 						role: 'user',
-						content: `请优化文本：\n“${text}”`,
+						content: `请优化文本：\n"${text}"`,
 					},
 				],
 				temperature: 0.5,

@@ -6,9 +6,12 @@ import { setLanguage } from './i18n'
 // import AudioPlayer from './components/AudioPlayer.vue'
 import DailyInspiration from './components/DailyInspiration.vue'
 import { useWindowSize } from '@vueuse/core'
+import { useRouter } from 'vue-router'
 
 const { theme, systemTheme, initTheme } = useTheme()
-const { locale } = useI18n()
+const { locale, t } = useI18n()
+
+const router = useRouter()
 
 onErrorCaptured((err, instance, info) => {
 	console.error('Captured error:', err, instance, info)
@@ -36,9 +39,17 @@ onMounted(() => {
 
 <template>
 	<div class="app" :class="currentTheme">
-		<button @click="toggleLanguage" class="language-toggle">
-			{{ locale === 'zh' ? 'EN' : '中文' }}
-		</button>
+		<div class="nav-bar">
+			<button @click="router.push('/')" class="nav-button">
+				{{ t('home') }}
+			</button>
+			<button @click="router.push('/settings')" class="nav-button">
+				{{ t('settings') }}
+			</button>
+			<button @click="toggleLanguage" class="nav-button">
+				{{ locale === 'zh' ? 'EN' : '中文' }}
+			</button>
+		</div>
 		<div class="content-wrapper">
 			<router-view />
 			<div class="top-components" :class="{ 'small-screen': isSmallScreen }">
@@ -118,23 +129,27 @@ body {
 	transition: none;
 }
 
-.language-toggle {
-	position: fixed;
-	top: 10px;
-	right: 10px;
-	padding: 5px 10px;
+.nav-bar {
+	position: absolute;
+	top: 1rem;
+	right: 1rem;
+	display: flex;
+	gap: 1rem;
+}
+
+.nav-button {
 	background-color: var(--language-toggle-bg);
 	color: var(--language-toggle-color);
 	border: 1px solid var(--language-toggle-color);
 	border-radius: 4px;
 	cursor: pointer;
-	z-index: 1000;
 	font-size: 14px;
 	font-weight: bold;
 	transition: all 0.3s ease;
+	padding: 5px 10px;
 }
 
-.language-toggle:hover {
+.nav-button:hover {
 	background-color: var(--language-toggle-hover-bg);
 	transform: translateY(-2px);
 	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
