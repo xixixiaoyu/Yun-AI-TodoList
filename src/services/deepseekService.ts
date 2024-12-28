@@ -154,3 +154,46 @@ export async function getAIResponse(
 		throw new Error('生成建议待办事项时出现未知错误')
 	}
 }
+
+export async function optimizeText(text: string): Promise<string> {
+	try {
+		const response = await fetch(API_URL, {
+			method: 'POST',
+			headers: {
+				Authorization: `Bearer ${API_KEY}`,
+				'Content-Type': 'application/json',
+			},
+			body: JSON.stringify({
+				model: 'deepseek-chat',
+				messages: [
+					{
+						role: 'system',
+						content:
+							'你是一个文本优化助手，可以优化用户的提问，帮助其更加清晰、专业和有条理。请直接返回优化后的文本，不要添加任何解释。',
+					},
+					{
+						role: 'user',
+						content: `请帮我优化以下文本的表达：\n${text}`,
+					},
+				],
+				temperature: 0.7,
+				stream: false,
+			}),
+		})
+
+		if (!response.ok) {
+			throw new Error(`HTTP 错误! 状态: ${response.status}`)
+		}
+
+		const data = await response.json()
+
+		if (data && data.choices && data.choices.length > 0) {
+			return data.choices[0].message?.content || ''
+		} else {
+			throw new Error('无效的 AI 响应格式')
+		}
+	} catch (error) {
+		console.error('优化文本时出错:', error)
+		throw error
+	}
+}

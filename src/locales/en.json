@@ -105,5 +105,7 @@
 	"microphoneNotFound": "No microphone device found. Please check your device connection.",
 	"languageNotSupported": "Current language is not supported, switched to alternative language.",
 	"startListening": "Start Voice Input",
-	"stopListening": "Stop Voice Input"
+	"stopListening": "Stop Voice Input",
+	"optimize": "Optimize",
+	"optimizing": "Optimizing..."
 }

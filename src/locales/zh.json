@@ -111,5 +111,7 @@
 	"microphoneNotFound": "未找到麦克风设备，请检查设备连接。",
 	"languageNotSupported": "当前语言不受支持，已切换到备选语言。",
 	"startListening": "开始语音输入",
-	"stopListening": "停止语音输入"
+	"stopListening": "停止语音输入",
+	"optimize": "优化表达",
+	"optimizing": "优化中..."
 }

@@ -1,6 +1,10 @@
 <script setup lang="ts">
 import { ref, nextTick, onMounted, watch, computed } from 'vue'
-import { getAIStreamResponse, abortCurrentRequest } from '../services/deepseekService'
+import {
+	getAIStreamResponse,
+	abortCurrentRequest,
+	optimizeText,
+} from '../services/deepseekService'
 import { Message } from '../services/types'
 import { marked, MarkedOptions } from 'marked'
 import DOMPurify from 'dompurify'
@@ -239,6 +243,22 @@ watch(userMessage, () => {
 		adjustTextareaHeight()
 	})
 })
+
+const isOptimizing = ref(false)
+
+const optimizeMessage = async () => {
+	if (!userMessage.value.trim() || isOptimizing.value) return
+
+	try {
+		isOptimizing.value = true
+		const optimizedText = await optimizeText(userMessage.value)
+		userMessage.value = optimizedText
+	} catch (error) {
+		console.error('优化文本时出错:', error)
+	} finally {
+		isOptimizing.value = false
+	}
+}
 
 const sendMessage = async () => {
 	if (!userMessage.value.trim()) return
@@ -748,6 +768,24 @@ watch(chatHistory, scrollToBottom, { deep: true })
 					</svg>
 					{{ t('newConversation') }}
 				</button>
+				<button
+					@click="optimizeMessage"
+					:disabled="!userMessage.trim() || isOptimizing || isGenerating"
+					class="optimize-btn"
+				>
+					<svg
+						xmlns="http://www.w3.org/2000/svg"
+						viewBox="0 0 24 24"
+						width="16"
+						height="16"
+						fill="currentColor"
+					>
+						<path
+							d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"
+						/>
+					</svg>
+					{{ isOptimizing ? t('optimizing') : t('optimize') }}
+				</button>
 				<button @click="toggleDrawer" class="toggle-drawer-btn">
 					<svg
 						xmlns="http://www.w3.org/2000/svg"
@@ -1104,39 +1142,60 @@ watch(chatHistory, scrollToBottom, { deep: true })
 
 .conversation-controls {
 	display: flex;
-	gap: 12px;
+	gap: 8px;
 	padding: 0 20px;
 }
 
 .new-conversation-btn,
+.optimize-btn,
 .toggle-drawer-btn {
-	padding: 10px 16px;
+	padding: 8px 16px;
 	font-size: 14px;
-	border: none;
-	border-radius: 8px;
-	cursor: pointer;
 	background-color: var(--input-bg-color);
 	color: var(--text-color);
-}
-
-.new-conversation-btn:hover,
-.toggle-drawer-btn:hover {
-	opacity: 0.9;
-}
-
-.new-conversation-btn {
+	border: 1px solid var(--input-border-color);
+	border-radius: 8px;
+	cursor: pointer;
 	display: flex;
 	align-items: center;
 	gap: 6px;
+	transition: all 0.2s ease;
+	height: 36px;
 }
 
-.new-conversation-btn svg {
-	width: 16px;
-	height: 16px;
+.new-conversation-btn:hover:not(:disabled),
+.optimize-btn:hover:not(:disabled),
+.toggle-drawer-btn:hover {
+	background-color: var(--button-hover-bg-color);
+	color: var(--card-bg-color);
 }
 
-.toggle-drawer-btn {
-	padding: 10px 14px;
+.optimize-btn:disabled {
+	opacity: 0.5;
+	cursor: not-allowed;
+}
+
+@media (max-width: 768px) {
+	.conversation-controls {
+		padding: 0 12px;
+		margin-bottom: 12px;
+		gap: 6px;
+	}
+
+	.new-conversation-btn,
+	.optimize-btn,
+	.toggle-drawer-btn {
+		padding: 6px 12px;
+		font-size: 13px;
+		height: 32px;
+	}
+
+	.new-conversation-btn svg,
+	.optimize-btn svg,
+	.toggle-drawer-btn svg {
+		width: 14px;
+		height: 14px;
+	}
 }
 
 .chat-input {
@@ -1655,6 +1714,49 @@ watch(chatHistory, scrollToBottom, { deep: true })
 		height: 44px;
 		min-width: 80px;
 		border-radius: 10px;
+	}
+}
+
+.input-tools {
+	padding: 0 20px;
+	display: flex;
+	gap: 8px;
+	margin-bottom: 8px;
+}
+
+.optimize-btn {
+	padding: 6px 16px;
+	font-size: 14px;
+	background-color: var(--input-bg-color);
+	color: var(--text-color);
+	border: 1px solid var(--input-border-color);
+	border-radius: 8px;
+	cursor: pointer;
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	transition: all 0.2s ease;
+}
+
+.optimize-btn:hover:not(:disabled) {
+	background-color: var(--button-hover-bg-color);
+	color: var(--card-bg-color);
+}
+
+.optimize-btn:disabled {
+	opacity: 0.5;
+	cursor: not-allowed;
+}
+
+@media (max-width: 768px) {
+	.input-tools {
+		padding: 0 12px;
+		margin-bottom: 6px;
+	}
+
+	.optimize-btn {
+		padding: 4px 12px;
+		font-size: 13px;
 	}
 }
 </style>
