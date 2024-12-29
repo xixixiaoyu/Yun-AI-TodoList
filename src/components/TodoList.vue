@@ -67,6 +67,9 @@ const {
   handleAddTodo,
   toggleTodo,
   removeTodo,
+  duplicateError,
+  isLoading,
+  clearActive,
 } = useTodoManagement()
 
 // UI状态管理相关

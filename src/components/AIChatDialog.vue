@@ -54,10 +54,9 @@ onMounted(() => {
     createNewConversation()
   } else if (savedConversationId) {
     // 尝试恢复上次激活的会话
-    const conversationId = parseInt(savedConversationId)
-    const exists = conversationHistory.value.some((c) => c.id === conversationId)
+    const exists = conversationHistory.value.some((c) => c.id === savedConversationId)
     if (exists) {
-      switchConversation(conversationId)
+      switchConversation(savedConversationId)
     } else {
       // 如果上次激活的会话不存在，切换到第一个会话
       switchConversation(conversationHistory.value[0].id)

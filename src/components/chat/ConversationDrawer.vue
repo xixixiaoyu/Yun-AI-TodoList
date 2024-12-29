@@ -1,18 +1,18 @@
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n'
-import type { Conversation } from '../../composables/useChat'
+import type { Conversation } from '../../services/types'
 
 defineProps<{
   isOpen: boolean
   conversations: Conversation[]
-  currentConversationId: number | null
+  currentConversationId: string | null
 }>()
 
 defineEmits<{
-  (e: 'update:isOpen', value: boolean): void
-  (e: 'switch', id: number): void
-  (e: 'delete', id: number): void
-  (e: 'clear'): void
+  'update:isOpen': [value: boolean]
+  switch: [id: string]
+  delete: [id: string]
+  clear: []
 }>()
 
 const { t } = useI18n()

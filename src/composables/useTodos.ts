@@ -7,6 +7,8 @@ interface Todo {
   completedAt?: string
   tags: string[]
   projectId: number | null
+  createdAt: string
+  updatedAt: string
 }
 
 // 新增 Project 接口
@@ -151,12 +153,15 @@ export function useTodos() {
       return false
     }
 
+    const now = new Date().toISOString()
     const newTodo = {
       id: Date.now(),
       text: text.trim(),
       completed: false,
       tags: tags,
       projectId: currentProjectId.value || 0,
+      createdAt: now,
+      updatedAt: now,
     }
 
     todos.value.push(newTodo)
@@ -167,6 +172,7 @@ export function useTodos() {
   // 新增：批量添加待办事项的函数
   const addMultipleTodos = (newTodos: { text: string; projectId: number | null }[]) => {
     const duplicates: string[] = []
+    const now = new Date().toISOString()
     newTodos.forEach(({ text, projectId }) => {
       if (todos.value.some((todo) => todo.text === text)) {
         duplicates.push(text)
@@ -177,6 +183,8 @@ export function useTodos() {
           completed: false,
           tags: [],
           projectId: projectId || null,
+          createdAt: now,
+          updatedAt: now,
         })
       }
     })
