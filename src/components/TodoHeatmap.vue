@@ -14,114 +14,114 @@ const cellGap = ref(2)
 const weekWidth = computed(() => cellSize.value + cellGap.value)
 
 const updateDimensions = () => {
-	const width = window.innerWidth
-	if (width < 768) {
-		cellSize.value = 8
-		cellGap.value = 1
-	} else {
-		cellSize.value = 11
-		cellGap.value = 2
-	}
+  const width = window.innerWidth
+  if (width < 768) {
+    cellSize.value = 8
+    cellGap.value = 1
+  } else {
+    cellSize.value = 11
+    cellGap.value = 2
+  }
 }
 
 onMounted(() => {
-	updateDimensions()
-	window.addEventListener('resize', updateDimensions)
+  updateDimensions()
+  window.addEventListener('resize', updateDimensions)
 })
 
 onUnmounted(() => {
-	window.removeEventListener('resize', updateDimensions)
+  window.removeEventListener('resize', updateDimensions)
 })
 
 const updateHeatmap = () => {
-	if (!svgRef.value) return
+  if (!svgRef.value) return
 
-	const completedTodos = getCompletedTodosByDate()
-	const endDate = new Date()
-	const startDate = new Date(endDate)
-	startDate.setFullYear(startDate.getFullYear() - 1)
+  const completedTodos = getCompletedTodosByDate()
+  const endDate = new Date()
+  const startDate = new Date(endDate)
+  startDate.setFullYear(startDate.getFullYear() - 1)
 
-	const svg = d3.select(svgRef.value)
-	svg.selectAll('*').remove()
+  const svg = d3.select(svgRef.value)
+  svg.selectAll('*').remove()
 
-	const colorScale = d3
-		.scaleQuantize<string>()
-		.domain([0, d3.max(Object.values(completedTodos)) || 1])
-		.range(['#ebedf0', '#9be9a8', '#40c463', '#30a14e', '#216e39'])
+  const colorScale = d3
+    .scaleQuantize<string>()
+    .domain([0, d3.max(Object.values(completedTodos)) || 1])
+    .range(['#ebedf0', '#9be9a8', '#40c463', '#30a14e', '#216e39'])
 
-	const weeks = d3.timeWeeks(startDate, endDate)
-	const height = 7 * (cellSize.value + cellGap.value) + cellGap.value
+  const weeks = d3.timeWeeks(startDate, endDate)
+  const height = 7 * (cellSize.value + cellGap.value) + cellGap.value
 
-	svg.attr('width', weeks.length * weekWidth.value + cellGap.value).attr('height', height)
+  svg.attr('width', weeks.length * weekWidth.value + cellGap.value).attr('height', height)
 
-	const tooltip = d3
-		.select('body')
-		.append('div')
-		.attr('class', 'tooltip')
-		.style('opacity', 0)
-		.style('position', 'absolute')
-		.style('background-color', 'rgba(0,0,0,0.7)')
-		.style('color', 'white')
-		.style('padding', '5px')
-		.style('border-radius', '5px')
-		.style('pointer-events', 'none')
+  const tooltip = d3
+    .select('body')
+    .append('div')
+    .attr('class', 'tooltip')
+    .style('opacity', 0)
+    .style('position', 'absolute')
+    .style('background-color', 'rgba(0,0,0,0.7)')
+    .style('color', 'white')
+    .style('padding', '5px')
+    .style('border-radius', '5px')
+    .style('pointer-events', 'none')
 
-	svg
-		.selectAll('.day')
-		.data(d3.timeDays(startDate, endDate))
-		.enter()
-		.append('rect')
-		.attr('class', 'day')
-		.attr('width', cellSize.value)
-		.attr('height', cellSize.value)
-		.attr(
-			'x',
-			(d) => d3.timeWeek.count(d3.timeYear(d), d) * weekWidth.value + cellGap.value
-		)
-		.attr('y', (d) => d.getDay() * (cellSize.value + cellGap.value) + cellGap.value)
-		.attr('fill', (d) => {
-			const dateString = d.toISOString().split('T')[0]
-			return colorScale(completedTodos[dateString] || 0)
-		})
-		.on('mouseover', (event, d) => {
-			const dateString = d.toISOString().split('T')[0]
-			const count = completedTodos[dateString] || 0
-			tooltip.transition().duration(200).style('opacity', 0.9)
-			tooltip
-				.html(`${d.toLocaleDateString(t('locale'))}: ${count} ${t('completedTodos')}`)
-				.style('left', event.pageX + 10 + 'px')
-				.style('top', event.pageY - 28 + 'px')
-		})
-		.on('mouseout', () => {
-			tooltip.transition().duration(500).style('opacity', 0)
-		})
+  svg
+    .selectAll('.day')
+    .data(d3.timeDays(startDate, endDate))
+    .enter()
+    .append('rect')
+    .attr('class', 'day')
+    .attr('width', cellSize.value)
+    .attr('height', cellSize.value)
+    .attr(
+      'x',
+      (d) => d3.timeWeek.count(d3.timeYear(d), d) * weekWidth.value + cellGap.value
+    )
+    .attr('y', (d) => d.getDay() * (cellSize.value + cellGap.value) + cellGap.value)
+    .attr('fill', (d) => {
+      const dateString = d.toISOString().split('T')[0]
+      return colorScale(completedTodos[dateString] || 0)
+    })
+    .on('mouseover', (event, d) => {
+      const dateString = d.toISOString().split('T')[0]
+      const count = completedTodos[dateString] || 0
+      tooltip.transition().duration(200).style('opacity', 0.9)
+      tooltip
+        .html(`${d.toLocaleDateString(t('locale'))}: ${count} ${t('completedTodos')}`)
+        .style('left', event.pageX + 10 + 'px')
+        .style('top', event.pageY - 28 + 'px')
+    })
+    .on('mouseout', () => {
+      tooltip.transition().duration(500).style('opacity', 0)
+    })
 
-	const dayLabels = ['', t('mon'), '', t('wed'), '', t('fri'), '']
-	svg
-		.selectAll('.day-label')
-		.data(dayLabels)
-		.enter()
-		.append('text')
-		.attr('class', 'day-label')
-		.attr('x', -5)
-		.attr('y', (d, i) => i * (cellSize.value + cellGap.value) + cellSize.value)
-		.style('text-anchor', 'end')
-		.style('font-size', '9px')
-		.style('fill', '#767676')
-		.text((d) => d)
+  const dayLabels = ['', t('mon'), '', t('wed'), '', t('fri'), '']
+  svg
+    .selectAll('.day-label')
+    .data(dayLabels)
+    .enter()
+    .append('text')
+    .attr('class', 'day-label')
+    .attr('x', -5)
+    .attr('y', (d, i) => i * (cellSize.value + cellGap.value) + cellSize.value)
+    .style('text-anchor', 'end')
+    .style('font-size', '9px')
+    .style('fill', '#767676')
+    .text((d) => d)
 
-	svg
-		.selectAll('.month-label')
-		.data(d3.timeMonths(startDate, endDate))
-		.enter()
-		.append('text')
-		.attr('class', 'month-label')
-		.attr('x', (d) => d3.timeWeek.count(d3.timeYear(startDate), d) * weekWidth.value)
-		.attr('y', -5)
-		.style('text-anchor', 'start')
-		.style('font-size', '10px')
-		.style('fill', '#767676')
-		.text((d) => d.toLocaleDateString(t('locale'), { month: 'short' }))
+  svg
+    .selectAll('.month-label')
+    .data(d3.timeMonths(startDate, endDate))
+    .enter()
+    .append('text')
+    .attr('class', 'month-label')
+    .attr('x', (d) => d3.timeWeek.count(d3.timeYear(startDate), d) * weekWidth.value)
+    .attr('y', -5)
+    .style('text-anchor', 'start')
+    .style('font-size', '10px')
+    .style('fill', '#767676')
+    .text((d) => d.toLocaleDateString(t('locale'), { month: 'short' }))
 }
 
 watch([cellSize, cellGap], updateHeatmap)
@@ -130,46 +130,28 @@ onMounted(updateHeatmap)
 watch(() => getCompletedTodosByDate(), updateHeatmap, { deep: true })
 
 const handleWheel = (event: WheelEvent) => {
-	const container = event.currentTarget as HTMLElement
-	if (container) {
-		container.scrollLeft += event.deltaY
-		event.preventDefault()
-	}
+  const container = event.currentTarget as HTMLElement
+  if (container) {
+    container.scrollLeft += event.deltaY
+    event.preventDefault()
+  }
 }
 </script>
 
 <template>
   <div class="todo-heatmap">
     <h2>{{ t('todoHeatmap') }}</h2>
-    <div
-      class="heatmap-container"
-      @wheel="handleWheel"
-    >
+    <div class="heatmap-container" @wheel="handleWheel">
       <svg ref="svgRef" />
     </div>
     <div class="legend">
       <span>{{ t('less') }}</span>
       <div class="legend-colors">
-        <div
-          class="legend-color"
-          style="background-color: #ebedf0"
-        />
-        <div
-          class="legend-color"
-          style="background-color: #9be9a8"
-        />
-        <div
-          class="legend-color"
-          style="background-color: #40c463"
-        />
-        <div
-          class="legend-color"
-          style="background-color: #30a14e"
-        />
-        <div
-          class="legend-color"
-          style="background-color: #216e39"
-        />
+        <div class="legend-color" style="background-color: #ebedf0" />
+        <div class="legend-color" style="background-color: #9be9a8" />
+        <div class="legend-color" style="background-color: #40c463" />
+        <div class="legend-color" style="background-color: #30a14e" />
+        <div class="legend-color" style="background-color: #216e39" />
       </div>
       <span>{{ t('more') }}</span>
     </div>
@@ -178,75 +160,75 @@ const handleWheel = (event: WheelEvent) => {
 
 <style scoped>
 .todo-heatmap {
-	margin-top: 2rem;
-	padding: 1rem;
-	background-color: var(--card-bg-color);
-	border-radius: var(--border-radius);
-	box-shadow: var(--card-shadow);
+  margin-top: 2rem;
+  padding: 1rem;
+  background-color: var(--card-bg-color);
+  border-radius: var(--border-radius);
+  box-shadow: var(--card-shadow);
 }
 
 h2 {
-	margin-bottom: 1rem;
-	color: var(--text-color);
+  margin-bottom: 1rem;
+  color: var(--text-color);
 }
 
 .heatmap-container {
-	overflow-x: auto;
-	padding-bottom: 1rem;
-	white-space: nowrap;
-	-webkit-overflow-scrolling: touch;
-	scrollbar-width: thin;
-	scrollbar-color: var(--button-bg-color) var(--bg-color);
+  overflow-x: auto;
+  padding-bottom: 1rem;
+  white-space: nowrap;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+  scrollbar-color: var(--button-bg-color) var(--bg-color);
 }
 
 .legend {
-	display: flex;
-	align-items: center;
-	justify-content: flex-end;
-	margin-top: 1rem;
-	font-size: 12px;
-	color: var(--text-color);
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  margin-top: 1rem;
+  font-size: 12px;
+  color: var(--text-color);
 }
 
 .legend-colors {
-	display: flex;
-	gap: 2px;
-	margin: 0 4px;
+  display: flex;
+  gap: 2px;
+  margin: 0 4px;
 }
 
 .legend-color {
-	width: 10px;
-	height: 10px;
-	border-radius: 2px;
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
 }
 
 :global(.tooltip) {
-	font-family: 'LXGW WenKai Screen', sans-serif;
-	font-size: 12px;
+  font-family: 'LXGW WenKai Screen', sans-serif;
+  font-size: 12px;
 }
 
 @media (max-width: 768px) {
-	.todo-heatmap {
-		padding: 0.5rem;
-	}
+  .todo-heatmap {
+    padding: 0.5rem;
+  }
 
-	.heatmap-container {
-		overflow-x: scroll;
-		-webkit-overflow-scrolling: touch;
-	}
+  .heatmap-container {
+    overflow-x: scroll;
+    -webkit-overflow-scrolling: touch;
+  }
 
-	.legend {
-		justify-content: center;
-		flex-wrap: wrap;
-	}
+  .legend {
+    justify-content: center;
+    flex-wrap: wrap;
+  }
 
-	.legend > span {
-		font-size: 10px;
-	}
+  .legend > span {
+    font-size: 10px;
+  }
 
-	.legend-color {
-		width: 8px;
-		height: 8px;
-	}
+  .legend-color {
+    width: 8px;
+    height: 8px;
+  }
 }
 </style>

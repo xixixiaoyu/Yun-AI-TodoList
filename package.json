@@ -1,89 +1,89 @@
 {
-	"name": "front-end",
-	"private": true,
-	"version": "0.0.0",
-	"description": "A Todo application built with Vue 3 and Electron",
-	"author": {
-		"name": "yunmu"
-	},
-	"type": "module",
-	"scripts": {
-		"dev": "vite",
-		"build": "vue-tsc && vite build",
-		"preview": "vite preview",
-		"test": "vitest",
-		"test:coverage": "vitest run --coverage",
-		"lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix",
-		"format": "prettier --write \"src/**/*.{js,ts,json,css,scss,vue,html,md}\"",
-		"tsc": "vue-tsc -b",
-		"electron:serve": "vite --port 3000 & wait-on tcp:3000 && cross-env ELECTRON_START_URL=http://localhost:3000 electron .",
-		"electron:build:mac": "pnpm run clean && vite build && electron-builder --config electron-builder.config.js --mac",
-		"electron:build:win": "pnpm run clean && vite build && electron-builder --config electron-builder.config.js --win",
-		"electron:build:linux": "pnpm run clean && vite build && electron-builder --config electron-builder.config.js --linux",
-		"postinstall": "electron-builder install-app-deps",
-		"postuninstall": "electron-builder install-app-deps",
-		"clean": "rimraf dist release",
-		"prepare": "husky"
-	},
-	"lint-staged": {
-		"*.{vue,js,jsx,cjs,mjs,ts,tsx,cts,mts}": [
-			"prettier --write",
-			"eslint --fix --max-warnings 0"
-		],
-		"*.{css,less,scss,json,md}": [
-			"prettier --write"
-		]
-	},
-	"dependencies": {
-		"@vueuse/core": "^11.1.0",
-		"@vueuse/integrations": "^11.1.0",
-		"axios": "^1.7.7",
-		"canvas-confetti": "^1.9.3",
-		"chart.js": "^4.4.4",
-		"chartjs-chart-matrix": "^2.0.1",
-		"d3": "^7.9.0",
-		"date-fns": "^4.1.0",
-		"dompurify": "^3.1.7",
-		"dotenv": "^16.4.7",
-		"highlight.js": "^11.10.0",
-		"install": "^0.13.0",
-		"marked": "^14.1.2",
-		"sortablejs": "^1.15.3",
-		"vue": "^3.5.12",
-		"vue-draggable-next": "^2.2.1",
-		"vue-i18n": "^11.0.1",
-		"vue-router": "^4.2.5"
-	},
-	"devDependencies": {
-		"@types/d3": "^7.4.3",
-		"@types/dompurify": "^3.0.5",
-		"@types/marked": "^6.0.0",
-		"@typescript-eslint/eslint-plugin": "^8.18.2",
-		"@typescript-eslint/parser": "^8.18.2",
-		"@vitejs/plugin-vue": "^5.1.2",
-		"@vue/cli-service": "^5.0.8",
-		"@vue/test-utils": "^2.4.5",
-		"cross-env": "^7.0.3",
-		"electron": "^32.1.2",
-		"electron-builder": "^25.1.8",
-		"eslint": "^8.56.0",
-		"eslint-plugin-vue": "^9.32.0",
-		"husky": "^9.1.7",
-		"jsdom": "^24.0.0",
-		"lint-staged": "^15.3.0",
-		"prettier": "^3.4.2",
-		"rimraf": "^5.0.5",
-		"typescript": "^5.5.3",
-		"vite": "^5.4.10",
-		"vitest": "^1.4.0",
-		"vue-cli-plugin-electron-builder": "^2.1.1",
-		"vue-eslint-parser": "^9.4.3",
-		"vue-tsc": "^2.0.29",
-		"wait-on": "^8.0.1"
-	},
-	"main": "electron/main.js",
-	"engines": {
-		"node": ">=18.0.0",
-		"pnpm": ">=8.0.0"
-	}
+  "name": "front-end",
+  "private": true,
+  "version": "0.0.0",
+  "description": "A Todo application built with Vue 3 and Electron",
+  "author": {
+    "name": "yunmu"
+  },
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vue-tsc && vite build",
+    "preview": "vite preview",
+    "test": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix",
+    "format": "prettier --write \"src/**/*.{js,ts,json,css,scss,vue,html,md}\"",
+    "tsc": "vue-tsc -b",
+    "electron:serve": "vite --port 3000 & wait-on tcp:3000 && cross-env ELECTRON_START_URL=http://localhost:3000 electron .",
+    "electron:build:mac": "pnpm run clean && vite build && electron-builder --config electron-builder.config.js --mac",
+    "electron:build:win": "pnpm run clean && vite build && electron-builder --config electron-builder.config.js --win",
+    "electron:build:linux": "pnpm run clean && vite build && electron-builder --config electron-builder.config.js --linux",
+    "postinstall": "electron-builder install-app-deps",
+    "postuninstall": "electron-builder install-app-deps",
+    "clean": "rimraf dist release",
+    "prepare": "husky"
+  },
+  "lint-staged": {
+    "*.{vue,js,jsx,cjs,mjs,ts,tsx,cts,mts}": [
+      "prettier --write",
+      "eslint --fix --max-warnings 0"
+    ],
+    "*.{css,less,scss,json,md}": [
+      "prettier --write"
+    ]
+  },
+  "dependencies": {
+    "@vueuse/core": "^11.1.0",
+    "@vueuse/integrations": "^11.1.0",
+    "axios": "^1.7.7",
+    "canvas-confetti": "^1.9.3",
+    "chart.js": "^4.4.4",
+    "chartjs-chart-matrix": "^2.0.1",
+    "d3": "^7.9.0",
+    "date-fns": "^4.1.0",
+    "dompurify": "^3.1.7",
+    "dotenv": "^16.4.7",
+    "highlight.js": "^11.10.0",
+    "install": "^0.13.0",
+    "marked": "^14.1.2",
+    "sortablejs": "^1.15.3",
+    "vue": "^3.5.12",
+    "vue-draggable-next": "^2.2.1",
+    "vue-i18n": "^11.0.1",
+    "vue-router": "^4.2.5"
+  },
+  "devDependencies": {
+    "@types/d3": "^7.4.3",
+    "@types/dompurify": "^3.0.5",
+    "@types/marked": "^6.0.0",
+    "@typescript-eslint/eslint-plugin": "^8.18.2",
+    "@typescript-eslint/parser": "^8.18.2",
+    "@vitejs/plugin-vue": "^5.1.2",
+    "@vue/cli-service": "^5.0.8",
+    "@vue/test-utils": "^2.4.5",
+    "cross-env": "^7.0.3",
+    "electron": "^32.1.2",
+    "electron-builder": "^25.1.8",
+    "eslint": "^8.56.0",
+    "eslint-plugin-vue": "^9.32.0",
+    "husky": "^9.1.7",
+    "jsdom": "^24.0.0",
+    "lint-staged": "^15.3.0",
+    "prettier": "^3.4.2",
+    "rimraf": "^5.0.5",
+    "typescript": "^5.5.3",
+    "vite": "^5.4.10",
+    "vitest": "^1.4.0",
+    "vue-cli-plugin-electron-builder": "^2.1.1",
+    "vue-eslint-parser": "^9.4.3",
+    "vue-tsc": "^2.0.29",
+    "wait-on": "^8.0.1"
+  },
+  "main": "electron/main.js",
+  "engines": {
+    "node": ">=18.0.0",
+    "pnpm": ">=8.0.0"
+  }
 }

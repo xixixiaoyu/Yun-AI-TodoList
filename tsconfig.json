@@ -1,8 +1,8 @@
 {
-	"files": [],
-	"references": [{ "path": "./tsconfig.app.json" }, { "path": "./tsconfig.node.json" }],
-	"compilerOptions": {
-		"moduleResolution": "node",
-		"types": ["vite/client", "vue-router"]
-	}
+  "files": [],
+  "references": [{ "path": "./tsconfig.app.json" }, { "path": "./tsconfig.node.json" }],
+  "compilerOptions": {
+    "moduleResolution": "node",
+    "types": ["vite/client", "vue-router"]
+  }
 }

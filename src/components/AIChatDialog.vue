@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { ref, nextTick, onMounted, watch, computed } from 'vue'
 import {
-	getAIStreamResponse,
-	abortCurrentRequest,
-	optimizeText,
+  getAIStreamResponse,
+  abortCurrentRequest,
+  optimizeText,
 } from '../services/deepseekService'
 import { Message } from '../services/types'
 import { marked } from 'marked'
@@ -12,57 +12,57 @@ import hljs from 'highlight.js'
 import 'highlight.js/styles/github.css'
 import { useI18n } from 'vue-i18n'
 import type {
-	SpeechRecognitionEvent,
-	SpeechRecognitionErrorEvent,
+  SpeechRecognitionEvent,
+  SpeechRecognitionErrorEvent,
 } from '../types/web-speech-api'
 import type { MarkedOptions } from 'marked'
 
 // 添加 Web Speech API 类型定义
 declare global {
-	type SpeechRecognitionConstructor = new () => SpeechRecognition
+  type SpeechRecognitionConstructor = new () => SpeechRecognition
 
-	interface Window {
-		webkitSpeechRecognition: SpeechRecognitionConstructor
-		SpeechRecognition: SpeechRecognitionConstructor
-	}
+  interface Window {
+    webkitSpeechRecognition: SpeechRecognitionConstructor
+    SpeechRecognition: SpeechRecognitionConstructor
+  }
 
-	interface SpeechRecognition extends EventTarget {
-		continuous: boolean
-		interimResults: boolean
-		lang: string
-		onstart: (event: Event) => void
-		onresult: (event: SpeechRecognitionEvent) => void
-		onerror: (event: SpeechRecognitionErrorEvent) => void
-		onend: () => void
-		start: () => void
-		stop: () => void
-	}
+  interface SpeechRecognition extends EventTarget {
+    continuous: boolean
+    interimResults: boolean
+    lang: string
+    onstart: (event: Event) => void
+    onresult: (event: SpeechRecognitionEvent) => void
+    onerror: (event: SpeechRecognitionErrorEvent) => void
+    onend: () => void
+    start: () => void
+    stop: () => void
+  }
 
-	interface SpeechRecognitionAlternative {
-		readonly transcript: string
-		readonly confidence: number
-	}
+  interface SpeechRecognitionAlternative {
+    readonly transcript: string
+    readonly confidence: number
+  }
 
-	interface SpeechRecognitionResult {
-		readonly length: number
-		readonly isFinal: boolean
-		[index: number]: SpeechRecognitionAlternative
-	}
+  interface SpeechRecognitionResult {
+    readonly length: number
+    readonly isFinal: boolean
+    [index: number]: SpeechRecognitionAlternative
+  }
 
-	interface SpeechRecognitionEvent {
-		readonly results: SpeechRecognitionResultList
-		readonly resultIndex: number
-	}
+  interface SpeechRecognitionEvent {
+    readonly results: SpeechRecognitionResultList
+    readonly resultIndex: number
+  }
 
-	interface SpeechRecognitionResultList {
-		readonly length: number
-		[index: number]: SpeechRecognitionResult
-	}
+  interface SpeechRecognitionResultList {
+    readonly length: number
+    [index: number]: SpeechRecognitionResult
+  }
 
-	interface SpeechRecognitionErrorEvent extends Event {
-		readonly error: string
-		readonly message?: string
-	}
+  interface SpeechRecognitionErrorEvent extends Event {
+    readonly error: string
+    readonly message?: string
+  }
 }
 
 const { t, locale } = useI18n()
@@ -70,21 +70,21 @@ const { t, locale } = useI18n()
 // 添加错误处理
 const error = ref('')
 const showError = (message: string) => {
-	error.value = message
-	setTimeout(() => {
-		error.value = ''
-	}, 3000)
+  error.value = message
+  setTimeout(() => {
+    error.value = ''
+  }, 3000)
 }
 
 // 配置 marked 使用 highlight.js
 marked.setOptions({
-	highlight: function (code: string, lang: string) {
-		try {
-			return hljs.highlight(code, { language: lang }).value
-		} catch (err) {
-			console.error('Error highlighting code:', err)
-		}
-	},
+  highlight: function (code: string, lang: string) {
+    try {
+      return hljs.highlight(code, { language: lang }).value
+    } catch (err) {
+      console.error('Error highlighting code:', err)
+    }
+  },
 } as MarkedOptions)
 
 const userMessage = ref('')
@@ -97,11 +97,11 @@ const userHasScrolled = ref(false)
 
 // 新增: 对话历史列表
 const conversationHistory = ref<
-	{
-		id: number
-		title: string
-		messages: { role: 'user' | 'ai'; content: string }[]
-	}[]
+  {
+    id: number
+    title: string
+    messages: { role: 'user' | 'ai'; content: string }[]
+  }[]
 >([])
 const currentConversationId = ref<number | null>(null)
 
@@ -110,311 +110,311 @@ const isDrawerOpen = ref(false)
 
 // 新增: 从 localStorage 加载对话历史列表
 const loadConversationHistory = () => {
-	const savedHistory = localStorage.getItem('aiConversationHistory')
-	if (savedHistory) {
-		conversationHistory.value = JSON.parse(savedHistory)
-	}
+  const savedHistory = localStorage.getItem('aiConversationHistory')
+  if (savedHistory) {
+    conversationHistory.value = JSON.parse(savedHistory)
+  }
 }
 
 // 新增: 保存对话历史列表到 localStorage
 const saveConversationHistory = () => {
-	localStorage.setItem('aiConversationHistory', JSON.stringify(conversationHistory.value))
+  localStorage.setItem('aiConversationHistory', JSON.stringify(conversationHistory.value))
 }
 
 // 新增: 保存当前会话 ID 到 localStorage
 const saveCurrentConversationId = () => {
-	if (currentConversationId.value) {
-		localStorage.setItem('currentConversationId', currentConversationId.value.toString())
-	}
+  if (currentConversationId.value) {
+    localStorage.setItem('currentConversationId', currentConversationId.value.toString())
+  }
 }
 
 // 新增: 创建新对话
 const createNewConversation = () => {
-	const newId = Date.now()
-	const newConversation = {
-		id: newId,
-		title: t('newConversation'),
-		messages: [],
-	}
-	conversationHistory.value.unshift(newConversation)
-	currentConversationId.value = newId
-	chatHistory.value = []
-	saveConversationHistory()
-	saveCurrentConversationId() // 保存当前会话 ID
+  const newId = Date.now()
+  const newConversation = {
+    id: newId,
+    title: t('newConversation'),
+    messages: [],
+  }
+  conversationHistory.value.unshift(newConversation)
+  currentConversationId.value = newId
+  chatHistory.value = []
+  saveConversationHistory()
+  saveCurrentConversationId() // 保存当前会话 ID
 }
 
 // 修改: 切换对话的函数，添加可选参数控制是否关闭抽屉
 const switchConversation = (id: number, closeDrawer: boolean = true) => {
-	currentConversationId.value = id
-	const conversation = conversationHistory.value.find((c) => c.id === id)
-	if (conversation) {
-		chatHistory.value = [...conversation.messages]
-	}
-	if (closeDrawer) {
-		isDrawerOpen.value = false
-	}
-	saveCurrentConversationId()
+  currentConversationId.value = id
+  const conversation = conversationHistory.value.find((c) => c.id === id)
+  if (conversation) {
+    chatHistory.value = [...conversation.messages]
+  }
+  if (closeDrawer) {
+    isDrawerOpen.value = false
+  }
+  saveCurrentConversationId()
 }
 
 // 修改: 删除对话时保持抽屉打开
 const deleteConversation = (id: number) => {
-	conversationHistory.value = conversationHistory.value.filter((c) => c.id !== id)
-	if (currentConversationId.value === id) {
-		if (conversationHistory.value.length > 0) {
-			switchConversation(conversationHistory.value[0].id, false) // 不关闭抽屉
-		} else {
-			createNewConversation()
-		}
-	}
-	saveConversationHistory()
+  conversationHistory.value = conversationHistory.value.filter((c) => c.id !== id)
+  if (currentConversationId.value === id) {
+    if (conversationHistory.value.length > 0) {
+      switchConversation(conversationHistory.value[0].id, false) // 不关闭抽屉
+    } else {
+      createNewConversation()
+    }
+  }
+  saveConversationHistory()
 }
 
 // 修改: 重命名函数
 const toggleDrawer = () => {
-	isDrawerOpen.value = !isDrawerOpen.value
+  isDrawerOpen.value = !isDrawerOpen.value
 }
 
 // 修改: 优化关闭抽屉的处理逻辑
 const closeDrawerOnOutsideClick = (event: MouseEvent) => {
-	const drawer = document.querySelector('.drawer-container')
-	const toggleButton = document.querySelector('.toggle-drawer-btn')
-	const conversationControls = document.querySelector('.conversation-controls')
+  const drawer = document.querySelector('.drawer-container')
+  const toggleButton = document.querySelector('.toggle-drawer-btn')
+  const conversationControls = document.querySelector('.conversation-controls')
 
-	// 如果点击的是抽屉按钮或对话控制区域内的元素，不处理
-	if (
-		toggleButton?.contains(event.target as Node) ||
-		conversationControls?.contains(event.target as Node)
-	) {
-		return
-	}
+  // 如果点击的是抽屉按钮或对话控制区域内的元素，不处理
+  if (
+    toggleButton?.contains(event.target as Node) ||
+    conversationControls?.contains(event.target as Node)
+  ) {
+    return
+  }
 
-	// 如果抽屉打开且点击在抽屉外部，则关闭抽屉
-	if (isDrawerOpen.value && drawer && !drawer.contains(event.target as Node)) {
-		isDrawerOpen.value = false
-	}
+  // 如果抽屉打开且点击在抽屉外部，则关闭抽屉
+  if (isDrawerOpen.value && drawer && !drawer.contains(event.target as Node)) {
+    isDrawerOpen.value = false
+  }
 }
 
 // 修改 scrollToBottom 函数，减小判断阈值并考虑用户滚动状态
 const scrollToBottom = () => {
-	if (chatHistoryRef.value) {
-		const element = chatHistoryRef.value
-		const isScrolledToBottom =
-			element.scrollHeight - element.scrollTop <= element.clientHeight + 30
+  if (chatHistoryRef.value) {
+    const element = chatHistoryRef.value
+    const isScrolledToBottom =
+      element.scrollHeight - element.scrollTop <= element.clientHeight + 30
 
-		// 只有当用户没有主动滚动或已经在底部附近时才自动滚动
-		if (!userHasScrolled.value || isScrolledToBottom) {
-			nextTick(() => {
-				element.scrollTo({
-					top: element.scrollHeight,
-					behavior: 'smooth',
-				})
-			})
-		}
-	}
+    // 只有当用户没有主动滚动或已经在底部附近时才自动滚动
+    if (!userHasScrolled.value || isScrolledToBottom) {
+      nextTick(() => {
+        element.scrollTo({
+          top: element.scrollHeight,
+          behavior: 'smooth',
+        })
+      })
+    }
+  }
 }
 
 // 添加滚动事件处理函数
 const handleScroll = () => {
-	if (chatHistoryRef.value) {
-		const element = chatHistoryRef.value
-		const isAtBottom =
-			element.scrollHeight - element.scrollTop <= element.clientHeight + 30
+  if (chatHistoryRef.value) {
+    const element = chatHistoryRef.value
+    const isAtBottom =
+      element.scrollHeight - element.scrollTop <= element.clientHeight + 30
 
-		// 只有当不在底部时才标记用户已滚动
-		if (!isAtBottom) {
-			userHasScrolled.value = true
-		} else {
-			userHasScrolled.value = false
-		}
-	}
+    // 只有当不在底部时才标记用户已滚动
+    if (!isAtBottom) {
+      userHasScrolled.value = true
+    } else {
+      userHasScrolled.value = false
+    }
+  }
 }
 
 // 修改 forceScrollToBottom 函数，重置用户滚动状态
 const forceScrollToBottom = () => {
-	if (chatHistoryRef.value) {
-		userHasScrolled.value = false
-		nextTick(() => {
-			chatHistoryRef.value!.scrollTo({
-				top: chatHistoryRef.value!.scrollHeight,
-				behavior: 'smooth',
-			})
-		})
-	}
+  if (chatHistoryRef.value) {
+    userHasScrolled.value = false
+    nextTick(() => {
+      chatHistoryRef.value!.scrollTo({
+        top: chatHistoryRef.value!.scrollHeight,
+        behavior: 'smooth',
+      })
+    })
+  }
 }
 
 // 新增：自动调整输入框高度
 const adjustTextareaHeight = () => {
-	if (inputRef.value) {
-		const textarea = inputRef.value
-		// 保存当前光标位置
-		const cursorPosition = textarea.selectionStart
+  if (inputRef.value) {
+    const textarea = inputRef.value
+    // 保存当前光标位置
+    const cursorPosition = textarea.selectionStart
 
-		// 调整高度
-		textarea.style.height = 'auto'
-		const newHeight = Math.min(textarea.scrollHeight, 200)
-		textarea.style.height = `${newHeight}px`
+    // 调整高度
+    textarea.style.height = 'auto'
+    const newHeight = Math.min(textarea.scrollHeight, 200)
+    textarea.style.height = `${newHeight}px`
 
-		// 计算光标位置的相对位置
-		const textBeforeCursor = textarea.value.substring(0, cursorPosition)
-		const dummyElement = document.createElement('div')
-		dummyElement.style.cssText = window.getComputedStyle(textarea).cssText
-		dummyElement.style.height = 'auto'
-		dummyElement.style.position = 'absolute'
-		dummyElement.style.visibility = 'hidden'
-		dummyElement.style.whiteSpace = 'pre-wrap'
-		dummyElement.textContent = textBeforeCursor
-		document.body.appendChild(dummyElement)
+    // 计算光标位置的相对位置
+    const textBeforeCursor = textarea.value.substring(0, cursorPosition)
+    const dummyElement = document.createElement('div')
+    dummyElement.style.cssText = window.getComputedStyle(textarea).cssText
+    dummyElement.style.height = 'auto'
+    dummyElement.style.position = 'absolute'
+    dummyElement.style.visibility = 'hidden'
+    dummyElement.style.whiteSpace = 'pre-wrap'
+    dummyElement.textContent = textBeforeCursor
+    document.body.appendChild(dummyElement)
 
-		// 计算光标的垂直位置
-		const cursorTop = dummyElement.offsetHeight
-		document.body.removeChild(dummyElement)
+    // 计算光标的垂直位置
+    const cursorTop = dummyElement.offsetHeight
+    document.body.removeChild(dummyElement)
 
-		// 确保光标可见
-		const scrollTop = Math.max(0, cursorTop - textarea.clientHeight + 20)
-		textarea.scrollTop = scrollTop
+    // 确保光标可见
+    const scrollTop = Math.max(0, cursorTop - textarea.clientHeight + 20)
+    textarea.scrollTop = scrollTop
 
-		// 恢复光标位置
-		textarea.setSelectionRange(cursorPosition, cursorPosition)
-	}
+    // 恢复光标位置
+    textarea.setSelectionRange(cursorPosition, cursorPosition)
+  }
 }
 
 // 监听输入内容变化
 watch(userMessage, () => {
-	nextTick(() => {
-		adjustTextareaHeight()
-	})
+  nextTick(() => {
+    adjustTextareaHeight()
+  })
 })
 
 const isOptimizing = ref(false)
 
 const optimizeMessage = async () => {
-	if (!userMessage.value.trim() || isOptimizing.value) return
+  if (!userMessage.value.trim() || isOptimizing.value) return
 
-	try {
-		isOptimizing.value = true
-		const optimizedText = await optimizeText(userMessage.value)
-		userMessage.value = optimizedText
-	} catch (error) {
-		console.error('优化文本时出错:', error)
-	} finally {
-		isOptimizing.value = false
-	}
+  try {
+    isOptimizing.value = true
+    const optimizedText = await optimizeText(userMessage.value)
+    userMessage.value = optimizedText
+  } catch (error) {
+    console.error('优化文本时出错:', error)
+  } finally {
+    isOptimizing.value = false
+  }
 }
 
 const sendMessage = async () => {
-	if (!userMessage.value.trim()) return
+  if (!userMessage.value.trim()) return
 
-	const userMessageContent = userMessage.value
-	chatHistory.value.push({ role: 'user', content: userMessageContent })
-	userMessage.value = ''
-	isGenerating.value = true
-	currentAIResponse.value = ''
+  const userMessageContent = userMessage.value
+  chatHistory.value.push({ role: 'user', content: userMessageContent })
+  userMessage.value = ''
+  isGenerating.value = true
+  currentAIResponse.value = ''
 
-	// 用户发送消息后强制滚动到底部
-	forceScrollToBottom()
+  // 用户发送消息后强制滚动到底部
+  forceScrollToBottom()
 
-	const aiResponseIndex = chatHistory.value.length
-	chatHistory.value.push({ role: 'ai', content: '' })
+  const aiResponseIndex = chatHistory.value.length
+  chatHistory.value.push({ role: 'ai', content: '' })
 
-	try {
-		const messages: Message[] = chatHistory.value
-			.filter((msg) => msg.content.trim() !== '')
-			.map((msg) => ({
-				role: msg.role === 'user' ? 'user' : 'assistant',
-				content: msg.content,
-			}))
+  try {
+    const messages: Message[] = chatHistory.value
+      .filter((msg) => msg.content.trim() !== '')
+      .map((msg) => ({
+        role: msg.role === 'user' ? 'user' : 'assistant',
+        content: msg.content,
+      }))
 
-		await getAIStreamResponse(messages, (chunk) => {
-			if (chunk === '[DONE]' || chunk === '[ABORTED]') {
-				isGenerating.value = false
-				// 更新当前对话的消息
-				if (currentConversationId.value !== null) {
-					const currentConversation = conversationHistory.value.find(
-						(c) => c.id === currentConversationId.value
-					)
-					if (currentConversation) {
-						currentConversation.messages = chatHistory.value
-						if (currentConversation.messages.length === 2) {
-							currentConversation.title =
-								currentConversation.messages[0].content.slice(0, 30) + '...'
-						}
-					}
-				}
-				saveConversationHistory()
-				return
-			}
-			currentAIResponse.value += chunk
-			chatHistory.value[aiResponseIndex].content = currentAIResponse.value
-			scrollToBottom() // 使用普通滚动逻辑处理流式响应
-		})
-	} catch (error) {
-		console.error(t('aiResponseError'), error)
-		chatHistory.value[aiResponseIndex].content = t('aiResponseErrorMessage')
-	} finally {
-		isGenerating.value = false
-		currentAIResponse.value = ''
-		nextTick(() => {
-			if (inputRef.value) {
-				inputRef.value.focus()
-			}
-		})
-	}
+    await getAIStreamResponse(messages, (chunk) => {
+      if (chunk === '[DONE]' || chunk === '[ABORTED]') {
+        isGenerating.value = false
+        // 更新当前对话的消息
+        if (currentConversationId.value !== null) {
+          const currentConversation = conversationHistory.value.find(
+            (c) => c.id === currentConversationId.value
+          )
+          if (currentConversation) {
+            currentConversation.messages = chatHistory.value
+            if (currentConversation.messages.length === 2) {
+              currentConversation.title =
+                currentConversation.messages[0].content.slice(0, 30) + '...'
+            }
+          }
+        }
+        saveConversationHistory()
+        return
+      }
+      currentAIResponse.value += chunk
+      chatHistory.value[aiResponseIndex].content = currentAIResponse.value
+      scrollToBottom() // 使用普通滚动逻辑处理流式响应
+    })
+  } catch (error) {
+    console.error(t('aiResponseError'), error)
+    chatHistory.value[aiResponseIndex].content = t('aiResponseErrorMessage')
+  } finally {
+    isGenerating.value = false
+    currentAIResponse.value = ''
+    nextTick(() => {
+      if (inputRef.value) {
+        inputRef.value.focus()
+      }
+    })
+  }
 }
 
 const stopGenerating = () => {
-	abortCurrentRequest()
-	isGenerating.value = false
-	nextTick(() => {
-		if (inputRef.value) {
-			inputRef.value.focus()
-		}
-	})
+  abortCurrentRequest()
+  isGenerating.value = false
+  nextTick(() => {
+    if (inputRef.value) {
+      inputRef.value.focus()
+    }
+  })
 }
 
 const sanitizeContent = (content: string): string => {
-	const rawHtml = marked.parse(content) as string
-	return DOMPurify.sanitize(rawHtml)
+  const rawHtml = marked.parse(content) as string
+  return DOMPurify.sanitize(rawHtml)
 }
 
 const sanitizedMessages = computed(() =>
-	chatHistory.value.map((message) => ({
-		...message,
-		sanitizedContent:
-			message.role === 'ai' ? sanitizeContent(message.content) : message.content,
-	}))
+  chatHistory.value.map((message) => ({
+    ...message,
+    sanitizedContent:
+      message.role === 'ai' ? sanitizeContent(message.content) : message.content,
+  }))
 )
 
 const newline = (event: KeyboardEvent) => {
-	event.preventDefault()
-	const textarea = event.target as HTMLTextAreaElement
-	const start = textarea.selectionStart
-	const end = textarea.selectionEnd
-	const value = textarea.value
-	textarea.value = value.substring(0, start) + '\n' + value.substring(end)
-	textarea.selectionStart = textarea.selectionEnd = start + 1
+  event.preventDefault()
+  const textarea = event.target as HTMLTextAreaElement
+  const start = textarea.selectionStart
+  const end = textarea.selectionEnd
+  const value = textarea.value
+  textarea.value = value.substring(0, start) + '\n' + value.substring(end)
+  textarea.selectionStart = textarea.selectionEnd = start + 1
 
-	// 添加滚动到底部的逻辑
-	nextTick(() => {
-		textarea.scrollTop = textarea.scrollHeight
-	})
+  // 添加滚动到底部的逻辑
+  nextTick(() => {
+    textarea.scrollTop = textarea.scrollHeight
+  })
 }
 
 // 新增：复制功能
 const copyToClipboard = async (text: string) => {
-	try {
-		await navigator.clipboard.writeText(text)
-	} catch (err) {
-		console.error(t('copyError', { error: err }))
-	}
+  try {
+    await navigator.clipboard.writeText(text)
+  } catch (err) {
+    console.error(t('copyError', { error: err }))
+  }
 }
 
 const clearAllConversations = () => {
-	if (confirm(t('confirmClearAll'))) {
-		conversationHistory.value = []
-		localStorage.removeItem('aiConversationHistory')
-		localStorage.removeItem('currentConversationId')
-		createNewConversation()
-	}
+  if (confirm(t('confirmClearAll'))) {
+    conversationHistory.value = []
+    localStorage.removeItem('aiConversationHistory')
+    localStorage.removeItem('currentConversationId')
+    createNewConversation()
+  }
 }
 
 const isListening = ref(false)
@@ -427,246 +427,246 @@ const lastError = ref('')
 
 // 检查浏览器是否支持语音识别
 const checkSpeechRecognitionSupport = () => {
-	const SpeechRecognitionAPI = window.SpeechRecognition || window.webkitSpeechRecognition
-	if (!SpeechRecognitionAPI) {
-		isRecognitionSupported.value = false
-		console.error(t('browserSpeechNotSupported'))
-		return false
-	}
-	return true
+  const SpeechRecognitionAPI = window.SpeechRecognition || window.webkitSpeechRecognition
+  if (!SpeechRecognitionAPI) {
+    isRecognitionSupported.value = false
+    console.error(t('browserSpeechNotSupported'))
+    return false
+  }
+  return true
 }
 
 const initSpeechRecognition = async () => {
-	try {
-		// 1. 检查浏览器支持
-		if (!checkSpeechRecognitionSupport()) {
-			recognitionStatus.value = 'error'
-			lastError.value = t('browserNotSupported')
-			return
-		}
+  try {
+    // 1. 检查浏览器支持
+    if (!checkSpeechRecognitionSupport()) {
+      recognitionStatus.value = 'error'
+      lastError.value = t('browserNotSupported')
+      return
+    }
 
-		// 2. 检查麦克风权限
-		try {
-			await navigator.mediaDevices.getUserMedia({ audio: true })
-			console.log(t('micPermissionGranted'))
-		} catch (error) {
-			console.error(t('micPermissionError', { error }))
-			recognitionStatus.value = 'error'
-			lastError.value = t('microphonePermissionDenied')
-			return
-		}
+    // 2. 检查麦克风权限
+    try {
+      await navigator.mediaDevices.getUserMedia({ audio: true })
+      console.log(t('micPermissionGranted'))
+    } catch (error) {
+      console.error(t('micPermissionError', { error }))
+      recognitionStatus.value = 'error'
+      lastError.value = t('microphonePermissionDenied')
+      return
+    }
 
-		// 3. 创建新的识别实例前先停止和清理旧实例
-		if (recognition.value) {
-			try {
-				recognition.value.stop()
-			} catch (e) {
-				console.log(t('stopOldInstance', { error: e }))
-			}
-			recognition.value = null
-		}
+    // 3. 创建新的识别实例前先停止和清理旧实例
+    if (recognition.value) {
+      try {
+        recognition.value.stop()
+      } catch (e) {
+        console.log(t('stopOldInstance', { error: e }))
+      }
+      recognition.value = null
+    }
 
-		// 4. 创建新实例
-		const SpeechRecognitionAPI =
-			window.SpeechRecognition || window.webkitSpeechRecognition
-		recognition.value = new SpeechRecognitionAPI()
+    // 4. 创建新实例
+    const SpeechRecognitionAPI =
+      window.SpeechRecognition || window.webkitSpeechRecognition
+    recognition.value = new SpeechRecognitionAPI()
 
-		// 5. 基本配置
-		recognition.value.continuous = true // 改为持续识别
-		recognition.value.interimResults = true // 开启临时结果
-		recognition.value.maxAlternatives = 1
+    // 5. 基本配置
+    recognition.value.continuous = true // 改为持续识别
+    recognition.value.interimResults = true // 开启临时结果
+    recognition.value.maxAlternatives = 1
 
-		// 6. 设置语言 - 根据当前界面语言自动选择
-		const preferredLang = locale.value === 'zh' ? 'zh-CN' : 'en-US'
-		recognition.value.lang = preferredLang
-		console.log(t('speechRecognitionLang', { lang: preferredLang }))
+    // 6. 设置语言 - 根据当前界面语言自动选择
+    const preferredLang = locale.value === 'zh' ? 'zh-CN' : 'en-US'
+    recognition.value.lang = preferredLang
+    console.log(t('speechRecognitionLang', { lang: preferredLang }))
 
-		// 7. 开始事件
-		recognition.value.onstart = () => {
-			console.log(t('speechRecognitionStart'))
-			isListening.value = true
-			recognitionStatus.value = 'listening'
-			errorCount.value = 0
-			lastError.value = ''
-		}
+    // 7. 开始事件
+    recognition.value.onstart = () => {
+      console.log(t('speechRecognitionStart'))
+      isListening.value = true
+      recognitionStatus.value = 'listening'
+      errorCount.value = 0
+      lastError.value = ''
+    }
 
-		// 8. 结果事件处理
-		recognition.value.onresult = (event: SpeechRecognitionEvent) => {
-			let interimTranscript = ''
-			let finalTranscript = ''
+    // 8. 结果事件处理
+    recognition.value.onresult = (event: SpeechRecognitionEvent) => {
+      let interimTranscript = ''
+      let finalTranscript = ''
 
-			for (let i = event.resultIndex; i < event.results.length; i++) {
-				const transcript = event.results[i][0].transcript
-				if (event.results[i].isFinal) {
-					finalTranscript += transcript
-				} else {
-					interimTranscript += transcript
-				}
-			}
+      for (let i = event.resultIndex; i < event.results.length; i++) {
+        const transcript = event.results[i][0].transcript
+        if (event.results[i].isFinal) {
+          finalTranscript += transcript
+        } else {
+          interimTranscript += transcript
+        }
+      }
 
-			// 处理最终结果
-			if (finalTranscript) {
-				userMessage.value = (userMessage.value || '').trim()
-				userMessage.value += (userMessage.value ? ' ' : '') + finalTranscript
-			}
+      // 处理最终结果
+      if (finalTranscript) {
+        userMessage.value = (userMessage.value || '').trim()
+        userMessage.value += (userMessage.value ? ' ' : '') + finalTranscript
+      }
 
-			// 显示临时结果（可以添加一个临时显示区域）
-			if (interimTranscript) {
-				console.log(t('interimResult', { result: interimTranscript }))
-			}
-		}
+      // 显示临时结果（可以添加一个临时显示区域）
+      if (interimTranscript) {
+        console.log(t('interimResult', { result: interimTranscript }))
+      }
+    }
 
-		// 9. 错误事件处理
-		recognition.value.onerror = (event: SpeechRecognitionErrorEvent) => {
-			console.error(t('speechRecognitionError', { error: event.error }), event)
-			recognitionStatus.value = 'error'
+    // 9. 错误事件处理
+    recognition.value.onerror = (event: SpeechRecognitionErrorEvent) => {
+      console.error(t('speechRecognitionError', { error: event.error }), event)
+      recognitionStatus.value = 'error'
 
-			switch (event.error) {
-				case 'no-speech': {
-					const message = t('noSpeechDetected')
-					showError(message)
-					break
-				}
-				case 'audio-capture': {
-					const message = t('noMicrophoneFound')
-					showError(message)
-					break
-				}
-				case 'not-allowed': {
-					const message = t('microphonePermissionDenied')
-					showError(message)
-					break
-				}
-				default: {
-					const message = t('speechRecognitionError')
-					showError(message)
-					break
-				}
-			}
-		}
+      switch (event.error) {
+        case 'no-speech': {
+          const message = t('noSpeechDetected')
+          showError(message)
+          break
+        }
+        case 'audio-capture': {
+          const message = t('noMicrophoneFound')
+          showError(message)
+          break
+        }
+        case 'not-allowed': {
+          const message = t('microphonePermissionDenied')
+          showError(message)
+          break
+        }
+        default: {
+          const message = t('speechRecognitionError')
+          showError(message)
+          break
+        }
+      }
+    }
 
-		// 10. 结束事件
-		recognition.value.onend = () => {
-			console.log(t('speechRecognitionEnd'))
-			if (
-				isListening.value &&
-				errorCount.value < maxErrorRetries &&
-				recognitionStatus.value !== 'error'
-			) {
-				restartRecognition()
-			} else {
-				isListening.value = false
-				recognitionStatus.value = 'idle'
-			}
-		}
+    // 10. 结束事件
+    recognition.value.onend = () => {
+      console.log(t('speechRecognitionEnd'))
+      if (
+        isListening.value &&
+        errorCount.value < maxErrorRetries &&
+        recognitionStatus.value !== 'error'
+      ) {
+        restartRecognition()
+      } else {
+        isListening.value = false
+        recognitionStatus.value = 'idle'
+      }
+    }
 
-		// 11. 音频开始事件
-		recognition.value.onaudiostart = () => {
-			console.log(t('audioStart'))
-			recognitionStatus.value = 'listening'
-		}
+    // 11. 音频开始事件
+    recognition.value.onaudiostart = () => {
+      console.log(t('audioStart'))
+      recognitionStatus.value = 'listening'
+    }
 
-		// 12. 音频结束事件
-		recognition.value.onaudioend = () => {
-			console.log(t('audioEnd'))
-			recognitionStatus.value = 'processing'
-		}
-	} catch (error) {
-		console.error(t('initRecognitionError', { error }))
-		recognitionStatus.value = 'error'
-		lastError.value = t('initializationError')
-		isListening.value = false
-	}
+    // 12. 音频结束事件
+    recognition.value.onaudioend = () => {
+      console.log(t('audioEnd'))
+      recognitionStatus.value = 'processing'
+    }
+  } catch (error) {
+    console.error(t('initRecognitionError', { error }))
+    recognitionStatus.value = 'error'
+    lastError.value = t('initializationError')
+    isListening.value = false
+  }
 }
 
 // 修改重启逻辑，添加延迟和状态检查
 const restartRecognition = () => {
-	if (isListening.value && recognition.value && recognitionStatus.value !== 'error') {
-		try {
-			setTimeout(() => {
-				if (isListening.value) {
-					recognition.value.start()
-					recognitionStatus.value = 'listening'
-				}
-			}, 500) // 增加延迟时间
-		} catch (e) {
-			console.error(t('restartRecognitionError', { error: e }))
-			recognitionStatus.value = 'error'
-			isListening.value = false
-		}
-	}
+  if (isListening.value && recognition.value && recognitionStatus.value !== 'error') {
+    try {
+      setTimeout(() => {
+        if (isListening.value) {
+          recognition.value.start()
+          recognitionStatus.value = 'listening'
+        }
+      }, 500) // 增加延迟时间
+    } catch (e) {
+      console.error(t('restartRecognitionError', { error: e }))
+      recognitionStatus.value = 'error'
+      isListening.value = false
+    }
+  }
 }
 
 const startListening = async () => {
-	try {
-		// 如果还没有初始化语音识别，先初始化
-		if (!recognition.value) {
-			await initSpeechRecognition()
-		}
+  try {
+    // 如果还没有初始化语音识别，先初始化
+    if (!recognition.value) {
+      await initSpeechRecognition()
+    }
 
-		if (recognition.value && recognitionStatus.value !== 'error') {
-			errorCount.value = 0
-			lastError.value = ''
-			recognitionStatus.value = 'listening'
-			recognition.value.start()
-		}
-	} catch (error) {
-		console.error(t('startRecognitionError', { error }))
-		recognitionStatus.value = 'error'
-		lastError.value = t('speechRecognitionError')
-		isListening.value = false
-	}
+    if (recognition.value && recognitionStatus.value !== 'error') {
+      errorCount.value = 0
+      lastError.value = ''
+      recognitionStatus.value = 'listening'
+      recognition.value.start()
+    }
+  } catch (error) {
+    console.error(t('startRecognitionError', { error }))
+    recognitionStatus.value = 'error'
+    lastError.value = t('speechRecognitionError')
+    isListening.value = false
+  }
 }
 
 const stopListening = () => {
-	try {
-		if (recognition.value) {
-			isListening.value = false
-			recognitionStatus.value = 'idle'
-			recognition.value.stop()
-			// 停止后清理语音识别实例
-			recognition.value = null
-		}
-	} catch (error) {
-		console.error(t('stopRecognitionError', { error }))
-		recognitionStatus.value = 'error'
-		isListening.value = false
-	}
+  try {
+    if (recognition.value) {
+      isListening.value = false
+      recognitionStatus.value = 'idle'
+      recognition.value.stop()
+      // 停止后清理语音识别实例
+      recognition.value = null
+    }
+  } catch (error) {
+    console.error(t('stopRecognitionError', { error }))
+    recognitionStatus.value = 'error'
+    isListening.value = false
+  }
 }
 
 onMounted(() => {
-	if (inputRef.value) {
-		inputRef.value.focus()
-		adjustTextareaHeight()
-	}
-	loadConversationHistory()
+  if (inputRef.value) {
+    inputRef.value.focus()
+    adjustTextareaHeight()
+  }
+  loadConversationHistory()
 
-	// 添加滚动事件监听
-	if (chatHistoryRef.value) {
-		chatHistoryRef.value.addEventListener('scroll', handleScroll)
-	}
+  // 添加滚动事件监听
+  if (chatHistoryRef.value) {
+    chatHistoryRef.value.addEventListener('scroll', handleScroll)
+  }
 
-	// 从 localStorage 获取上次激活的会话 ID
-	const savedConversationId = localStorage.getItem('currentConversationId')
+  // 从 localStorage 获取上次激活的会话 ID
+  const savedConversationId = localStorage.getItem('currentConversationId')
 
-	if (conversationHistory.value.length === 0) {
-		createNewConversation()
-	} else if (savedConversationId) {
-		// 尝试恢复上次激活的会话
-		const conversationId = parseInt(savedConversationId)
-		const exists = conversationHistory.value.some((c) => c.id === conversationId)
-		if (exists) {
-			switchConversation(conversationId)
-		} else {
-			// 如果上次激活的会话不存在，切换到第一个会话
-			switchConversation(conversationHistory.value[0].id)
-		}
-	} else {
-		// 如果没有保存的会话 ID，切换到第一个会话
-		switchConversation(conversationHistory.value[0].id)
-	}
+  if (conversationHistory.value.length === 0) {
+    createNewConversation()
+  } else if (savedConversationId) {
+    // 尝试恢复上次激活的会话
+    const conversationId = parseInt(savedConversationId)
+    const exists = conversationHistory.value.some((c) => c.id === conversationId)
+    if (exists) {
+      switchConversation(conversationId)
+    } else {
+      // 如果上次激活的会话不存在，切换到第一个会话
+      switchConversation(conversationHistory.value[0].id)
+    }
+  } else {
+    // 如果没有保存的会话 ID，切换到第一个会话
+    switchConversation(conversationHistory.value[0].id)
+  }
 
-	document.addEventListener('click', closeDrawerOnOutsideClick)
+  document.addEventListener('click', closeDrawerOnOutsideClick)
 })
 
 watch(chatHistory, scrollToBottom, { deep: true })
@@ -677,11 +677,7 @@ watch(chatHistory, scrollToBottom, { deep: true })
     <div class="dialog-header">
       <h2>{{ t('aiAssistant') }}</h2>
 
-      <router-link
-        to="/"
-        class="close-button"
-        aria-label="close"
-      >
+      <router-link to="/" class="close-button" aria-label="close">
         <svg
           xmlns="http://www.w3.org/2000/svg"
           viewBox="0 0 24 24"
@@ -696,10 +692,7 @@ watch(chatHistory, scrollToBottom, { deep: true })
       </router-link>
     </div>
     <div class="dialog-content scrollable-container">
-      <div
-        class="drawer-container"
-        :class="{ 'drawer-open': isDrawerOpen }"
-      >
+      <div class="drawer-container" :class="{ 'drawer-open': isDrawerOpen }">
         <div class="drawer">
           <div class="drawer-header">
             <h3 class="drawer-title">
@@ -724,20 +717,14 @@ watch(chatHistory, scrollToBottom, { deep: true })
                   <path d="M9 10h2v8H9zm4 0h2v8h-2z" />
                 </svg>
               </button>
-              <button
-                class="close-drawer-btn"
-                @click="toggleDrawer"
-              >
+              <button class="close-drawer-btn" @click="toggleDrawer">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   viewBox="0 0 24 24"
                   width="24"
                   height="24"
                 >
-                  <path
-                    fill="none"
-                    d="M0 0h24v24H0z"
-                  />
+                  <path fill="none" d="M0 0h24v24H0z" />
                   <path
                     d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"
                   />
@@ -764,10 +751,7 @@ watch(chatHistory, scrollToBottom, { deep: true })
                   width="18"
                   height="18"
                 >
-                  <path
-                    fill="none"
-                    d="M0 0h24v24H0z"
-                  />
+                  <path fill="none" d="M0 0h24v24H0z" />
                   <path
                     d="M17 6h5v2h-2v13a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V8H2V6h5V3a1 1 0 0 1 1-1h8a1 1 0 0 1 1 1v3zm1 2H6v12h12V8zm-9 3h2v6H9v-6zm4 0h2v6h-2v-6zM9 4v2h6V4H9z"
                   />
@@ -777,32 +761,19 @@ watch(chatHistory, scrollToBottom, { deep: true })
           </div>
         </div>
       </div>
-      <div
-        v-if="isDrawerOpen"
-        class="drawer-overlay"
-        @click="isDrawerOpen = false"
-      />
-      <div
-        ref="chatHistoryRef"
-        class="chat-history"
-      >
+      <div v-if="isDrawerOpen" class="drawer-overlay" @click="isDrawerOpen = false" />
+      <div ref="chatHistoryRef" class="chat-history">
         <div
           v-for="(message, index) in sanitizedMessages"
           :key="index"
           class="message-container"
           :class="message.role"
         >
-          <div
-            class="message-content"
-            dir="ltr"
-          >
+          <div class="message-content" dir="ltr">
             <p v-if="message.role === 'user'">
               {{ message.content }}
             </p>
-            <div
-              v-else
-              class="ai-message"
-            >
+            <div v-else class="ai-message">
               <div v-html="message.sanitizedContent" />
               <button
                 class="copy-button"
@@ -818,14 +789,7 @@ watch(chatHistory, scrollToBottom, { deep: true })
                   stroke-linecap="round"
                   stroke-linejoin="round"
                 >
-                  <rect
-                    x="9"
-                    y="9"
-                    width="13"
-                    height="13"
-                    rx="2"
-                    ry="2"
-                  />
+                  <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
                   <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
                 </svg>
                 复制
@@ -835,10 +799,7 @@ watch(chatHistory, scrollToBottom, { deep: true })
         </div>
       </div>
       <div class="conversation-controls">
-        <button
-          class="new-conversation-btn"
-          @click="createNewConversation"
-        >
+        <button class="new-conversation-btn" @click="createNewConversation">
           <svg
             xmlns="http://www.w3.org/2000/svg"
             viewBox="0 0 24 24"
@@ -868,10 +829,7 @@ watch(chatHistory, scrollToBottom, { deep: true })
           </svg>
           {{ isOptimizing ? t('optimizing') : t('optimize') }}
         </button>
-        <button
-          class="toggle-drawer-btn"
-          @click="toggleDrawer"
-        >
+        <button class="toggle-drawer-btn" @click="toggleDrawer">
           <svg
             xmlns="http://www.w3.org/2000/svg"
             viewBox="0 0 24 24"
@@ -893,10 +851,7 @@ watch(chatHistory, scrollToBottom, { deep: true })
           @keydown.enter.shift.exact="newline"
         />
         <div class="input-controls">
-          <button
-            v-if="!isGenerating"
-            @click="sendMessage"
-          >
+          <button v-if="!isGenerating" @click="sendMessage">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               viewBox="0 0 24 24"
@@ -908,11 +863,7 @@ watch(chatHistory, scrollToBottom, { deep: true })
             </svg>
             {{ t('send') }}
           </button>
-          <button
-            v-else
-            class="stop-btn"
-            @click="stopGenerating"
-          >
+          <button v-else class="stop-btn" @click="stopGenerating">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               viewBox="0 0 24 24"
@@ -947,10 +898,7 @@ watch(chatHistory, scrollToBottom, { deep: true })
               />
             </svg>
             <span>{{ isListening ? t('stopListening') : t('startListening') }}</span>
-            <span
-              v-if="lastError"
-              class="error-message"
-            >{{ lastError }}</span>
+            <span v-if="lastError" class="error-message">{{ lastError }}</span>
           </button>
         </div>
       </div>
@@ -960,522 +908,522 @@ watch(chatHistory, scrollToBottom, { deep: true })
 
 <style scoped>
 .ai-chat-dialog {
-	overflow: hidden;
-	font-family: 'LXGW WenKai Screen', sans-serif;
-	position: fixed;
-	top: 0;
-	left: 0;
-	width: 100vw;
-	height: 100vh;
-	background-color: var(--bg-color);
-	display: flex;
-	flex-direction: column;
-	z-index: 100000;
-	text-align: left;
+  overflow: hidden;
+  font-family: 'LXGW WenKai Screen', sans-serif;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: var(--bg-color);
+  display: flex;
+  flex-direction: column;
+  z-index: 100000;
+  text-align: left;
 }
 
 .dialog-header {
-	display: flex;
-	justify-content: space-between;
-	align-items: center;
-	padding: 12px 20px;
-	background-color: var(--button-bg-color);
-	color: var(--card-bg-color);
-	box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-	backdrop-filter: blur(10px);
-	position: sticky;
-	top: 0;
-	z-index: 1000;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 20px;
+  background-color: var(--button-bg-color);
+  color: var(--card-bg-color);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(10px);
+  position: sticky;
+  top: 0;
+  z-index: 1000;
 }
 
 .dialog-header h2 {
-	margin: 0;
-	font-size: 20px;
-	font-weight: 500;
+  margin: 0;
+  font-size: 20px;
+  font-weight: 500;
 }
 
 .close-button {
-	background: none;
-	border: none;
-	color: var(--card-bg-color);
-	cursor: pointer;
-	padding: 5px;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	opacity: 0.8;
+  background: none;
+  border: none;
+  color: var(--card-bg-color);
+  cursor: pointer;
+  padding: 5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0.8;
 }
 
 .close-button:hover {
-	opacity: 1;
+  opacity: 1;
 }
 
 .dialog-content {
-	flex-grow: 1;
-	display: flex;
-	flex-direction: column;
-	padding: 16px 0;
-	overflow: hidden;
-	height: calc(100% - 60px);
-	position: relative;
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 16px 0;
+  overflow: hidden;
+  height: calc(100% - 60px);
+  position: relative;
 }
 
 .chat-history {
-	flex-grow: 1;
-	overflow-y: auto;
-	margin-bottom: 16px;
-	display: flex;
-	flex-direction: column;
-	scroll-behavior: smooth;
-	padding: 0 20px;
-	gap: 16px;
+  flex-grow: 1;
+  overflow-y: auto;
+  margin-bottom: 16px;
+  display: flex;
+  flex-direction: column;
+  scroll-behavior: smooth;
+  padding: 0 20px;
+  gap: 16px;
 }
 
 .message-container {
-	max-width: 85%;
-	animation: fadeIn 0.3s ease-out;
-	position: relative;
+  max-width: 85%;
+  animation: fadeIn 0.3s ease-out;
+  position: relative;
 }
 
 .message-content {
-	padding: 12px 16px;
-	border-radius: 16px;
-	line-height: 1.6;
-	font-size: 15px;
-	direction: ltr;
-	unicode-bidi: isolate;
-	text-align: left;
-	box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
-	position: relative;
+  padding: 12px 16px;
+  border-radius: 16px;
+  line-height: 1.6;
+  font-size: 15px;
+  direction: ltr;
+  unicode-bidi: isolate;
+  text-align: left;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+  position: relative;
 }
 
 @keyframes fadeIn {
-	from {
-		opacity: 0;
-		transform: translateY(10px);
-	}
-	to {
-		opacity: 1;
-		transform: translateY(0);
-	}
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .user {
-	align-self: flex-end;
-	margin-right: 10px;
+  align-self: flex-end;
+  margin-right: 10px;
 }
 
 .user .message-content {
-	background-color: var(--button-bg-color);
-	color: var(--card-bg-color);
-	border-bottom-right-radius: 4px;
+  background-color: var(--button-bg-color);
+  color: var(--card-bg-color);
+  border-bottom-right-radius: 4px;
 }
 
 .ai {
-	align-self: flex-start;
-	margin-left: 10px;
+  align-self: flex-start;
+  margin-left: 10px;
 }
 
 .ai .message-content {
-	background-color: var(--input-bg-color);
-	color: var(--text-color);
-	border-bottom-left-radius: 4px;
+  background-color: var(--input-bg-color);
+  color: var(--text-color);
+  border-bottom-left-radius: 4px;
 }
 
 .chat-input textarea {
-	flex-grow: 1;
-	padding: 8px 12px;
-	font-size: 14px;
-	border: 1px solid var(--input-border-color);
-	border-radius: 8px;
-	outline: none;
-	background-color: var(--input-bg-color);
-	color: var(--text-color);
-	resize: none;
-	min-height: 36px;
-	max-height: 120px;
-	font-family: inherit;
-	line-height: 1.4;
-	overflow-y: auto;
+  flex-grow: 1;
+  padding: 8px 12px;
+  font-size: 14px;
+  border: 1px solid var(--input-border-color);
+  border-radius: 8px;
+  outline: none;
+  background-color: var(--input-bg-color);
+  color: var(--text-color);
+  resize: none;
+  min-height: 36px;
+  max-height: 120px;
+  font-family: inherit;
+  line-height: 1.4;
+  overflow-y: auto;
 }
 
 .chat-input textarea:focus {
-	border-color: var(--button-bg-color);
+  border-color: var(--button-bg-color);
 }
 
 .chat-input button {
-	padding: 0 12px;
-	font-size: 13px;
-	background-color: var(--button-bg-color);
-	color: var(--card-bg-color);
-	border: none;
-	border-radius: 8px;
-	cursor: pointer;
-	height: 36px;
-	min-width: 70px;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	gap: 4px;
+  padding: 0 12px;
+  font-size: 13px;
+  background-color: var(--button-bg-color);
+  color: var(--card-bg-color);
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  height: 36px;
+  min-width: 70px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
 }
 
 .chat-input button:hover:not(:disabled) {
-	opacity: 0.9;
+  opacity: 0.9;
 }
 
 .chat-input button:disabled {
-	background-color: var(--input-border-color);
-	cursor: not-allowed;
-	opacity: 0.7;
+  background-color: var(--input-border-color);
+  cursor: not-allowed;
+  opacity: 0.7;
 }
 
 .stop-btn {
-	background-color: var(--button-hover-bg-color) !important;
+  background-color: var(--button-hover-bg-color) !important;
 }
 
 /* Drawer styles */
 .drawer-container {
-	position: fixed;
-	left: -300px;
-	top: 0;
-	height: 100%;
-	width: 300px;
-	background-color: var(--bg-color);
-	transition: transform 0.3s ease;
-	box-shadow: 2px 0 8px rgba(0, 0, 0, 0.1);
-	z-index: 1000;
+  position: fixed;
+  left: -300px;
+  top: 0;
+  height: 100%;
+  width: 300px;
+  background-color: var(--bg-color);
+  transition: transform 0.3s ease;
+  box-shadow: 2px 0 8px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
 }
 
 .drawer-container.drawer-open {
-	transform: translateX(300px);
+  transform: translateX(300px);
 }
 
 .drawer {
-	height: 100%;
-	display: flex;
-	flex-direction: column;
-	padding: 16px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  padding: 16px;
 }
 
 .drawer-header {
-	display: flex;
-	justify-content: space-between;
-	align-items: center;
-	margin-bottom: 16px;
-	padding-bottom: 12px;
-	border-bottom: 1px solid var(--input-border-color);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--input-border-color);
 }
 
 .drawer-title {
-	margin: 0;
-	font-size: 18px;
-	font-weight: 500;
+  margin: 0;
+  font-size: 18px;
+  font-weight: 500;
 }
 
 .close-drawer-btn {
-	background: none;
-	border: none;
-	cursor: pointer;
-	padding: 4px;
-	color: var(--text-color);
-	opacity: 0.7;
-	transition: all 0.2s ease;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  color: var(--text-color);
+  opacity: 0.7;
+  transition: all 0.2s ease;
 }
 
 .close-drawer-btn:hover {
-	opacity: 1;
+  opacity: 1;
 }
 
 .conversation-list {
-	flex-grow: 1;
-	overflow-y: auto;
-	padding-right: 8px;
+  flex-grow: 1;
+  overflow-y: auto;
+  padding-right: 8px;
 }
 
 .conversation-item {
-	display: flex;
-	justify-content: space-between;
-	align-items: center;
-	padding: 10px 12px;
-	margin-bottom: 8px;
-	cursor: pointer;
-	border-radius: 8px;
-	background-color: var(--input-bg-color);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 12px;
+  margin-bottom: 8px;
+  cursor: pointer;
+  border-radius: 8px;
+  background-color: var(--input-bg-color);
 }
 
 .conversation-item:hover {
-	opacity: 0.9;
+  opacity: 0.9;
 }
 
 .conversation-item.active {
-	background-color: var(--button-bg-color);
-	color: var(--card-bg-color);
+  background-color: var(--button-bg-color);
+  color: var(--card-bg-color);
 }
 
 .conversation-item span {
-	flex-grow: 1;
-	white-space: nowrap;
-	overflow: hidden;
-	text-overflow: ellipsis;
-	margin-right: 8px;
+  flex-grow: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-right: 8px;
 }
 
 .delete-conversation-btn {
-	background: none;
-	border: none;
-	padding: 4px;
-	cursor: pointer;
-	opacity: 0.7;
-	transition: all 0.2s ease;
-	color: inherit;
+  background: none;
+  border: none;
+  padding: 4px;
+  cursor: pointer;
+  opacity: 0.7;
+  transition: all 0.2s ease;
+  color: inherit;
 }
 
 .delete-conversation-btn:hover {
-	opacity: 1;
+  opacity: 1;
 }
 
 .conversation-controls {
-	display: flex;
-	gap: 8px;
-	padding: 0 20px;
+  display: flex;
+  gap: 8px;
+  padding: 0 20px;
 }
 
 .new-conversation-btn,
 .optimize-btn,
 .toggle-drawer-btn {
-	padding: 8px 16px;
-	font-size: 14px;
-	background-color: var(--input-bg-color);
-	color: var(--text-color);
-	border: 1px solid var(--input-border-color);
-	border-radius: 8px;
-	cursor: pointer;
-	display: flex;
-	align-items: center;
-	gap: 6px;
-	transition: all 0.2s ease;
-	height: 36px;
+  padding: 8px 16px;
+  font-size: 14px;
+  background-color: var(--input-bg-color);
+  color: var(--text-color);
+  border: 1px solid var(--input-border-color);
+  border-radius: 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s ease;
+  height: 36px;
 }
 
 .new-conversation-btn:hover:not(:disabled),
 .optimize-btn:hover:not(:disabled),
 .toggle-drawer-btn:hover {
-	background-color: var(--button-hover-bg-color);
-	color: var(--card-bg-color);
+  background-color: var(--button-hover-bg-color);
+  color: var(--card-bg-color);
 }
 
 .optimize-btn:disabled {
-	opacity: 0.5;
-	cursor: not-allowed;
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 @media (max-width: 768px) {
-	.conversation-controls {
-		padding: 0 12px;
-		margin-bottom: 12px;
-		gap: 6px;
-	}
+  .conversation-controls {
+    padding: 0 12px;
+    margin-bottom: 12px;
+    gap: 6px;
+  }
 
-	.new-conversation-btn,
-	.optimize-btn,
-	.toggle-drawer-btn {
-		padding: 6px 12px;
-		font-size: 13px;
-		height: 32px;
-	}
+  .new-conversation-btn,
+  .optimize-btn,
+  .toggle-drawer-btn {
+    padding: 6px 12px;
+    font-size: 13px;
+    height: 32px;
+  }
 
-	.new-conversation-btn svg,
-	.optimize-btn svg,
-	.toggle-drawer-btn svg {
-		width: 14px;
-		height: 14px;
-	}
+  .new-conversation-btn svg,
+  .optimize-btn svg,
+  .toggle-drawer-btn svg {
+    width: 14px;
+    height: 14px;
+  }
 }
 
 .chat-input {
-	display: flex;
-	gap: 8px;
-	padding: 12px 16px;
-	position: sticky;
-	bottom: 0;
-	background-color: var(--bg-color);
-	z-index: 10;
+  display: flex;
+  gap: 8px;
+  padding: 12px 16px;
+  position: sticky;
+  bottom: 0;
+  background-color: var(--bg-color);
+  z-index: 10;
 }
 
 .chat-input textarea {
-	flex-grow: 1;
-	padding: 8px 12px;
-	font-size: 14px;
-	border: 1px solid var(--input-border-color);
-	border-radius: 8px;
-	outline: none;
-	background-color: var(--input-bg-color);
-	color: var(--text-color);
-	resize: none;
-	min-height: 36px;
-	max-height: 120px;
-	font-family: inherit;
-	line-height: 1.4;
-	overflow-y: auto;
+  flex-grow: 1;
+  padding: 8px 12px;
+  font-size: 14px;
+  border: 1px solid var(--input-border-color);
+  border-radius: 8px;
+  outline: none;
+  background-color: var(--input-bg-color);
+  color: var(--text-color);
+  resize: none;
+  min-height: 36px;
+  max-height: 120px;
+  font-family: inherit;
+  line-height: 1.4;
+  overflow-y: auto;
 }
 
 .chat-input textarea:focus {
-	border-color: var(--button-bg-color);
+  border-color: var(--button-bg-color);
 }
 
 .chat-input button {
-	padding: 0 12px;
-	font-size: 13px;
-	background-color: var(--button-bg-color);
-	color: var(--card-bg-color);
-	border: none;
-	border-radius: 8px;
-	cursor: pointer;
-	height: 36px;
-	min-width: 70px;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	gap: 4px;
+  padding: 0 12px;
+  font-size: 13px;
+  background-color: var(--button-bg-color);
+  color: var(--card-bg-color);
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  height: 36px;
+  min-width: 70px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
 }
 
 .chat-input button:hover:not(:disabled) {
-	opacity: 0.9;
+  opacity: 0.9;
 }
 
 .chat-input button:disabled {
-	background-color: var(--input-border-color);
-	cursor: not-allowed;
-	opacity: 0.7;
+  background-color: var(--input-border-color);
+  cursor: not-allowed;
+  opacity: 0.7;
 }
 
 .stop-btn {
-	background-color: var(--button-hover-bg-color) !important;
+  background-color: var(--button-hover-bg-color) !important;
 }
 
 @media (max-width: 768px) {
-	.conversation-controls {
-		padding: 0 12px;
-		margin-bottom: 8px;
-	}
+  .conversation-controls {
+    padding: 0 12px;
+    margin-bottom: 8px;
+  }
 
-	.new-conversation-btn,
-	.toggle-drawer-btn {
-		padding: 8px 12px;
-		font-size: 13px;
-	}
+  .new-conversation-btn,
+  .toggle-drawer-btn {
+    padding: 8px 12px;
+    font-size: 13px;
+  }
 
-	.chat-input {
-		padding: 8px 12px;
-	}
+  .chat-input {
+    padding: 8px 12px;
+  }
 
-	.chat-input textarea {
-		padding: 6px 10px;
-		font-size: 13px;
-		min-height: 32px;
-	}
+  .chat-input textarea {
+    padding: 6px 10px;
+    font-size: 13px;
+    min-height: 32px;
+  }
 
-	.chat-input button {
-		padding: 0 12px;
-		height: 36px;
-		min-width: 70px;
-		font-size: 13px;
-	}
+  .chat-input button {
+    padding: 0 12px;
+    height: 36px;
+    min-width: 70px;
+    font-size: 13px;
+  }
 }
 
 /* Copy button styles */
 .copy-button {
-	position: absolute;
-	bottom: 0px;
-	right: 8px;
-	background: var(--bg-color);
-	border: none;
-	border-radius: 4px;
-	padding: 4px 8px;
-	font-size: 12px;
-	cursor: pointer;
-	display: flex;
-	align-items: center;
-	gap: 4px;
-	opacity: 0;
-	transition: all 0.2s ease;
-	color: var(--text-color);
+  position: absolute;
+  bottom: 0px;
+  right: 8px;
+  background: var(--bg-color);
+  border: none;
+  border-radius: 4px;
+  padding: 4px 8px;
+  font-size: 12px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  opacity: 0;
+  transition: all 0.2s ease;
+  color: var(--text-color);
 }
 
 .message-content:hover .copy-button {
-	opacity: 0.7;
+  opacity: 0.7;
 }
 
 .copy-button:hover {
-	opacity: 1 !important;
+  opacity: 1 !important;
 }
 
 .copy-button svg {
-	width: 14px;
-	height: 14px;
+  width: 14px;
+  height: 14px;
 }
 
 /* Responsive design */
 @media (max-width: 768px) {
-	.dialog-header {
-		padding: 10px 16px;
-	}
+  .dialog-header {
+    padding: 10px 16px;
+  }
 
-	.dialog-content {
-		padding: 12px 0;
-	}
+  .dialog-content {
+    padding: 12px 0;
+  }
 
-	.chat-history {
-		padding: 0 12px;
-	}
+  .chat-history {
+    padding: 0 12px;
+  }
 
-	.message-container {
-		max-width: 90%;
-	}
+  .message-container {
+    max-width: 90%;
+  }
 
-	.chat-input {
-		padding: 0 12px 12px;
-	}
+  .chat-input {
+    padding: 0 12px 12px;
+  }
 
-	.chat-input textarea {
-		padding: 12px 16px;
-		font-size: 14px;
-	}
+  .chat-input textarea {
+    padding: 12px 16px;
+    font-size: 14px;
+  }
 
-	.chat-input button {
-		padding: 0 16px;
-		font-size: 14px;
-		min-width: 80px;
-	}
+  .chat-input button {
+    padding: 0 16px;
+    font-size: 14px;
+    min-width: 80px;
+  }
 
-	.drawer-container {
-		width: 280px;
-		left: -280px;
-	}
+  .drawer-container {
+    width: 280px;
+    left: -280px;
+  }
 
-	.drawer-container.drawer-open {
-		transform: translateX(280px);
-	}
+  .drawer-container.drawer-open {
+    transform: translateX(280px);
+  }
 }
 
 /* Dark mode optimizations */
 @media (prefers-color-scheme: dark) {
-	.message-content {
-		box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
-	}
+  .message-content {
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+  }
 
-	.copy-button {
-		background: var(--input-bg-color);
-	}
+  .copy-button {
+    background: var(--input-bg-color);
+  }
 
-	.drawer-container {
-		box-shadow: 2px 0 8px rgba(0, 0, 0, 0.2);
-	}
+  .drawer-container {
+    box-shadow: 2px 0 8px rgba(0, 0, 0, 0.2);
+  }
 }
 
 /* Markdown content styles */
 .ai-message {
-	position: relative;
+  position: relative;
 }
 
 .ai :deep(h1),
@@ -1484,56 +1432,56 @@ watch(chatHistory, scrollToBottom, { deep: true })
 .ai :deep(h4),
 .ai :deep(h5),
 .ai :deep(h6) {
-	margin-top: 1em;
-	margin-bottom: 0.5em;
-	font-weight: 600;
-	line-height: 1.3;
+  margin-top: 1em;
+  margin-bottom: 0.5em;
+  font-weight: 600;
+  line-height: 1.3;
 }
 
 .ai :deep(p) {
-	margin-bottom: 1em;
-	line-height: 1.6;
+  margin-bottom: 1em;
+  line-height: 1.6;
 }
 
 .ai :deep(ul),
 .ai :deep(ol) {
-	margin-bottom: 1em;
-	padding-left: 1.5em;
+  margin-bottom: 1em;
+  padding-left: 1.5em;
 }
 
 .ai :deep(li) {
-	margin-bottom: 0.5em;
+  margin-bottom: 0.5em;
 }
 
 .ai :deep(code) {
-	background-color: rgba(0, 0, 0, 0.05);
-	padding: 0.2em 0.4em;
-	border-radius: 4px;
-	font-family: 'Fira Code', monospace;
-	font-size: 0.9em;
+  background-color: rgba(0, 0, 0, 0.05);
+  padding: 0.2em 0.4em;
+  border-radius: 4px;
+  font-family: 'Fira Code', monospace;
+  font-size: 0.9em;
 }
 
 .ai :deep(pre) {
-	background-color: #1e1e1e;
-	border-radius: 8px;
-	padding: 16px;
-	overflow: auto;
-	margin: 1em 0;
-	position: relative;
+  background-color: #1e1e1e;
+  border-radius: 8px;
+  padding: 16px;
+  overflow: auto;
+  margin: 1em 0;
+  position: relative;
 }
 
 .ai :deep(pre code) {
-	background-color: transparent;
-	padding: 0;
-	font-size: 0.9em;
-	line-height: 1.5;
-	font-family: 'Fira Code', monospace;
-	color: #d4d4d4;
+  background-color: transparent;
+  padding: 0;
+  font-size: 0.9em;
+  line-height: 1.5;
+  font-family: 'Fira Code', monospace;
+  color: #d4d4d4;
 }
 
 .ai :deep(pre code.hljs) {
-	background-color: transparent;
-	padding: 0;
+  background-color: transparent;
+  padding: 0;
 }
 
 /* 代码高亮主题相关的颜色 */
@@ -1542,7 +1490,7 @@ watch(chatHistory, scrollToBottom, { deep: true })
 .ai :deep(.hljs-built_in),
 .ai :deep(.hljs-name),
 .ai :deep(.hljs-tag) {
-	color: #569cd6;
+  color: #569cd6;
 }
 
 .ai :deep(.hljs-string),
@@ -1554,14 +1502,14 @@ watch(chatHistory, scrollToBottom, { deep: true })
 .ai :deep(.hljs-template-variable),
 .ai :deep(.hljs-type),
 .ai :deep(.hljs-addition) {
-	color: #ce9178;
+  color: #ce9178;
 }
 
 .ai :deep(.hljs-comment),
 .ai :deep(.hljs-quote),
 .ai :deep(.hljs-deletion),
 .ai :deep(.hljs-meta) {
-	color: #6a9955;
+  color: #6a9955;
 }
 
 .ai :deep(.hljs-number),
@@ -1572,444 +1520,444 @@ watch(chatHistory, scrollToBottom, { deep: true })
 .ai :deep(.hljs-link),
 .ai :deep(.hljs-selector-attr),
 .ai :deep(.hljs-selector-pseudo) {
-	color: #b5cea8;
+  color: #b5cea8;
 }
 
 .ai :deep(blockquote) {
-	border-left: 4px solid var(--button-bg-color);
-	padding: 0.5em 1em;
-	margin: 1em 0;
-	background-color: rgba(0, 0, 0, 0.03);
-	border-radius: 4px;
+  border-left: 4px solid var(--button-bg-color);
+  padding: 0.5em 1em;
+  margin: 1em 0;
+  background-color: rgba(0, 0, 0, 0.03);
+  border-radius: 4px;
 }
 
 .ai :deep(a) {
-	color: var(--button-bg-color);
-	text-decoration: none;
-	border-bottom: 1px solid transparent;
-	transition: all 0.2s ease;
+  color: var(--button-bg-color);
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+  transition: all 0.2s ease;
 }
 
 .ai :deep(a:hover) {
-	border-bottom-color: currentColor;
+  border-bottom-color: currentColor;
 }
 
 .ai :deep(table) {
-	width: 100%;
-	border-collapse: collapse;
-	margin: 1em 0;
-	font-size: 0.9em;
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1em 0;
+  font-size: 0.9em;
 }
 
 .ai :deep(th),
 .ai :deep(td) {
-	border: 1px solid var(--input-border-color);
-	padding: 0.5em 0.8em;
-	text-align: left;
+  border: 1px solid var(--input-border-color);
+  padding: 0.5em 0.8em;
+  text-align: left;
 }
 
 .ai :deep(th) {
-	background-color: rgba(0, 0, 0, 0.03);
-	font-weight: 600;
+  background-color: rgba(0, 0, 0, 0.03);
+  font-weight: 600;
 }
 
 .ai :deep(tr:nth-child(even)) {
-	background-color: rgba(0, 0, 0, 0.02);
+  background-color: rgba(0, 0, 0, 0.02);
 }
 
 /* Loading animation for AI response */
 @keyframes typing {
-	0% {
-		opacity: 0.3;
-	}
-	50% {
-		opacity: 1;
-	}
-	100% {
-		opacity: 0.3;
-	}
+  0% {
+    opacity: 0.3;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0.3;
+  }
 }
 
 .ai-typing {
-	display: flex;
-	gap: 4px;
-	padding: 8px 12px;
-	background-color: var(--input-bg-color);
-	border-radius: 16px;
-	width: fit-content;
+  display: flex;
+  gap: 4px;
+  padding: 8px 12px;
+  background-color: var(--input-bg-color);
+  border-radius: 16px;
+  width: fit-content;
 }
 
 .ai-typing span {
-	width: 6px;
-	height: 6px;
-	background-color: var(--text-color);
-	border-radius: 50%;
-	animation: typing 1s infinite;
+  width: 6px;
+  height: 6px;
+  background-color: var(--text-color);
+  border-radius: 50%;
+  animation: typing 1s infinite;
 }
 
 .ai-typing span:nth-child(2) {
-	animation-delay: 0.2s;
+  animation-delay: 0.2s;
 }
 
 .ai-typing span:nth-child(3) {
-	animation-delay: 0.4s;
+  animation-delay: 0.4s;
 }
 
 /* 添加遮罩层样式 */
 .drawer-overlay {
-	position: fixed;
-	top: 0;
-	left: 0;
-	width: 100%;
-	height: 100%;
-	background-color: rgba(0, 0, 0, 0.3);
-	z-index: 999;
-	display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.3);
+  z-index: 999;
+  display: none;
 }
 
 .drawer-container.drawer-open + .drawer-overlay {
-	display: block;
+  display: block;
 }
 
 /* 修改抽屉容器的 z-index */
 .drawer-container {
-	position: fixed;
-	left: -300px;
-	top: 0;
-	height: 100%;
-	width: 300px;
-	background-color: var(--bg-color);
-	transition: transform 0.3s ease;
-	box-shadow: 2px 0 8px rgba(0, 0, 0, 0.1);
-	z-index: 1000;
+  position: fixed;
+  left: -300px;
+  top: 0;
+  height: 100%;
+  width: 300px;
+  background-color: var(--bg-color);
+  transition: transform 0.3s ease;
+  box-shadow: 2px 0 8px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
 }
 
 .drawer-header {
-	display: flex;
-	justify-content: space-between;
-	align-items: center;
-	margin-bottom: 16px;
-	padding-bottom: 12px;
-	border-bottom: 1px solid var(--input-border-color);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--input-border-color);
 }
 
 .drawer-header-controls {
-	display: flex;
-	gap: 8px;
-	align-items: center;
+  display: flex;
+  gap: 8px;
+  align-items: center;
 }
 
 .clear-all-btn {
-	background: none;
-	border: none;
-	cursor: pointer;
-	padding: 4px;
-	color: var(--text-color);
-	opacity: 0.7;
-	transition: all 0.2s ease;
-	display: flex;
-	align-items: center;
-	justify-content: center;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  color: var(--text-color);
+  opacity: 0.7;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .clear-all-btn:hover {
-	opacity: 1;
-	color: #ff4d4f;
+  opacity: 1;
+  color: #ff4d4f;
 }
 
 .input-controls {
-	display: flex;
-	flex-direction: column;
-	gap: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 
 .voice-btn {
-	position: relative;
-	padding: 0 16px;
-	font-size: 14px;
-	background-color: var(--input-bg-color);
-	color: var(--text-color);
-	border: 1px solid var(--input-border-color);
-	border-radius: 10px;
-	cursor: pointer;
-	height: 40px;
-	min-width: 80px;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	gap: 4px;
-	transition: all 0.3s ease;
+  position: relative;
+  padding: 0 16px;
+  font-size: 14px;
+  background-color: var(--input-bg-color);
+  color: var(--text-color);
+  border: 1px solid var(--input-border-color);
+  border-radius: 10px;
+  cursor: pointer;
+  height: 40px;
+  min-width: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  transition: all 0.3s ease;
 }
 
 .voice-btn:disabled {
-	opacity: 0.5;
-	cursor: not-allowed;
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 .voice-btn:hover:not(:disabled) {
-	background-color: var(--button-hover-bg-color);
-	color: var(--card-bg-color);
+  background-color: var(--button-hover-bg-color);
+  color: var(--card-bg-color);
 }
 
 .voice-btn.is-listening {
-	background-color: var(--button-bg-color);
-	color: var(--card-bg-color);
-	animation: pulse 1.5s infinite;
+  background-color: var(--button-bg-color);
+  color: var(--card-bg-color);
+  animation: pulse 1.5s infinite;
 }
 
 .voice-btn.is-error {
-	background-color: #ff4d4f;
-	color: white;
-	border-color: #ff4d4f;
+  background-color: #ff4d4f;
+  color: white;
+  border-color: #ff4d4f;
 }
 
 .voice-btn.is-processing {
-	background-color: var(--button-hover-bg-color);
-	color: var(--card-bg-color);
+  background-color: var(--button-hover-bg-color);
+  color: var(--card-bg-color);
 }
 
 .error-message {
-	position: absolute;
-	bottom: -24px;
-	left: 50%;
-	transform: translateX(-50%);
-	white-space: nowrap;
-	font-size: 12px;
-	color: #ff4d4f;
-	background-color: var(--bg-color);
-	padding: 4px 8px;
-	border-radius: 4px;
-	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  position: absolute;
+  bottom: -24px;
+  left: 50%;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  font-size: 12px;
+  color: #ff4d4f;
+  background-color: var(--bg-color);
+  padding: 4px 8px;
+  border-radius: 4px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 @keyframes pulse {
-	0% {
-		opacity: 1;
-		transform: scale(1);
-	}
-	50% {
-		opacity: 0.8;
-		transform: scale(0.98);
-	}
-	100% {
-		opacity: 1;
-		transform: scale(1);
-	}
+  0% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.8;
+    transform: scale(0.98);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 
 @media (max-width: 768px) {
-	.input-controls {
-		flex-direction: column;
-	}
+  .input-controls {
+    flex-direction: column;
+  }
 
-	.voice-btn {
-		padding: 0 14px;
-		font-size: 13px;
-		height: 36px;
-		min-width: 70px;
-		border-radius: 8px;
-	}
+  .voice-btn {
+    padding: 0 14px;
+    font-size: 13px;
+    height: 36px;
+    min-width: 70px;
+    border-radius: 8px;
+  }
 }
 
 .input-tools {
-	padding: 0 20px;
-	display: flex;
-	gap: 8px;
-	margin-bottom: 8px;
+  padding: 0 20px;
+  display: flex;
+  gap: 8px;
+  margin-bottom: 8px;
 }
 
 .optimize-btn {
-	padding: 6px 16px;
-	font-size: 14px;
-	background-color: var(--input-bg-color);
-	color: var(--text-color);
-	border: 1px solid var(--input-border-color);
-	border-radius: 8px;
-	cursor: pointer;
-	display: flex;
-	align-items: center;
-	gap: 6px;
-	transition: all 0.2s ease;
+  padding: 6px 16px;
+  font-size: 14px;
+  background-color: var(--input-bg-color);
+  color: var(--text-color);
+  border: 1px solid var(--input-border-color);
+  border-radius: 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s ease;
 }
 
 .optimize-btn:hover:not(:disabled) {
-	background-color: var(--button-hover-bg-color);
-	color: var(--card-bg-color);
+  background-color: var(--button-hover-bg-color);
+  color: var(--card-bg-color);
 }
 
 .optimize-btn:disabled {
-	opacity: 0.5;
-	cursor: not-allowed;
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 @media (max-width: 768px) {
-	.input-tools {
-		padding: 0 12px;
-		margin-bottom: 6px;
-	}
+  .input-tools {
+    padding: 0 12px;
+    margin-bottom: 6px;
+  }
 
-	.optimize-btn {
-		padding: 4px 12px;
-		font-size: 13px;
-	}
+  .optimize-btn {
+    padding: 4px 12px;
+    font-size: 13px;
+  }
 }
 
 /* 优化响应式布局 */
 @media (max-width: 1200px) {
-	.message-container {
-		max-width: 90%;
-	}
+  .message-container {
+    max-width: 90%;
+  }
 }
 
 @media (max-width: 768px) {
-	.dialog-header {
-		padding: 8px 12px;
-	}
+  .dialog-header {
+    padding: 8px 12px;
+  }
 
-	.dialog-header h2 {
-		font-size: 18px;
-	}
+  .dialog-header h2 {
+    font-size: 18px;
+  }
 
-	.dialog-content {
-		padding: 8px 0;
-	}
+  .dialog-content {
+    padding: 8px 0;
+  }
 
-	.chat-history {
-		padding: 0 10px;
-		gap: 12px;
-	}
+  .chat-history {
+    padding: 0 10px;
+    gap: 12px;
+  }
 
-	.message-container {
-		max-width: 95%;
-	}
+  .message-container {
+    max-width: 95%;
+  }
 
-	.message-content {
-		padding: 10px 14px;
-		font-size: 14px;
-	}
+  .message-content {
+    padding: 10px 14px;
+    font-size: 14px;
+  }
 
-	.chat-input {
-		padding: 8px 10px;
-		gap: 8px;
-	}
+  .chat-input {
+    padding: 8px 10px;
+    gap: 8px;
+  }
 
-	.chat-input textarea {
-		padding: 8px 12px;
-		font-size: 14px;
-		min-height: 36px;
-	}
+  .chat-input textarea {
+    padding: 8px 12px;
+    font-size: 14px;
+    min-height: 36px;
+  }
 
-	.input-controls {
-		gap: 6px;
-	}
+  .input-controls {
+    gap: 6px;
+  }
 
-	.chat-input button {
-		padding: 0 12px;
-		height: 36px;
-		min-width: 70px;
-		font-size: 13px;
-	}
+  .chat-input button {
+    padding: 0 12px;
+    height: 36px;
+    min-width: 70px;
+    font-size: 13px;
+  }
 
-	.drawer-container {
-		width: 85%;
-		max-width: 300px;
-		left: -85%;
-	}
+  .drawer-container {
+    width: 85%;
+    max-width: 300px;
+    left: -85%;
+  }
 
-	.drawer-container.drawer-open {
-		transform: translateX(100%);
-	}
+  .drawer-container.drawer-open {
+    transform: translateX(100%);
+  }
 
-	.conversation-controls {
-		flex-wrap: wrap;
-		padding: 0 10px;
-		margin-bottom: 8px;
-	}
+  .conversation-controls {
+    flex-wrap: wrap;
+    padding: 0 10px;
+    margin-bottom: 8px;
+  }
 
-	.new-conversation-btn,
-	.optimize-btn,
-	.toggle-drawer-btn {
-		flex: 1;
-		min-width: auto;
-		padding: 6px 10px;
-		font-size: 13px;
-		height: 32px;
-	}
+  .new-conversation-btn,
+  .optimize-btn,
+  .toggle-drawer-btn {
+    flex: 1;
+    min-width: auto;
+    padding: 6px 10px;
+    font-size: 13px;
+    height: 32px;
+  }
 }
 
 @media (max-width: 480px) {
-	.message-container {
-		max-width: 98%;
-	}
+  .message-container {
+    max-width: 98%;
+  }
 
-	.chat-input {
-		padding: 6px 8px;
-	}
+  .chat-input {
+    padding: 6px 8px;
+  }
 
-	.input-controls {
-		flex-direction: column;
-		width: 100%;
-	}
+  .input-controls {
+    flex-direction: column;
+    width: 100%;
+  }
 
-	.chat-input button {
-		width: 100%;
-		height: 34px;
-	}
+  .chat-input button {
+    width: 100%;
+    height: 34px;
+  }
 
-	.voice-btn {
-		width: 100%;
-	}
+  .voice-btn {
+    width: 100%;
+  }
 
-	.copy-button {
-		padding: 2px 6px;
-		font-size: 11px;
-	}
+  .copy-button {
+    padding: 2px 6px;
+    font-size: 11px;
+  }
 
-	.copy-button svg {
-		width: 12px;
-		height: 12px;
-	}
+  .copy-button svg {
+    width: 12px;
+    height: 12px;
+  }
 }
 
 /* 优化深色模式 */
 @media (prefers-color-scheme: dark) {
-	.message-content {
-		box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-	}
+  .message-content {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  }
 
-	.drawer-container {
-		box-shadow: 2px 0 12px rgba(0, 0, 0, 0.3);
-	}
+  .drawer-container {
+    box-shadow: 2px 0 12px rgba(0, 0, 0, 0.3);
+  }
 
-	.ai :deep(pre) {
-		background-color: rgba(0, 0, 0, 0.3);
-	}
+  .ai :deep(pre) {
+    background-color: rgba(0, 0, 0, 0.3);
+  }
 
-	.ai :deep(code) {
-		background-color: rgba(0, 0, 0, 0.2);
-	}
+  .ai :deep(code) {
+    background-color: rgba(0, 0, 0, 0.2);
+  }
 }
 
 /* 优化高度自适应 */
 @media (max-height: 600px) {
-	.dialog-header {
-		padding: 6px 12px;
-	}
+  .dialog-header {
+    padding: 6px 12px;
+  }
 
-	.dialog-header h2 {
-		font-size: 16px;
-	}
+  .dialog-header h2 {
+    font-size: 16px;
+  }
 
-	.chat-history {
-		gap: 10px;
-	}
+  .chat-history {
+    gap: 10px;
+  }
 
-	.message-content {
-		padding: 8px 12px;
-	}
+  .message-content {
+    padding: 8px 12px;
+  }
 
-	.chat-input textarea {
-		max-height: 120px;
-	}
+  .chat-input textarea {
+    max-height: 120px;
+  }
 }
 </style>

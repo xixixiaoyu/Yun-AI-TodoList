@@ -7,9 +7,9 @@ type SupportedLocale = 'en' | 'zh'
 
 // 检测系统语言
 function detectLanguage(): SupportedLocale {
-	// 使用浏览器语言设置
-	const browserLang = navigator.language.toLowerCase()
-	return browserLang.startsWith('zh') ? 'zh' : 'en'
+  // 使用浏览器语言设置
+  const browserLang = navigator.language.toLowerCase()
+  return browserLang.startsWith('zh') ? 'zh' : 'en'
 }
 
 // 获取存储的语言设置或使用检测到的语言
@@ -17,25 +17,25 @@ const storedLanguage = localStorage.getItem('language') as SupportedLocale | nul
 const defaultLanguage = storedLanguage || detectLanguage()
 
 const i18n = createI18n({
-	legacy: false,
-	locale: defaultLanguage,
-	fallbackLocale: 'en',
-	messages: {
-		en,
-		zh,
-	},
+  legacy: false,
+  locale: defaultLanguage,
+  fallbackLocale: 'en',
+  messages: {
+    en,
+    zh,
+  },
 })
 
 // 导出一个函数来更新语言设置
 export function setLanguage(lang: SupportedLocale) {
-	i18n.global.locale.value = lang
-	localStorage.setItem('language', lang)
+  i18n.global.locale.value = lang
+  localStorage.setItem('language', lang)
 }
 
 // 导出一个函数来自动设置系统语言
 export function setSystemLanguage() {
-	const systemLang = detectLanguage()
-	setLanguage(systemLang)
+  const systemLang = detectLanguage()
+  setLanguage(systemLang)
 }
 
 export default i18n
