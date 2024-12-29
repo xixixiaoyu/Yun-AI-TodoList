@@ -53,7 +53,6 @@ const closeReminder = (dontShowAgain = false) => {
 onMounted(() => {
 	try {
 		initTheme()
-		setSystemLanguage()
 		// 检查是否配置了 API Key 且是否应该显示提醒
 		if (!getApiKey() && shouldShowApiKeyReminder()) {
 			showApiKeyReminder.value = true
