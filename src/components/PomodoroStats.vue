@@ -53,14 +53,11 @@ const updateChart = () => {
 				tooltip: {
 					callbacks: {
 						title(context) {
-							return new Date(context[0].label).toLocaleDateString(
-								t('locale'),
-								{
-									year: 'numeric',
-									month: 'long',
-									day: 'numeric',
-								}
-							)
+							return new Date(context[0].label).toLocaleDateString(t('locale'), {
+								year: 'numeric',
+								month: 'long',
+								day: 'numeric',
+							})
 						},
 					},
 				},
@@ -74,11 +71,11 @@ watch(getPomodoroCountByDay, updateChart)
 </script>
 
 <template>
-	<div class="pomodoro-stats">
-		<h2>{{ t('pomodoroStats') }}</h2>
-		<p>{{ t('totalWorkTime', { time: getTotalWorkTime }) }}</p>
-		<canvas ref="chartRef"></canvas>
-	</div>
+  <div class="pomodoro-stats">
+    <h2>{{ t('pomodoroStats') }}</h2>
+    <p>{{ t('totalWorkTime', { time: getTotalWorkTime }) }}</p>
+    <canvas ref="chartRef" />
+  </div>
 </template>
 
 <style scoped>

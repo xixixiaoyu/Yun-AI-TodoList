@@ -15,20 +15,20 @@ const setFilter = (newFilter: string) => {
 </script>
 
 <template>
-	<div class="filter-buttons">
-		<button
-			@click="setFilter('active')"
-			:class="{ active: filter === 'active' }"
-		>
-			{{ t('active') }}
-		</button>
-		<button
-			@click="setFilter('completed')"
-			:class="{ active: filter === 'completed' }"
-		>
-			{{ t('completed') }}
-		</button>
-	</div>
+  <div class="filter-buttons">
+    <button
+      :class="{ active: filter === 'active' }"
+      @click="setFilter('active')"
+    >
+      {{ t('active') }}
+    </button>
+    <button
+      :class="{ active: filter === 'completed' }"
+      @click="setFilter('completed')"
+    >
+      {{ t('completed') }}
+    </button>
+  </div>
 </template>
 
 <style scoped>

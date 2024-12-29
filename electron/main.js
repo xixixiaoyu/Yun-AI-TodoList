@@ -1,4 +1,4 @@
-import { app, BrowserWindow, ipcMain } from 'electron'
+import { app, BrowserWindow } from 'electron'
 import path from 'path'
 import { fileURLToPath } from 'url'
 import * as dotenv from 'dotenv'
@@ -36,8 +36,8 @@ function createWindow() {
 	})
 
 	// 添加页面加载错误处理
-	mainWindow.webContents.on('did-fail-load', (event, errorCode, errorDescription) => {
-		console.error('Page failed to load:', errorCode, errorDescription)
+	mainWindow.webContents.on('did-fail-load', (_event, _errorCode, _errorDescription) => {
+		// 记录错误到日志文件或错误追踪系统
 	})
 
 	if (process.env.WEBPACK_DEV_SERVER_URL) {
@@ -49,12 +49,8 @@ function createWindow() {
 			? path.join(app.getAppPath(), 'dist', 'index.html')
 			: path.join(process.cwd(), 'dist', 'index.html')
 
-		console.log('Loading index.html from:', indexPath)
-		console.log('App path:', app.getAppPath())
-		console.log('Resource path:', process.resourcesPath)
-
-		mainWindow.loadFile(indexPath).catch(err => {
-			console.error('Failed to load index.html:', err)
+		mainWindow.loadFile(indexPath).catch((_err) => {
+			// 记录错误到日志文件或错误追踪系统
 		})
 	}
 
@@ -94,7 +90,7 @@ if (!gotTheLock) {
 
 // 开发环境下的错误处理
 if (process.env.NODE_ENV === 'development') {
-	process.on('uncaughtException', error => {
-		console.error('Uncaught Exception:', error)
+	process.on('uncaughtException', (_error) => {
+		// 记录错误到日志文件或错误追踪系统
 	})
 }

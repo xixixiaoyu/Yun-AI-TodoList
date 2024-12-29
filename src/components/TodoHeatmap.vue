@@ -52,9 +52,7 @@ const updateHeatmap = () => {
 	const weeks = d3.timeWeeks(startDate, endDate)
 	const height = 7 * (cellSize.value + cellGap.value) + cellGap.value
 
-	svg
-		.attr('width', weeks.length * weekWidth.value + cellGap.value)
-		.attr('height', height)
+	svg.attr('width', weeks.length * weekWidth.value + cellGap.value).attr('height', height)
 
 	const tooltip = d3
 		.select('body')
@@ -78,13 +76,9 @@ const updateHeatmap = () => {
 		.attr('height', cellSize.value)
 		.attr(
 			'x',
-			(d) =>
-				d3.timeWeek.count(d3.timeYear(d), d) * weekWidth.value + cellGap.value
+			(d) => d3.timeWeek.count(d3.timeYear(d), d) * weekWidth.value + cellGap.value
 		)
-		.attr(
-			'y',
-			(d) => d.getDay() * (cellSize.value + cellGap.value) + cellGap.value
-		)
+		.attr('y', (d) => d.getDay() * (cellSize.value + cellGap.value) + cellGap.value)
 		.attr('fill', (d) => {
 			const dateString = d.toISOString().split('T')[0]
 			return colorScale(completedTodos[dateString] || 0)
@@ -94,11 +88,7 @@ const updateHeatmap = () => {
 			const count = completedTodos[dateString] || 0
 			tooltip.transition().duration(200).style('opacity', 0.9)
 			tooltip
-				.html(
-					`${d.toLocaleDateString(t('locale'))}: ${count} ${t(
-						'completedTodos'
-					)}`
-				)
+				.html(`${d.toLocaleDateString(t('locale'))}: ${count} ${t('completedTodos')}`)
 				.style('left', event.pageX + 10 + 'px')
 				.style('top', event.pageY - 28 + 'px')
 		})
@@ -126,10 +116,7 @@ const updateHeatmap = () => {
 		.enter()
 		.append('text')
 		.attr('class', 'month-label')
-		.attr(
-			'x',
-			(d) => d3.timeWeek.count(d3.timeYear(startDate), d) * weekWidth.value
-		)
+		.attr('x', (d) => d3.timeWeek.count(d3.timeYear(startDate), d) * weekWidth.value)
 		.attr('y', -5)
 		.style('text-anchor', 'start')
 		.style('font-size', '10px')
@@ -152,23 +139,41 @@ const handleWheel = (event: WheelEvent) => {
 </script>
 
 <template>
-	<div class="todo-heatmap">
-		<h2>{{ t('todoHeatmap') }}</h2>
-		<div class="heatmap-container" @wheel="handleWheel">
-			<svg ref="svgRef"></svg>
-		</div>
-		<div class="legend">
-			<span>{{ t('less') }}</span>
-			<div class="legend-colors">
-				<div class="legend-color" style="background-color: #ebedf0"></div>
-				<div class="legend-color" style="background-color: #9be9a8"></div>
-				<div class="legend-color" style="background-color: #40c463"></div>
-				<div class="legend-color" style="background-color: #30a14e"></div>
-				<div class="legend-color" style="background-color: #216e39"></div>
-			</div>
-			<span>{{ t('more') }}</span>
-		</div>
-	</div>
+  <div class="todo-heatmap">
+    <h2>{{ t('todoHeatmap') }}</h2>
+    <div
+      class="heatmap-container"
+      @wheel="handleWheel"
+    >
+      <svg ref="svgRef" />
+    </div>
+    <div class="legend">
+      <span>{{ t('less') }}</span>
+      <div class="legend-colors">
+        <div
+          class="legend-color"
+          style="background-color: #ebedf0"
+        />
+        <div
+          class="legend-color"
+          style="background-color: #9be9a8"
+        />
+        <div
+          class="legend-color"
+          style="background-color: #40c463"
+        />
+        <div
+          class="legend-color"
+          style="background-color: #30a14e"
+        />
+        <div
+          class="legend-color"
+          style="background-color: #216e39"
+        />
+      </div>
+      <span>{{ t('more') }}</span>
+    </div>
+  </div>
 </template>
 
 <style scoped>

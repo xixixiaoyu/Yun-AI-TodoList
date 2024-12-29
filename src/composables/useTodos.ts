@@ -6,7 +6,7 @@ interface Todo {
 	completed: boolean
 	completedAt?: string
 	tags: string[]
-	projectId: number // 新增字段
+	projectId: number | null
 }
 
 // 新增 Project 接口
@@ -97,9 +97,7 @@ export function useTodos() {
 	}
 
 	// 新增：批量添加待办事项的函数
-	const addMultipleTodos = (
-		newTodos: { text: string; projectId: number | null }[]
-	) => {
+	const addMultipleTodos = (newTodos: { text: string; projectId: number | null }[]) => {
 		const duplicates: string[] = []
 		newTodos.forEach(({ text, projectId }) => {
 			if (todos.value.some((todo) => todo.text === text)) {
@@ -209,25 +207,18 @@ export function useTodos() {
 		currentProjectId.value = id
 	}
 
-	const loadProjects = () => {
-		const storedProjects = localStorage.getItem('projects')
-		if (storedProjects) {
-			projects.value = JSON.parse(storedProjects)
-		}
-	}
-
 	const saveProjects = () => {
 		localStorage.setItem('projects', JSON.stringify(projects.value))
 	}
 
-	// 返回新增的方法和状态
+	// 返回所有需要的状态和方法
 	return {
 		todos,
-		history,
 		projects,
 		currentProjectId,
+		history,
 		addTodo,
-		addMultipleTodos, // 记得在返回对象中添加这个新函数
+		addMultipleTodos,
 		toggleTodo,
 		removeTodo,
 		clearActiveTodos,

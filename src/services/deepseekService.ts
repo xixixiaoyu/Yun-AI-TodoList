@@ -30,6 +30,7 @@ export async function getAIStreamResponse(
 	onChunk: (chunk: string) => void
 ): Promise<void> {
 	let buffer = ''
+	let isReading = true
 
 	try {
 		abortController = new AbortController()
@@ -63,10 +64,11 @@ export async function getAIStreamResponse(
 			throw new Error(i18n.global.t('streamError'))
 		}
 
-		while (true) {
+		while (isReading) {
 			const { done, value } = await reader.read()
 			if (done) {
 				onChunk('[DONE]')
+				isReading = false
 				break
 			}
 
@@ -79,6 +81,7 @@ export async function getAIStreamResponse(
 					const jsonData = line.slice(6)
 					if (jsonData === '[DONE]') {
 						onChunk('[DONE]')
+						isReading = false
 						return
 					}
 					try {
@@ -112,8 +115,7 @@ export async function getAIResponse(
 	temperature: number = 0.5
 ): Promise<string> {
 	try {
-		const languageInstruction =
-			language === 'zh' ? '请用中文回复。' : '请用英文回复。'
+		const languageInstruction = language === 'zh' ? '请用中文回复。' : '请用英文回复。'
 
 		const response = await fetch(API_URL, {
 			method: 'POST',

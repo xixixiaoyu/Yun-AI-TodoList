@@ -13,9 +13,7 @@ function detectLanguage(): SupportedLocale {
 }
 
 // 获取存储的语言设置或使用检测到的语言
-const storedLanguage = localStorage.getItem(
-	'language'
-) as SupportedLocale | null
+const storedLanguage = localStorage.getItem('language') as SupportedLocale | null
 const defaultLanguage = storedLanguage || detectLanguage()
 
 const i18n = createI18n({

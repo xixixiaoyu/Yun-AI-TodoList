@@ -1,35 +1,49 @@
 <template>
-	<div class="settings-container">
-		<h2>{{ t('settings') }}</h2>
-		<div class="settings-section">
-			<h3>{{ t('settingsApiKey') }}</h3>
-			<div class="input-group">
-				<input
-					:type="showApiKey ? 'text' : 'password'"
-					v-model="localApiKey"
-					:placeholder="t('enterApiKey')"
-					class="api-key-input"
-				/>
-				<button @click="toggleShowApiKey" class="toggle-button">
-					{{ showApiKey ? t('hide') : t('show') }}
-				</button>
-			</div>
-			<div class="button-group">
-				<button @click="saveKey" class="save-button" :disabled="!localApiKey">
-					{{ t('save') }}
-				</button>
-				<button @click="clearKey" class="clear-button" :disabled="!localApiKey">
-					{{ t('clear') }}
-				</button>
-			</div>
-		</div>
-		<transition name="toast">
-			<div v-if="showSuccessMessage" class="toast-message">
-				<span class="toast-icon">✓</span>
-				{{ t('settingsSaved') }}
-			</div>
-		</transition>
-	</div>
+  <div class="settings-container">
+    <h2>{{ t('settings') }}</h2>
+    <div class="settings-section">
+      <h3>{{ t('settingsApiKey') }}</h3>
+      <div class="input-group">
+        <input
+          v-model="localApiKey"
+          :type="showApiKey ? 'text' : 'password'"
+          :placeholder="t('enterApiKey')"
+          class="api-key-input"
+        >
+        <button
+          class="toggle-button"
+          @click="toggleShowApiKey"
+        >
+          {{ showApiKey ? t('hide') : t('show') }}
+        </button>
+      </div>
+      <div class="button-group">
+        <button
+          class="save-button"
+          :disabled="!localApiKey"
+          @click="saveKey"
+        >
+          {{ t('save') }}
+        </button>
+        <button
+          class="clear-button"
+          :disabled="!localApiKey"
+          @click="clearKey"
+        >
+          {{ t('clear') }}
+        </button>
+      </div>
+    </div>
+    <transition name="toast">
+      <div
+        v-if="showSuccessMessage"
+        class="toast-message"
+      >
+        <span class="toast-icon">✓</span>
+        {{ t('settingsSaved') }}
+      </div>
+    </transition>
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -62,6 +76,10 @@ const clearKey = () => {
 	clearApiKey()
 	localApiKey.value = ''
 }
+
+defineOptions({
+	name: 'AppSettings',
+})
 </script>
 
 <style scoped>
@@ -77,12 +95,16 @@ const clearKey = () => {
 	padding: 2.5rem;
 	margin-top: 2rem;
 	box-shadow: var(--card-shadow);
-	transition: transform 0.2s ease, box-shadow 0.2s ease;
+	transition:
+		transform 0.2s ease,
+		box-shadow 0.2s ease;
 }
 
 .settings-section:hover {
 	transform: translateY(-3px);
-	box-shadow: var(--card-shadow), 0 12px 24px rgba(0, 0, 0, 0.12);
+	box-shadow:
+		var(--card-shadow),
+		0 12px 24px rgba(0, 0, 0, 0.12);
 }
 
 h2 {
@@ -114,7 +136,9 @@ h3 {
 	font-size: 0.95rem;
 	background-color: var(--input-bg-color);
 	color: var(--text-color);
-	transition: border-color 0.2s ease, box-shadow 0.2s ease;
+	transition:
+		border-color 0.2s ease,
+		box-shadow 0.2s ease;
 }
 
 .api-key-input:focus {

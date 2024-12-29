@@ -2,7 +2,7 @@
 import { onErrorCaptured, computed, onMounted, provide, ref } from 'vue'
 import { useTheme } from './composables/useTheme'
 import { useI18n } from 'vue-i18n'
-import { setLanguage, setSystemLanguage } from './i18n'
+import { setLanguage } from './i18n'
 // import AudioPlayer from './components/AudioPlayer.vue'
 import DailyInspiration from './components/DailyInspiration.vue'
 import { useWindowSize } from '@vueuse/core'
@@ -64,59 +64,85 @@ onMounted(() => {
 </script>
 
 <template>
-	<div class="app" :class="currentTheme">
-		<div class="nav-bar">
-			<button @click="router.push('/')" class="nav-button">
-				{{ t('home') }}
-			</button>
-			<button @click="router.push('/ai-assistant')" class="nav-button">
-				{{ t('aiAssistant') }}
-			</button>
-			<button @click="router.push('/settings')" class="nav-button">
-				{{ t('settings') }}
-			</button>
-			<button @click="toggleLanguage" class="nav-button">
-				{{ locale === 'zh' ? 'EN' : '中文' }}
-			</button>
-		</div>
-		<div class="content-wrapper">
-			<router-view />
-			<div class="top-components" :class="{ 'small-screen': isSmallScreen }">
-				<!-- <AudioPlayer /> -->
-				<DailyInspiration />
-			</div>
-		</div>
+  <div
+    class="app"
+    :class="currentTheme"
+  >
+    <div class="nav-bar">
+      <button
+        class="nav-button"
+        @click="router.push('/')"
+      >
+        {{ t('home') }}
+      </button>
+      <button
+        class="nav-button"
+        @click="router.push('/ai-assistant')"
+      >
+        {{ t('aiAssistant') }}
+      </button>
+      <button
+        class="nav-button"
+        @click="router.push('/settings')"
+      >
+        {{ t('settings') }}
+      </button>
+      <button
+        class="nav-button"
+        @click="toggleLanguage"
+      >
+        {{ locale === 'zh' ? 'EN' : '中文' }}
+      </button>
+    </div>
+    <div class="content-wrapper">
+      <router-view />
+      <div
+        class="top-components"
+        :class="{ 'small-screen': isSmallScreen }"
+      >
+        <!-- <AudioPlayer /> -->
+        <DailyInspiration />
+      </div>
+    </div>
 
-		<!-- API Key 提示框 -->
-		<transition name="fade">
-			<div v-if="showApiKeyReminder" class="api-key-reminder">
-				<div class="reminder-content">
-					<div class="reminder-icon">🔑</div>
-					<div class="reminder-text">
-						<h3>{{ t('welcome') }}</h3>
-						<p>{{ t('apiKeyReminder') }}</p>
-					</div>
-					<div class="reminder-actions">
-						<button @click="goToSettings" class="reminder-button">
-							{{ t('goToSettings') }}
-						</button>
-						<button
-							@click="closeReminder(false)"
-							class="reminder-button secondary"
-						>
-							{{ t('later') }}
-						</button>
-						<button
-							@click="closeReminder(true)"
-							class="reminder-button secondary"
-						>
-							{{ t('dontShowAgain') }}
-						</button>
-					</div>
-				</div>
-			</div>
-		</transition>
-	</div>
+    <!-- API Key 提示框 -->
+    <transition name="fade">
+      <div
+        v-if="showApiKeyReminder"
+        class="api-key-reminder"
+      >
+        <div class="reminder-content">
+          <div class="reminder-icon">
+            🔑
+          </div>
+          <div class="reminder-text">
+            <h3>{{ t('welcome') }}</h3>
+            <p>{{ t('apiKeyReminder') }}</p>
+          </div>
+          <div class="reminder-actions">
+            <button
+              class="reminder-button"
+              @click="goToSettings"
+            >
+              {{ t('goToSettings') }}
+            </button>
+            <button
+              class="reminder-button secondary"
+              @click="closeReminder(false)"
+            >
+              {{ t('later') }}
+            </button>
+            <button
+              class="reminder-button secondary"
+              @click="closeReminder(true)"
+            >
+              {{ t('dontShowAgain') }}
+            </button>
+          </div>
+        </div>
+      </div>
+    </transition>
+  </div>
 </template>
 
 <style>
@@ -141,12 +167,7 @@ onMounted(() => {
 	--filter-btn-active-border: #7a89c2;
 	--language-toggle-bg: rgba(122, 137, 194, 0.2); /* 浅色主题下的半透明背景 */
 	--language-toggle-color: #2c3e50; /* 浅色主题下的文字颜色 */
-	--language-toggle-hover-bg: rgba(
-		122,
-		137,
-		194,
-		0.4
-	); /* 浅色主题下的悬停背景 */
+	--language-toggle-hover-bg: rgba(122, 137, 194, 0.4); /* 浅色主题下的悬停背景 */
 }
 
 [data-theme='dark'] {
@@ -170,19 +191,22 @@ onMounted(() => {
 	--filter-btn-active-border: #8e9ecc;
 	--language-toggle-bg: rgba(142, 158, 204, 0.2); /* 深色主题下的半透明背景 */
 	--language-toggle-color: #ecf0f1; /* 深色主题下的文字颜色 */
-	--language-toggle-hover-bg: rgba(
-		142,
-		158,
-		204,
-		0.4
-	); /* 深色主题下的悬停背景 */
+	--language-toggle-hover-bg: rgba(142, 158, 204, 0.4); /* 深色主题下的悬停背景 */
 }
 
 body {
 	background: var(--bg-color);
 	color: var(--text-color);
-	font-family: 'LXGW WenKai Screen', -apple-system, BlinkMacSystemFont,
-		'Segoe UI', Roboto, Oxygen-Sans, Ubuntu, Cantarell, 'Helvetica Neue',
+	font-family:
+		'LXGW WenKai Screen',
+		-apple-system,
+		BlinkMacSystemFont,
+		'Segoe UI',
+		Roboto,
+		Oxygen-Sans,
+		Ubuntu,
+		Cantarell,
+		'Helvetica Neue',
 		sans-serif;
 	-webkit-font-smoothing: var(--font-smoothing);
 	-moz-osx-font-smoothing: var(--font-smoothing);

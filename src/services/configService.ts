@@ -3,9 +3,7 @@ import { ref } from 'vue'
 const API_KEY_STORAGE_KEY = 'deepseek_api_key'
 const HIDE_API_KEY_REMINDER_KEY = 'hide_api_key_reminder'
 
-export const apiKey = ref<string>(
-	localStorage.getItem(API_KEY_STORAGE_KEY) || ''
-)
+export const apiKey = ref<string>(localStorage.getItem(API_KEY_STORAGE_KEY) || '')
 
 export function getApiKey(): string {
 	return apiKey.value

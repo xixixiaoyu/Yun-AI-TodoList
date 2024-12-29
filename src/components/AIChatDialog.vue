@@ -6,11 +6,15 @@ import {
 	optimizeText,
 } from '../services/deepseekService'
 import { Message } from '../services/types'
-import { marked, MarkedOptions } from 'marked'
+import { marked } from 'marked'
 import DOMPurify from 'dompurify'
 import hljs from 'highlight.js'
 import 'highlight.js/styles/github.css'
 import { useI18n } from 'vue-i18n'
+import type {
+	SpeechRecognitionEvent,
+	SpeechRecognitionErrorEvent,
+} from '../types/web-speech-api'
 
 // 添加 Web Speech API 类型定义
 declare global {
@@ -62,20 +66,25 @@ declare global {
 
 const { t, locale } = useI18n()
 
+// 添加错误处理
+const error = ref('')
+const showError = (message: string) => {
+	error.value = message
+	setTimeout(() => {
+		error.value = ''
+	}, 3000)
+}
+
 // 配置 marked 使用 highlight.js
 marked.setOptions({
 	highlight: function (code: string, lang: string) {
-		if (lang && hljs.getLanguage(lang)) {
-			try {
-				return hljs.highlight(code, { language: lang }).value
-			} catch (e) {
-				console.error(e)
-			}
+		try {
+			return hljs.highlight(code, { language: lang }).value
+		} catch (err) {
+			console.error('Error highlighting code:', err)
 		}
-		return code
 	},
-	langPrefix: 'hljs language-',
-} as MarkedOptions)
+})
 
 const userMessage = ref('')
 const chatHistory = ref<{ role: 'user' | 'ai'; content: string }[]>([])
@@ -108,19 +117,13 @@ const loadConversationHistory = () => {
 
 // 新增: 保存对话历史列表到 localStorage
 const saveConversationHistory = () => {
-	localStorage.setItem(
-		'aiConversationHistory',
-		JSON.stringify(conversationHistory.value)
-	)
+	localStorage.setItem('aiConversationHistory', JSON.stringify(conversationHistory.value))
 }
 
 // 新增: 保存当前会话 ID 到 localStorage
 const saveCurrentConversationId = () => {
 	if (currentConversationId.value) {
-		localStorage.setItem(
-			'currentConversationId',
-			currentConversationId.value.toString()
-		)
+		localStorage.setItem('currentConversationId', currentConversationId.value.toString())
 	}
 }
 
@@ -154,9 +157,7 @@ const switchConversation = (id: number, closeDrawer: boolean = true) => {
 
 // 修改: 删除对话时保持抽屉打开
 const deleteConversation = (id: number) => {
-	conversationHistory.value = conversationHistory.value.filter(
-		(c) => c.id !== id
-	)
+	conversationHistory.value = conversationHistory.value.filter((c) => c.id !== id)
 	if (currentConversationId.value === id) {
 		if (conversationHistory.value.length > 0) {
 			switchConversation(conversationHistory.value[0].id, false) // 不关闭抽屉
@@ -200,7 +201,7 @@ const scrollToBottom = () => {
 			element.scrollHeight - element.scrollTop <= element.clientHeight + 30
 
 		// 只有当用户没有主动滚动或已经在底部附近时才自动滚动
-		if (!userHasScrolled || isScrolledToBottom) {
+		if (!userHasScrolled.value || isScrolledToBottom) {
 			nextTick(() => {
 				element.scrollTo({
 					top: element.scrollHeight,
@@ -378,9 +379,7 @@ const sanitizedMessages = computed(() =>
 	chatHistory.value.map((message) => ({
 		...message,
 		sanitizedContent:
-			message.role === 'ai'
-				? sanitizeContent(message.content)
-				: message.content,
+			message.role === 'ai' ? sanitizeContent(message.content) : message.content,
 	}))
 )
 
@@ -422,15 +421,12 @@ const recognition = ref<any | null>(null)
 const errorCount = ref(0)
 const maxErrorRetries = 2
 const isRecognitionSupported = ref(true)
-const recognitionStatus = ref<'idle' | 'listening' | 'processing' | 'error'>(
-	'idle'
-)
+const recognitionStatus = ref<'idle' | 'listening' | 'processing' | 'error'>('idle')
 const lastError = ref('')
 
 // 检查浏览器是否支持语音识别
 const checkSpeechRecognitionSupport = () => {
-	const SpeechRecognitionAPI =
-		window.SpeechRecognition || window.webkitSpeechRecognition
+	const SpeechRecognitionAPI = window.SpeechRecognition || window.webkitSpeechRecognition
 	if (!SpeechRecognitionAPI) {
 		isRecognitionSupported.value = false
 		console.error(t('browserSpeechNotSupported'))
@@ -525,43 +521,26 @@ const initSpeechRecognition = async () => {
 			recognitionStatus.value = 'error'
 
 			switch (event.error) {
-				case 'no-speech':
-					lastError.value = t('noSpeechDetected')
-					restartRecognition()
+				case 'no-speech': {
+					const message = t('noSpeechDetected')
+					showError(message)
 					break
-				case 'audio-capture':
-					lastError.value = t('microphoneNotFound')
-					stopRecognition() // 停止识别并释放资源
+				}
+				case 'audio-capture': {
+					const message = t('noMicrophoneFound')
+					showError(message)
 					break
-				case 'not-allowed':
-					lastError.value = t('microphonePermissionDenied')
-					stopRecognition() // 停止识别并释放资源
+				}
+				case 'not-allowed': {
+					const message = t('microphonePermissionDenied')
+					showError(message)
 					break
-				case 'network':
-					lastError.value = t('networkError')
-					stopRecognition() // 停止识别并释放资源
+				}
+				default: {
+					const message = t('speechRecognitionError')
+					showError(message)
 					break
-				case 'aborted':
-					recognitionStatus.value = 'idle'
-					stopRecognition() // 停止识别并释放资源
-					break
-				case 'language-not-supported':
-					lastError.value = t('languageNotSupported')
-					// 尝试切换到备选语言
-					const currentLang = recognition.value.lang
-					const newLang = currentLang.startsWith('zh') ? 'en-US' : 'zh-CN'
-					recognition.value.lang = newLang
-					console.log(t('switchToLanguage', { lang: newLang }))
-					restartRecognition()
-					break
-				default:
-					lastError.value = t('speechRecognitionError')
-					if (errorCount.value < maxErrorRetries) {
-						errorCount.value++
-						restartRecognition()
-					} else {
-						stopRecognition() // 超过重试次数，停止识别并释放资源
-					}
+				}
 			}
 		}
 
@@ -591,19 +570,6 @@ const initSpeechRecognition = async () => {
 			console.log(t('audioEnd'))
 			recognitionStatus.value = 'processing'
 		}
-
-		// 添加停止识别的方法
-		const stopRecognition = () => {
-			try {
-				if (recognition.value) {
-					recognition.value.stop()
-				}
-			} catch (e) {
-				console.error(t('stopRecognitionError', { error: e }))
-			}
-			isListening.value = false
-			recognitionStatus.value = 'idle'
-		}
 	} catch (error) {
 		console.error(t('initRecognitionError', { error }))
 		recognitionStatus.value = 'error'
@@ -614,11 +580,7 @@ const initSpeechRecognition = async () => {
 
 // 修改重启逻辑，添加延迟和状态检查
 const restartRecognition = () => {
-	if (
-		isListening.value &&
-		recognition.value &&
-		recognitionStatus.value !== 'error'
-	) {
+	if (isListening.value && recognition.value && recognitionStatus.value !== 'error') {
 		try {
 			setTimeout(() => {
 				if (isListening.value) {
@@ -691,9 +653,7 @@ onMounted(() => {
 	} else if (savedConversationId) {
 		// 尝试恢复上次激活的会话
 		const conversationId = parseInt(savedConversationId)
-		const exists = conversationHistory.value.some(
-			(c) => c.id === conversationId
-		)
+		const exists = conversationHistory.value.some((c) => c.id === conversationId)
 		if (exists) {
 			switchConversation(conversationId)
 		} else {
@@ -712,243 +672,291 @@ watch(chatHistory, scrollToBottom, { deep: true })
 </script>
 
 <template>
-	<div class="ai-chat-dialog">
-		<div class="dialog-header">
-			<h2>{{ t('aiAssistant') }}</h2>
+  <div class="ai-chat-dialog">
+    <div class="dialog-header">
+      <h2>{{ t('aiAssistant') }}</h2>
 
-			<router-link to="/" class="close-button" aria-label="close">
-				<svg
-					xmlns="http://www.w3.org/2000/svg"
-					viewBox="0 0 24 24"
-					fill="currentColor"
-					width="24"
-					height="24"
-				>
-					<path
-						d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"
-					/>
-				</svg>
-			</router-link>
-		</div>
-		<div class="dialog-content scrollable-container">
-			<div class="drawer-container" :class="{ 'drawer-open': isDrawerOpen }">
-				<div class="drawer">
-					<div class="drawer-header">
-						<h3 class="drawer-title">{{ t('conversations') }}</h3>
-						<div class="drawer-header-controls">
-							<button
-								@click="clearAllConversations"
-								class="clear-all-btn"
-								:title="t('clearAllConversations')"
-							>
-								<svg
-									xmlns="http://www.w3.org/2000/svg"
-									viewBox="0 0 24 24"
-									width="18"
-									height="18"
-									fill="currentColor"
-								>
-									<path
-										d="M15 2H9c-1.1 0-2 .9-2 2v2H3v2h2v12c0 1.1.9 2 2 2h10c1.1 0 2-.9 2-2V8h2V6h-4V4c0-1.1-.9-2-2-2zm0 2v2H9V4h6zM7 8h10v12H7V8z"
-									/>
-									<path d="M9 10h2v8H9zm4 0h2v8h-2z" />
-								</svg>
-							</button>
-							<button @click="toggleDrawer" class="close-drawer-btn">
-								<svg
-									xmlns="http://www.w3.org/2000/svg"
-									viewBox="0 0 24 24"
-									width="24"
-									height="24"
-								>
-									<path fill="none" d="M0 0h24v24H0z" />
-									<path
-										d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"
-									/>
-								</svg>
-							</button>
-						</div>
-					</div>
-					<div class="conversation-list">
-						<div
-							v-for="conversation in conversationHistory"
-							:key="conversation.id"
-							class="conversation-item"
-							:class="{ active: currentConversationId === conversation.id }"
-							@click.stop="switchConversation(conversation.id)"
-						>
-							<span>{{ conversation.title }}</span>
-							<button
-								@click.stop="deleteConversation(conversation.id)"
-								class="delete-conversation-btn"
-							>
-								<svg
-									xmlns="http://www.w3.org/2000/svg"
-									viewBox="0 0 24 24"
-									width="18"
-									height="18"
-								>
-									<path fill="none" d="M0 0h24v24H0z" />
-									<path
-										d="M17 6h5v2h-2v13a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V8H2V6h5V3a1 1 0 0 1 1-1h8a1 1 0 0 1 1 1v3zm1 2H6v12h12V8zm-9 3h2v6H9v-6zm4 0h2v6h-2v-6zM9 4v2h6V4H9z"
-									/>
-								</svg>
-							</button>
-						</div>
-					</div>
-				</div>
-			</div>
-			<div
-				v-if="isDrawerOpen"
-				class="drawer-overlay"
-				@click="isDrawerOpen = false"
-			></div>
-			<div ref="chatHistoryRef" class="chat-history">
-				<div
-					v-for="(message, index) in sanitizedMessages"
-					:key="index"
-					class="message-container"
-					:class="message.role"
-				>
-					<div class="message-content" dir="ltr">
-						<p v-if="message.role === 'user'">{{ message.content }}</p>
-						<div v-else class="ai-message">
-							<div v-html="message.sanitizedContent"></div>
-							<button
-								class="copy-button"
-								@click="copyToClipboard(message.content)"
-								title="复制原始内容"
-							>
-								<svg
-									xmlns="http://www.w3.org/2000/svg"
-									viewBox="0 0 24 24"
-									fill="none"
-									stroke="currentColor"
-									stroke-width="2"
-									stroke-linecap="round"
-									stroke-linejoin="round"
-								>
-									<rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
-									<path
-										d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"
-									></path>
-								</svg>
-								复制
-							</button>
-						</div>
-					</div>
-				</div>
-			</div>
-			<div class="conversation-controls">
-				<button @click="createNewConversation" class="new-conversation-btn">
-					<svg
-						xmlns="http://www.w3.org/2000/svg"
-						viewBox="0 0 24 24"
-						width="16"
-						height="16"
-						fill="currentColor"
-					>
-						<path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z" />
-					</svg>
-					{{ t('newConversation') }}
-				</button>
-				<button
-					@click="optimizeMessage"
-					:disabled="!userMessage.trim() || isOptimizing || isGenerating"
-					class="optimize-btn"
-				>
-					<svg
-						xmlns="http://www.w3.org/2000/svg"
-						viewBox="0 0 24 24"
-						width="16"
-						height="16"
-						fill="currentColor"
-					>
-						<path
-							d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"
-						/>
-					</svg>
-					{{ isOptimizing ? t('optimizing') : t('optimize') }}
-				</button>
-				<button @click="toggleDrawer" class="toggle-drawer-btn">
-					<svg
-						xmlns="http://www.w3.org/2000/svg"
-						viewBox="0 0 24 24"
-						width="16"
-						height="16"
-						fill="currentColor"
-					>
-						<path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z" />
-					</svg>
-				</button>
-			</div>
-			<div class="chat-input">
-				<textarea
-					ref="inputRef"
-					v-model="userMessage"
-					@keydown.enter.exact.prevent="sendMessage"
-					@keydown.enter.shift.exact="newline"
-					:placeholder="t('askAiAssistant')"
-					:disabled="isGenerating"
-				></textarea>
-				<div class="input-controls">
-					<button v-if="!isGenerating" @click="sendMessage">
-						<svg
-							xmlns="http://www.w3.org/2000/svg"
-							viewBox="0 0 24 24"
-							width="18"
-							height="18"
-							fill="currentColor"
-						>
-							<path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" />
-						</svg>
-						{{ t('send') }}
-					</button>
-					<button v-else @click="stopGenerating" class="stop-btn">
-						<svg
-							xmlns="http://www.w3.org/2000/svg"
-							viewBox="0 0 24 24"
-							width="18"
-							height="18"
-							fill="currentColor"
-						>
-							<path d="M6 6h12v12H6z" />
-						</svg>
-						{{ t('stop') }}
-					</button>
-					<button
-						@click="isListening ? stopListening() : startListening()"
-						class="voice-btn"
-						:class="{
-							'is-listening': isListening,
-							'is-error': recognitionStatus === 'error',
-							'is-processing': recognitionStatus === 'processing',
-						}"
-						:disabled="!isRecognitionSupported"
-						:title="
-							lastError || t(isListening ? 'stopListening' : 'startListening')
-						"
-					>
-						<svg
-							xmlns="http://www.w3.org/2000/svg"
-							viewBox="0 0 24 24"
-							width="18"
-							height="18"
-							fill="currentColor"
-						>
-							<path
-								d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5.91-3c-.49 0-.9.36-.98.85C16.52 14.2 14.47 16 12 16s-4.52-1.8-4.93-4.15c-.08-.49-.49-.85-.98-.85-.61 0-1.09.54-1 1.14.49 3 2.89 5.35 5.91 5.78V20c0 .55.45 1 1 1s1-.45 1-1v-2.08c3.02-.43 5.42-2.78 5.91-5.78.1-.6-.39-1.14-1-1.14z"
-							/>
-						</svg>
-						<span>{{
-							isListening ? t('stopListening') : t('startListening')
-						}}</span>
-						<span v-if="lastError" class="error-message">{{ lastError }}</span>
-					</button>
-				</div>
-			</div>
-		</div>
-	</div>
+      <router-link
+        to="/"
+        class="close-button"
+        aria-label="close"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 24 24"
+          fill="currentColor"
+          width="24"
+          height="24"
+        >
+          <path
+            d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"
+          />
+        </svg>
+      </router-link>
+    </div>
+    <div class="dialog-content scrollable-container">
+      <div
+        class="drawer-container"
+        :class="{ 'drawer-open': isDrawerOpen }"
+      >
+        <div class="drawer">
+          <div class="drawer-header">
+            <h3 class="drawer-title">
+              {{ t('conversations') }}
+            </h3>
+            <div class="drawer-header-controls">
+              <button
+                class="clear-all-btn"
+                :title="t('clearAllConversations')"
+                @click="clearAllConversations"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  width="18"
+                  height="18"
+                  fill="currentColor"
+                >
+                  <path
+                    d="M15 2H9c-1.1 0-2 .9-2 2v2H3v2h2v12c0 1.1.9 2 2 2h10c1.1 0 2-.9 2-2V8h2V6h-4V4c0-1.1-.9-2-2-2zm0 2v2H9V4h6zM7 8h10v12H7V8z"
+                  />
+                  <path d="M9 10h2v8H9zm4 0h2v8h-2z" />
+                </svg>
+              </button>
+              <button
+                class="close-drawer-btn"
+                @click="toggleDrawer"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  width="24"
+                  height="24"
+                >
+                  <path
+                    fill="none"
+                    d="M0 0h24v24H0z"
+                  />
+                  <path
+                    d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"
+                  />
+                </svg>
+              </button>
+            </div>
+          </div>
+          <div class="conversation-list">
+            <div
+              v-for="conversation in conversationHistory"
+              :key="conversation.id"
+              class="conversation-item"
+              :class="{ active: currentConversationId === conversation.id }"
+              @click.stop="switchConversation(conversation.id)"
+            >
+              <span>{{ conversation.title }}</span>
+              <button
+                class="delete-conversation-btn"
+                @click.stop="deleteConversation(conversation.id)"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  width="18"
+                  height="18"
+                >
+                  <path
+                    fill="none"
+                    d="M0 0h24v24H0z"
+                  />
+                  <path
+                    d="M17 6h5v2h-2v13a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V8H2V6h5V3a1 1 0 0 1 1-1h8a1 1 0 0 1 1 1v3zm1 2H6v12h12V8zm-9 3h2v6H9v-6zm4 0h2v6h-2v-6zM9 4v2h6V4H9z"
+                  />
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div
+        v-if="isDrawerOpen"
+        class="drawer-overlay"
+        @click="isDrawerOpen = false"
+      />
+      <div
+        ref="chatHistoryRef"
+        class="chat-history"
+      >
+        <div
+          v-for="(message, index) in sanitizedMessages"
+          :key="index"
+          class="message-container"
+          :class="message.role"
+        >
+          <div
+            class="message-content"
+            dir="ltr"
+          >
+            <p v-if="message.role === 'user'">
+              {{ message.content }}
+            </p>
+            <div
+              v-else
+              class="ai-message"
+            >
+              <div v-html="message.sanitizedContent" />
+              <button
+                class="copy-button"
+                title="复制原始内容"
+                @click="copyToClipboard(message.content)"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <rect
+                    x="9"
+                    y="9"
+                    width="13"
+                    height="13"
+                    rx="2"
+                    ry="2"
+                  />
+                  <path
+                    d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"
+                  />
+                </svg>
+                复制
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="conversation-controls">
+        <button
+          class="new-conversation-btn"
+          @click="createNewConversation"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            width="16"
+            height="16"
+            fill="currentColor"
+          >
+            <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z" />
+          </svg>
+          {{ t('newConversation') }}
+        </button>
+        <button
+          :disabled="!userMessage.trim() || isOptimizing || isGenerating"
+          class="optimize-btn"
+          @click="optimizeMessage"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            width="16"
+            height="16"
+            fill="currentColor"
+          >
+            <path
+              d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"
+            />
+          </svg>
+          {{ isOptimizing ? t('optimizing') : t('optimize') }}
+        </button>
+        <button
+          class="toggle-drawer-btn"
+          @click="toggleDrawer"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            width="16"
+            height="16"
+            fill="currentColor"
+          >
+            <path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z" />
+          </svg>
+        </button>
+      </div>
+      <div class="chat-input">
+        <textarea
+          ref="inputRef"
+          v-model="userMessage"
+          :placeholder="t('askAiAssistant')"
+          :disabled="isGenerating"
+          @keydown.enter.exact.prevent="sendMessage"
+          @keydown.enter.shift.exact="newline"
+        />
+        <div class="input-controls">
+          <button
+            v-if="!isGenerating"
+            @click="sendMessage"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              width="18"
+              height="18"
+              fill="currentColor"
+            >
+              <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" />
+            </svg>
+            {{ t('send') }}
+          </button>
+          <button
+            v-else
+            class="stop-btn"
+            @click="stopGenerating"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              width="18"
+              height="18"
+              fill="currentColor"
+            >
+              <path d="M6 6h12v12H6z" />
+            </svg>
+            {{ t('stop') }}
+          </button>
+          <button
+            class="voice-btn"
+            :class="{
+              'is-listening': isListening,
+              'is-error': recognitionStatus === 'error',
+              'is-processing': recognitionStatus === 'processing',
+            }"
+            :disabled="!isRecognitionSupported"
+            :title="lastError || t(isListening ? 'stopListening' : 'startListening')"
+            @click="isListening ? stopListening() : startListening()"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              width="18"
+              height="18"
+              fill="currentColor"
+            >
+              <path
+                d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5.91-3c-.49 0-.9.36-.98.85C16.52 14.2 14.47 16 12 16s-4.52-1.8-4.93-4.15c-.08-.49-.49-.85-.98-.85-.61 0-1.09.54-1 1.14.49 3 2.89 5.35 5.91 5.78V20c0 .55.45 1 1 1s1-.45 1-1v-2.08c3.02-.43 5.42-2.78 5.91-5.78.1-.6-.39-1.14-1-1.14z"
+              />
+            </svg>
+            <span>{{ isListening ? t('stopListening') : t('startListening') }}</span>
+            <span
+              v-if="lastError"
+              class="error-message"
+            >{{ lastError }}</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
 </template>
 
 <style scoped>

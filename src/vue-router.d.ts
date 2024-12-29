@@ -1,9 +1,16 @@
+import 'vue-router'
+
 declare module 'vue-router' {
-	import { RouteRecordRaw } from 'vue-router'
+	import { RouteRecordRaw, Router, RouterHistory } from 'vue-router'
 	export * from 'vue-router'
 	export function createRouter(options: {
-		history: any
+		history: RouterHistory
 		routes: RouteRecordRaw[]
-	}): any
-	export function createWebHistory(): any
+	}): Router
+	export function createWebHistory(): RouterHistory
+	interface RouteMeta {
+		requiresAuth?: boolean
+		layout?: string
+		transition?: string
+	}
 }

@@ -9,7 +9,9 @@ const props = defineProps<{
 		id: number
 		text: string
 		completed: boolean
-		projectId: number
+		completedAt?: string
+		tags: string[]
+		projectId: number | null
 	}
 }>()
 
@@ -62,28 +64,46 @@ const projectName = computed(() => {
 </script>
 
 <template>
-	<div
-		class="todo-item"
-		:class="{ completed: isCompleted }"
-		@click="toggleTodo"
-	>
-		<div class="todo-content">
-			<span class="checkbox-wrapper">
-				<transition name="fade">
-					<i class="checkbox" :class="{ checked: isCompleted }"></i>
-				</transition>
-			</span>
-			<div class="todo-text-wrapper">
-				<span class="todo-text" :title="formattedTitle">
-					<span class="text-content">{{ formattedTitle }}</span>
-				</span>
-				<span v-if="projectName" class="project-tag">{{ projectName }}</span>
-			</div>
-		</div>
-		<button @click.stop="removeTodo" class="delete-btn">
-			{{ t('delete') }}
-		</button>
-	</div>
+  <div
+    class="todo-item"
+    :class="{ completed: isCompleted }"
+    @click="toggleTodo"
+  >
+    <div class="todo-content">
+      <span class="checkbox-wrapper">
+        <transition name="fade">
+          <i
+            v-show="true"
+            class="checkbox"
+            :class="{ checked: isCompleted }"
+          />
+        </transition>
+      </span>
+      <div class="todo-text-wrapper">
+        <span
+          class="todo-text"
+          :title="formattedTitle"
+        >
+          <transition>
+            <span
+              v-show="true"
+              class="text-content"
+            >{{ formattedTitle }}</span>
+          </transition>
+        </span>
+        <span
+          v-if="projectName"
+          class="project-tag"
+        >{{ projectName }}</span>
+      </div>
+    </div>
+    <button
+      class="delete-btn"
+      @click.stop="removeTodo"
+    >
+      {{ t('delete') }}
+    </button>
+  </div>
 </template>
 
 <style scoped>

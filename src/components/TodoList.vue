@@ -15,16 +15,11 @@ import PomodoroTimer from './PomodoroTimer.vue'
 import confetti from 'canvas-confetti'
 import PomodoroStats from './PomodoroStats.vue'
 import TodoHeatmap from './TodoHeatmap.vue'
-import { format } from 'date-fns'
-import { zhCN, enUS } from 'date-fns/locale'
 import { useSortable } from '@vueuse/integrations/useSortable'
-import { useRouter } from 'vue-router'
 import AddProjectModal from './AddProjectModal.vue'
 import { useWindowSize } from '@vueuse/core'
 
-const router = useRouter()
-
-// useTodos 组合函数获取待办事项相关的状态和方
+// useTodos 组合函数获取待办事项相关的状态和方法
 const {
 	todos,
 	projects,
@@ -38,7 +33,6 @@ const {
 	restoreHistory,
 	deleteHistoryItem,
 	deleteAllHistory,
-	updateTodosOrder,
 	addProject,
 	removeProject,
 	setCurrentProject,
@@ -72,9 +66,7 @@ const MAX_TODO_LENGTH = 50
 const filteredTodos = computed(() => {
 	let filtered = todos.value
 	if (currentProjectId.value !== null) {
-		filtered = filtered.filter(
-			(todo) => todo.projectId === currentProjectId.value
-		)
+		filtered = filtered.filter((todo) => todo.projectId === currentProjectId.value)
 	}
 	if (filter.value === 'active') {
 		return filtered.filter((todo) => todo && !todo.completed)
@@ -82,11 +74,6 @@ const filteredTodos = computed(() => {
 		return filtered.filter((todo) => todo && todo.completed)
 	}
 	return filtered.filter((todo) => todo !== null && todo !== undefined)
-})
-
-// 计算历史待办事项
-const historicalTodos = computed(() => {
-	return history.value.flatMap((item) => item.todos.map((todo) => todo.text))
 })
 
 // 切换历史记录显示状态
@@ -132,9 +119,7 @@ const generateSuggestedTodos = async () => {
 		showSuggestedTodos.value = true
 	} catch (error) {
 		console.error(t('generateSuggestionsError'), error)
-		showError(
-			error instanceof Error ? error.message : t('generateSuggestionsError')
-		)
+		showError(error instanceof Error ? error.message : t('generateSuggestionsError'))
 	} finally {
 		isGenerating.value = false
 	}
@@ -307,14 +292,6 @@ onUnmounted(() => {
 	document.removeEventListener('keydown', onKeyDown)
 })
 
-// 格式化日期函数
-const formatDate = (date: string | Date) => {
-	const currentLocale = locale.value === 'zh' ? zhCN : enUS
-	return format(new Date(date), 'yyyy-MM-dd HH:mm:ss', {
-		locale: currentLocale,
-	})
-}
-
 // 添加新的 ref 来控制模态框的显示
 const showAddProjectModal = ref(false)
 
@@ -324,19 +301,9 @@ const addNewProject = (name: string) => {
 	showAddProjectModal.value = false
 }
 
-const currentProjectName = computed(() => {
-	if (currentProjectId.value === null) {
-		return t('allProjects')
-	}
-	const currentProject = projects.value.find(
-		(p) => p.id === currentProjectId.value
-	)
-	return currentProject ? currentProject.name : ''
-})
-
 // 计算属性：获取最多3个项目
 const displayedProjects = computed(() => {
-	return [{ id: null, name: t('allProjects') }, ...projects.value.slice(0, 3)]
+	return [{ id: null, name: t('allProjects') }, ...projects.value]
 })
 
 // 添加删除项目的函数
@@ -376,251 +343,304 @@ const onKeyDown = (event: KeyboardEvent) => {
 const closeCharts = () => {
 	showCharts.value = false
 }
+
+// 修改 setCurrentProject 的调用
+const handleProjectChange = (projectId: number | null) => {
+	setCurrentProject(projectId)
+}
 </script>
 
 <template>
-	<div class="todo-container" :class="{ 'small-screen': isSmallScreen }">
-		<!-- 番茄钟计时器组件 -->
-		<PomodoroTimer
-			class="pomodoro-timer"
-			:class="{ 'top-clock': !isSmallScreen }"
-			@pomodoro-complete="handlePomodoroComplete"
-		/>
+  <div
+    class="todo-container"
+    :class="{ 'small-screen': isSmallScreen }"
+  >
+    <!-- 番茄钟计时器组件 -->
+    <PomodoroTimer
+      class="pomodoro-timer"
+      :class="{ 'top-clock': !isSmallScreen }"
+      @pomodoro-complete="handlePomodoroComplete"
+    />
 
-		<div class="todo-list scrollable-container">
-			<!-- 加载中遮罩层 -->
-			<div v-if="isLoading" class="loading-overlay">
-				<div class="loading-spinner"></div>
-				<p>{{ t('sorting') }}</p>
-			</div>
-			<div class="header">
-				<!-- 应用标题 -->
-				<h1 style="margin-right: 10px">{{ t('appTitle') }}</h1>
-				<div class="header-actions">
-					<!-- 主题切换按钮 -->
-					<button
-						@click="toggleTheme"
-						class="icon-button theme-toggle"
-						:title="themeTooltip"
-						:aria-label="themeTooltip"
-					>
-						<!-- 根据当前主题显示不同的图标 -->
-						<svg
-							v-if="themeIcon === 'moon'"
-							xmlns="http://www.w3.org/2000/svg"
-							viewBox="0 0 24 24"
-							width="24"
-							height="24"
-							fill="currentColor"
-						>
-							<path
-								d="M12 3a9 9 0 1 0 9 9c0-.46-.04-.92-.1-1.36a5.389 5.389 0 0 1-4.4 2.26 5.403 5.403 0 0 1-3.14-9.8c-.44-.06-.9-.1-1.36-.1z"
-							/>
-						</svg>
-						<svg
-							v-else-if="themeIcon === 'sun'"
-							xmlns="http://www.w3.org/2000/svg"
-							viewBox="0 0 24 24"
-							width="24"
-							height="24"
-							fill="currentColor"
-						>
-							<path
-								d="M12 7a5 5 0 1 1 0 10 5 5 0 0 1 0-10zm0 2a3 3 0 1 0 0 6 3 3 0 0 0 0-6zm0-4V3a1 1 0 0 1 2 0v2a1 1 0 0 1-2 0zm0 18v-2a1 1 0 0 1 2 0v2a1 1 0 0 1-2 0zm10-10h2a1 1 0 0 1 0 2h-2a1 1 0 0 1 0-2zM2 12h2a1 1 0 0 1 0 2H2a1 1 0 0 1 0-2zm16.95-5.66l1.414-1.414a1 1 0 0 1 1.414 1.414l-1.414 1.414a1 1 0 0 1-1.414-1.414zm-14.9 14.9l1.414-1.414a1 1 0 0 1 1.414 1.414l-1.414 1.414a1 1 0 0 1-1.414-1.414zm14.9 0a1 1 0 0 1-1.414 1.414l-1.414-1.414a1 1 0 0 1 1.414-1.414l1.414 1.414zm-14.9-14.9a1 1 0 0 1-1.414-1.414l1.414-1.414a1 1 0 0 1 1.414 1.414l-1.414 1.414z"
-							/>
-						</svg>
-						<svg
-							v-else
-							xmlns="http://www.w3.org/2000/svg"
-							viewBox="0 0 24 24"
-							width="24"
-							height="24"
-							fill="currentColor"
-						>
-							<path
-								d="M12 2C6.47 2 2 17.523 2 12S6.47 2 12 2s10 4.477 10 10-4.47 10-10 10-10-4.47-10-10zm0-2a8 8 0 1 0 0 16 8 8 0 0 0 0-16zM9.5 9.5h5v5h-5v-5z"
-							/>
-						</svg>
-						{{ t('theme') }}
-					</button>
-					<!-- 历史记录按钮 -->
-					<button
-						@click="toggleHistory"
-						class="icon-button"
-						:class="{ active: showHistory }"
-					>
-						<svg
-							xmlns="http://www.w3.org/2000/svg"
-							viewBox="0 0 24 24"
-							width="24"
-							height="24"
-						>
-							<path fill="none" d="M0 0h24v24H0z" />
-							<path
-								d="M13 3c-4.97 0-9 4.03-9 9H1l3.89 3.89.07.14L9 12H6c0-3.87 3.13-7 7-7s7 3.13 7 7-3.13 7-7 7c-1.93 0-3.68-.79-4.94-2.06l-1.42 1.42C8.27 19.99 10.51 21 13 21c4.97 0 9-4.03 9-9s-4.03-9-9-9zm-1 5v5l4.28 2.54.72-1.21-3.5-2.08V8H12z"
-							/>
-						</svg>
-						<span>{{ t('history') }}</span>
-					</button>
+    <div class="todo-list scrollable-container">
+      <!-- 加载中遮罩层 -->
+      <div
+        v-if="isLoading"
+        class="loading-overlay"
+      >
+        <div class="loading-spinner" />
+        <p>{{ t('sorting') }}</p>
+      </div>
+      <div class="header">
+        <!-- 应用标题 -->
+        <h1 style="margin-right: 10px">
+          {{ t('appTitle') }}
+        </h1>
+        <div class="header-actions">
+          <!-- 主题切换按钮 -->
+          <button
+            class="icon-button theme-toggle"
+            :title="themeTooltip"
+            :aria-label="themeTooltip"
+            @click="toggleTheme"
+          >
+            <!-- 根据当前主题显示不同的图标 -->
+            <svg
+              v-if="themeIcon === 'moon'"
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              width="24"
+              height="24"
+              fill="currentColor"
+            >
+              <path
+                d="M12 3a9 9 0 1 0 9 9c0-.46-.04-.92-.1-1.36a5.389 5.389 0 0 1-4.4 2.26 5.403 5.403 0 0 1-3.14-9.8c-.44-.06-.9-.1-1.36-.1z"
+              />
+            </svg>
+            <svg
+              v-else-if="themeIcon === 'sun'"
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              width="24"
+              height="24"
+              fill="currentColor"
+            >
+              <path
+                d="M12 7a5 5 0 1 1 0 10 5 5 0 0 1 0-10zm0 2a3 3 0 1 0 0 6 3 3 0 0 0 0-6zm0-4V3a1 1 0 0 1 2 0v2a1 1 0 0 1-2 0zm0 18v-2a1 1 0 0 1 2 0v2a1 1 0 0 1-2 0zm10-10h2a1 1 0 0 1 0 2h-2a1 1 0 0 1 0-2zM2 12h2a1 1 0 0 1 0 2H2a1 1 0 0 1 0-2zm16.95-5.66l1.414-1.414a1 1 0 0 1 1.414 1.414l-1.414 1.414a1 1 0 0 1-1.414-1.414zm-14.9 14.9l1.414-1.414a1 1 0 0 1 1.414 1.414l-1.414 1.414a1 1 0 0 1-1.414-1.414zm14.9 0a1 1 0 0 1-1.414 1.414l-1.414-1.414a1 1 0 0 1 1.414-1.414l1.414 1.414zm-14.9-14.9a1 1 0 0 1-1.414-1.414l1.414-1.414a1 1 0 0 1 1.414 1.414l-1.414 1.414z"
+              />
+            </svg>
+            <svg
+              v-else
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              width="24"
+              height="24"
+              fill="currentColor"
+            >
+              <path
+                d="M12 2C6.47 2 2 17.523 2 12S6.47 2 12 2s10 4.477 10 10-4.47 10-10 10-10-4.47-10-10zm0-2a8 8 0 1 0 0 16 8 8 0 0 0 0-16zM9.5 9.5h5v5h-5v-5z"
+              />
+            </svg>
+            {{ t('theme') }}
+          </button>
+          <!-- 历史记录按钮 -->
+          <button
+            class="icon-button"
+            :class="{ active: showHistory }"
+            @click="toggleHistory"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              width="24"
+              height="24"
+            >
+              <path
+                fill="none"
+                d="M0 0h24v24H0z"
+              />
+              <path
+                d="M13 3c-4.97 0-9 4.03-9 9H1l3.89 3.89.07.14L9 12H6c0-3.87 3.13-7 7-7s7 3.13 7 7-3.13 7-7 7c-1.93 0-3.68-.79-4.94-2.06l-1.42 1.42C8.27 19.99 10.51 21 13 21c4.97 0 9-4.03 9-9s-4.03-9-9-9zm-1 5v5l4.28 2.54.72-1.21-3.5-2.08V8H12z"
+              />
+            </svg>
+            <span>{{ t('history') }}</span>
+          </button>
 
-					<button @click="showCharts = !showCharts" class="icon-button">
-						<svg
-							xmlns="http://www.w3.org/2000/svg"
-							viewBox="0 0 24 24"
-							width="24"
-							height="24"
-							fill="currentColor"
-						>
-							<path
-								d="M3 3v18h18v-2H5V3H3zm4 14h2v-4H7v4zm4 0h2V7h-2v10zm4 0h2v-7h-2v7z"
-							/>
-						</svg>
-						<span>{{ t('showCharts') }}</span>
-					</button>
-				</div>
-			</div>
+          <button
+            class="icon-button"
+            @click="showCharts = !showCharts"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              width="24"
+              height="24"
+              fill="currentColor"
+            >
+              <path
+                d="M3 3v18h18v-2H5V3H3zm4 14h2v-4H7v4zm4 0h2V7h-2v10zm4 0h2v-7h-2v7z"
+              />
+            </svg>
+            <span>{{ t('showCharts') }}</span>
+          </button>
+        </div>
+      </div>
 
-			<!-- 项目选择器和添加项目按钮 -->
-			<div class="project-header" :class="{ 'small-screen': isSmallScreen }">
-				<div class="project-tabs">
-					<button
-						v-for="project in displayedProjects"
-						:key="project.id"
-						:title="project.name"
-						@click="setCurrentProject(project.id)"
-						:class="{ active: currentProjectId === project.id }"
-						class="project-tab"
-					>
-						{{ project.name }}
-						<span
-							v-if="project.id !== null"
-							class="delete-project"
-							@click.stop="deleteProject(project.id)"
-							:title="t('deleteProject')"
-						>
-							&times;
-						</span>
-					</button>
-				</div>
-				<button @click="showAddProjectModal = true" class="add-project-btn">
-					<i class="fas fa-plus"></i> {{ t('addProject') }}
-				</button>
-			</div>
+      <!-- 项目选择器和添加项目按钮 -->
+      <div
+        class="project-header"
+        :class="{ 'small-screen': isSmallScreen }"
+      >
+        <div class="project-tabs">
+          <button
+            v-for="project in displayedProjects"
+            :key="project.id"
+            :title="project.name"
+            :class="{ active: currentProjectId === project.id }"
+            class="project-tab"
+            @click="handleProjectChange(project.id)"
+          >
+            {{ project.name }}
+            <span
+              v-if="project.id !== null"
+              class="delete-project"
+              :title="t('deleteProject')"
+              @click.stop="deleteProject(project.id)"
+            >
+              &times;
+            </span>
+          </button>
+        </div>
+        <button
+          class="add-project-btn"
+          @click="showAddProjectModal = true"
+        >
+          <i class="fas fa-plus" /> {{ t('addProject') }}
+        </button>
+      </div>
 
-			<!-- 待办事项输入组 -->
-			<TodoInput
-				:maxLength="MAX_TODO_LENGTH"
-				@add="handleAddTodo"
-				:duplicateError="duplicateError"
-				:placeholder="t('addTodo')"
-			/>
+      <!-- 待办事项输入组 -->
+      <TodoInput
+        :max-length="MAX_TODO_LENGTH"
+        :duplicate-error="duplicateError"
+        :placeholder="t('addTodo')"
+        @add="handleAddTodo"
+      />
 
-			<!-- 待办事项过滤器组件 -->
-			<TodoFilters v-model:filter="filter" />
-			<!-- 待办事项列表 -->
-			<div ref="todoListRef" class="todo-grid">
-				<TodoItem
-					v-for="todo in filteredTodos"
-					:key="todo.id"
-					:todo="todo"
-					@toggle="toggleTodo"
-					@remove="removeTodo"
-				/>
-			</div>
-			<!-- 操作按钮区域 -->
-			<div class="actions">
-				<!-- 清除已完成待办事项按钮 -->
-				<button
-					v-if="filter === 'active' && hasActiveTodos"
-					@click="clearActive"
-					class="clear-btn"
-				>
-					{{ t('clearCompleted') }}
-				</button>
-				<!-- 生成建议待办事项按钮 -->
-				<button
-					@click="generateSuggestedTodos"
-					class="generate-btn"
-					:disabled="isGenerating"
-				>
-					{{ isGenerating ? t('generating') : t('generateSuggestions') }}
-				</button>
-				<!-- AI优先级排序按钮 -->
-				<button
-					v-if="hasActiveTodos"
-					@click="sortActiveTodosWithAI"
-					class="sort-btn"
-					:disabled="isSorting"
-				>
-					<span>{{ t('aiPrioritySort') }}</span>
-				</button>
-			</div>
-			<!-- 确认对话框组件 -->
-			<ConfirmDialog
-				:show="showConfirmDialog"
-				:title="confirmDialogConfig.title"
-				:message="confirmDialogConfig.message"
-				:confirmText="confirmDialogConfig.confirmText"
-				:cancelText="confirmDialogConfig.cancelText"
-				@confirm="handleConfirm"
-				@cancel="handleCancel"
-			/>
+      <!-- 待办事项过滤器组件 -->
+      <TodoFilters v-model:filter="filter" />
+      <!-- 待办事项列表 -->
+      <div
+        ref="todoListRef"
+        class="todo-grid"
+      >
+        <TodoItem
+          v-for="todo in filteredTodos"
+          :key="todo.id"
+          :todo="todo"
+          @toggle="toggleTodo"
+          @remove="removeTodo"
+        />
+      </div>
+      <!-- 操作按钮区域 -->
+      <div class="actions">
+        <!-- 清除已完成待办事项按钮 -->
+        <button
+          v-if="filter === 'active' && hasActiveTodos"
+          class="clear-btn"
+          @click="clearActive"
+        >
+          {{ t('clearCompleted') }}
+        </button>
+        <!-- 生成建议待办事项按钮 -->
+        <button
+          class="generate-btn"
+          :disabled="isGenerating"
+          @click="generateSuggestedTodos"
+        >
+          {{ isGenerating ? t('generating') : t('generateSuggestions') }}
+        </button>
+        <!-- AI优先级排序按钮 -->
+        <button
+          v-if="hasActiveTodos"
+          class="sort-btn"
+          :disabled="isSorting"
+          @click="sortActiveTodosWithAI"
+        >
+          <span>{{ t('aiPrioritySort') }}</span>
+        </button>
+      </div>
+      <!-- 确认对话框组件 -->
+      <ConfirmDialog
+        :show="showConfirmDialog"
+        :title="confirmDialogConfig.title"
+        :message="confirmDialogConfig.message"
+        :confirm-text="confirmDialogConfig.confirmText"
+        :cancel-text="confirmDialogConfig.cancelText"
+        @confirm="handleConfirm"
+        @cancel="handleCancel"
+      />
 
-			<!-- 建议待办事确认对话框 -->
-			<div v-if="showSuggestedTodos" class="suggested-todos-dialog">
-				<h3>{{ t('suggestedTodos') }}</h3>
-				<p>{{ t('confirmOrModify') }}</p>
-				<ul>
-					<li v-for="(todo, index) in suggestedTodos" :key="index">
-						<input
-							:value="todo"
-							@input="(event: Event) => updateSuggestedTodo(index, (event.target as HTMLInputElement).value)"
-							class="suggested-todo-input"
-						/>
-					</li>
-				</ul>
-				<div class="dialog-actions">
-					<button @click="confirmSuggestedTodos" class="confirm-btn">
-						{{ t('confirmAdd') }}
-					</button>
-					<button @click="cancelSuggestedTodos" class="cancel-btn">
-						{{ t('cancel') }}
-					</button>
-				</div>
-			</div>
-		</div>
-		<!-- 历史记录侧边栏 -->
-		<transition name="slide">
-			<HistorySidebar
-				v-if="showHistory"
-				:history="history"
-				@restore="restoreHistory"
-				@deleteItem="deleteHistoryItem"
-				@deleteAll="deleteAllHistory"
-				@close="closeHistory"
-			/>
-		</transition>
-		<!-- 添加项目模态框 -->
-		<AddProjectModal
-			v-if="showAddProjectModal"
-			@add="addNewProject"
-			@close="showAddProjectModal = false"
-		/>
+      <!-- 建议待办事确认对话框 -->
+      <div
+        v-if="showSuggestedTodos"
+        class="suggested-todos-dialog"
+      >
+        <h3>{{ t('suggestedTodos') }}</h3>
+        <p>{{ t('confirmOrModify') }}</p>
+        <ul>
+          <li
+            v-for="(todo, index) in suggestedTodos"
+            :key="index"
+          >
+            <input
+              :value="todo"
+              class="suggested-todo-input"
+              @input="
+                (event: Event) =>
+                  updateSuggestedTodo(index, (event.target as HTMLInputElement).value)
+              "
+            >
+          </li>
+        </ul>
+        <div class="dialog-actions">
+          <button
+            class="confirm-btn"
+            @click="confirmSuggestedTodos"
+          >
+            {{ t('confirmAdd') }}
+          </button>
+          <button
+            class="cancel-btn"
+            @click="cancelSuggestedTodos"
+          >
+            {{ t('cancel') }}
+          </button>
+        </div>
+      </div>
+    </div>
+    <!-- 历史记录侧边栏 -->
+    <transition name="slide">
+      <HistorySidebar
+        v-if="showHistory"
+        :history="history"
+        @restore="restoreHistory"
+        @delete-item="deleteHistoryItem"
+        @delete-all="deleteAllHistory"
+        @close="closeHistory"
+      />
+    </transition>
+    <!-- 添加项目模态框 -->
+    <AddProjectModal
+      v-if="showAddProjectModal"
+      @add="addNewProject"
+      @close="showAddProjectModal = false"
+    />
 
-		<!-- 图表详情对话框 -->
-		<div v-if="showCharts" class="charts-dialog" @click="closeCharts">
-			<div class="charts-content" @click.stop>
-				<button @click="showCharts = false" class="close-btn">
-					{{ t('close') }}
-				</button>
-				<h2>{{ t('todoCharts') }}</h2>
-				<!-- 待办事项热力图组件 -->
-				<TodoHeatmap />
-				<!-- 番茄钟统计组件 -->
-				<PomodoroStats />
-			</div>
-		</div>
-	</div>
+    <!-- 图表详情对话框 -->
+    <div
+      v-if="showCharts"
+      class="charts-dialog"
+      @click="closeCharts"
+    >
+      <div
+        class="charts-content"
+        @click.stop
+      >
+        <button
+          class="close-btn"
+          @click="showCharts = false"
+        >
+          {{ t('close') }}
+        </button>
+        <h2>{{ t('todoCharts') }}</h2>
+        <!-- 待办事项热力图组件 -->
+        <TodoHeatmap />
+        <!-- 番茄钟统计组件 -->
+        <PomodoroStats />
+      </div>
+    </div>
+  </div>
 </template>
 
 <style scoped>
@@ -639,8 +659,16 @@ const closeCharts = () => {
 	width: 100%;
 	max-width: 600px;
 	margin: 0 auto;
-	font-family: 'LXGW WenKai Screen', -apple-system, BlinkMacSystemFont,
-		'Segoe UI', Roboto, Oxygen-Sans, Ubuntu, Cantarell, 'Helvetica Neue',
+	font-family:
+		'LXGW WenKai Screen',
+		-apple-system,
+		BlinkMacSystemFont,
+		'Segoe UI',
+		Roboto,
+		Oxygen-Sans,
+		Ubuntu,
+		Cantarell,
+		'Helvetica Neue',
 		sans-serif;
 	padding: 2rem;
 	background-color: var(--card-bg-color);
@@ -1021,7 +1049,9 @@ h1 {
 	white-space: nowrap;
 	opacity: 0;
 	visibility: hidden;
-	transition: opacity 0.3s, visibility 0.3s;
+	transition:
+		opacity 0.3s,
+		visibility 0.3s;
 }
 
 .theme-toggle:hover::after {

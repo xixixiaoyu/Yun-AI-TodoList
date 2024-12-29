@@ -1,10 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
-import {
-	getDailyInspiration,
-	refreshInspiration,
-} from '../services/inspirationService'
+import { getDailyInspiration, refreshInspiration } from '../services/inspirationService'
 
 const { t, locale } = useI18n()
 const inspiration = ref('')
@@ -38,25 +35,38 @@ onMounted(fetchInspiration)
 </script>
 
 <template>
-	<div v-if="inspiration" class="daily-inspiration">
-		<div class="inspiration-header">
-			<h3>{{ t('dailyInspiration') }}</h3>
-			<button
-				@click="handleRefresh"
-				:disabled="isRefreshing"
-				class="refresh-btn"
-			>
-				{{ isRefreshing ? t('refreshing') : t('refresh') }}
-			</button>
-		</div>
-		<p class="inspiration-text">{{ inspiration }}</p>
-	</div>
+  <div
+    v-if="inspiration"
+    class="daily-inspiration"
+  >
+    <div class="inspiration-header">
+      <h3>{{ t('dailyInspiration') }}</h3>
+      <button
+        :disabled="isRefreshing"
+        class="refresh-btn"
+        @click="handleRefresh"
+      >
+        {{ isRefreshing ? t('refreshing') : t('refresh') }}
+      </button>
+    </div>
+    <p class="inspiration-text">
+      {{ inspiration }}
+    </p>
+  </div>
 </template>
 
 <style scoped>
 .daily-inspiration {
-	font-family: 'LXGW WenKai Screen', -apple-system, BlinkMacSystemFont,
-		'Segoe UI', Roboto, Oxygen-Sans, Ubuntu, Cantarell, 'Helvetica Neue',
+	font-family:
+		'LXGW WenKai Screen',
+		-apple-system,
+		BlinkMacSystemFont,
+		'Segoe UI',
+		Roboto,
+		Oxygen-Sans,
+		Ubuntu,
+		Cantarell,
+		'Helvetica Neue',
 		sans-serif;
 	background-color: var(--card-bg-color);
 	border-radius: var(--border-radius);

@@ -13,7 +13,7 @@ interface HistoryItem {
 	todos: Todo[]
 }
 
-const props = defineProps<{
+defineProps<{
 	history: HistoryItem[]
 }>()
 
@@ -70,70 +70,91 @@ onMounted(() => {
 </script>
 
 <template>
-	<div class="history-sidebar">
-		<div class="history-header">
-			<h2>{{ t('history') }}</h2>
-			<button @click="$emit('close')" class="close-button" :title="t('close')">
-				<svg
-					xmlns="http://www.w3.org/2000/svg"
-					width="24"
-					height="24"
-					viewBox="0 0 24 24"
-					fill="none"
-					stroke="currentColor"
-					stroke-width="2"
-					stroke-linecap="round"
-					stroke-linejoin="round"
-				>
-					<line x1="18" y1="6" x2="6" y2="18"></line>
-					<line x1="6" y1="6" x2="18" y2="18"></line>
-				</svg>
-			</button>
-		</div>
+  <div class="history-sidebar">
+    <div class="history-header">
+      <h2>{{ t('history') }}</h2>
+      <button
+        class="close-button"
+        :title="t('close')"
+        @click="$emit('close')"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="24"
+          height="24"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <line
+            x1="18"
+            y1="6"
+            x2="6"
+            y2="18"
+          />
+          <line
+            x1="6"
+            y1="6"
+            x2="18"
+            y2="18"
+          />
+        </svg>
+      </button>
+    </div>
 
-		<div v-if="history.length === 0" class="empty-history">
-			<p>{{ t('noHistory') }}</p>
-		</div>
+    <div
+      v-if="history.length === 0"
+      class="empty-history"
+    >
+      <p>{{ t('noHistory') }}</p>
+    </div>
 
-		<ul v-else>
-			<li
-				v-for="item in history"
-				:key="item.date"
-				@click="restoreHistory(item.date)"
-				class="history-item"
-			>
-				<div class="history-item-header">
-					<h3>{{ formatDate(item.date) }}</h3>
-					<div class="history-item-actions">
-						<template v-if="deleteConfirmId === item.date">
-							<button
-								@click.stop="confirmDelete($event, item.date)"
-								class="confirm-delete-btn"
-							>
-								{{ t('confirm') }}
-							</button>
-							<button
-								@click.stop="cancelDelete($event)"
-								class="cancel-delete-btn"
-							>
-								{{ t('cancel') }}
-							</button>
-						</template>
-						<button
-							v-else
-							@click.stop="deleteHistoryItem($event, item.date)"
-							class="delete-item-btn"
-							:title="t('delete')"
-						>
-							{{ t('delete') }}
-						</button>
-					</div>
-				</div>
-				<div class="todo-summary">{{ getTodoSummary(item.todos) }}</div>
-				<div class="restore-hint">{{ t('clickToRestore') }}</div>
-			</li>
-		</ul>
-	</div>
+    <ul v-else>
+      <li
+        v-for="item in history"
+        :key="item.date"
+        class="history-item"
+        @click="restoreHistory(item.date)"
+      >
+        <div class="history-item-header">
+          <h3>{{ formatDate(item.date) }}</h3>
+          <div class="history-item-actions">
+            <template v-if="deleteConfirmId === item.date">
+              <button
+                class="confirm-delete-btn"
+                @click.stop="confirmDelete($event, item.date)"
+              >
+                {{ t('confirm') }}
+              </button>
+              <button
+                class="cancel-delete-btn"
+                @click.stop="cancelDelete($event)"
+              >
+                {{ t('cancel') }}
+              </button>
+            </template>
+            <button
+              v-else
+              class="delete-item-btn"
+              :title="t('delete')"
+              @click.stop="deleteHistoryItem($event, item.date)"
+            >
+              {{ t('delete') }}
+            </button>
+          </div>
+        </div>
+        <div class="todo-summary">
+          {{ getTodoSummary(item.todos) }}
+        </div>
+        <div class="restore-hint">
+          {{ t('clickToRestore') }}
+        </div>
+      </li>
+    </ul>
+  </div>
 </template>
 
 <style scoped>

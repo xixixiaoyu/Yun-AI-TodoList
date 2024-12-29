@@ -1,10 +1,10 @@
-const { contextBridge } = require('electron')
+import { contextBridge } from 'electron'
 
 // 定义安全的 API
 const api = {
 	// 环境变量访问
 	env: {
-		get: key => process.env[key],
+		get: (key) => process.env[key],
 	},
 
 	// 版本信息

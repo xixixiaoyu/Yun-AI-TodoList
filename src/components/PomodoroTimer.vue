@@ -24,9 +24,7 @@ const { addCompletedPomodoro } = usePomodoroStats()
 const formattedTime = computed(() => {
 	const minutes = Math.floor(timeLeft.value / 60)
 	const seconds = timeLeft.value % 60
-	return `${minutes.toString().padStart(2, '0')}:${seconds
-		.toString()
-		.padStart(2, '0')}`
+	return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`
 })
 
 const timerWorker = new TimerWorker()
@@ -147,27 +145,45 @@ const emit = defineEmits(['pomodoroComplete'])
 </script>
 
 <template>
-	<div class="pomodoro-timer">
-		<div class="timer-content">
-			<div class="timer-display">{{ formattedTime }}</div>
-			<div class="timer-status">
-				{{ isBreak ? t('breakTime') : t('workTime') }}
-			</div>
-		</div>
-		<div class="timer-controls">
-			<template v-if="!isActive && !isWorkCompleted">
-				<button @click="startTimer">{{ t('start') }}</button>
-			</template>
-			<template v-else-if="isActive">
-				<button v-if="!isPaused" @click="pauseTimer">{{ t('pause') }}</button>
-				<button v-else @click="resumeTimer">{{ t('resume') }}</button>
-			</template>
-			<template v-if="isWorkCompleted">
-				<button @click="startBreak">{{ t('startBreak') }}</button>
-			</template>
-			<button @click="resetTimer">{{ t('reset') }}</button>
-		</div>
-	</div>
+  <div class="pomodoro-timer">
+    <div class="timer-content">
+      <div class="timer-display">
+        {{ formattedTime }}
+      </div>
+      <div class="timer-status">
+        {{ isBreak ? t('breakTime') : t('workTime') }}
+      </div>
+    </div>
+    <div class="timer-controls">
+      <template v-if="!isActive && !isWorkCompleted">
+        <button @click="startTimer">
+          {{ t('start') }}
+        </button>
+      </template>
+      <template v-else-if="isActive">
+        <button
+          v-if="!isPaused"
+          @click="pauseTimer"
+        >
+          {{ t('pause') }}
+        </button>
+        <button
+          v-else
+          @click="resumeTimer"
+        >
+          {{ t('resume') }}
+        </button>
+      </template>
+      <template v-if="isWorkCompleted">
+        <button @click="startBreak">
+          {{ t('startBreak') }}
+        </button>
+      </template>
+      <button @click="resetTimer">
+        {{ t('reset') }}
+      </button>
+    </div>
+  </div>
 </template>
 
 <style scoped>

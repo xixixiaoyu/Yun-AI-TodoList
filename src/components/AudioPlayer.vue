@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, watch, nextTick } from 'vue'
+import { ref, onMounted, nextTick } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { computed } from 'vue'
 
@@ -61,8 +61,7 @@ const playNext = () => {
 
 const playPrevious = () => {
 	currentTrackIndex.value =
-		(currentTrackIndex.value - 1 + playlist.value.length) %
-		playlist.value.length
+		(currentTrackIndex.value - 1 + playlist.value.length) % playlist.value.length
 	resetAudioState()
 	nextTick(() => {
 		if (isPlaying.value) {
@@ -156,76 +155,106 @@ onMounted(() => {
 </script>
 
 <template>
-	<div class="audio-player">
-		<audio
-			ref="audioElement"
-			:src="currentTrack.src"
-			preload="metadata"
-		></audio>
-		<div class="track-info">
-			<transition name="fade" mode="out-in">
-				<div :key="currentTrack.title" class="track-details">
-					<h3 :title="currentTrack.title">{{ currentTrack.title }}</h3>
-				</div>
-			</transition>
-		</div>
-		<div class="controls">
-			<button @click="playPrevious" :disabled="isLoading">
-				{{ t('previous') }}
-			</button>
-			<button @click="togglePlay" :disabled="isLoading">
-				{{ isPlaying ? t('pause') : t('play') }}
-			</button>
-			<button @click="playNext" :disabled="isLoading">{{ t('next') }}</button>
-			<div class="playlist-container">
-				<button @click="togglePlaylist" class="playlist-toggle">
-					{{ t('playlist') }}
-				</button>
-				<div v-if="isPlaylistOpen" class="playlist-dropdown">
-					<ul>
-						<li
-							v-for="(track, index) in playlist"
-							:key="index"
-							:class="{ active: index === currentTrackIndex }"
-							@click="switchToTrack(index)"
-						>
-							{{ track.title }}
-						</li>
-					</ul>
-				</div>
-			</div>
-		</div>
-		<div :class="['loading', { active: isLoading }]">
-			{{ t('loading') }}
-		</div>
-		<div v-if="error" class="error">{{ error }}</div>
-		<div class="progress-container">
-			<div class="progress">
-				<input
-					type="range"
-					min="0"
-					max="100"
-					:value="duration > 0 ? (currentTime / duration) * 100 : 0"
-					@input="updateProgress"
-					:disabled="isLoading || duration === 0"
-				/>
-				<div class="time">
-					{{ formatTime(currentTime) }} / {{ formatTime(duration) }}
-				</div>
-			</div>
-		</div>
-		<div class="volume-control">
-			<input
-				type="range"
-				min="0"
-				max="1"
-				step="0.1"
-				v-model="volume"
-				@input="updateVolume"
-			/>
-			<span>{{ t('volume') }}: {{ Math.round(volume * 100) }}%</span>
-		</div>
-	</div>
+  <div class="audio-player">
+    <audio
+      ref="audioElement"
+      :src="currentTrack.src"
+      preload="metadata"
+    />
+    <div class="track-info">
+      <transition
+        name="fade"
+        mode="out-in"
+      >
+        <div
+          :key="currentTrack.title"
+          class="track-details"
+        >
+          <h3 :title="currentTrack.title">
+            {{ currentTrack.title }}
+          </h3>
+        </div>
+      </transition>
+    </div>
+    <div class="controls">
+      <button
+        :disabled="isLoading"
+        @click="playPrevious"
+      >
+        {{ t('previous') }}
+      </button>
+      <button
+        :disabled="isLoading"
+        @click="togglePlay"
+      >
+        {{ isPlaying ? t('pause') : t('play') }}
+      </button>
+      <button
+        :disabled="isLoading"
+        @click="playNext"
+      >
+        {{ t('next') }}
+      </button>
+      <div class="playlist-container">
+        <button
+          class="playlist-toggle"
+          @click="togglePlaylist"
+        >
+          {{ t('playlist') }}
+        </button>
+        <div
+          v-if="isPlaylistOpen"
+          class="playlist-dropdown"
+        >
+          <ul>
+            <li
+              v-for="(track, index) in playlist"
+              :key="index"
+              :class="{ active: index === currentTrackIndex }"
+              @click="switchToTrack(index)"
+            >
+              {{ track.title }}
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div :class="['loading', { active: isLoading }]">
+      {{ t('loading') }}
+    </div>
+    <div
+      v-if="error"
+      class="error"
+    >
+      {{ error }}
+    </div>
+    <div class="progress-container">
+      <div class="progress">
+        <input
+          type="range"
+          min="0"
+          max="100"
+          :value="duration > 0 ? (currentTime / duration) * 100 : 0"
+          :disabled="isLoading || duration === 0"
+          @input="updateProgress"
+        >
+        <div class="time">
+          {{ formatTime(currentTime) }} / {{ formatTime(duration) }}
+        </div>
+      </div>
+    </div>
+    <div class="volume-control">
+      <input
+        v-model="volume"
+        type="range"
+        min="0"
+        max="1"
+        step="0.1"
+        @input="updateVolume"
+      >
+      <span>{{ t('volume') }}: {{ Math.round(volume * 100) }}%</span>
+    </div>
+  </div>
 </template>
 
 <style scoped>
@@ -402,7 +431,9 @@ onMounted(() => {
 
 .fade-enter-active,
 .fade-leave-active {
-	transition: opacity 0.3s ease, transform 0.3s ease;
+	transition:
+		opacity 0.3s ease,
+		transform 0.3s ease;
 }
 
 .fade-enter-from,

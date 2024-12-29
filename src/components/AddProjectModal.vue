@@ -18,23 +18,34 @@ const addProject = () => {
 </script>
 
 <template>
-	<div class="modal-overlay" @click.self="emit('close')">
-		<div class="modal-content">
-			<h2>{{ t('addProject') }}</h2>
-			<input
-				v-model="projectName"
-				:placeholder="t('newProjectName')"
-				@keyup.enter="addProject"
-				ref="inputRef"
-			/>
-			<div class="modal-actions">
-				<button @click="addProject" class="add-btn">{{ t('add') }}</button>
-				<button @click="emit('close')" class="cancel-btn">
-					{{ t('cancel') }}
-				</button>
-			</div>
-		</div>
-	</div>
+  <div
+    class="modal-overlay"
+    @click.self="emit('close')"
+  >
+    <div class="modal-content">
+      <h2>{{ t('addProject') }}</h2>
+      <input
+        ref="inputRef"
+        v-model="projectName"
+        :placeholder="t('newProjectName')"
+        @keyup.enter="addProject"
+      >
+      <div class="modal-actions">
+        <button
+          class="add-btn"
+          @click="addProject"
+        >
+          {{ t('add') }}
+        </button>
+        <button
+          class="cancel-btn"
+          @click="emit('close')"
+        >
+          {{ t('cancel') }}
+        </button>
+      </div>
+    </div>
+  </div>
 </template>
 
 <style scoped>
@@ -88,7 +99,9 @@ button {
 	border: none;
 	border-radius: 4px;
 	cursor: pointer;
-	transition: background-color 0.3s, transform 0.1s;
+	transition:
+		background-color 0.3s,
+		transform 0.1s;
 	font-size: 1rem;
 }
 
