@@ -1,10 +1,11 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { useMarkdown } from '../../composables/useMarkdown'
-import type { ChatMessage } from '../../composables/useChat'
+import type { ChatMessage } from '../../services/types'
 
 const props = defineProps<{
   messages: ChatMessage[]
+  currentResponse: string
 }>()
 
 const emit = defineEmits<{
@@ -18,7 +19,7 @@ const sanitizedMessages = computed(() =>
   props.messages.map((message) => ({
     ...message,
     sanitizedContent:
-      message.role === 'ai' ? sanitizeContent(message.content) : message.content,
+      message.role === 'assistant' ? sanitizeContent(message.content) : message.content,
   }))
 )
 
@@ -89,6 +90,14 @@ defineExpose({
             </svg>
             复制
           </button>
+        </div>
+      </div>
+    </div>
+    <!-- 显示正在生成的回答 -->
+    <div v-if="currentResponse" class="message-container ai">
+      <div class="message-content" dir="ltr">
+        <div class="ai-message">
+          <div v-html="sanitizeContent(currentResponse)" />
         </div>
       </div>
     </div>

@@ -133,9 +133,12 @@ export function useChat() {
             }
             chatHistory.value.push(aiMsg)
             saveConversationHistory()
+            // 清空当前响应
+            currentAIResponse.value = ''
           }
         } else if (chunk === '[ABORTED]') {
           isGenerating.value = false
+          currentAIResponse.value = ''
         } else {
           currentAIResponse.value += chunk
         }

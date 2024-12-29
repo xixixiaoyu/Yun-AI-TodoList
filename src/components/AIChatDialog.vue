@@ -17,6 +17,7 @@ const {
   isOptimizing,
   conversationHistory,
   currentConversationId,
+  currentAIResponse,
   loadConversationHistory,
   createNewConversation,
   switchConversation,
@@ -148,6 +149,7 @@ onMounted(() => {
       <ChatMessageList
         ref="messageListRef"
         :messages="chatHistory"
+        :current-response="currentAIResponse"
         @scroll="handleScroll"
       />
 
