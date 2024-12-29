@@ -1,6 +1,6 @@
 export default {
-  appId: 'com.example.todoapp',
-  productName: 'Todo App',
+  appId: 'com.yunmu.yuntodo',
+  productName: 'Yun AI Todo',
   electronDownload: {
     mirror: 'https://npmmirror.com/mirrors/electron/',
   },
@@ -54,7 +54,7 @@ export default {
   win: {
     sign: false,
     signAndEditExecutable: false,
-    icon: null,
+    icon: 'build/icon.ico',
     target: [
       {
         target: 'portable',
@@ -67,14 +67,14 @@ export default {
     allowToChangeInstallationDirectory: true,
     createDesktopShortcut: true,
     createStartMenuShortcut: true,
-    shortcutName: 'Todo App',
+    shortcutName: 'Yun AI Todo',
   },
   linux: {
     icon: 'build/icon.png',
     target: ['AppImage', 'deb', 'snap'],
     category: 'Utility',
-    maintainer: 'Todo App Team',
-    synopsis: 'A modern todo application',
+    maintainer: 'Yun AI Todo Team',
+    synopsis: 'A modern AI-powered todo application',
   },
   publish: {
     provider: 'github',
