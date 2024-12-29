@@ -54,7 +54,7 @@ const formatDate = (dateString: string) => {
 
 const getTodoSummary = (todos: Todo[]) => {
 	const total = todos.length
-	const completed = todos.filter(todo => todo.completed).length
+	const completed = todos.filter((todo) => todo.completed).length
 	return t('todoSummary', { completed, total })
 }
 
@@ -99,7 +99,10 @@ onMounted(() => {
 							>
 								{{ t('confirm') }}
 							</button>
-							<button @click.stop="cancelDelete($event)" class="cancel-delete-btn">
+							<button
+								@click.stop="cancelDelete($event)"
+								class="cancel-delete-btn"
+							>
 								{{ t('cancel') }}
 							</button>
 						</template>
@@ -129,11 +132,23 @@ onMounted(() => {
 	top: 0;
 	right: 0;
 	background-color: var(--card-bg-color);
-	box-shadow: -2px 0 10px rgba(0, 0, 0, 0.1);
+	box-shadow: -2px 0 20px rgba(0, 0, 0, 0.15);
 	overflow-y: auto;
 	padding: 1.5rem;
 	color: var(--text-color);
 	z-index: 100000;
+	animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+	from {
+		transform: translateX(100%);
+		opacity: 0;
+	}
+	to {
+		transform: translateX(0);
+		opacity: 1;
+	}
 }
 
 .history-header {
@@ -147,56 +162,124 @@ onMounted(() => {
 	top: 0;
 	background-color: var(--card-bg-color);
 	z-index: 1;
+	backdrop-filter: blur(8px);
+}
+
+.history-header h2 {
+	font-size: 1.5rem;
+	margin: 0;
+	color: var(--text-color);
+}
+
+.close-button {
+	background: none;
+	border: none;
+	color: var(--text-color);
+	font-size: 1.5rem;
+	cursor: pointer;
+	padding: 0.5rem;
+	border-radius: 50%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	transition: all 0.2s ease;
+}
+
+.close-button:hover {
+	background-color: var(--button-hover-bg-color);
+	transform: rotate(90deg);
 }
 
 .empty-history {
 	text-align: center;
 	padding: 2rem;
 	color: var(--text-color-light);
+	background-color: var(--input-bg-color);
+	border-radius: 8px;
+	margin: 1rem 0;
 }
 
 .history-item {
 	margin-bottom: 1rem;
-	padding: 1rem;
+	padding: 1.2rem;
 	background-color: var(--input-bg-color);
-	border-radius: 8px;
+	border-radius: 12px;
 	cursor: pointer;
 	transition: all 0.3s ease;
 	border: 1px solid transparent;
+	position: relative;
+	overflow: hidden;
 }
 
 .history-item:hover {
 	background-color: var(--button-hover-bg-color);
 	border-color: var(--border-color);
 	transform: translateY(-2px);
+	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.history-item::before {
+	content: '';
+	position: absolute;
+	left: 0;
+	top: 0;
+	height: 100%;
+	width: 4px;
+	background-color: var(--primary-color);
+	opacity: 0;
+	transition: opacity 0.3s ease;
+}
+
+.history-item:hover::before {
+	opacity: 1;
 }
 
 .history-item-header {
 	display: flex;
 	justify-content: space-between;
 	align-items: center;
-	margin-bottom: 0.5rem;
+	margin-bottom: 0.8rem;
+}
+
+.history-item-header h3 {
+	margin: 0;
+	font-size: 1.1rem;
+	color: var(--text-color);
 }
 
 .history-item-actions {
 	display: flex;
 	gap: 0.5rem;
+	opacity: 0;
+	transition: opacity 0.2s ease;
+}
+
+.history-item:hover .history-item-actions {
+	opacity: 1;
 }
 
 .delete-item-btn,
 .confirm-delete-btn,
 .cancel-delete-btn {
-	padding: 0.3rem 0.6rem;
-	border-radius: 4px;
+	padding: 0.4rem 0.8rem;
+	border-radius: 6px;
 	border: none;
 	cursor: pointer;
-	font-size: 0.8rem;
+	font-size: 0.9rem;
 	transition: all 0.2s ease;
+	display: flex;
+	align-items: center;
+	gap: 0.3rem;
 }
 
 .delete-item-btn {
-	background-color: var(--button-bg-color);
-	color: var(--card-bg-color);
+	background-color: transparent;
+	color: var(--error-color);
+}
+
+.delete-item-btn:hover {
+	background-color: var(--error-color);
+	color: white;
 }
 
 .confirm-delete-btn {
@@ -204,35 +287,69 @@ onMounted(() => {
 	color: white;
 }
 
+.confirm-delete-btn:hover {
+	background-color: var(--error-color-dark);
+}
+
 .cancel-delete-btn {
 	background-color: var(--button-bg-color);
-	color: var(--card-bg-color);
+	color: var(--text-color);
+}
+
+.cancel-delete-btn:hover {
+	background-color: var(--button-hover-bg-color);
+}
+
+.todo-summary {
+	font-size: 0.9rem;
+	color: var(--text-color-light);
+	margin-bottom: 0.5rem;
 }
 
 .restore-hint {
-	margin-top: 0.5rem;
 	font-size: 0.8rem;
-	color: var(--text-color-light);
+	color: var(--primary-color);
 	opacity: 0;
 	transition: opacity 0.2s ease;
+	display: flex;
+	align-items: center;
+	gap: 0.3rem;
+}
+
+.restore-hint::before {
+	content: '↺';
+	font-size: 1rem;
 }
 
 .history-item:hover .restore-hint {
-	opacity: 0.8;
+	opacity: 1;
 }
 
 @media (max-width: 768px) {
 	.history-sidebar {
 		width: 100%;
+		padding: 1rem;
 	}
 
 	.history-item {
-		padding: 0.8rem;
+		padding: 1rem;
 	}
 
 	.history-item-actions {
-		flex-direction: column;
-		gap: 0.3rem;
+		opacity: 1;
+		position: relative;
+		z-index: 2;
+	}
+
+	.delete-item-btn,
+	.confirm-delete-btn,
+	.cancel-delete-btn {
+		padding: 0.3rem 0.6rem;
+		font-size: 0.8rem;
+	}
+
+	.restore-hint {
+		opacity: 0.8;
 	}
 }
 </style>
