@@ -100,11 +100,28 @@ const projectName = computed(() => {
   width: 100%;
   box-sizing: border-box;
   border-radius: 8px;
+  will-change: transform;
+  backface-visibility: hidden;
 }
 
 .todo-item:hover {
   transform: translateY(-2px);
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+}
+
+.todo-item.completed {
+  animation: completedTodo 0.3s ease forwards;
+}
+
+@keyframes completedTodo {
+  from {
+    opacity: 1;
+    transform: scale(1);
+  }
+  to {
+    opacity: 0.8;
+    transform: scale(0.98);
+  }
 }
 
 .todo-item.completed .text-content {
@@ -118,6 +135,7 @@ const projectName = computed(() => {
   align-items: flex-start;
   flex-grow: 1;
   min-width: 0;
+  gap: 0.5rem;
 }
 
 .todo-text-wrapper {
@@ -125,6 +143,7 @@ const projectName = computed(() => {
   flex-direction: column;
   flex-grow: 1;
   min-width: 0;
+  gap: 0.25rem;
 }
 
 .todo-text {
@@ -132,8 +151,7 @@ const projectName = computed(() => {
   align-items: center;
   cursor: pointer;
   color: var(--todo-text-color);
-  margin-bottom: 0.25rem;
-  margin-left: 0.5rem;
+  gap: 0.5rem;
 }
 
 .text-content {
@@ -141,33 +159,34 @@ const projectName = computed(() => {
   overflow: hidden;
   text-overflow: ellipsis;
   transition: all 0.3s ease;
+  flex: 1;
 }
 
 .checkbox {
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   width: 18px;
   height: 18px;
   border: 2px solid var(--button-bg-color);
   border-radius: 50%;
-  vertical-align: middle;
-  transition: all 0.3s ease;
+  transition: all 0.2s ease;
   position: relative;
-  overflow: hidden;
   flex-shrink: 0;
+  cursor: pointer;
 }
 
 .checkbox.checked {
   background-color: var(--button-bg-color);
+  transform: scale(0.95);
 }
 
 .checkbox.checked::after {
   content: '✓';
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
   color: var(--card-bg-color);
   font-size: 12px;
+  transform: scale(1.2);
+  transition: transform 0.2s ease;
 }
 
 .delete-btn {
@@ -178,26 +197,39 @@ const projectName = computed(() => {
   padding: 0.25rem 0.5rem;
   font-size: 0.8rem;
   cursor: pointer;
-  transition: all 0.3s ease;
-  opacity: 0.7;
+  transition: all 0.2s ease;
+  opacity: 0;
+  transform: translateX(10px);
   margin-left: 10px;
+}
+
+.todo-item:hover .delete-btn {
+  opacity: 0.7;
+  transform: translateX(0);
 }
 
 .delete-btn:hover {
   opacity: 1;
   background-color: var(--button-hover-bg-color);
+  transform: scale(1.05);
 }
 
 .project-tag {
   background-color: var(--project-tag-bg-color, #4a5568);
   color: var(--project-tag-text-color, #fff);
-  padding: 0.1rem 0.3rem;
+  padding: 0.2rem 0.4rem;
   border-radius: 0.25rem;
   font-size: 0.75rem;
   max-width: 150px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  transition: all 0.2s ease;
+}
+
+.project-tag:hover {
+  opacity: 0.9;
+  transform: translateY(-1px);
 }
 
 @media (max-width: 768px) {

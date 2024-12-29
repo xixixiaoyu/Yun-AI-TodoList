@@ -165,7 +165,7 @@ const sortActiveTodosWithAI = async () => {
   try {
     // 修改这里：确保过滤掉 null 和 undefined 的待办事项
     const activeTodos = todos.value.filter((todo) => todo && !todo.completed)
-    if (activeTodos.length === 0) {
+    if (activeTodos.length <= 1) {
       showError(t('noActiveTodosError'))
       return
     }
