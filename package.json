@@ -14,7 +14,7 @@
 		"test": "vitest",
 		"test:coverage": "vitest run --coverage",
 		"lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix --ignore-path .gitignore",
-		"format": "prettier --write src/",
+		"format": "prettier --write",
 		"tsc": "vue-tsc -b",
 		"electron:serve": "vite --port 3000 & wait-on tcp:3000 && cross-env ELECTRON_START_URL=http://localhost:3000 electron .",
 		"electron:build:mac": "pnpm run clean && vite build && electron-builder --config electron-builder.config.js --mac",
@@ -27,10 +27,10 @@
 	},
 	"lint-staged": {
 		"*.{js,jsx,ts,tsx,vue,css,less,scss,json,md}": [
-			"prettier --write"
+			"pnpm format"
 		],
 		"*.{js,jsx,ts,tsx,vue}": [
-			"eslint --fix"
+			"pnpm lint"
 		]
 	},
 	"dependencies": {
