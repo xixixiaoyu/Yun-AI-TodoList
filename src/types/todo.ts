@@ -2,9 +2,10 @@ export interface Todo {
   id: number
   text: string
   completed: boolean
-  completedAt?: string
-  tags: string[]
   projectId: number | null
+  tags: string[]
+  createdAt: string
+  updatedAt: string
 }
 
 export interface Project {
@@ -13,8 +14,10 @@ export interface Project {
 }
 
 export interface HistoryItem {
-  date: string
+  id: number
   todos: Todo[]
+  timestamp: string
+  action: string
 }
 
 export interface TodoStats {

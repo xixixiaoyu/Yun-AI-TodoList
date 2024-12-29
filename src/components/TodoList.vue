@@ -1,62 +1,93 @@
 <script setup lang="ts">
-import {
-  ref,
-  computed,
-  onMounted,
-  onUnmounted,
-  watch,
-  onErrorCaptured,
-  onBeforeMount,
-} from 'vue'
+import { onMounted, onUnmounted, watch, onErrorCaptured, onBeforeMount, ref } from 'vue'
 import TodoInput from './TodoInput.vue'
 import TodoFilters from './TodoFilters.vue'
 import TodoItem from './TodoItem.vue'
 import HistorySidebar from './HistorySidebar.vue'
 import ConfirmDialog from './ConfirmDialog.vue'
-import { useTodos } from '../composables/useTodos'
-import type { Todo } from '../types/todo'
-import { useErrorHandler } from '../composables/useErrorHandler'
-import { useConfirmDialog } from '../composables/useConfirmDialog'
-import { getAIResponse } from '../services/deepseekService'
-import { useTheme } from '../composables/useTheme'
-import { useI18n } from 'vue-i18n'
 import PomodoroTimer from './PomodoroTimer.vue'
-import confetti from 'canvas-confetti'
 import PomodoroStats from './PomodoroStats.vue'
 import TodoHeatmap from './TodoHeatmap.vue'
-import { useSortable } from '@vueuse/integrations/useSortable'
 import AddProjectModal from './AddProjectModal.vue'
-import { useWindowSize } from '@vueuse/core'
+import { useSortable } from '@vueuse/integrations/useSortable'
 import { useDebounceFn } from '@vueuse/core'
+import { useI18n } from 'vue-i18n'
+import { useErrorHandler } from '../composables/useErrorHandler'
+import { useConfirmDialog } from '../composables/useConfirmDialog'
+import { useTodos } from '../composables/useTodos'
+import { useProjectManagement } from '../composables/useProjectManagement'
+import { useTodoManagement } from '../composables/useTodoManagement'
+import { useUIState } from '../composables/useUIState'
 
 interface SortableEvent {
   oldIndex: number
   newIndex: number
 }
 
-// useTodos 组合函数获取待办事项相关的状态和方法
+// 使用组合式函数
+const { t } = useI18n()
+const { showError } = useErrorHandler()
+const { showConfirmDialog, confirmDialogConfig, handleConfirm, handleCancel } =
+  useConfirmDialog()
 const {
   todos,
-  projects,
-  currentProjectId,
   history,
-  addTodo,
-  addMultipleTodos,
-  toggleTodo,
-  removeTodo,
-  clearActiveTodos,
   restoreHistory,
   deleteHistoryItem,
   deleteAllHistory,
-  addProject,
-  removeProject,
-  setCurrentProject,
   saveTodos,
   loadTodos,
 } = useTodos()
 
+// 项目管理相关
+const {
+  showAddProjectModal,
+  displayedProjects,
+  addNewProject,
+  deleteProject,
+  handleProjectChange,
+  currentProjectId,
+} = useProjectManagement()
+
+// 待办事项管理相关
+const {
+  filter,
+  filteredTodos,
+  hasActiveTodos,
+  isGenerating,
+  isSorting,
+  suggestedTodos,
+  showSuggestedTodos,
+  MAX_TODO_LENGTH,
+  generateSuggestedTodos,
+  confirmSuggestedTodos,
+  cancelSuggestedTodos,
+  updateSuggestedTodo,
+  sortActiveTodosWithAI,
+  handleAddTodo,
+  toggleTodo,
+  removeTodo,
+} = useTodoManagement()
+
+// UI状态管理相关
+const {
+  showHistory,
+  showCharts,
+  isSmallScreen,
+  themeIcon,
+  themeTooltip,
+  toggleTheme,
+  toggleHistory,
+  closeHistory,
+  closeCharts,
+  handlePomodoroComplete,
+  checkPomodoroCompletion,
+  onKeyDown,
+} = useUIState()
+
 // 创建待办事项列表的 ref，用于拖拽排序功能
 const todoListRef = ref<HTMLElement | null>(null)
+
 // 使用 useSortable 为待办事项列表添加拖拽排序功能
 const { option } = useSortable(todoListRef, todos, {
   animation: 150,
@@ -83,322 +114,6 @@ const { option } = useSortable(todoListRef, todos, {
 })
 
 option('animation', 150)
-// 使用错误处理和确认对话框的组合式函数
-const { error: duplicateError, showError } = useErrorHandler()
-const { showConfirmDialog, confirmDialogConfig, handleConfirm, handleCancel } =
-  useConfirmDialog()
-
-// 使用主题和国际化的组合式函数
-const { theme, toggleTheme } = useTheme()
-const { t, locale } = useI18n()
-
-// 定义过滤器状态和历史记录显示状态
-const filter = ref('active')
-const showHistory = ref(false)
-const MAX_TODO_LENGTH = 50
-
-// 根据过滤器计算待显示的待办事项
-const filteredTodos = computed(() => {
-  try {
-    let filtered = todos.value
-    if (!Array.isArray(filtered)) {
-      console.error('Invalid todos data structure')
-      return []
-    }
-
-    if (currentProjectId.value !== null) {
-      filtered = filtered.filter(
-        (todo) => todo && todo.projectId === currentProjectId.value
-      )
-    }
-
-    // 优化过滤逻辑，减少重复计算
-    const filterFn =
-      filter.value === 'active'
-        ? (todo: Todo) => todo && !todo.completed
-        : filter.value === 'completed'
-          ? (todo: Todo) => todo && todo.completed
-          : (todo: Todo) => todo !== null && todo !== undefined
-
-    return filtered.filter(filterFn)
-  } catch (error) {
-    console.error('Error in filteredTodos computed:', error)
-    return []
-  }
-})
-
-// 切换历史记录显示状态
-const toggleHistory = () => {
-  showHistory.value = !showHistory.value
-}
-
-// 检查是否有未完成的待办事项
-const hasActiveTodos = computed(() => {
-  return todos.value.some((todo) => todo && !todo.completed)
-})
-
-// 清除已完成的待办事项
-const clearActive = () => {
-  showConfirmDialog.value = true
-  confirmDialogConfig.value = {
-    title: t('clearCompleted'),
-    message: t('confirmClearCompleted'),
-    confirmText: t('confirm'),
-    cancelText: t('cancel'),
-    action: clearActiveTodos,
-  }
-}
-
-// 定义建议待办事项相关的状态
-const suggestedTodos = ref<string[]>([])
-const showSuggestedTodos = ref(false)
-const isGenerating = ref(false)
-
-// 生成建议待办事项
-const generateSuggestedTodos = async () => {
-  isGenerating.value = true
-  try {
-    const response = await getAIResponse(
-      `${t('generateSuggestionsPrompt')}`,
-      locale.value,
-      1.5
-    )
-    suggestedTodos.value = response
-      .split(',')
-      .filter((todo: string) => todo.trim() !== '')
-      .slice(0, 5) // 确保只有 5 个建议
-    showSuggestedTodos.value = true
-  } catch (error) {
-    console.error(t('generateSuggestionsError'), error)
-    showError(error instanceof Error ? error.message : t('generateSuggestionsError'))
-  } finally {
-    isGenerating.value = false
-  }
-}
-
-// 确认添加建议待办事项
-const confirmSuggestedTodos = () => {
-  const duplicates = addMultipleTodos(
-    suggestedTodos.value.map((todo) => ({
-      text: todo,
-      projectId: currentProjectId.value,
-    }))
-  )
-  if (duplicates.length > 0) {
-    showError(`${t('duplicateError')}：${duplicates.join(', ')}`)
-  }
-  showSuggestedTodos.value = false
-  suggestedTodos.value = []
-}
-
-// 取消添加建议待办事项
-const cancelSuggestedTodos = () => {
-  showSuggestedTodos.value = false
-  suggestedTodos.value = []
-}
-
-// 更新建议待办事项的内容
-const updateSuggestedTodo = (index: number, newText: string) => {
-  suggestedTodos.value[index] = newText
-}
-
-// 关闭历史记录侧边栏
-const closeHistory = () => {
-  showHistory.value = false
-}
-
-// 定义 AI 排序相关的状态
-const isSorting = ref(false)
-
-// 使用 AI 对未完成的待办事项进行排序
-const sortActiveTodosWithAI = async () => {
-  isSorting.value = true
-  try {
-    // 修改这里：确保过滤掉 null 和 undefined 的待办事项
-    const activeTodos = todos.value.filter((todo) => todo && !todo.completed)
-    if (activeTodos.length <= 1) {
-      showError(t('noActiveTodosError'))
-      return
-    }
-    const todoTexts = activeTodos
-      .map((todo, index) => `${index + 1}. ${todo.text}`)
-      .join('\n')
-    const prompt = `${t('sortPrompt')}:\n${todoTexts}`
-    const response = await getAIResponse(prompt, locale.value, 0.1)
-    if (!response) {
-      throw new Error(t('aiEmptyResponseError'))
-    }
-    const newOrder = response.split(',').map(Number)
-    if (newOrder.length !== activeTodos.length) {
-      throw new Error(t('aiSortMismatchError'))
-    }
-
-    // 修改这里：创建一个新的排序后的数组
-    const sortedTodos = newOrder.map((index) => activeTodos[index - 1])
-
-    // 更新 todos 数组，保持已完成的待办事项在原位置
-    todos.value = todos.value.map((todo) => {
-      if (!todo || todo.completed) {
-        return todo
-      }
-      return sortedTodos.shift() || todo
-    })
-
-    // 保存更新后的待办事项列表
-    saveTodos()
-  } catch (error) {
-    console.error(t('aiSortError'), error)
-    showError(error instanceof Error ? error.message : t('aiSortError'))
-  } finally {
-    isSorting.value = false
-  }
-}
-
-// 计算是否正在加载中
-const isLoading = computed(() => isSorting.value)
-
-// 处理添加新待办事项
-const handleAddTodo = (text: string, tags: string[]) => {
-  if (text && text.trim() !== '') {
-    const success = addTodo(text, tags)
-    if (!success) {
-      showError(t('duplicateError'))
-    }
-  } else {
-    showError(t('emptyTodoError'))
-  }
-}
-
-// 计算主题图标
-const themeIcon = computed(() => {
-  if (theme.value === 'auto') {
-    return 'auto'
-  }
-  return theme.value === 'light' ? 'moon' : 'sun'
-})
-
-// 计算主题切换提示文本
-const themeTooltip = computed(() => {
-  switch (theme.value) {
-    case 'light':
-      return t('switchToDarkMode')
-    case 'dark':
-      return t('switchToAutoMode')
-    case 'auto':
-      return t('switchToLightMode')
-    default:
-      return t('switchToLightMode')
-  }
-})
-
-// 显示大型礼花效果
-const showBigConfetti = () => {
-  confetti({
-    particleCount: 300,
-    spread: 100,
-    origin: { y: 0.6 },
-  })
-}
-
-// 处理番茄钟完成事件
-const handlePomodoroComplete = (isBreakStarted: boolean) => {
-  if (isBreakStarted) {
-    // 只有在休息时间开始时才显示礼花效果
-    showBigConfetti()
-    // 设置一个标志，表示番茄钟已完成，以便在页面重新获得焦点时再次显示
-    localStorage.setItem('pomodoroCompleted', 'true')
-  } else {
-    // 工作时间开始时，不显示礼花，也不设置标志
-    localStorage.removeItem('pomodoroCompleted')
-  }
-}
-
-// 检查番茄钟完成状态并显示礼花效果
-const checkPomodoroCompletion = () => {
-  if (!document.hidden) {
-    const pomodoroCompleted = localStorage.getItem('pomodoroCompleted')
-    if (pomodoroCompleted === 'true') {
-      showBigConfetti()
-      localStorage.removeItem('pomodoroCompleted')
-    }
-  }
-}
-
-// 在组件挂载时添加事件监听器
-onMounted(() => {
-  document.addEventListener('visibilitychange', checkPomodoroCompletion)
-  document.addEventListener('keydown', onKeyDown)
-  try {
-    loadTodos() // 加载待办事项数据
-    console.log('Todos loaded:', todos.value) // 添加日志以便调试
-  } catch (error) {
-    console.error('Error loading todos:', error)
-    showError(error instanceof Error ? error.message : 'Failed to load todos')
-  }
-})
-
-// 在组件卸载时移除事件监听器
-onUnmounted(() => {
-  document.removeEventListener('visibilitychange', checkPomodoroCompletion)
-  document.removeEventListener('keydown', onKeyDown)
-})
-
-// 添加新的 ref 来控制模态框的显示
-const showAddProjectModal = ref(false)
-
-// 修改 addNewProject 函数
-const addNewProject = (name: string) => {
-  addProject(name)
-  showAddProjectModal.value = false
-}
-
-// 计算属性：获取最多3个项目
-const displayedProjects = computed(() => {
-  return [{ id: null, name: t('allProjects') }, ...projects.value]
-})
-
-// 添加删除项目的函数
-const deleteProject = (projectId: number) => {
-  const project = projects.value.find((p) => p.id === projectId)
-  if (!project) return
-
-  showConfirmDialog.value = true
-  confirmDialogConfig.value = {
-    title: t('deleteProject'),
-    message: t('confirmDeleteProject', { name: project.name }),
-    confirmText: t('confirm'),
-    cancelText: t('cancel'),
-    action: () => {
-      removeProject(projectId)
-      if (currentProjectId.value === projectId) {
-        setCurrentProject(null)
-      }
-    },
-  }
-}
-
-// 添加新的响应式变量
-const showCharts = ref(false)
-
-const { width } = useWindowSize()
-const isSmallScreen = computed(() => width.value < 768)
-
-// 添加 onKeyDown 函数
-const onKeyDown = (event: KeyboardEvent) => {
-  if (event.key === 'Escape' && showCharts.value) {
-    showCharts.value = false
-  }
-}
-
-// 添加 closeCharts 函数
-const closeCharts = () => {
-  showCharts.value = false
-}
-
-// 修改 setCurrentProject 的调用
-const handleProjectChange = (projectId: number | null) => {
-  setCurrentProject(projectId)
-}
 
 // 添加防抖的保存函数
 const debouncedSave = useDebounceFn(() => {
@@ -412,7 +127,7 @@ const debouncedSave = useDebounceFn(() => {
 
 // 监听数据变化并保存
 watch(
-  [todos, projects],
+  [todos],
   () => {
     debouncedSave()
   },
@@ -434,10 +149,25 @@ onBeforeMount(() => {
 })
 
 onMounted(() => {
+  document.addEventListener('visibilitychange', checkPomodoroCompletion)
+  document.addEventListener('keydown', onKeyDown)
+  try {
+    loadTodos() // 加载待办事项数据
+    console.log('Todos loaded:', todos.value)
+  } catch (error) {
+    console.error('Error loading todos:', error)
+    showError(error instanceof Error ? error.message : 'Failed to load todos')
+  }
+
   const renderTime = performance.now() - renderStartTime
   if (renderTime > 100) {
     console.warn(`TodoList render time: ${renderTime}ms`)
   }
+})
+
+onUnmounted(() => {
+  document.removeEventListener('visibilitychange', checkPomodoroCompletion)
+  document.removeEventListener('keydown', onKeyDown)
 })
 </script>
 
