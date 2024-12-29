@@ -6,6 +6,7 @@ import ChatMessageList from './chat/ChatMessageList.vue'
 import ChatInput from './chat/ChatInput.vue'
 import ConversationDrawer from './chat/ConversationDrawer.vue'
 import ChatToolbar from './chat/ChatToolbar.vue'
+import { promptsConfig } from '../config/prompts'
 
 const { t } = useI18n()
 
@@ -30,6 +31,23 @@ const isDrawerOpen = ref(false)
 const messageListRef = ref<InstanceType<typeof ChatMessageList> | null>(null)
 const inputRef = ref<InstanceType<typeof ChatInput> | null>(null)
 const userHasScrolled = ref(false)
+const selectedPromptTemplate = ref<string>('my')
+const customPrompts = ref<Array<{ id: string; name: string; content: string }>>([])
+
+// 处理模板变更
+const handleTemplateChange = () => {
+  const template = selectedPromptTemplate.value
+  if (template === 'my' || template === 'study' || template === 'studentStudy') {
+    localStorage.setItem('systemPrompt', promptsConfig[template].content)
+  } else {
+    const customPrompt = customPrompts.value.find((p) => p.id === template)
+    if (customPrompt) {
+      localStorage.setItem('systemPrompt', customPrompt.content)
+    }
+  }
+  // 保存当前选择的模板
+  localStorage.setItem('lastSelectedTemplate', template)
+}
 
 // 处理滚动状态
 const handleScroll = (hasScrolled: boolean) => {
@@ -47,8 +65,19 @@ watch(chatHistory, () => {
 onMounted(() => {
   loadConversationHistory()
 
-  // 从 localStorage 获取上次激活的会话 ID
+  // 加载自定义提示词
+  const savedCustomPrompts = localStorage.getItem('customPrompts')
+  if (savedCustomPrompts) {
+    customPrompts.value = JSON.parse(savedCustomPrompts)
+  }
+
+  // 从 localStorage 获取上次激活的会话 ID 和模板
   const savedConversationId = localStorage.getItem('currentConversationId')
+  const lastSelectedTemplate = localStorage.getItem('lastSelectedTemplate')
+
+  if (lastSelectedTemplate) {
+    selectedPromptTemplate.value = lastSelectedTemplate
+  }
 
   if (conversationHistory.value.length === 0) {
     createNewConversation()
@@ -76,7 +105,21 @@ onMounted(() => {
 <template>
   <div class="ai-chat-dialog">
     <div class="dialog-header">
-      <h2>{{ t('aiAssistant') }}</h2>
+      <div class="header-left">
+        <h2>{{ t('aiAssistant') }}</h2>
+        <div class="prompt-template-selector">
+          <select v-model="selectedPromptTemplate" @change="handleTemplateChange">
+            <option value="my">{{ t('defaultPrompt') }}</option>
+            <option value="study">{{ t('studyPrompt') }}</option>
+            <option value="studentStudy">{{ t('studentStudyPrompt') }}</option>
+            <optgroup :label="t('customPrompts')" v-if="customPrompts.length > 0">
+              <option v-for="prompt in customPrompts" :key="prompt.id" :value="prompt.id">
+                {{ prompt.name }}
+              </option>
+            </optgroup>
+          </select>
+        </div>
+      </div>
       <router-link to="/" class="close-button" aria-label="close">
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -161,6 +204,47 @@ onMounted(() => {
   z-index: 1000;
 }
 
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.prompt-template-selector {
+  margin-left: 1rem;
+}
+
+.prompt-template-selector select {
+  padding: 0.5rem 2.5rem 0.5rem 1rem;
+  border-radius: 8px;
+  border: none;
+  background-color: rgba(255, 255, 255, 0.2);
+  color: var(--card-bg-color);
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.5rem center;
+  background-size: 1.2em;
+}
+
+.prompt-template-selector select:hover {
+  background-color: rgba(255, 255, 255, 0.3);
+}
+
+.prompt-template-selector select:focus {
+  outline: none;
+  background-color: rgba(255, 255, 255, 0.3);
+}
+
+.prompt-template-selector select option,
+.prompt-template-selector select optgroup {
+  background-color: var(--card-bg-color);
+  color: var(--text-color);
+}
+
 .dialog-header h2 {
   margin: 0;
   font-size: 20px;
@@ -204,6 +288,17 @@ onMounted(() => {
 
   .dialog-content {
     padding: 8px 0;
+  }
+
+  .prompt-template-selector {
+    margin-left: 0.5rem;
+  }
+
+  .prompt-template-selector select {
+    max-width: 120px;
+    padding-right: 2rem;
+    font-size: 0.85rem;
+    background-size: 1em;
   }
 }
 
