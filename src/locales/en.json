@@ -127,5 +127,16 @@
   "apiKeyConfigured": "API Key Configured",
   "apiKeyNotConfigured": "API Key Not Configured",
   "configure": "Configure",
-  "reconfigure": "Reconfigure"
+  "reconfigure": "Reconfigure",
+  "defaultPrompt": "Default Prompt",
+  "studyPrompt": "Study Assistant Prompt",
+  "studentStudyPrompt": "Student Study Assistant Prompt",
+  "customPrompt": "Custom Prompt",
+  "customPrompts": "Custom Prompts",
+  "addPrompt": "Add Prompt",
+  "addNewPrompt": "Add New Prompt Template",
+  "enterPromptName": "Enter prompt name",
+  "enterPromptContent": "Enter prompt content",
+  "promptNameRequired": "Prompt name is required",
+  "promptContentRequired": "Prompt content is required"
 }

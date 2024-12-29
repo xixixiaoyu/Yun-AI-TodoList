@@ -63,32 +63,61 @@
       <div class="settings-section" :class="{ fullscreen: isFullscreen }">
         <div class="section-header">
           <h3>{{ t('systemPrompt') }}</h3>
-          <button class="fullscreen-button" @click="toggleFullscreen">
-            <svg
-              v-if="!isFullscreen"
-              xmlns="http://www.w3.org/2000/svg"
-              width="20"
-              height="20"
-              viewBox="0 0 24 24"
-            >
-              <path
-                fill="currentColor"
-                d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"
-              />
-            </svg>
-            <svg
-              v-else
-              xmlns="http://www.w3.org/2000/svg"
-              width="20"
-              height="20"
-              viewBox="0 0 24 24"
-            >
-              <path
-                fill="currentColor"
-                d="M5 16h3v3h2v-5H5v2zm3-8H5v2h5V5H8v3zm6 11h2v-3h3v-2h-5v5zm2-11V5h-2v5h5V8h-3z"
-              />
-            </svg>
-          </button>
+          <div class="prompt-controls">
+            <div class="prompt-template-selector">
+              <select v-model="selectedPromptTemplate" @change="handleTemplateChange">
+                <option value="my">{{ t('defaultPrompt') }}</option>
+                <option value="study">{{ t('studyPrompt') }}</option>
+                <option value="studentStudy">{{ t('studentStudyPrompt') }}</option>
+                <optgroup :label="t('customPrompts')" v-if="customPrompts.length > 0">
+                  <option
+                    v-for="prompt in customPrompts"
+                    :key="prompt.id"
+                    :value="prompt.id"
+                  >
+                    {{ prompt.name }}
+                  </option>
+                </optgroup>
+              </select>
+            </div>
+            <button class="add-prompt-button" @click="showAddPromptPopover = true">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+              >
+                <path fill="currentColor" d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z" />
+              </svg>
+              {{ t('addPrompt') }}
+            </button>
+            <button class="fullscreen-button" @click="toggleFullscreen">
+              <svg
+                v-if="!isFullscreen"
+                xmlns="http://www.w3.org/2000/svg"
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  fill="currentColor"
+                  d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"
+                />
+              </svg>
+              <svg
+                v-else
+                xmlns="http://www.w3.org/2000/svg"
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  fill="currentColor"
+                  d="M5 16h3v3h2v-5H5v2zm3-8H5v2h5V5H8v3zm6 11h2v-3h3v-2h-5v5zm2-11V5h-2v5h5V8h-3z"
+                />
+              </svg>
+            </button>
+          </div>
         </div>
         <textarea
           v-model="localSystemPrompt"
@@ -123,6 +152,63 @@
       class="popover-overlay"
       @click="showApiKeyPopover = false"
     ></div>
+
+    <div v-if="showAddPromptPopover" class="api-key-popover">
+      <div class="popover-header">
+        <h3>{{ t('addNewPrompt') }}</h3>
+        <button class="close-button" @click="showAddPromptPopover = false">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+          >
+            <path
+              fill="currentColor"
+              d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"
+            />
+          </svg>
+        </button>
+      </div>
+      <div class="popover-content">
+        <div class="input-group">
+          <label>{{ t('enterPromptName') }}</label>
+          <input
+            v-model="newPromptName"
+            type="text"
+            :placeholder="t('enterPromptName')"
+            class="prompt-name-input"
+          />
+        </div>
+        <div class="input-group">
+          <label>{{ t('enterPromptContent') }}</label>
+          <textarea
+            v-model="newPromptContent"
+            :placeholder="t('enterPromptContent')"
+            class="prompt-content-input"
+            rows="6"
+          />
+        </div>
+        <div class="button-group">
+          <button
+            class="save-button"
+            :disabled="!newPromptName || !newPromptContent"
+            @click="saveNewPrompt"
+          >
+            {{ t('save') }}
+          </button>
+          <button class="clear-button" @click="showAddPromptPopover = false">
+            {{ t('cancel') }}
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div
+      v-if="showAddPromptPopover"
+      class="popover-overlay"
+      @click="showAddPromptPopover = false"
+    ></div>
   </div>
 </template>
 
@@ -132,20 +218,98 @@ import { useI18n } from 'vue-i18n'
 import { apiKey, saveApiKey, clearApiKey } from '../services/configService'
 import { promptsConfig } from '../config/prompts'
 
+interface CustomPrompt {
+  id: string
+  name: string
+  content: string
+}
+
+type PromptTemplate = 'my' | 'study' | 'studentStudy' | string
+
 const { t } = useI18n()
 const showApiKey = ref(false)
 const showApiKeyPopover = ref(false)
+const showAddPromptPopover = ref(false)
 const localApiKey = ref('')
 const localSystemPrompt = ref('')
 const showSuccessMessage = ref(false)
 const isFullscreen = ref(false)
+const selectedPromptTemplate = ref<PromptTemplate>('my')
+const newPromptName = ref('')
+const newPromptContent = ref('')
+const customPrompts = ref<CustomPrompt[]>([])
 
 onMounted(() => {
   localApiKey.value = apiKey.value
-  // 从 localStorage 加载系统提示词，如果没有则使用默认值
+  // 加载自定义提示词
+  const savedCustomPrompts = localStorage.getItem('customPrompts')
+  if (savedCustomPrompts) {
+    customPrompts.value = JSON.parse(savedCustomPrompts)
+  }
+
+  // 从 localStorage 加载系统提示词和上次选择的模板
   const savedSystemPrompt = localStorage.getItem('systemPrompt')
-  localSystemPrompt.value = savedSystemPrompt || promptsConfig.my.content
+  const lastSelectedTemplate = localStorage.getItem('lastSelectedTemplate')
+
+  if (lastSelectedTemplate) {
+    selectedPromptTemplate.value = lastSelectedTemplate
+    // 根据模板类型加载对应的内容
+    if (
+      lastSelectedTemplate === 'my' ||
+      lastSelectedTemplate === 'study' ||
+      lastSelectedTemplate === 'studentStudy'
+    ) {
+      // 如果是预设模板，直接使用配置内容
+      localSystemPrompt.value = promptsConfig[lastSelectedTemplate].content
+    } else {
+      // 如果是自定义模板，从自定义提示词中查找
+      const customPrompt = customPrompts.value.find((p) => p.id === lastSelectedTemplate)
+      if (customPrompt) {
+        localSystemPrompt.value = customPrompt.content
+      } else if (savedSystemPrompt) {
+        // 如果找不到自定义模板但有保存的内容，使用保存的内容
+        localSystemPrompt.value = savedSystemPrompt
+      }
+    }
+  } else {
+    // 没有上次选择的模板，使用默认模板
+    selectedPromptTemplate.value = 'my'
+    localSystemPrompt.value = promptsConfig.my.content
+  }
 })
+
+const handleTemplateChange = () => {
+  const template = selectedPromptTemplate.value
+  if (template === 'my' || template === 'study' || template === 'studentStudy') {
+    localSystemPrompt.value = promptsConfig[template].content
+  } else {
+    const customPrompt = customPrompts.value.find((p) => p.id === template)
+    if (customPrompt) {
+      localSystemPrompt.value = customPrompt.content
+    }
+  }
+  // 保存当前选择的模板
+  localStorage.setItem('lastSelectedTemplate', template)
+}
+
+const saveNewPrompt = () => {
+  const newPrompt: CustomPrompt = {
+    id: `custom_${Date.now()}`,
+    name: newPromptName.value,
+    content: newPromptContent.value,
+  }
+  customPrompts.value.push(newPrompt)
+  localStorage.setItem('customPrompts', JSON.stringify(customPrompts.value))
+  selectedPromptTemplate.value = newPrompt.id
+  localSystemPrompt.value = newPrompt.content
+  showAddPromptPopover.value = false
+  newPromptName.value = ''
+  newPromptContent.value = ''
+  showSuccessMessage.value = true
+  setTimeout(() => {
+    showSuccessMessage.value = false
+  }, 2000)
+}
 
 const toggleShowApiKey = () => {
   showApiKey.value = !showApiKey.value
@@ -167,6 +331,19 @@ const clearKey = () => {
 
 const saveSystemPrompt = () => {
   localStorage.setItem('systemPrompt', localSystemPrompt.value)
+  // 如果当前不是自定义模板，保存时创建一个新的自定义模板
+  if (!selectedPromptTemplate.value.startsWith('custom_')) {
+    const newPrompt: CustomPrompt = {
+      id: `custom_${Date.now()}`,
+      name: t('customPrompt'),
+      content: localSystemPrompt.value,
+    }
+    customPrompts.value.push(newPrompt)
+    localStorage.setItem('customPrompts', JSON.stringify(customPrompts.value))
+    selectedPromptTemplate.value = newPrompt.id
+    // 保存当前选择的模板
+    localStorage.setItem('lastSelectedTemplate', newPrompt.id)
+  }
   showSuccessMessage.value = true
   setTimeout(() => {
     showSuccessMessage.value = false
@@ -174,8 +351,10 @@ const saveSystemPrompt = () => {
 }
 
 const resetSystemPrompt = () => {
+  selectedPromptTemplate.value = 'my'
   localSystemPrompt.value = promptsConfig.my.content
   localStorage.removeItem('systemPrompt')
+  localStorage.removeItem('lastSelectedTemplate')
 }
 
 const toggleFullscreen = () => {
@@ -323,11 +502,14 @@ h2 {
   transform: translate(-50%, -50%);
   width: calc(100% - 2rem);
   max-width: 480px;
+  max-height: 90vh;
   background-color: var(--card-bg-color);
   border-radius: 16px;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
   z-index: 1001;
   animation: popoverIn 0.3s ease;
+  display: flex;
+  flex-direction: column;
 }
 
 @keyframes popoverIn {
@@ -342,16 +524,18 @@ h2 {
 }
 
 .popover-header {
+  padding: 1.25rem;
+  border-bottom: 1px solid var(--input-border-color);
+  flex-shrink: 0;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 1.25rem;
-  border-bottom: 1px solid var(--input-border-color);
 }
 
 .popover-header h3 {
   margin: 0;
   font-size: 1.1rem;
+  font-weight: 500;
 }
 
 .close-button {
@@ -365,6 +549,7 @@ h2 {
   display: flex;
   align-items: center;
   justify-content: center;
+  margin: -0.5rem -0.5rem -0.5rem 0;
 }
 
 .close-button:hover {
@@ -373,18 +558,23 @@ h2 {
 
 .popover-content {
   padding: 1.5rem;
+  overflow-y: auto;
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
 }
 
 .input-group {
-  position: relative;
-  margin-bottom: 1rem;
-  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
 }
 
-.api-key-input {
+.prompt-name-input {
   width: 100%;
   padding: 0.875rem 1.25rem;
-  padding-right: 5rem;
   border: 2px solid var(--input-border-color);
   border-radius: 12px;
   font-size: 1rem;
@@ -392,56 +582,40 @@ h2 {
   color: var(--text-color);
   transition: all 0.2s ease;
   box-sizing: border-box;
-  line-height: 1.5;
-  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.05);
 }
 
-.api-key-input:focus {
+.prompt-content-input {
+  width: 100%;
+  padding: 0.875rem 1.25rem;
+  border: 2px solid var(--input-border-color);
+  border-radius: 12px;
+  font-size: 1rem;
+  background-color: var(--input-bg-color);
+  color: var(--text-color);
+  resize: vertical;
+  font-family: inherit;
+  line-height: 1.5;
+  min-height: 120px;
+  max-height: 300px;
+  transition: all 0.2s ease;
+  box-sizing: border-box;
+}
+
+.prompt-name-input:focus,
+.prompt-content-input:focus {
   outline: none;
   border-color: var(--button-bg-color);
-  box-shadow:
-    0 0 0 3px rgba(var(--button-bg-color-rgb), 0.15),
-    inset 0 1px 2px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 0 0 3px rgba(var(--button-bg-color-rgb), 0.15);
 }
 
-.toggle-button {
-  position: absolute;
-  right: 2px;
-  top: 50%;
-  transform: translateY(-50%);
-  height: calc(100% - 4px);
-  border-radius: 0 10px 10px 0;
-  min-width: auto;
-  width: 4rem;
-  padding: 0;
-  background: none;
-  border-left: 2px solid var(--input-border-color);
-  color: var(--text-color);
-  font-size: 0.9rem;
+.button-group {
   display: flex;
-  align-items: center;
-  justify-content: center;
-  line-height: 1;
-  transition: none;
-  user-select: none;
-}
-
-.toggle-button:hover {
-  background-color: var(--input-border-color);
-}
-
-.toggle-button:active {
-  background-color: var(--input-border-color);
-}
-
-.popover-content .button-group {
-  display: flex;
-  gap: 0.75rem;
+  gap: 1rem;
   justify-content: flex-end;
-  margin-top: 1.5rem;
+  margin-top: 0.5rem;
 }
 
-.popover-content .button-group button {
+.button-group button {
   min-width: 5rem;
   padding: 0.6rem 1rem;
   font-size: 0.9rem;
@@ -720,7 +894,6 @@ button:disabled {
   right: 0;
   top: 50%;
   transform: translateY(-50%);
-  margin-top: -0.3rem;
   background: none;
   border: none;
   padding: 0.5rem;
@@ -738,5 +911,102 @@ button:disabled {
 .fullscreen-button:hover {
   opacity: 1;
   transform: translateY(-50%) scale(1.1);
+}
+
+.prompt-template-selector {
+  margin-right: 2rem;
+}
+
+.prompt-template-selector select {
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  border: 2px solid var(--input-border-color);
+  background-color: var(--input-bg-color);
+  color: var(--text-color);
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.prompt-template-selector select:hover {
+  border-color: var(--button-bg-color);
+}
+
+.prompt-template-selector select:focus {
+  outline: none;
+  border-color: var(--button-bg-color);
+  box-shadow: 0 0 0 3px rgba(var(--button-bg-color-rgb), 0.15);
+}
+
+.prompt-controls {
+  display: flex;
+  align-items: center;
+}
+
+.add-prompt-button {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  border: 2px solid var(--input-border-color);
+  background-color: var(--input-bg-color);
+  color: var(--text-color);
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-width: auto;
+  height: auto;
+  margin-right: 3rem;
+}
+
+.add-prompt-button:hover {
+  border-color: var(--button-bg-color);
+  background-color: var(--button-bg-color);
+  color: white;
+}
+
+.prompt-name-input {
+  width: 100%;
+  padding: 0.875rem 1.25rem;
+  border: 2px solid var(--input-border-color);
+  border-radius: 12px;
+  font-size: 1rem;
+  background-color: var(--input-bg-color);
+  color: var(--text-color);
+  margin-bottom: 1rem;
+}
+
+.prompt-content-input {
+  width: 100%;
+  padding: 0.875rem 1.25rem;
+  border: 2px solid var(--input-border-color);
+  border-radius: 12px;
+  font-size: 1rem;
+  background-color: var(--input-bg-color);
+  color: var(--text-color);
+  resize: vertical;
+  font-family: inherit;
+  line-height: 1.5;
+  min-height: 120px;
+  max-height: 300px;
+}
+
+.prompt-name-input:focus,
+.prompt-content-input:focus {
+  outline: none;
+  border-color: var(--button-bg-color);
+  box-shadow: 0 0 0 3px rgba(var(--button-bg-color-rgb), 0.15);
+}
+
+@media (max-height: 600px) {
+  .api-key-popover {
+    max-height: 95vh;
+  }
+
+  .prompt-content-input {
+    min-height: 80px;
+    max-height: 200px;
+  }
 }
 </style>

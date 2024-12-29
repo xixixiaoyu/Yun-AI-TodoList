@@ -167,5 +167,16 @@
   "apiKeyConfigured": "API Key 已配置",
   "apiKeyNotConfigured": "API Key 未配置",
   "configure": "配置",
-  "reconfigure": "重新配置"
+  "reconfigure": "重新配置",
+  "defaultPrompt": "默认提示词",
+  "studyPrompt": "学习助手提示词",
+  "studentStudyPrompt": "学生学习助手提示词",
+  "customPrompt": "自定义提示词",
+  "customPrompts": "自定义提示词",
+  "addPrompt": "新增提示词",
+  "addNewPrompt": "新增提示词模板",
+  "enterPromptName": "请输入提示词名称",
+  "enterPromptContent": "请输入提示词内容",
+  "promptNameRequired": "提示词名称不能为空",
+  "promptContentRequired": "提示词内容不能为空"
 }
