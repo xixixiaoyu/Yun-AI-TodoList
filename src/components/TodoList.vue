@@ -412,7 +412,7 @@ const handleProjectChange = (projectId: number | null) => {
               fill="currentColor"
             >
               <path
-                d="M12 2C6.47 2 2 17.523 2 12S6.47 2 12 2s10 4.477 10 10-4.47 10-10 10-10-4.47-10-10zm0-2a8 8 0 1 0 0 16 8 8 0 0 0 0-16zM9.5 9.5h5v5h-5v-5z"
+                d="M12 22c5.52 0 10-4.48 10-10S17.52 2 12 2 2 6.48 2 12s4.48 10 10 10zm0-18c4.42 0 8 3.58 8 8s-3.58 8-8 8-8-3.58-8-8 3.58-8 8-8zm5 9c0-.28-.22-.5-.5-.5H12V7c0-.55-.45-1-1-1s-1 .45-1 1v6c0 .28.22.5.5.5h6c.28 0 .5-.22.5-.5z"
               />
             </svg>
             {{ t('theme') }}
@@ -458,8 +458,8 @@ const handleProjectChange = (projectId: number | null) => {
       <div class="project-header" :class="{ 'small-screen': isSmallScreen }">
         <div class="project-tabs">
           <button
-            v-for="project in displayedProjects"
-            :key="project.id"
+            v-for="(project, index) in displayedProjects"
+            :key="project.id || index"
             :title="project.name"
             :class="{ active: currentProjectId === project.id }"
             class="project-tab"
