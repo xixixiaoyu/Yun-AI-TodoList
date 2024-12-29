@@ -66,7 +66,7 @@ onMounted(fetchInspiration)
   box-shadow: var(--card-shadow);
   padding: 1rem;
   height: fit-content;
-  width: 300px;
+  width: 260px;
   position: fixed;
   top: 5rem;
   left: 1rem;

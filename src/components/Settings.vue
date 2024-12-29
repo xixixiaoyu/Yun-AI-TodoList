@@ -80,17 +80,38 @@
                 </optgroup>
               </select>
             </div>
-            <button class="add-prompt-button" @click="showAddPromptPopover = true">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="20"
-                height="20"
-                viewBox="0 0 24 24"
+            <div class="prompt-actions">
+              <button
+                v-if="selectedPromptTemplate.startsWith('custom_')"
+                class="delete-prompt-button"
+                @click.stop="confirmDeletePrompt"
+                :title="t('deleteCustomPrompt')"
               >
-                <path fill="currentColor" d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z" />
-              </svg>
-              {{ t('addPrompt') }}
-            </button>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    fill="currentColor"
+                    d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"
+                  />
+                </svg>
+                {{ t('deleteCustomPrompt') }}
+              </button>
+              <button class="add-prompt-button" @click="showAddPromptPopover = true">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                >
+                  <path fill="currentColor" d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z" />
+                </svg>
+                {{ t('addPrompt') }}
+              </button>
+            </div>
             <button class="fullscreen-button" @click="toggleFullscreen">
               <svg
                 v-if="!isFullscreen"
@@ -361,6 +382,26 @@ const toggleFullscreen = () => {
   isFullscreen.value = !isFullscreen.value
 }
 
+const confirmDeletePrompt = () => {
+  if (window.confirm(t('confirmDeletePrompt'))) {
+    const updatedPrompts = customPrompts.value.filter(
+      (p) => p.id !== selectedPromptTemplate.value
+    )
+    customPrompts.value = updatedPrompts
+    localStorage.setItem('customPrompts', JSON.stringify(updatedPrompts))
+
+    // Reset to default prompt after deletion
+    selectedPromptTemplate.value = 'my'
+    localSystemPrompt.value = promptsConfig.my.content
+    localStorage.setItem('lastSelectedTemplate', 'my')
+
+    showSuccessMessage.value = true
+    setTimeout(() => {
+      showSuccessMessage.value = false
+    }, 2000)
+  }
+}
+
 defineOptions({
   name: 'AppSettings',
 })
@@ -395,6 +436,7 @@ h2 {
 .api-key-section {
   width: 100%;
   margin: 0;
+  margin-left: 1rem;
 }
 
 .api-key-info {
@@ -913,12 +955,8 @@ button:disabled {
   transform: translateY(-50%) scale(1.1);
 }
 
-.prompt-template-selector {
-  margin-right: 2rem;
-}
-
 .prompt-template-selector select {
-  padding: 0.5rem 1rem;
+  padding: 0.5rem 2.5rem 0.5rem 1rem;
   border-radius: 8px;
   border: 2px solid var(--input-border-color);
   background-color: var(--input-bg-color);
@@ -926,6 +964,11 @@ button:disabled {
   font-size: 0.9rem;
   cursor: pointer;
   transition: all 0.2s ease;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Cpath fill='%23666' d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.5rem center;
+  min-width: 200px;
 }
 
 .prompt-template-selector select:hover {
@@ -941,6 +984,14 @@ button:disabled {
 .prompt-controls {
   display: flex;
   align-items: center;
+  gap: 1rem;
+}
+
+.prompt-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-right: 3rem;
 }
 
 .add-prompt-button {
@@ -957,12 +1008,33 @@ button:disabled {
   transition: all 0.2s ease;
   min-width: auto;
   height: auto;
-  margin-right: 3rem;
 }
 
 .add-prompt-button:hover {
   border-color: var(--button-bg-color);
   background-color: var(--button-bg-color);
+  color: white;
+}
+
+.delete-prompt-button {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  border: 2px solid var(--input-border-color);
+  background-color: var(--input-bg-color);
+  color: var(--text-color);
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-width: auto;
+  height: auto;
+}
+
+.delete-prompt-button:hover {
+  border-color: #dc3545;
+  background-color: #dc3545;
   color: white;
 }
 

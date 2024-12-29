@@ -136,5 +136,7 @@
   "enterPromptName": "Enter prompt name",
   "enterPromptContent": "Enter prompt content",
   "promptNameRequired": "Prompt name is required",
-  "promptContentRequired": "Prompt content is required"
+  "promptContentRequired": "Prompt content is required",
+  "deleteCustomPrompt": "Delete Current Prompt",
+  "confirmDeletePrompt": "Are you sure you want to delete this custom prompt?"
 }

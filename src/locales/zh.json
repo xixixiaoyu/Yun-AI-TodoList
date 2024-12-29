@@ -175,5 +175,7 @@
   "aiResponseError": "获取 AI 响应时出错: {error}",
   "aiSortError": "AI 排序失败，请稍后再试。",
   "startListening": "开始语音输入",
-  "stopListening": "停止语音输入"
+  "stopListening": "停止语音输入",
+  "deleteCustomPrompt": "删除当前提示词",
+  "confirmDeletePrompt": "确定要删除这个自定义提示词吗？"
 }
