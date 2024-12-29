@@ -69,7 +69,7 @@ onMounted(fetchInspiration)
   width: 260px;
   position: fixed;
   top: 5rem;
-  left: 1rem;
+  left: 2rem;
   z-index: 1000;
 }
 
