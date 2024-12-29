@@ -1,18 +1,24 @@
 export interface AIStreamResponse {
-  id: string
-  object: string
-  created: number
-  model: string
-  choices: {
+  choices: Array<{
     delta: {
       content?: string
     }
-    index: number
-    finish_reason: string | null
-  }[]
+  }>
 }
 
 export interface Message {
-  role: 'system' | 'user' | 'assistant'
+  role: 'user' | 'system' | 'assistant'
   content: string
+}
+
+export interface ChatMessage {
+  role: 'user' | 'assistant'
+  content: string
+}
+
+export interface Conversation {
+  id: string
+  title: string
+  messages: ChatMessage[]
+  lastUpdated: string
 }

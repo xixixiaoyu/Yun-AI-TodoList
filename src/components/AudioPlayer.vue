@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, nextTick } from 'vue'
+import { ref, onMounted, nextTick, onUnmounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { computed } from 'vue'
 
@@ -18,6 +18,8 @@ const duration = ref(0)
 const isLoading = ref(false)
 const volume = ref(1)
 const error = ref('')
+const progress = ref(0)
+const repeat = ref(false)
 
 const playlist = computed(() => [
   { title: t('track1Title'), src: track1 },
@@ -30,44 +32,59 @@ const currentTrack = computed(() => playlist.value[currentTrackIndex.value])
 
 const togglePlay = async () => {
   if (audioElement.value) {
-    if (isPlaying.value) {
-      audioElement.value.pause()
-      isPlaying.value = false
-    } else {
-      try {
+    try {
+      if (isPlaying.value) {
+        await audioElement.value.pause()
+        isPlaying.value = false
+      } else {
         isLoading.value = true
-        await audioElement.value.play()
+        // 添加超时处理
+        const playPromise = audioElement.value.play()
+        const timeoutPromise = new Promise((_, reject) => {
+          setTimeout(() => reject(new Error(t('playbackTimeout'))), 5000)
+        })
+
+        await Promise.race([playPromise, timeoutPromise])
         isPlaying.value = true
-      } catch (err) {
-        console.error(t('playbackError', { error: err }))
-        error.value = t('playError')
-      } finally {
-        isLoading.value = false
       }
+    } catch (err) {
+      console.error(t('playbackError', { error: err }))
+      error.value = err instanceof Error ? err.message : t('playError')
+      isPlaying.value = false
+    } finally {
+      isLoading.value = false
     }
   }
 }
 
 const playNext = () => {
-  const index = (currentTrackIndex.value + 1) % playlist.value.length
-  currentTrackIndex.value = index
-  resetAudioState()
-  nextTick(() => {
+  try {
+    if (playlist.value.length === 0) return
+    const index = (currentTrackIndex.value + 1) % playlist.value.length
+    currentTrackIndex.value = index
+    resetAudioState()
     if (isPlaying.value) {
-      togglePlay()
+      nextTick(() => togglePlay())
     }
-  })
+  } catch (error) {
+    console.error(t('playbackError', { error }))
+    showError(t('nextTrackError'))
+  }
 }
 
 const playPrevious = () => {
-  currentTrackIndex.value =
-    (currentTrackIndex.value - 1 + playlist.value.length) % playlist.value.length
-  resetAudioState()
-  nextTick(() => {
+  try {
+    if (playlist.value.length === 0) return
+    currentTrackIndex.value =
+      (currentTrackIndex.value - 1 + playlist.value.length) % playlist.value.length
+    resetAudioState()
     if (isPlaying.value) {
-      togglePlay()
+      nextTick(() => togglePlay())
     }
-  })
+  } catch (error) {
+    console.error(t('playbackError', { error }))
+    showError(t('previousTrackError'))
+  }
 }
 
 const resetAudioState = () => {
@@ -75,6 +92,15 @@ const resetAudioState = () => {
   duration.value = 0
   isLoading.value = true
   error.value = ''
+  progress.value = 0
+}
+
+const showError = (message: string) => {
+  error.value = message
+  const timer = setTimeout(() => {
+    error.value = ''
+    clearTimeout(timer)
+  }, 3000)
 }
 
 const formatTime = (time: number) => {
@@ -84,11 +110,10 @@ const formatTime = (time: number) => {
   return `${minutes}:${seconds.toString().padStart(2, '0')}`
 }
 
-const updateProgress = (event: Event) => {
-  const target = event.target as HTMLInputElement
+const updateProgress = () => {
   if (audioElement.value) {
-    const time = (parseFloat(target.value) / 100) * audioElement.value.duration
-    audioElement.value.currentTime = time
+    currentTime.value = audioElement.value.currentTime
+    progress.value = (currentTime.value / duration.value) * 100 || 0
   }
 }
 
@@ -125,31 +150,35 @@ const updateVolume = () => {
 
 onMounted(() => {
   if (audioElement.value) {
-    audioElement.value.addEventListener('timeupdate', () => {
-      if (audioElement.value) {
-        currentTime.value = audioElement.value.currentTime
-        if (!isNaN(audioElement.value.duration)) {
-          duration.value = audioElement.value.duration
-        }
-      }
-    })
+    audioElement.value.addEventListener('timeupdate', updateProgress)
     audioElement.value.addEventListener('loadedmetadata', () => {
-      if (audioElement.value) {
-        duration.value = audioElement.value.duration
-        isLoading.value = false
-      }
+      duration.value = audioElement.value?.duration || 0
+      isLoading.value = false
     })
     audioElement.value.addEventListener('ended', () => {
-      playNext()
-    })
-    audioElement.value.addEventListener('canplay', () => {
-      isLoading.value = false
+      isPlaying.value = false
+      if (repeat.value) {
+        togglePlay()
+      } else {
+        playNext()
+      }
     })
     audioElement.value.addEventListener('error', (e) => {
-      console.error('Audio error:', e)
-      error.value = t('audioError')
+      const error = e.target as HTMLAudioElement
+      console.error('Audio error:', error.error)
+      showError(t('audioLoadError'))
       isLoading.value = false
+      isPlaying.value = false
     })
+  }
+})
+
+onUnmounted(() => {
+  if (audioElement.value) {
+    audioElement.value.removeEventListener('timeupdate', updateProgress)
+    audioElement.value.removeEventListener('loadedmetadata', () => {})
+    audioElement.value.removeEventListener('ended', () => {})
+    audioElement.value.removeEventListener('error', () => {})
   }
 })
 </script>

@@ -1,22 +1,11 @@
 import { ref } from 'vue'
-import { Message } from '../services/types'
+import { useI18n } from 'vue-i18n'
 import {
   getAIStreamResponse,
-  abortCurrentRequest,
   optimizeText,
+  abortCurrentRequest,
 } from '../services/deepseekService'
-import { useI18n } from 'vue-i18n'
-
-export interface ChatMessage {
-  role: 'user' | 'ai'
-  content: string
-}
-
-export interface Conversation {
-  id: number
-  title: string
-  messages: ChatMessage[]
-}
+import type { ChatMessage, Conversation, Message } from '../services/types'
 
 export function useChat() {
   const { t } = useI18n()
@@ -26,64 +15,68 @@ export function useChat() {
   const userMessage = ref('')
   const isOptimizing = ref(false)
   const error = ref('')
-
-  // 对话历史列表
   const conversationHistory = ref<Conversation[]>([])
-  const currentConversationId = ref<number | null>(null)
+  const currentConversationId = ref<string | null>(null)
+
+  // 添加新的状态
+  const isLoading = ref(false)
+  const retryCount = ref(0)
+  const MAX_RETRIES = 3
+
+  // 改进错误处理
+  const handleError = (error: unknown, context: string) => {
+    console.error(`Error in ${context}:`, error)
+    const errorMessage = error instanceof Error ? error.message : String(error)
+    showError(errorMessage)
+  }
 
   // 加载对话历史
   const loadConversationHistory = () => {
-    const savedHistory = localStorage.getItem('aiConversationHistory')
-    if (savedHistory) {
-      conversationHistory.value = JSON.parse(savedHistory)
+    try {
+      const savedHistory = localStorage.getItem('conversationHistory')
+      if (savedHistory) {
+        conversationHistory.value = JSON.parse(savedHistory)
+      }
+    } catch (error) {
+      handleError(error, 'loadConversationHistory')
     }
   }
 
-  // 保存对话历史
-  const saveConversationHistory = () => {
-    localStorage.setItem(
-      'aiConversationHistory',
-      JSON.stringify(conversationHistory.value)
-    )
-  }
-
-  // 保存当前会话 ID
-  const saveCurrentConversationId = () => {
-    if (currentConversationId.value) {
-      localStorage.setItem(
-        'currentConversationId',
-        currentConversationId.value.toString()
-      )
+  // 保存当前对话 ID
+  const saveCurrentConversationId = (id: string | null) => {
+    currentConversationId.value = id
+    if (id) {
+      localStorage.setItem('currentConversationId', id)
+    } else {
+      localStorage.removeItem('currentConversationId')
     }
   }
 
   // 创建新对话
   const createNewConversation = () => {
-    const newId = Date.now()
-    const newConversation = {
-      id: newId,
+    const newConversation: Conversation = {
+      id: Date.now().toString(),
       title: t('newConversation'),
       messages: [],
+      lastUpdated: new Date().toISOString(),
     }
     conversationHistory.value.unshift(newConversation)
-    currentConversationId.value = newId
+    saveCurrentConversationId(newConversation.id)
     chatHistory.value = []
-    saveConversationHistory()
-    saveCurrentConversationId()
+    localStorage.setItem('conversationHistory', JSON.stringify(conversationHistory.value))
   }
 
   // 切换对话
-  const switchConversation = (id: number) => {
-    currentConversationId.value = id
+  const switchConversation = (id: string) => {
     const conversation = conversationHistory.value.find((c) => c.id === id)
     if (conversation) {
       chatHistory.value = [...conversation.messages]
+      saveCurrentConversationId(id)
     }
-    saveCurrentConversationId()
   }
 
   // 删除对话
-  const deleteConversation = (id: number) => {
+  const deleteConversation = (id: string) => {
     conversationHistory.value = conversationHistory.value.filter((c) => c.id !== id)
     if (currentConversationId.value === id) {
       if (conversationHistory.value.length > 0) {
@@ -92,68 +85,118 @@ export function useChat() {
         createNewConversation()
       }
     }
-    saveConversationHistory()
+    localStorage.setItem('conversationHistory', JSON.stringify(conversationHistory.value))
   }
 
   // 清空所有对话
   const clearAllConversations = () => {
-    if (confirm(t('confirmClearAll'))) {
-      conversationHistory.value = []
-      localStorage.removeItem('aiConversationHistory')
-      localStorage.removeItem('currentConversationId')
-      createNewConversation()
+    conversationHistory.value = []
+    chatHistory.value = []
+    currentConversationId.value = null
+    localStorage.removeItem('conversationHistory')
+    localStorage.removeItem('currentConversationId')
+    createNewConversation()
+  }
+
+  // 改进消息发送逻辑
+  const sendMessage = async () => {
+    if (!userMessage.value.trim() || isGenerating.value) return
+
+    const message = userMessage.value
+    userMessage.value = ''
+    isGenerating.value = true
+    retryCount.value = 0
+
+    try {
+      // 保存用户消息到历史记录
+      const userMsg: ChatMessage = {
+        role: 'user',
+        content: message,
+      }
+      chatHistory.value.push(userMsg)
+
+      // 开始生成 AI 响应
+      currentAIResponse.value = ''
+      const messages: Message[] = chatHistory.value.map((msg) => ({
+        role: msg.role === 'user' ? 'user' : 'assistant',
+        content: msg.content,
+      }))
+
+      await getAIStreamResponse(messages, (chunk: string) => {
+        if (chunk === '[DONE]') {
+          isGenerating.value = false
+          // 保存完整的 AI 响应到历史记录
+          if (currentAIResponse.value) {
+            const aiMsg: ChatMessage = {
+              role: 'assistant',
+              content: currentAIResponse.value,
+            }
+            chatHistory.value.push(aiMsg)
+            saveConversationHistory()
+          }
+        } else if (chunk === '[ABORTED]') {
+          isGenerating.value = false
+        } else {
+          currentAIResponse.value += chunk
+        }
+      })
+    } catch (error) {
+      handleError(error, 'sendMessage')
+      // 在错误发生时，尝试重试
+      if (retryCount.value < MAX_RETRIES) {
+        retryCount.value++
+        await sendMessage()
+      } else {
+        isGenerating.value = false
+      }
     }
   }
 
-  // 发送消息
-  const sendMessage = async () => {
-    if (!userMessage.value.trim()) return
+  // 改进优化消息逻辑
+  const optimizeMessage = async () => {
+    if (!userMessage.value.trim() || isOptimizing.value) return
 
-    const userMessageContent = userMessage.value
-    chatHistory.value.push({ role: 'user', content: userMessageContent })
-    userMessage.value = ''
-    isGenerating.value = true
-    currentAIResponse.value = ''
-
-    const aiResponseIndex = chatHistory.value.length
-    chatHistory.value.push({ role: 'ai', content: '' })
+    isOptimizing.value = true
+    isLoading.value = true
 
     try {
-      const messages: Message[] = chatHistory.value
-        .filter((msg) => msg.content.trim() !== '')
-        .map((msg) => ({
-          role: msg.role === 'user' ? 'user' : 'assistant',
-          content: msg.content,
-        }))
-
-      await getAIStreamResponse(messages, (chunk) => {
-        if (chunk === '[DONE]' || chunk === '[ABORTED]') {
-          isGenerating.value = false
-          // 更新当前对话的消息
-          if (currentConversationId.value !== null) {
-            const currentConversation = conversationHistory.value.find(
-              (c) => c.id === currentConversationId.value
-            )
-            if (currentConversation) {
-              currentConversation.messages = chatHistory.value
-              if (currentConversation.messages.length === 2) {
-                currentConversation.title =
-                  currentConversation.messages[0].content.slice(0, 30) + '...'
-              }
-            }
-          }
-          saveConversationHistory()
-          return
-        }
-        currentAIResponse.value += chunk
-        chatHistory.value[aiResponseIndex].content = currentAIResponse.value
-      })
+      const optimizedText = await optimizeText(userMessage.value)
+      userMessage.value = optimizedText
     } catch (error) {
-      console.error(t('aiResponseError'), error)
-      chatHistory.value[aiResponseIndex].content = t('aiResponseErrorMessage')
+      handleError(error, 'optimizeMessage')
     } finally {
-      isGenerating.value = false
-      currentAIResponse.value = ''
+      isOptimizing.value = false
+      isLoading.value = false
+    }
+  }
+
+  // 改进错误显示逻辑
+  const showError = (message: string) => {
+    error.value = message
+    const timer = setTimeout(() => {
+      error.value = ''
+      clearTimeout(timer)
+    }, 3000)
+  }
+
+  // 改进历史记录保存逻辑
+  const saveConversationHistory = () => {
+    try {
+      if (currentConversationId.value) {
+        const currentConversation = conversationHistory.value.find(
+          (conv) => conv.id === currentConversationId.value
+        )
+        if (currentConversation) {
+          currentConversation.messages = [...chatHistory.value]
+          currentConversation.lastUpdated = new Date().toISOString()
+          localStorage.setItem(
+            'conversationHistory',
+            JSON.stringify(conversationHistory.value)
+          )
+        }
+      }
+    } catch (error) {
+      handleError(error, 'saveConversationHistory')
     }
   }
 
@@ -163,35 +206,13 @@ export function useChat() {
     isGenerating.value = false
   }
 
-  // 优化消息
-  const optimizeMessage = async () => {
-    if (!userMessage.value.trim() || isOptimizing.value) return
-
-    try {
-      isOptimizing.value = true
-      const optimizedText = await optimizeText(userMessage.value)
-      userMessage.value = optimizedText
-    } catch (error) {
-      console.error('优化文本时出错:', error)
-    } finally {
-      isOptimizing.value = false
-    }
-  }
-
-  // 显示错误
-  const showError = (message: string) => {
-    error.value = message
-    setTimeout(() => {
-      error.value = ''
-    }, 3000)
-  }
-
   return {
     chatHistory,
     currentAIResponse,
     isGenerating,
     userMessage,
     isOptimizing,
+    isLoading,
     error,
     conversationHistory,
     currentConversationId,
