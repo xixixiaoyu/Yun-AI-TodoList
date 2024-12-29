@@ -244,6 +244,7 @@ h2 {
   font-size: 1rem;
   color: var(--text-color);
   font-weight: 500;
+  margin-right: 1rem;
 }
 
 .status-icon {
@@ -476,24 +477,16 @@ h2 {
   box-shadow: var(--card-shadow);
   width: 100%;
   min-width: 200px;
-  max-width: 1200px;
+  max-width: 1000px;
   margin: 0 auto;
   display: flex;
   flex-direction: column;
   align-items: center;
-  border: 2px solid transparent;
-  transition: all 0.3s ease;
-}
-
-.settings-section:hover:not(.fullscreen) {
-  transform: translateY(-2px);
-  border-color: var(--button-bg-color);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
 }
 
 .section-header {
   width: 100%;
-  max-width: 800px;
+  max-width: 900px;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -511,7 +504,7 @@ h2 {
 
 .system-prompt-input {
   width: 100%;
-  max-width: 800px;
+  max-width: 900px;
   padding: 1rem;
   border: 2px solid var(--input-border-color);
   border-radius: 12px;
@@ -538,12 +531,12 @@ h2 {
 
 .button-group {
   width: 100%;
-  max-width: 800px;
+  max-width: 900px;
   display: flex;
-  gap: 0.75rem;
+  gap: 1.5rem;
   justify-content: flex-end;
   align-items: center;
-  margin-top: 0;
+  margin-top: 1rem;
 }
 
 .settings-section.fullscreen {
@@ -600,6 +593,7 @@ h2 {
   }
 
   .button-group {
+    gap: 1rem;
     flex-wrap: wrap;
   }
 
