@@ -112,36 +112,42 @@ defineExpose({
   display: flex;
   flex-direction: column;
   scroll-behavior: smooth;
-  padding: 0 20px;
-  gap: 16px;
+  padding: 20px 20px;
+  gap: 20px;
+  background: linear-gradient(to bottom, rgba(255, 255, 255, 0.05), transparent);
 }
 
 .message-container {
-  max-width: 85%;
+  max-width: 92%;
   position: relative;
   opacity: 1;
   transform: translateY(0);
-  transition:
-    opacity 0.3s ease,
-    transform 0.3s ease;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  margin: 0 12px;
+}
+
+.user.message-container {
+  max-width: 75%;
 }
 
 .message-container.fade-enter-from {
   opacity: 0;
-  transform: translateY(10px);
+  transform: translateY(20px);
 }
 
 .message-content {
-  padding: 16px 20px;
+  padding: 12px 16px;
   border-radius: 16px;
-  line-height: 1.6;
-  font-size: 15px;
+  line-height: 1.5;
+  font-size: 14px;
   direction: ltr;
   unicode-bidi: isolate;
   text-align: left;
   position: relative;
-  transition: all 0.2s ease;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow:
+    0 2px 8px rgba(0, 0, 0, 0.08),
+    0 0 1px rgba(0, 0, 0, 0.1);
 }
 
 .user {
@@ -153,11 +159,21 @@ defineExpose({
   background-color: var(--button-bg-color);
   color: var(--card-bg-color);
   border-bottom-right-radius: 4px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  padding: 8px 14px;
+  font-size: 14px;
+  line-height: 1.4;
+  max-width: 85%;
+  background-image: linear-gradient(
+    to right bottom,
+    rgba(255, 255, 255, 0.1),
+    rgba(255, 255, 255, 0)
+  );
 }
 
 .user .message-content:hover {
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+  box-shadow:
+    0 4px 12px rgba(0, 0, 0, 0.12),
+    0 0 1px rgba(0, 0, 0, 0.1);
   transform: translateY(-1px);
 }
 
@@ -171,78 +187,75 @@ defineExpose({
   color: var(--text-color);
   border-bottom-left-radius: 4px;
   border-left: 4px solid var(--button-bg-color);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-  transition: all 0.2s ease;
+  padding: 14px 18px;
+  font-size: 15px;
+  line-height: 1.6;
+  background-image: linear-gradient(
+    to right bottom,
+    rgba(255, 255, 255, 0.08),
+    transparent
+  );
 }
 
 .ai .message-content:hover {
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+  box-shadow:
+    0 4px 12px rgba(0, 0, 0, 0.12),
+    0 0 1px rgba(0, 0, 0, 0.1);
   transform: translateY(-1px);
 }
 
 .copy-button {
   position: absolute;
-  bottom: 0px;
+  bottom: 8px;
   right: 8px;
   background: var(--bg-color);
-  border: none;
-  border-radius: 4px;
-  padding: 4px 8px;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  border-radius: 6px;
+  padding: 6px 10px;
   font-size: 12px;
   cursor: pointer;
   display: flex;
   align-items: center;
   gap: 4px;
   opacity: 0;
-  transition: all 0.2s ease;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   color: var(--text-color);
+  backdrop-filter: blur(8px);
 }
 
 .message-content:hover .copy-button {
-  opacity: 0.7;
+  opacity: 0.9;
+  transform: translateY(-2px);
 }
 
 .copy-button:hover {
   opacity: 1 !important;
+  background-color: var(--button-bg-color);
+  color: var(--card-bg-color);
+  border-color: transparent;
 }
 
 .copy-button svg {
   width: 14px;
   height: 14px;
+  transition: transform 0.2s ease;
 }
 
-@media (max-width: 768px) {
-  .chat-history {
-    padding: 0 12px;
-  }
-
-  .message-container {
-    max-width: 90%;
-  }
+.copy-button:hover svg {
+  transform: scale(1.1);
 }
 
 /* Markdown content styles */
 .ai-message {
   position: relative;
-  padding-right: 24px; /* 为复制按钮留出空间 */
-}
-
-.ai :deep(h1),
-.ai :deep(h2),
-.ai :deep(h3),
-.ai :deep(h4),
-.ai :deep(h5),
-.ai :deep(h6) {
-  margin-top: 1em;
-  margin-bottom: 0.5em;
-  font-weight: 600;
-  line-height: 1.3;
+  padding-right: 32px;
 }
 
 .ai :deep(p) {
   margin-bottom: 1em;
   line-height: 1.7;
-  letter-spacing: 0.2px;
+  letter-spacing: 0.3px;
+  font-size: 15px;
 }
 
 .ai :deep(p:last-child) {
@@ -251,31 +264,35 @@ defineExpose({
 
 .ai :deep(ul),
 .ai :deep(ol) {
-  margin-bottom: 1em;
-  padding-left: 1.5em;
+  margin: 0.8em 0;
+  padding-left: 1.6em;
 }
 
 .ai :deep(li) {
   margin-bottom: 0.5em;
+  line-height: 1.6;
 }
 
 .ai :deep(code) {
-  background-color: rgba(0, 0, 0, 0.06);
+  background-color: rgba(0, 0, 0, 0.04);
   padding: 0.2em 0.4em;
   border-radius: 4px;
   font-family: 'Fira Code', monospace;
   font-size: 0.9em;
-  border: 1px solid rgba(0, 0, 0, 0.05);
+  border: 1px solid rgba(0, 0, 0, 0.04);
+  color: var(--button-bg-color);
 }
 
 .ai :deep(pre) {
   background-color: #1e1e1e;
-  border-radius: 8px;
+  border-radius: 10px;
   padding: 16px;
   overflow: auto;
   margin: 1em 0;
   position: relative;
-  box-shadow: inset 0 1px 4px rgba(0, 0, 0, 0.2);
+  box-shadow:
+    inset 0 2px 6px rgba(0, 0, 0, 0.2),
+    0 1px 2px rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
@@ -286,14 +303,29 @@ defineExpose({
   line-height: 1.5;
   font-family: 'Fira Code', monospace;
   color: #d4d4d4;
+  border: none;
 }
 
 .ai :deep(blockquote) {
   border-left: 4px solid var(--button-bg-color);
-  padding: 0.5em 1em;
+  padding: 0.8em 1.2em;
   margin: 1em 0;
-  background-color: rgba(0, 0, 0, 0.03);
-  border-radius: 4px;
+  background-color: rgba(0, 0, 0, 0.02);
+  border-radius: 6px;
+  font-style: italic;
+  color: var(--text-color);
+}
+
+.ai :deep(h1),
+.ai :deep(h2),
+.ai :deep(h3),
+.ai :deep(h4),
+.ai :deep(h5),
+.ai :deep(h6) {
+  margin: 1.2em 0 0.6em;
+  font-weight: 600;
+  line-height: 1.3;
+  color: var(--button-bg-color);
 }
 
 .ai :deep(a) {
@@ -301,32 +333,66 @@ defineExpose({
   text-decoration: none;
   border-bottom: 1px solid transparent;
   transition: all 0.2s ease;
+  padding: 0 2px;
 }
 
 .ai :deep(a:hover) {
+  background-color: rgba(0, 0, 0, 0.04);
+  border-radius: 4px;
   border-bottom-color: currentColor;
 }
 
 .ai :deep(table) {
   width: 100%;
-  border-collapse: collapse;
-  margin: 1em 0;
+  border-collapse: separate;
+  border-spacing: 0;
+  margin: 1.2em 0;
   font-size: 0.9em;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
 }
 
 .ai :deep(th),
 .ai :deep(td) {
   border: 1px solid var(--input-border-color);
-  padding: 0.5em 0.8em;
+  padding: 0.8em 1em;
   text-align: left;
 }
 
 .ai :deep(th) {
-  background-color: rgba(0, 0, 0, 0.03);
+  background-color: rgba(0, 0, 0, 0.02);
   font-weight: 600;
+  border-bottom: 2px solid var(--input-border-color);
 }
 
 .ai :deep(tr:nth-child(even)) {
+  background-color: rgba(0, 0, 0, 0.01);
+}
+
+.ai :deep(tr:hover) {
   background-color: rgba(0, 0, 0, 0.02);
+}
+
+@media (max-width: 768px) {
+  .chat-history {
+    padding: 16px 12px;
+    gap: 20px;
+  }
+
+  .message-container {
+    max-width: 92%;
+    margin: 0 8px;
+  }
+
+  .message-content {
+    padding: 14px 16px;
+    font-size: 14px;
+  }
+
+  .copy-button {
+    padding: 4px 8px;
+    font-size: 11px;
+  }
 }
 </style>
