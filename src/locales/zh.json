@@ -39,7 +39,7 @@
   "confirmClearCompleted": "确定要清除所有已完成的待办事项吗？此操作不可撤销。",
   "aiStreamError": "AI 流式响应出错",
   "generateSuggestionsError": "生成建议时出错",
-  "dailyInspiration": "每日激励",
+  "dailyInspiration": "每日一句",
   "refresh": "换一句",
   "refreshing": "刷新中...",
   "pomodoroTimer": "番茄钟",
