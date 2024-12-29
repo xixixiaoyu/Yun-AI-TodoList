@@ -115,51 +115,51 @@ onMounted(() => {
 
 <style>
 :root {
-  --bg-color: #e2eafb;
-  --text-color: #2c3e50; /* 更深的文字颜色，提高对比度 */
-  --card-bg-color: rgba(255, 255, 255, 0.9);
-  --card-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  --input-bg-color: #f0f4f8;
-  --input-border-color: #d0d9e1;
-  --button-bg-color: #7a89c2; /* 稍微深一点的蓝色 */
-  --button-hover-bg-color: #6b7ab3;
+  --bg-color: #f8f9fa;
+  --text-color: #3c4858;
+  --card-bg-color: #ffffff;
+  --card-shadow: 0 4px 16px rgba(140, 152, 164, 0.08);
+  --input-bg-color: #ffffff;
+  --input-border-color: #e9ecef;
+  --button-bg-color: #79b4a6;
+  --button-hover-bg-color: #68a295;
   --font-smoothing: antialiased;
   --font-weight: 400;
-  --todo-text-color: #2c3e50; /* 与主文字颜色一致 */
-  --completed-todo-text-color: #7f8c8d; /* 稍微深一点的灰色 */
-  --filter-btn-bg: #f8f9f9;
-  --filter-btn-text: #2c3e50;
-  --filter-btn-border: #d5d8dc;
-  --filter-btn-active-bg: #7a89c2;
+  --todo-text-color: #3c4858;
+  --completed-todo-text-color: #8898aa;
+  --filter-btn-bg: #ffffff;
+  --filter-btn-text: #3c4858;
+  --filter-btn-border: #e9ecef;
+  --filter-btn-active-bg: #79b4a6;
   --filter-btn-active-text: #ffffff;
-  --filter-btn-active-border: #7a89c2;
-  --language-toggle-bg: rgba(122, 137, 194, 0.2); /* 浅色主题下的半透明背景 */
-  --language-toggle-color: #2c3e50; /* 浅色主题下的文字颜色 */
-  --language-toggle-hover-bg: rgba(122, 137, 194, 0.4); /* 浅色主题下的悬停背景 */
+  --filter-btn-active-border: #79b4a6;
+  --language-toggle-bg: rgba(121, 180, 166, 0.08);
+  --language-toggle-color: #3c4858;
+  --language-toggle-hover-bg: rgba(121, 180, 166, 0.16);
 }
 
 [data-theme='dark'] {
-  --bg-color: #2f2b3a;
-  --text-color: #ecf0f1; /* 更亮的文字颜色，提高对比度 */
-  --card-bg-color: rgba(65, 62, 82, 0.9);
-  --card-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
-  --input-bg-color: #3d3a4d;
-  --input-border-color: #5d5a6d;
-  --button-bg-color: #8e9ecc; /* 稍微亮一点的蓝色 */
-  --button-hover-bg-color: #7d8dbf;
+  --bg-color: #1a1f25;
+  --text-color: #e2e8f0;
+  --card-bg-color: #252b32;
+  --card-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+  --input-bg-color: #2f353d;
+  --input-border-color: #404650;
+  --button-bg-color: #79b4a6;
+  --button-hover-bg-color: #68a295;
   --font-smoothing: subpixel-antialiased;
   --font-weight: 300;
-  --todo-text-color: #ecf0f1; /* 与主文字颜色一致 */
-  --completed-todo-text-color: #bdc3c7; /* 稍微亮一点的灰色 */
-  --filter-btn-bg: #3d3a4d;
-  --filter-btn-text: #ecf0f1;
-  --filter-btn-border: #5d5a6d;
-  --filter-btn-active-bg: #8e9ecc;
-  --filter-btn-active-text: #ffffff;
-  --filter-btn-active-border: #8e9ecc;
-  --language-toggle-bg: rgba(142, 158, 204, 0.2); /* 深色主题下的半透明背景 */
-  --language-toggle-color: #ecf0f1; /* 深色主题下的文字颜色 */
-  --language-toggle-hover-bg: rgba(142, 158, 204, 0.4); /* 深色主题下的悬停背景 */
+  --todo-text-color: #e2e8f0;
+  --completed-todo-text-color: #a0aec0;
+  --filter-btn-bg: #2f353d;
+  --filter-btn-text: #e2e8f0;
+  --filter-btn-border: #404650;
+  --filter-btn-active-bg: #79b4a6;
+  --filter-btn-active-text: #1a1f25;
+  --filter-btn-active-border: #79b4a6;
+  --language-toggle-bg: rgba(121, 180, 166, 0.12);
+  --language-toggle-color: #e2e8f0;
+  --language-toggle-hover-bg: rgba(121, 180, 166, 0.24);
 }
 
 body {
