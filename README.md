@@ -1,19 +1,23 @@
-# Todo App - 现代化的待办事项管理应用
+# Todo Desktop App
 
-<p align="center">
-  <strong>一个基于 Vue 3 + Electron 的跨平台待办事项管理应用</strong>
-</p>
+一个基于 Vue 3 + Electron 构建的现代化待办事项桌面应用。
 
-## ✨ 特性
+![License](https://img.shields.io/badge/license-MIT-blue.svg)
+![Node](https://img.shields.io/badge/node-%3E%3D18.0.0-brightgreen)
+![pnpm](https://img.shields.io/badge/pnpm-%3E%3D8.0.0-brightgreen)
 
-- 🎯 任务管理：创建、编辑、删除和组织待办事项
-- 🌙 深色模式：支持浅色/深色主题自动切换
-- 🌍 国际化：支持中文和英文界面
-- ⏰ 番茄钟：内置番茄工作法计时器
-- 📊 数据统计：可视化展示您的工作效率
-- 🤖 AI 助手：智能对话助手帮助提升效率
-- 💡 每日灵感：获取激励人心的每日格言
-- 🖥️ 跨平台：支持 macOS、Windows 和 Linux
+## ✨ 功能特性
+
+- 📝 任务管理：创建、编辑、删除和组织待办事项
+- 🎯 项目管理：将任务分类到不同项目中
+- 📊 数据统计：直观的任务完成情况统计
+- 🔍 历史记录：查看和回顾已完成的任务
+- 🎨 现代化界面：简洁优雅的用户界面设计
+- 🌍 多语言支持：支持多种语言切换
+- 💾 离线存储：本地数据持久化
+- 🔄 数据同步：支持数据备份和恢复
+- 🎵 语音输入：支持语音识别输入任务
+- 🤖 AI 助手：智能任务管理建议
 
 ## 🚀 快速开始
 
@@ -28,8 +32,14 @@
 # 克隆项目
 git clone [项目地址]
 
+# 进入项目目录
+cd todo
+
 # 安装依赖
 pnpm install
+
+# 创建环境配置文件
+cp .env.example .env
 ```
 
 ### 开发
@@ -58,36 +68,37 @@ pnpm electron:build:linux
 ## 🛠️ 技术栈
 
 - Vue 3 - 渐进式 JavaScript 框架
-- TypeScript - 类型安全的 JavaScript 超集
 - Electron - 跨平台桌面应用开发框架
-- Vue Router - 官方路由管理器
-- Vue I18n - 国际化解决方案
-- Chart.js - 数据可视化
+- TypeScript - JavaScript 的超集
 - Vite - 下一代前端构建工具
+- Vue Router - Vue.js 官方路由
+- Chart.js - 数据可视化库
+- D3.js - 数据驱动文档
+- Vue I18n - 国际化解决方案
 
-## 📝 开发指南
+## 📝 开发规范
 
-### 项目结构
-
-```
-src/
-├── components/     # 组件目录
-├── composables/    # 组合式函数
-├── locales/       # 国际化文件
-├── router/        # 路由配置
-├── services/      # 服务层
-├── types/         # TypeScript 类型定义
-└── App.vue        # 根组件
-```
+- 使用 ESLint 进行代码检查
+- 使用 Prettier 进行代码格式化
+- 使用 Husky 进行 Git 提交检查
+- 遵循 TypeScript 类型检查
 
 ## 🤝 贡献指南
 
 1. Fork 本仓库
-2. 创建您的特性分支 (`git checkout -b feature/AmazingFeature`)
-3. 提交您的更改 (`git commit -m 'Add some AmazingFeature'`)
-4. 推送到分支 (`git push origin feature/AmazingFeature`)
-5. 打开一个 Pull Request
+2. 创建你的特性分支 (git checkout -b feature/AmazingFeature)
+3. 提交你的更改 (git commit -m 'Add some AmazingFeature')
+4. 推送到分支 (git push origin feature/AmazingFeature)
+5. 开启一个 Pull Request
 
 ## 📄 许可证
 
-本项目基于 MIT 许可证开源 - 查看 [LICENSE](LICENSE) 文件了解更多详情
+本项目基于 MIT 许可证开源，详情请参阅 [LICENSE](LICENSE) 文件。
+
+## 🙏 致谢
+
+感谢所有为这个项目做出贡献的开发者！
+
+## 📮 联系方式
+
+如有任何问题或建议，欢迎提出 Issue 或 Pull Request。
