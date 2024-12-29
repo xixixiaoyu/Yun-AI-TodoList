@@ -1,66 +1,114 @@
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue'
+import {
+  computed,
+  ref,
+  watchEffect,
+  onBeforeMount,
+  onMounted,
+  onErrorCaptured,
+} from 'vue'
 import { useI18n } from 'vue-i18n'
 import confetti from 'canvas-confetti'
 import { useTodos } from '../composables/useTodos'
+import type { Todo } from '../types/todo'
+import { useErrorHandler } from '../composables/useErrorHandler'
 
 const props = defineProps<{
-  todo: {
-    id: number
-    text: string
-    completed: boolean
-    completedAt?: string
-    tags: string[]
-    projectId: number | null
-  }
+  todo: Todo
 }>()
 
 const { projects } = useTodos()
-
-const emit = defineEmits(['toggle', 'remove'])
-
+const { showError } = useErrorHandler()
 const { t } = useI18n()
 
+const emit = defineEmits(['toggle', 'remove'])
 const isCompleted = ref(props.todo.completed)
 
-watch(
-  () => props.todo.completed,
-  (newValue) => {
-    isCompleted.value = newValue
-  }
-)
+// 使用 watchEffect 优化性能
+watchEffect(() => {
+  isCompleted.value = props.todo.completed
+})
 
 const toggleTodo = () => {
-  emit('toggle', props.todo.id)
-  if (!isCompleted.value) {
-    // 当任务从未完成变为完成时，触发礼花效果
-    confetti({
-      particleCount: 100,
-      spread: 70,
-      origin: { y: 0.6 },
-    })
+  try {
+    emit('toggle', props.todo.id)
+    if (!isCompleted.value) {
+      // 优化礼花效果的性能
+      requestAnimationFrame(() => {
+        confetti({
+          particleCount: 100,
+          spread: 70,
+          origin: { y: 0.6 },
+          disableForReducedMotion: true, // 考虑可访问性
+        })
+      })
+    }
+    isCompleted.value = !isCompleted.value
+  } catch (error) {
+    console.error('Error toggling todo:', error)
+    showError(t('toggleError'))
   }
-  isCompleted.value = !isCompleted.value
 }
 
 const removeTodo = () => {
-  emit('remove', props.todo.id)
+  try {
+    emit('remove', props.todo.id)
+  } catch (error) {
+    console.error('Error removing todo:', error)
+    showError(t('removeError'))
+  }
 }
 
+// 使用 computed 优化文本处理
 const formattedTitle = computed(() => {
-  // 添加防御性检查
-  if (!props.todo || typeof props.todo.text !== 'string') {
+  try {
+    if (!props.todo?.text) return ''
+
+    const text = props.todo.text.trim()
+    const MAX_LENGTH = 50
+
+    if (text.length <= MAX_LENGTH) return text
+    return `${text.slice(0, MAX_LENGTH)}...`
+  } catch (error) {
+    console.error('Error formatting title:', error)
     return ''
   }
-  return props.todo.text.length > 50
-    ? `${props.todo.text.slice(0, 50)}...`
-    : props.todo.text
 })
 
+// 使用 computed 和 Map 优化项目名称查找
+const projectsMap = computed(() => new Map(projects.value.map((p) => [p.id, p.name])))
+
 const projectName = computed(() => {
-  const project = projects.value.find((p) => p.id === props.todo.projectId)
-  return project ? project.name : ''
+  try {
+    if (props.todo.projectId === null) return ''
+    return projectsMap.value.get(props.todo.projectId) || ''
+  } catch (error) {
+    console.error('Error getting project name:', error)
+    return ''
+  }
 })
+
+// 添加性能监控
+let renderStartTime = 0
+onBeforeMount(() => {
+  renderStartTime = performance.now()
+})
+
+onMounted(() => {
+  const renderTime = performance.now() - renderStartTime
+  if (renderTime > 50) {
+    // TodoItem 应该渲染得更快
+    console.warn(`TodoItem render time: ${renderTime}ms`)
+  }
+})
+
+// 添加错误边界处理
+const handleError = (error: Error) => {
+  console.error('TodoItem error:', error)
+  showError(t('generalError'))
+}
+
+onErrorCaptured(handleError)
 </script>
 
 <template>

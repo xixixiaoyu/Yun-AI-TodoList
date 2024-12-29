@@ -1,11 +1,20 @@
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted } from 'vue'
+import {
+  ref,
+  computed,
+  onMounted,
+  onUnmounted,
+  watch,
+  onErrorCaptured,
+  onBeforeMount,
+} from 'vue'
 import TodoInput from './TodoInput.vue'
 import TodoFilters from './TodoFilters.vue'
 import TodoItem from './TodoItem.vue'
 import HistorySidebar from './HistorySidebar.vue'
 import ConfirmDialog from './ConfirmDialog.vue'
 import { useTodos } from '../composables/useTodos'
+import type { Todo } from '../types/todo'
 import { useErrorHandler } from '../composables/useErrorHandler'
 import { useConfirmDialog } from '../composables/useConfirmDialog'
 import { getAIResponse } from '../services/deepseekService'
@@ -18,6 +27,12 @@ import TodoHeatmap from './TodoHeatmap.vue'
 import { useSortable } from '@vueuse/integrations/useSortable'
 import AddProjectModal from './AddProjectModal.vue'
 import { useWindowSize } from '@vueuse/core'
+import { useDebounceFn } from '@vueuse/core'
+
+interface SortableEvent {
+  oldIndex: number
+  newIndex: number
+}
 
 // useTodos 组合函数获取待办事项相关的状态和方法
 const {
@@ -45,6 +60,26 @@ const todoListRef = ref<HTMLElement | null>(null)
 // 使用 useSortable 为待办事项列表添加拖拽排序功能
 const { option } = useSortable(todoListRef, todos, {
   animation: 150,
+  onEnd: async (evt: SortableEvent) => {
+    try {
+      const { oldIndex, newIndex } = evt
+      if (oldIndex === newIndex) return
+
+      // 创建一个新数组来保存更新后的顺序
+      const todosCopy = [...todos.value]
+      const [movedItem] = todosCopy.splice(oldIndex, 1)
+      todosCopy.splice(newIndex, 0, movedItem)
+
+      // 更新 todos 数组
+      todos.value = todosCopy
+
+      // 确保调用 saveTodos 函数来持久化状态
+      await saveTodos()
+    } catch (error) {
+      console.error('Error saving todo order:', error)
+      showError(t('updateOrderError'))
+    }
+  },
 })
 
 option('animation', 150)
@@ -64,16 +99,32 @@ const MAX_TODO_LENGTH = 50
 
 // 根据过滤器计算待显示的待办事项
 const filteredTodos = computed(() => {
-  let filtered = todos.value
-  if (currentProjectId.value !== null) {
-    filtered = filtered.filter((todo) => todo.projectId === currentProjectId.value)
+  try {
+    let filtered = todos.value
+    if (!Array.isArray(filtered)) {
+      console.error('Invalid todos data structure')
+      return []
+    }
+
+    if (currentProjectId.value !== null) {
+      filtered = filtered.filter(
+        (todo) => todo && todo.projectId === currentProjectId.value
+      )
+    }
+
+    // 优化过滤逻辑，减少重复计算
+    const filterFn =
+      filter.value === 'active'
+        ? (todo: Todo) => todo && !todo.completed
+        : filter.value === 'completed'
+          ? (todo: Todo) => todo && todo.completed
+          : (todo: Todo) => todo !== null && todo !== undefined
+
+    return filtered.filter(filterFn)
+  } catch (error) {
+    console.error('Error in filteredTodos computed:', error)
+    return []
   }
-  if (filter.value === 'active') {
-    return filtered.filter((todo) => todo && !todo.completed)
-  } else if (filter.value === 'completed') {
-    return filtered.filter((todo) => todo && todo.completed)
-  }
-  return filtered.filter((todo) => todo !== null && todo !== undefined)
 })
 
 // 切换历史记录显示状态
@@ -348,6 +399,46 @@ const closeCharts = () => {
 const handleProjectChange = (projectId: number | null) => {
   setCurrentProject(projectId)
 }
+
+// 添加防抖的保存函数
+const debouncedSave = useDebounceFn(() => {
+  try {
+    saveTodos()
+  } catch (error) {
+    console.error('Error saving todos:', error)
+    showError(t('savingError'))
+  }
+}, 1000)
+
+// 监听数据变化并保存
+watch(
+  [todos, projects],
+  () => {
+    debouncedSave()
+  },
+  { deep: true }
+)
+
+// 添加错误边界处理
+const handleError = (error: Error) => {
+  console.error('TodoList error:', error)
+  showError(t('generalError'))
+}
+
+onErrorCaptured(handleError)
+
+// 添加性能监控
+let renderStartTime = 0
+onBeforeMount(() => {
+  renderStartTime = performance.now()
+})
+
+onMounted(() => {
+  const renderTime = performance.now() - renderStartTime
+  if (renderTime > 100) {
+    console.warn(`TodoList render time: ${renderTime}ms`)
+  }
+})
 </script>
 
 <template>

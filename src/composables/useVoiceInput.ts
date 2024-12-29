@@ -5,6 +5,14 @@ import type {
   SpeechRecognitionErrorEvent,
 } from '../types/web-speech-api'
 
+// 添加 SpeechRecognition 类型声明
+declare global {
+  interface Window {
+    SpeechRecognition?: typeof SpeechRecognition
+    webkitSpeechRecognition?: typeof SpeechRecognition
+  }
+}
+
 export function useVoiceInput(onTranscript: (text: string) => void) {
   const { t } = useI18n()
   const isListening = ref(false)
@@ -98,15 +106,59 @@ export function useVoiceInput(onTranscript: (text: string) => void) {
         console.error(t('speechRecognitionError', { error: event.error }))
         recognitionStatus.value = 'error'
         lastError.value = t('speechRecognitionError')
+
+        // 处理特定类型的错误
+        switch (event.error) {
+          case 'no-speech':
+            // 无语音输入，可以继续
+            break
+          case 'network':
+            // 网络错误，尝试重连
+            errorCount.value++
+            if (errorCount.value <= maxErrorRetries) {
+              setTimeout(() => {
+                console.log(t('retryingConnection'))
+                restartRecognition()
+              }, 1000 * errorCount.value) // 递增重试延迟
+            }
+            break
+          case 'not-allowed':
+          case 'service-not-allowed':
+            // 权限错误，停止重试
+            isListening.value = false
+            break
+          default:
+            // 其他错误，如果次数未超过限制则重试
+            errorCount.value++
+            if (errorCount.value <= maxErrorRetries) {
+              setTimeout(restartRecognition, 1000)
+            }
+        }
       }
 
       recognition.value.onend = () => {
-        if (isListening.value && errorCount.value < maxErrorRetries) {
-          restartRecognition()
+        // 如果仍在监听状态但识别结束，说明是意外终止
+        if (isListening.value && errorCount.value <= maxErrorRetries) {
+          console.log(t('reconnecting'))
+          setTimeout(restartRecognition, 1000)
         } else {
           isListening.value = false
           recognitionStatus.value = 'idle'
         }
+      }
+
+      // 添加音频级别监测
+      recognition.value.onaudiostart = () => {
+        console.log(t('audioDetected'))
+      }
+
+      recognition.value.onaudioend = () => {
+        console.log(t('audioEnded'))
+      }
+
+      // 添加噪音处理
+      recognition.value.onnomatch = () => {
+        console.log(t('noMatchFound'))
       }
     } catch (error) {
       console.error(t('initRecognitionError', { error }))

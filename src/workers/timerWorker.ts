@@ -2,17 +2,26 @@ let interval: ReturnType<typeof setInterval> | null = null
 let timeLeft: number = 0
 let isActive: boolean = false
 let lastTickTime: number = 0
+let heartbeatCheck: ReturnType<typeof setInterval> | null = null
+let lastHeartbeat = Date.now()
 
 const TICK_INTERVAL = 1000 // 1 second
 const MAX_TICK_DRIFT = 100 // 100ms
+const HEARTBEAT_INTERVAL = 5000 // 5秒
+const HEARTBEAT_TIMEOUT = 10000 // 10秒
 
 const cleanup = () => {
   if (interval) {
     clearInterval(interval)
     interval = null
   }
+  if (heartbeatCheck) {
+    clearInterval(heartbeatCheck)
+    heartbeatCheck = null
+  }
   isActive = false
   lastTickTime = 0
+  lastHeartbeat = Date.now()
 }
 
 const validateDuration = (duration: number): number => {
@@ -61,7 +70,15 @@ self.onmessage = (e: MessageEvent) => {
         timeLeft = validateDuration(e.data.duration)
         isActive = true
         lastTickTime = Date.now()
+        lastHeartbeat = Date.now()
         interval = setInterval(handleTick, TICK_INTERVAL)
+        heartbeatCheck = setInterval(() => {
+          const now = Date.now()
+          if (isActive && now - lastHeartbeat > HEARTBEAT_TIMEOUT) {
+            cleanup()
+            self.postMessage({ action: 'error', error: 'Connection lost' })
+          }
+        }, HEARTBEAT_INTERVAL)
         self.postMessage({ timeLeft })
         break
 
@@ -101,8 +118,9 @@ self.onmessage = (e: MessageEvent) => {
   } catch (error) {
     cleanup()
     self.postMessage({
-      error: error instanceof Error ? error.message : 'Unknown error',
       action: 'error',
+      error: error instanceof Error ? error.message : 'Unknown error',
+      timeLeft,
     })
   }
 }

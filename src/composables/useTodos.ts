@@ -27,23 +27,91 @@ export function useTodos() {
   const history = ref<HistoryItem[]>([])
 
   const loadTodos = () => {
-    const storedTodos = localStorage.getItem('todos')
-    if (storedTodos) {
-      todos.value = JSON.parse(storedTodos)
-    }
-    const storedHistory = localStorage.getItem('todoHistory')
-    if (storedHistory) {
-      history.value = JSON.parse(storedHistory)
-    }
-    const storedProjects = localStorage.getItem('projects')
-    if (storedProjects) {
-      projects.value = JSON.parse(storedProjects)
+    try {
+      const storedTodos = localStorage.getItem('todos')
+      const storedHistory = localStorage.getItem('todoHistory')
+      const storedProjects = localStorage.getItem('projects')
+
+      // 数据完整性检查
+      if (storedTodos) {
+        const parsedTodos = JSON.parse(storedTodos)
+        if (Array.isArray(parsedTodos)) {
+          todos.value = parsedTodos.filter(
+            (todo) =>
+              todo &&
+              typeof todo.id === 'number' &&
+              typeof todo.text === 'string' &&
+              typeof todo.completed === 'boolean'
+          )
+        }
+      }
+
+      if (storedHistory) {
+        const parsedHistory = JSON.parse(storedHistory)
+        if (Array.isArray(parsedHistory)) {
+          history.value = parsedHistory.filter(
+            (item) => item && typeof item.date === 'string' && Array.isArray(item.todos)
+          )
+        }
+      }
+
+      if (storedProjects) {
+        const parsedProjects = JSON.parse(storedProjects)
+        if (Array.isArray(parsedProjects)) {
+          projects.value = parsedProjects.filter(
+            (project) =>
+              project &&
+              typeof project.id === 'number' &&
+              typeof project.name === 'string'
+          )
+        }
+      }
+
+      // 数据一致性检查
+      validateDataConsistency()
+    } catch (error) {
+      console.error('Error loading todos:', error)
+      // 如果加载失败，初始化为空数组
+      todos.value = []
+      history.value = []
+      projects.value = []
     }
   }
 
+  const validateDataConsistency = () => {
+    // 检查并清理无效的项目引用
+    todos.value = todos.value.map((todo) => {
+      if (
+        todo.projectId !== null &&
+        !projects.value.some((p) => p.id === todo.projectId)
+      ) {
+        return { ...todo, projectId: null }
+      }
+      return todo
+    })
+
+    // 确保 ID 的唯一性
+    const seenIds = new Set<number>()
+    todos.value = todos.value.filter((todo) => {
+      if (seenIds.has(todo.id)) {
+        return false
+      }
+      seenIds.add(todo.id)
+      return true
+    })
+
+    // 保存清理后的数据
+    saveTodos()
+  }
+
   const saveTodos = () => {
-    localStorage.setItem('todos', JSON.stringify(todos.value))
-    saveToHistory()
+    try {
+      localStorage.setItem('todos', JSON.stringify(todos.value))
+      saveToHistory()
+    } catch (error) {
+      console.error('Error saving todos:', error)
+      // 可以在这里添加用户通知机制
+    }
   }
 
   const saveHistory = () => {
