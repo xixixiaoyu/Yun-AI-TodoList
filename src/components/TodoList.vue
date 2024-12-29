@@ -43,6 +43,7 @@ const {
 	removeProject,
 	setCurrentProject,
 	saveTodos,
+	loadTodos,
 } = useTodos()
 
 // 创建待办事项列表的 ref，用于拖拽排序功能
@@ -71,19 +72,21 @@ const MAX_TODO_LENGTH = 50
 const filteredTodos = computed(() => {
 	let filtered = todos.value
 	if (currentProjectId.value !== null) {
-		filtered = filtered.filter(todo => todo.projectId === currentProjectId.value)
+		filtered = filtered.filter(
+			(todo) => todo.projectId === currentProjectId.value
+		)
 	}
 	if (filter.value === 'active') {
-		return filtered.filter(todo => todo && !todo.completed)
+		return filtered.filter((todo) => todo && !todo.completed)
 	} else if (filter.value === 'completed') {
-		return filtered.filter(todo => todo && todo.completed)
+		return filtered.filter((todo) => todo && todo.completed)
 	}
-	return filtered.filter(todo => todo !== null && todo !== undefined)
+	return filtered.filter((todo) => todo !== null && todo !== undefined)
 })
 
 // 计算历史待办事项
 const historicalTodos = computed(() => {
-	return history.value.flatMap(item => item.todos.map(todo => todo.text))
+	return history.value.flatMap((item) => item.todos.map((todo) => todo.text))
 })
 
 // 切换历史记录显示状态
@@ -93,7 +96,7 @@ const toggleHistory = () => {
 
 // 检查是否有未完成的待办事项
 const hasActiveTodos = computed(() => {
-	return todos.value.some(todo => todo && !todo.completed)
+	return todos.value.some((todo) => todo && !todo.completed)
 })
 
 // 清除已完成的待办事项
@@ -129,7 +132,9 @@ const generateSuggestedTodos = async () => {
 		showSuggestedTodos.value = true
 	} catch (error) {
 		console.error(t('generateSuggestionsError'), error)
-		showError(error instanceof Error ? error.message : t('generateSuggestionsError'))
+		showError(
+			error instanceof Error ? error.message : t('generateSuggestionsError')
+		)
 	} finally {
 		isGenerating.value = false
 	}
@@ -138,7 +143,7 @@ const generateSuggestedTodos = async () => {
 // 确认添加建议待办事项
 const confirmSuggestedTodos = () => {
 	const duplicates = addMultipleTodos(
-		suggestedTodos.value.map(todo => ({
+		suggestedTodos.value.map((todo) => ({
 			text: todo,
 			projectId: currentProjectId.value,
 		}))
@@ -174,7 +179,7 @@ const sortActiveTodosWithAI = async () => {
 	isSorting.value = true
 	try {
 		// 修改这里：确保过滤掉 null 和 undefined 的待办事项
-		const activeTodos = todos.value.filter(todo => todo && !todo.completed)
+		const activeTodos = todos.value.filter((todo) => todo && !todo.completed)
 		if (activeTodos.length === 0) {
 			showError(t('noActiveTodosError'))
 			return
@@ -193,10 +198,10 @@ const sortActiveTodosWithAI = async () => {
 		}
 
 		// 修改这里：创建一个新的排序后的数组
-		const sortedTodos = newOrder.map(index => activeTodos[index - 1])
+		const sortedTodos = newOrder.map((index) => activeTodos[index - 1])
 
 		// 更新 todos 数组，保持已完成的待办事项在原位置
-		todos.value = todos.value.map(todo => {
+		todos.value = todos.value.map((todo) => {
 			if (!todo || todo.completed) {
 				return todo
 			}
@@ -287,6 +292,13 @@ const checkPomodoroCompletion = () => {
 onMounted(() => {
 	document.addEventListener('visibilitychange', checkPomodoroCompletion)
 	document.addEventListener('keydown', onKeyDown)
+	try {
+		loadTodos() // 加载待办事项数据
+		console.log('Todos loaded:', todos.value) // 添加日志以便调试
+	} catch (error) {
+		console.error('Error loading todos:', error)
+		showError(error instanceof Error ? error.message : 'Failed to load todos')
+	}
 })
 
 // 在组件卸载时移除事件监听器
@@ -298,7 +310,9 @@ onUnmounted(() => {
 // 格式化日期函数
 const formatDate = (date: string | Date) => {
 	const currentLocale = locale.value === 'zh' ? zhCN : enUS
-	return format(new Date(date), 'yyyy-MM-dd HH:mm:ss', { locale: currentLocale })
+	return format(new Date(date), 'yyyy-MM-dd HH:mm:ss', {
+		locale: currentLocale,
+	})
 }
 
 // 添加新的 ref 来控制模态框的显示
@@ -314,7 +328,9 @@ const currentProjectName = computed(() => {
 	if (currentProjectId.value === null) {
 		return t('allProjects')
 	}
-	const currentProject = projects.value.find(p => p.id === currentProjectId.value)
+	const currentProject = projects.value.find(
+		(p) => p.id === currentProjectId.value
+	)
 	return currentProject ? currentProject.name : ''
 })
 
@@ -325,7 +341,7 @@ const displayedProjects = computed(() => {
 
 // 添加删除项目的函数
 const deleteProject = (projectId: number) => {
-	const project = projects.value.find(p => p.id === projectId)
+	const project = projects.value.find((p) => p.id === projectId)
 	if (!project) return
 
 	showConfirmDialog.value = true
@@ -623,8 +639,9 @@ const closeCharts = () => {
 	width: 100%;
 	max-width: 600px;
 	margin: 0 auto;
-	font-family: 'LXGW WenKai Screen', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
-		Oxygen-Sans, Ubuntu, Cantarell, 'Helvetica Neue', sans-serif;
+	font-family: 'LXGW WenKai Screen', -apple-system, BlinkMacSystemFont,
+		'Segoe UI', Roboto, Oxygen-Sans, Ubuntu, Cantarell, 'Helvetica Neue',
+		sans-serif;
 	padding: 2rem;
 	background-color: var(--card-bg-color);
 	border-radius: var(--border-radius);

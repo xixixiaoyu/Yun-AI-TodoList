@@ -53,7 +53,7 @@ export function useTodos() {
 	const saveToHistory = () => {
 		const today = new Date().toISOString().split('T')[0]
 		const todosClone = JSON.parse(JSON.stringify(todos.value))
-		const existingIndex = history.value.findIndex(item => item.date === today)
+		const existingIndex = history.value.findIndex((item) => item.date === today)
 
 		if (existingIndex !== -1) {
 			history.value[existingIndex].todos = todosClone
@@ -72,7 +72,7 @@ export function useTodos() {
 		}
 
 		const isDuplicate = todos.value.some(
-			todo =>
+			(todo) =>
 				todo &&
 				todo.text &&
 				todo.text.toLowerCase() === text.toLowerCase() &&
@@ -97,10 +97,12 @@ export function useTodos() {
 	}
 
 	// 新增：批量添加待办事项的函数
-	const addMultipleTodos = (newTodos: { text: string; projectId: number | null }[]) => {
+	const addMultipleTodos = (
+		newTodos: { text: string; projectId: number | null }[]
+	) => {
 		const duplicates: string[] = []
 		newTodos.forEach(({ text, projectId }) => {
-			if (todos.value.some(todo => todo.text === text)) {
+			if (todos.value.some((todo) => todo.text === text)) {
 				duplicates.push(text)
 			} else {
 				todos.value.push({
@@ -117,7 +119,7 @@ export function useTodos() {
 	}
 
 	const toggleTodo = (id: number) => {
-		const todo = todos.value.find(todo => todo && todo.id === id)
+		const todo = todos.value.find((todo) => todo && todo.id === id)
 		if (todo) {
 			todo.completed = !todo.completed
 			if (todo.completed) {
@@ -130,17 +132,17 @@ export function useTodos() {
 	}
 
 	const removeTodo = (id: number) => {
-		todos.value = todos.value.filter(todo => todo && todo.id !== id)
+		todos.value = todos.value.filter((todo) => todo && todo.id !== id)
 		saveTodos()
 	}
 
 	const clearActiveTodos = () => {
-		todos.value = todos.value.filter(todo => todo && todo.completed)
+		todos.value = todos.value.filter((todo) => todo && todo.completed)
 		saveTodos()
 	}
 
 	const restoreHistory = (date: string) => {
-		const historyItem = history.value.find(item => item.date === date)
+		const historyItem = history.value.find((item) => item.date === date)
 		if (historyItem) {
 			todos.value = JSON.parse(JSON.stringify(historyItem.todos))
 			saveTodos() // 确保保存恢复后的状态
@@ -148,7 +150,7 @@ export function useTodos() {
 	}
 
 	const deleteHistoryItem = (date: string) => {
-		history.value = history.value.filter(item => item.date !== date)
+		history.value = history.value.filter((item) => item.date !== date)
 	}
 
 	const deleteAllHistory = () => {
@@ -156,7 +158,7 @@ export function useTodos() {
 	}
 
 	const updateTodosOrder = (newOrder: number[]) => {
-		const newTodos = newOrder.map(index => todos.value[index])
+		const newTodos = newOrder.map((index) => todos.value[index])
 		todos.value = newTodos
 	}
 
@@ -168,7 +170,7 @@ export function useTodos() {
 	// 修改 getCompletedTodosByDate 函数
 	const getCompletedTodosByDate = () => {
 		const completedByDate: { [key: string]: number } = {}
-		todos.value.forEach(todo => {
+		todos.value.forEach((todo) => {
 			// 添加空值检查
 			if (todo && todo.completed && todo.completedAt) {
 				const date = new Date(todo.completedAt).toISOString().split('T')[0]
@@ -180,7 +182,7 @@ export function useTodos() {
 
 	// 添加一个新函数来更新 todo 的标签
 	const updateTodoTags = (id: number, tags: string[]) => {
-		const todo = todos.value.find(todo => todo && todo.id === id)
+		const todo = todos.value.find((todo) => todo && todo.id === id)
 		if (todo) {
 			todo.tags = tags
 			saveTodos()
@@ -197,8 +199,8 @@ export function useTodos() {
 	}
 
 	const removeProject = (id: number) => {
-		projects.value = projects.value.filter(project => project.id !== id)
-		todos.value = todos.value.filter(todo => todo.projectId !== id)
+		projects.value = projects.value.filter((project) => project.id !== id)
+		todos.value = todos.value.filter((todo) => todo.projectId !== id)
 		saveProjects()
 		saveTodos()
 	}
@@ -239,5 +241,6 @@ export function useTodos() {
 		removeProject,
 		setCurrentProject,
 		saveTodos,
+		loadTodos,
 	}
 }
