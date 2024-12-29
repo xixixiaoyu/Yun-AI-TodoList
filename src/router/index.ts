@@ -1,10 +1,10 @@
-import { createRouter, createWebHistory } from 'vue-router'
+import { createRouter, createWebHashHistory } from 'vue-router'
 import TodoList from '../components/TodoList.vue'
 import AIChatDialog from '../components/AIChatDialog.vue'
 import Settings from '../components/Settings.vue'
 
 const router = createRouter({
-  history: createWebHistory('/todo/'),
+  history: createWebHashHistory('/todo/'),
   routes: [
     {
       path: '/',
