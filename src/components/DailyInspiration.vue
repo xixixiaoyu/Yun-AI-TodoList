@@ -1,7 +1,10 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { getDailyInspiration, refreshInspiration } from '../services/inspirationService'
+import {
+	getDailyInspiration,
+	refreshInspiration,
+} from '../services/inspirationService'
 
 const { t, locale } = useI18n()
 const inspiration = ref('')
@@ -17,6 +20,20 @@ const handleRefresh = async () => {
 	isRefreshing.value = false
 }
 
+// 监听语言变化
+watch(
+	locale,
+	async () => {
+		isRefreshing.value = true
+		try {
+			inspiration.value = await refreshInspiration(locale.value)
+		} finally {
+			isRefreshing.value = false
+		}
+	},
+	{ immediate: false }
+)
+
 onMounted(fetchInspiration)
 </script>
 
@@ -24,7 +41,11 @@ onMounted(fetchInspiration)
 	<div v-if="inspiration" class="daily-inspiration">
 		<div class="inspiration-header">
 			<h3>{{ t('dailyInspiration') }}</h3>
-			<button @click="handleRefresh" :disabled="isRefreshing" class="refresh-btn">
+			<button
+				@click="handleRefresh"
+				:disabled="isRefreshing"
+				class="refresh-btn"
+			>
 				{{ isRefreshing ? t('refreshing') : t('refresh') }}
 			</button>
 		</div>
@@ -34,8 +55,9 @@ onMounted(fetchInspiration)
 
 <style scoped>
 .daily-inspiration {
-	font-family: 'LXGW WenKai Screen', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
-		Oxygen-Sans, Ubuntu, Cantarell, 'Helvetica Neue', sans-serif;
+	font-family: 'LXGW WenKai Screen', -apple-system, BlinkMacSystemFont,
+		'Segoe UI', Roboto, Oxygen-Sans, Ubuntu, Cantarell, 'Helvetica Neue',
+		sans-serif;
 	background-color: var(--card-bg-color);
 	border-radius: var(--border-radius);
 	box-shadow: var(--card-shadow);
