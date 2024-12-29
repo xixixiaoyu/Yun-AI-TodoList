@@ -13,7 +13,7 @@
 		"preview": "vite preview",
 		"test": "vitest",
 		"test:coverage": "vitest run --coverage",
-		"lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix --ignore-path .gitignore",
+		"lint": "eslint",
 		"format": "prettier --write",
 		"tsc": "vue-tsc -b",
 		"electron:serve": "vite --port 3000 & wait-on tcp:3000 && cross-env ELECTRON_START_URL=http://localhost:3000 electron .",
@@ -27,10 +27,10 @@
 	},
 	"lint-staged": {
 		"*.{js,jsx,ts,tsx,vue,css,less,scss,json,md}": [
-			"pnpm format"
+			"prettier --write"
 		],
 		"*.{js,jsx,ts,tsx,vue}": [
-			"pnpm lint"
+			"eslint --fix"
 		]
 	},
 	"dependencies": {
@@ -57,20 +57,26 @@
 		"@types/d3": "^7.4.3",
 		"@types/dompurify": "^3.0.5",
 		"@types/marked": "^6.0.0",
+		"@typescript-eslint/eslint-plugin": "^8.18.2",
+		"@typescript-eslint/parser": "^8.18.2",
 		"@vitejs/plugin-vue": "^5.1.2",
 		"@vue/cli-service": "^5.0.8",
 		"@vue/test-utils": "^2.4.5",
 		"cross-env": "^7.0.3",
 		"electron": "^32.1.2",
 		"electron-builder": "^25.1.8",
+		"eslint": "^8.56.0",
+		"eslint-plugin-vue": "^9.32.0",
 		"husky": "^9.1.7",
 		"jsdom": "^24.0.0",
 		"lint-staged": "^15.3.0",
+		"prettier": "^3.4.2",
 		"rimraf": "^5.0.5",
 		"typescript": "^5.5.3",
 		"vite": "^5.4.10",
 		"vitest": "^1.4.0",
 		"vue-cli-plugin-electron-builder": "^2.1.1",
+		"vue-eslint-parser": "^9.4.3",
 		"vue-tsc": "^2.0.29",
 		"wait-on": "^8.0.1"
 	},
