@@ -23,7 +23,7 @@ export default {
     },
   ],
   mac: {
-    icon: 'build/icon.icns',
+    icon: 'null',
     target: ['dmg', 'zip'],
     category: 'public.app-category.productivity',
     darkModeSupport: true,
@@ -54,7 +54,7 @@ export default {
   win: {
     sign: false,
     signAndEditExecutable: false,
-    icon: 'build/icon.ico',
+    icon: 'null',
     target: [
       {
         target: 'portable',
@@ -70,7 +70,7 @@ export default {
     shortcutName: 'Yun AI Todo',
   },
   linux: {
-    icon: 'build/icon.png',
+    icon: 'null',
     target: ['AppImage', 'deb', 'snap'],
     category: 'Utility',
     maintainer: 'Yun AI Todo Team',
