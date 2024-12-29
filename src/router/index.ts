@@ -4,7 +4,7 @@ import AIChatDialog from '../components/AIChatDialog.vue'
 import Settings from '../components/Settings.vue'
 
 const router = createRouter({
-  history: createWebHashHistory('/todo/'),
+  history: createWebHashHistory(),
   routes: [
     {
       path: '/',
