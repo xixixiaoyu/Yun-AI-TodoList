@@ -1,14 +1,14 @@
-interface SpeechRecognitionEvent extends Event {
+export interface SpeechRecognitionEvent extends Event {
 	readonly results: SpeechRecognitionResultList
 	readonly resultIndex: number
 }
 
-interface SpeechRecognitionErrorEvent extends Event {
+export interface SpeechRecognitionErrorEvent extends Event {
 	readonly error: string
 	readonly message?: string
 }
 
-interface SpeechRecognition extends EventTarget {
+export interface SpeechRecognition extends EventTarget {
 	continuous: boolean
 	interimResults: boolean
 	lang: string

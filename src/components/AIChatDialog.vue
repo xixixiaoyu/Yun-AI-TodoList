@@ -825,9 +825,7 @@ watch(chatHistory, scrollToBottom, { deep: true })
                     rx="2"
                     ry="2"
                   />
-                  <path
-                    d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"
-                  />
+                  <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
                 </svg>
                 复制
               </button>
