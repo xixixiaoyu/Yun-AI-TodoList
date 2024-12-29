@@ -52,7 +52,9 @@ const updateHeatmap = () => {
 	const weeks = d3.timeWeeks(startDate, endDate)
 	const height = 7 * (cellSize.value + cellGap.value) + cellGap.value
 
-	svg.attr('width', weeks.length * weekWidth.value + cellGap.value).attr('height', height)
+	svg
+		.attr('width', weeks.length * weekWidth.value + cellGap.value)
+		.attr('height', height)
 
 	const tooltip = d3
 		.select('body')
@@ -76,10 +78,14 @@ const updateHeatmap = () => {
 		.attr('height', cellSize.value)
 		.attr(
 			'x',
-			d => d3.timeWeek.count(d3.timeYear(d), d) * weekWidth.value + cellGap.value
+			(d) =>
+				d3.timeWeek.count(d3.timeYear(d), d) * weekWidth.value + cellGap.value
 		)
-		.attr('y', d => d.getDay() * (cellSize.value + cellGap.value) + cellGap.value)
-		.attr('fill', d => {
+		.attr(
+			'y',
+			(d) => d.getDay() * (cellSize.value + cellGap.value) + cellGap.value
+		)
+		.attr('fill', (d) => {
 			const dateString = d.toISOString().split('T')[0]
 			return colorScale(completedTodos[dateString] || 0)
 		})
@@ -88,7 +94,11 @@ const updateHeatmap = () => {
 			const count = completedTodos[dateString] || 0
 			tooltip.transition().duration(200).style('opacity', 0.9)
 			tooltip
-				.html(`${d.toLocaleDateString(t('locale'))}: ${count} ${t('completedTodos')}`)
+				.html(
+					`${d.toLocaleDateString(t('locale'))}: ${count} ${t(
+						'completedTodos'
+					)}`
+				)
 				.style('left', event.pageX + 10 + 'px')
 				.style('top', event.pageY - 28 + 'px')
 		})
@@ -108,7 +118,7 @@ const updateHeatmap = () => {
 		.style('text-anchor', 'end')
 		.style('font-size', '9px')
 		.style('fill', '#767676')
-		.text(d => d)
+		.text((d) => d)
 
 	svg
 		.selectAll('.month-label')
@@ -116,12 +126,15 @@ const updateHeatmap = () => {
 		.enter()
 		.append('text')
 		.attr('class', 'month-label')
-		.attr('x', d => d3.timeWeek.count(d3.timeYear(startDate), d) * weekWidth.value)
+		.attr(
+			'x',
+			(d) => d3.timeWeek.count(d3.timeYear(startDate), d) * weekWidth.value
+		)
 		.attr('y', -5)
 		.style('text-anchor', 'start')
 		.style('font-size', '10px')
 		.style('fill', '#767676')
-		.text(d => d.toLocaleDateString(t('locale'), { month: 'short' }))
+		.text((d) => d.toLocaleDateString(t('locale'), { month: 'short' }))
 }
 
 watch([cellSize, cellGap], updateHeatmap)

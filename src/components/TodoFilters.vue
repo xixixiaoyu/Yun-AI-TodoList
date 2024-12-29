@@ -16,10 +16,16 @@ const setFilter = (newFilter: string) => {
 
 <template>
 	<div class="filter-buttons">
-		<button @click="setFilter('active')" :class="{ active: filter === 'active' }">
+		<button
+			@click="setFilter('active')"
+			:class="{ active: filter === 'active' }"
+		>
 			{{ t('active') }}
 		</button>
-		<button @click="setFilter('completed')" :class="{ active: filter === 'completed' }">
+		<button
+			@click="setFilter('completed')"
+			:class="{ active: filter === 'completed' }"
+		>
 			{{ t('completed') }}
 		</button>
 	</div>

@@ -61,7 +61,8 @@ const playNext = () => {
 
 const playPrevious = () => {
 	currentTrackIndex.value =
-		(currentTrackIndex.value - 1 + playlist.value.length) % playlist.value.length
+		(currentTrackIndex.value - 1 + playlist.value.length) %
+		playlist.value.length
 	resetAudioState()
 	nextTick(() => {
 		if (isPlaying.value) {
@@ -145,7 +146,7 @@ onMounted(() => {
 		audioElement.value.addEventListener('canplay', () => {
 			isLoading.value = false
 		})
-		audioElement.value.addEventListener('error', e => {
+		audioElement.value.addEventListener('error', (e) => {
 			console.error('Audio error:', e)
 			error.value = t('audioError')
 			isLoading.value = false
@@ -156,7 +157,11 @@ onMounted(() => {
 
 <template>
 	<div class="audio-player">
-		<audio ref="audioElement" :src="currentTrack.src" preload="metadata"></audio>
+		<audio
+			ref="audioElement"
+			:src="currentTrack.src"
+			preload="metadata"
+		></audio>
 		<div class="track-info">
 			<transition name="fade" mode="out-in">
 				<div :key="currentTrack.title" class="track-details">
@@ -165,7 +170,9 @@ onMounted(() => {
 			</transition>
 		</div>
 		<div class="controls">
-			<button @click="playPrevious" :disabled="isLoading">{{ t('previous') }}</button>
+			<button @click="playPrevious" :disabled="isLoading">
+				{{ t('previous') }}
+			</button>
 			<button @click="togglePlay" :disabled="isLoading">
 				{{ isPlaying ? t('pause') : t('play') }}
 			</button>
@@ -202,7 +209,9 @@ onMounted(() => {
 					@input="updateProgress"
 					:disabled="isLoading || duration === 0"
 				/>
-				<div class="time">{{ formatTime(currentTime) }} / {{ formatTime(duration) }}</div>
+				<div class="time">
+					{{ formatTime(currentTime) }} / {{ formatTime(duration) }}
+				</div>
 			</div>
 		</div>
 		<div class="volume-control">

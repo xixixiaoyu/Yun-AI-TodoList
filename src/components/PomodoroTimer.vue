@@ -24,7 +24,9 @@ const { addCompletedPomodoro } = usePomodoroStats()
 const formattedTime = computed(() => {
 	const minutes = Math.floor(timeLeft.value / 60)
 	const seconds = timeLeft.value % 60
-	return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`
+	return `${minutes.toString().padStart(2, '0')}:${seconds
+		.toString()
+		.padStart(2, '0')}`
 })
 
 const timerWorker = new TimerWorker()
@@ -94,7 +96,7 @@ const startBreak = () => {
 
 const notifyUser = (isWorkTime: boolean) => {
 	if ('Notification' in window) {
-		Notification.requestPermission().then(permission => {
+		Notification.requestPermission().then((permission) => {
 			if (permission === 'granted') {
 				new Notification(t('pomodoroComplete'), {
 					body: isWorkTime ? t('workTimeStarted') : t('breakTimeStarted'),

@@ -18,7 +18,7 @@ const isVisible = ref(props.show)
 
 watch(
 	() => props.show,
-	newValue => {
+	(newValue) => {
 		isVisible.value = newValue
 	}
 )
@@ -42,7 +42,9 @@ const cancel = () => {
 				<p>{{ message }}</p>
 				<div class="dialog-buttons">
 					<button @click="cancel" class="cancel-btn">{{ cancelText }}</button>
-					<button @click="confirm" class="confirm-btn">{{ confirmText }}</button>
+					<button @click="confirm" class="confirm-btn">
+						{{ confirmText }}
+					</button>
 				</div>
 			</div>
 		</div>

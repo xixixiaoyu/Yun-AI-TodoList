@@ -23,7 +23,7 @@ const isCompleted = ref(props.todo.completed)
 
 watch(
 	() => props.todo.completed,
-	newValue => {
+	(newValue) => {
 		isCompleted.value = newValue
 	}
 )
@@ -56,13 +56,17 @@ const formattedTitle = computed(() => {
 })
 
 const projectName = computed(() => {
-	const project = projects.value.find(p => p.id === props.todo.projectId)
+	const project = projects.value.find((p) => p.id === props.todo.projectId)
 	return project ? project.name : ''
 })
 </script>
 
 <template>
-	<div class="todo-item" :class="{ completed: isCompleted }" @click="toggleTodo">
+	<div
+		class="todo-item"
+		:class="{ completed: isCompleted }"
+		@click="toggleTodo"
+	>
 		<div class="todo-content">
 			<span class="checkbox-wrapper">
 				<transition name="fade">
@@ -76,7 +80,9 @@ const projectName = computed(() => {
 				<span v-if="projectName" class="project-tag">{{ projectName }}</span>
 			</div>
 		</div>
-		<button @click.stop="removeTodo" class="delete-btn">{{ t('delete') }}</button>
+		<button @click.stop="removeTodo" class="delete-btn">
+			{{ t('delete') }}
+		</button>
 	</div>
 </template>
 

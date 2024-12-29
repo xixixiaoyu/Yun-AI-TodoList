@@ -53,11 +53,14 @@ const updateChart = () => {
 				tooltip: {
 					callbacks: {
 						title(context) {
-							return new Date(context[0].label).toLocaleDateString(t('locale'), {
-								year: 'numeric',
-								month: 'long',
-								day: 'numeric',
-							})
+							return new Date(context[0].label).toLocaleDateString(
+								t('locale'),
+								{
+									year: 'numeric',
+									month: 'long',
+									day: 'numeric',
+								}
+							)
 						},
 					},
 				},

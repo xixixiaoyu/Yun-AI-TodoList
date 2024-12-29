@@ -29,7 +29,7 @@ export function usePomodoroStats() {
 
 	const getPomodoroCountByDay = computed(() => {
 		const countByDay: { [key: string]: number } = {}
-		stats.value.completedPomodoros.forEach(timestamp => {
+		stats.value.completedPomodoros.forEach((timestamp) => {
 			const date = new Date(timestamp).toLocaleDateString()
 			countByDay[date] = (countByDay[date] || 0) + 1
 		})

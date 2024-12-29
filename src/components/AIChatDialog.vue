@@ -87,7 +87,11 @@ const userHasScrolled = ref(false)
 
 // 新增: 对话历史列表
 const conversationHistory = ref<
-	{ id: number; title: string; messages: { role: 'user' | 'ai'; content: string }[] }[]
+	{
+		id: number
+		title: string
+		messages: { role: 'user' | 'ai'; content: string }[]
+	}[]
 >([])
 const currentConversationId = ref<number | null>(null)
 
@@ -104,13 +108,19 @@ const loadConversationHistory = () => {
 
 // 新增: 保存对话历史列表到 localStorage
 const saveConversationHistory = () => {
-	localStorage.setItem('aiConversationHistory', JSON.stringify(conversationHistory.value))
+	localStorage.setItem(
+		'aiConversationHistory',
+		JSON.stringify(conversationHistory.value)
+	)
 }
 
 // 新增: 保存当前会话 ID 到 localStorage
 const saveCurrentConversationId = () => {
 	if (currentConversationId.value) {
-		localStorage.setItem('currentConversationId', currentConversationId.value.toString())
+		localStorage.setItem(
+			'currentConversationId',
+			currentConversationId.value.toString()
+		)
 	}
 }
 
@@ -132,7 +142,7 @@ const createNewConversation = () => {
 // 修改: 切换对话的函数，添加可选参数控制是否关闭抽屉
 const switchConversation = (id: number, closeDrawer: boolean = true) => {
 	currentConversationId.value = id
-	const conversation = conversationHistory.value.find(c => c.id === id)
+	const conversation = conversationHistory.value.find((c) => c.id === id)
 	if (conversation) {
 		chatHistory.value = [...conversation.messages]
 	}
@@ -144,7 +154,9 @@ const switchConversation = (id: number, closeDrawer: boolean = true) => {
 
 // 修改: 删除对话时保持抽屉打开
 const deleteConversation = (id: number) => {
-	conversationHistory.value = conversationHistory.value.filter(c => c.id !== id)
+	conversationHistory.value = conversationHistory.value.filter(
+		(c) => c.id !== id
+	)
 	if (currentConversationId.value === id) {
 		if (conversationHistory.value.length > 0) {
 			switchConversation(conversationHistory.value[0].id, false) // 不关闭抽屉
@@ -304,19 +316,19 @@ const sendMessage = async () => {
 
 	try {
 		const messages: Message[] = chatHistory.value
-			.filter(msg => msg.content.trim() !== '')
-			.map(msg => ({
+			.filter((msg) => msg.content.trim() !== '')
+			.map((msg) => ({
 				role: msg.role === 'user' ? 'user' : 'assistant',
 				content: msg.content,
 			}))
 
-		await getAIStreamResponse(messages, chunk => {
+		await getAIStreamResponse(messages, (chunk) => {
 			if (chunk === '[DONE]' || chunk === '[ABORTED]') {
 				isGenerating.value = false
 				// 更新当前对话的消息
 				if (currentConversationId.value !== null) {
 					const currentConversation = conversationHistory.value.find(
-						c => c.id === currentConversationId.value
+						(c) => c.id === currentConversationId.value
 					)
 					if (currentConversation) {
 						currentConversation.messages = chatHistory.value
@@ -363,10 +375,12 @@ const sanitizeContent = (content: string): string => {
 }
 
 const sanitizedMessages = computed(() =>
-	chatHistory.value.map(message => ({
+	chatHistory.value.map((message) => ({
 		...message,
 		sanitizedContent:
-			message.role === 'ai' ? sanitizeContent(message.content) : message.content,
+			message.role === 'ai'
+				? sanitizeContent(message.content)
+				: message.content,
 	}))
 )
 
@@ -408,12 +422,15 @@ const recognition = ref<any | null>(null)
 const errorCount = ref(0)
 const maxErrorRetries = 2
 const isRecognitionSupported = ref(true)
-const recognitionStatus = ref<'idle' | 'listening' | 'processing' | 'error'>('idle')
+const recognitionStatus = ref<'idle' | 'listening' | 'processing' | 'error'>(
+	'idle'
+)
 const lastError = ref('')
 
 // 检查浏览器是否支持语音识别
 const checkSpeechRecognitionSupport = () => {
-	const SpeechRecognitionAPI = window.SpeechRecognition || window.webkitSpeechRecognition
+	const SpeechRecognitionAPI =
+		window.SpeechRecognition || window.webkitSpeechRecognition
 	if (!SpeechRecognitionAPI) {
 		isRecognitionSupported.value = false
 		console.error(t('browserSpeechNotSupported'))
@@ -597,7 +614,11 @@ const initSpeechRecognition = async () => {
 
 // 修改重启逻辑，添加延迟和状态检查
 const restartRecognition = () => {
-	if (isListening.value && recognition.value && recognitionStatus.value !== 'error') {
+	if (
+		isListening.value &&
+		recognition.value &&
+		recognitionStatus.value !== 'error'
+	) {
 		try {
 			setTimeout(() => {
 				if (isListening.value) {
@@ -670,7 +691,9 @@ onMounted(() => {
 	} else if (savedConversationId) {
 		// 尝试恢复上次激活的会话
 		const conversationId = parseInt(savedConversationId)
-		const exists = conversationHistory.value.some(c => c.id === conversationId)
+		const exists = conversationHistory.value.some(
+			(c) => c.id === conversationId
+		)
 		if (exists) {
 			switchConversation(conversationId)
 		} else {
@@ -775,7 +798,11 @@ watch(chatHistory, scrollToBottom, { deep: true })
 					</div>
 				</div>
 			</div>
-			<div v-if="isDrawerOpen" class="drawer-overlay" @click="isDrawerOpen = false"></div>
+			<div
+				v-if="isDrawerOpen"
+				class="drawer-overlay"
+				@click="isDrawerOpen = false"
+			></div>
 			<div ref="chatHistoryRef" class="chat-history">
 				<div
 					v-for="(message, index) in sanitizedMessages"
@@ -898,7 +925,9 @@ watch(chatHistory, scrollToBottom, { deep: true })
 							'is-processing': recognitionStatus === 'processing',
 						}"
 						:disabled="!isRecognitionSupported"
-						:title="lastError || t(isListening ? 'stopListening' : 'startListening')"
+						:title="
+							lastError || t(isListening ? 'stopListening' : 'startListening')
+						"
 					>
 						<svg
 							xmlns="http://www.w3.org/2000/svg"
@@ -911,7 +940,9 @@ watch(chatHistory, scrollToBottom, { deep: true })
 								d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5.91-3c-.49 0-.9.36-.98.85C16.52 14.2 14.47 16 12 16s-4.52-1.8-4.93-4.15c-.08-.49-.49-.85-.98-.85-.61 0-1.09.54-1 1.14.49 3 2.89 5.35 5.91 5.78V20c0 .55.45 1 1 1s1-.45 1-1v-2.08c3.02-.43 5.42-2.78 5.91-5.78.1-.6-.39-1.14-1-1.14z"
 							/>
 						</svg>
-						<span>{{ isListening ? t('stopListening') : t('startListening') }}</span>
+						<span>{{
+							isListening ? t('stopListening') : t('startListening')
+						}}</span>
 						<span v-if="lastError" class="error-message">{{ lastError }}</span>
 					</button>
 				</div>

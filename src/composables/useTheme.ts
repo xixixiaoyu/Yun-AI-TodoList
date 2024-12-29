@@ -6,7 +6,9 @@ export function useTheme() {
 
 	// 获取系统主题
 	function getSystemTheme() {
-		return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+		return window.matchMedia('(prefers-color-scheme: dark)').matches
+			? 'dark'
+			: 'light'
 	}
 
 	// 切换主题
@@ -22,7 +24,8 @@ export function useTheme() {
 
 	// 更新主题
 	const updateTheme = () => {
-		const currentTheme = theme.value === 'auto' ? systemTheme.value : theme.value
+		const currentTheme =
+			theme.value === 'auto' ? systemTheme.value : theme.value
 		document.documentElement.setAttribute('data-theme', currentTheme)
 	}
 

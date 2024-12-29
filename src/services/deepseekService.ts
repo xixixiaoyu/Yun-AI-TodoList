@@ -112,7 +112,8 @@ export async function getAIResponse(
 	temperature: number = 0.5
 ): Promise<string> {
 	try {
-		const languageInstruction = language === 'zh' ? '请用中文回复。' : '请用英文回复。'
+		const languageInstruction =
+			language === 'zh' ? '请用中文回复。' : '请用英文回复。'
 
 		const response = await fetch(API_URL, {
 			method: 'POST',

@@ -29,7 +29,9 @@ const addProject = () => {
 			/>
 			<div class="modal-actions">
 				<button @click="addProject" class="add-btn">{{ t('add') }}</button>
-				<button @click="emit('close')" class="cancel-btn">{{ t('cancel') }}</button>
+				<button @click="emit('close')" class="cancel-btn">
+					{{ t('cancel') }}
+				</button>
 			</div>
 		</div>
 	</div>
