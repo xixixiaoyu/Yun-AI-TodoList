@@ -118,31 +118,30 @@ defineExpose({
 
 .message-container {
   max-width: 85%;
-  animation: fadeIn 0.3s ease-out;
   position: relative;
+  opacity: 1;
+  transform: translateY(0);
+  transition:
+    opacity 0.3s ease,
+    transform 0.3s ease;
+}
+
+.message-container.fade-enter-from {
+  opacity: 0;
+  transform: translateY(10px);
 }
 
 .message-content {
-  padding: 12px 16px;
+  padding: 16px 20px;
   border-radius: 16px;
   line-height: 1.6;
   font-size: 15px;
   direction: ltr;
   unicode-bidi: isolate;
   text-align: left;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
   position: relative;
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 }
 
 .user {
@@ -154,6 +153,12 @@ defineExpose({
   background-color: var(--button-bg-color);
   color: var(--card-bg-color);
   border-bottom-right-radius: 4px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.user .message-content:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+  transform: translateY(-1px);
 }
 
 .ai {
@@ -165,6 +170,14 @@ defineExpose({
   background-color: var(--input-bg-color);
   color: var(--text-color);
   border-bottom-left-radius: 4px;
+  border-left: 4px solid var(--button-bg-color);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  transition: all 0.2s ease;
+}
+
+.ai .message-content:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+  transform: translateY(-1px);
 }
 
 .copy-button {
@@ -211,6 +224,7 @@ defineExpose({
 /* Markdown content styles */
 .ai-message {
   position: relative;
+  padding-right: 24px; /* 为复制按钮留出空间 */
 }
 
 .ai :deep(h1),
@@ -227,7 +241,12 @@ defineExpose({
 
 .ai :deep(p) {
   margin-bottom: 1em;
-  line-height: 1.6;
+  line-height: 1.7;
+  letter-spacing: 0.2px;
+}
+
+.ai :deep(p:last-child) {
+  margin-bottom: 0;
 }
 
 .ai :deep(ul),
@@ -241,11 +260,12 @@ defineExpose({
 }
 
 .ai :deep(code) {
-  background-color: rgba(0, 0, 0, 0.05);
+  background-color: rgba(0, 0, 0, 0.06);
   padding: 0.2em 0.4em;
   border-radius: 4px;
   font-family: 'Fira Code', monospace;
   font-size: 0.9em;
+  border: 1px solid rgba(0, 0, 0, 0.05);
 }
 
 .ai :deep(pre) {
@@ -255,6 +275,8 @@ defineExpose({
   overflow: auto;
   margin: 1em 0;
   position: relative;
+  box-shadow: inset 0 1px 4px rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .ai :deep(pre code) {

@@ -1,4 +1,4 @@
-import { ref } from 'vue'
+import { ref, nextTick } from 'vue'
 import { useI18n } from 'vue-i18n'
 import {
   getAIStreamResponse,
@@ -124,21 +124,28 @@ export function useChat() {
 
       await getAIStreamResponse(messages, (chunk: string) => {
         if (chunk === '[DONE]') {
-          isGenerating.value = false
           // 保存完整的 AI 响应到历史记录
           if (currentAIResponse.value) {
             const aiMsg: ChatMessage = {
               role: 'assistant',
               content: currentAIResponse.value,
             }
+            // 先添加到历史记录
             chatHistory.value.push(aiMsg)
             saveConversationHistory()
-            // 清空当前响应
-            currentAIResponse.value = ''
+            // 等待下一个渲染周期再清空当前响应
+            nextTick(() => {
+              currentAIResponse.value = ''
+              isGenerating.value = false
+            })
+          } else {
+            isGenerating.value = false
           }
         } else if (chunk === '[ABORTED]') {
-          isGenerating.value = false
-          currentAIResponse.value = ''
+          nextTick(() => {
+            currentAIResponse.value = ''
+            isGenerating.value = false
+          })
         } else {
           currentAIResponse.value += chunk
         }
