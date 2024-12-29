@@ -10,6 +10,7 @@ interface TimeResponse {
 
 let lastSyncTime: number | null = null
 let timeOffset: number = 0
+let syncInProgress: Promise<number> | null = null
 
 const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
 
@@ -47,42 +48,62 @@ async function fetchServerTime(attempt: number = 0): Promise<TimeResponse> {
 }
 
 export async function syncWithServerTime(): Promise<number> {
-  try {
-    // 如果上次同步时间在阈值内，直接返回已知的时间偏移
-    if (lastSyncTime && Date.now() - lastSyncTime < SYNC_THRESHOLD) {
-      return timeOffset
-    }
+  // 如果已经有同步在进行中，返回该Promise
+  if (syncInProgress) {
+    return syncInProgress
+  }
 
-    const beforeRequest = Date.now()
-    const serverTime = await fetchServerTime()
-    const afterRequest = Date.now()
-    const requestTime = afterRequest - beforeRequest
-
-    // 如果请求时间太长，可能不够准确，重试
-    if (requestTime > SYNC_THRESHOLD) {
-      return syncWithServerTime()
-    }
-
-    const serverTimestamp = serverTime.unixtime * 1000
-    const localTimestamp = (beforeRequest + afterRequest) / 2
-    timeOffset = serverTimestamp - localTimestamp
-    lastSyncTime = Date.now()
-
+  // 如果上次同步时间在阈值内，直接返回已知的时间偏移
+  if (lastSyncTime && Date.now() - lastSyncTime < SYNC_THRESHOLD) {
     return timeOffset
+  }
+
+  try {
+    // 创建新的同步Promise
+    syncInProgress = (async () => {
+      const beforeRequest = Date.now()
+      const serverTime = await fetchServerTime()
+      const afterRequest = Date.now()
+      const requestTime = afterRequest - beforeRequest
+
+      // 如果请求时间太长，可能不够准确，重试
+      if (requestTime > SYNC_THRESHOLD) {
+        return syncWithServerTime()
+      }
+
+      const serverTimestamp = serverTime.unixtime * 1000
+      const localTimestamp = (beforeRequest + afterRequest) / 2
+      timeOffset = serverTimestamp - localTimestamp
+      lastSyncTime = Date.now()
+
+      return timeOffset
+    })()
+
+    return await syncInProgress
   } catch (error) {
     console.error('Error syncing time:', error)
-    // 如果同步失败，返回最后一次已知的偏移，如果没有则返回0
     return timeOffset || 0
+  } finally {
+    syncInProgress = null
   }
 }
+
+let periodicSyncInterval: ReturnType<typeof setInterval> | null = null
 
 export function getAdjustedTime(): number {
   return Date.now() + (timeOffset || 0)
 }
 
-// 定期同步时间
 export function startPeriodicSync(interval: number = 60 * 60 * 1000): () => void {
-  const syncInterval = setInterval(async () => {
+  // 确保只有一个定期同步在运行
+  stopPeriodicSync()
+
+  // 立即进行一次同步
+  syncWithServerTime().catch((error) => {
+    console.error('Initial time sync failed:', error)
+  })
+
+  periodicSyncInterval = setInterval(async () => {
     try {
       await syncWithServerTime()
     } catch (error) {
@@ -90,7 +111,14 @@ export function startPeriodicSync(interval: number = 60 * 60 * 1000): () => void
     }
   }, interval)
 
-  return () => clearInterval(syncInterval)
+  return stopPeriodicSync
+}
+
+export function stopPeriodicSync(): void {
+  if (periodicSyncInterval) {
+    clearInterval(periodicSyncInterval)
+    periodicSyncInterval = null
+  }
 }
 
 // 导出用于测试的内部状态
@@ -100,5 +128,6 @@ export const __timeServiceInternals = {
   resetState: () => {
     timeOffset = 0
     lastSyncTime = null
+    stopPeriodicSync()
   },
 }

@@ -148,37 +148,50 @@ const updateVolume = () => {
   }
 }
 
+// 添加事件处理函数的引用
+const handleLoadedMetadata = () => {
+  duration.value = audioElement.value?.duration || 0
+  isLoading.value = false
+}
+
+const handleEnded = () => {
+  isPlaying.value = false
+  if (repeat.value) {
+    togglePlay()
+  } else {
+    playNext()
+  }
+}
+
+const handleError = (e: Event) => {
+  const error = e.target as HTMLAudioElement
+  console.error('Audio error:', error.error)
+  showError(t('audioLoadError'))
+  isLoading.value = false
+  isPlaying.value = false
+}
+
 onMounted(() => {
   if (audioElement.value) {
     audioElement.value.addEventListener('timeupdate', updateProgress)
-    audioElement.value.addEventListener('loadedmetadata', () => {
-      duration.value = audioElement.value?.duration || 0
-      isLoading.value = false
-    })
-    audioElement.value.addEventListener('ended', () => {
-      isPlaying.value = false
-      if (repeat.value) {
-        togglePlay()
-      } else {
-        playNext()
-      }
-    })
-    audioElement.value.addEventListener('error', (e) => {
-      const error = e.target as HTMLAudioElement
-      console.error('Audio error:', error.error)
-      showError(t('audioLoadError'))
-      isLoading.value = false
-      isPlaying.value = false
-    })
+    audioElement.value.addEventListener('loadedmetadata', handleLoadedMetadata)
+    audioElement.value.addEventListener('ended', handleEnded)
+    audioElement.value.addEventListener('error', handleError)
   }
 })
 
 onUnmounted(() => {
   if (audioElement.value) {
+    // 停止播放并释放资源
+    audioElement.value.pause()
+    audioElement.value.src = ''
+    audioElement.value.load()
+
+    // 正确移除事件监听器
     audioElement.value.removeEventListener('timeupdate', updateProgress)
-    audioElement.value.removeEventListener('loadedmetadata', () => {})
-    audioElement.value.removeEventListener('ended', () => {})
-    audioElement.value.removeEventListener('error', () => {})
+    audioElement.value.removeEventListener('loadedmetadata', handleLoadedMetadata)
+    audioElement.value.removeEventListener('ended', handleEnded)
+    audioElement.value.removeEventListener('error', handleError)
   }
 })
 </script>
