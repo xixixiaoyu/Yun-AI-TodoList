@@ -22,7 +22,16 @@
 		"electron:build:linux": "pnpm run clean && vite build && electron-builder --config electron-builder.config.js --linux",
 		"postinstall": "electron-builder install-app-deps",
 		"postuninstall": "electron-builder install-app-deps",
-		"clean": "rimraf dist release"
+		"clean": "rimraf dist release",
+		"prepare": "husky"
+	},
+	"lint-staged": {
+		"*.{js,jsx,ts,tsx,vue,css,less,scss,json,md}": [
+			"prettier --write"
+		],
+		"*.{js,jsx,ts,tsx,vue}": [
+			"eslint --fix"
+		]
 	},
 	"dependencies": {
 		"@vueuse/core": "^11.1.0",
@@ -54,7 +63,9 @@
 		"cross-env": "^7.0.3",
 		"electron": "^32.1.2",
 		"electron-builder": "^25.1.8",
+		"husky": "^9.1.7",
 		"jsdom": "^24.0.0",
+		"lint-staged": "^15.3.0",
 		"rimraf": "^5.0.5",
 		"typescript": "^5.5.3",
 		"vite": "^5.4.10",
