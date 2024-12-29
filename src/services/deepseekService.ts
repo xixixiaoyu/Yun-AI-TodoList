@@ -25,6 +25,12 @@ const getHeaders = () => {
   }
 }
 
+// 获取系统提示词
+const getSystemPrompt = (): string => {
+  const savedSystemPrompt = localStorage.getItem('systemPrompt')
+  return savedSystemPrompt || promptsConfig.my.content
+}
+
 export async function getAIStreamResponse(
   messages: Message[],
   onChunk: (chunk: string) => void
@@ -45,7 +51,7 @@ export async function getAIStreamResponse(
           // 系统提示
           {
             role: 'system',
-            content: promptsConfig.my.content,
+            content: getSystemPrompt(),
           },
           ...messages, // 包含历史消息
         ],

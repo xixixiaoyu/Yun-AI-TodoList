@@ -121,5 +121,11 @@
   "apiKeyReminder": "To use the AI assistant, please configure your DeepSeek API Key in settings",
   "goToSettings": "Go to Settings",
   "later": "Maybe Later",
-  "dontShowAgain": "Don't Show Again"
+  "dontShowAgain": "Don't Show Again",
+  "systemPrompt": "AI Assistant System Prompt",
+  "enterSystemPrompt": "Enter system prompt to define AI assistant's behavior and style...",
+  "apiKeyConfigured": "API Key Configured",
+  "apiKeyNotConfigured": "API Key Not Configured",
+  "configure": "Configure",
+  "reconfigure": "Reconfigure"
 }
