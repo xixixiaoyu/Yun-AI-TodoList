@@ -674,12 +674,32 @@ h1 {
 }
 
 .todo-grid {
-	overflow: auto;
+	overflow-y: auto;
 	display: flex;
 	height: 48vh;
 	flex-direction: column;
 	gap: 1rem;
 	margin-bottom: 2rem;
+	padding-top: 0.5rem;
+	padding-right: 0.5rem;
+}
+
+.todo-grid::-webkit-scrollbar {
+	width: 8px;
+}
+
+.todo-grid::-webkit-scrollbar-track {
+	background: var(--scrollbar-track-color, rgba(0, 0, 0, 0.1));
+	border-radius: 4px;
+}
+
+.todo-grid::-webkit-scrollbar-thumb {
+	background: var(--scrollbar-thumb-color, rgba(0, 0, 0, 0.2));
+	border-radius: 4px;
+}
+
+.todo-grid::-webkit-scrollbar-thumb:hover {
+	background: var(--scrollbar-thumb-hover-color, rgba(0, 0, 0, 0.3));
 }
 
 .icon-button {
