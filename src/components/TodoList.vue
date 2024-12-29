@@ -631,7 +631,7 @@ const closeCharts = () => {
 	width: 100%;
 	max-width: 1200px;
 	margin: 0 auto;
-	padding: 0 1rem;
+	padding-top: 1rem;
 	box-sizing: border-box;
 }
 
@@ -676,7 +676,7 @@ h1 {
 .todo-grid {
 	overflow: auto;
 	display: flex;
-	height: 460px;
+	height: 48vh;
 	flex-direction: column;
 	gap: 1rem;
 	margin-bottom: 2rem;

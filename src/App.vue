@@ -187,7 +187,7 @@ body {
 	-webkit-font-smoothing: var(--font-smoothing);
 	-moz-osx-font-smoothing: var(--font-smoothing);
 	font-weight: var(--font-weight);
-	padding-top: 1rem;
+	padding-top: 2rem;
 }
 
 .app {
@@ -201,7 +201,7 @@ body {
 
 .nav-bar {
 	position: absolute;
-	top: 1rem;
+	top: 3rem;
 	right: 1rem;
 	display: flex;
 	gap: 0.5rem;
