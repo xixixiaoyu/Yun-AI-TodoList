@@ -23,7 +23,21 @@
     "@typescript-eslint/no-unused-vars": ["error", { "argsIgnorePattern": "^_" }],
     "@typescript-eslint/no-explicit-any": "off",
     "vue/no-v-html": "off",
-    "vue/multi-word-component-names": "off"
+    "vue/multi-word-component-names": "off",
+    "indent": "off",
+    "linebreak-style": "off",
+    "quotes": "off",
+    "semi": "off",
+    "comma-dangle": "off",
+    "max-len": "off",
+    "no-trailing-spaces": "off",
+    "space-before-function-paren": "off",
+    "space-before-blocks": "off",
+    "object-curly-spacing": "off",
+    "array-bracket-spacing": "off",
+    "comma-spacing": "off",
+    "key-spacing": "off",
+    "keyword-spacing": "off"
   },
   "overrides": [
     {
