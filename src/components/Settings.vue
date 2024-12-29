@@ -472,38 +472,59 @@ h2 {
 .settings-section {
   background-color: var(--card-bg-color);
   border-radius: 16px;
-  padding: 2.5rem;
+  padding: 1.25rem 1.5rem;
   box-shadow: var(--card-shadow);
   width: 100%;
+  min-width: 200px;
   max-width: 1200px;
   margin: 0 auto;
   display: flex;
   flex-direction: column;
   align-items: center;
+  border: 2px solid transparent;
+  transition: all 0.3s ease;
 }
 
-.settings-section h3 {
-  font-size: 1.5rem;
-  margin-bottom: 2rem;
+.settings-section:hover:not(.fullscreen) {
+  transform: translateY(-2px);
+  border-color: var(--button-bg-color);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+}
+
+.section-header {
+  width: 100%;
+  max-width: 800px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: relative;
+  margin-bottom: 1.5rem;
+  padding: 0;
+}
+
+.section-header h3 {
+  font-size: 1rem;
+  margin: 0;
   font-weight: 500;
-  text-align: center;
+  color: var(--text-color);
 }
 
 .system-prompt-input {
   width: 100%;
-  padding: 1.25rem;
+  max-width: 800px;
+  padding: 1rem;
   border: 2px solid var(--input-border-color);
   border-radius: 12px;
-  font-size: 1rem;
+  font-size: 0.95rem;
   background-color: var(--input-bg-color);
   color: var(--text-color);
   transition: all 0.2s ease;
   resize: vertical;
-  min-height: 300px;
-  max-height: 600px;
+  min-height: 200px;
+  max-height: 500px;
   font-family: inherit;
   line-height: 1.6;
-  margin: 0 auto 2rem auto;
+  margin: 0 0 1.5rem 0;
   box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.05);
 }
 
@@ -516,11 +537,93 @@ h2 {
 }
 
 .button-group {
+  width: 100%;
+  max-width: 800px;
   display: flex;
-  gap: 1rem;
+  gap: 0.75rem;
   justify-content: flex-end;
   align-items: center;
-  margin-top: 1rem;
+  margin-top: 0;
+}
+
+.settings-section.fullscreen {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  max-width: none;
+  margin: 0;
+  z-index: 1000;
+  border-radius: 0;
+  padding: 2rem;
+  border: none;
+  transform: none !important;
+}
+
+.settings-section.fullscreen:hover {
+  box-shadow: none;
+}
+
+.settings-section.fullscreen .section-header {
+  max-width: 1200px;
+  width: 100%;
+  margin: 0 auto 2rem auto;
+}
+
+.settings-section.fullscreen .section-header h3 {
+  font-size: 1.5rem;
+}
+
+.settings-section.fullscreen .system-prompt-input {
+  max-width: 1200px;
+  width: 100%;
+  margin: 0 auto;
+  flex: 1;
+  max-height: none;
+  font-size: 1rem;
+}
+
+@media (max-width: 768px) {
+  .settings-section {
+    padding: 1rem;
+  }
+
+  .section-header h3 {
+    font-size: 0.95rem;
+  }
+
+  .system-prompt-input {
+    min-height: 180px;
+    padding: 0.875rem;
+    font-size: 0.9rem;
+  }
+
+  .button-group {
+    flex-wrap: wrap;
+  }
+
+  .button-group button {
+    flex: 1;
+    min-width: 100px;
+    padding: 0.6rem 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .settings-section {
+    padding: 0.875rem;
+  }
+
+  .section-header h3 {
+    font-size: 0.9rem;
+  }
+
+  .system-prompt-input {
+    min-height: 150px;
+    padding: 0.75rem;
+    font-size: 0.875rem;
+  }
 }
 
 button {
@@ -618,128 +721,6 @@ button:disabled {
   transform: translate(-50%, 1rem);
 }
 
-@media (max-width: 768px) {
-  .settings-container {
-    padding: 1rem;
-    gap: 1.5rem;
-  }
-
-  h2 {
-    font-size: 1.5rem;
-  }
-
-  .settings-grid {
-    gap: 1.5rem;
-  }
-
-  .settings-section {
-    padding: 1.25rem;
-  }
-
-  .api-key-section {
-    margin: 0;
-  }
-
-  .system-prompt-input {
-    width: 100%;
-    min-height: 200px;
-    padding: 1rem;
-    font-size: 1rem;
-  }
-
-  .button-group {
-    width: 100%;
-    flex-wrap: wrap;
-    justify-content: stretch;
-  }
-
-  .button-group button {
-    flex: 1;
-    min-width: 120px;
-    padding: 0.6rem 1rem;
-  }
-
-  .api-key-popover {
-    width: calc(100% - 2rem);
-    margin: 0 1rem;
-  }
-
-  .settings-section.fullscreen {
-    padding: 1rem;
-  }
-
-  .settings-section.fullscreen .fullscreen-button {
-    top: 1rem;
-    right: 1rem;
-  }
-
-  .toast-message {
-    bottom: 1.5rem;
-    font-size: 0.9rem;
-    padding: 0.75rem 1.25rem;
-  }
-}
-
-@media (max-width: 480px) {
-  .settings-container {
-    padding: 0.75rem;
-    gap: 1rem;
-  }
-
-  h2 {
-    font-size: 1.3rem;
-  }
-
-  .settings-grid {
-    gap: 1rem;
-  }
-
-  .api-key-info {
-    padding: 1rem;
-    flex-direction: column;
-    gap: 1rem;
-    text-align: center;
-  }
-
-  .configure-button {
-    width: 100%;
-    justify-content: center;
-  }
-
-  .api-key-popover {
-    width: calc(100% - 1rem);
-    margin: 0 0.5rem;
-  }
-
-  .settings-section.fullscreen {
-    padding: 0.75rem;
-  }
-
-  .settings-section.fullscreen .fullscreen-button {
-    top: 0.75rem;
-    right: 0.75rem;
-    padding: 0.5rem;
-  }
-
-  .toast-message {
-    width: calc(100% - 2rem);
-    bottom: 1rem;
-    font-size: 0.875rem;
-    padding: 0.75rem 1rem;
-    white-space: normal;
-    text-align: center;
-  }
-}
-
-.section-header {
-  width: 100%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  position: relative;
-  margin-bottom: 2rem;
-}
-
 .fullscreen-button {
   position: absolute;
   right: 0;
@@ -763,74 +744,5 @@ button:disabled {
 .fullscreen-button:hover {
   opacity: 1;
   transform: translateY(-50%) scale(1.1);
-}
-
-.settings-section.fullscreen {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  max-width: none;
-  margin: 0;
-  z-index: 1000;
-  border-radius: 0;
-  padding: 2rem;
-  display: flex;
-  flex-direction: column;
-  background-color: var(--card-bg-color);
-  animation: fullscreenIn 0.3s ease;
-}
-
-@keyframes fullscreenIn {
-  from {
-    opacity: 0;
-    transform: scale(0.98);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
-}
-
-.settings-section.fullscreen .section-header {
-  max-width: 1200px;
-  width: 100%;
-  margin: 0 auto 2rem auto;
-  padding: 0;
-  position: relative;
-}
-
-.settings-section.fullscreen .system-prompt-input {
-  max-width: 1200px;
-  width: 100%;
-  margin: 0 auto;
-  flex: 1;
-  max-height: none;
-}
-
-.settings-section.fullscreen .button-group {
-  max-width: 1200px;
-  width: 100%;
-  margin: 2rem auto 0 auto;
-}
-
-.settings-section.fullscreen .fullscreen-button {
-  position: fixed;
-  top: 1.5rem;
-  right: 1.5rem;
-  transform: none;
-  background-color: var(--card-bg-color);
-  border-radius: 8px;
-  padding: 0.6rem;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  z-index: 1001;
-  opacity: 0.8;
-}
-
-.settings-section.fullscreen .fullscreen-button:hover {
-  transform: scale(1.1);
-  opacity: 1;
-  background-color: var(--input-bg-color);
 }
 </style>
