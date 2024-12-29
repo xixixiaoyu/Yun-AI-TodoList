@@ -7,9 +7,17 @@ import { setLanguage, setSystemLanguage } from './i18n'
 import DailyInspiration from './components/DailyInspiration.vue'
 import { useWindowSize } from '@vueuse/core'
 import router from './router'
+import {
+	getApiKey,
+	shouldShowApiKeyReminder,
+	hideApiKeyReminder,
+} from './services/configService'
 
 const { theme, systemTheme, initTheme } = useTheme()
 const { locale, t } = useI18n()
+
+// 添加提示框的状态
+const showApiKeyReminder = ref(false)
 
 onErrorCaptured((err, instance, info) => {
 	console.error('Captured error:', err, instance, info)
@@ -25,15 +33,31 @@ const toggleLanguage = () => {
 	setLanguage(newLocale)
 }
 
+const goToSettings = () => {
+	router.push('/settings')
+	showApiKeyReminder.value = false
+}
+
 provide('theme', theme)
 
 const { width } = useWindowSize()
 const isSmallScreen = computed(() => width.value < 768)
 
+const closeReminder = (dontShowAgain = false) => {
+	if (dontShowAgain) {
+		hideApiKeyReminder()
+	}
+	showApiKeyReminder.value = false
+}
+
 onMounted(() => {
 	try {
 		initTheme()
 		setSystemLanguage()
+		// 检查是否配置了 API Key 且是否应该显示提醒
+		if (!getApiKey() && shouldShowApiKeyReminder()) {
+			showApiKeyReminder.value = true
+		}
 	} catch (error) {
 		console.error('Error initializing app:', error)
 	}
@@ -63,6 +87,36 @@ onMounted(() => {
 				<DailyInspiration />
 			</div>
 		</div>
+
+		<!-- API Key 提示框 -->
+		<transition name="fade">
+			<div v-if="showApiKeyReminder" class="api-key-reminder">
+				<div class="reminder-content">
+					<div class="reminder-icon">🔑</div>
+					<div class="reminder-text">
+						<h3>{{ t('welcome') }}</h3>
+						<p>{{ t('apiKeyReminder') }}</p>
+					</div>
+					<div class="reminder-actions">
+						<button @click="goToSettings" class="reminder-button">
+							{{ t('goToSettings') }}
+						</button>
+						<button
+							@click="closeReminder(false)"
+							class="reminder-button secondary"
+						>
+							{{ t('later') }}
+						</button>
+						<button
+							@click="closeReminder(true)"
+							class="reminder-button secondary"
+						>
+							{{ t('dontShowAgain') }}
+						</button>
+					</div>
+				</div>
+			</div>
+		</transition>
 	</div>
 </template>
 
@@ -88,7 +142,12 @@ onMounted(() => {
 	--filter-btn-active-border: #7a89c2;
 	--language-toggle-bg: rgba(122, 137, 194, 0.2); /* 浅色主题下的半透明背景 */
 	--language-toggle-color: #2c3e50; /* 浅色主题下的文字颜色 */
-	--language-toggle-hover-bg: rgba(122, 137, 194, 0.4); /* 浅色主题下的悬停背景 */
+	--language-toggle-hover-bg: rgba(
+		122,
+		137,
+		194,
+		0.4
+	); /* 浅色主题下的悬停背景 */
 }
 
 [data-theme='dark'] {
@@ -112,14 +171,20 @@ onMounted(() => {
 	--filter-btn-active-border: #8e9ecc;
 	--language-toggle-bg: rgba(142, 158, 204, 0.2); /* 深色主题下的半透明背景 */
 	--language-toggle-color: #ecf0f1; /* 深色主题下的文字颜色 */
-	--language-toggle-hover-bg: rgba(142, 158, 204, 0.4); /* 深色主题下的悬停背景 */
+	--language-toggle-hover-bg: rgba(
+		142,
+		158,
+		204,
+		0.4
+	); /* 深色主题下的悬停背景 */
 }
 
 body {
 	background: var(--bg-color);
 	color: var(--text-color);
-	font-family: 'LXGW WenKai Screen', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
-		Oxygen-Sans, Ubuntu, Cantarell, 'Helvetica Neue', sans-serif;
+	font-family: 'LXGW WenKai Screen', -apple-system, BlinkMacSystemFont,
+		'Segoe UI', Roboto, Oxygen-Sans, Ubuntu, Cantarell, 'Helvetica Neue',
+		sans-serif;
 	-webkit-font-smoothing: var(--font-smoothing);
 	-moz-osx-font-smoothing: var(--font-smoothing);
 	font-weight: var(--font-weight);
@@ -340,6 +405,105 @@ input[type='range'] {
 		/* WebKit */
 		width: 0;
 		height: 0;
+	}
+}
+
+/* 添加新的提示框样式 */
+.api-key-reminder {
+	position: fixed;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background-color: rgba(0, 0, 0, 0.5);
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	z-index: 1001;
+	padding: 1rem;
+}
+
+.reminder-content {
+	background-color: var(--card-bg-color);
+	border-radius: 16px;
+	padding: 2rem;
+	max-width: 450px;
+	width: 100%;
+	box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+	text-align: center;
+}
+
+.reminder-icon {
+	font-size: 3rem;
+	margin-bottom: 1rem;
+}
+
+.reminder-text h3 {
+	margin-bottom: 0.5rem;
+	color: var(--text-color);
+}
+
+.reminder-text p {
+	color: var(--text-color);
+	opacity: 0.8;
+	margin-bottom: 1.5rem;
+}
+
+.reminder-actions {
+	display: flex;
+	gap: 0.75rem;
+	justify-content: center;
+	flex-wrap: wrap;
+}
+
+.reminder-button {
+	padding: 0.75rem 1rem;
+	border-radius: 8px;
+	font-weight: 600;
+	cursor: pointer;
+	transition: all 0.2s ease;
+	font-size: 0.9rem;
+}
+
+.reminder-button:not(.secondary) {
+	background-color: var(--button-bg-color);
+	color: white;
+	border: none;
+}
+
+.reminder-button.secondary {
+	background-color: transparent;
+	border: 1px solid var(--button-bg-color);
+	color: var(--text-color);
+}
+
+.reminder-button:hover {
+	transform: translateY(-2px);
+}
+
+.fade-enter-active,
+.fade-leave-active {
+	transition: opacity 0.3s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+	opacity: 0;
+}
+
+@media (max-width: 768px) {
+	.reminder-content {
+		margin: 1rem;
+		padding: 1.5rem;
+	}
+
+	.reminder-actions {
+		flex-direction: column;
+		gap: 0.5rem;
+	}
+
+	.reminder-button {
+		width: 100%;
 	}
 }
 </style>

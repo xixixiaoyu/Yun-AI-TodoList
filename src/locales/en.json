@@ -116,5 +116,10 @@
 	"show": "Show",
 	"hide": "Hide",
 	"settingsSaved": "Settings saved successfully",
-	"theme": "Theme"
+	"theme": "Theme",
+	"welcome": "Welcome",
+	"apiKeyReminder": "To use the AI assistant, please configure your DeepSeek API Key in settings",
+	"goToSettings": "Go to Settings",
+	"later": "Maybe Later",
+	"dontShowAgain": "Don't Show Again"
 }
