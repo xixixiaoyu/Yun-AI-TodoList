@@ -15,6 +15,7 @@ import type {
 	SpeechRecognitionEvent,
 	SpeechRecognitionErrorEvent,
 } from '../types/web-speech-api'
+import type { MarkedOptions } from 'marked'
 
 // 添加 Web Speech API 类型定义
 declare global {
@@ -84,7 +85,7 @@ marked.setOptions({
 			console.error('Error highlighting code:', err)
 		}
 	},
-})
+} as MarkedOptions)
 
 const userMessage = ref('')
 const chatHistory = ref<{ role: 'user' | 'ai'; content: string }[]>([])
