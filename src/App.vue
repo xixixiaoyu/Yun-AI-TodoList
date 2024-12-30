@@ -322,9 +322,16 @@ input[type='range'] {
 }
 
 .content-wrapper {
-  display: flex;
-  flex-direction: column;
+  padding: 1rem;
   min-height: 100vh;
+}
+
+@media (max-width: 768px) {
+  .content-wrapper {
+    padding-top: 4rem;
+    padding-bottom: 1rem;
+    min-height: calc(100vh - 5rem);
+  }
 }
 
 .top-components {
