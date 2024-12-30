@@ -152,6 +152,11 @@ onErrorCaptured(handleError)
   backface-visibility: hidden;
 }
 
+.checkbox-wrapper {
+  display: flex;
+  align-items: center;
+}
+
 .todo-item:hover {
   transform: translateY(-2px);
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
@@ -180,7 +185,7 @@ onErrorCaptured(handleError)
 
 .todo-content {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   flex-grow: 1;
   min-width: 0;
   gap: 0.5rem;
@@ -203,6 +208,7 @@ onErrorCaptured(handleError)
 }
 
 .text-content {
+  text-align: left;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
