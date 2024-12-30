@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, onUnmounted, watch, onErrorCaptured, onBeforeMount, ref } from 'vue'
+import { onMounted, onUnmounted, onErrorCaptured, onBeforeMount, ref } from 'vue'
 import TodoInput from './TodoInput.vue'
 import TodoFilters from './TodoFilters.vue'
 import TodoItem from './TodoItem.vue'
@@ -10,7 +10,6 @@ import PomodoroStats from './PomodoroStats.vue'
 import TodoStats from './TodoStats.vue'
 import AddProjectModal from './AddProjectModal.vue'
 import { useSortable } from '@vueuse/integrations/useSortable'
-import { useDebounceFn } from '@vueuse/core'
 import { useI18n } from 'vue-i18n'
 import { useErrorHandler } from '../composables/useErrorHandler'
 import { useConfirmDialog } from '../composables/useConfirmDialog'
@@ -35,8 +34,8 @@ const {
   restoreHistory,
   deleteHistoryItem,
   deleteAllHistory,
-  saveTodos,
   loadTodos,
+  updateTodosOrder,
 } = useTodos()
 
 // 项目管理相关
@@ -92,27 +91,22 @@ const {
 const todoListRef = ref<HTMLElement | null>(null)
 
 // 使用 useSortable 为待办事项列表添加拖拽排序功能
-const { option } = useSortable(todoListRef, todos, {
+const { option } = useSortable(todoListRef, filteredTodos, {
   animation: 150,
   onEnd: async (evt: SortableEvent) => {
     try {
       const { oldIndex, newIndex } = evt
       if (oldIndex === newIndex) return
 
-      // 创建一个新数组来保存更新后的顺序
-      const todosCopy = [...todos.value]
-      const [movedItem] = todosCopy.splice(oldIndex, 1)
-      todosCopy.splice(newIndex, 0, movedItem)
+      // 获取所有待办事项的 ID 数组
+      const todoIds = filteredTodos.value.map((todo) => todo.id)
 
-      // 更新 todos 数组并添加顺序索引
-      todos.value = todosCopy.map((todo, index) => ({
-        ...todo,
-        order: index,
-        updatedAt: new Date().toISOString(),
-      }))
+      // 移动 ID
+      const [movedId] = todoIds.splice(oldIndex, 1)
+      todoIds.splice(newIndex, 0, movedId)
 
-      // 立即保存到 localStorage，不使用防抖
-      await saveTodos()
+      // 更新顺序
+      updateTodosOrder(todoIds)
     } catch (error) {
       console.error('Error saving todo order:', error)
       showError(t('updateOrderError'))
@@ -121,25 +115,6 @@ const { option } = useSortable(todoListRef, todos, {
 })
 
 option('animation', 150)
-
-// 添加防抖的保存函数
-const debouncedSave = useDebounceFn(() => {
-  try {
-    saveTodos()
-  } catch (error) {
-    console.error('Error saving todos:', error)
-    showError(t('savingError'))
-  }
-}, 1000)
-
-// 监听数据变化并保存
-watch(
-  [todos],
-  () => {
-    debouncedSave()
-  },
-  { deep: true }
-)
 
 // 添加错误边界处理
 const handleError = (error: Error) => {

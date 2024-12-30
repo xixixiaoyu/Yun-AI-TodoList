@@ -241,11 +241,22 @@ export function useTodos() {
   }
 
   const updateTodosOrder = (newOrder: number[]) => {
-    const newTodos = newOrder.map((index) => todos.value[index])
-    todos.value = newTodos
+    // 创建一个映射来存储每个 todo 的新顺序
+    const orderMap = new Map(newOrder.map((id, index) => [id, index]))
+
+    // 更新所有 todo 的顺序
+    todos.value = todos.value
+      .map((todo) => ({
+        ...todo,
+        order: orderMap.get(todo.id) ?? todo.order,
+        updatedAt: new Date().toISOString(),
+      }))
+      .sort((a, b) => a.order - b.order)
+
+    // 保存更新后的顺序
+    saveTodos()
   }
 
-  watch(todos, saveTodos, { deep: true })
   watch(history, saveHistory, { deep: true })
 
   loadTodos() // 在初始化时加载数据
