@@ -53,10 +53,10 @@ export function useChat() {
   }
 
   // 创建新对话
-  const createNewConversation = () => {
+  const createNewConversation = (title: string = t('newConversation')) => {
     const newConversation: Conversation = {
       id: Date.now().toString(),
-      title: t('newConversation'),
+      title,
       messages: [],
       lastUpdated: new Date().toISOString(),
     }
@@ -108,6 +108,20 @@ export function useChat() {
     retryCount.value = 0
 
     try {
+      // 如果是新对话的第一条消息，更新对话标题
+      if (chatHistory.value.length === 0) {
+        const currentConversation = conversationHistory.value.find(
+          (conv) => conv.id === currentConversationId.value
+        )
+        if (currentConversation) {
+          currentConversation.title = message
+          localStorage.setItem(
+            'conversationHistory',
+            JSON.stringify(conversationHistory.value)
+          )
+        }
+      }
+
       // 保存用户消息到历史记录
       const userMsg: ChatMessage = {
         role: 'user',
