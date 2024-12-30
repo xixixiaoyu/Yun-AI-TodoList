@@ -1,5 +1,5 @@
 declare module 'canvas-confetti' {
-  interface ConfettiOptions {
+  interface ConfettiConfig {
     particleCount?: number
     angle?: number
     spread?: number
@@ -9,18 +9,20 @@ declare module 'canvas-confetti' {
     drift?: number
     ticks?: number
     origin?: {
-      x?: number
-      y?: number
+      x: number
+      y: number
     }
     colors?: string[]
     shapes?: string[]
     scalar?: number
     zIndex?: number
-    disableForReducedMotion?: boolean
   }
 
-  type ConfettiFn = (options?: ConfettiOptions) => Promise<null>
+  type ConfettiFire = (options?: ConfettiConfig) => Promise<null>
 
-  const confetti: ConfettiFn
+  const confetti: ConfettiFire & {
+    reset: () => void
+  }
+
   export default confetti
 }
