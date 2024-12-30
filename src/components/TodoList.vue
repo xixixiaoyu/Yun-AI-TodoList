@@ -7,7 +7,6 @@ import HistorySidebar from './HistorySidebar.vue'
 import ConfirmDialog from './ConfirmDialog.vue'
 import PomodoroTimer from './PomodoroTimer.vue'
 import PomodoroStats from './PomodoroStats.vue'
-import TodoHeatmap from './TodoHeatmap.vue'
 import AddProjectModal from './AddProjectModal.vue'
 import { useSortable } from '@vueuse/integrations/useSortable'
 import { useDebounceFn } from '@vueuse/core'
@@ -419,8 +418,7 @@ onUnmounted(() => {
           {{ t('close') }}
         </button>
         <h2>{{ t('todoCharts') }}</h2>
-        <!-- 待办事项热力图组件 -->
-        <TodoHeatmap />
+
         <!-- 番茄钟统计组件 -->
         <PomodoroStats />
       </div>
