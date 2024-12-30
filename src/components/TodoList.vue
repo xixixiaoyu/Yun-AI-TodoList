@@ -111,7 +111,7 @@ const { option } = useSortable(todoListRef, todos, {
         updatedAt: new Date().toISOString(),
       }))
 
-      // 立即保存到 localStorage
+      // 立即保存到 localStorage，不使用防抖
       await saveTodos()
     } catch (error) {
       console.error('Error saving todo order:', error)

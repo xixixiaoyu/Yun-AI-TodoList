@@ -9,6 +9,7 @@ interface Todo {
   projectId: number | null
   createdAt: string
   updatedAt: string
+  order: number
 }
 
 // 新增 Project 接口
@@ -46,7 +47,11 @@ export function useTodos() {
                 typeof todo.text === 'string' &&
                 typeof todo.completed === 'boolean'
             )
-            .sort((a, b) => (a.order ?? Infinity) - (b.order ?? Infinity))
+            .map((todo, index) => ({
+              ...todo,
+              order: todo.order ?? index,
+            }))
+            .sort((a, b) => a.order - b.order)
         }
       }
 
@@ -164,6 +169,7 @@ export function useTodos() {
       projectId: currentProjectId.value || 0,
       createdAt: now,
       updatedAt: now,
+      order: todos.value.length,
     }
 
     todos.value.push(newTodo)
@@ -187,6 +193,7 @@ export function useTodos() {
           projectId: projectId || null,
           createdAt: now,
           updatedAt: now,
+          order: todos.value.length,
         })
       }
     })
