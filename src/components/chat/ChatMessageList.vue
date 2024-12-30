@@ -324,6 +324,7 @@ defineExpose({
 .ai-message {
   position: relative;
   padding-right: 32px;
+  font-size: 15px;
 }
 
 .ai :deep(p) {
