@@ -124,7 +124,7 @@ h3 {
 
 @media (max-width: 768px) {
   .daily-inspiration {
-    width: calc(100% - 2rem);
+    width: calc(100% - 8rem);
     margin: 1rem auto;
   }
 }

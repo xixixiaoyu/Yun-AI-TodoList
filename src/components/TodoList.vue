@@ -850,6 +850,7 @@ h1 {
   .pomodoro-timer {
     order: -1; /* 在移动设备上将番茄钟计时器移到顶部 */
     max-width: none;
+    margin-top: 4rem;
   }
 }
 

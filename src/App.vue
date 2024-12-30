@@ -222,8 +222,7 @@ body {
 @media (max-width: 768px) {
   .nav-bar {
     position: fixed;
-    top: auto;
-    bottom: 0;
+    top: 0;
     left: 0;
     right: 0;
     background-color: var(--card-bg-color);
