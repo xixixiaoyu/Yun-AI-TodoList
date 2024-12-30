@@ -794,45 +794,130 @@ h2 {
 }
 
 @media (max-width: 768px) {
-  .settings-section {
+  .settings-container {
     padding: 1rem;
   }
 
-  .section-header h3 {
+  .settings-grid {
+    gap: 1rem;
+  }
+
+  .api-key-section {
+    margin-left: 1rem;
+  }
+
+  .api-key-info {
+    padding: 1rem;
+    flex-direction: column;
+    gap: 1rem;
+    text-align: center;
+  }
+
+  .api-key-status {
+    margin-right: 0;
+    justify-content: center;
+  }
+
+  .section-header {
+    flex-direction: column;
+    gap: 1rem;
+    align-items: flex-start;
+  }
+
+  .prompt-controls {
+    width: 100%;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.75rem;
+  }
+
+  .prompt-template-selector {
+    width: 100%;
+  }
+
+  .prompt-template-selector select {
+    width: 100%;
+    min-width: unset;
+  }
+
+  .prompt-actions {
+    width: 100%;
+    margin-right: 0;
+    justify-content: space-between;
+  }
+
+  .add-prompt-button,
+  .delete-prompt-button {
+    flex: 1;
+    padding: 0.5rem;
+    font-size: 0.85rem;
+  }
+
+  .fullscreen-button {
+    display: none !important;
+  }
+
+  .settings-section.fullscreen {
+    position: relative;
+    padding: 1rem;
+    max-width: 100%;
+  }
+
+  .settings-section.fullscreen .section-header {
+    margin-bottom: 1rem;
+  }
+
+  .settings-section.fullscreen .section-header h3 {
+    font-size: 1rem;
+  }
+
+  .settings-section.fullscreen .system-prompt-input {
+    max-width: 100%;
     font-size: 0.95rem;
   }
 
-  .system-prompt-input {
-    min-height: 180px;
-    padding: 0.875rem;
-    font-size: 0.9rem;
-  }
-
-  .button-group {
-    gap: 1rem;
-    flex-wrap: wrap;
-  }
-
-  .button-group button {
-    flex: 1;
-    min-width: 100px;
-    padding: 0.6rem 1rem;
+  .prompt-actions {
+    margin: 0 auto;
   }
 }
 
 @media (max-width: 480px) {
-  .settings-section {
+  .settings-container {
+    padding: 0.75rem;
+  }
+
+  .api-key-info {
     padding: 0.875rem;
   }
 
-  .section-header h3 {
-    font-size: 0.9rem;
+  .configure-button {
+    width: 100%;
+    justify-content: center;
   }
 
-  .system-prompt-input {
-    min-height: 150px;
-    padding: 0.75rem;
-    font-size: 0.875rem;
+  .api-key-popover {
+    width: calc(100% - 1rem);
+    max-width: none;
+  }
+
+  .popover-content {
+    padding: 1rem;
+  }
+
+  .button-group {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .button-group button {
+    width: 100%;
+  }
+
+  .toast-message {
+    width: calc(100% - 2rem);
+    white-space: normal;
+    text-align: center;
+    justify-content: center;
   }
 }
 
