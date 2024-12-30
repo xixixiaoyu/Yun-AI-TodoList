@@ -40,22 +40,38 @@ const adjustTextareaHeight = () => {
     const textarea = inputRef.value
     const cursorPosition = textarea.selectionStart
 
-    textarea.style.height = 'auto'
-    const newHeight = Math.min(textarea.scrollHeight, 200)
-    textarea.style.height = `${newHeight}px`
-
-    const textBeforeCursor = textarea.value.substring(0, cursorPosition)
+    // 创建一个隐藏的 div 来计算实际高度
     const dummyElement = document.createElement('div')
     dummyElement.style.cssText = window.getComputedStyle(textarea).cssText
     dummyElement.style.height = 'auto'
     dummyElement.style.position = 'absolute'
     dummyElement.style.visibility = 'hidden'
     dummyElement.style.whiteSpace = 'pre-wrap'
-    dummyElement.textContent = textBeforeCursor
+    dummyElement.textContent = textarea.value
     document.body.appendChild(dummyElement)
 
-    const cursorTop = dummyElement.offsetHeight
+    // 计算新的高度
+    const newHeight = Math.min(dummyElement.scrollHeight, 200)
     document.body.removeChild(dummyElement)
+
+    // 只有当高度真正需要改变时才改变
+    if (Math.abs(parseInt(textarea.style.height) - newHeight) > 2) {
+      textarea.style.height = `${newHeight}px`
+    }
+
+    // 计算光标位置和滚动
+    const textBeforeCursor = textarea.value.substring(0, cursorPosition)
+    const cursorDummy = document.createElement('div')
+    cursorDummy.style.cssText = window.getComputedStyle(textarea).cssText
+    cursorDummy.style.height = 'auto'
+    cursorDummy.style.position = 'absolute'
+    cursorDummy.style.visibility = 'hidden'
+    cursorDummy.style.whiteSpace = 'pre-wrap'
+    cursorDummy.textContent = textBeforeCursor
+    document.body.appendChild(cursorDummy)
+
+    const cursorTop = cursorDummy.offsetHeight
+    document.body.removeChild(cursorDummy)
 
     const scrollTop = Math.max(0, cursorTop - textarea.clientHeight + 20)
     textarea.scrollTop = scrollTop
