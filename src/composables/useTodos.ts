@@ -38,13 +38,15 @@ export function useTodos() {
       if (storedTodos) {
         const parsedTodos = JSON.parse(storedTodos)
         if (Array.isArray(parsedTodos)) {
-          todos.value = parsedTodos.filter(
-            (todo) =>
-              todo &&
-              typeof todo.id === 'number' &&
-              typeof todo.text === 'string' &&
-              typeof todo.completed === 'boolean'
-          )
+          todos.value = parsedTodos
+            .filter(
+              (todo) =>
+                todo &&
+                typeof todo.id === 'number' &&
+                typeof todo.text === 'string' &&
+                typeof todo.completed === 'boolean'
+            )
+            .sort((a, b) => (a.order ?? Infinity) - (b.order ?? Infinity))
         }
       }
 

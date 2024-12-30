@@ -104,10 +104,14 @@ const { option } = useSortable(todoListRef, todos, {
       const [movedItem] = todosCopy.splice(oldIndex, 1)
       todosCopy.splice(newIndex, 0, movedItem)
 
-      // 更新 todos 数组
-      todos.value = todosCopy
+      // 更新 todos 数组并添加顺序索引
+      todos.value = todosCopy.map((todo, index) => ({
+        ...todo,
+        order: index,
+        updatedAt: new Date().toISOString(),
+      }))
 
-      // 确保调用 saveTodos 函数来持久化状态
+      // 立即保存到 localStorage
       await saveTodos()
     } catch (error) {
       console.error('Error saving todo order:', error)
