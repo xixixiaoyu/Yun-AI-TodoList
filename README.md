@@ -2,7 +2,7 @@
 
 一个基于 Vue 3 + Electron 构建的现代化待办事项桌面应用。
 
-![License](https://img.shields.io/badge/license-MIT-blue.svg)
+![License](https://img.shields.io/badge/license-GPL--3.0-red.svg)
 ![Node](https://img.shields.io/badge/node-%3E%3D18.0.0-brightgreen)
 ![pnpm](https://img.shields.io/badge/pnpm-%3E%3D8.0.0-brightgreen)
 
@@ -93,7 +93,7 @@ pnpm electron:build:linux
 
 ## 📄 许可证
 
-本项目基于 MIT 许可证开源，详情请参阅 [LICENSE](LICENSE) 文件。
+本项目采用 [GNU General Public License v3.0](LICENSE) 开源协议。该协议要求任何基于本项目的衍生作品必须以相同的协议开源，并且禁止闭源商业使用。详情请参阅 [LICENSE](LICENSE) 文件。
 
 ## 🙏 致谢
 
