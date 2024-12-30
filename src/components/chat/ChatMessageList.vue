@@ -261,12 +261,13 @@ defineExpose({
 
 .ai-message {
   position: relative;
+  padding-bottom: 32px; /* 为复制按钮留出空间 */
 }
 
 .copy-button {
   position: absolute;
   right: 0;
-  top: 0;
+  bottom: 0;
   padding: 6px 10px;
   background: none;
   border: none;
@@ -314,6 +315,13 @@ defineExpose({
 
   .copy-button {
     opacity: 0.7;
+    padding: 4px 8px;
+    font-size: 11px;
+  }
+
+  .copy-button svg {
+    width: 12px;
+    height: 12px;
   }
 }
 </style>
