@@ -261,7 +261,7 @@ defineExpose({
 
 .ai-message {
   position: relative;
-  padding-bottom: 32px; /* 为复制按钮留出空间 */
+  padding-bottom: 8px; /* 为复制按钮留出空间 */
 }
 
 .copy-button {
