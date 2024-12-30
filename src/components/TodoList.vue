@@ -7,6 +7,7 @@ import HistorySidebar from './HistorySidebar.vue'
 import ConfirmDialog from './ConfirmDialog.vue'
 import PomodoroTimer from './PomodoroTimer.vue'
 import PomodoroStats from './PomodoroStats.vue'
+import TodoStats from './TodoStats.vue'
 import AddProjectModal from './AddProjectModal.vue'
 import { useSortable } from '@vueuse/integrations/useSortable'
 import { useDebounceFn } from '@vueuse/core'
@@ -418,6 +419,9 @@ onUnmounted(() => {
           {{ t('close') }}
         </button>
         <h2>{{ t('todoCharts') }}</h2>
+
+        <!-- 待办事项统计组件 -->
+        <TodoStats />
 
         <!-- 番茄钟统计组件 -->
         <PomodoroStats />
@@ -990,8 +994,8 @@ h1 {
   background-color: var(--card-bg-color);
   padding: 2rem;
   border-radius: var(--border-radius);
-  max-width: 90%;
-  max-height: 90%;
+  max-width: 100%;
+  max-height: 80%;
   overflow-y: auto;
   position: relative; /* 添加这行 */
 }

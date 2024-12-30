@@ -170,5 +170,10 @@
   "startListening": "开始语音输入",
   "stopListening": "停止语音输入",
   "deleteCustomPrompt": "删除当前提示词",
-  "confirmDeletePrompt": "确定要删除这个自定义提示词吗？"
+  "confirmDeletePrompt": "确定要删除这个自定义提示词吗？",
+  "todoCharts": "统计图表",
+  "todoStats": "待办事项统计",
+  "todoProgress": "任务完成情况",
+  "completed": "已完成",
+  "pending": "待完成"
 }

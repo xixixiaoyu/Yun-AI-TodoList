@@ -80,7 +80,7 @@ watch(getPomodoroCountByDay, updateChart)
 
 <style scoped>
 .pomodoro-stats {
-  margin-top: 2rem;
+  margin-top: 1rem;
   padding: 1rem;
   background-color: var(--card-bg-color);
   border-radius: var(--border-radius);
@@ -90,6 +90,7 @@ watch(getPomodoroCountByDay, updateChart)
 h2 {
   margin-bottom: 1rem;
   color: var(--text-color);
+  font-size: 1.2rem;
 }
 
 canvas {
