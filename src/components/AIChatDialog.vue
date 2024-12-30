@@ -57,29 +57,45 @@ const handleScroll = (scrollInfo: {
   scrollHeight: number
   clientHeight: number
 }) => {
-  shouldAutoScroll.value = scrollInfo.isAtBottom
+  // 只有用户主动向上滚动时才禁用自动滚动
+  if (
+    !scrollInfo.isAtBottom &&
+    scrollInfo.scrollTop < scrollInfo.scrollHeight - scrollInfo.clientHeight - 100
+  ) {
+    shouldAutoScroll.value = false
+  } else {
+    shouldAutoScroll.value = true
+  }
 }
 
 // 统一处理滚动到底部的逻辑
 const scrollToBottom = (instant = false) => {
-  if (shouldAutoScroll.value && messageListRef.value) {
-    if (instant) {
-      messageListRef.value.scrollToBottomInstantly()
-    } else {
-      messageListRef.value.scrollToBottom()
+  if (messageListRef.value) {
+    // 如果是用户发送消息，始终滚动到底部
+    // 如果是接收消息，则根据 shouldAutoScroll 判断
+    if (instant || shouldAutoScroll.value) {
+      if (instant) {
+        messageListRef.value.scrollToBottomInstantly()
+      } else {
+        messageListRef.value.scrollToBottom()
+      }
     }
   }
 }
 
-// 合并监听消息变化的逻辑
-watch([chatHistory, currentAIResponse], () => {
+// 监听消息变化的逻辑
+watch([() => chatHistory.value, () => currentAIResponse.value], () => {
   nextTick(() => {
-    scrollToBottom(false)
+    // 给一个小延时确保内容已经渲染
+    setTimeout(() => {
+      scrollToBottom(false)
+    }, 50)
   })
 })
 
 // 处理发送消息
 const handleSendMessage = async () => {
+  shouldAutoScroll.value = true // 发送消息时重置自动滚动状态
   await sendMessage()
   nextTick(() => {
     scrollToBottom(true)
