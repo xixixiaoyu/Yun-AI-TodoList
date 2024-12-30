@@ -198,7 +198,7 @@ defineExpose({
   opacity: 1;
   transform: translateY(0);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  margin: 0 12px;
+  margin: 0;
 }
 
 .user.message-container {
@@ -212,30 +212,27 @@ defineExpose({
 
 .message-content {
   padding: 12px 16px;
-  border-radius: 16px;
+  border-radius: 12px;
   line-height: 1.5;
-  font-size: 14px;
+  font-size: 15px;
   direction: ltr;
   unicode-bidi: isolate;
   text-align: left;
   position: relative;
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow:
-    0 2px 8px rgba(0, 0, 0, 0.08),
-    0 0 1px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  background-color: var(--input-bg-color);
 }
 
 .user {
   align-self: flex-end;
-  margin-right: 10px;
 }
 
 .user .message-content {
   background-color: var(--button-bg-color);
   color: var(--card-bg-color);
-  border-bottom-right-radius: 4px;
   padding: 8px 14px;
-  font-size: 14px;
+  font-size: 15px;
   line-height: 1.4;
   max-width: 85%;
   background-image: linear-gradient(
@@ -246,229 +243,77 @@ defineExpose({
 }
 
 .user .message-content:hover {
-  box-shadow:
-    0 4px 12px rgba(0, 0, 0, 0.12),
-    0 0 1px rgba(0, 0, 0, 0.1);
-  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
 }
 
 .ai {
   align-self: flex-start;
-  margin-left: 10px;
 }
 
 .ai .message-content {
   background-color: var(--input-bg-color);
   color: var(--text-color);
-  border-bottom-left-radius: 4px;
-  border-left: 4px solid var(--button-bg-color);
-  padding: 14px 18px;
-  font-size: 15px;
-  line-height: 1.6;
-  background-image: linear-gradient(
-    to right bottom,
-    rgba(255, 255, 255, 0.08),
-    transparent
-  );
 }
 
 .ai .message-content:hover {
-  box-shadow:
-    0 4px 12px rgba(0, 0, 0, 0.12),
-    0 0 1px rgba(0, 0, 0, 0.1);
-  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+}
+
+.ai-message {
+  position: relative;
 }
 
 .copy-button {
   position: absolute;
-  bottom: 8px;
-  right: 8px;
-  background: var(--bg-color);
-  border: 1px solid rgba(0, 0, 0, 0.05);
-  border-radius: 6px;
+  right: 0;
+  top: 0;
   padding: 6px 10px;
-  font-size: 12px;
+  background: none;
+  border: none;
   cursor: pointer;
+  color: var(--text-color);
+  opacity: 0;
+  transition: opacity 0.2s ease;
   display: flex;
   align-items: center;
   gap: 4px;
-  opacity: 0;
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-  color: var(--text-color);
-  backdrop-filter: blur(8px);
-}
-
-.message-content:hover .copy-button {
-  opacity: 0.9;
-  transform: translateY(-2px);
-}
-
-.copy-button:hover {
-  opacity: 1 !important;
-  background-color: var(--button-bg-color);
-  color: var(--card-bg-color);
-  border-color: transparent;
+  font-size: 12px;
 }
 
 .copy-button svg {
   width: 14px;
   height: 14px;
-  transition: transform 0.2s ease;
 }
 
-.copy-button:hover svg {
-  transform: scale(1.1);
+.message-content:hover .copy-button {
+  opacity: 0.7;
 }
 
-/* Markdown content styles */
-.ai-message {
-  position: relative;
-  padding-right: 32px;
-  font-size: 15px;
-}
-
-.ai :deep(p) {
-  margin-bottom: 1em;
-  line-height: 1.7;
-  letter-spacing: 0.3px;
-  font-size: 15px;
-}
-
-.ai :deep(p:last-child) {
-  margin-bottom: 0;
-}
-
-.ai :deep(ul),
-.ai :deep(ol) {
-  margin: 0.8em 0;
-  padding-left: 1.6em;
-}
-
-.ai :deep(li) {
-  margin-bottom: 0.5em;
-  line-height: 1.6;
-}
-
-.ai :deep(code) {
-  background-color: rgba(0, 0, 0, 0.04);
-  padding: 0.2em 0.4em;
-  border-radius: 4px;
-  font-family: 'Fira Code', monospace;
-  font-size: 0.9em;
-  border: 1px solid rgba(0, 0, 0, 0.04);
-  color: var(--button-bg-color);
-}
-
-.ai :deep(pre) {
-  background-color: #1e1e1e;
-  border-radius: 10px;
-  padding: 16px;
-  overflow: auto;
-  margin: 1em 0;
-  position: relative;
-  box-shadow:
-    inset 0 2px 6px rgba(0, 0, 0, 0.2),
-    0 1px 2px rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.ai :deep(pre code) {
-  background-color: transparent;
-  padding: 0;
-  font-size: 0.9em;
-  line-height: 1.5;
-  font-family: 'Fira Code', monospace;
-  color: #d4d4d4;
-  border: none;
-}
-
-.ai :deep(blockquote) {
-  border-left: 4px solid var(--button-bg-color);
-  padding: 0.8em 1.2em;
-  margin: 1em 0;
-  background-color: rgba(0, 0, 0, 0.02);
-  border-radius: 6px;
-  font-style: italic;
-  color: var(--text-color);
-}
-
-.ai :deep(h1),
-.ai :deep(h2),
-.ai :deep(h3),
-.ai :deep(h4),
-.ai :deep(h5),
-.ai :deep(h6) {
-  margin: 1.2em 0 0.6em;
-  font-weight: 600;
-  line-height: 1.3;
-  color: var(--button-bg-color);
-}
-
-.ai :deep(a) {
-  color: var(--button-bg-color);
-  text-decoration: none;
-  border-bottom: 1px solid transparent;
-  transition: all 0.2s ease;
-  padding: 0 2px;
-}
-
-.ai :deep(a:hover) {
-  background-color: rgba(0, 0, 0, 0.04);
-  border-radius: 4px;
-  border-bottom-color: currentColor;
-}
-
-.ai :deep(table) {
-  width: 100%;
-  border-collapse: separate;
-  border-spacing: 0;
-  margin: 1.2em 0;
-  font-size: 0.9em;
-  border-radius: 8px;
-  overflow: hidden;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
-}
-
-.ai :deep(th),
-.ai :deep(td) {
-  border: 1px solid var(--input-border-color);
-  padding: 0.8em 1em;
-  text-align: left;
-}
-
-.ai :deep(th) {
-  background-color: rgba(0, 0, 0, 0.02);
-  font-weight: 600;
-  border-bottom: 2px solid var(--input-border-color);
-}
-
-.ai :deep(tr:nth-child(even)) {
-  background-color: rgba(0, 0, 0, 0.01);
-}
-
-.ai :deep(tr:hover) {
-  background-color: rgba(0, 0, 0, 0.02);
+.copy-button:hover {
+  opacity: 1 !important;
 }
 
 @media (max-width: 768px) {
   .chat-history {
     padding: 16px 12px;
-    gap: 20px;
+    gap: 16px;
   }
 
   .message-container {
-    max-width: 92%;
-    margin: 0 8px;
+    max-width: 95%;
+  }
+
+  .user.message-container {
+    max-width: 85%;
   }
 
   .message-content {
-    padding: 14px 16px;
-    font-size: 14px;
+    padding: 10px 14px;
+    font-size: 15px;
   }
 
   .copy-button {
-    padding: 4px 8px;
-    font-size: 11px;
+    opacity: 0.7;
   }
 }
 </style>
