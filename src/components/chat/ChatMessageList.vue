@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted, nextTick, watch } from 'vue'
 import { useMarkdown } from '../../composables/useMarkdown'
 import type { ChatMessage } from '../../services/types'
 
@@ -9,7 +9,15 @@ const props = defineProps<{
 }>()
 
 const emit = defineEmits<{
-  (e: 'scroll', value: boolean): void
+  (
+    e: 'scroll',
+    value: {
+      isAtBottom: boolean
+      scrollTop: number
+      scrollHeight: number
+      clientHeight: number
+    }
+  ): void
 }>()
 
 const { sanitizeContent } = useMarkdown()
@@ -32,28 +40,96 @@ const copyToClipboard = async (text: string) => {
   }
 }
 
+const isUserScrolling = ref(false)
+const lastScrollTop = ref(0)
+
+// 立即滚动到底部（无动画）
+const scrollToBottomInstantly = () => {
+  if (chatHistoryRef.value) {
+    const element = chatHistoryRef.value
+    element.style.scrollBehavior = 'auto'
+    element.scrollTop = element.scrollHeight
+  }
+}
+
+// 平滑滚动到底部
+const scrollToBottom = () => {
+  if (chatHistoryRef.value) {
+    const element = chatHistoryRef.value
+    element.style.scrollBehavior = 'smooth'
+    element.scrollTop = element.scrollHeight
+  }
+}
+
 // 处理滚动事件
 const handleScroll = () => {
   if (chatHistoryRef.value) {
     const element = chatHistoryRef.value
     const isAtBottom =
       element.scrollHeight - element.scrollTop <= element.clientHeight + 30
-    emit('scroll', !isAtBottom)
-  }
-}
 
-// 滚动到底部
-const scrollToBottom = () => {
-  if (chatHistoryRef.value) {
-    chatHistoryRef.value.scrollTo({
-      top: chatHistoryRef.value.scrollHeight,
-      behavior: 'smooth',
+    // 检测是否是用户主动滚动
+    if (Math.abs(element.scrollTop - lastScrollTop.value) > 10) {
+      isUserScrolling.value = true
+      setTimeout(() => {
+        isUserScrolling.value = false
+      }, 100)
+    }
+    lastScrollTop.value = element.scrollTop
+
+    emit('scroll', {
+      isAtBottom,
+      scrollTop: element.scrollTop,
+      scrollHeight: element.scrollHeight,
+      clientHeight: element.clientHeight,
     })
   }
 }
 
+// 智能滚动到底部
+const smartScrollToBottom = () => {
+  if (chatHistoryRef.value && !isUserScrolling.value) {
+    const element = chatHistoryRef.value
+    const isAtBottom =
+      element.scrollHeight - element.scrollTop <= element.clientHeight + 30
+
+    if (isAtBottom) {
+      scrollToBottomInstantly()
+    }
+  }
+}
+
+// 组件挂载时立即滚动到底部
+onMounted(() => {
+  scrollToBottomInstantly()
+})
+
+// 监听消息变化
+watch(
+  () => props.messages,
+  () => {
+    nextTick(() => {
+      smartScrollToBottom()
+    })
+  },
+  { immediate: true }
+)
+
+// 监听当前响应变化
+watch(
+  () => props.currentResponse,
+  (newVal, oldVal) => {
+    if (newVal !== oldVal) {
+      nextTick(() => {
+        smartScrollToBottom()
+      })
+    }
+  }
+)
+
 defineExpose({
   scrollToBottom,
+  scrollToBottomInstantly,
 })
 </script>
 
@@ -111,7 +187,6 @@ defineExpose({
   margin-bottom: 16px;
   display: flex;
   flex-direction: column;
-  scroll-behavior: smooth;
   padding: 20px 20px;
   gap: 20px;
   background: linear-gradient(to bottom, rgba(255, 255, 255, 0.05), transparent);

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, watch } from 'vue'
+import { ref, onMounted, watch, nextTick } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useChat } from '../composables/useChat'
 import ChatMessageList from './chat/ChatMessageList.vue'
@@ -31,7 +31,7 @@ const {
 const isDrawerOpen = ref(false)
 const messageListRef = ref<InstanceType<typeof ChatMessageList> | null>(null)
 const inputRef = ref<InstanceType<typeof ChatInput> | null>(null)
-const userHasScrolled = ref(false)
+const shouldAutoScroll = ref(true)
 const selectedPromptTemplate = ref<string>('my')
 const customPrompts = ref<Array<{ id: string; name: string; content: string }>>([])
 
@@ -51,16 +51,40 @@ const handleTemplateChange = () => {
 }
 
 // 处理滚动状态
-const handleScroll = (hasScrolled: boolean) => {
-  userHasScrolled.value = hasScrolled
+const handleScroll = (scrollInfo: {
+  isAtBottom: boolean
+  scrollTop: number
+  scrollHeight: number
+  clientHeight: number
+}) => {
+  shouldAutoScroll.value = scrollInfo.isAtBottom
 }
 
-// 监听消息变化，自动滚动到底部
-watch(chatHistory, () => {
-  if (!userHasScrolled.value && messageListRef.value) {
-    messageListRef.value.scrollToBottom()
+// 统一处理滚动到底部的逻辑
+const scrollToBottom = (instant = false) => {
+  if (shouldAutoScroll.value && messageListRef.value) {
+    if (instant) {
+      messageListRef.value.scrollToBottomInstantly()
+    } else {
+      messageListRef.value.scrollToBottom()
+    }
   }
+}
+
+// 合并监听消息变化的逻辑
+watch([chatHistory, currentAIResponse], () => {
+  nextTick(() => {
+    scrollToBottom(false)
+  })
 })
+
+// 处理发送消息
+const handleSendMessage = async () => {
+  await sendMessage()
+  nextTick(() => {
+    scrollToBottom(true)
+  })
+}
 
 // 初始化
 onMounted(() => {
@@ -167,7 +191,7 @@ onMounted(() => {
           v-model="userMessage"
           :is-generating="isGenerating"
           :is-optimizing="isOptimizing"
-          @send="sendMessage"
+          @send="handleSendMessage"
           @stop="stopGenerating"
           @optimize="optimizeMessage"
         />
