@@ -193,7 +193,7 @@ defineExpose({
 }
 
 .message-container {
-  max-width: 92%;
+  max-width: 95%;
   position: relative;
   opacity: 1;
   transform: translateY(0);
@@ -202,7 +202,7 @@ defineExpose({
 }
 
 .user.message-container {
-  max-width: 75%;
+  max-width: 85%;
 }
 
 .message-container.fade-enter-from {
