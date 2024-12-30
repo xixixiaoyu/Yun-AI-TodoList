@@ -80,7 +80,9 @@ onMounted(() => {
       </button>
     </div>
     <div class="content-wrapper">
-      <router-view />
+      <div class="router-view-container">
+        <router-view />
+      </div>
       <div class="top-components" :class="{ 'small-screen': isSmallScreen }">
         <!-- <AudioPlayer /> -->
         <DailyInspiration />
@@ -323,21 +325,26 @@ input[type='range'] {
 
 .content-wrapper {
   padding: 1rem;
-  min-height: 100vh;
+  height: 100vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
 }
 
 @media (max-width: 768px) {
   .content-wrapper {
     padding-top: 4rem;
     padding-bottom: 1rem;
-    min-height: calc(100vh - 5rem);
+    height: 100vh;
   }
 }
 
 .top-components {
   display: flex;
-  justify-content: space-between;
-  padding: 1rem;
+  flex-direction: column;
+  gap: 1rem;
+  margin-bottom: 1rem;
+  flex-shrink: 0;
 }
 
 .top-components.small-screen {
@@ -351,7 +358,8 @@ input[type='range'] {
   }
 
   .top-components {
-    margin-top: 1rem;
+    margin-top: 0;
+    margin-bottom: 0;
   }
 }
 
@@ -388,15 +396,7 @@ input[type='range'] {
 
   .app {
     height: 100vh;
-    overflow-y: auto;
-    scrollbar-width: none; /* Firefox */
-    -ms-overflow-style: none; /* Internet Explorer 10+ */
-  }
-
-  .app::-webkit-scrollbar {
-    /* WebKit */
-    width: 0;
-    height: 0;
+    overflow: hidden;
   }
 }
 
@@ -496,6 +496,21 @@ input[type='range'] {
 
   .reminder-button {
     width: 100%;
+  }
+}
+
+/* 确保路由视图内容可以自适应剩余空间 */
+.router-view-container {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+}
+
+@media (max-width: 768px) {
+  .router-view-container {
+    padding-bottom: 1rem;
   }
 }
 </style>
