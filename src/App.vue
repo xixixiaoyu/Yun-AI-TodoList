@@ -243,10 +243,6 @@ body {
   .nav-button:hover {
     transform: translateY(-1px);
   }
-
-  .content-wrapper {
-    padding-bottom: 60px;
-  }
 }
 
 @media (max-width: 360px) {

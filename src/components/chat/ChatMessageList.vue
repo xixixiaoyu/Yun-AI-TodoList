@@ -193,7 +193,7 @@ defineExpose({
 }
 
 .message-container {
-  max-width: 95%;
+  max-width: 92%;
   position: relative;
   opacity: 1;
   transform: translateY(0);
@@ -202,7 +202,7 @@ defineExpose({
 }
 
 .user.message-container {
-  max-width: 85%;
+  max-width: 88%;
 }
 
 .message-container.fade-enter-from {
@@ -296,32 +296,67 @@ defineExpose({
 
 @media (max-width: 768px) {
   .chat-history {
-    padding: 16px 12px;
-    gap: 16px;
+    padding: 12px 6px;
+    gap: 10px;
   }
 
   .message-container {
-    max-width: 95%;
+    max-width: 94%;
   }
 
   .user.message-container {
-    max-width: 85%;
+    max-width: 90%;
   }
 
   .message-content {
     padding: 10px 14px;
     font-size: 15px;
+    line-height: 1.5;
+    letter-spacing: 0.2px;
+  }
+
+  .ai .message-content {
+    background-color: var(--input-bg-color);
+    border: 1px solid rgba(0, 0, 0, 0.05);
+  }
+
+  .ai-message {
+    padding-bottom: 32px; /* 增加底部空间以容纳复制按钮 */
   }
 
   .copy-button {
-    opacity: 0.7;
-    padding: 4px 8px;
-    font-size: 11px;
+    opacity: 0.8;
+    padding: 6px 12px;
+    font-size: 13px;
+    background-color: var(--button-bg-color);
+    border-radius: 6px;
+    bottom: 4px;
+    right: 4px;
+    color: var(--card-bg-color);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
   }
 
   .copy-button svg {
-    width: 12px;
-    height: 12px;
+    width: 13px;
+    height: 13px;
+  }
+
+  .copy-button:active {
+    opacity: 1;
+    transform: scale(0.96);
+    box-shadow: 0 0 0 rgba(0, 0, 0, 0.1);
+  }
+}
+
+/* 添加深色模式下的样式优化 */
+@media (prefers-color-scheme: dark) {
+  .copy-button {
+    background-color: rgba(255, 255, 255, 0.15);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  }
+
+  .ai .message-content {
+    border-color: rgba(255, 255, 255, 0.1);
   }
 }
 </style>
