@@ -10,6 +10,7 @@
 
 ![应用截图1](/public/readmeImg/img1.png)
 ![应用截图2](/public/readmeImg/img2.png)
+![应用截图3](/public/readmeImg/img3.png)
 
 ## ✨ 功能特性
 
