@@ -227,6 +227,15 @@ export function useChat() {
   // 停止生成
   const stopGenerating = () => {
     abortCurrentRequest()
+    // 如果有已生成的内容，将其保存到聊天历史
+    if (currentAIResponse.value) {
+      const aiMsg: ChatMessage = {
+        role: 'assistant',
+        content: currentAIResponse.value,
+      }
+      chatHistory.value.push(aiMsg)
+      saveConversationHistory()
+    }
     isGenerating.value = false
   }
 
