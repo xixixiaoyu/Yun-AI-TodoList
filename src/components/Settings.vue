@@ -66,6 +66,7 @@
           <div class="prompt-controls">
             <div class="prompt-template-selector">
               <select v-model="selectedPromptTemplate" @change="handleTemplateChange">
+                <option value="none">{{ t('nonePrompt') }}</option>
                 <option value="my">{{ t('defaultPrompt') }}</option>
                 <option value="study">{{ t('studyPrompt') }}</option>
                 <option value="studentStudy">{{ t('studentStudyPrompt') }}</option>

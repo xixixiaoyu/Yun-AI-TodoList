@@ -38,7 +38,9 @@ const customPrompts = ref<Array<{ id: string; name: string; content: string }>>(
 // 处理模板变更
 const handleTemplateChange = () => {
   const template = selectedPromptTemplate.value
-  if (template === 'my' || template === 'study' || template === 'studentStudy') {
+  if (template === 'none') {
+    localStorage.setItem('systemPrompt', '')
+  } else if (template === 'my' || template === 'study' || template === 'studentStudy') {
     localStorage.setItem('systemPrompt', promptsConfig[template].content)
   } else {
     const customPrompt = customPrompts.value.find((p) => p.id === template)
@@ -150,6 +152,7 @@ onMounted(() => {
         <h2>{{ t('aiAssistant') }}</h2>
         <div class="prompt-template-selector">
           <select v-model="selectedPromptTemplate" @change="handleTemplateChange">
+            <option value="none">{{ t('nonePrompt') }}</option>
             <option value="my">{{ t('defaultPrompt') }}</option>
             <option value="study">{{ t('studyPrompt') }}</option>
             <option value="studentStudy">{{ t('studentStudyPrompt') }}</option>

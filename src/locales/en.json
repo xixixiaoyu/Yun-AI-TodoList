@@ -119,6 +119,7 @@
   "configure": "Configure",
   "reconfigure": "Reconfigure",
   "defaultPrompt": "Default Prompt",
+  "nonePrompt": "No System Prompt",
   "studyPrompt": "Study Assistant Prompt",
   "studentStudyPrompt": "Student Study Assistant Prompt",
   "customPrompt": "Custom Prompt",

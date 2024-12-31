@@ -27,6 +27,10 @@ const getHeaders = () => {
 
 // 获取系统提示词
 const getSystemPrompt = (): string => {
+  const lastSelectedTemplate = localStorage.getItem('lastSelectedTemplate')
+  if (lastSelectedTemplate === 'none') {
+    return ''
+  }
   const savedSystemPrompt = localStorage.getItem('systemPrompt')
   return savedSystemPrompt || promptsConfig.my.content
 }
