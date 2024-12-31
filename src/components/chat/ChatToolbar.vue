@@ -100,7 +100,6 @@ const { t } = useI18n()
 @media (max-width: 768px) {
   .conversation-controls {
     padding: 0 12px;
-    margin-bottom: 12px;
     gap: 6px;
   }
 

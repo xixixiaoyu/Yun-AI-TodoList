@@ -253,10 +253,14 @@ onMounted(() => {
   display: flex;
   align-items: center;
   gap: 1rem;
+  flex: 1;
+  min-width: 0; /* 防止子元素溢出 */
 }
 
 .prompt-template-selector {
   margin-left: 1rem;
+  flex: 1;
+  min-width: 0; /* 防止子元素溢出 */
 }
 
 .prompt-template-selector select {
@@ -273,6 +277,8 @@ onMounted(() => {
   background-repeat: no-repeat;
   background-position: right 0.5rem center;
   background-size: 1.2em;
+  width: 100%;
+  max-width: 300px;
 }
 
 .prompt-template-selector select:hover {
@@ -325,10 +331,17 @@ onMounted(() => {
 @media (max-width: 768px) {
   .dialog-header {
     padding: 8px 12px;
+    gap: 8px;
   }
 
   .dialog-header h2 {
-    font-size: 18px;
+    font-size: 16px;
+    white-space: nowrap;
+  }
+
+  .header-left {
+    gap: 0.5rem;
+    overflow: hidden;
   }
 
   .dialog-content {
@@ -337,13 +350,47 @@ onMounted(() => {
 
   .prompt-template-selector {
     margin-left: 0.5rem;
+    position: relative;
   }
 
   .prompt-template-selector select {
-    max-width: 120px;
-    padding-right: 2rem;
     font-size: 0.85rem;
+    padding: 0.4rem 1.8rem 0.4rem 0.8rem;
     background-size: 1em;
+    background-position: right 0.3rem center;
+  }
+
+  .close-button {
+    padding: 4px;
+  }
+
+  .close-button svg {
+    width: 20px;
+    height: 20px;
+  }
+}
+
+@media (max-width: 480px) {
+  .dialog-header {
+    padding: 6px 10px;
+  }
+
+  .dialog-header h2 {
+    font-size: 15px;
+  }
+
+  .prompt-template-selector select {
+    font-size: 0.8rem;
+    padding: 0.35rem 1.6rem 0.35rem 0.6rem;
+  }
+
+  .close-button svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  .input-section {
+    padding: 6px 0;
   }
 }
 

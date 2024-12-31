@@ -186,7 +186,7 @@ defineExpose({
 .chat-input {
   display: flex;
   gap: 8px;
-  padding: 12px 16px;
+  padding: 0 16px;
   position: sticky;
   bottom: 0;
   background-color: var(--bg-color);
