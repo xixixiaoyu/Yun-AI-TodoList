@@ -6,6 +6,11 @@
 ![Node](https://img.shields.io/badge/node-%3E%3D18.0.0-brightgreen)
 ![pnpm](https://img.shields.io/badge/pnpm-%3E%3D8.0.0-brightgreen)
 
+## 📸 应用截图
+
+![应用截图1](/public/readmeImg/img1.png)
+![应用截图2](/public/readmeImg/img2.png)
+
 ## ✨ 功能特性
 
 - 🔒 前端缓存，纯前端项目，敏感信息存储前端，不发送到服务器
