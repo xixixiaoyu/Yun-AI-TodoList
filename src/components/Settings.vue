@@ -545,125 +545,183 @@ h2 {
   transform: translate(-50%, -50%);
   width: calc(100% - 2rem);
   max-width: 480px;
-  max-height: 90vh;
   background-color: var(--card-bg-color);
-  border-radius: 16px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+  border-radius: 20px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
   z-index: 1001;
-  animation: popoverIn 0.3s ease;
+  animation: popoverIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   display: flex;
   flex-direction: column;
-}
-
-@keyframes popoverIn {
-  from {
-    opacity: 0;
-    transform: translate(-50%, -48%);
-  }
-  to {
-    opacity: 1;
-    transform: translate(-50%, -50%);
-  }
+  overflow: hidden;
 }
 
 .popover-header {
-  padding: 1.25rem;
-  border-bottom: 1px solid var(--input-border-color);
-  flex-shrink: 0;
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid var(--border-color);
   display: flex;
-  justify-content: space-between;
   align-items: center;
+  justify-content: space-between;
+  background-color: var(--card-bg-color);
 }
 
 .popover-header h3 {
   margin: 0;
-  font-size: 1.1rem;
-  font-weight: 500;
-}
-
-.close-button {
-  background: none;
-  border: none;
-  padding: 0.5rem;
-  cursor: pointer;
+  font-size: 1.25rem;
+  font-weight: 600;
   color: var(--text-color);
-  opacity: 0.7;
-  transition: opacity 0.2s ease;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin: -0.5rem -0.5rem -0.5rem 0;
-}
-
-.close-button:hover {
-  opacity: 1;
 }
 
 .popover-content {
   padding: 1.5rem;
-  overflow-y: auto;
-  flex: 1;
-  min-height: 0;
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: 1.5rem;
 }
 
 .input-group {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 0.75rem;
+  position: relative;
 }
 
-.prompt-name-input {
+.api-key-input {
   width: 100%;
-  padding: 0.875rem 1.25rem;
-  border: 2px solid var(--input-border-color);
-  border-radius: 12px;
-  font-size: 1rem;
+  padding: 0.75rem 1rem;
+  padding-right: 4rem;
+  border: 1px solid var(--input-border-color);
+  border-radius: 8px;
+  font-size: 0.95rem;
   background-color: var(--input-bg-color);
   color: var(--text-color);
-  transition: all 0.2s ease;
-  box-sizing: border-box;
+  transition: all 0.3s ease;
+  height: 42px;
 }
 
-.prompt-content-input {
-  width: 100%;
-  padding: 0.875rem 1.25rem;
-  border: 2px solid var(--input-border-color);
-  border-radius: 12px;
-  font-size: 1rem;
-  background-color: var(--input-bg-color);
-  color: var(--text-color);
-  resize: vertical;
-  font-family: inherit;
-  line-height: 1.5;
-  min-height: 120px;
-  max-height: 300px;
-  transition: all 0.2s ease;
-  box-sizing: border-box;
-}
-
-.prompt-name-input:focus,
-.prompt-content-input:focus {
+.api-key-input:focus {
   outline: none;
   border-color: var(--button-bg-color);
-  box-shadow: 0 0 0 3px rgba(var(--button-bg-color-rgb), 0.15);
+  box-shadow: 0 0 0 2px rgba(var(--button-bg-color-rgb), 0.1);
+}
+
+.toggle-button {
+  position: absolute;
+  right: 0.5rem;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: var(--button-bg-color);
+  font-size: 0.85rem;
+  padding: 0.4rem 0.6rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border-radius: 6px;
+}
+
+.toggle-button:hover {
+  color: var(--button-hover-bg-color);
+  background-color: rgba(var(--button-bg-color-rgb), 0.1);
 }
 
 .button-group {
   display: flex;
-  gap: 1rem;
-  justify-content: flex-end;
-  margin-top: 0.5rem;
+  gap: 0.75rem;
+  margin-top: 1.25rem;
 }
 
-.button-group button {
-  min-width: 5rem;
-  padding: 0.6rem 1rem;
-  font-size: 0.9rem;
+.save-button,
+.clear-button {
+  flex: 1;
+  padding: 0.75rem 1.25rem;
+  border: none;
   border-radius: 8px;
-  flex: 0 0 auto;
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  height: 42px;
+  min-width: unset;
+}
+
+.save-button {
+  background-color: var(--button-bg-color);
+  color: white;
+}
+
+.save-button:hover:not(:disabled) {
+  background-color: var(--button-hover-bg-color);
+  transform: translateY(-1px);
+}
+
+.clear-button {
+  background-color: var(--danger-color, #dc3545);
+  color: white;
+}
+
+.clear-button:hover:not(:disabled) {
+  background-color: var(--danger-hover-color, #c82333);
+  transform: translateY(-1px);
+}
+
+.save-button:disabled,
+.clear-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+@keyframes popoverIn {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -48%) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+@media (max-width: 480px) {
+  .api-key-popover {
+    width: calc(100% - 1rem);
+    max-width: none;
+    border-radius: 16px;
+  }
+
+  .popover-header {
+    padding: 1rem 1.25rem;
+  }
+
+  .popover-header h3 {
+    font-size: 1.1rem;
+  }
+
+  .popover-content {
+    padding: 1.25rem;
+    gap: 1rem;
+  }
+
+  .api-key-input {
+    padding: 0.7rem 0.875rem;
+    padding-right: 3.75rem;
+    font-size: 0.9rem;
+  }
+
+  .button-group {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .save-button,
+  .clear-button {
+    padding: 0.7rem 1rem;
+    font-size: 0.9rem;
+  }
 }
 
 .popover-overlay {
@@ -902,12 +960,15 @@ h2 {
   }
 
   .popover-content {
-    padding: 1rem;
+    padding: 1.25rem;
+    gap: 1.25rem;
   }
 
   .button-group {
     flex-direction: column;
     gap: 0.75rem;
+    margin-top: 0.75rem;
+    padding-top: 0.75rem;
   }
 
   .button-group button {
