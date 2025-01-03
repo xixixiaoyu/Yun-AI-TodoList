@@ -33,6 +33,7 @@ export const promptsConfig = {
                   - 避免过度解释和无意义的重复
                   - JavaScript 和 TypeScript 代码不需要分号，优先使用单引号和两个空格缩进
                   - 代码中使用中文注释
+                  - 尽量使用小写字母表达
 
               【专业把控】
                   - 使用准确的专业术语，必要时做出解释
