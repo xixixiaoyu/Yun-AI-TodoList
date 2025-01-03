@@ -68,13 +68,11 @@ const handleScroll = () => {
     const isAtBottom =
       element.scrollHeight - element.scrollTop <= element.clientHeight + 30
 
-    // 检测是否是用户主动滚动
-    if (Math.abs(element.scrollTop - lastScrollTop.value) > 10) {
+    // 检测用户是否在向上滚动
+    if (element.scrollTop < lastScrollTop.value) {
       isUserScrolling.value = true
-      setTimeout(() => {
-        isUserScrolling.value = false
-      }, 100)
     }
+
     lastScrollTop.value = element.scrollTop
 
     emit('scroll', {
@@ -88,14 +86,11 @@ const handleScroll = () => {
 
 // 智能滚动到底部
 const smartScrollToBottom = () => {
-  if (chatHistoryRef.value && !isUserScrolling.value) {
-    const element = chatHistoryRef.value
-    const isAtBottom =
-      element.scrollHeight - element.scrollTop <= element.clientHeight + 30
+  if (!chatHistoryRef.value) return
 
-    if (isAtBottom) {
-      scrollToBottomInstantly()
-    }
+  // 只要用户没有主动向上滚动就自动滚动到底部
+  if (!isUserScrolling.value) {
+    scrollToBottomInstantly()
   }
 }
 
@@ -108,6 +103,8 @@ onMounted(() => {
 watch(
   () => props.messages,
   () => {
+    // 新消息来时重置滚动状态
+    isUserScrolling.value = false
     nextTick(() => {
       smartScrollToBottom()
     })
