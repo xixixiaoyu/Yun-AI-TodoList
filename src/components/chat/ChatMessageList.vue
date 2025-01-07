@@ -87,11 +87,6 @@ const handleScroll = () => {
 // 智能滚动到底部
 const smartScrollToBottom = () => {
   if (!chatHistoryRef.value) return
-
-  // 只要用户没有主动向上滚动就自动滚动到底部
-  if (!isUserScrolling.value) {
-    scrollToBottomInstantly()
-  }
 }
 
 // 组件挂载时立即滚动到底部
