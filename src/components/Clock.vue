@@ -4,7 +4,7 @@ import { useI18n } from 'vue-i18n'
 
 const { t } = useI18n()
 const currentTime = ref(new Date())
-let timer: number | null = null
+let timer: ReturnType<typeof setInterval> | null = null
 
 const updateTime = () => {
   currentTime.value = new Date()
