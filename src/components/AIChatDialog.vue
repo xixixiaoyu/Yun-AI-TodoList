@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, watch, nextTick } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useChat } from '../composables/useChat'
 import ChatMessageList from './chat/ChatMessageList.vue'
@@ -70,38 +70,10 @@ const handleScroll = (scrollInfo: {
   }
 }
 
-// 统一处理滚动到底部的逻辑
-const scrollToBottom = (instant = false) => {
-  if (messageListRef.value) {
-    // 如果是用户发送消息，始终滚动到底部
-    // 如果是接收消息，则根据 shouldAutoScroll 判断
-    if (instant || shouldAutoScroll.value) {
-      if (instant) {
-        messageListRef.value.scrollToBottomInstantly()
-      } else {
-        messageListRef.value.scrollToBottom()
-      }
-    }
-  }
-}
-
-// 监听消息变化的逻辑
-watch([() => chatHistory.value, () => currentAIResponse.value], () => {
-  nextTick(() => {
-    // 给一个小延时确保内容已经渲染
-    setTimeout(() => {
-      scrollToBottom(false)
-    }, 50)
-  })
-})
-
 // 处理发送消息
 const handleSendMessage = async () => {
   shouldAutoScroll.value = true // 发送消息时重置自动滚动状态
   await sendMessage()
-  nextTick(() => {
-    scrollToBottom(true)
-  })
 }
 
 // 初始化
