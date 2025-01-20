@@ -50,7 +50,7 @@ export async function getAIStreamResponse(
       method: 'POST',
       headers: getHeaders(),
       body: JSON.stringify({
-        model: 'deepseek-chat',
+        model: 'deepseek-reasoner',
         messages: [
           // 系统提示
           {
@@ -59,7 +59,7 @@ export async function getAIStreamResponse(
           },
           ...messages, // 包含历史消息
         ],
-        temperature: promptsConfig.my.temperature,
+        // temperature: promptsConfig.my.temperature,
         stream: true,
       }),
       signal,
