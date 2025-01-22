@@ -21,6 +21,7 @@
     "electron:build:mac": "pnpm run clean && vite build && electron-builder --config electron-builder.config.js --mac",
     "electron:build:win": "pnpm run clean && vite build && electron-builder --config electron-builder.config.js --win",
     "electron:build:linux": "pnpm run clean && vite build && electron-builder --config electron-builder.config.js --linux",
+    "electron:build:all": "pnpm run clean && vite build && electron-builder --config electron-builder.config.js --all",
     "postinstall": "electron-builder install-app-deps",
     "postuninstall": "electron-builder install-app-deps",
     "clean": "rimraf dist release",
