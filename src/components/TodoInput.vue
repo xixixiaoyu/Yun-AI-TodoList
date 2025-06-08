@@ -61,43 +61,59 @@ const addTodo = async () => {
 .add-todo {
   font-family: 'LXGW WenKai Screen', sans-serif;
   display: flex;
-  margin-bottom: 1rem;
+  margin-bottom: 1.5rem;
   flex-wrap: wrap;
-  gap: 0.5rem;
+  gap: 0.75rem;
+  background: rgba(255, 255, 255, 0.05);
+  padding: 1rem;
+  border-radius: var(--border-radius);
+  border: 1px solid rgba(255, 126, 103, 0.1);
 }
 
 .input-wrapper {
   display: flex;
-  gap: 0.5rem;
+  gap: 0.75rem;
   position: relative;
   flex-grow: 1;
-  min-width: 200px;
+  min-width: 250px;
 }
 
 .todo-input {
   flex-grow: 1;
-  padding: 0.7rem;
+  padding: 0.875rem 1rem;
   font-size: 1rem;
-  border: 1px solid var(--input-border-color);
-  border-radius: calc(var(--border-radius) / 2);
+  border: 2px solid var(--input-border-color);
+  border-radius: calc(var(--border-radius) / 1.5);
   outline: none;
   transition: all 0.3s ease;
   background-color: var(--input-bg-color);
   color: var(--text-color);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 
 input:focus {
   border-color: var(--input-focus-color);
-  box-shadow: 0 0 5px rgba(121, 180, 166, 0.5);
+  box-shadow:
+    0 0 8px rgba(121, 180, 166, 0.3),
+    0 2px 8px rgba(0, 0, 0, 0.1);
+  transform: translateY(-1px);
 }
 
 .add-btn {
-  padding: 0.5rem 0.8rem;
-  font-size: 0.9rem;
-  background-color: var(--button-bg-color);
+  padding: 0.875rem 1.25rem;
+  font-size: 0.95rem;
+  background: linear-gradient(
+    135deg,
+    var(--button-bg-color) 0%,
+    rgba(121, 180, 166, 0.9) 100%
+  );
   color: var(--button-text-color);
   border: none;
-  border-radius: calc(var(--border-radius) / 2);
+  border-radius: calc(var(--border-radius) / 1.5);
+  box-shadow: 0 2px 6px rgba(121, 180, 166, 0.3);
+  transition: all 0.3s ease;
+  font-weight: 600;
+  letter-spacing: 0.5px;
   cursor: pointer;
   transition: all 0.3s ease;
   font-weight: var(--font-weight);

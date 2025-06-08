@@ -411,14 +411,14 @@ onUnmounted(() => {
   flex-direction: column;
   align-items: center;
   width: 100%;
-  max-width: 1200px;
+  max-width: 1400px;
   margin: 0 auto;
   box-sizing: border-box;
 }
 
 .todo-list {
   width: 100%;
-  max-width: 600px;
+  max-width: 800px;
   margin: 0 auto;
   font-family:
     'LXGW WenKai Screen',
@@ -431,14 +431,22 @@ onUnmounted(() => {
     Cantarell,
     'Helvetica Neue',
     sans-serif;
-  padding: 2rem;
-  background-color: var(--card-bg-color);
-  border-radius: var(--border-radius);
-  box-shadow: var(--card-shadow);
-  backdrop-filter: blur(10px);
+  padding: 2.5rem;
+  background: linear-gradient(
+    135deg,
+    var(--card-bg-color) 0%,
+    rgba(255, 255, 255, 0.02) 100%
+  );
+  border-radius: calc(var(--border-radius) * 1.5);
+  box-shadow:
+    0 10px 30px rgba(0, 0, 0, 0.1),
+    0 1px 8px rgba(0, 0, 0, 0.05),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(20px);
   position: relative;
   min-height: 300px;
   box-sizing: border-box;
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .header {
@@ -517,52 +525,104 @@ h1 {
 .actions {
   display: flex;
   justify-content: center;
-  gap: 0.5rem;
-  margin-bottom: 1rem;
-  flex-wrap: wrap; /* 允许按钮在需要时换行 */
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+  padding: 1rem;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: var(--border-radius);
+  border: 1px solid rgba(255, 126, 103, 0.08);
 }
 
 .clear-btn,
 .generate-btn,
 .sort-btn {
-  padding: 0.5rem 1rem;
+  padding: 0.75rem 1.25rem;
   font-size: 0.9rem;
-  min-width: 120px;
-  height: 36px;
+  min-width: 130px;
+  height: 42px;
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: var(--button-bg-color);
+  background: linear-gradient(
+    135deg,
+    var(--button-bg-color) 0%,
+    rgba(121, 180, 166, 0.8) 100%
+  );
   color: var(--text-color);
   border: none;
-  border-radius: 20px;
+  border-radius: 25px;
   cursor: pointer;
   transition: all 0.3s ease;
-  font-weight: var(--font-weight);
+  font-weight: 600;
   letter-spacing: 0.5px;
-  margin-bottom: 0.5rem; /* 添加底部间距，防止按钮紧贴 */
+  margin-bottom: 0.5rem;
+  box-shadow: 0 3px 8px rgba(121, 180, 166, 0.2);
+  position: relative;
+  overflow: hidden;
+}
+
+.clear-btn::before,
+.generate-btn::before,
+.sort-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.5s;
+}
+
+.clear-btn:hover::before,
+.generate-btn:hover::before,
+.sort-btn:hover::before {
+  left: 100%;
 }
 
 .clear-btn:hover {
-  background-color: var(--button-hover-bg-color);
+  background: linear-gradient(
+    135deg,
+    var(--button-hover-bg-color) 0%,
+    rgba(121, 180, 166, 1) 100%
+  );
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(121, 180, 166, 0.4);
 }
 
 .generate-btn:hover:not(:disabled) {
-  background-color: var(--button-hover-bg-color);
+  background: linear-gradient(
+    135deg,
+    var(--button-hover-bg-color) 0%,
+    rgba(121, 180, 166, 1) 100%
+  );
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(121, 180, 166, 0.4);
 }
 
 .generate-btn:disabled {
-  background-color: #95a5a6;
+  background: linear-gradient(135deg, #95a5a6 0%, #7f8c8d 100%);
   cursor: not-allowed;
+  transform: none;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .sort-btn:hover:not(:disabled) {
-  background-color: var(--button-hover-bg-color);
+  background: linear-gradient(
+    135deg,
+    var(--button-hover-bg-color) 0%,
+    rgba(121, 180, 166, 1) 100%
+  );
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(121, 180, 166, 0.4);
 }
 
 .sort-btn:disabled {
-  background-color: #95a5a6;
+  background: linear-gradient(135deg, #95a5a6 0%, #7f8c8d 100%);
   cursor: not-allowed;
+  transform: none;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .loading-spinner {
@@ -827,11 +887,28 @@ h1 {
 }
 
 .todo-card-header {
-  background-color: var(--card-bg-color);
+  background: linear-gradient(
+    135deg,
+    var(--card-bg-color) 0%,
+    rgba(255, 126, 103, 0.05) 100%
+  );
   border-radius: var(--border-radius);
   box-shadow: var(--card-shadow);
-  margin-bottom: 1rem;
-  padding: 1rem;
+  margin-bottom: 1.5rem;
+  padding: 1.25rem;
+  border-bottom: 2px solid rgba(255, 126, 103, 0.1);
+  position: relative;
+}
+
+.todo-card-header::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255, 126, 103, 0.3), transparent);
 }
 
 .pomodoro-timer-integrated {
@@ -858,17 +935,69 @@ h1 {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 1rem;
+  margin-bottom: 1.5rem;
+  padding: 1rem;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: var(--border-radius);
+  border: 1px solid rgba(255, 126, 103, 0.08);
 }
 
 .project-tabs {
   display: flex;
-  gap: 0.5rem;
+  gap: 0.75rem;
+  overflow-x: auto;
+  overflow-y: hidden;
+  max-width: 100%;
+  padding-bottom: 0.25rem;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(121, 180, 166, 0.3) transparent;
+}
+
+.project-tabs::-webkit-scrollbar {
+  height: 4px;
+}
+
+.project-tabs::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.project-tabs::-webkit-scrollbar-thumb {
+  background: rgba(121, 180, 166, 0.3);
+  border-radius: 2px;
+}
+
+.project-tabs::-webkit-scrollbar-thumb:hover {
+  background: rgba(121, 180, 166, 0.5);
 }
 
 .project-tab {
   position: relative;
+  padding: 0.75rem 1.25rem;
   padding-right: 2rem; /* 为删除按钮留出空间 */
+  line-height: 1;
+  background: linear-gradient(
+    135deg,
+    var(--filter-btn-bg) 0%,
+    rgba(121, 180, 166, 0.1) 100%
+  );
+  color: var(--filter-btn-text);
+  border: 2px solid var(--filter-btn-border);
+  border-radius: 20px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  min-width: 110px;
+  max-width: 200px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-weight: 500;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  flex-shrink: 0;
+}
+
+.project-tab:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(121, 180, 166, 0.2);
 }
 
 .delete-project {
@@ -887,39 +1016,35 @@ h1 {
   opacity: 1;
 }
 
-.project-tab {
-  position: relative;
-  padding: 0.5rem 1rem;
-  line-height: 1;
-  background-color: var(--filter-btn-bg);
-  color: var(--filter-btn-text);
-  border: 1px solid var(--filter-btn-border);
-  border-radius: 4px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  width: 100px; /* 固定宽度 */
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
 .project-tab.active {
-  background-color: var(--filter-btn-active-bg);
+  background: linear-gradient(
+    135deg,
+    var(--filter-btn-active-bg) 0%,
+    rgba(255, 126, 103, 0.2) 100%
+  );
   color: var(--filter-btn-active-text);
   border-color: var(--filter-btn-active-border);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(255, 126, 103, 0.3);
 }
 
 .add-project-btn {
-  padding: 0.5rem 1rem;
-  background-color: var(--button-bg-color);
+  padding: 0.75rem 1.25rem;
+  background: linear-gradient(
+    135deg,
+    var(--button-bg-color) 0%,
+    rgba(121, 180, 166, 0.9) 100%
+  );
   color: var(--button-text-color);
   border: none;
-  border-radius: 4px;
+  border-radius: 20px;
   cursor: pointer;
-  transition: background-color 0.3s;
+  transition: all 0.3s ease;
   display: flex;
   align-items: center;
-  font-size: 1rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  box-shadow: 0 2px 6px rgba(121, 180, 166, 0.3);
 }
 
 .add-project-btn i {
@@ -927,7 +1052,13 @@ h1 {
 }
 
 .add-project-btn:hover {
-  background-color: var(--button-hover-bg-color);
+  background: linear-gradient(
+    135deg,
+    var(--button-hover-bg-color) 0%,
+    rgba(121, 180, 166, 1) 100%
+  );
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(121, 180, 166, 0.4);
 }
 
 .project-title {
@@ -945,6 +1076,11 @@ h1 {
 
   .project-tabs {
     margin-bottom: 0.5rem;
+  }
+
+  .project-tab {
+    min-width: 90px;
+    max-width: 150px;
   }
 
   .add-project-btn {
@@ -1013,8 +1149,14 @@ h1 {
 }
 
 @media (max-width: 768px) {
-  .todo-list {
+  .todo-container {
+    max-width: 100%;
     padding: 0.5rem;
+  }
+
+  .todo-list {
+    max-width: 100%;
+    padding: 1rem;
   }
 
   .actions {
