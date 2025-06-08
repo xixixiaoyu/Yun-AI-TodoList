@@ -87,15 +87,15 @@ const addTodo = async () => {
 }
 
 input:focus {
-  border-color: #85c1e9;
-  box-shadow: 0 0 5px rgba(133, 193, 233, 0.5);
+  border-color: var(--input-focus-color);
+  box-shadow: 0 0 5px rgba(121, 180, 166, 0.5);
 }
 
 .add-btn {
   padding: 0.5rem 0.8rem;
   font-size: 0.9rem;
   background-color: var(--button-bg-color);
-  color: var(--text-color);
+  color: var(--button-text-color);
   border: none;
   border-radius: calc(var(--border-radius) / 2);
   cursor: pointer;
@@ -111,7 +111,7 @@ input:focus {
 }
 
 .error-message {
-  color: #e74c3c;
+  color: var(--error-color);
   font-size: 0.9rem;
   margin-top: 0.5rem;
   width: 100%;

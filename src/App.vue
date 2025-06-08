@@ -117,50 +117,64 @@ onMounted(() => {
 <style>
 :root {
   --bg-color: #f8f9fa;
-  --text-color: #3c4858;
+  --text-color: #2d3748;
   --card-bg-color: #ffffff;
   --card-shadow: 0 4px 16px rgba(140, 152, 164, 0.08);
   --input-bg-color: #ffffff;
   --input-border-color: #e9ecef;
   --button-bg-color: #79b4a6;
   --button-hover-bg-color: #68a295;
+  --button-text-color: #ffffff;
   --font-smoothing: antialiased;
   --font-weight: 400;
-  --todo-text-color: #3c4858;
-  --completed-todo-text-color: #8898aa;
+  --todo-text-color: #2d3748;
+  --completed-todo-text-color: #718096;
   --filter-btn-bg: #ffffff;
-  --filter-btn-text: #3c4858;
+  --filter-btn-text: #2d3748;
   --filter-btn-border: #e9ecef;
   --filter-btn-active-bg: #79b4a6;
   --filter-btn-active-text: #ffffff;
   --filter-btn-active-border: #79b4a6;
   --language-toggle-bg: rgba(121, 180, 166, 0.08);
-  --language-toggle-color: #3c4858;
+  --language-toggle-color: #2d3748;
   --language-toggle-hover-bg: rgba(121, 180, 166, 0.16);
+  --project-tag-bg-color: #4a5568;
+  --project-tag-text-color: #ffffff;
+  --link-color: #79b4a6;
+  --link-hover-color: #68a295;
+  --input-focus-color: #79b4a6;
+  --error-color: #e53e3e;
 }
 
 [data-theme='dark'] {
   --bg-color: #1a1f25;
-  --text-color: #e2e8f0;
+  --text-color: #f7fafc;
   --card-bg-color: #252b32;
   --card-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
   --input-bg-color: #2f353d;
   --input-border-color: #404650;
   --button-bg-color: #79b4a6;
   --button-hover-bg-color: #68a295;
+  --button-text-color: #ffffff;
   --font-smoothing: subpixel-antialiased;
   --font-weight: 300;
-  --todo-text-color: #e2e8f0;
+  --todo-text-color: #f7fafc;
   --completed-todo-text-color: #a0aec0;
   --filter-btn-bg: #2f353d;
-  --filter-btn-text: #e2e8f0;
+  --filter-btn-text: #f7fafc;
   --filter-btn-border: #404650;
   --filter-btn-active-bg: #79b4a6;
   --filter-btn-active-text: #1a1f25;
   --filter-btn-active-border: #79b4a6;
   --language-toggle-bg: rgba(121, 180, 166, 0.12);
-  --language-toggle-color: #e2e8f0;
+  --language-toggle-color: #f7fafc;
   --language-toggle-hover-bg: rgba(121, 180, 166, 0.24);
+  --project-tag-bg-color: #68d391;
+  --project-tag-text-color: #1a1f25;
+  --link-color: #79b4a6;
+  --link-hover-color: #68a295;
+  --input-focus-color: #79b4a6;
+  --error-color: #fc8181;
 }
 
 body {

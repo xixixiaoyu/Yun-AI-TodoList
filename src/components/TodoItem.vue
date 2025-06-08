@@ -269,8 +269,8 @@ onErrorCaptured(handleError)
 }
 
 .project-tag {
-  background-color: var(--project-tag-bg-color, #4a5568);
-  color: var(--project-tag-text-color, #fff);
+  background-color: var(--project-tag-bg-color);
+  color: var(--project-tag-text-color);
   padding: 0.2rem 0.4rem;
   border-radius: 0.25rem;
   font-size: 0.75rem;

@@ -9,13 +9,14 @@ declare module 'canvas-confetti' {
     drift?: number
     ticks?: number
     origin?: {
-      x: number
-      y: number
+      x?: number
+      y?: number
     }
     colors?: string[]
     shapes?: string[]
     scalar?: number
     zIndex?: number
+    disableForReducedMotion?: boolean
   }
 
   type ConfettiFire = (options?: ConfettiConfig) => Promise<null>
