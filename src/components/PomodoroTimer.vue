@@ -186,11 +186,20 @@ const emit = defineEmits(['pomodoroComplete'])
   background-color: var(--card-bg-color);
   border-radius: var(--border-radius);
   box-shadow: var(--card-shadow);
-  padding: 0.5rem;
+  padding: 1rem;
   margin-bottom: 1rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
+}
+
+/* 当作为集成组件时的样式覆盖 */
+.pomodoro-timer-integrated {
+  background: transparent !important;
+  box-shadow: none !important;
+  border-radius: 0 !important;
+  padding: 0 !important;
+  margin: 0 !important;
 }
 
 .timer-content {

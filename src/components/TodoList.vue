@@ -155,14 +155,14 @@ onUnmounted(() => {
 
 <template>
   <div class="todo-container" :class="{ 'small-screen': isSmallScreen }">
-    <!-- 番茄钟计时器组件 -->
-    <PomodoroTimer
-      class="pomodoro-timer"
-      :class="{ 'top-clock': !isSmallScreen }"
-      @pomodoro-complete="handlePomodoroComplete"
-    />
-
     <div class="todo-list scrollable-container">
+      <!-- 番茄钟计时器组件 - 集成到待办事项卡片顶部 -->
+      <div class="todo-card-header">
+        <PomodoroTimer
+          class="pomodoro-timer-integrated"
+          @pomodoro-complete="handlePomodoroComplete"
+        />
+      </div>
       <!-- 加载中遮罩层 -->
       <div v-if="isLoading" class="loading-overlay">
         <div class="loading-spinner" />
@@ -826,18 +826,20 @@ h1 {
   }
 }
 
-.top-clock {
-  position: fixed;
-  top: 1rem;
-  left: 4%;
-  z-index: 1001;
-  padding: 0.5rem;
+.todo-card-header {
+  background-color: var(--card-bg-color);
+  border-radius: var(--border-radius);
+  box-shadow: var(--card-shadow);
+  margin-bottom: 1rem;
+  padding: 1rem;
 }
 
-.pomodoro-timer {
-  flex-grow: 1;
-  max-width: 300px;
-  margin-bottom: 1rem;
+.pomodoro-timer-integrated {
+  width: 100%;
+  margin: 0;
+  background: transparent;
+  box-shadow: none;
+  padding: 0;
 }
 
 @media (max-width: 768px) {
@@ -846,10 +848,9 @@ h1 {
     align-items: stretch;
   }
 
-  .pomodoro-timer {
-    order: -1; /* 在移动设备上将番茄钟计时器移到顶部 */
-    max-width: none;
-    margin-top: 4rem;
+  .todo-card-header {
+    margin-bottom: 0.75rem;
+    padding: 0.75rem;
   }
 }
 
