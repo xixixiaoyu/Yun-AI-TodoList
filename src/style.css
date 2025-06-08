@@ -121,30 +121,49 @@ button:focus-visible {
 }
 
 ::-webkit-scrollbar-track {
-  background: var(--bg-color);
+  background: rgba(0, 0, 0, 0.05);
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: var(--button-bg-color);
+  background: rgba(0, 0, 0, 0.2);
   border-radius: 4px;
   transition: all 0.3s ease;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--button-hover-bg-color);
+  background: rgba(0, 0, 0, 0.3);
 }
 
 /* Firefox */
 * {
   scrollbar-width: thin;
-  scrollbar-color: var(--button-bg-color) var(--bg-color);
+  scrollbar-color: rgba(0, 0, 0, 0.2) rgba(0, 0, 0, 0.05);
+}
+
+/* 深色主题下的滚动条样式 */
+@media (prefers-color-scheme: dark) {
+  ::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.1);
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.3);
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.4);
+  }
+
+  * {
+    scrollbar-color: rgba(255, 255, 255, 0.3) rgba(255, 255, 255, 0.1);
+  }
 }
 
 /* 对于特定的可滚动容器,如果需要单独设置样式 */
 .scrollable-container {
   scrollbar-width: thin;
-  scrollbar-color: var(--button-bg-color) var(--bg-color);
+  scrollbar-color: rgba(0, 0, 0, 0.2) rgba(0, 0, 0, 0.05);
 }
 
 .scrollable-container::-webkit-scrollbar {
@@ -153,15 +172,15 @@ button:focus-visible {
 }
 
 .scrollable-container::-webkit-scrollbar-track {
-  background: var(--bg-color);
+  background: rgba(0, 0, 0, 0.05);
   border-radius: 4px;
 }
 
 .scrollable-container::-webkit-scrollbar-thumb {
-  background: var(--button-bg-color);
+  background: rgba(0, 0, 0, 0.2);
   border-radius: 4px;
 }
 
 .scrollable-container::-webkit-scrollbar-thumb:hover {
-  background: var(--button-hover-bg-color);
+  background: rgba(0, 0, 0, 0.3);
 }

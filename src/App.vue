@@ -324,8 +324,7 @@ input[type='range'] {
 
 .content-wrapper {
   padding: 1rem;
-  height: 100vh;
-  overflow: hidden;
+  min-height: 100vh;
   display: flex;
   flex-direction: column;
 }
@@ -334,7 +333,7 @@ input[type='range'] {
   .content-wrapper {
     padding-top: 4rem;
     padding-bottom: 1rem;
-    height: 100vh;
+    min-height: 100vh;
   }
 }
 
@@ -388,14 +387,8 @@ input[type='range'] {
 
 /* 添加以下样式 */
 @media (min-width: 1201px) {
-  html,
-  body {
-    overflow: hidden;
-  }
-
   .app {
-    height: 100vh;
-    overflow: hidden;
+    min-height: 100vh;
   }
 }
 
@@ -501,10 +494,8 @@ input[type='range'] {
 /* 确保路由视图内容可以自适应剩余空间 */
 .router-view-container {
   flex: 1;
-  min-height: 0;
   display: flex;
   flex-direction: column;
-  overflow-y: auto;
 }
 
 @media (max-width: 768px) {

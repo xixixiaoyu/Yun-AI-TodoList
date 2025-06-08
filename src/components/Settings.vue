@@ -1228,4 +1228,121 @@ button:disabled {
     max-height: 200px;
   }
 }
+
+/* 设置页面专用滚动条样式 */
+.settings-container {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 154, 139, 0.6) rgba(0, 0, 0, 0.05);
+}
+
+.settings-container::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.settings-container::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.05);
+  border-radius: 4px;
+}
+
+.settings-container::-webkit-scrollbar-thumb {
+  background: rgba(255, 154, 139, 0.6);
+  border-radius: 4px;
+  transition: all 0.3s ease;
+}
+
+.settings-container::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 140, 127, 0.8);
+}
+
+/* 文本域滚动条样式 */
+.system-prompt-input {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 154, 139, 0.6) rgba(0, 0, 0, 0.05);
+}
+
+.system-prompt-input::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.system-prompt-input::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.05);
+  border-radius: 3px;
+}
+
+.system-prompt-input::-webkit-scrollbar-thumb {
+  background: rgba(255, 154, 139, 0.6);
+  border-radius: 3px;
+  transition: all 0.3s ease;
+}
+
+.system-prompt-input::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 140, 127, 0.8);
+}
+
+/* 弹窗内容滚动条样式 */
+.popover-content {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 154, 139, 0.6) rgba(0, 0, 0, 0.05);
+}
+
+.popover-content::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.popover-content::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.05);
+  border-radius: 3px;
+}
+
+.popover-content::-webkit-scrollbar-thumb {
+  background: rgba(255, 154, 139, 0.6);
+  border-radius: 3px;
+  transition: all 0.3s ease;
+}
+
+.popover-content::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 140, 127, 0.8);
+}
+
+/* 深色主题下的设置页面滚动条样式 */
+@media (prefers-color-scheme: dark) {
+  .settings-container {
+    scrollbar-color: rgba(255, 154, 139, 0.7) rgba(255, 255, 255, 0.1);
+  }
+
+  .settings-container::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.1);
+  }
+
+  .settings-container::-webkit-scrollbar-thumb {
+    background: rgba(255, 154, 139, 0.7);
+  }
+
+  .settings-container::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 140, 127, 0.9);
+  }
+
+  .system-prompt-input,
+  .popover-content {
+    scrollbar-color: rgba(255, 154, 139, 0.7) rgba(255, 255, 255, 0.1);
+  }
+
+  .system-prompt-input::-webkit-scrollbar-track,
+  .popover-content::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.1);
+  }
+
+  .system-prompt-input::-webkit-scrollbar-thumb,
+  .popover-content::-webkit-scrollbar-thumb {
+    background: rgba(255, 154, 139, 0.7);
+  }
+
+  .system-prompt-input::-webkit-scrollbar-thumb:hover,
+  .popover-content::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 140, 127, 0.9);
+  }
+}
 </style>
