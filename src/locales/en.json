@@ -39,9 +39,7 @@
   "confirmClearCompleted": "Are you sure you want to clear all completed todos? This action cannot be undone.",
   "aiStreamError": "Error in AI stream response",
   "generateSuggestionsError": "Error generating suggestions",
-  "dailyInspiration": "Daily Quote",
-  "refresh": "Refresh",
-  "refreshing": "Refreshing...",
+
   "pomodoroTimer": "Pomodoro Timer",
   "workTime": "Work Time",
   "breakTime": "Break Time",

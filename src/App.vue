@@ -4,7 +4,7 @@ import { useTheme } from './composables/useTheme'
 import { useI18n } from 'vue-i18n'
 import { setLanguage } from './i18n'
 // import AudioPlayer from './components/AudioPlayer.vue'
-import DailyInspiration from './components/DailyInspiration.vue'
+
 import { useWindowSize } from '@vueuse/core'
 import router from './router'
 import {
@@ -85,7 +85,6 @@ onMounted(() => {
       </div>
       <div class="top-components" :class="{ 'small-screen': isSmallScreen }">
         <!-- <AudioPlayer /> -->
-        <DailyInspiration />
       </div>
     </div>
 
