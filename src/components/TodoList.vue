@@ -1030,6 +1030,7 @@ h1 {
 
 .add-project-btn {
   padding: 0.75rem 1.25rem;
+  white-space: nowrap;
   background: linear-gradient(
     135deg,
     var(--button-bg-color) 0%,
