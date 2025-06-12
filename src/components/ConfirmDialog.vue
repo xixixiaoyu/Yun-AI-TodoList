@@ -64,21 +64,24 @@ const cancel = () => {
 }
 
 .dialog-content {
-  background-color: white;
+  background-color: var(--card-bg-color);
+  color: var(--text-color);
   padding: 2rem;
   border-radius: 8px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   max-width: 90%;
   width: 400px;
+  border: 1px solid var(--input-border-color);
 }
 
 h2 {
   margin-top: 0;
-  color: #2c3e50;
+  color: var(--text-color);
 }
 
 p {
-  color: #34495e;
+  color: var(--text-color);
+  opacity: 0.8;
 }
 
 .dialog-buttons {
@@ -97,22 +100,27 @@ button {
 }
 
 .cancel-btn {
-  background-color: #95a5a6;
-  color: white;
+  background-color: var(--input-bg-color);
+  color: var(--text-color);
+  border: 1px solid var(--input-border-color);
   margin-right: 0.5rem;
 }
 
 .cancel-btn:hover {
-  background-color: #7f8c8d;
+  background-color: var(--button-bg-color);
+  color: var(--button-text-color);
+  border-color: var(--button-bg-color);
 }
 
 .confirm-btn {
-  background-color: #e74c3c;
+  background-color: var(--error-color);
   color: white;
+  border: 1px solid var(--error-color);
 }
 
 .confirm-btn:hover {
   background-color: #c0392b;
+  border-color: #c0392b;
 }
 
 .fade-enter-active,

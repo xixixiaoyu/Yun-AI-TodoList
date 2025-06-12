@@ -128,8 +128,29 @@ onErrorCaptured(handleError)
         <span v-if="projectName" class="project-tag">{{ projectName }}</span>
       </div>
     </div>
-    <button class="delete-btn" @click.stop="removeTodo">
-      {{ t('delete') }}
+    <button
+      class="delete-btn"
+      @click.stop="removeTodo"
+      :title="t('delete')"
+      :aria-label="t('delete')"
+    >
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="16"
+        height="16"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      >
+        <path d="M3 6h18"></path>
+        <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path>
+        <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path>
+        <line x1="10" y1="11" x2="10" y2="17"></line>
+        <line x1="14" y1="11" x2="14" y2="17"></line>
+      </svg>
     </button>
   </div>
 </template>
@@ -244,27 +265,34 @@ onErrorCaptured(handleError)
 }
 
 .delete-btn {
-  background-color: var(--button-bg-color);
-  color: var(--card-bg-color);
-  border: none;
-  border-radius: 4px;
-  padding: 0.25rem 0.5rem;
+  background-color: transparent;
+  color: var(--completed-todo-text-color);
+  border: 1px solid var(--input-border-color);
+  border-radius: 6px;
+  padding: 0.4rem;
   font-size: 0.8rem;
   cursor: pointer;
   transition: all 0.2s ease;
-  opacity: 0;
-  transform: translateX(10px);
-  margin-left: 10px;
+  opacity: 0.6;
+  transform: translateX(5px);
+  margin-left: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 32px;
+  height: 32px;
 }
 
 .todo-item:hover .delete-btn {
-  opacity: 0.7;
+  opacity: 1;
   transform: translateX(0);
+  color: var(--error-color);
+  border-color: var(--error-color);
 }
 
 .delete-btn:hover {
-  opacity: 1;
-  background-color: var(--button-hover-bg-color);
+  background-color: var(--error-color);
+  color: white;
   transform: scale(1.05);
 }
 
@@ -288,17 +316,24 @@ onErrorCaptured(handleError)
 
 @media (max-width: 768px) {
   .todo-item {
-    flex-direction: column;
-    align-items: flex-start;
+    flex-direction: row;
+    align-items: center;
   }
 
   .todo-content {
-    width: 100%;
-    margin-bottom: 0.5rem;
+    flex: 1;
+    min-width: 0;
   }
 
   .delete-btn {
-    align-self: flex-end;
+    opacity: 0.8;
+    transform: translateX(0);
+    margin-left: 12px;
+    position: relative;
+  }
+
+  .delete-btn:active {
+    transform: scale(0.95);
   }
 }
 

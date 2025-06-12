@@ -134,5 +134,9 @@
   "todoProgress": "Task Progress",
   "pending": "Pending",
   "deleteProject": "Delete Project",
-  "confirmDeleteProject": "Are you sure you want to delete project {name}? This will also delete all todos in this project."
+  "confirmDeleteProject": "Are you sure you want to delete project {name}? This will also delete all todos in this project.",
+  "toggleError": "Error toggling todo status",
+  "removeError": "Error removing todo",
+  "generalError": "Operation failed, please try again",
+  "updateOrderError": "Error updating todo order"
 }

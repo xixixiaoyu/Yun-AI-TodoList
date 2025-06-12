@@ -1,13 +1,11 @@
 import { ref, computed } from 'vue'
 import { useTodos } from './useTodos'
 import { useI18n } from 'vue-i18n'
-import { useConfirmDialog } from './useConfirmDialog'
 
-export function useProjectManagement() {
+export function useProjectManagement(confirmDialog?: any) {
   const { t } = useI18n()
   const { projects, currentProjectId, addProject, removeProject, setCurrentProject } =
     useTodos()
-  const { showConfirmDialog, confirmDialogConfig } = useConfirmDialog()
 
   const showAddProjectModal = ref(false)
 
@@ -27,18 +25,26 @@ export function useProjectManagement() {
     const project = projects.value.find((p) => p.id === projectId)
     if (!project) return
 
-    showConfirmDialog.value = true
-    confirmDialogConfig.value = {
-      title: t('deleteProject'),
-      message: t('confirmDeleteProject', { name: project.name }),
-      confirmText: t('confirm'),
-      cancelText: t('cancel'),
-      action: () => {
-        removeProject(projectId)
-        if (currentProjectId.value === projectId) {
-          setCurrentProject(null)
-        }
-      },
+    if (confirmDialog) {
+      confirmDialog.showConfirmDialog.value = true
+      confirmDialog.confirmDialogConfig.value = {
+        title: t('deleteProject'),
+        message: t('confirmDeleteProject', { name: project.name }),
+        confirmText: t('confirm'),
+        cancelText: t('cancel'),
+        action: () => {
+          removeProject(projectId)
+          if (currentProjectId.value === projectId) {
+            setCurrentProject(null)
+          }
+        },
+      }
+    } else {
+      // 如果没有传入确认对话框，直接删除（用于测试或其他场景）
+      removeProject(projectId)
+      if (currentProjectId.value === projectId) {
+        setCurrentProject(null)
+      }
     }
   }
 

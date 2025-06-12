@@ -174,5 +174,9 @@
   "todoStats": "待办事项统计",
   "todoProgress": "任务完成情况",
   "completed": "已完成",
-  "pending": "待完成"
+  "pending": "待完成",
+  "toggleError": "切换待办事项状态时出错",
+  "removeError": "删除待办事项时出错",
+  "generalError": "操作失败，请重试",
+  "updateOrderError": "更新待办事项顺序时出错"
 }

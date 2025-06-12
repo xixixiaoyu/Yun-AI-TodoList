@@ -26,8 +26,9 @@ interface SortableEvent {
 // 使用组合式函数
 const { t } = useI18n()
 const { showError } = useErrorHandler()
+const confirmDialog = useConfirmDialog()
 const { showConfirmDialog, confirmDialogConfig, handleConfirm, handleCancel } =
-  useConfirmDialog()
+  confirmDialog
 const {
   todos,
   history,
@@ -46,7 +47,7 @@ const {
   deleteProject,
   handleProjectChange,
   currentProjectId,
-} = useProjectManagement()
+} = useProjectManagement(confirmDialog)
 
 // 待办事项管理相关
 const {
@@ -269,14 +270,15 @@ onUnmounted(() => {
             @click="handleProjectChange(project.id)"
           >
             {{ project.name }}
-            <span
+            <button
               v-if="project.id !== null"
               class="delete-project"
               :title="t('deleteProject')"
-              @click.stop="deleteProject(project.id)"
+              @click.stop.prevent="deleteProject(project.id)"
+              type="button"
             >
               &times;
-            </span>
+            </button>
           </button>
         </div>
         <button class="add-project-btn" @click="showAddProjectModal = true">
@@ -710,13 +712,14 @@ h1 {
 @media (max-width: 768px) {
   .todo-container {
     padding: 0.5rem;
+    padding-top: 4.5rem; /* 为固定导航栏留出空间 */
   }
 
   .todo-list {
     width: 100%;
     max-width: 100%;
     padding: 0.5rem;
-    margin-top: 1rem; /* 为固定位置的时钟和每日激励留出空间 */
+    margin-top: 0; /* 移除额外的margin，因为container已经有padding */
   }
 
   .actions {
@@ -940,6 +943,8 @@ h1 {
   background: rgba(255, 255, 255, 0.03);
   border-radius: var(--border-radius);
   border: 1px solid rgba(255, 126, 103, 0.08);
+  position: relative;
+  z-index: 100;
 }
 
 .project-tabs {
@@ -973,7 +978,7 @@ h1 {
 .project-tab {
   position: relative;
   padding: 0.75rem 1.25rem;
-  padding-right: 2rem; /* 为删除按钮留出空间 */
+  padding-right: 2.2rem; /* 为删除按钮留出更多空间 */
   line-height: 1;
   background: linear-gradient(
     135deg,
@@ -988,7 +993,7 @@ h1 {
   min-width: 110px;
   max-width: 200px;
   white-space: nowrap;
-  overflow: hidden;
+  overflow: visible; /* 确保删除按钮可见 */
   text-overflow: ellipsis;
   font-weight: 500;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
@@ -1002,18 +1007,38 @@ h1 {
 
 .delete-project {
   position: absolute;
-  top: 46%;
-  right: 0.5rem;
+  top: 50%;
+  right: 0.3rem;
   transform: translateY(-50%);
   cursor: pointer;
-  font-size: 1.2rem;
+  font-size: 1.1rem;
   line-height: 1;
   opacity: 0.7;
-  transition: opacity 0.3s;
+  transition: all 0.3s ease;
+  background: none;
+  border: none;
+  color: inherit;
+  padding: 0.3rem;
+  border-radius: 50%;
+  width: 1.6rem;
+  height: 1.6rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 20;
+  font-weight: bold;
 }
 
 .delete-project:hover {
   opacity: 1;
+  background-color: rgba(255, 0, 0, 0.15);
+  color: #ff4444;
+  transform: translateY(-50%) scale(1.1);
+}
+
+.delete-project:active {
+  transform: translateY(-50%) scale(0.95);
+  background-color: rgba(255, 0, 0, 0.25);
 }
 
 .project-tab.active {
@@ -1073,15 +1098,29 @@ h1 {
   .project-header {
     flex-direction: column;
     align-items: stretch;
+    margin-top: 0.5rem; /* 确保不被导航栏遮挡 */
+    position: relative;
+    z-index: 50;
   }
 
   .project-tabs {
     margin-bottom: 0.5rem;
+    padding-bottom: 0.5rem;
   }
 
   .project-tab {
     min-width: 90px;
     max-width: 150px;
+    font-size: 0.9rem;
+    padding: 0.6rem 1rem;
+    padding-right: 2rem; /* 为删除按钮留出足够空间 */
+  }
+
+  .delete-project {
+    right: 0.2rem;
+    width: 1.4rem;
+    height: 1.4rem;
+    font-size: 1rem;
   }
 
   .add-project-btn {
