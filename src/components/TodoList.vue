@@ -90,6 +90,8 @@ const {
 
 // 创建待办事项列表的 ref，用于拖拽排序功能
 const todoListRef = ref<HTMLElement | null>(null)
+// 创建项目标签容器的 ref，用于滚轮滚动功能
+const projectTabsRef = ref<HTMLElement | null>(null)
 
 // 使用 useSortable 为待办事项列表添加拖拽排序功能
 const { option } = useSortable(todoListRef, filteredTodos, {
@@ -116,6 +118,16 @@ const { option } = useSortable(todoListRef, filteredTodos, {
 })
 
 option('animation', 150)
+
+// 处理项目标签的滚轮事件，实现水平滚动
+const handleProjectTabsWheel = (event: WheelEvent) => {
+  if (projectTabsRef.value) {
+    // 阻止默认的垂直滚动
+    event.preventDefault()
+    // 将垂直滚动转换为水平滚动
+    projectTabsRef.value.scrollLeft += event.deltaY
+  }
+}
 
 // 添加错误边界处理
 const handleError = (error: Error) => {
@@ -260,7 +272,7 @@ onUnmounted(() => {
 
       <!-- 项目选择器和添加项目按钮 -->
       <div class="project-header" :class="{ 'small-screen': isSmallScreen }">
-        <div class="project-tabs">
+        <div class="project-tabs" @wheel="handleProjectTabsWheel" ref="projectTabsRef">
           <button
             v-for="(project, index) in displayedProjects"
             :key="project.id || index"
@@ -901,6 +913,7 @@ h1 {
   padding: 1.25rem;
   border-bottom: 2px solid rgba(255, 126, 103, 0.1);
   position: relative;
+  z-index: 10; /* 确保番茄钟计时器不会遮挡其他元素 */
 }
 
 .todo-card-header::after {
@@ -929,8 +942,8 @@ h1 {
   }
 
   .todo-card-header {
-    margin-bottom: 0.75rem;
-    padding: 0.75rem;
+    margin-bottom: 1rem; /* 与上面的样式保持一致 */
+    padding: 1rem; /* 与上面的样式保持一致 */
   }
 }
 
@@ -944,7 +957,8 @@ h1 {
   border-radius: var(--border-radius);
   border: 1px solid rgba(255, 126, 103, 0.08);
   position: relative;
-  z-index: 100;
+  z-index: 200; /* 确保项目标签在番茄钟计时器之上 */
+  margin-top: 0.5rem; /* 增加与上方元素的间距，防止遮挡 */
 }
 
 .project-tabs {
@@ -956,6 +970,8 @@ h1 {
   padding-bottom: 0.25rem;
   scrollbar-width: thin;
   scrollbar-color: rgba(121, 180, 166, 0.3) transparent;
+  scroll-behavior: smooth; /* 添加平滑滚动效果 */
+  cursor: grab; /* 添加抓取光标提示用户可以滚动 */
 }
 
 .project-tabs::-webkit-scrollbar {
@@ -973,6 +989,11 @@ h1 {
 
 .project-tabs::-webkit-scrollbar-thumb:hover {
   background: rgba(121, 180, 166, 0.5);
+}
+
+/* 当用户正在滚动时改变光标 */
+.project-tabs:active {
+  cursor: grabbing;
 }
 
 .project-tab {
@@ -1098,14 +1119,17 @@ h1 {
   .project-header {
     flex-direction: column;
     align-items: stretch;
-    margin-top: 0.5rem; /* 确保不被导航栏遮挡 */
+    margin-top: 1rem; /* 增加与上方元素的间距，防止遮挡 */
     position: relative;
-    z-index: 50;
+    z-index: 200; /* 确保在小屏幕上也不被遮挡 */
+    padding: 0.75rem; /* 减少内边距以节省空间 */
   }
 
   .project-tabs {
-    margin-bottom: 0.5rem;
+    margin-bottom: 0.75rem;
     padding-bottom: 0.5rem;
+    /* 在小屏幕上也保持滚轮滚动功能 */
+    scroll-behavior: smooth;
   }
 
   .project-tab {
@@ -1126,6 +1150,12 @@ h1 {
   .add-project-btn {
     width: 100%;
     justify-content: center;
+  }
+
+  /* 在小屏幕上优化番茄钟计时器的间距 */
+  .todo-card-header {
+    margin-bottom: 1rem; /* 减少底部间距 */
+    padding: 1rem; /* 减少内边距 */
   }
 }
 
