@@ -1,17 +1,9 @@
 import { app, BrowserWindow } from 'electron'
 import path from 'path'
 import { fileURLToPath } from 'url'
-import * as dotenv from 'dotenv'
 
 // 获取 __dirname
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
-
-// 加载环境变量
-const envPath = app.isPackaged
-  ? path.join(process.resourcesPath, '.env')
-  : path.join(process.cwd(), '.env')
-
-dotenv.config({ path: envPath })
 
 let mainWindow = null
 

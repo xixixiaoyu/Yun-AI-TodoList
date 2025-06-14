@@ -115,31 +115,7 @@ body {
   }
 }
 
-/* 音频播放器样式 */
-.audio-player {
-  position: relative;
-  z-index: 1000;
-  width: 100%;
-  max-width: 600px;
-  margin: 4rem auto;
-}
-
-@media (min-width: 1201px) {
-  .audio-player {
-    position: fixed;
-    top: calc(1rem + 150px);
-    left: 1rem;
-    width: 300px;
-  }
-}
-
-@media (max-width: 1200px) {
-  .audio-player {
-    width: 100%;
-    max-width: 600px;
-    margin: 1rem auto;
-  }
-}
+/* 预留样式区域 */
 
 @media (max-width: 768px) {
   .audio-player {

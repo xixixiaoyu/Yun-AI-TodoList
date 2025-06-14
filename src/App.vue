@@ -45,7 +45,7 @@ onMounted(() => {
         <router-view />
       </div>
       <div class="top-components" :class="{ 'small-screen': isSmallScreen }">
-        <!-- <AudioPlayer /> -->
+        <!-- 预留位置用于其他组件 -->
       </div>
     </div>
 

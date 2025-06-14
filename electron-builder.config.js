@@ -16,12 +16,7 @@ export default {
     '!**/node_modules/*/{CHANGELOG.md,README.md,README,readme.md,readme}',
     '!**/node_modules/*/{test,__tests__,tests,powered-test,example,examples}',
   ],
-  extraResources: [
-    {
-      from: 'node_modules/dotenv',
-      to: 'node_modules/dotenv',
-    },
-  ],
+  extraResources: [],
   mac: {
     icon: 'null',
     target: ['dmg', 'zip'],

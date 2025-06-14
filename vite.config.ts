@@ -59,7 +59,6 @@ export default defineConfig({
         manualChunks: {
           vendor: ['vue', 'vue-router', 'vue-i18n'],
           chart: ['chart.js', 'chartjs-chart-matrix'],
-          d3: ['d3'],
         },
         entryFileNames: 'assets/[name].js',
         chunkFileNames: 'assets/[name].js',
