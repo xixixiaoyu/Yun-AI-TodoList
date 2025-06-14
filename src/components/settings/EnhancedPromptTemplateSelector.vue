@@ -260,19 +260,19 @@ defineOptions({
 .enhanced-prompt-selector {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: 0.75rem;
 }
 
 .template-selector-section {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 0.375rem;
 }
 
 .selector-label {
   font-weight: 600;
   color: var(--text-color);
-  font-size: 0.9rem;
+  font-size: 0.8rem;
 }
 
 .selector-wrapper {
@@ -283,19 +283,20 @@ defineOptions({
 
 .template-select {
   flex: 1;
-  padding: 0.5rem 2.5rem 0.5rem 1rem;
-  border-radius: 8px;
+  padding: 0.375rem 2rem 0.375rem 0.75rem;
+  border-radius: 6px;
   border: 2px solid var(--input-border-color);
   background-color: var(--input-bg-color);
   color: var(--text-color);
-  font-size: 0.9rem;
+  font-size: 0.8rem;
   cursor: pointer;
   transition: all 0.2s ease;
   appearance: none;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Cpath fill='%23666' d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
-  background-position: right 0.5rem center;
-  min-width: 200px;
+  background-position: right 0.375rem center;
+  background-size: 16px;
+  min-width: 180px;
 }
 
 .template-select:hover {
@@ -317,14 +318,19 @@ defineOptions({
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 32px;
-  height: 32px;
+  width: 28px;
+  height: 28px;
   border: none;
-  border-radius: 6px;
+  border-radius: 5px;
   background-color: var(--input-bg-color);
   color: var(--text-secondary-color);
   cursor: pointer;
   transition: all 0.2s ease;
+}
+
+.action-btn svg {
+  width: 14px;
+  height: 14px;
 }
 
 .action-btn:hover {
@@ -346,9 +352,9 @@ defineOptions({
 }
 
 .prompt-info {
-  padding: 1rem;
+  padding: 0.75rem;
   background-color: var(--input-bg-color);
-  border-radius: 8px;
+  border-radius: 6px;
   border: 1px solid var(--input-border-color);
 }
 
@@ -356,17 +362,17 @@ defineOptions({
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.375rem;
 }
 
 .prompt-name {
   margin: 0;
-  font-size: 1rem;
+  font-size: 0.875rem;
   font-weight: 600;
   color: var(--text-color);
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.375rem;
 }
 
 .favorite-star {
@@ -415,10 +421,10 @@ defineOptions({
 }
 
 .prompt-description {
-  margin: 0.5rem 0 0 0;
-  font-size: 0.9rem;
+  margin: 0.375rem 0 0 0;
+  font-size: 0.8rem;
   color: var(--text-secondary-color);
-  line-height: 1.5;
+  line-height: 1.4;
 }
 
 .prompt-tags {
@@ -437,10 +443,41 @@ defineOptions({
   color: var(--text-secondary-color);
 }
 
+/* 针对小屏幕高度的优化 */
+@media (max-height: 800px) {
+  .enhanced-prompt-selector {
+    gap: 0.5rem;
+  }
+
+  .template-selector-section {
+    gap: 0.25rem;
+  }
+
+  .prompt-info {
+    padding: 0.5rem;
+  }
+
+  .info-header {
+    margin-bottom: 0.25rem;
+  }
+
+  .prompt-description {
+    margin: 0.25rem 0 0 0;
+    font-size: 0.75rem;
+  }
+}
+
+@media (max-height: 700px) {
+  .prompt-info {
+    display: none; /* 在极小高度下隐藏详细信息 */
+  }
+}
+
 @media (max-width: 768px) {
   .selector-wrapper {
     flex-direction: column;
     align-items: stretch;
+    gap: 0.375rem;
   }
 
   .template-select {
@@ -453,7 +490,7 @@ defineOptions({
 
   .info-header {
     flex-direction: column;
-    gap: 0.5rem;
+    gap: 0.375rem;
   }
 
   .prompt-meta {

@@ -121,15 +121,15 @@ defineOptions({
 <style scoped>
 .settings-section {
   background-color: var(--card-bg-color);
-  border-radius: 20px;
-  padding: 2rem;
+  border-radius: 16px;
+  padding: 1.5rem;
   box-shadow: var(--card-shadow);
   width: 100%;
-  max-width: 1000px;
+  max-width: 900px;
   margin: 0 auto;
   display: flex;
   flex-direction: column;
-  gap: 2rem;
+  gap: 1.25rem;
   transition: all 0.3s ease;
 }
 
@@ -182,20 +182,20 @@ defineOptions({
 
 .system-prompt-input {
   width: 100%;
-  max-width: 900px;
-  padding: 1rem;
+  max-width: 100%;
+  padding: 0.875rem;
   border: 2px solid var(--input-border-color);
-  border-radius: 12px;
-  font-size: 0.95rem;
+  border-radius: 10px;
+  font-size: 0.875rem;
   background-color: var(--input-bg-color);
   color: var(--text-color);
   transition: all 0.2s ease;
   resize: vertical;
-  min-height: 200px;
-  max-height: 500px;
+  min-height: 140px;
+  max-height: 350px;
   font-family: inherit;
-  line-height: 1.6;
-  margin: 0 0 1.5rem 0;
+  line-height: 1.5;
+  margin: 0;
   box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.05);
 }
 
@@ -209,29 +209,28 @@ defineOptions({
 
 .button-group {
   width: 100%;
-  max-width: 900px;
   display: flex;
-  gap: 1.5rem;
+  gap: 0.75rem;
   justify-content: flex-end;
   align-items: center;
-  margin-top: 1rem;
+  margin-top: 0.5rem;
 }
 
 .save-button,
 .reset-button {
-  padding: 0.75rem 1.5rem;
+  padding: 0.5rem 1rem;
   border: none;
-  border-radius: 10px;
+  border-radius: 8px;
   cursor: pointer;
-  font-size: 0.95rem;
+  font-size: 0.8rem;
   font-weight: 500;
   transition: all 0.2s ease;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 0.5rem;
-  height: 42px;
-  min-width: 120px;
+  gap: 0.25rem;
+  height: 32px;
+  min-width: 80px;
   white-space: nowrap;
 }
 
@@ -358,28 +357,78 @@ defineOptions({
   font-size: 1rem;
 }
 
+/* 确保在小屏幕高度上能一屏展示 */
+@media (max-height: 800px) {
+  .settings-section {
+    padding: 1rem;
+    gap: 0.875rem;
+  }
+
+  .section-title {
+    font-size: 1.1rem;
+  }
+
+  .section-description {
+    font-size: 0.75rem;
+  }
+
+  .system-prompt-input {
+    min-height: 100px;
+    max-height: 250px;
+  }
+}
+
+@media (max-height: 700px) {
+  .settings-section {
+    padding: 0.875rem;
+    gap: 0.75rem;
+  }
+
+  .section-title {
+    font-size: 1rem;
+  }
+
+  .system-prompt-input {
+    min-height: 80px;
+    max-height: 200px;
+    font-size: 0.8rem;
+  }
+
+  .save-button,
+  .reset-button {
+    height: 28px;
+    font-size: 0.75rem;
+    padding: 0.375rem 0.75rem;
+  }
+}
+
 @media (max-width: 768px) {
   .settings-section {
-    padding: 1.5rem;
-    gap: 1.5rem;
+    padding: 1rem;
+    gap: 0.875rem;
   }
 
   .section-header {
     flex-direction: column;
-    gap: 1rem;
+    gap: 0.5rem;
     align-items: flex-start;
   }
 
   .section-title {
-    font-size: 1.3rem;
+    font-size: 1rem;
   }
 
   .section-description {
-    font-size: 0.9rem;
+    font-size: 0.75rem;
   }
 
   .prompt-controls {
-    gap: 1rem;
+    gap: 0.625rem;
+  }
+
+  .system-prompt-input {
+    min-height: 100px;
+    max-height: 250px;
   }
 
   .prompt-actions {

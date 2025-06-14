@@ -289,35 +289,35 @@ export default {
 <style scoped>
 .api-key-section {
   width: 100%;
-  max-width: 800px;
+  max-width: 900px;
   margin: 0 auto;
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 1rem;
 }
 
 .section-header {
   text-align: center;
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.25rem;
 }
 
 .section-title {
-  margin: 0 0 0.5rem 0;
-  font-size: 1.5rem;
+  margin: 0 0 0.25rem 0;
+  font-size: 1.25rem;
   font-weight: 600;
   color: var(--text-color);
 }
 
 .section-description {
   margin: 0;
-  font-size: 0.95rem;
+  font-size: 0.85rem;
   color: var(--text-secondary-color, rgba(var(--text-color-rgb), 0.7));
-  line-height: 1.5;
+  line-height: 1.4;
 }
 
 .api-key-card {
   background-color: var(--card-bg-color);
-  border-radius: 20px;
+  border-radius: 16px;
   box-shadow: var(--card-shadow);
   cursor: pointer;
   transition: all 0.3s ease;
@@ -332,11 +332,11 @@ export default {
 }
 
 .card-content {
-  padding: 2rem;
+  padding: 1.25rem;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 2rem;
+  gap: 1.25rem;
 }
 
 .status-section {
@@ -428,24 +428,24 @@ export default {
 }
 
 .configure-button {
-  padding: 0.875rem 1.5rem;
+  padding: 0.625rem 1rem;
   border: none;
-  border-radius: 12px;
+  border-radius: 8px;
   background: linear-gradient(
     135deg,
     var(--button-bg-color),
     var(--button-hover-bg-color)
   );
   color: white;
-  font-size: 0.95rem;
+  font-size: 0.8rem;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
   white-space: nowrap;
   display: inline-flex;
   align-items: center;
-  gap: 0.5rem;
-  box-shadow: 0 4px 12px rgba(var(--button-bg-color-rgb), 0.3);
+  gap: 0.25rem;
+  box-shadow: 0 3px 8px rgba(var(--button-bg-color-rgb), 0.3);
   position: relative;
   overflow: hidden;
 }
