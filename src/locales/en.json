@@ -118,8 +118,7 @@
   "reconfigure": "Reconfigure",
   "defaultPrompt": "Default Prompt",
   "nonePrompt": "No System Prompt",
-  "studyPrompt": "Study Assistant Prompt",
-  "studentStudyPrompt": "Student Study Assistant Prompt",
+
   "customPrompt": "Custom Prompt",
   "customPrompts": "Custom Prompts",
   "addPrompt": "Add Prompt",
@@ -138,5 +137,8 @@
   "toggleError": "Error toggling todo status",
   "removeError": "Error removing todo",
   "generalError": "Operation failed, please try again",
-  "updateOrderError": "Error updating todo order"
+  "updateOrderError": "Error updating todo order",
+  "apiKeyConfiguration": "API Key Configuration",
+  "enterFullscreen": "Enter Fullscreen",
+  "exitFullscreen": "Exit Fullscreen"
 }

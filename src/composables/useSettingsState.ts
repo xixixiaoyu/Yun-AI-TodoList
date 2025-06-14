@@ -58,7 +58,7 @@ export function useSettingsState() {
    * 加载提示词内容
    */
   const loadPromptContent = (template: string, fallbackContent?: string | null) => {
-    if (template === 'my' || template === 'study' || template === 'studentStudy') {
+    if (template === 'my') {
       // 如果是预设模板，直接使用配置内容
       localSystemPrompt.value = promptsConfig[template].content
     } else {

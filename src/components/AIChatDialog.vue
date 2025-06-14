@@ -40,7 +40,7 @@ const handleTemplateChange = () => {
   const template = selectedPromptTemplate.value
   if (template === 'none') {
     localStorage.setItem('systemPrompt', '')
-  } else if (template === 'my' || template === 'study' || template === 'studentStudy') {
+  } else if (template === 'my') {
     localStorage.setItem('systemPrompt', promptsConfig[template].content)
   } else {
     const customPrompt = customPrompts.value.find((p) => p.id === template)
@@ -126,8 +126,7 @@ onMounted(() => {
           <select v-model="selectedPromptTemplate" @change="handleTemplateChange">
             <option value="none">{{ t('nonePrompt') }}</option>
             <option value="my">{{ t('defaultPrompt') }}</option>
-            <option value="study">{{ t('studyPrompt') }}</option>
-            <option value="studentStudy">{{ t('studentStudyPrompt') }}</option>
+
             <optgroup :label="t('customPrompts')" v-if="customPrompts.length > 0">
               <option v-for="prompt in customPrompts" :key="prompt.id" :value="prompt.id">
                 {{ prompt.name }}

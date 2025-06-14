@@ -14,7 +14,7 @@ export interface CustomPrompt {
 /**
  * 提示词模板类型
  */
-export type PromptTemplate = 'my' | 'study' | 'studentStudy' | string
+export type PromptTemplate = 'my' | string
 
 /**
  * 设置状态接口

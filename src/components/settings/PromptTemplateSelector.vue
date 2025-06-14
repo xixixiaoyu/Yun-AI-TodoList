@@ -3,8 +3,7 @@
     <select :value="selectedTemplate" @change="handleTemplateChange">
       <option value="none">{{ t('nonePrompt') }}</option>
       <option value="my">{{ t('defaultPrompt') }}</option>
-      <option value="study">{{ t('studyPrompt') }}</option>
-      <option value="studentStudy">{{ t('studentStudyPrompt') }}</option>
+
       <optgroup :label="t('customPrompts')" v-if="customPrompts.length > 0">
         <option v-for="prompt in customPrompts" :key="prompt.id" :value="prompt.id">
           {{ prompt.name }}

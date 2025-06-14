@@ -154,8 +154,7 @@
   "reconfigure": "重新配置",
   "defaultPrompt": "默认提示词",
   "nonePrompt": "无系统提示词",
-  "studyPrompt": "学习助手提示词",
-  "studentStudyPrompt": "初中学生学习助手提示词",
+
   "customPrompt": "自定义提示词",
   "customPrompts": "自定义提示词",
   "addPrompt": "新增提示词",
@@ -178,5 +177,8 @@
   "toggleError": "切换待办事项状态时出错",
   "removeError": "删除待办事项时出错",
   "generalError": "操作失败，请重试",
-  "updateOrderError": "更新待办事项顺序时出错"
+  "updateOrderError": "更新待办事项顺序时出错",
+  "apiKeyConfiguration": "API 密钥配置",
+  "enterFullscreen": "进入全屏",
+  "exitFullscreen": "退出全屏"
 }

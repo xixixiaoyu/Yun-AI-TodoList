@@ -24,7 +24,7 @@ export function usePromptManagement(
   const handleTemplateChange = () => {
     const template = selectedPromptTemplate.value
 
-    if (template === 'my' || template === 'study' || template === 'studentStudy') {
+    if (template === 'my') {
       localSystemPrompt.value = promptsConfig[template].content
     } else {
       const customPrompt = customPrompts.value.find((p) => p.id === template)

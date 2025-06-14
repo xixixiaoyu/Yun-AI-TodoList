@@ -1,47 +1,17 @@
 <template>
   <div class="settings-section" :class="{ fullscreen: isFullscreen }">
+    <!-- 区域标题 -->
     <div class="section-header">
-      <h3>{{ t('systemPrompt') }}</h3>
-      <div class="prompt-controls">
-        <PromptTemplateSelector
-          :selected-template="selectedPromptTemplate"
-          :custom-prompts="customPrompts"
-          @update:selected-template="$emit('update:selectedPromptTemplate', $event)"
-          @template-change="$emit('templateChange')"
-        />
-        <div class="prompt-actions">
-          <button
-            v-if="isCustomPrompt"
-            class="delete-prompt-button"
-            @click="$emit('confirmDeletePrompt')"
-            :title="t('deleteCustomPrompt')"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-            >
-              <path
-                fill="currentColor"
-                d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"
-              />
-            </svg>
-            {{ t('deleteCustomPrompt') }}
-          </button>
-          <button class="add-prompt-button" @click="$emit('showAddPrompt')">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="20"
-              height="20"
-              viewBox="0 0 24 24"
-            >
-              <path fill="currentColor" d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z" />
-            </svg>
-            {{ t('addPrompt') }}
-          </button>
-        </div>
-        <button class="fullscreen-button" @click="$emit('toggleFullscreen')">
+      <div class="header-content">
+        <h3 class="section-title">{{ t('systemPrompt') }}</h3>
+        <p class="section-description">自定义 AI 助手的行为和回复风格</p>
+      </div>
+      <div class="header-actions">
+        <button
+          class="fullscreen-button"
+          @click="$emit('toggleFullscreen')"
+          :title="isFullscreen ? t('exitFullscreen') : t('enterFullscreen')"
+        >
           <svg
             v-if="!isFullscreen"
             xmlns="http://www.w3.org/2000/svg"
@@ -66,6 +36,54 @@
               d="M5 16h3v3h2v-5H5v2zm3-8H5v2h5V5H8v3zm6 11h2v-3h3v-2h-5v5zm2-11V5h-2v5h5V8h-3z"
             />
           </svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- 提示词控制区域 -->
+    <div class="prompt-controls">
+      <div class="template-selector-wrapper">
+        <PromptTemplateSelector
+          :selected-template="selectedPromptTemplate"
+          :custom-prompts="customPrompts"
+          @update:selected-template="$emit('update:selectedPromptTemplate', $event)"
+          @template-change="$emit('templateChange')"
+        />
+      </div>
+      <div class="prompt-actions">
+        <button
+          v-if="isCustomPrompt"
+          class="delete-prompt-button"
+          @click="$emit('confirmDeletePrompt')"
+          :title="t('deleteCustomPrompt')"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+          >
+            <path
+              fill="currentColor"
+              d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"
+            />
+          </svg>
+          {{ t('deleteCustomPrompt') }}
+        </button>
+        <button
+          class="add-prompt-button"
+          @click="$emit('showAddPrompt')"
+          :title="t('addNewPrompt')"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+          >
+            <path fill="currentColor" d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z" />
+          </svg>
+          {{ t('addPrompt') }}
         </button>
       </div>
     </div>
@@ -139,34 +157,63 @@ defineOptions({
 <style scoped>
 .settings-section {
   background-color: var(--card-bg-color);
-  border-radius: 16px;
-  padding: 1.25rem 1.5rem;
+  border-radius: 20px;
+  padding: 2rem;
   box-shadow: var(--card-shadow);
   width: 100%;
-  min-width: 200px;
   max-width: 1000px;
   margin: 0 auto;
   display: flex;
   flex-direction: column;
-  align-items: center;
+  gap: 2rem;
+  transition: all 0.3s ease;
 }
 
 .section-header {
-  width: 100%;
-  max-width: 900px;
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  position: relative;
-  margin-bottom: 1.5rem;
-  padding: 0;
+  align-items: flex-start;
+  gap: 2rem;
 }
 
-.section-header h3 {
-  font-size: 1rem;
-  margin: 0;
-  font-weight: 500;
+.header-content {
+  flex: 1;
+}
+
+.section-title {
+  font-size: 1.5rem;
+  margin: 0 0 0.5rem 0;
+  font-weight: 600;
   color: var(--text-color);
+}
+
+.section-description {
+  margin: 0;
+  font-size: 0.95rem;
+  color: var(--text-secondary-color, rgba(var(--text-color-rgb), 0.7));
+  line-height: 1.5;
+}
+
+.header-actions {
+  flex-shrink: 0;
+}
+
+.prompt-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  width: 100%;
+}
+
+.template-selector-wrapper {
+  width: 100%;
+}
+
+.prompt-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+  flex-wrap: wrap;
 }
 
 .system-prompt-input {
@@ -255,40 +302,25 @@ defineOptions({
 }
 
 .fullscreen-button {
-  position: absolute;
-  right: 0;
-  top: 50%;
-  transform: translateY(-50%);
   background: none;
-  border: none;
-  padding: 0.5rem;
+  border: 2px solid var(--input-border-color);
+  border-radius: 12px;
+  padding: 0.75rem;
   cursor: pointer;
   color: var(--text-color);
-  opacity: 0.7;
-  transition: all 0.2s ease;
-  min-width: auto;
-  height: auto;
+  transition: all 0.3s ease;
   display: flex;
   align-items: center;
   justify-content: center;
+  background-color: var(--input-bg-color);
 }
 
 .fullscreen-button:hover {
-  opacity: 1;
-  transform: translateY(-50%) scale(1.1);
-}
-
-.prompt-controls {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-}
-
-.prompt-actions {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  margin-right: 3rem;
+  border-color: var(--button-bg-color);
+  background-color: var(--button-bg-color);
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(var(--button-bg-color-rgb), 0.3);
 }
 
 .add-prompt-button,
@@ -296,28 +328,32 @@ defineOptions({
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  padding: 0.5rem 1rem;
-  border-radius: 8px;
+  padding: 0.75rem 1.25rem;
+  border-radius: 12px;
   border: 2px solid var(--input-border-color);
   background-color: var(--input-bg-color);
   color: var(--text-color);
   font-size: 0.9rem;
+  font-weight: 500;
   cursor: pointer;
-  transition: all 0.2s ease;
-  min-width: auto;
-  height: auto;
+  transition: all 0.3s ease;
+  white-space: nowrap;
 }
 
 .add-prompt-button:hover {
   border-color: var(--button-bg-color);
   background-color: var(--button-bg-color);
   color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(var(--button-bg-color-rgb), 0.3);
 }
 
 .delete-prompt-button:hover {
   border-color: #dc3545;
   background-color: #dc3545;
   color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3);
 }
 
 .settings-section.fullscreen {
@@ -359,48 +395,56 @@ defineOptions({
 }
 
 @media (max-width: 768px) {
+  .settings-section {
+    padding: 1.5rem;
+    gap: 1.5rem;
+  }
+
   .section-header {
     flex-direction: column;
     gap: 1rem;
     align-items: flex-start;
   }
 
+  .section-title {
+    font-size: 1.3rem;
+  }
+
+  .section-description {
+    font-size: 0.9rem;
+  }
+
   .prompt-controls {
-    width: 100%;
-    flex-direction: column;
-    align-items: stretch;
-    gap: 0.75rem;
+    gap: 1rem;
   }
 
   .prompt-actions {
     width: 100%;
-    margin-right: 0;
-    justify-content: space-between;
+    justify-content: flex-start;
+    gap: 0.75rem;
   }
 
   .add-prompt-button,
   .delete-prompt-button {
     flex: 1;
-    padding: 0.5rem;
+    padding: 0.75rem 1rem;
     font-size: 0.85rem;
+    justify-content: center;
   }
 
   .fullscreen-button {
-    display: none !important;
+    align-self: flex-end;
   }
 
   .settings-section.fullscreen {
     position: relative;
-    padding: 1rem;
+    padding: 1.5rem;
     max-width: 100%;
+    border-radius: 0;
   }
 
-  .settings-section.fullscreen .section-header {
-    margin-bottom: 1rem;
-  }
-
-  .settings-section.fullscreen .section-header h3 {
-    font-size: 1rem;
+  .settings-section.fullscreen .section-title {
+    font-size: 1.2rem;
   }
 
   .settings-section.fullscreen .system-prompt-input {

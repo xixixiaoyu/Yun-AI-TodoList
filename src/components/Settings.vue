@@ -1,40 +1,52 @@
 <template>
-  <div class="settings-container">
-    <h2>{{ t('settings') }}</h2>
-    <div class="settings-grid">
-      <!-- API 密钥配置组件 -->
-      <ApiKeySection
-        v-model:local-api-key="localApiKey"
-        v-model:show-api-key="showApiKey"
-        v-model:show-api-key-popover="showApiKeyPopover"
-        @show-success-toast="showSuccessToast"
-      />
+  <div class="settings-page">
+    <div class="settings-container">
+      <!-- 页面标题 -->
+      <div class="page-header">
+        <h1 class="page-title">{{ t('settings') }}</h1>
+        <p class="page-subtitle">配置您的 AI 助手和系统设置</p>
+      </div>
 
-      <!-- 系统提示词配置组件 -->
-      <SystemPromptSection
-        v-model:local-system-prompt="localSystemPrompt"
-        v-model:selected-prompt-template="selectedPromptTemplate"
-        :is-fullscreen="isFullscreen"
-        :custom-prompts="customPrompts"
-        @template-change="handleTemplateChange"
-        @save-system-prompt="saveSystemPrompt"
-        @reset-system-prompt="resetSystemPrompt"
-        @confirm-delete-prompt="confirmDeletePrompt"
-        @show-add-prompt="showAddPrompt"
-        @toggle-fullscreen="toggleFullscreen"
+      <!-- 设置内容区域 -->
+      <div class="settings-content">
+        <!-- API 密钥配置区域 -->
+        <div class="settings-section-wrapper">
+          <ApiKeySection
+            v-model:local-api-key="localApiKey"
+            v-model:show-api-key="showApiKey"
+            v-model:show-api-key-popover="showApiKeyPopover"
+            @show-success-toast="showSuccessToast"
+          />
+        </div>
+
+        <!-- 系统提示词配置区域 -->
+        <div class="settings-section-wrapper">
+          <SystemPromptSection
+            v-model:local-system-prompt="localSystemPrompt"
+            v-model:selected-prompt-template="selectedPromptTemplate"
+            :is-fullscreen="isFullscreen"
+            :custom-prompts="customPrompts"
+            @template-change="handleTemplateChange"
+            @save-system-prompt="saveSystemPrompt"
+            @reset-system-prompt="resetSystemPrompt"
+            @confirm-delete-prompt="confirmDeletePrompt"
+            @show-add-prompt="showAddPrompt"
+            @toggle-fullscreen="toggleFullscreen"
+          />
+        </div>
+      </div>
+
+      <!-- 通知提示组件 -->
+      <SettingsToast :show="showSuccessMessage" />
+
+      <!-- 自定义提示词管理组件 -->
+      <CustomPromptManager
+        v-model:show-add-prompt-popover="showAddPromptPopover"
+        v-model:new-prompt-name="newPromptName"
+        v-model:new-prompt-content="newPromptContent"
+        @save-new-prompt="saveNewPrompt"
       />
     </div>
-
-    <!-- 通知提示组件 -->
-    <SettingsToast :show="showSuccessMessage" />
-
-    <!-- 自定义提示词管理组件 -->
-    <CustomPromptManager
-      v-model:show-add-prompt-popover="showAddPromptPopover"
-      v-model:new-prompt-name="newPromptName"
-      v-model:new-prompt-content="newPromptContent"
-      @save-new-prompt="saveNewPrompt"
-    />
   </div>
 </template>
 
@@ -94,89 +106,172 @@ defineOptions({
 </script>
 
 <style scoped>
+.settings-page {
+  min-height: 100vh;
+  background: var(--bg-color);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 1rem;
+}
+
 .settings-container {
-  max-width: 1400px;
+  width: 100%;
+  max-width: 1200px;
   margin: 0 auto;
   position: relative;
-  padding: 2rem;
-  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  gap: 2.5rem;
+}
+
+.page-header {
+  text-align: center;
+  margin-bottom: 1rem;
+}
+
+.page-title {
+  margin: 0;
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: var(--text-color);
+  background: linear-gradient(
+    135deg,
+    var(--button-bg-color),
+    var(--button-hover-bg-color)
+  );
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 0.5rem;
+}
+
+.page-subtitle {
+  margin: 0;
+  font-size: 1.1rem;
+  color: var(--text-secondary-color, rgba(var(--text-color-rgb), 0.7));
+  font-weight: 400;
+}
+
+.settings-content {
   display: flex;
   flex-direction: column;
   gap: 2rem;
-}
-
-h2 {
-  margin: 0;
-  font-size: 1.8rem;
-  font-weight: 600;
-}
-
-.settings-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 600px), 1fr));
-  gap: 2rem;
   width: 100%;
-  align-items: start;
+}
+
+.settings-section-wrapper {
+  width: 100%;
+  display: flex;
+  justify-content: center;
 }
 
 /* 设置页面专用滚动条样式 */
-.settings-container {
+.settings-page {
   scrollbar-width: thin;
   scrollbar-color: rgba(255, 154, 139, 0.6) rgba(0, 0, 0, 0.05);
 }
 
-.settings-container::-webkit-scrollbar {
+.settings-page::-webkit-scrollbar {
   width: 8px;
   height: 8px;
 }
 
-.settings-container::-webkit-scrollbar-track {
+.settings-page::-webkit-scrollbar-track {
   background: rgba(0, 0, 0, 0.05);
   border-radius: 4px;
 }
 
-.settings-container::-webkit-scrollbar-thumb {
+.settings-page::-webkit-scrollbar-thumb {
   background: rgba(255, 154, 139, 0.6);
   border-radius: 4px;
   transition: all 0.3s ease;
 }
 
-.settings-container::-webkit-scrollbar-thumb:hover {
+.settings-page::-webkit-scrollbar-thumb:hover {
   background: rgba(255, 140, 127, 0.8);
 }
 
 /* 深色主题下的设置页面滚动条样式 */
 @media (prefers-color-scheme: dark) {
-  .settings-container {
+  .settings-page {
     scrollbar-color: rgba(255, 154, 139, 0.7) rgba(255, 255, 255, 0.1);
   }
 
-  .settings-container::-webkit-scrollbar-track {
+  .settings-page::-webkit-scrollbar-track {
     background: rgba(255, 255, 255, 0.1);
   }
 
-  .settings-container::-webkit-scrollbar-thumb {
+  .settings-page::-webkit-scrollbar-thumb {
     background: rgba(255, 154, 139, 0.7);
   }
 
-  .settings-container::-webkit-scrollbar-thumb:hover {
+  .settings-page::-webkit-scrollbar-thumb:hover {
     background: rgba(255, 140, 127, 0.9);
   }
 }
 
-@media (max-width: 768px) {
-  .settings-container {
-    padding: 1rem;
+/* 响应式设计 */
+@media (max-width: 1024px) {
+  .settings-page {
+    padding: 1.5rem 1rem;
+    align-items: flex-start;
+    justify-content: flex-start;
+    padding-top: 3rem;
   }
 
-  .settings-grid {
-    gap: 1rem;
+  .page-title {
+    font-size: 2.2rem;
+  }
+
+  .page-subtitle {
+    font-size: 1rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .settings-page {
+    padding: 1rem 0.75rem;
+    padding-top: 2rem;
+  }
+
+  .settings-container {
+    gap: 1.5rem;
+  }
+
+  .page-title {
+    font-size: 1.8rem;
+  }
+
+  .page-subtitle {
+    font-size: 0.95rem;
+  }
+
+  .settings-content {
+    gap: 1.5rem;
   }
 }
 
 @media (max-width: 480px) {
+  .settings-page {
+    padding: 0.75rem 0.5rem;
+    padding-top: 1.5rem;
+  }
+
   .settings-container {
-    padding: 0.75rem;
+    gap: 1rem;
+  }
+
+  .page-title {
+    font-size: 1.6rem;
+  }
+
+  .page-subtitle {
+    font-size: 0.9rem;
+  }
+
+  .settings-content {
+    gap: 1rem;
   }
 }
 </style>
