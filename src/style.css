@@ -1,3 +1,7 @@
+/* 引入主题和全局样式 */
+@import './styles/themes.css';
+@import './styles/global.css';
+
 @font-face {
   font-family: 'LXGW WenKai Screen';
   src: url('./assets/fonts/LXGWWenKaiScreen.ttf') format('truetype');
