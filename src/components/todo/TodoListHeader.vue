@@ -13,49 +13,46 @@
         :aria-label="themeTooltip"
         @click="$emit('toggleTheme')"
       >
-        <div class="button-content">
-          <!-- 根据当前主题显示不同的图标 -->
-          <svg
-            v-if="themeIcon === 'moon'"
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 24 24"
-            width="20"
-            height="20"
-            fill="currentColor"
-            class="button-icon"
-          >
-            <path
-              d="M12 3a9 9 0 1 0 9 9c0-.46-.04-.92-.1-1.36a5.389 5.389 0 0 1-4.4 2.26 5.403 5.403 0 0 1-3.14-9.8c-.44-.06-.9-.1-1.36-.1z"
-            />
-          </svg>
-          <svg
-            v-else-if="themeIcon === 'sun'"
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 24 24"
-            width="20"
-            height="20"
-            fill="currentColor"
-            class="button-icon"
-          >
-            <path
-              d="M12 7a5 5 0 1 1 0 10 5 5 0 0 1 0-10zm0 2a3 3 0 1 0 0 6 3 3 0 0 0 0-6zm0-4V3a1 1 0 0 1 2 0v2a1 1 0 0 1-2 0zm0 18v-2a1 1 0 0 1 2 0v2a1 1 0 0 1-2 0zm10-10h2a1 1 0 0 1 0 2h-2a1 1 0 0 1 0-2zM2 12h2a1 1 0 0 1 0 2H2a1 1 0 0 1 0-2zm16.95-5.66l1.414-1.414a1 1 0 0 1 1.414 1.414l-1.414 1.414a1 1 0 0 1-1.414-1.414zm-14.9 14.9l1.414-1.414a1 1 0 0 1 1.414 1.414l-1.414 1.414a1 1 0 0 1-1.414-1.414zm14.9 0a1 1 0 0 1-1.414 1.414l-1.414-1.414a1 1 0 0 1 1.414-1.414l1.414 1.414zm-14.9-14.9a1 1 0 0 1-1.414-1.414l1.414-1.414a1 1 0 0 1 1.414 1.414l-1.414 1.414z"
-            />
-          </svg>
-          <svg
-            v-else
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 24 24"
-            width="20"
-            height="20"
-            fill="currentColor"
-            class="button-icon"
-          >
-            <path
-              d="M12 2c5.52 0 10 4.48 10 10s-4.48 10-10 10S2 17.52 2 12 6.48 2 12 2zm0 2c-4.41 0-8 3.59-8 8s3.59 8 8 8 8-3.59 8-8-3.59-8-8-8zm1 3v6h5v-2h-3V7h-2z"
-            />
-          </svg>
-          <span class="button-text">{{ t('theme') }}</span>
-        </div>
+        <!-- 根据当前主题显示不同的图标 -->
+        <svg
+          v-if="themeIcon === 'moon'"
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 24 24"
+          width="22"
+          height="22"
+          fill="currentColor"
+          class="button-icon"
+        >
+          <path
+            d="M17.75 4.09L15.5 6.34l1.42 1.42L19.34 5.34A8.95 8.95 0 0 0 17.75 4.09zM4.66 5.34l2.42 2.42 1.42-1.42L6.08 4.09A8.95 8.95 0 0 0 4.66 5.34zM12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm0-14c-3.31 0-6 2.69-6 6s2.69 6 6 6 6-2.69 6-6-2.69-6-6-6z"
+          />
+        </svg>
+        <svg
+          v-else-if="themeIcon === 'sun'"
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 24 24"
+          width="22"
+          height="22"
+          fill="currentColor"
+          class="button-icon"
+        >
+          <path
+            d="M12 7c-2.76 0-5 2.24-5 5s2.24 5 5 5 5-2.24 5-5-2.24-5-5-5zM2 13h2c.55 0 1-.45 1-1s-.45-1-1-1H2c-.55 0-1 .45-1 1s.45 1 1 1zm18 0h2c.55 0 1-.45 1-1s-.45-1-1-1h-2c-.55 0-1 .45-1 1s.45 1 1 1zM11 2v2c0 .55.45 1 1 1s1-.45 1-1V2c0-.55-.45-1-1-1s-1 .45-1 1zm0 18v2c0 .55.45 1 1 1s1-.45 1-1v-2c0-.55-.45-1-1-1s-1 .45-1 1zM5.99 4.58c-.39-.39-1.03-.39-1.41 0-.39.39-.39 1.03 0 1.41l1.06 1.06c.39.39 1.03.39 1.41 0s.39-1.03 0-1.41L5.99 4.58zm12.37 12.37c-.39-.39-1.03-.39-1.41 0-.39.39-.39 1.03 0 1.41l1.06 1.06c.39.39 1.03.39 1.41 0 .39-.39.39-1.03 0-1.41l-1.06-1.06zm1.06-10.96c.39-.39.39-1.03 0-1.41-.39-.39-1.03-.39-1.41 0l-1.06 1.06c-.39.39-.39 1.03 0 1.41s1.03.39 1.41 0l1.06-1.06zM7.05 18.36c.39-.39.39-1.03 0-1.41-.39-.39-1.03-.39-1.41 0l-1.06 1.06c-.39.39-.39 1.03 0 1.41s1.03.39 1.41 0l1.06-1.06z"
+          />
+        </svg>
+        <svg
+          v-else
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 24 24"
+          width="22"
+          height="22"
+          fill="currentColor"
+          class="button-icon"
+        >
+          <path
+            d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8 0-1.48.41-2.86 1.12-4.06l10.94 10.94C14.86 19.59 13.48 20 12 20zm6.88-3.94L8.94 6.12C10.14 4.41 11.52 4 12 4c4.41 0 8 3.59 8 8 0 1.48-.41 2.86-1.12 4.06z"
+          />
+        </svg>
       </button>
 
       <!-- 统计图表按钮 -->
@@ -66,19 +63,18 @@
         :aria-label="showCharts ? t('closeCharts') : t('openCharts')"
         @click="$emit('toggleCharts')"
       >
-        <div class="button-content">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 24 24"
-            width="20"
-            height="20"
-            fill="currentColor"
-            class="button-icon"
-          >
-            <path d="M3 3v18h18v-2H5V3H3zm4 14h2v-4H7v4zm4 0h2V7h-2v10zm4 0h2v-7h-2v7z" />
-          </svg>
-          <span class="button-text">{{ t('showCharts') }}</span>
-        </div>
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 24 24"
+          width="22"
+          height="22"
+          fill="currentColor"
+          class="button-icon"
+        >
+          <path
+            d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"
+          />
+        </svg>
       </button>
     </div>
   </div>
@@ -150,10 +146,8 @@ h1 {
   border: 1px solid rgba(255, 126, 103, 0.1);
   border-radius: 12px;
   cursor: pointer;
-  padding: 0.6rem 1rem;
+  padding: 0.75rem;
   color: var(--text-color);
-  font-weight: 500;
-  font-size: 0.9rem;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   opacity: 0.85;
   position: relative;
@@ -162,6 +156,11 @@ h1 {
   box-shadow:
     0 2px 8px rgba(0, 0, 0, 0.05),
     inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 44px;
+  min-height: 44px;
 }
 
 .icon-button::before {
@@ -180,23 +179,12 @@ h1 {
   left: 100%;
 }
 
-.button-content {
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
-  position: relative;
-  z-index: 1;
-}
-
 .button-icon {
   fill: currentColor;
   transition: transform 0.3s ease;
   flex-shrink: 0;
-}
-
-.button-text {
-  font-family: 'LXGW WenKai Screen', sans-serif;
-  transition: color 0.3s ease;
+  position: relative;
+  z-index: 1;
 }
 
 .icon-button:hover {
@@ -315,37 +303,24 @@ h1 {
   .header-actions {
     justify-content: center;
     margin-left: 0;
-    gap: 0.4rem;
-  }
-
-  .icon-button {
-    padding: 0.5rem 0.8rem;
-    font-size: 0.85rem;
-  }
-
-  .button-content {
-    gap: 0.3rem;
-  }
-
-  .button-text {
-    display: none;
-  }
-
-  .button-icon {
-    width: 18px;
-    height: 18px;
+    gap: 0.5rem;
   }
 }
 
 @media (max-width: 480px) {
   .header-actions {
-    gap: 0.3rem;
+    gap: 0.4rem;
   }
 
   .icon-button {
-    padding: 0.4rem 0.6rem;
-    min-width: 44px;
-    justify-content: center;
+    padding: 0.6rem;
+    min-width: 40px;
+    min-height: 40px;
+  }
+
+  .button-icon {
+    width: 20px;
+    height: 20px;
   }
 }
 </style>

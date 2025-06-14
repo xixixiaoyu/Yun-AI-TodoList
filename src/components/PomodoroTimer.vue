@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, computed, onUnmounted } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { usePomodoroStats } from '../composables/usePomodoroStats'
+
 import TimerWorker from '../workers/timerWorker?worker'
 
 const { t } = useI18n()
@@ -18,8 +18,6 @@ let interval: number | null = null
 let startTime: number | null = null
 let animationFrameId: number | null = null
 let initialTime = WORK_TIME // 新增：初始时间变量
-
-const { addCompletedPomodoro } = usePomodoroStats()
 
 const formattedTime = computed(() => {
   const minutes = Math.floor(timeLeft.value / 60)
@@ -41,7 +39,7 @@ timerWorker.onmessage = (e: MessageEvent) => {
       timeLeft.value = BREAK_TIME
       initialTime = BREAK_TIME // 更新初始时间
       isWorkCompleted.value = false
-      addCompletedPomodoro()
+
       notifyUser(false)
     } else {
       // 休息时间结束
@@ -121,7 +119,6 @@ const updateTimer = (timestamp: number) => {
       timeLeft.value = BREAK_TIME
       initialTime = BREAK_TIME // 更新初始时间
       isWorkCompleted.value = false
-      addCompletedPomodoro()
       notifyUser(false)
       startTime = null
       startTimer()

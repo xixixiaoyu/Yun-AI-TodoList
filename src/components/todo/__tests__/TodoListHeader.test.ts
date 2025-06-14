@@ -43,6 +43,13 @@ describe('TodoListHeader', () => {
     // 检查按钮类名
     expect(wrapper.find('.theme-toggle').exists()).toBe(true)
     expect(wrapper.find('.charts-button').exists()).toBe(true)
+
+    // 检查每个按钮都包含图标
+    expect(wrapper.find('.theme-toggle .button-icon').exists()).toBe(true)
+    expect(wrapper.find('.charts-button .button-icon').exists()).toBe(true)
+
+    // 检查按钮不包含文本（纯图标显示）
+    expect(wrapper.find('.button-text').exists()).toBe(false)
   })
 
   it('应该在激活状态时添加 active 类', () => {
@@ -100,20 +107,50 @@ describe('TodoListHeader', () => {
       props: { ...defaultProps, themeIcon: 'sun' },
       global: { plugins: [i18n] },
     })
-    expect(sunWrapper.find('.theme-toggle svg').exists()).toBe(true)
+    const sunSvg = sunWrapper.find('.theme-toggle svg')
+    expect(sunSvg.exists()).toBe(true)
+    expect(sunSvg.attributes('width')).toBe('22')
+    expect(sunSvg.attributes('height')).toBe('22')
 
     // 测试月亮图标
     const moonWrapper = mount(TodoListHeader, {
       props: { ...defaultProps, themeIcon: 'moon' },
       global: { plugins: [i18n] },
     })
-    expect(moonWrapper.find('.theme-toggle svg').exists()).toBe(true)
+    const moonSvg = moonWrapper.find('.theme-toggle svg')
+    expect(moonSvg.exists()).toBe(true)
+    expect(moonSvg.attributes('width')).toBe('22')
+    expect(moonSvg.attributes('height')).toBe('22')
 
     // 测试自动图标
     const autoWrapper = mount(TodoListHeader, {
       props: { ...defaultProps, themeIcon: 'auto' },
       global: { plugins: [i18n] },
     })
-    expect(autoWrapper.find('.theme-toggle svg').exists()).toBe(true)
+    const autoSvg = autoWrapper.find('.theme-toggle svg')
+    expect(autoSvg.exists()).toBe(true)
+    expect(autoSvg.attributes('width')).toBe('22')
+    expect(autoSvg.attributes('height')).toBe('22')
+  })
+
+  it('应该为按钮设置正确的尺寸和样式', () => {
+    const wrapper = mount(TodoListHeader, {
+      props: defaultProps,
+      global: {
+        plugins: [i18n],
+      },
+    })
+
+    const buttons = wrapper.findAll('.icon-button')
+    buttons.forEach((button) => {
+      // 检查按钮具有正确的CSS类
+      expect(button.classes()).toContain('icon-button')
+
+      // 检查图标尺寸
+      const icon = button.find('.button-icon')
+      expect(icon.exists()).toBe(true)
+      expect(icon.attributes('width')).toBe('22')
+      expect(icon.attributes('height')).toBe('22')
+    })
   })
 })

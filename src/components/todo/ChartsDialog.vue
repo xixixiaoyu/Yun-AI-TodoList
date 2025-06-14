@@ -1,24 +1,34 @@
 <template>
   <div v-if="show" class="charts-dialog" @click="$emit('close')">
     <div class="charts-content" @click.stop>
-      <button class="close-btn" @click="$emit('close')">
-        {{ t('close') }}
+      <button class="close-btn" @click="$emit('close')" :aria-label="t('close')">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="20"
+          height="20"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
       </button>
-      <h2>{{ t('todoCharts') }}</h2>
 
-      <!-- 待办事项统计组件 -->
-      <TodoStats />
+      <h2>{{ t('productivityInsights') }}</h2>
 
-      <!-- 番茄钟统计组件 -->
-      <PomodoroStats />
+      <!-- 统一的完成趋势图表 -->
+      <TodoCompletionChart />
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n'
-import TodoStats from '../TodoStats.vue'
-import PomodoroStats from '../PomodoroStats.vue'
+import TodoCompletionChart from './TodoCompletionChart.vue'
 
 interface Props {
   show: boolean
@@ -58,32 +68,41 @@ defineOptions({
   background-color: var(--card-bg-color);
   border-radius: 16px;
   padding: 2rem;
-  max-width: 90vw;
+  max-width: 800px;
   max-height: 90vh;
   overflow-y: auto;
   position: relative;
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
   border: 1px solid var(--border-color);
+  width: 100%;
 }
 
 .close-btn {
   position: absolute;
   top: 1rem;
   right: 1rem;
-  background-color: var(--language-toggle-bg);
-  color: var(--language-toggle-color);
-  border: none;
+  background: rgba(255, 126, 103, 0.1);
+  color: var(--text-color);
+  border: 1px solid rgba(255, 126, 103, 0.2);
   border-radius: 8px;
-  padding: 0.5rem 1rem;
+  padding: 0.5rem;
   cursor: pointer;
-  font-size: 0.9rem;
-  font-weight: 500;
-  transition: all 0.2s ease;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
 }
 
 .close-btn:hover {
-  background-color: var(--language-toggle-hover-bg);
+  background: rgba(255, 126, 103, 0.2);
+  border-color: rgba(255, 126, 103, 0.4);
   transform: translateY(-1px);
+}
+
+.close-btn svg {
+  stroke: currentColor;
 }
 
 .charts-content h2 {
@@ -92,17 +111,7 @@ defineOptions({
   font-weight: 600;
   color: var(--text-color);
   text-align: center;
-  padding-right: 5rem; /* 为关闭按钮留出空间 */
-}
-
-.charts-content > :deep(.todo-stats),
-.charts-content > :deep(.pomodoro-stats) {
-  margin-bottom: 2rem;
-}
-
-.charts-content > :deep(.todo-stats:last-child),
-.charts-content > :deep(.pomodoro-stats:last-child) {
-  margin-bottom: 0;
+  padding-right: 3rem; /* 为关闭按钮留出空间 */
 }
 
 @media (max-width: 768px) {
@@ -120,19 +129,20 @@ defineOptions({
   .close-btn {
     top: 0.75rem;
     right: 0.75rem;
-    padding: 0.4rem 0.8rem;
-    font-size: 0.85rem;
+    width: 32px;
+    height: 32px;
+    padding: 0.4rem;
+  }
+
+  .close-btn svg {
+    width: 16px;
+    height: 16px;
   }
 
   .charts-content h2 {
     font-size: 1.25rem;
     margin-bottom: 1.5rem;
-    padding-right: 4rem;
-  }
-
-  .charts-content > :deep(.todo-stats),
-  .charts-content > :deep(.pomodoro-stats) {
-    margin-bottom: 1.5rem;
+    padding-right: 2.5rem;
   }
 }
 
@@ -145,19 +155,20 @@ defineOptions({
   .close-btn {
     top: 0.5rem;
     right: 0.5rem;
-    padding: 0.3rem 0.6rem;
-    font-size: 0.8rem;
+    width: 28px;
+    height: 28px;
+    padding: 0.3rem;
+  }
+
+  .close-btn svg {
+    width: 14px;
+    height: 14px;
   }
 
   .charts-content h2 {
     font-size: 1.1rem;
     margin-bottom: 1rem;
-    padding-right: 3rem;
-  }
-
-  .charts-content > :deep(.todo-stats),
-  .charts-content > :deep(.pomodoro-stats) {
-    margin-bottom: 1rem;
+    padding-right: 2rem;
   }
 }
 
