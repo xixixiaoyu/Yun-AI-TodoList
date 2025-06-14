@@ -2,7 +2,7 @@
 import TodoInput from './TodoInput.vue'
 import TodoFilters from './TodoFilters.vue'
 import TodoItem from './TodoItem.vue'
-import HistorySidebar from './HistorySidebar.vue'
+
 import ConfirmDialog from './ConfirmDialog.vue'
 import PomodoroTimer from './PomodoroTimer.vue'
 import LoadingOverlay from './common/LoadingOverlay.vue'
@@ -26,10 +26,7 @@ const {
   confirmDialogConfig,
   handleConfirm,
   handleCancel,
-  history,
-  restoreHistory,
-  deleteHistoryItem,
-  deleteAllHistory,
+
   updateTodosOrder,
   filter,
   filteredTodos,
@@ -50,14 +47,13 @@ const {
   duplicateError,
   isLoading,
   clearActive,
-  showHistory,
+
   showCharts,
   isSmallScreen,
   themeIcon,
   themeTooltip,
   toggleTheme,
-  toggleHistory,
-  closeHistory,
+  toggleCharts,
   closeCharts,
   handlePomodoroComplete,
   handleError,
@@ -106,10 +102,9 @@ option('animation', 150)
       <TodoListHeader
         :theme-icon="themeIcon"
         :theme-tooltip="themeTooltip"
-        :show-history="showHistory"
+        :show-charts="showCharts"
         @toggle-theme="toggleTheme"
-        @toggle-history="toggleHistory"
-        @toggle-charts="() => (showCharts = !showCharts)"
+        @toggle-charts="toggleCharts"
       />
 
       <!-- 待办事项输入组 -->
@@ -162,17 +157,6 @@ option('animation', 150)
         @cancel="cancelSuggestedTodos"
       />
     </div>
-    <!-- 历史记录侧边栏 -->
-    <transition name="slide">
-      <HistorySidebar
-        v-if="showHistory"
-        :history="history"
-        @restore="restoreHistory"
-        @delete-item="deleteHistoryItem"
-        @delete-all="deleteAllHistory"
-        @close="closeHistory"
-      />
-    </transition>
 
     <!-- 图表对话框组件 -->
     <ChartsDialog :show="showCharts" @close="closeCharts" />

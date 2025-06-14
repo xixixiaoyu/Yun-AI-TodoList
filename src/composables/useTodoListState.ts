@@ -22,15 +22,7 @@ export function useTodoListState() {
   const { showConfirmDialog, confirmDialogConfig, handleConfirm, handleCancel } =
     confirmDialog
 
-  const {
-    todos,
-    history,
-    restoreHistory,
-    deleteHistoryItem,
-    deleteAllHistory,
-    loadTodos,
-    updateTodosOrder,
-  } = useTodos()
+  const { todos, loadTodos, updateTodosOrder } = useTodos()
 
   // 待办事项管理相关
   const {
@@ -57,14 +49,12 @@ export function useTodoListState() {
 
   // UI状态管理相关
   const {
-    showHistory,
     showCharts,
     isSmallScreen,
     themeIcon,
     themeTooltip,
     toggleTheme,
-    toggleHistory,
-    closeHistory,
+    toggleCharts,
     closeCharts,
     handlePomodoroComplete,
     checkPomodoroCompletion,
@@ -120,10 +110,6 @@ export function useTodoListState() {
 
     // 待办事项数据
     todos,
-    history,
-    restoreHistory,
-    deleteHistoryItem,
-    deleteAllHistory,
     updateTodosOrder,
 
     // 待办事项管理
@@ -148,14 +134,12 @@ export function useTodoListState() {
     clearActive,
 
     // UI 状态
-    showHistory,
     showCharts,
     isSmallScreen,
     themeIcon,
     themeTooltip,
     toggleTheme,
-    toggleHistory,
-    closeHistory,
+    toggleCharts,
     closeCharts,
     handlePomodoroComplete,
 

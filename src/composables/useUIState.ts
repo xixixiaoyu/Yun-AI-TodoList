@@ -5,7 +5,6 @@ import { useI18n } from 'vue-i18n'
 import confetti from 'canvas-confetti'
 
 export function useUIState() {
-  const showHistory = ref(false)
   const showCharts = ref(false)
   const { width } = useWindowSize()
   const { theme, toggleTheme } = useTheme()
@@ -35,14 +34,9 @@ export function useUIState() {
     }
   })
 
-  // 切换历史记录显示状态
-  const toggleHistory = () => {
-    showHistory.value = !showHistory.value
-  }
-
-  // 关闭历史记录
-  const closeHistory = () => {
-    showHistory.value = false
+  // 切换图表显示状态
+  const toggleCharts = () => {
+    showCharts.value = !showCharts.value
   }
 
   // 关闭图表
@@ -82,20 +76,36 @@ export function useUIState() {
 
   // 处理按键事件
   const onKeyDown = (event: KeyboardEvent) => {
-    if (event.key === 'Escape' && showCharts.value) {
-      showCharts.value = false
+    // ESC 键关闭弹窗
+    if (event.key === 'Escape') {
+      if (showCharts.value) {
+        showCharts.value = false
+        return
+      }
+    }
+
+    // 快捷键（需要按住 Ctrl/Cmd）
+    if (event.ctrlKey || event.metaKey) {
+      switch (event.key.toLowerCase()) {
+        case 's':
+          event.preventDefault()
+          toggleCharts()
+          break
+        case 't':
+          event.preventDefault()
+          toggleTheme()
+          break
+      }
     }
   }
 
   return {
-    showHistory,
     showCharts,
     isSmallScreen,
     themeIcon,
     themeTooltip,
     toggleTheme,
-    toggleHistory,
-    closeHistory,
+    toggleCharts,
     closeCharts,
     handlePomodoroComplete,
     checkPomodoroCompletion,

@@ -1,4 +1,4 @@
-import { ref, watch } from 'vue'
+import { ref } from 'vue'
 
 interface Todo {
   id: number
@@ -11,19 +11,12 @@ interface Todo {
   order: number
 }
 
-interface HistoryItem {
-  date: string
-  todos: Todo[]
-}
-
 export function useTodos() {
   const todos = ref<Todo[]>([])
-  const history = ref<HistoryItem[]>([])
 
   const loadTodos = () => {
     try {
       const storedTodos = localStorage.getItem('todos')
-      const storedHistory = localStorage.getItem('todoHistory')
 
       // 数据完整性检查
       if (storedTodos) {
@@ -45,22 +38,12 @@ export function useTodos() {
         }
       }
 
-      if (storedHistory) {
-        const parsedHistory = JSON.parse(storedHistory)
-        if (Array.isArray(parsedHistory)) {
-          history.value = parsedHistory.filter(
-            (item) => item && typeof item.date === 'string' && Array.isArray(item.todos)
-          )
-        }
-      }
-
       // 数据一致性检查
       validateDataConsistency()
     } catch (error) {
       console.error('Error loading todos:', error)
       // 如果加载失败，初始化为空数组
       todos.value = []
-      history.value = []
     }
   }
 
@@ -82,31 +65,10 @@ export function useTodos() {
   const saveTodos = () => {
     try {
       localStorage.setItem('todos', JSON.stringify(todos.value))
-      saveToHistory()
     } catch (error) {
       console.error('Error saving todos:', error)
       // 可以在这里添加用户通知机制
     }
-  }
-
-  const saveHistory = () => {
-    localStorage.setItem('todoHistory', JSON.stringify(history.value))
-  }
-
-  const saveToHistory = () => {
-    const today = new Date().toISOString().split('T')[0]
-    const todosClone = JSON.parse(JSON.stringify(todos.value))
-    const existingIndex = history.value.findIndex((item) => item.date === today)
-
-    if (existingIndex !== -1) {
-      history.value[existingIndex].todos = todosClone
-    } else {
-      history.value.push({
-        date: today,
-        todos: todosClone,
-      })
-    }
-    saveHistory() // 确保每次更新历史记录时都保存到 localStorage
   }
 
   const addTodo = (text: string, tags: string[] = []): boolean => {
@@ -188,22 +150,6 @@ export function useTodos() {
     saveTodos()
   }
 
-  const restoreHistory = (date: string) => {
-    const historyItem = history.value.find((item) => item.date === date)
-    if (historyItem) {
-      todos.value = JSON.parse(JSON.stringify(historyItem.todos))
-      saveTodos() // 确保保存恢复后的状态
-    }
-  }
-
-  const deleteHistoryItem = (date: string) => {
-    history.value = history.value.filter((item) => item.date !== date)
-  }
-
-  const deleteAllHistory = () => {
-    history.value = []
-  }
-
   const updateTodosOrder = (newOrder: number[]) => {
     // 创建一个映射来存储每个 todo 的新顺序
     const orderMap = new Map(newOrder.map((id, index) => [id, index]))
@@ -220,8 +166,6 @@ export function useTodos() {
     // 保存更新后的顺序
     saveTodos()
   }
-
-  watch(history, saveHistory, { deep: true })
 
   loadTodos() // 在初始化时加载数据
 
@@ -250,15 +194,11 @@ export function useTodos() {
   // 返回所有需要的状态和方法
   return {
     todos,
-    history,
     addTodo,
     addMultipleTodos,
     toggleTodo,
     removeTodo,
     clearActiveTodos,
-    restoreHistory,
-    deleteHistoryItem,
-    deleteAllHistory,
     updateTodosOrder,
     getCompletedTodosByDate,
     updateTodoTags,

@@ -6,7 +6,7 @@
   "clearCompleted": "Clear completed",
   "generateSuggestions": "Generate suggestions",
   "aiPrioritySort": "AI Priority Sort",
-  "history": "History",
+
   "aiAssistant": "AI Assistant",
   "delete": "Delete",
   "confirm": "Confirm",
@@ -71,7 +71,7 @@
   "sequenceMode": "Sequence Play",
   "loopMode": "Loop Play",
   "randomMode": "Random Play",
-  "clearHistory": "Clear History",
+
   "newConversation": "New Conversation",
   "showConversations": "Show Conversations",
   "hideConversations": "Hide Conversations",
@@ -79,6 +79,8 @@
   "track4Title": "Obsessed",
 
   "showCharts": "Show Charts",
+  "openCharts": "Open Charts",
+  "closeCharts": "Close Charts",
   "todoCharts": "Statistics",
   "clearAllConversations": "Clear All Conversations",
   "confirmClearAll": "Are you sure you want to clear all conversations? This action cannot be undone.",
