@@ -14,9 +14,19 @@
     "preview": "vite preview",
     "test": "vitest",
     "test:coverage": "vitest run --coverage",
-    "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix",
-    "format": "prettier --write \"src/**/*.{js,ts,json,css,scss,vue,html,md}\"",
-    "tsc": "vue-tsc -b",
+    "test:ui": "vitest --ui",
+    "lint": "eslint src --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix",
+    "lint:check": "eslint src --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts",
+    "lint:fix": "eslint src --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix",
+    "format": "prettier --write \"src/**/*.{js,ts,json,css,scss,vue,html,md}\" --ignore-unknown",
+    "format:check": "prettier --check \"src/**/*.{js,ts,json,css,scss,vue,html,md}\" --ignore-unknown",
+    "format:staged": "prettier --write --ignore-unknown",
+    "type-check": "vue-tsc --noEmit",
+    "type-check:watch": "vue-tsc --noEmit --watch",
+    "quality": "pnpm run lint:check && pnpm run format:check && pnpm run type-check",
+    "quality:fix": "pnpm run lint:fix && pnpm run format",
+    "pre-commit": "lint-staged",
+    "prepare": "husky",
     "electron:serve": "vite --port 3000 & wait-on tcp:3000 && cross-env ELECTRON_START_URL=http://localhost:3000 electron .",
     "electron:build:mac": "pnpm run clean && vite build && electron-builder --config electron-builder.config.js --mac",
     "electron:build:win": "pnpm run clean && vite build && electron-builder --config electron-builder.config.js --win",
@@ -24,16 +34,18 @@
     "electron:build:all": "pnpm run clean && vite build && electron-builder --config electron-builder.config.js --all",
     "postinstall": "electron-builder install-app-deps",
     "postuninstall": "electron-builder install-app-deps",
-    "clean": "rimraf dist release",
-    "prepare": "husky"
+    "clean": "rimraf dist release"
   },
   "lint-staged": {
     "*.{vue,js,jsx,cjs,mjs,ts,tsx,cts,mts}": [
-      "prettier --write",
-      "eslint --fix --max-warnings 0"
+      "prettier --write --ignore-unknown",
+      "eslint --fix --no-error-on-unmatched-pattern"
     ],
-    "*.{css,less,scss,json,md}": [
-      "prettier --write"
+    "*.{css,less,scss}": [
+      "prettier --write --ignore-unknown"
+    ],
+    "*.{json,md}": [
+      "prettier --write --ignore-unknown"
     ]
   },
   "dependencies": {
@@ -64,6 +76,9 @@
     "electron": "^32.1.2",
     "electron-builder": "^25.1.8",
     "eslint": "^8.56.0",
+    "eslint-config-prettier": "^10.1.5",
+    "eslint-import-resolver-typescript": "^4.4.3",
+    "eslint-plugin-import": "^2.31.0",
     "eslint-plugin-vue": "^9.32.0",
     "husky": "^9.1.7",
     "jsdom": "^24.0.0",

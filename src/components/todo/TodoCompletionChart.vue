@@ -50,10 +50,14 @@ const getOverallStats = computed(() => {
 })
 
 const updateChart = () => {
-  if (!chartRef.value) return
+  if (!chartRef.value) {
+    return
+  }
 
   const ctx = chartRef.value.getContext('2d')
-  if (!ctx) return
+  if (!ctx) {
+    return
+  }
 
   const { labels, data } = getCompletionTrendData()
 

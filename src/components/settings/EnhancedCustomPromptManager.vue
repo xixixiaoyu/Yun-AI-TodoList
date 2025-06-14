@@ -80,7 +80,7 @@
                 <div class="tags-display">
                   <span v-for="(tag, index) in newPromptTags" :key="index" class="tag">
                     {{ tag }}
-                    <button @click="removeTag(index)" class="tag-remove">×</button>
+                    <button class="tag-remove" @click="removeTag(index)">×</button>
                   </span>
                 </div>
                 <input

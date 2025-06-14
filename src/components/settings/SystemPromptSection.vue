@@ -9,8 +9,8 @@
       <div class="header-actions">
         <button
           class="fullscreen-button"
-          @click="$emit('toggleFullscreen')"
           :title="isFullscreen ? t('exitFullscreen') : t('enterFullscreen')"
+          @click="$emit('toggleFullscreen')"
         >
           <svg
             v-if="!isFullscreen"
@@ -55,12 +55,12 @@
     </div>
     <textarea
       :value="localSystemPrompt"
-      @input="
-        $emit('update:localSystemPrompt', ($event.target as HTMLTextAreaElement).value)
-      "
       :placeholder="t('enterSystemPrompt')"
       class="system-prompt-input"
       rows="10"
+      @input="
+        $emit('update:localSystemPrompt', ($event.target as HTMLTextAreaElement).value)
+      "
     />
     <div class="button-group">
       <button

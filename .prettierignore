@@ -1,0 +1,104 @@
+# 构建输出目录
+dist/
+release/
+build/
+
+# 依赖目录
+node_modules/
+
+# 缓存目录
+.cache/
+.temp/
+.tmp/
+
+# 日志文件
+*.log
+logs/
+
+# 环境配置文件
+.env
+.env.local
+.env.*.local
+
+# IDE 配置文件
+.vscode/
+.idea/
+
+# 操作系统文件
+.DS_Store
+Thumbs.db
+
+# 第三方库和生成的文件
+public/
+*.min.js
+*.bundle.js
+
+# 特定文件类型
+*.d.ts.map
+*.js.map
+
+# 测试覆盖率报告
+coverage/
+.nyc_output/
+
+# 文档生成目录
+docs/.vuepress/dist/
+
+# Electron 相关
+electron/dist/
+electron/build/
+
+# PWA 相关
+sw.js
+workbox-*.js
+
+# 锁文件
+pnpm-lock.yaml
+package-lock.json
+yarn.lock
+
+# 特定格式文件（不需要格式化）
+*.svg
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.ico
+*.woff
+*.woff2
+*.ttf
+*.eot
+
+# 自动生成的文件
+CHANGELOG.md
+
+# Git 相关文件
+.git/
+.gitignore
+.gitattributes
+
+# 配置文件（避免意外修改）
+.husky/
+.github/
+
+# 临时文件和备份
+*.tmp
+*.temp
+*.bak
+*.backup
+*~
+
+# 数据文件
+*.db
+*.sqlite
+*.sqlite3
+
+# 证书和密钥文件
+*.pem
+*.key
+*.crt
+*.p12
+
+# 其他不应格式化的文件
+*.patch
+*.diff

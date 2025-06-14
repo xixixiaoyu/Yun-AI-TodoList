@@ -100,7 +100,9 @@ export function useChat() {
 
   // 改进消息发送逻辑
   const sendMessage = async () => {
-    if (!userMessage.value.trim() || isGenerating.value) return
+    if (!userMessage.value.trim() || isGenerating.value) {
+      return
+    }
 
     const message = userMessage.value
     userMessage.value = ''
@@ -178,7 +180,9 @@ export function useChat() {
 
   // 改进优化消息逻辑
   const optimizeMessage = async () => {
-    if (!userMessage.value.trim() || isOptimizing.value) return
+    if (!userMessage.value.trim() || isOptimizing.value) {
+      return
+    }
 
     isOptimizing.value = true
     isLoading.value = true

@@ -65,7 +65,9 @@ const { option } = useSortable(todoListRef, filteredTodos, {
   onEnd: async (evt: SortableEvent) => {
     try {
       const { oldIndex, newIndex } = evt
-      if (oldIndex === newIndex) return
+      if (oldIndex === newIndex) {
+        return
+      }
 
       // 获取所有待办事项的 ID 数组
       const todoIds = filteredTodos.value.map((todo) => todo.id)

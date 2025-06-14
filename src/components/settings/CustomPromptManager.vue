@@ -53,7 +53,7 @@
       v-if="showAddPromptPopover"
       class="popover-overlay"
       @click="closeAddPromptPopover"
-    ></div>
+    />
   </div>
 </template>
 

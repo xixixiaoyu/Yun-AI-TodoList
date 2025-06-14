@@ -1,7 +1,5 @@
-# 尝试运行 lint-staged
-if ! pnpm lint-staged; then
-    echo "检测到代码格式问题，正在尝试自动修复..."
-    pnpm format .
-    # 再次运行 lint-staged 检查
-    pnpm lint-staged
-fi
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+# 运行 lint-staged 检查暂存文件
+pnpm lint-staged

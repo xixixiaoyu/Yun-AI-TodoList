@@ -4,7 +4,7 @@
       <option value="none">{{ t('nonePrompt') }}</option>
       <option value="my">{{ t('defaultPrompt') }}</option>
 
-      <optgroup :label="t('customPrompts')" v-if="customPrompts.length > 0">
+      <optgroup v-if="customPrompts.length > 0" :label="t('customPrompts')">
         <option v-for="prompt in customPrompts" :key="prompt.id" :value="prompt.id">
           {{ prompt.name }}
         </option>

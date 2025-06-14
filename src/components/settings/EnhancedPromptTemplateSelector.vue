@@ -6,8 +6,8 @@
       <div class="selector-wrapper">
         <select
           :value="selectedTemplate"
-          @change="handleTemplateChange"
           class="template-select"
+          @change="handleTemplateChange"
         >
           <!-- 内置模板 -->
           <optgroup :label="t('builtinPrompts')">
@@ -37,9 +37,9 @@
         <div class="selector-actions">
           <button
             v-if="isCustomPrompt"
-            @click="$emit('duplicatePrompt')"
             class="action-btn duplicate-btn"
             :title="t('duplicatePrompt')"
+            @click="$emit('duplicatePrompt')"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -56,12 +56,12 @@
 
           <button
             v-if="isCustomPrompt"
-            @click="toggleFavorite"
             class="action-btn favorite-btn"
             :class="{ active: currentPrompt?.isFavorite }"
             :title="
               currentPrompt?.isFavorite ? t('promptUnfavorite') : t('promptFavorite')
             "
+            @click="toggleFavorite"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -78,9 +78,9 @@
 
           <button
             v-if="isCustomPrompt"
-            @click="$emit('confirmDeletePrompt')"
             class="action-btn delete-btn"
             :title="t('deleteCustomPrompt')"
+            @click="$emit('confirmDeletePrompt')"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -96,9 +96,9 @@
           </button>
 
           <button
-            @click="$emit('showAddPrompt')"
             class="action-btn add-btn"
             :title="t('addNewPrompt')"
+            @click="$emit('showAddPrompt')"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"

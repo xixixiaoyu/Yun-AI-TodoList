@@ -14,7 +14,7 @@
             <div
               class="status-icon"
               :class="{ configured: localApiKey, 'not-configured': !localApiKey }"
-            ></div>
+            />
             <div class="status-text">
               <span class="status-label">{{
                 localApiKey ? t('apiKeyConfigured') : t('apiKeyNotConfigured')
@@ -211,7 +211,7 @@
       v-if="showApiKeyPopover"
       class="popover-overlay"
       @click="showApiKeyPopover = false"
-    ></div>
+    />
   </div>
 </template>
 

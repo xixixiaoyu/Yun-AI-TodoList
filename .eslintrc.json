@@ -5,25 +5,76 @@
     "es2021": true,
     "node": true
   },
+  "globals": {
+    "__VUE_I18N_LEGACY_API__": "readonly",
+    "__VUE_I18N_FULL_INSTALL__": "readonly",
+    "__INTLIFY_PROD_DEVTOOLS__": "readonly"
+  },
   "extends": [
     "eslint:recommended",
     "plugin:@typescript-eslint/recommended",
-    "plugin:vue/vue3-essential"
+    "plugin:vue/vue3-recommended",
+    "prettier"
   ],
   "parser": "vue-eslint-parser",
   "parserOptions": {
     "parser": "@typescript-eslint/parser",
     "ecmaVersion": "latest",
-    "sourceType": "module"
+    "sourceType": "module",
+    "extraFileExtensions": [".vue"]
   },
   "plugins": ["@typescript-eslint", "vue"],
   "rules": {
-    "no-console": "off",
+    // 基础规则
+    "no-console": "warn",
     "no-debugger": "warn",
-    "@typescript-eslint/no-unused-vars": ["error", { "argsIgnorePattern": "^_" }],
-    "@typescript-eslint/no-explicit-any": "off",
+    "no-unused-vars": "off",
+
+    // TypeScript 规则
+    "@typescript-eslint/no-unused-vars": [
+      "error",
+      {
+        "argsIgnorePattern": "^_",
+        "varsIgnorePattern": "^_",
+        "caughtErrorsIgnorePattern": "^_"
+      }
+    ],
+    "@typescript-eslint/no-explicit-any": "warn",
+    "@typescript-eslint/explicit-function-return-type": "off",
+    "@typescript-eslint/explicit-module-boundary-types": "off",
+    "@typescript-eslint/no-non-null-assertion": "warn",
+
+    "@typescript-eslint/no-var-requires": "error",
+
+    // Vue 规则
     "vue/no-v-html": "off",
     "vue/multi-word-component-names": "off",
+    "vue/component-definition-name-casing": ["error", "PascalCase"],
+    "vue/component-name-in-template-casing": ["error", "PascalCase"],
+    "vue/prop-name-casing": ["error", "camelCase"],
+    "vue/attribute-hyphenation": ["error", "always"],
+    "vue/v-on-event-hyphenation": ["error", "always"],
+    "vue/max-attributes-per-line": [
+      "error",
+      {
+        "singleline": 3,
+        "multiline": 1
+      }
+    ],
+    "vue/html-self-closing": [
+      "error",
+      {
+        "html": {
+          "void": "always",
+          "normal": "always",
+          "component": "always"
+        },
+        "svg": "always",
+        "math": "always"
+      }
+    ],
+
+    // 代码风格规则（由 Prettier 处理，这里关闭）
     "indent": "off",
     "linebreak-style": "off",
     "quotes": "off",
@@ -37,13 +88,38 @@
     "array-bracket-spacing": "off",
     "comma-spacing": "off",
     "key-spacing": "off",
-    "keyword-spacing": "off"
+    "keyword-spacing": "off",
+
+    // 代码质量规则
+    "prefer-const": "error",
+    "no-var": "error",
+    "eqeqeq": ["error", "always"],
+    "curly": ["error", "all"],
+    "no-eval": "error",
+    "no-implied-eval": "error",
+    "no-new-func": "error",
+    "no-script-url": "error"
   },
   "overrides": [
     {
-      "files": ["*.config.js", "*.config.ts"],
+      "files": ["*.config.js", "*.config.ts", "vite.config.ts", "vitest.config.ts"],
       "rules": {
-        "no-console": "off"
+        "no-console": "off",
+        "@typescript-eslint/no-var-requires": "off"
+      }
+    },
+    {
+      "files": ["*.d.ts"],
+      "rules": {
+        "@typescript-eslint/no-unused-vars": "off"
+      }
+    },
+    {
+      "files": ["src/**/*.vue"],
+      "rules": {
+        "@typescript-eslint/no-unsafe-assignment": "off",
+        "@typescript-eslint/no-unsafe-member-access": "off",
+        "@typescript-eslint/no-unsafe-call": "off"
       }
     }
   ]

@@ -38,8 +38,8 @@ const cancel = () => {
         <h2>{{ title }}</h2>
         <p>{{ message }}</p>
         <div class="dialog-buttons">
-          <button @click="cancel" class="cancel-btn">{{ cancelText }}</button>
-          <button @click="confirm" class="confirm-btn">
+          <button class="cancel-btn" @click="cancel">{{ cancelText }}</button>
+          <button class="confirm-btn" @click="confirm">
             {{ confirmText }}
           </button>
         </div>

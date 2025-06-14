@@ -60,12 +60,16 @@ const removeTodo = () => {
 // 使用 computed 优化文本处理
 const formattedTitle = computed(() => {
   try {
-    if (!props.todo?.text) return ''
+    if (!props.todo?.text) {
+      return ''
+    }
 
     const text = props.todo.text.trim()
     const MAX_LENGTH = 50
 
-    if (text.length <= MAX_LENGTH) return text
+    if (text.length <= MAX_LENGTH) {
+      return text
+    }
     return `${text.slice(0, MAX_LENGTH)}...`
   } catch (error) {
     console.error('Error formatting title:', error)
@@ -114,9 +118,9 @@ onErrorCaptured(handleError)
     </div>
     <button
       class="delete-btn"
-      @click.stop="removeTodo"
       :title="t('delete')"
       :aria-label="t('delete')"
+      @click.stop="removeTodo"
     >
       <svg
         xmlns="http://www.w3.org/2000/svg"
@@ -129,11 +133,19 @@ onErrorCaptured(handleError)
         stroke-linecap="round"
         stroke-linejoin="round"
       >
-        <path d="M3 6h18"></path>
-        <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path>
-        <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path>
-        <line x1="10" y1="11" x2="10" y2="17"></line>
-        <line x1="14" y1="11" x2="14" y2="17"></line>
+        <path d="M3 6h18" />
+        <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
+        <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
+        <line
+x1="10"
+y1="11"
+x2="10"
+y2="17" />
+        <line
+x1="14"
+y1="11"
+x2="14"
+y2="17" />
       </svg>
     </button>
   </div>

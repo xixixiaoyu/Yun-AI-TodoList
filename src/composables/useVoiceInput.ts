@@ -68,7 +68,9 @@ export function useVoiceInput(onTranscript: (text: string) => void) {
       // 4. 创建新实例
       const SpeechRecognitionAPI =
         window.SpeechRecognition || window.webkitSpeechRecognition
-      if (!SpeechRecognitionAPI) return
+      if (!SpeechRecognitionAPI) {
+        return
+      }
       recognition.value = new SpeechRecognitionAPI()
 
       // 5. 基本配置

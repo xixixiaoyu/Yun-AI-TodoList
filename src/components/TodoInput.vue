@@ -39,7 +39,7 @@ const addTodo = async () => {
 </script>
 
 <template>
-  <form @submit.prevent="addTodo" class="add-todo">
+  <form class="add-todo" @submit.prevent="addTodo">
     <div class="input-wrapper">
       <input
         v-model.trim="newTodo"

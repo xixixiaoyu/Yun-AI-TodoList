@@ -14,7 +14,7 @@ const isPaused = ref(false)
 const isBreak = ref(false)
 const isWorkCompleted = ref(false)
 const timeLeft = ref(WORK_TIME)
-let interval: number | null = null
+const interval: number | null = null
 let startTime: number | null = null
 let animationFrameId: number | null = null
 let initialTime = WORK_TIME // 新增：初始时间变量
@@ -105,7 +105,9 @@ const notifyUser = (isWorkTime: boolean) => {
 }
 
 const updateTimer = (timestamp: number) => {
-  if (!startTime) startTime = timestamp
+  if (!startTime) {
+    startTime = timestamp
+  }
   const elapsed = timestamp - startTime
   timeLeft.value = Math.max(0, initialTime - Math.floor(elapsed / 1000))
 
