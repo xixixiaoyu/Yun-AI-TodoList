@@ -9,7 +9,6 @@ import {
 } from 'vue'
 import { useI18n } from 'vue-i18n'
 import confetti from 'canvas-confetti'
-import { useTodos } from '../composables/useTodos'
 import type { Todo } from '../types/todo'
 import { useErrorHandler } from '../composables/useErrorHandler'
 
@@ -17,7 +16,6 @@ const props = defineProps<{
   todo: Todo
 }>()
 
-const { projects } = useTodos()
 const { showError } = useErrorHandler()
 const { t } = useI18n()
 
@@ -75,19 +73,6 @@ const formattedTitle = computed(() => {
   }
 })
 
-// 使用 computed 和 Map 优化项目名称查找
-const projectsMap = computed(() => new Map(projects.value.map((p) => [p.id, p.name])))
-
-const projectName = computed(() => {
-  try {
-    if (props.todo.projectId === null) return ''
-    return projectsMap.value.get(props.todo.projectId) || ''
-  } catch (error) {
-    console.error('Error getting project name:', error)
-    return ''
-  }
-})
-
 // 添加性能监控
 let renderStartTime = 0
 onBeforeMount(() => {
@@ -125,7 +110,6 @@ onErrorCaptured(handleError)
             <span v-show="true" class="text-content">{{ formattedTitle }}</span>
           </transition>
         </span>
-        <span v-if="projectName" class="project-tag">{{ projectName }}</span>
       </div>
     </div>
     <button
@@ -296,24 +280,6 @@ onErrorCaptured(handleError)
   transform: scale(1.05);
 }
 
-.project-tag {
-  background-color: var(--project-tag-bg-color);
-  color: var(--project-tag-text-color);
-  padding: 0.2rem 0.4rem;
-  border-radius: 0.25rem;
-  font-size: 0.75rem;
-  max-width: 150px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  transition: all 0.2s ease;
-}
-
-.project-tag:hover {
-  opacity: 0.9;
-  transform: translateY(-1px);
-}
-
 @media (max-width: 768px) {
   .todo-item {
     flex-direction: row;
@@ -335,11 +301,5 @@ onErrorCaptured(handleError)
   .delete-btn:active {
     transform: scale(0.95);
   }
-}
-
-.project-name {
-  font-size: 0.8em;
-  color: var(--completed-todo-text-color);
-  margin-left: 0.5rem;
 }
 </style>

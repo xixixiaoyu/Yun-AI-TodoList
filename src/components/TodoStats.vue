@@ -16,28 +16,10 @@ const getStats = () => {
   const pendingCount = todos.value.filter((todo) => !todo.completed).length
   const totalCount = todos.value.length
 
-  // 按项目分组统计
-  const projectStats = todos.value.reduce(
-    (acc, todo) => {
-      const projectId = todo.projectId || 'default'
-      if (!acc[projectId]) {
-        acc[projectId] = { completed: 0, pending: 0 }
-      }
-      if (todo.completed) {
-        acc[projectId].completed++
-      } else {
-        acc[projectId].pending++
-      }
-      return acc
-    },
-    {} as Record<string, { completed: number; pending: number }>
-  )
-
   return {
     completedCount,
     pendingCount,
     totalCount,
-    projectStats,
   }
 }
 

@@ -6,16 +6,9 @@ interface Todo {
   completed: boolean
   completedAt?: string
   tags: string[]
-  projectId: number | null
   createdAt: string
   updatedAt: string
   order: number
-}
-
-// 新增 Project 接口
-interface Project {
-  id: number
-  name: string
 }
 
 interface HistoryItem {
@@ -25,15 +18,12 @@ interface HistoryItem {
 
 export function useTodos() {
   const todos = ref<Todo[]>([])
-  const projects = ref<Project[]>([])
-  const currentProjectId = ref<number | null>(null)
   const history = ref<HistoryItem[]>([])
 
   const loadTodos = () => {
     try {
       const storedTodos = localStorage.getItem('todos')
       const storedHistory = localStorage.getItem('todoHistory')
-      const storedProjects = localStorage.getItem('projects')
 
       // 数据完整性检查
       if (storedTodos) {
@@ -64,18 +54,6 @@ export function useTodos() {
         }
       }
 
-      if (storedProjects) {
-        const parsedProjects = JSON.parse(storedProjects)
-        if (Array.isArray(parsedProjects)) {
-          projects.value = parsedProjects.filter(
-            (project) =>
-              project &&
-              typeof project.id === 'number' &&
-              typeof project.name === 'string'
-          )
-        }
-      }
-
       // 数据一致性检查
       validateDataConsistency()
     } catch (error) {
@@ -83,22 +61,10 @@ export function useTodos() {
       // 如果加载失败，初始化为空数组
       todos.value = []
       history.value = []
-      projects.value = []
     }
   }
 
   const validateDataConsistency = () => {
-    // 检查并清理无效的项目引用
-    todos.value = todos.value.map((todo) => {
-      if (
-        todo.projectId !== null &&
-        !projects.value.some((p) => p.id === todo.projectId)
-      ) {
-        return { ...todo, projectId: null }
-      }
-      return todo
-    })
-
     // 确保 ID 的唯一性
     const seenIds = new Set<number>()
     todos.value = todos.value.filter((todo) => {
@@ -162,11 +128,10 @@ export function useTodos() {
 
     const now = new Date().toISOString()
     const newTodo = {
-      id: Date.now(),
+      id: Date.now() + Math.random(),
       text: text.trim(),
       completed: false,
       tags: tags,
-      projectId: currentProjectId.value || 0,
       createdAt: now,
       updatedAt: now,
       order: todos.value.length,
@@ -178,10 +143,10 @@ export function useTodos() {
   }
 
   // 新增：批量添加待办事项的函数
-  const addMultipleTodos = (newTodos: { text: string; projectId: number | null }[]) => {
+  const addMultipleTodos = (newTodos: { text: string }[]) => {
     const duplicates: string[] = []
     const now = new Date().toISOString()
-    newTodos.forEach(({ text, projectId }) => {
+    newTodos.forEach(({ text }) => {
       if (todos.value.some((todo) => todo.text === text)) {
         duplicates.push(text)
       } else {
@@ -190,7 +155,6 @@ export function useTodos() {
           text,
           completed: false,
           tags: [],
-          projectId: projectId || null,
           createdAt: now,
           updatedAt: now,
           order: todos.value.length,
@@ -283,35 +247,9 @@ export function useTodos() {
     }
   }
 
-  const addProject = (name: string) => {
-    const newProject = {
-      id: Date.now(),
-      name,
-    }
-    projects.value.push(newProject)
-    saveProjects()
-  }
-
-  const removeProject = (id: number) => {
-    projects.value = projects.value.filter((project) => project.id !== id)
-    todos.value = todos.value.filter((todo) => todo.projectId !== id)
-    saveProjects()
-    saveTodos()
-  }
-
-  const setCurrentProject = (id: number | null) => {
-    currentProjectId.value = id
-  }
-
-  const saveProjects = () => {
-    localStorage.setItem('projects', JSON.stringify(projects.value))
-  }
-
   // 返回所有需要的状态和方法
   return {
     todos,
-    projects,
-    currentProjectId,
     history,
     addTodo,
     addMultipleTodos,
@@ -324,9 +262,6 @@ export function useTodos() {
     updateTodosOrder,
     getCompletedTodosByDate,
     updateTodoTags,
-    addProject,
-    removeProject,
-    setCurrentProject,
     saveTodos,
     loadTodos,
   }

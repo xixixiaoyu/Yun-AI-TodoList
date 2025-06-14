@@ -52,7 +52,7 @@ describe('useTodos', () => {
 
   it('should add multiple todos', () => {
     const { todos, addMultipleTodos } = useTodos()
-    const newTodos = ['Todo 1', 'Todo 2', 'Todo 3']
+    const newTodos = [{ text: 'Todo 1' }, { text: 'Todo 2' }, { text: 'Todo 3' }]
     const duplicates = addMultipleTodos(newTodos)
     expect(todos.value.length).toBe(3)
     expect(duplicates.length).toBe(0)
@@ -63,7 +63,12 @@ describe('useTodos', () => {
     addTodo('Todo 1')
     addTodo('Todo 2')
     addTodo('Todo 3')
-    const newOrder = [2, 0, 1]
+
+    // 获取 todo 的 ID
+    const todoIds = todos.value.map((todo) => todo.id)
+
+    // 重新排序：第三个、第一个、第二个
+    const newOrder = [todoIds[2], todoIds[0], todoIds[1]]
     updateTodosOrder(newOrder)
 
     // 检查新的顺序是否正确

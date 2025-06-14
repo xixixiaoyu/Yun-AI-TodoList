@@ -9,7 +9,6 @@ export function useTodoManagement() {
   const { t } = useI18n()
   const {
     todos,
-    currentProjectId,
     addTodo,
     addMultipleTodos,
     toggleTodo,
@@ -45,16 +44,10 @@ export function useTodoManagement() {
   // 计算已过滤的待办事项
   const filteredTodos = computed(() => {
     try {
-      let filtered = todos.value
+      const filtered = todos.value
       if (!Array.isArray(filtered)) {
         console.error('Invalid todos data structure')
         return []
-      }
-
-      if (currentProjectId.value !== null) {
-        filtered = filtered.filter(
-          (todo) => todo && todo.projectId === currentProjectId.value
-        )
       }
 
       const filterFn =
@@ -99,7 +92,6 @@ export function useTodoManagement() {
     const duplicates = addMultipleTodos(
       suggestedTodos.value.map((todo) => ({
         text: todo,
-        projectId: currentProjectId.value,
       }))
     )
     if (duplicates.length > 0) {

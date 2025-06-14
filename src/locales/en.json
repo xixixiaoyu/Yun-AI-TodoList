@@ -77,9 +77,7 @@
   "hideConversations": "Hide Conversations",
   "conversations": "Conversations",
   "track4Title": "Obsessed",
-  "allProjects": "All Projects",
-  "newProjectName": "New project name...",
-  "addProject": "Add Project",
+
   "showCharts": "Show Charts",
   "todoCharts": "Statistics",
   "clearAllConversations": "Clear All Conversations",
@@ -132,8 +130,7 @@
   "todoStats": "Todo Statistics",
   "todoProgress": "Task Progress",
   "pending": "Pending",
-  "deleteProject": "Delete Project",
-  "confirmDeleteProject": "Are you sure you want to delete project {name}? This will also delete all todos in this project.",
+
   "toggleError": "Error toggling todo status",
   "removeError": "Error removing todo",
   "generalError": "Operation failed, please try again",

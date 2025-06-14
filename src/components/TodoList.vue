@@ -5,18 +5,11 @@ import TodoItem from './TodoItem.vue'
 import HistorySidebar from './HistorySidebar.vue'
 import ConfirmDialog from './ConfirmDialog.vue'
 import PomodoroTimer from './PomodoroTimer.vue'
-import AddProjectModal from './AddProjectModal.vue'
 import LoadingOverlay from './common/LoadingOverlay.vue'
 import { useSortable } from '@vueuse/integrations/useSortable'
 import { useI18n } from 'vue-i18n'
 import { useTodoListState } from '../composables/useTodoListState'
-import {
-  TodoListHeader,
-  ProjectTabs,
-  TodoActions,
-  SuggestedTodosDialog,
-  ChartsDialog,
-} from './todo'
+import { TodoListHeader, TodoActions, SuggestedTodosDialog, ChartsDialog } from './todo'
 
 interface SortableEvent {
   oldIndex: number
@@ -38,12 +31,6 @@ const {
   deleteHistoryItem,
   deleteAllHistory,
   updateTodosOrder,
-  showAddProjectModal,
-  displayedProjects,
-  addNewProject,
-  deleteProject,
-  handleProjectChange,
-  currentProjectId,
   filter,
   filteredTodos,
   hasActiveTodos,
@@ -125,16 +112,6 @@ option('animation', 150)
         @toggle-charts="() => (showCharts = !showCharts)"
       />
 
-      <!-- 项目标签组件 -->
-      <ProjectTabs
-        :displayed-projects="displayedProjects"
-        :current-project-id="currentProjectId"
-        :is-small-screen="isSmallScreen"
-        @project-change="handleProjectChange"
-        @delete-project="deleteProject"
-        @show-add-project="showAddProjectModal = true"
-      />
-
       <!-- 待办事项输入组 -->
       <TodoInput
         :max-length="MAX_TODO_LENGTH"
@@ -196,12 +173,6 @@ option('animation', 150)
         @close="closeHistory"
       />
     </transition>
-    <!-- 添加项目模态框 -->
-    <AddProjectModal
-      v-if="showAddProjectModal"
-      @add="addNewProject"
-      @close="showAddProjectModal = false"
-    />
 
     <!-- 图表对话框组件 -->
     <ChartsDialog :show="showCharts" @close="closeCharts" />

@@ -3,7 +3,6 @@ import { useI18n } from 'vue-i18n'
 import { useErrorHandler } from './useErrorHandler'
 import { useConfirmDialog } from './useConfirmDialog'
 import { useTodos } from './useTodos'
-import { useProjectManagement } from './useProjectManagement'
 import { useTodoManagement } from './useTodoManagement'
 import { useUIState } from './useUIState'
 
@@ -18,8 +17,6 @@ export function useTodoListState() {
 
   // 创建待办事项列表的 ref，用于拖拽排序功能
   const todoListRef = ref<HTMLElement | null>(null)
-  // 创建项目标签容器的 ref，用于滚轮滚动功能
-  const projectTabsRef = ref<HTMLElement | null>(null)
 
   // 使用各种 composables
   const { showConfirmDialog, confirmDialogConfig, handleConfirm, handleCancel } =
@@ -34,16 +31,6 @@ export function useTodoListState() {
     loadTodos,
     updateTodosOrder,
   } = useTodos()
-
-  // 项目管理相关
-  const {
-    showAddProjectModal,
-    displayedProjects,
-    addNewProject,
-    deleteProject,
-    handleProjectChange,
-    currentProjectId,
-  } = useProjectManagement(confirmDialog)
 
   // 待办事项管理相关
   const {
@@ -83,16 +70,6 @@ export function useTodoListState() {
     checkPomodoroCompletion,
     onKeyDown,
   } = useUIState()
-
-  // 处理项目标签的滚轮事件，实现水平滚动
-  const handleProjectTabsWheel = (event: WheelEvent) => {
-    if (projectTabsRef.value) {
-      // 阻止默认的垂直滚动
-      event.preventDefault()
-      // 将垂直滚动转换为水平滚动
-      projectTabsRef.value.scrollLeft += event.deltaY
-    }
-  }
 
   // 添加错误边界处理
   const handleError = (error: Error) => {
@@ -134,7 +111,6 @@ export function useTodoListState() {
   return {
     // Refs
     todoListRef,
-    projectTabsRef,
 
     // 确认对话框
     showConfirmDialog,
@@ -149,14 +125,6 @@ export function useTodoListState() {
     deleteHistoryItem,
     deleteAllHistory,
     updateTodosOrder,
-
-    // 项目管理
-    showAddProjectModal,
-    displayedProjects,
-    addNewProject,
-    deleteProject,
-    handleProjectChange,
-    currentProjectId,
 
     // 待办事项管理
     filter,
@@ -192,7 +160,6 @@ export function useTodoListState() {
     handlePomodoroComplete,
 
     // 事件处理
-    handleProjectTabsWheel,
     handleError,
   }
 }
