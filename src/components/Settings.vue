@@ -30,6 +30,8 @@
             @save-system-prompt="saveSystemPrompt"
             @reset-system-prompt="resetSystemPrompt"
             @confirm-delete-prompt="confirmDeletePrompt"
+            @duplicate-prompt="duplicateCurrentPrompt"
+            @toggle-favorite="togglePromptFavorite"
             @show-add-prompt="showAddPrompt"
             @toggle-fullscreen="toggleFullscreen"
           />
@@ -39,12 +41,18 @@
       <!-- 通知提示组件 -->
       <SettingsToast :show="showSuccessMessage" />
 
-      <!-- 自定义提示词管理组件 -->
-      <CustomPromptManager
+      <!-- 增强版自定义提示词管理组件 -->
+      <EnhancedCustomPromptManager
         v-model:show-add-prompt-popover="showAddPromptPopover"
         v-model:new-prompt-name="newPromptName"
         v-model:new-prompt-content="newPromptContent"
+        v-model:new-prompt-description="newPromptDescription"
+        v-model:new-prompt-category="newPromptCategory"
+        v-model:new-prompt-priority="newPromptPriority"
+        v-model:new-prompt-tags="newPromptTags"
+        :error="error"
         @save-new-prompt="saveNewPrompt"
+        @reset-form="resetNewPromptForm"
       />
     </div>
   </div>
@@ -56,7 +64,7 @@ import { useSettingsState } from '../composables/useSettingsState'
 import { usePromptManagement } from '../composables/usePromptManagement'
 import ApiKeySection from './settings/ApiKeySection.vue'
 import SystemPromptSection from './settings/SystemPromptSection.vue'
-import CustomPromptManager from './settings/CustomPromptManager.vue'
+import EnhancedCustomPromptManager from './settings/EnhancedCustomPromptManager.vue'
 import SettingsToast from './settings/SettingsToast.vue'
 
 const { t } = useI18n()
@@ -72,7 +80,13 @@ const {
   showAddPromptPopover,
   newPromptName,
   newPromptContent,
+  newPromptDescription,
+  newPromptCategory,
+  newPromptPriority,
+  newPromptTags,
   customPrompts,
+  promptFilter,
+  promptSortOptions,
   showSuccessMessage,
   showSuccessToast,
   toggleFullscreen,
@@ -80,18 +94,28 @@ const {
 
 // 使用提示词管理 composable
 const {
+  error,
   handleTemplateChange,
   saveNewPrompt,
   saveSystemPrompt,
   resetSystemPrompt,
   confirmDeletePrompt,
+  duplicateCurrentPrompt,
+  togglePromptFavorite,
+  resetNewPromptForm,
 } = usePromptManagement(
   customPrompts,
   selectedPromptTemplate,
   localSystemPrompt,
   newPromptName,
   newPromptContent,
+  newPromptDescription,
+  newPromptCategory,
+  newPromptPriority,
+  newPromptTags,
   showAddPromptPopover,
+  promptFilter,
+  promptSortOptions,
   showSuccessToast
 )
 

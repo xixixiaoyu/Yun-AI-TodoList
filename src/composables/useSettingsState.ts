@@ -1,10 +1,16 @@
 import { ref, onMounted } from 'vue'
 import { apiKey } from '../services/configService'
-import type { CustomPrompt, PromptTemplate } from '../types/settings'
-import { promptsConfig } from '../config/prompts'
+import type {
+  CustomPrompt,
+  PromptTemplate,
+  PromptFilter,
+  PromptSortOptions,
+} from '../types/settings'
+import { PromptCategory, PromptPriority } from '../types/settings'
+import { builtinPromptTemplates } from '../config/prompts'
 
 /**
- * 设置状态管理 composable
+ * 增强的设置状态管理 composable
  * 管理设置页面的所有状态
  */
 export function useSettingsState() {
@@ -20,9 +26,30 @@ export function useSettingsState() {
 
   // 自定义提示词相关状态
   const showAddPromptPopover = ref(false)
+  const showPromptImportDialog = ref(false)
+  const showPromptExportDialog = ref(false)
   const newPromptName = ref('')
   const newPromptContent = ref('')
+  const newPromptDescription = ref('')
+  const newPromptCategory = ref<PromptCategory>(PromptCategory.CUSTOM)
+  const newPromptPriority = ref<PromptPriority>(PromptPriority.MEDIUM)
+  const newPromptTags = ref<string[]>([])
   const customPrompts = ref<CustomPrompt[]>([])
+
+  // 提示词过滤和排序状态
+  const promptFilter = ref<PromptFilter>({
+    searchText: '',
+    category: undefined,
+    priority: undefined,
+    tags: [],
+    isFavorite: undefined,
+    isActive: undefined,
+  })
+
+  const promptSortOptions = ref<PromptSortOptions>({
+    field: 'updatedAt',
+    order: 'desc',
+  })
 
   // 通知状态
   const showSuccessMessage = ref(false)
@@ -34,23 +61,69 @@ export function useSettingsState() {
     // 加载 API 密钥
     localApiKey.value = apiKey.value
 
-    // 加载自定义提示词
-    const savedCustomPrompts = localStorage.getItem('customPrompts')
-    if (savedCustomPrompts) {
-      customPrompts.value = JSON.parse(savedCustomPrompts)
+    // 初始化系统提示词
+    const savedSystemPrompt = localStorage.getItem('systemPrompt')
+    if (savedSystemPrompt) {
+      localSystemPrompt.value = savedSystemPrompt
+    } else {
+      localSystemPrompt.value = builtinPromptTemplates.my.content
     }
 
-    // 从 localStorage 加载系统提示词和上次选择的模板
-    const savedSystemPrompt = localStorage.getItem('systemPrompt')
+    // 初始化选中的模板
     const lastSelectedTemplate = localStorage.getItem('lastSelectedTemplate')
-
     if (lastSelectedTemplate) {
-      selectedPromptTemplate.value = lastSelectedTemplate
-      loadPromptContent(lastSelectedTemplate, savedSystemPrompt)
-    } else {
-      // 没有上次选择的模板，使用默认模板
-      selectedPromptTemplate.value = 'my'
-      loadDefaultPrompt()
+      selectedPromptTemplate.value = lastSelectedTemplate as PromptTemplate
+    }
+
+    // 初始化自定义提示词
+    const savedCustomPrompts = localStorage.getItem('customPrompts')
+    if (savedCustomPrompts) {
+      try {
+        const parsed = JSON.parse(savedCustomPrompts)
+        // 迁移旧格式的提示词数据
+        customPrompts.value = parsed.map((prompt: any) => {
+          if (!prompt.category) {
+            return {
+              ...prompt,
+              description: prompt.description || '',
+              category: PromptCategory.CUSTOM,
+              priority: PromptPriority.MEDIUM,
+              tags: prompt.tags || [],
+              createdAt: prompt.createdAt || Date.now(),
+              updatedAt: prompt.updatedAt || Date.now(),
+              isActive: prompt.isActive !== undefined ? prompt.isActive : true,
+              usageCount: prompt.usageCount || 0,
+              isFavorite: prompt.isFavorite || false,
+            }
+          }
+          return prompt
+        })
+      } catch (error) {
+        console.error('Failed to parse custom prompts:', error)
+        customPrompts.value = []
+      }
+    }
+
+    // 初始化过滤和排序选项
+    const savedFilter = localStorage.getItem('promptFilter')
+    if (savedFilter) {
+      try {
+        promptFilter.value = { ...promptFilter.value, ...JSON.parse(savedFilter) }
+      } catch (error) {
+        console.error('Failed to parse prompt filter:', error)
+      }
+    }
+
+    const savedSortOptions = localStorage.getItem('promptSortOptions')
+    if (savedSortOptions) {
+      try {
+        promptSortOptions.value = {
+          ...promptSortOptions.value,
+          ...JSON.parse(savedSortOptions),
+        }
+      } catch (error) {
+        console.error('Failed to parse prompt sort options:', error)
+      }
     }
   }
 
@@ -58,9 +131,9 @@ export function useSettingsState() {
    * 加载提示词内容
    */
   const loadPromptContent = (template: string, fallbackContent?: string | null) => {
-    if (template === 'my') {
-      // 如果是预设模板，直接使用配置内容
-      localSystemPrompt.value = promptsConfig[template].content
+    if (builtinPromptTemplates[template]) {
+      // 如果是内置模板，直接使用配置内容
+      localSystemPrompt.value = builtinPromptTemplates[template].content
     } else {
       // 如果是自定义模板，从自定义提示词中查找
       const customPrompt = customPrompts.value.find((p) => p.id === template)
@@ -77,7 +150,7 @@ export function useSettingsState() {
    * 加载默认提示词
    */
   const loadDefaultPrompt = () => {
-    localSystemPrompt.value = promptsConfig.my.content
+    localSystemPrompt.value = builtinPromptTemplates.my.content
   }
 
   /**
@@ -110,8 +183,28 @@ export function useSettingsState() {
   const resetPopoverStates = () => {
     showApiKeyPopover.value = false
     showAddPromptPopover.value = false
+    showPromptImportDialog.value = false
+    showPromptExportDialog.value = false
     newPromptName.value = ''
     newPromptContent.value = ''
+    newPromptDescription.value = ''
+    newPromptCategory.value = PromptCategory.CUSTOM
+    newPromptPriority.value = PromptPriority.MEDIUM
+    newPromptTags.value = []
+  }
+
+  /**
+   * 保存过滤选项到本地存储
+   */
+  const saveFilterOptions = () => {
+    localStorage.setItem('promptFilter', JSON.stringify(promptFilter.value))
+  }
+
+  /**
+   * 保存排序选项到本地存储
+   */
+  const saveSortOptions = () => {
+    localStorage.setItem('promptSortOptions', JSON.stringify(promptSortOptions.value))
   }
 
   // 组件挂载时初始化设置
@@ -120,17 +213,33 @@ export function useSettingsState() {
   })
 
   return {
-    // 状态
+    // API 密钥状态
     showApiKey,
     showApiKeyPopover,
     localApiKey,
+
+    // 系统提示词状态
     localSystemPrompt,
     isFullscreen,
     selectedPromptTemplate,
+
+    // 自定义提示词状态
     showAddPromptPopover,
+    showPromptImportDialog,
+    showPromptExportDialog,
     newPromptName,
     newPromptContent,
+    newPromptDescription,
+    newPromptCategory,
+    newPromptPriority,
+    newPromptTags,
     customPrompts,
+
+    // 过滤和排序状态
+    promptFilter,
+    promptSortOptions,
+
+    // 通知状态
     showSuccessMessage,
 
     // 方法
@@ -141,5 +250,7 @@ export function useSettingsState() {
     toggleFullscreen,
     toggleShowApiKey,
     resetPopoverStates,
+    saveFilterOptions,
+    saveSortOptions,
   }
 }

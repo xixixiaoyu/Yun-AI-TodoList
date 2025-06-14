@@ -40,52 +40,18 @@
       </div>
     </div>
 
-    <!-- 提示词控制区域 -->
+    <!-- 增强版提示词选择器 -->
     <div class="prompt-controls">
-      <div class="template-selector-wrapper">
-        <PromptTemplateSelector
-          :selected-template="selectedPromptTemplate"
-          :custom-prompts="customPrompts"
-          @update:selected-template="$emit('update:selectedPromptTemplate', $event)"
-          @template-change="$emit('templateChange')"
-        />
-      </div>
-      <div class="prompt-actions">
-        <button
-          v-if="isCustomPrompt"
-          class="delete-prompt-button"
-          @click="$emit('confirmDeletePrompt')"
-          :title="t('deleteCustomPrompt')"
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="16"
-            height="16"
-            viewBox="0 0 24 24"
-          >
-            <path
-              fill="currentColor"
-              d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"
-            />
-          </svg>
-          {{ t('deleteCustomPrompt') }}
-        </button>
-        <button
-          class="add-prompt-button"
-          @click="$emit('showAddPrompt')"
-          :title="t('addNewPrompt')"
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="16"
-            height="16"
-            viewBox="0 0 24 24"
-          >
-            <path fill="currentColor" d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z" />
-          </svg>
-          {{ t('addPrompt') }}
-        </button>
-      </div>
+      <EnhancedPromptTemplateSelector
+        :selected-template="selectedPromptTemplate"
+        :custom-prompts="customPrompts"
+        @update:selected-template="$emit('update:selectedPromptTemplate', $event)"
+        @template-change="$emit('templateChange')"
+        @duplicate-prompt="$emit('duplicatePrompt')"
+        @toggle-favorite="$emit('toggleFavorite', $event)"
+        @confirm-delete-prompt="$emit('confirmDeletePrompt')"
+        @show-add-prompt="$emit('showAddPrompt')"
+      />
     </div>
     <textarea
       :value="localSystemPrompt"
@@ -114,7 +80,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
-import PromptTemplateSelector from './PromptTemplateSelector.vue'
+import EnhancedPromptTemplateSelector from './EnhancedPromptTemplateSelector.vue'
 import type { CustomPrompt, PromptTemplate } from '../../types/settings'
 
 interface Props {
@@ -131,6 +97,8 @@ interface Emits {
   (e: 'saveSystemPrompt'): void
   (e: 'resetSystemPrompt'): void
   (e: 'confirmDeletePrompt'): void
+  (e: 'duplicatePrompt'): void
+  (e: 'toggleFavorite', promptId: string): void
   (e: 'showAddPrompt'): void
   (e: 'toggleFullscreen'): void
 }
@@ -141,10 +109,6 @@ defineEmits<Emits>()
 const { t } = useI18n()
 
 // 计算属性
-const isCustomPrompt = computed(() => {
-  return props.selectedPromptTemplate.startsWith('custom_')
-})
-
 const isSystemPromptValid = computed(() => {
   return props.localSystemPrompt.trim() !== ''
 })
