@@ -20,6 +20,9 @@ body {
 
 .app {
   color: var(--text-color);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
 }
 
 /* 移除全局过渡效果 */
@@ -30,17 +33,22 @@ body {
 /* 内容包装器样式 */
 .content-wrapper {
   padding: 1rem;
-  min-height: auto;
-  max-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-}
-
-.router-view-container {
   flex: 1;
   display: flex;
   flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  min-height: calc(100vh - 60px); /* 减去导航栏高度 */
+  overflow: hidden;
+  transition: all 0.3s ease; /* 添加平滑过渡效果 */
+}
+
+.router-view-container {
+  width: 100%;
+  max-width: 1200px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
 .top-components {
@@ -59,16 +67,17 @@ body {
 /* 响应式布局 */
 @media (max-width: 768px) {
   .content-wrapper {
+    padding: 0.5rem;
     padding-top: 4rem;
     padding-bottom: 0.5rem;
-    min-height: auto;
-    max-height: 100vh;
-    overflow: hidden;
-    flex-direction: column;
+    min-height: calc(100vh - 60px);
+    justify-content: flex-start; /* 在小屏幕上从顶部开始 */
+    overflow-y: auto;
   }
 
   .router-view-container {
     padding-bottom: 1rem;
+    width: 100%;
   }
 
   .top-components {
@@ -82,6 +91,10 @@ body {
     min-height: 100vh;
   }
 
+  .content-wrapper {
+    justify-content: center; /* 大屏幕上保持垂直居中 */
+  }
+
   .top-components {
     position: fixed;
     top: 1rem;
@@ -91,6 +104,10 @@ body {
 }
 
 @media (max-width: 1200px) {
+  .content-wrapper {
+    justify-content: center; /* 中等屏幕也保持垂直居中 */
+  }
+
   .top-components {
     width: 100%;
     max-width: 600px;

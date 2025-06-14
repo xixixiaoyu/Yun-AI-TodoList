@@ -3,10 +3,13 @@
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
   width: 100%;
   max-width: 1400px;
   margin: 0 auto;
   box-sizing: border-box;
+  min-height: 70vh; /* 确保容器有足够的高度来实现居中效果 */
+  transition: all 0.3s ease; /* 添加平滑过渡效果 */
 }
 
 .todo-list {
@@ -82,7 +85,8 @@
 .todo-grid {
   overflow-y: auto;
   display: flex;
-  height: 35vh;
+  height: 40vh; /* 增加高度以更好地利用垂直空间 */
+  max-height: 500px; /* 设置最大高度避免过高 */
   flex-direction: column;
   gap: 0.75rem;
   margin-bottom: 1rem;
@@ -208,10 +212,23 @@
   }
 }
 
+/* 平板设备优化 */
+@media (min-width: 769px) and (max-width: 1200px) {
+  .todo-container {
+    min-height: 75vh; /* 平板设备上稍微增加最小高度 */
+  }
+
+  .todo-grid {
+    height: 45vh; /* 平板设备上增加网格高度 */
+    max-height: 600px;
+  }
+}
+
 @media (max-width: 768px) {
   .todo-container {
     padding: 0.25rem;
-    padding-top: 4rem; /* 为固定导航栏留出空间 */
+    min-height: auto; /* 在小屏幕上移除最小高度限制 */
+    justify-content: flex-start; /* 在小屏幕上从顶部开始 */
   }
 
   .todo-container.small-screen {
@@ -226,7 +243,8 @@
   }
 
   .todo-grid {
-    height: 28vh;
+    height: 30vh; /* 在移动端稍微增加高度 */
+    max-height: 400px; /* 设置移动端最大高度 */
     gap: 0.5rem;
     margin-bottom: 0.75rem;
   }

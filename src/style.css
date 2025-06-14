@@ -43,10 +43,9 @@ a:hover {
 
 body {
   margin: 0;
-  display: flex;
-  place-items: center;
   min-width: 320px;
   min-height: 100vh;
+  /* 移除 display: flex 和 place-items: center，让 App.vue 控制布局 */
 }
 
 h1 {
@@ -90,6 +89,8 @@ button:focus-visible {
   margin: 0 auto;
   text-align: center;
   box-sizing: border-box;
+  min-height: 100vh;
+  /* 为整个应用添加最小高度，确保占满视口 */
 }
 
 @media (prefers-color-scheme: light) {
