@@ -445,7 +445,7 @@ onUnmounted(() => {
     Cantarell,
     'Helvetica Neue',
     sans-serif;
-  padding: 2.5rem;
+  padding: 1.5rem;
   background: linear-gradient(
     135deg,
     var(--card-bg-color) 0%,
@@ -458,22 +458,28 @@ onUnmounted(() => {
     inset 0 1px 0 rgba(255, 255, 255, 0.1);
   backdrop-filter: blur(20px);
   position: relative;
-  min-height: 300px;
+  min-height: 200px;
   box-sizing: border-box;
   border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .header {
   margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
 
 h1 {
   color: #ff7e67;
-  font-size: 2.6rem;
-  font-weight: 700;
+  font-size: 1.8rem;
+  font-weight: 600;
   margin: 0;
-  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);
-  margin-bottom: 0.5rem;
+  text-shadow: 0 2px 4px rgba(255, 126, 103, 0.2);
+  background: linear-gradient(135deg, #ff7e67 0%, #ff6b6b 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 .header-actions {
@@ -487,12 +493,12 @@ h1 {
 .todo-grid {
   overflow-y: auto;
   display: flex;
-  height: 48vh;
+  height: 35vh;
   flex-direction: column;
-  gap: 1rem;
-  margin-bottom: 2rem;
-  padding-top: 0.5rem;
-  padding-right: 0.5rem;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+  padding: 0.5rem 0.5rem 0.5rem 0;
+  border-radius: var(--border-radius);
 }
 
 .todo-grid::-webkit-scrollbar {
@@ -540,40 +546,40 @@ h1 {
   display: flex;
   justify-content: center;
   gap: 1rem;
-  margin-bottom: 1.5rem;
+  margin-bottom: 0.75rem;
   flex-wrap: wrap;
   padding: 1rem;
-  background: rgba(255, 255, 255, 0.03);
-  border-radius: var(--border-radius);
-  border: 1px solid rgba(255, 126, 103, 0.08);
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.04) 0%,
+    rgba(255, 126, 103, 0.02) 100%
+  );
+  border-radius: calc(var(--border-radius) * 1.2);
+  border: 1px solid rgba(255, 126, 103, 0.1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
 .clear-btn,
 .generate-btn,
 .sort-btn {
-  padding: 0.75rem 1.25rem;
+  padding: 0.8rem 1.4rem;
   font-size: 0.9rem;
-  min-width: 130px;
-  height: 42px;
+  min-width: 140px;
+  height: 44px;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(
-    135deg,
-    var(--button-bg-color) 0%,
-    rgba(121, 180, 166, 0.8) 100%
-  );
-  color: var(--text-color);
-  border: none;
-  border-radius: 25px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: calc(var(--border-radius) * 1.5);
   cursor: pointer;
   transition: all 0.3s ease;
-  font-weight: 600;
-  letter-spacing: 0.5px;
-  margin-bottom: 0.5rem;
-  box-shadow: 0 3px 8px rgba(121, 180, 166, 0.2);
+  font-weight: 500;
+  letter-spacing: 0.3px;
+  margin-bottom: 0;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   position: relative;
   overflow: hidden;
+  backdrop-filter: blur(10px);
 }
 
 .clear-btn::before,
@@ -595,24 +601,28 @@ h1 {
   left: 100%;
 }
 
+.clear-btn {
+  background: linear-gradient(135deg, #ff6b6b 0%, #ee5a52 100%);
+  color: white;
+}
+
 .clear-btn:hover {
-  background: linear-gradient(
-    135deg,
-    var(--button-hover-bg-color) 0%,
-    rgba(121, 180, 166, 1) 100%
-  );
-  transform: translateY(-2px);
-  box-shadow: 0 5px 15px rgba(121, 180, 166, 0.4);
+  background: linear-gradient(135deg, #ff5252 0%, #e53935 100%);
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(255, 107, 107, 0.4);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.generate-btn {
+  background: linear-gradient(135deg, #4ecdc4 0%, #44a08d 100%);
+  color: white;
 }
 
 .generate-btn:hover:not(:disabled) {
-  background: linear-gradient(
-    135deg,
-    var(--button-hover-bg-color) 0%,
-    rgba(121, 180, 166, 1) 100%
-  );
-  transform: translateY(-2px);
-  box-shadow: 0 5px 15px rgba(121, 180, 166, 0.4);
+  background: linear-gradient(135deg, #26d0ce 0%, #2a9d8f 100%);
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(78, 205, 196, 0.4);
+  border-color: rgba(255, 255, 255, 0.2);
 }
 
 .generate-btn:disabled {
@@ -622,14 +632,17 @@ h1 {
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
+.sort-btn {
+  background: linear-gradient(135deg, #a8e6cf 0%, #88d8a3 100%);
+  color: #2d5a3d;
+}
+
 .sort-btn:hover:not(:disabled) {
-  background: linear-gradient(
-    135deg,
-    var(--button-hover-bg-color) 0%,
-    rgba(121, 180, 166, 1) 100%
-  );
-  transform: translateY(-2px);
-  box-shadow: 0 5px 15px rgba(121, 180, 166, 0.4);
+  background: linear-gradient(135deg, #7fcdcd 0%, #74c0fc 100%);
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(168, 230, 207, 0.4);
+  border-color: rgba(255, 255, 255, 0.2);
+  color: #1a4a2e;
 }
 
 .sort-btn:disabled {
@@ -723,42 +736,57 @@ h1 {
 
 @media (max-width: 768px) {
   .todo-container {
-    padding: 0.5rem;
-    padding-top: 4.5rem; /* 为固定导航栏留出空间 */
+    padding: 0.25rem;
+    padding-top: 4rem; /* 为固定导航栏留出空间 */
   }
 
   .todo-list {
     width: 100%;
     max-width: 100%;
-    padding: 0.5rem;
+    padding: 0.75rem;
     margin-top: 0; /* 移除额外的margin，因为container已经有padding */
   }
 
+  .todo-grid {
+    height: 28vh;
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
+  }
+
   .actions {
-    flex-direction: column; /* 在小屏幕上垂直排列按钮 */
-    align-items: stretch; /* 让按钮宽度填满容器 */
+    flex-direction: row; /* 在小屏幕上保持水平排列但紧凑 */
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.25rem;
+    padding: 0.5rem;
   }
 
   .clear-btn,
   .generate-btn,
   .sort-btn {
-    width: 100%; /* 按钮宽度填满容 */
-    margin-bottom: 0.5rem; /* 增加按钮之间间距 */
+    flex: 1; /* 按钮平均分配宽度 */
+    margin-bottom: 0;
+    padding: 0.5rem 0.75rem;
+    font-size: 0.8rem;
+    min-width: auto;
+    height: 36px;
   }
 
   .header {
     flex-direction: column; /* 标题和操作按钮垂直排列 */
     align-items: flex-start;
+    margin-bottom: 0.25rem;
   }
 
   .header-actions {
-    margin-top: 1rem; /* 增加标题和操作按钮之间的间 */
+    margin-top: 0.5rem; /* 减少标题和操作按钮之间的间距 */
     width: 100%; /* 让操作按钮占满宽度 */
     justify-content: space-between; /* 均匀分布操作按钮 */
+    gap: 0.5rem;
   }
 
   h1 {
-    font-size: 1.5rem; /* 减小标题字体大小 */
+    font-size: 1.25rem; /* 进一步减小标题字体大小 */
   }
 }
 
@@ -905,15 +933,15 @@ h1 {
   background: linear-gradient(
     135deg,
     var(--card-bg-color) 0%,
-    rgba(255, 126, 103, 0.05) 100%
+    rgba(255, 126, 103, 0.02) 100%
   );
   border-radius: var(--border-radius);
-  box-shadow: var(--card-shadow);
-  margin-bottom: 1.5rem;
-  padding: 1.25rem;
-  border-bottom: 2px solid rgba(255, 126, 103, 0.1);
+  box-shadow: 0 2px 8px rgba(255, 126, 103, 0.08);
+  margin-bottom: 0.75rem;
+  padding: 0.5rem;
+  border-bottom: 1px solid rgba(255, 126, 103, 0.08);
   position: relative;
-  z-index: 10; /* 确保番茄钟计时器不会遮挡其他元素 */
+  z-index: 10;
 }
 
 .todo-card-header::after {
@@ -937,13 +965,14 @@ h1 {
 
 @media (max-width: 768px) {
   .header-actions {
-    flex-direction: column;
-    align-items: stretch;
+    flex-direction: row;
+    align-items: center;
+    flex-wrap: wrap;
   }
 
   .todo-card-header {
-    margin-bottom: 1rem; /* 与上面的样式保持一致 */
-    padding: 1rem; /* 与上面的样式保持一致 */
+    margin-bottom: 0.5rem; /* 减少底部间距 */
+    padding: 0.5rem; /* 减少内边距 */
   }
 }
 
@@ -951,14 +980,18 @@ h1 {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 1.5rem;
+  margin-bottom: 1rem;
   padding: 1rem;
-  background: rgba(255, 255, 255, 0.03);
-  border-radius: var(--border-radius);
-  border: 1px solid rgba(255, 126, 103, 0.08);
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.04) 0%,
+    rgba(255, 126, 103, 0.02) 100%
+  );
+  border-radius: calc(var(--border-radius) * 1.2);
+  border: 1px solid rgba(255, 126, 103, 0.1);
   position: relative;
-  z-index: 200; /* 确保项目标签在番茄钟计时器之上 */
-  margin-top: 0.5rem; /* 增加与上方元素的间距，防止遮挡 */
+  z-index: 200;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
 .project-tabs {
@@ -1119,43 +1152,40 @@ h1 {
   .project-header {
     flex-direction: column;
     align-items: stretch;
-    margin-top: 1rem; /* 增加与上方元素的间距，防止遮挡 */
+    margin-top: 0.25rem; /* 减少与上方元素的间距 */
+    margin-bottom: 0.5rem;
     position: relative;
     z-index: 200; /* 确保在小屏幕上也不被遮挡 */
-    padding: 0.75rem; /* 减少内边距以节省空间 */
+    padding: 0.5rem; /* 进一步减少内边距以节省空间 */
   }
 
   .project-tabs {
-    margin-bottom: 0.75rem;
-    padding-bottom: 0.5rem;
+    margin-bottom: 0.5rem;
+    padding-bottom: 0.25rem;
     /* 在小屏幕上也保持滚轮滚动功能 */
     scroll-behavior: smooth;
   }
 
   .project-tab {
-    min-width: 90px;
-    max-width: 150px;
-    font-size: 0.9rem;
-    padding: 0.6rem 1rem;
-    padding-right: 2rem; /* 为删除按钮留出足够空间 */
+    min-width: 80px;
+    max-width: 120px;
+    font-size: 0.8rem;
+    padding: 0.5rem 0.75rem;
+    padding-right: 1.75rem; /* 为删除按钮留出足够空间 */
   }
 
   .delete-project {
-    right: 0.2rem;
-    width: 1.4rem;
-    height: 1.4rem;
-    font-size: 1rem;
+    right: 0.15rem;
+    width: 1.2rem;
+    height: 1.2rem;
+    font-size: 0.9rem;
   }
 
   .add-project-btn {
     width: 100%;
     justify-content: center;
-  }
-
-  /* 在小屏幕上优化番茄钟计时器的间距 */
-  .todo-card-header {
-    margin-bottom: 1rem; /* 减少底部间距 */
-    padding: 1rem; /* 减少内边距 */
+    padding: 0.5rem 1rem;
+    font-size: 0.85rem;
   }
 }
 

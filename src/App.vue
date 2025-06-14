@@ -338,16 +338,20 @@ input[type='range'] {
 
 .content-wrapper {
   padding: 1rem;
-  min-height: 100vh;
+  min-height: auto;
+  max-height: 100vh;
   display: flex;
   flex-direction: column;
+  overflow: hidden;
 }
 
 @media (max-width: 768px) {
   .content-wrapper {
     padding-top: 4rem;
-    padding-bottom: 1rem;
-    min-height: 100vh;
+    padding-bottom: 0.5rem;
+    min-height: auto;
+    max-height: 100vh;
+    overflow: hidden;
   }
 }
 
