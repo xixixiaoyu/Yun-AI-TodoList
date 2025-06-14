@@ -46,8 +46,6 @@ const {
   removeTodo,
   duplicateError,
   isLoading,
-  clearActive,
-
   showCharts,
   isSmallScreen,
   themeIcon,
@@ -135,7 +133,6 @@ option('animation', 150)
         :has-active-todos="hasActiveTodos"
         :is-generating="isGenerating"
         :is-sorting="isSorting"
-        @clear-active="clearActive"
         @generate-suggestions="generateSuggestedTodos"
         @sort-with-ai="sortActiveTodosWithAI"
       />

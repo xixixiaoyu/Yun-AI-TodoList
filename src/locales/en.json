@@ -3,7 +3,7 @@
   "addTodo": "Add new todo...",
   "active": "Active",
   "completed": "Completed",
-  "clearCompleted": "Clear completed",
+
   "generateSuggestions": "Generate suggestions",
   "aiPrioritySort": "AI Priority Sort",
 
@@ -36,7 +36,7 @@
   "aiEmptyResponseError": "AI returned an empty response",
   "aiSortMismatchError": "AI returned sort order does not match the number of todos",
   "aiSortError": "AI sorting failed, please try again later.",
-  "confirmClearCompleted": "Are you sure you want to clear all completed todos? This action cannot be undone.",
+
   "aiStreamError": "Error in AI stream response",
   "generateSuggestionsError": "Error generating suggestions",
 

@@ -1,13 +1,5 @@
 <template>
   <div class="actions">
-    <!-- 清除已完成待办事项按钮 -->
-    <button
-      v-if="filter === 'active' && hasActiveTodos"
-      class="clear-btn"
-      @click="$emit('clearActive')"
-    >
-      {{ t('clearCompleted') }}
-    </button>
     <!-- 生成建议待办事项按钮 -->
     <button
       class="generate-btn"
@@ -39,7 +31,6 @@ interface Props {
 }
 
 interface Emits {
-  (e: 'clearActive'): void
   (e: 'generateSuggestions'): void
   (e: 'sortWithAI'): void
 }
@@ -72,7 +63,6 @@ defineOptions({
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
-.clear-btn,
 .generate-btn,
 .sort-btn {
   padding: 0.8rem 1.4rem;
@@ -95,7 +85,6 @@ defineOptions({
   backdrop-filter: blur(10px);
 }
 
-.clear-btn::before,
 .generate-btn::before,
 .sort-btn::before {
   content: '';
@@ -108,22 +97,9 @@ defineOptions({
   transition: left 0.5s;
 }
 
-.clear-btn:hover::before,
 .generate-btn:hover::before,
 .sort-btn:hover::before {
   left: 100%;
-}
-
-.clear-btn {
-  background: linear-gradient(135deg, #ff6b6b 0%, #ee5a52 100%);
-  color: white;
-}
-
-.clear-btn:hover {
-  background: linear-gradient(135deg, #ff5252 0%, #e53935 100%);
-  transform: translateY(-3px);
-  box-shadow: 0 8px 20px rgba(255, 107, 107, 0.4);
-  border-color: rgba(255, 255, 255, 0.2);
 }
 
 .generate-btn {
@@ -171,7 +147,6 @@ defineOptions({
     gap: 0.75rem;
   }
 
-  .clear-btn,
   .generate-btn,
   .sort-btn {
     padding: 0.7rem 1.2rem;
@@ -188,7 +163,6 @@ defineOptions({
     gap: 0.5rem;
   }
 
-  .clear-btn,
   .generate-btn,
   .sort-btn {
     width: 100%;

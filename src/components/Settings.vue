@@ -1,12 +1,6 @@
 <template>
   <div class="settings-page">
     <div class="settings-container">
-      <!-- 页面标题 -->
-      <div class="page-header">
-        <h1 class="page-title">{{ t('settings') }}</h1>
-        <p class="page-subtitle">配置您的 AI 助手和系统设置</p>
-      </div>
-
       <!-- 设置内容区域 -->
       <div class="settings-content">
         <!-- API 密钥配置区域 -->
@@ -59,15 +53,12 @@
 </template>
 
 <script setup lang="ts">
-import { useI18n } from 'vue-i18n'
-import { useSettingsState } from '../composables/useSettingsState'
 import { usePromptManagement } from '../composables/usePromptManagement'
+import { useSettingsState } from '../composables/useSettingsState'
 import ApiKeySection from './settings/ApiKeySection.vue'
-import SystemPromptSection from './settings/SystemPromptSection.vue'
 import EnhancedCustomPromptManager from './settings/EnhancedCustomPromptManager.vue'
 import SettingsToast from './settings/SettingsToast.vue'
-
-const { t } = useI18n()
+import SystemPromptSection from './settings/SystemPromptSection.vue'
 
 // 使用设置状态管理 composable
 const {
@@ -149,27 +140,6 @@ defineOptions({
   gap: 2.5rem;
 }
 
-.page-header {
-  text-align: center;
-  margin-bottom: 1rem;
-}
-
-.page-title {
-  margin: 0;
-  font-size: 2.5rem;
-  font-weight: 700;
-  color: var(--text-color);
-  background: linear-gradient(
-    135deg,
-    var(--button-bg-color),
-    var(--button-hover-bg-color)
-  );
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  margin-bottom: 0.5rem;
-}
-
 .page-subtitle {
   margin: 0;
   font-size: 1.1rem;
@@ -244,10 +214,6 @@ defineOptions({
     padding-top: 3rem;
   }
 
-  .page-title {
-    font-size: 2.2rem;
-  }
-
   .page-subtitle {
     font-size: 1rem;
   }
@@ -261,10 +227,6 @@ defineOptions({
 
   .settings-container {
     gap: 1.5rem;
-  }
-
-  .page-title {
-    font-size: 1.8rem;
   }
 
   .page-subtitle {
@@ -284,10 +246,6 @@ defineOptions({
 
   .settings-container {
     gap: 1rem;
-  }
-
-  .page-title {
-    font-size: 1.6rem;
   }
 
   .page-subtitle {

@@ -145,11 +145,6 @@ export function useTodos() {
     saveTodos()
   }
 
-  const clearActiveTodos = () => {
-    todos.value = todos.value.filter((todo) => todo && todo.completed)
-    saveTodos()
-  }
-
   const updateTodosOrder = (newOrder: number[]) => {
     // 创建一个映射来存储每个 todo 的新顺序
     const orderMap = new Map(newOrder.map((id, index) => [id, index]))
@@ -198,7 +193,6 @@ export function useTodos() {
     addMultipleTodos,
     toggleTodo,
     removeTodo,
-    clearActiveTodos,
     updateTodosOrder,
     getCompletedTodosByDate,
     updateTodoTags,

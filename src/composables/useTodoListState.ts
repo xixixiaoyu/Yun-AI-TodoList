@@ -1,9 +1,9 @@
-import { ref, onMounted, onUnmounted, onErrorCaptured, onBeforeMount } from 'vue'
+import { onBeforeMount, onErrorCaptured, onMounted, onUnmounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { useErrorHandler } from './useErrorHandler'
 import { useConfirmDialog } from './useConfirmDialog'
-import { useTodos } from './useTodos'
+import { useErrorHandler } from './useErrorHandler'
 import { useTodoManagement } from './useTodoManagement'
+import { useTodos } from './useTodos'
 import { useUIState } from './useUIState'
 
 /**
@@ -44,7 +44,6 @@ export function useTodoListState() {
     removeTodo,
     duplicateError,
     isLoading,
-    clearActive,
   } = useTodoManagement()
 
   // UI状态管理相关
@@ -131,7 +130,6 @@ export function useTodoListState() {
     removeTodo,
     duplicateError,
     isLoading,
-    clearActive,
 
     // UI 状态
     showCharts,

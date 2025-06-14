@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from 'vitest'
+import { beforeEach, describe, expect, it } from 'vitest'
 import { useTodos } from '../useTodos'
 
 describe('useTodos', () => {
@@ -29,16 +29,6 @@ describe('useTodos', () => {
     expect(todos.value.length).toBe(1)
     removeTodo(todos.value[0].id)
     expect(todos.value.length).toBe(0)
-  })
-
-  it('should clear completed todos', () => {
-    const { todos, addTodo, toggleTodo, clearActiveTodos } = useTodos()
-    addTodo('Todo 1')
-    addTodo('Todo 2')
-    toggleTodo(todos.value[0].id)
-    clearActiveTodos()
-    expect(todos.value.length).toBe(1)
-    expect(todos.value[0].text).toBe('Todo 1')
   })
 
   it('should not add duplicate todos', () => {

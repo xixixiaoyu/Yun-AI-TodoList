@@ -3,7 +3,7 @@
   "addTodo": "添加新的待办事项...",
   "active": "待完成",
   "completed": "已完成",
-  "clearCompleted": "清除已完成",
+
   "generateSuggestions": "AI 生成建议",
   "aiPrioritySort": "AI 优先级排序",
 
@@ -35,7 +35,7 @@
   "aiEmptyResponseError": "AI 返回了空响应",
   "aiSortMismatchError": "AI 返回的排序数与待办事项数量不匹配",
   "aiSortError": "AI 排序失败，请稍后再试。",
-  "confirmClearCompleted": "确定要清除所有已完成的待办事项吗？此操作不可撤销。",
+
   "aiStreamError": "AI 流式响应出错",
   "generateSuggestionsError": "生成建议时出错",
 

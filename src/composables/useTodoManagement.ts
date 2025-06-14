@@ -1,23 +1,14 @@
-import { ref, computed } from 'vue'
-import { useTodos } from './useTodos'
+import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { useErrorHandler } from './useErrorHandler'
-import { useConfirmDialog } from './useConfirmDialog'
 import { getAIResponse } from '../services/deepseekService'
+import { useErrorHandler } from './useErrorHandler'
+import { useTodos } from './useTodos'
 
 export function useTodoManagement() {
   const { t } = useI18n()
-  const {
-    todos,
-    addTodo,
-    addMultipleTodos,
-    toggleTodo,
-    removeTodo,
-    clearActiveTodos,
-    saveTodos,
-  } = useTodos()
+  const { todos, addTodo, addMultipleTodos, toggleTodo, removeTodo, saveTodos } =
+    useTodos()
   const { showError, error: duplicateError } = useErrorHandler()
-  const { showConfirmDialog, confirmDialogConfig } = useConfirmDialog()
 
   const filter = ref('active')
   const isGenerating = ref(false)
@@ -28,18 +19,6 @@ export function useTodoManagement() {
 
   // 计算是否正在加载中
   const isLoading = computed(() => isSorting.value)
-
-  // 清除已完成的待办事项
-  const clearActive = () => {
-    showConfirmDialog.value = true
-    confirmDialogConfig.value = {
-      title: t('clearCompleted'),
-      message: t('confirmClearCompleted'),
-      confirmText: t('confirm'),
-      cancelText: t('cancel'),
-      action: clearActiveTodos,
-    }
-  }
 
   // 计算已过滤的待办事项
   const filteredTodos = computed(() => {
@@ -183,7 +162,5 @@ export function useTodoManagement() {
     handleAddTodo,
     toggleTodo,
     removeTodo,
-    clearActiveTodos,
-    clearActive,
   }
 }
