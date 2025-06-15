@@ -39,13 +39,13 @@ interface SpeechRecognition extends EventTarget {
   interimResults: boolean
   lang: string
   maxAlternatives: number
-  onaudioend: ((this: SpeechRecognition, ev: Event) => any) | null
-  onaudiostart: ((this: SpeechRecognition, ev: Event) => any) | null
-  onend: ((this: SpeechRecognition, ev: Event) => any) | null
-  onerror: ((this: SpeechRecognition, ev: SpeechRecognitionErrorEvent) => any) | null
-  onnomatch: ((this: SpeechRecognition, ev: SpeechRecognitionEvent) => any) | null
-  onresult: ((this: SpeechRecognition, ev: SpeechRecognitionEvent) => any) | null
-  onstart: ((this: SpeechRecognition, ev: Event) => any) | null
+  onaudioend: ((this: SpeechRecognition, ev: Event) => void) | null
+  onaudiostart: ((this: SpeechRecognition, ev: Event) => void) | null
+  onend: ((this: SpeechRecognition, ev: Event) => void) | null
+  onerror: ((this: SpeechRecognition, ev: SpeechRecognitionErrorEvent) => void) | null
+  onnomatch: ((this: SpeechRecognition, ev: SpeechRecognitionEvent) => void) | null
+  onresult: ((this: SpeechRecognition, ev: SpeechRecognitionEvent) => void) | null
+  onstart: ((this: SpeechRecognition, ev: Event) => void) | null
   abort(): void
   start(): void
   stop(): void
@@ -64,7 +64,7 @@ declare global {
 export type {
   SpeechRecognition,
   SpeechRecognitionConstructor,
-  SpeechRecognitionEvent,
-  SpeechRecognitionErrorEvent,
   SpeechRecognitionErrorCode,
+  SpeechRecognitionErrorEvent,
+  SpeechRecognitionEvent,
 }

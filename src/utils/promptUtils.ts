@@ -1,10 +1,10 @@
 import type {
   CustomPrompt,
+  PromptActionResult,
+  PromptExportData,
   PromptFilter,
   PromptSortOptions,
   PromptValidationResult,
-  PromptExportData,
-  PromptActionResult,
 } from '../types/settings'
 import { PromptCategory, PromptPriority } from '../types/settings'
 
@@ -46,7 +46,7 @@ export function validatePrompt(prompt: Partial<CustomPrompt>): PromptValidationR
     // 检查是否包含常见的有害内容关键词
     const harmfulKeywords = ['hack', 'crack', 'illegal', 'violence']
     const hasHarmfulContent = harmfulKeywords.some((keyword) =>
-      prompt.content!.toLowerCase().includes(keyword)
+      prompt.content?.toLowerCase().includes(keyword)
     )
 
     if (hasHarmfulContent) {
@@ -230,7 +230,7 @@ export function exportPrompts(prompts: CustomPrompt[]): PromptExportData {
 /**
  * 验证导入的提示词数据
  */
-export function validateImportData(data: any): PromptActionResult {
+export function validateImportData(data: unknown): PromptActionResult {
   try {
     if (!data || typeof data !== 'object') {
       return { success: false, message: '无效的数据格式' }

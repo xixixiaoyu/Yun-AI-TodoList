@@ -1,3 +1,4 @@
+import { handleError as logError, logger } from '@/utils/logger'
 import { onBeforeMount, onErrorCaptured, onMounted, onUnmounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useConfirmDialog } from './useConfirmDialog'
@@ -62,7 +63,7 @@ export function useTodoListState() {
 
   // 添加错误边界处理
   const handleError = (error: Error) => {
-    console.error('TodoList error:', error)
+    logError(error, 'TodoList error', 'TodoListState')
     showError(t('generalError'))
   }
 
@@ -80,15 +81,19 @@ export function useTodoListState() {
 
     try {
       loadTodos() // 加载待办事项数据
-      console.log('Todos loaded:', todos.value)
+      logger.debug('Todos loaded', todos.value, 'TodoListState')
     } catch (error) {
-      console.error('Error loading todos:', error)
+      logError(error, 'Error loading todos', 'TodoListState')
       showError(error instanceof Error ? error.message : 'Failed to load todos')
     }
 
     const renderTime = performance.now() - renderStartTime
     if (renderTime > 100) {
-      console.warn(`TodoList render time: ${renderTime}ms`)
+      logger.warn(
+        `TodoList render time: ${renderTime}ms`,
+        { renderTime },
+        'TodoListState'
+      )
     }
   })
 

@@ -26,7 +26,7 @@
   "plugins": ["@typescript-eslint", "vue"],
   "rules": {
     // 基础规则
-    "no-console": "warn",
+    "no-console": ["warn", { "allow": ["error", "warn"] }],
     "no-debugger": "warn",
     "no-unused-vars": "off",
 

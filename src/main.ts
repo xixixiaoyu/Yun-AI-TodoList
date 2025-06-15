@@ -1,10 +1,11 @@
-import { createApp } from 'vue'
-import './style.css'
-import App from './App.vue'
-import router from './router/index.ts'
-import i18n from './i18n'
 import 'highlight.js/styles/github.css'
 import { registerSW } from 'virtual:pwa-register'
+import { createApp } from 'vue'
+import App from './App.vue'
+import i18n from './i18n'
+import router from './router/index.ts'
+import './style.css'
+import { logger } from './utils/logger.ts'
 
 // 注册 Service Worker
 const updateSW = registerSW({
@@ -15,7 +16,7 @@ const updateSW = registerSW({
     }
   },
   onOfflineReady() {
-    console.log('应用已准备好离线使用')
+    logger.info('应用已准备好离线使用', undefined, 'PWA')
   },
 })
 

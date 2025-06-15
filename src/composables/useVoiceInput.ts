@@ -1,8 +1,10 @@
+import { handleError, logger } from '@/utils/logger'
 import { ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import type {
-  SpeechRecognitionEvent,
+  SpeechRecognition,
   SpeechRecognitionErrorEvent,
+  SpeechRecognitionEvent,
 } from '../types/web-speech-api'
 
 // 添加 SpeechRecognition 类型声明
@@ -16,7 +18,7 @@ declare global {
 export function useVoiceInput(onTranscript: (text: string) => void) {
   const { t } = useI18n()
   const isListening = ref(false)
-  const recognition = ref<any | null>(null)
+  const recognition = ref<SpeechRecognition | null>(null)
   const errorCount = ref(0)
   const maxErrorRetries = 2
   const isRecognitionSupported = ref(true)
@@ -29,7 +31,7 @@ export function useVoiceInput(onTranscript: (text: string) => void) {
       window.SpeechRecognition || window.webkitSpeechRecognition
     if (!SpeechRecognitionAPI) {
       isRecognitionSupported.value = false
-      console.error(t('browserSpeechNotSupported'))
+      logger.error(t('browserSpeechNotSupported'), undefined, 'VoiceInput')
       return false
     }
     return true
@@ -47,9 +49,9 @@ export function useVoiceInput(onTranscript: (text: string) => void) {
       // 2. 检查麦克风权限
       try {
         await navigator.mediaDevices.getUserMedia({ audio: true })
-        console.log(t('micPermissionGranted'))
+        logger.debug(t('micPermissionGranted'), undefined, 'VoiceInput')
       } catch (error) {
-        console.error(t('micPermissionError', { error }))
+        handleError(error, t('micPermissionError'), 'VoiceInput')
         recognitionStatus.value = 'error'
         lastError.value = t('microphonePermissionDenied')
         return
@@ -60,7 +62,7 @@ export function useVoiceInput(onTranscript: (text: string) => void) {
         try {
           recognition.value.stop()
         } catch (e) {
-          console.log(t('stopOldInstance', { error: e }))
+          logger.debug(t('stopOldInstance', { error: e }), e, 'VoiceInput')
         }
         recognition.value = null
       }
@@ -106,7 +108,11 @@ export function useVoiceInput(onTranscript: (text: string) => void) {
       }
 
       recognition.value.onerror = (event: SpeechRecognitionErrorEvent) => {
-        console.error(t('speechRecognitionError', { error: event.error }))
+        logger.error(
+          t('speechRecognitionError', { error: event.error }),
+          event,
+          'VoiceInput'
+        )
         recognitionStatus.value = 'error'
         lastError.value = t('speechRecognitionError')
 
@@ -120,7 +126,7 @@ export function useVoiceInput(onTranscript: (text: string) => void) {
             errorCount.value++
             if (errorCount.value <= maxErrorRetries) {
               setTimeout(() => {
-                console.log(t('retryingConnection'))
+                logger.info(t('retryingConnection'), undefined, 'VoiceInput')
                 restartRecognition()
               }, 1000 * errorCount.value) // 递增重试延迟
             }
@@ -142,7 +148,7 @@ export function useVoiceInput(onTranscript: (text: string) => void) {
       recognition.value.onend = () => {
         // 如果仍在监听状态但识别结束，说明是意外终止
         if (isListening.value && errorCount.value <= maxErrorRetries) {
-          console.log(t('reconnecting'))
+          logger.info(t('reconnecting'), undefined, 'VoiceInput')
           setTimeout(restartRecognition, 1000)
         } else {
           isListening.value = false
@@ -152,19 +158,19 @@ export function useVoiceInput(onTranscript: (text: string) => void) {
 
       // 添加音频级别监测
       recognition.value.onaudiostart = () => {
-        console.log(t('audioDetected'))
+        logger.debug(t('audioDetected'), undefined, 'VoiceInput')
       }
 
       recognition.value.onaudioend = () => {
-        console.log(t('audioEnded'))
+        logger.debug(t('audioEnded'), undefined, 'VoiceInput')
       }
 
       // 添加噪音处理
       recognition.value.onnomatch = () => {
-        console.log(t('noMatchFound'))
+        logger.debug(t('noMatchFound'), undefined, 'VoiceInput')
       }
     } catch (error) {
-      console.error(t('initRecognitionError', { error }))
+      handleError(error, t('initRecognitionError'), 'VoiceInput')
       recognitionStatus.value = 'error'
       lastError.value = t('initializationError')
       isListening.value = false
@@ -175,13 +181,13 @@ export function useVoiceInput(onTranscript: (text: string) => void) {
     if (isListening.value && recognition.value && recognitionStatus.value !== 'error') {
       try {
         setTimeout(() => {
-          if (isListening.value) {
+          if (isListening.value && recognition.value) {
             recognition.value.start()
             recognitionStatus.value = 'listening'
           }
         }, 500)
       } catch (e) {
-        console.error(t('restartRecognitionError', { error: e }))
+        handleError(e, t('restartRecognitionError'), 'VoiceInput')
         recognitionStatus.value = 'error'
         isListening.value = false
       }
@@ -201,7 +207,7 @@ export function useVoiceInput(onTranscript: (text: string) => void) {
         recognition.value.start()
       }
     } catch (error) {
-      console.error(t('startRecognitionError', { error }))
+      handleError(error, t('startRecognitionError'), 'VoiceInput')
       recognitionStatus.value = 'error'
       lastError.value = t('speechRecognitionError')
       isListening.value = false
@@ -217,7 +223,7 @@ export function useVoiceInput(onTranscript: (text: string) => void) {
         recognition.value = null
       }
     } catch (error) {
-      console.error(t('stopRecognitionError', { error }))
+      handleError(error, t('stopRecognitionError'), 'VoiceInput')
       recognitionStatus.value = 'error'
       isListening.value = false
     }

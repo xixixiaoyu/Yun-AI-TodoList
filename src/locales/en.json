@@ -146,5 +146,10 @@
   "updateOrderError": "Error updating todo order",
   "apiKeyConfiguration": "API Key Configuration",
   "enterFullscreen": "Enter Fullscreen",
-  "exitFullscreen": "Exit Fullscreen"
+  "exitFullscreen": "Exit Fullscreen",
+  "retryingConnection": "Retrying connection...",
+  "reconnecting": "Reconnecting...",
+  "audioDetected": "Audio input detected",
+  "audioEnded": "Audio input ended",
+  "noMatchFound": "No matching speech content found"
 }

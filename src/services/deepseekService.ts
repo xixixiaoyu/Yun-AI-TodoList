@@ -1,7 +1,8 @@
+import { handleError, logger } from '@/utils/logger'
 import { promptsConfig } from '../config/prompts'
-import { AIStreamResponse, Message } from './types'
-import { getApiKey } from './configService'
 import i18n from '../i18n'
+import { getApiKey } from './configService'
+import { AIStreamResponse, Message } from './types'
 
 const API_URL = 'https://api.deepseek.com/chat/completions'
 
@@ -101,17 +102,17 @@ export async function getAIStreamResponse(
               onChunk(content)
             }
           } catch (error) {
-            console.error(i18n.global.t('jsonParseError', { error }))
+            handleError(error, i18n.global.t('jsonParseError'), 'DeepSeekService')
           }
         }
       }
     }
   } catch (error) {
     if (error instanceof Error && error.name === 'AbortError') {
-      console.warn(i18n.global.t('requestAborted'))
+      logger.warn(i18n.global.t('requestAborted'), error, 'DeepSeekService')
       onChunk('[ABORTED]')
     } else {
-      console.error(i18n.global.t('aiResponseError', { error }))
+      handleError(error, i18n.global.t('aiResponseError'), 'DeepSeekService')
       throw error
     }
   } finally {
@@ -159,7 +160,7 @@ export async function getAIResponse(
       throw new Error(i18n.global.t('invalidAiResponse'))
     }
   } catch (error) {
-    console.error(i18n.global.t('aiResponseError', { error }))
+    handleError(error, i18n.global.t('aiResponseError'), 'DeepSeekService')
     if (error instanceof Error) {
       if (error.message.startsWith('HTTP 错误')) {
         throw new Error(i18n.global.t('apiError', { error: error.message }))
@@ -208,7 +209,7 @@ export async function optimizeText(text: string): Promise<string> {
       throw new Error(i18n.global.t('invalidAiResponse'))
     }
   } catch (error) {
-    console.error(i18n.global.t('textOptimizationError', { error }))
+    handleError(error, i18n.global.t('textOptimizationError'), 'DeepSeekService')
     throw error
   }
 }

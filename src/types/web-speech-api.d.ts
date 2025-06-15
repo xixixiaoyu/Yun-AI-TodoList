@@ -13,10 +13,10 @@ export interface SpeechRecognition extends EventTarget {
   interimResults: boolean
   lang: string
   maxAlternatives: number
-  onstart: ((this: SpeechRecognition, ev: Event) => any) | null
-  onresult: ((this: SpeechRecognition, ev: SpeechRecognitionEvent) => any) | null
-  onerror: ((this: SpeechRecognition, ev: SpeechRecognitionErrorEvent) => any) | null
-  onend: ((this: SpeechRecognition, ev: Event) => any) | null
+  onstart: ((this: SpeechRecognition, ev: Event) => void) | null
+  onresult: ((this: SpeechRecognition, ev: SpeechRecognitionEvent) => void) | null
+  onerror: ((this: SpeechRecognition, ev: SpeechRecognitionErrorEvent) => void) | null
+  onend: ((this: SpeechRecognition, ev: Event) => void) | null
   start(): void
   stop(): void
   abort(): void

@@ -1,3 +1,5 @@
+import type { Todo } from '@/types/todo'
+import { handleError, logger } from '@/utils/logger'
 import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { getAIResponse } from '../services/deepseekService'
@@ -25,20 +27,20 @@ export function useTodoManagement() {
     try {
       const filtered = todos.value
       if (!Array.isArray(filtered)) {
-        console.error('Invalid todos data structure')
+        logger.error('Invalid todos data structure', filtered, 'TodoManagement')
         return []
       }
 
       const filterFn =
         filter.value === 'active'
-          ? (todo: any) => todo && !todo.completed
+          ? (todo: Todo) => todo && !todo.completed
           : filter.value === 'completed'
-            ? (todo: any) => todo && todo.completed
-            : (todo: any) => todo !== null && todo !== undefined
+            ? (todo: Todo) => todo && todo.completed
+            : (todo: Todo) => todo !== null && todo !== undefined
 
       return filtered.filter(filterFn)
     } catch (error) {
-      console.error('Error in filteredTodos computed:', error)
+      handleError(error, 'Error in filteredTodos computed', 'TodoManagement')
       return []
     }
   })
@@ -59,7 +61,7 @@ export function useTodoManagement() {
         .slice(0, 5)
       showSuggestedTodos.value = true
     } catch (error) {
-      console.error(t('generateSuggestionsError'), error)
+      handleError(error, t('generateSuggestionsError'), 'TodoManagement')
       showError(error instanceof Error ? error.message : t('generateSuggestionsError'))
     } finally {
       isGenerating.value = false
@@ -124,7 +126,7 @@ export function useTodoManagement() {
 
       saveTodos()
     } catch (error) {
-      console.error(t('aiSortError'), error)
+      handleError(error, t('aiSortError'), 'TodoManagement')
       showError(error instanceof Error ? error.message : t('aiSortError'))
     } finally {
       isSorting.value = false

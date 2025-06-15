@@ -1,13 +1,14 @@
-import { ref, onMounted } from 'vue'
+import { onMounted, ref } from 'vue'
+import { builtinPromptTemplates } from '../config/prompts'
 import { apiKey } from '../services/configService'
 import type {
   CustomPrompt,
-  PromptTemplate,
   PromptFilter,
   PromptSortOptions,
+  PromptTemplate,
 } from '../types/settings'
 import { PromptCategory, PromptPriority } from '../types/settings'
-import { builtinPromptTemplates } from '../config/prompts'
+import { handleError } from '../utils/logger'
 
 /**
  * 增强的设置状态管理 composable
@@ -81,7 +82,7 @@ export function useSettingsState() {
       try {
         const parsed = JSON.parse(savedCustomPrompts)
         // 迁移旧格式的提示词数据
-        customPrompts.value = parsed.map((prompt: any) => {
+        customPrompts.value = parsed.map((prompt: Partial<CustomPrompt>) => {
           if (!prompt.category) {
             return {
               ...prompt,
@@ -94,12 +95,12 @@ export function useSettingsState() {
               isActive: prompt.isActive !== undefined ? prompt.isActive : true,
               usageCount: prompt.usageCount || 0,
               isFavorite: prompt.isFavorite || false,
-            }
+            } as CustomPrompt
           }
-          return prompt
+          return prompt as CustomPrompt
         })
       } catch (error) {
-        console.error('Failed to parse custom prompts:', error)
+        handleError(error, 'Failed to parse custom prompts', 'SettingsState')
         customPrompts.value = []
       }
     }
@@ -110,7 +111,7 @@ export function useSettingsState() {
       try {
         promptFilter.value = { ...promptFilter.value, ...JSON.parse(savedFilter) }
       } catch (error) {
-        console.error('Failed to parse prompt filter:', error)
+        handleError(error, 'Failed to parse prompt filter', 'SettingsState')
       }
     }
 
@@ -122,7 +123,7 @@ export function useSettingsState() {
           ...JSON.parse(savedSortOptions),
         }
       } catch (error) {
-        console.error('Failed to parse prompt sort options:', error)
+        handleError(error, 'Failed to parse prompt sort options', 'SettingsState')
       }
     }
   }

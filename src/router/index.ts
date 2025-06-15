@@ -1,7 +1,7 @@
 import { createRouter, createWebHashHistory } from 'vue-router'
-import TodoList from '../components/TodoList.vue'
 import AIChatDialog from '../components/AIChatDialog.vue'
 import Settings from '../components/Settings.vue'
+import TodoList from '../components/TodoList.vue'
 
 const router = createRouter({
   history: createWebHashHistory(),
@@ -27,9 +27,15 @@ const router = createRouter({
   ],
 })
 
-router.beforeEach((to: any, from: any, next: any) => {
-  document.title = to.meta.title as string
-  next()
-})
+router.beforeEach(
+  (
+    to: RouteLocationNormalized,
+    from: RouteLocationNormalized,
+    next: NavigationGuardNext
+  ) => {
+    document.title = to.meta.title as string
+    next()
+  }
+)
 
 export default router

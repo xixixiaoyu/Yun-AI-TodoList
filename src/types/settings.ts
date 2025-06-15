@@ -153,7 +153,7 @@ export type PromptAction =
 export interface PromptActionResult {
   success: boolean
   message: string
-  data?: any
+  data?: unknown
 }
 
 /**
