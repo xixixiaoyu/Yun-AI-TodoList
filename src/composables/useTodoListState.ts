@@ -28,6 +28,7 @@ export function useTodoListState() {
   // 待办事项管理相关
   const {
     filter,
+    searchQuery,
     filteredTodos,
     hasActiveTodos,
     isGenerating,
@@ -47,6 +48,20 @@ export function useTodoListState() {
     isLoading,
   } = useTodoManagement()
 
+  // 搜索状态管理
+  const showSearch = ref(false)
+  const toggleSearch = () => {
+    showSearch.value = !showSearch.value
+    if (!showSearch.value) {
+      // 收缩时清除搜索内容
+      searchQuery.value = ''
+    }
+  }
+  const collapseSearch = () => {
+    showSearch.value = false
+    searchQuery.value = ''
+  }
+
   // UI状态管理相关
   const {
     showCharts,
@@ -58,8 +73,22 @@ export function useTodoListState() {
     closeCharts,
     handlePomodoroComplete,
     checkPomodoroCompletion,
-    onKeyDown,
+    onKeyDown: originalOnKeyDown,
   } = useUIState()
+
+  // 扩展键盘事件处理，添加搜索快捷键
+  const onKeyDown = (event: KeyboardEvent) => {
+    // 先调用原始的键盘事件处理
+    originalOnKeyDown(event)
+
+    // 添加搜索快捷键 Ctrl+F
+    if (event.ctrlKey || event.metaKey) {
+      if (event.key.toLowerCase() === 'f') {
+        event.preventDefault()
+        toggleSearch()
+      }
+    }
+  }
 
   // 添加错误边界处理
   const handleError = (error: Error) => {
@@ -118,6 +147,7 @@ export function useTodoListState() {
 
     // 待办事项管理
     filter,
+    searchQuery,
     filteredTodos,
     hasActiveTodos,
     isGenerating,
@@ -138,15 +168,19 @@ export function useTodoListState() {
 
     // UI 状态
     showCharts,
+    showSearch,
     isSmallScreen,
     themeIcon,
     themeTooltip,
     toggleTheme,
     toggleCharts,
+    toggleSearch,
     closeCharts,
+    collapseSearch,
     handlePomodoroComplete,
 
     // 事件处理
+    onKeyDown,
     handleError,
   }
 }

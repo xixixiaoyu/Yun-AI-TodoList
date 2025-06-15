@@ -5,6 +5,27 @@
       {{ t('appTitle') }}
     </h1>
     <div class="header-actions">
+      <!-- 搜索按钮 -->
+      <button
+        class="icon-button search-button"
+        :class="{ active: showSearch }"
+        :title="`${showSearch ? t('closeSearch') : t('openSearch')} (Ctrl+F)`"
+        :aria-label="showSearch ? t('closeSearch') : t('openSearch')"
+        @click="$emit('toggleSearch')"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 24 24"
+          width="22"
+          height="22"
+          fill="currentColor"
+          class="button-icon"
+        >
+          <circle cx="11" cy="11" r="8" />
+          <path d="m21 21-4.35-4.35" />
+        </svg>
+      </button>
+
       <!-- 主题切换按钮 -->
       <button
         class="icon-button theme-toggle"
@@ -87,12 +108,14 @@ interface Props {
   themeIcon: string
   themeTooltip: string
   showCharts: boolean
+  showSearch: boolean
   isLoading?: boolean
 }
 
 interface Emits {
   (e: 'toggleTheme'): void
   (e: 'toggleCharts'): void
+  (e: 'toggleSearch'): void
 }
 
 defineProps<Props>()

@@ -1,8 +1,8 @@
-import type { Todo } from '@/types/todo'
-import { handleError, logger } from '@/utils/logger'
 import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { getAIResponse } from '../services/deepseekService'
+import type { Todo } from '../types/todo'
+import { handleError, logger } from '../utils/logger'
 import { useErrorHandler } from './useErrorHandler'
 import { useTodos } from './useTodos'
 
@@ -13,6 +13,7 @@ export function useTodoManagement() {
   const { showError, error: duplicateError } = useErrorHandler()
 
   const filter = ref('active')
+  const searchQuery = ref('')
   const isGenerating = ref(false)
   const suggestedTodos = ref<string[]>([])
   const showSuggestedTodos = ref(false)
@@ -31,14 +32,33 @@ export function useTodoManagement() {
         return []
       }
 
-      const filterFn =
+      // 首先按状态过滤
+      const statusFilterFn =
         filter.value === 'active'
           ? (todo: Todo) => todo && !todo.completed
           : filter.value === 'completed'
             ? (todo: Todo) => todo && todo.completed
             : (todo: Todo) => todo !== null && todo !== undefined
 
-      return filtered.filter(filterFn)
+      let result = filtered.filter(statusFilterFn)
+
+      // 然后按搜索查询过滤
+      if (searchQuery.value.trim()) {
+        const query = searchQuery.value.toLowerCase().trim()
+        result = result.filter((todo) => {
+          if (!todo) {
+            return false
+          }
+          // 搜索标题和描述（如果有的话）
+          const titleMatch = todo.text.toLowerCase().includes(query)
+          // 可以扩展到搜索标签
+          const tagsMatch =
+            todo.tags?.some((tag) => tag.toLowerCase().includes(query)) || false
+          return titleMatch || tagsMatch
+        })
+      }
+
+      return result
     } catch (error) {
       handleError(error, 'Error in filteredTodos computed', 'TodoManagement')
       return []
@@ -147,6 +167,7 @@ export function useTodoManagement() {
 
   return {
     filter,
+    searchQuery,
     filteredTodos,
     hasActiveTodos,
     isGenerating,

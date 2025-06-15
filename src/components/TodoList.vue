@@ -15,8 +15,10 @@
         :theme-icon="themeIcon"
         :theme-tooltip="themeTooltip"
         :show-charts="showCharts"
+        :show-search="showSearch"
         @toggle-theme="toggleTheme"
         @toggle-charts="toggleCharts"
+        @toggle-search="toggleSearch"
       />
 
       <!-- 待办事项输入组 -->
@@ -29,6 +31,13 @@
 
       <!-- 待办事项过滤器组件 -->
       <TodoFilters v-model:filter="filter" />
+
+      <!-- 搜索组件 - 可展开收缩 -->
+      <TodoSearch
+        v-model="searchQuery"
+        :is-expanded="showSearch"
+        @collapse="collapseSearch"
+      />
       <!-- 待办事项列表 -->
       <div ref="todoListRef" class="todo-grid">
         <TodoItem
@@ -76,6 +85,7 @@
 
 <script setup lang="ts">
 import TodoInput from './TodoInput.vue'
+import TodoSearch from './TodoSearch.vue'
 import TodoFilters from './TodoFilters.vue'
 import TodoItem from './TodoItem.vue'
 
@@ -105,6 +115,7 @@ const {
 
   updateTodosOrder,
   filter,
+  searchQuery,
   filteredTodos,
   hasActiveTodos,
   isGenerating,
@@ -123,12 +134,15 @@ const {
   duplicateError,
   isLoading,
   showCharts,
+  showSearch,
   isSmallScreen,
   themeIcon,
   themeTooltip,
   toggleTheme,
   toggleCharts,
+  toggleSearch,
   closeCharts,
+  collapseSearch,
   handlePomodoroComplete,
   handleError,
 } = useTodoListState()

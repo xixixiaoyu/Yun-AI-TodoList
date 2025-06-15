@@ -28,6 +28,10 @@
   --link-hover-color: #68a295;
   --input-focus-color: #79b4a6;
   --error-color: #e53e3e;
+  --text-secondary-color: #718096;
+  --hover-bg-color: rgba(121, 180, 166, 0.08);
+  --primary-color: #79b4a6;
+  --primary-color-rgb: 121, 180, 166;
 }
 
 /* 深色主题 */
@@ -60,6 +64,10 @@
   --link-hover-color: #68a295;
   --input-focus-color: #79b4a6;
   --error-color: #fc8181;
+  --text-secondary-color: #a0aec0;
+  --hover-bg-color: rgba(121, 180, 166, 0.12);
+  --primary-color: #79b4a6;
+  --primary-color-rgb: 121, 180, 166;
 }
 
 /* 无障碍支持 */

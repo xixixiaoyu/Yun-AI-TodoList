@@ -1,6 +1,11 @@
 {
   "appTitle": "待办事项",
   "addTodo": "添加新的待办事项...",
+  "searchTodos": "搜索待办事项...",
+  "clearSearch": "清除搜索",
+  "toggleSearch": "切换搜索",
+  "openSearch": "打开搜索",
+  "closeSearch": "关闭搜索",
   "active": "待完成",
   "completed": "已完成",
 

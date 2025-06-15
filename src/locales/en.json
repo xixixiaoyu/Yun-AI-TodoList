@@ -1,6 +1,11 @@
 {
   "appTitle": "todo",
   "addTodo": "Add new todo...",
+  "searchTodos": "Search todos...",
+  "clearSearch": "Clear search",
+  "toggleSearch": "Toggle search",
+  "openSearch": "Open search",
+  "closeSearch": "Close search",
   "active": "Active",
   "completed": "Completed",
 
