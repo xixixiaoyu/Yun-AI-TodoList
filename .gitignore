@@ -39,3 +39,8 @@ dist-ssr
 
 # 忽略构建产物
 release
+
+# 忽略缓存文件
+.cache
+.temp
+.tmp

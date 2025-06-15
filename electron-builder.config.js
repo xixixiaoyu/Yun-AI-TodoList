@@ -4,7 +4,13 @@ export default {
   copyright: 'Copyright © 2024 yunmu',
   electronDownload: {
     mirror: 'https://npmmirror.com/mirrors/electron/',
+    cache: '.cache/electron',
   },
+  // 网络优化配置
+  downloadAlternateFFmpeg: false,
+  buildDependenciesFromSource: false,
+  nodeGypRebuild: false,
+  npmRebuild: false,
   directories: {
     output: 'release/${version}',
     buildResources: 'build',
@@ -100,10 +106,6 @@ export default {
     icon: 'build/icon.png',
     target: [
       {
-        target: 'AppImage',
-        arch: ['x64'],
-      },
-      {
         target: 'deb',
         arch: ['x64'],
       },
@@ -137,7 +139,4 @@ export default {
   compression: 'maximum',
   asar: true,
   asarUnpack: ['**/*.{node,dll}', '**/node_modules/sharp/**/*'],
-  buildDependenciesFromSource: false,
-  nodeGypRebuild: false,
-  npmRebuild: false,
 }
