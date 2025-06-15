@@ -1,87 +1,42 @@
 <template>
   <div class="ai-chat-dialog">
-    <div class="dialog-header">
-      <div class="header-left">
-        <h2>{{ t('aiAssistant') }}</h2>
-        <div class="prompt-template-selector">
-          <select v-model="selectedPromptTemplate" @change="handleTemplateChange">
-            <option value="none">{{ t('nonePrompt') }}</option>
-            <option value="my">{{ t('defaultPrompt') }}</option>
+    <AIChatHeader
+      :selected-prompt-template="selectedPromptTemplate"
+      :custom-prompts="customPrompts"
+      @template-change="handleTemplateChange"
+    />
 
-            <optgroup v-if="customPrompts.length > 0" :label="t('customPrompts')">
-              <option v-for="prompt in customPrompts" :key="prompt.id" :value="prompt.id">
-                {{ prompt.name }}
-              </option>
-            </optgroup>
-          </select>
-        </div>
-      </div>
-      <router-link to="/" class="close-button" aria-label="close">
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          viewBox="0 0 24 24"
-          fill="currentColor"
-          width="24"
-          height="24"
-        >
-          <path
-            d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"
-          />
-        </svg>
-      </router-link>
-    </div>
-
-    <div class="dialog-content">
-      <ConversationDrawer
-        v-model:is-open="isDrawerOpen"
-        :conversations="conversationHistory"
-        :current-conversation-id="currentConversationId"
-        @switch="switchConversation"
-        @delete="deleteConversation"
-        @clear="clearAllConversations"
-      />
-
-      <ChatMessageList
-        ref="messageListRef"
-        :messages="chatHistory"
-        :current-response="currentAIResponse"
-        @scroll="handleScroll"
-      />
-
-      <div class="input-section">
-        <ChatToolbar
-          :is-optimizing="isOptimizing"
-          :user-message="userMessage"
-          @new="createNewConversation"
-          @optimize="optimizeMessage"
-          @toggle-drawer="isDrawerOpen = !isDrawerOpen"
-        />
-
-        <ChatInput
-          ref="inputRef"
-          v-model="userMessage"
-          :is-generating="isGenerating"
-          :is-optimizing="isOptimizing"
-          @send="handleSendMessage"
-          @stop="stopGenerating"
-          @optimize="optimizeMessage"
-        />
-      </div>
-    </div>
+    <AIChatContent
+      ref="messageListRef"
+      :is-drawer-open="isDrawerOpen"
+      :conversation-history="conversationHistory"
+      :current-conversation-id="currentConversationId"
+      :chat-history="chatHistory"
+      :current-ai-response="currentAIResponse"
+      :user-message="userMessage"
+      :is-generating="isGenerating"
+      :is-optimizing="isOptimizing"
+      @toggle-drawer="isDrawerOpen = !isDrawerOpen"
+      @update:is-drawer-open="isDrawerOpen = $event"
+      @switch-conversation="switchConversation"
+      @delete-conversation="deleteConversation"
+      @clear-conversations="clearAllConversations"
+      @new-conversation="createNewConversation"
+      @optimize="optimizeMessage"
+      @send="handleSendMessage"
+      @stop="stopGenerating"
+      @scroll="handleScroll"
+      @update:user-message="userMessage = $event"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import { useI18n } from 'vue-i18n'
 import { useChat } from '../composables/useChat'
-import ChatMessageList from './chat/ChatMessageList.vue'
-import ChatInput from './chat/ChatInput.vue'
-import ConversationDrawer from './chat/ConversationDrawer.vue'
-import ChatToolbar from './chat/ChatToolbar.vue'
+import AIChatHeader from './chat/AIChatHeader.vue'
+import AIChatContent from './chat/AIChatContent.vue'
 import { promptsConfig } from '../config/prompts'
-
-const { t } = useI18n()
 
 const {
   chatHistory,
@@ -102,14 +57,13 @@ const {
 } = useChat()
 
 const isDrawerOpen = ref(false)
-const messageListRef = ref<InstanceType<typeof ChatMessageList> | null>(null)
-const inputRef = ref<InstanceType<typeof ChatInput> | null>(null)
+const messageListRef = ref<InstanceType<typeof AIChatContent> | null>(null)
 const shouldAutoScroll = ref(true)
 const selectedPromptTemplate = ref<string>('my')
 const customPrompts = ref<{ id: string; name: string; content: string }[]>([])
 
-const handleTemplateChange = () => {
-  const template = selectedPromptTemplate.value
+const handleTemplateChange = (template: string) => {
+  selectedPromptTemplate.value = template
   if (template === 'none') {
     localStorage.setItem('systemPrompt', '')
   } else if (template === 'my') {
@@ -172,10 +126,10 @@ onMounted(() => {
   } else {
     switchConversation(conversationHistory.value[0].id)
   }
+})
 
-  if (inputRef.value) {
-    inputRef.value.focus()
-  }
+defineOptions({
+  name: 'AIChatDialog'
 })
 </script>
 
@@ -193,175 +147,5 @@ onMounted(() => {
   flex-direction: column;
   z-index: 100000;
   text-align: left;
-}
-
-.dialog-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 12px 20px;
-  background-color: var(--button-bg-color);
-  color: var(--card-bg-color);
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-  backdrop-filter: blur(10px);
-  position: sticky;
-  top: 0;
-  z-index: 1000;
-}
-
-.header-left {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  flex: 1;
-  min-width: 0;
-}
-
-.prompt-template-selector {
-  margin-left: 1rem;
-  flex: 1;
-  min-width: 0;
-}
-
-.prompt-template-selector select {
-  padding: 0.5rem 2.5rem 0.5rem 1rem;
-  border-radius: 8px;
-  border: none;
-  background-color: rgba(255, 255, 255, 0.2);
-  color: var(--card-bg-color);
-  font-size: 0.9rem;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right 0.5rem center;
-  background-size: 1.2em;
-  width: 100%;
-  max-width: 300px;
-}
-
-.prompt-template-selector select:hover {
-  background-color: rgba(255, 255, 255, 0.3);
-}
-
-.prompt-template-selector select:focus {
-  outline: none;
-  background-color: rgba(255, 255, 255, 0.3);
-}
-
-.prompt-template-selector select option,
-.prompt-template-selector select optgroup {
-  background-color: var(--card-bg-color);
-  color: var(--text-color);
-}
-
-.dialog-header h2 {
-  margin: 0;
-  font-size: 20px;
-  font-weight: 500;
-}
-
-.close-button {
-  background: none;
-  border: none;
-  color: var(--card-bg-color);
-  cursor: pointer;
-  padding: 5px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  opacity: 0.8;
-}
-
-.close-button:hover {
-  opacity: 1;
-}
-
-.dialog-content {
-  flex-grow: 1;
-  display: flex;
-  flex-direction: column;
-  padding: 16px 0;
-  overflow: hidden;
-  height: calc(100% - 60px);
-  position: relative;
-}
-
-@media (max-width: 768px) {
-  .dialog-header {
-    padding: 8px 12px;
-    gap: 8px;
-  }
-
-  .dialog-header h2 {
-    font-size: 16px;
-    white-space: nowrap;
-  }
-
-  .header-left {
-    gap: 0.5rem;
-    overflow: hidden;
-  }
-
-  .dialog-content {
-    padding: 8px 0;
-  }
-
-  .prompt-template-selector {
-    margin-left: 0.5rem;
-    position: relative;
-  }
-
-  .prompt-template-selector select {
-    font-size: 0.85rem;
-    padding: 0.4rem 1.8rem 0.4rem 0.8rem;
-    background-size: 1em;
-    background-position: right 0.3rem center;
-  }
-
-  .close-button {
-    padding: 4px;
-  }
-
-  .close-button svg {
-    width: 20px;
-    height: 20px;
-  }
-}
-
-@media (max-width: 480px) {
-  .dialog-header {
-    padding: 6px 10px;
-  }
-
-  .dialog-header h2 {
-    font-size: 15px;
-  }
-
-  .prompt-template-selector select {
-    font-size: 0.8rem;
-    padding: 0.35rem 1.6rem 0.35rem 0.6rem;
-  }
-
-  .close-button svg {
-    width: 18px;
-    height: 18px;
-  }
-
-  .input-section {
-    padding: 6px 0;
-  }
-}
-
-.input-section {
-  position: sticky;
-  bottom: 0;
-  background-color: var(--bg-color);
-  z-index: 10;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  padding: 8px 0;
 }
 </style>
