@@ -1,0 +1,238 @@
+/**
+ * 移动端特定样式
+ * 针对 Capacitor 移动应用的样式优化
+ */
+
+/* 移动端平台特定样式 */
+.platform-capacitor {
+  /* 移动端通用样式 */
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.platform-android {
+  /* Android 特定样式 */
+  font-family: 'Roboto', sans-serif;
+}
+
+.platform-ios {
+  /* iOS 特定样式 */
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+/* 移动端触摸优化 */
+.platform-mobile button,
+.platform-mobile .clickable {
+  min-height: 44px; /* iOS 推荐的最小触摸目标 */
+  min-width: 44px;
+  touch-action: manipulation;
+}
+
+/* 移动端输入框优化 */
+.platform-mobile input,
+.platform-mobile textarea {
+  font-size: 16px; /* 防止 iOS Safari 缩放 */
+  border-radius: 8px;
+  padding: 12px;
+}
+
+/* 移动端滚动优化 */
+.platform-mobile .scrollable {
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+}
+
+/* 移动端导航栏适配 */
+.platform-mobile .navigation-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  background: var(--bg-color);
+  border-bottom: 1px solid var(--border-color);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+/* 移动端内容区域适配 */
+.platform-mobile .content-wrapper {
+  padding-top: 60px; /* 为固定导航栏留出空间 */
+  min-height: calc(100vh - 60px);
+}
+
+/* 移动端卡片样式 */
+.platform-mobile .card {
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  margin: 8px;
+  padding: 16px;
+}
+
+/* 移动端列表项优化 */
+.platform-mobile .list-item {
+  padding: 16px;
+  border-bottom: 1px solid var(--border-color);
+  touch-action: manipulation;
+}
+
+.platform-mobile .list-item:active {
+  background-color: var(--hover-bg-color);
+}
+
+/* 移动端模态框适配 */
+.platform-mobile .modal {
+  margin: 16px;
+  border-radius: 12px;
+  max-height: calc(100vh - 32px);
+  overflow-y: auto;
+}
+
+/* 移动端表单优化 */
+.platform-mobile .form-group {
+  margin-bottom: 20px;
+}
+
+.platform-mobile .form-label {
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 8px;
+  display: block;
+}
+
+/* 移动端按钮组优化 */
+.platform-mobile .button-group {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.platform-mobile .button-group button {
+  flex: 1;
+  min-width: 120px;
+}
+
+/* 移动端工具栏 */
+.platform-mobile .toolbar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: var(--bg-color);
+  border-top: 1px solid var(--border-color);
+  padding: 12px 16px;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  z-index: 1000;
+}
+
+/* 移动端安全区域适配 */
+.platform-ios .content-wrapper {
+  padding-top: env(safe-area-inset-top, 60px);
+  padding-bottom: env(safe-area-inset-bottom, 0);
+}
+
+.platform-ios .toolbar {
+  padding-bottom: calc(12px + env(safe-area-inset-bottom, 0));
+}
+
+/* 移动端深色模式适配 */
+.platform-mobile.dark {
+  color-scheme: dark;
+}
+
+.platform-mobile.dark .navigation-bar,
+.platform-mobile.dark .toolbar {
+  background: var(--bg-color-dark);
+  border-color: var(--border-color-dark);
+}
+
+/* 移动端动画优化 */
+.platform-mobile * {
+  transition-duration: 0.2s;
+}
+
+.platform-mobile .fade-enter-active,
+.platform-mobile .fade-leave-active {
+  transition: opacity 0.2s ease;
+}
+
+.platform-mobile .fade-enter-from,
+.platform-mobile .fade-leave-to {
+  opacity: 0;
+}
+
+/* 移动端文字选择禁用（除了输入框） */
+.platform-mobile {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+.platform-mobile input,
+.platform-mobile textarea,
+.platform-mobile [contenteditable] {
+  -webkit-user-select: text;
+  -moz-user-select: text;
+  -ms-user-select: text;
+  user-select: text;
+}
+
+/* 移动端焦点样式优化 */
+.platform-mobile *:focus {
+  outline: none;
+}
+
+.platform-mobile input:focus,
+.platform-mobile textarea:focus,
+.platform-mobile button:focus {
+  box-shadow: 0 0 0 2px var(--primary-color);
+}
+
+/* 移动端加载状态 */
+.platform-mobile .loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 40px;
+}
+
+.platform-mobile .loading-spinner {
+  width: 32px;
+  height: 32px;
+  border: 3px solid var(--border-color);
+  border-top: 3px solid var(--primary-color);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/* 移动端响应式断点 */
+@media (max-width: 480px) {
+  .platform-mobile .container {
+    padding: 12px;
+  }
+
+  .platform-mobile .modal {
+    margin: 8px;
+  }
+
+  .platform-mobile .button-group {
+    flex-direction: column;
+  }
+
+  .platform-mobile .button-group button {
+    width: 100%;
+  }
+}

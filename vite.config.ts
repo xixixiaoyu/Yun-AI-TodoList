@@ -1,6 +1,6 @@
-import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import { fileURLToPath, URL } from 'node:url'
+import { defineConfig } from 'vite'
 import { VitePWA } from 'vite-plugin-pwa'
 
 // https://vitejs.dev/config/
@@ -65,6 +65,11 @@ export default defineConfig({
         assetFileNames: 'assets/[name][extname]',
       },
     },
+  },
+  define: {
+    // 移动端环境变量
+    __CAPACITOR__: JSON.stringify(process.env.CAPACITOR !== undefined),
+    __ELECTRON__: JSON.stringify(process.env.ELECTRON !== undefined),
   },
   optimizeDeps: {
     include: ['vue', 'vue-router', 'vue-i18n', '@vueuse/core'],
