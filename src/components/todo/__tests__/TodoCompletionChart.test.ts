@@ -1,7 +1,11 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { mount } from '@vue/test-utils'
-import TodoCompletionChart from '../TodoCompletionChart.vue'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { createI18n } from 'vue-i18n'
+import { useTodos } from '../../../composables/useTodos'
+import TodoCompletionChart from '../TodoCompletionChart.vue'
+
+// 获取 mocked 版本的 useTodos
+const mockedUseTodos = vi.mocked(useTodos)
 
 // Mock Chart.js
 vi.mock('chart.js/auto', () => ({
@@ -42,48 +46,48 @@ Object.defineProperty(HTMLCanvasElement.prototype, 'getContext', {
 })
 
 // Mock useTodos composable
-const mockTodos = [
-  {
-    id: 1,
-    text: 'Test todo 1',
-    completed: true,
-    completedAt: new Date().toISOString(),
-    tags: [],
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-    order: 0,
-  },
-  {
-    id: 2,
-    text: 'Test todo 2',
-    completed: false,
-    tags: [],
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-    order: 1,
-  },
-  {
-    id: 3,
-    text: 'Test todo 3',
-    completed: true,
-    completedAt: new Date().toISOString(),
-    tags: [],
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-    order: 2,
-  },
-]
+vi.mock('../../../composables/useTodos', () => {
+  const mockTodos = [
+    {
+      id: 1,
+      text: 'Test todo 1',
+      completed: true,
+      completedAt: new Date().toISOString(),
+      tags: [],
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      order: 0,
+    },
+    {
+      id: 2,
+      text: 'Test todo 2',
+      completed: false,
+      tags: [],
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      order: 1,
+    },
+    {
+      id: 3,
+      text: 'Test todo 3',
+      completed: true,
+      completedAt: new Date().toISOString(),
+      tags: [],
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      order: 2,
+    },
+  ]
 
-const mockUseTodos = vi.fn(() => ({
-  todos: { value: mockTodos },
-  getCompletedTodosByDate: () => ({
-    [new Date().toISOString().split('T')[0]]: 2,
-  }),
-}))
-
-vi.mock('../../../composables/useTodos', () => ({
-  useTodos: mockUseTodos,
-}))
+  return {
+    useTodos: vi.fn(() => ({
+      todos: { value: mockTodos },
+      getCompletedTodosByDate: () => ({
+        [new Date().toISOString().split('T')[0]]: 2,
+      }),
+    })),
+  }
+})
 
 // 创建 i18n 实例用于测试
 const i18n = createI18n({
@@ -157,7 +161,7 @@ describe('TodoCompletionChart', () => {
 
   it('应该在没有任务时正确处理', () => {
     // 临时修改 mock 返回空数组
-    mockUseTodos.mockReturnValueOnce({
+    mockedUseTodos.mockReturnValueOnce({
       todos: { value: [] },
       getCompletedTodosByDate: () => ({}),
     })

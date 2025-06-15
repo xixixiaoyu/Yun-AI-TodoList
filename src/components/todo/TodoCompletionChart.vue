@@ -159,7 +159,7 @@ const updateChart = () => {
 }
 
 onMounted(updateChart)
-watch(todos, updateChart, { deep: true })
+watch(() => todos.value, updateChart, { deep: true })
 
 onUnmounted(() => {
   if (chart) {

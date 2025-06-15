@@ -57,7 +57,7 @@
     "vue/max-attributes-per-line": [
       "error",
       {
-        "singleline": 3,
+        "singleline": 6,
         "multiline": 1
       }
     ],
