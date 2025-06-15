@@ -11,10 +11,16 @@ export default [
       'dist/**',
       'node_modules/**',
       'coverage/**',
+      'coverage/**/*.js',
+      'coverage/**/*.html',
+      'coverage/**/*.css',
       'release/**',
       '*.min.js',
       'public/**',
-      '.husky/**'
+      '.husky/**',
+      '**/prettify.js',
+      '**/sorter.js',
+      '**/block-navigation.js'
     ]
   },
 
@@ -47,6 +53,7 @@ export default [
         FileReader: 'readonly',
         AbortController: 'readonly',
         TextDecoder: 'readonly',
+        TextEncoder: 'readonly',
         setTimeout: 'readonly',
         clearTimeout: 'readonly',
         setInterval: 'readonly',
@@ -311,6 +318,77 @@ export default [
           caughtErrorsIgnorePattern: '^_'
         }
       ]
+    }
+  },
+
+  {
+    files: ['**/*.test.ts', '**/*.test.js', '**/*.spec.ts', '**/*.spec.js', 'src/test/**/*.ts'],
+    languageOptions: {
+      parser: typescriptParser,
+      parserOptions: {
+        ecmaVersion: 'latest',
+        sourceType: 'module'
+      },
+      globals: {
+        // Vitest globals
+        describe: 'readonly',
+        it: 'readonly',
+        expect: 'readonly',
+        beforeEach: 'readonly',
+        afterEach: 'readonly',
+        beforeAll: 'readonly',
+        afterAll: 'readonly',
+        vi: 'readonly',
+        test: 'readonly',
+        suite: 'readonly',
+
+        // Browser globals for tests
+        TextEncoder: 'readonly',
+        TextDecoder: 'readonly',
+        window: 'readonly',
+        document: 'readonly',
+        navigator: 'readonly',
+        localStorage: 'readonly',
+        sessionStorage: 'readonly',
+        console: 'readonly',
+        fetch: 'readonly',
+        URL: 'readonly',
+        Blob: 'readonly',
+        File: 'readonly',
+        FileReader: 'readonly',
+        AbortController: 'readonly',
+        setTimeout: 'readonly',
+        clearTimeout: 'readonly',
+        setInterval: 'readonly',
+        clearInterval: 'readonly',
+        performance: 'readonly',
+
+        // Node.js globals for tests
+        process: 'readonly',
+        Buffer: 'readonly',
+        global: 'readonly',
+        __dirname: 'readonly',
+        __filename: 'readonly',
+        module: 'readonly',
+        require: 'readonly',
+        exports: 'readonly'
+      }
+    },
+    plugins: {
+      '@typescript-eslint': typescript
+    },
+    rules: {
+      '@typescript-eslint/no-explicit-any': 'warn', // 放宽测试中的 any 限制
+      '@typescript-eslint/no-unused-vars': [
+        'error',
+        {
+          argsIgnorePattern: '^_',
+          varsIgnorePattern: '^_',
+          caughtErrorsIgnorePattern: '^_'
+        }
+      ],
+      'no-console': 'off', // 测试中允许 console
+      'no-undef': 'off' // 关闭 no-undef，因为我们已经定义了全局变量
     }
   },
 
