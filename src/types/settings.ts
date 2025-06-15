@@ -13,9 +13,6 @@ export enum PromptCategory {
   CUSTOM = 'custom'
 }
 
-/**
- * 提示词优先级枚举
- */
 export enum PromptPriority {
   LOW = 'low',
   MEDIUM = 'medium',
@@ -52,9 +49,6 @@ export interface BuiltinPromptTemplate {
 
 export type PromptTemplate = 'none' | 'my' | string
 
-/**
- * 提示词搜索过滤器
- */
 export interface PromptFilter {
   category?: PromptCategory
   priority?: PromptPriority
@@ -84,9 +78,6 @@ export interface PromptValidationResult {
   warnings: string[]
 }
 
-/**
- * 设置状态接口
- */
 export interface SettingsState {
   showApiKey: boolean
   showApiKeyPopover: boolean
@@ -135,9 +126,6 @@ export interface PromptActionResult {
   data?: unknown
 }
 
-/**
- * 提示词管理状态
- */
 export interface PromptManagementState {
   showAddPromptPopover: boolean
   localSystemPrompt: string

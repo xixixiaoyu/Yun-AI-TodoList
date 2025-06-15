@@ -54,9 +54,6 @@ defineProps<Props>()
 
 const { t } = useI18n()
 
-/**
- * 获取分类标签
- */
 const getCategoryLabel = (category: PromptCategory) => {
   const categoryMap = {
     [PromptCategory.GENERAL]: t('categoryGeneral'),

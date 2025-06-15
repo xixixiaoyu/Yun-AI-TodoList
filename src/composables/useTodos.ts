@@ -14,7 +14,6 @@ export function useTodos() {
       if (storedTodos) {
         const parsedTodos = JSON.parse(storedTodos)
         if (Array.isArray(parsedTodos)) {
-          // 使用增强的验证器
           const { validTodos, invalidCount, errors } = TodoValidator.validateTodos(parsedTodos)
 
           if (invalidCount > 0) {
@@ -28,12 +27,11 @@ export function useTodos() {
       validateDataConsistency()
     } catch (error) {
       logger.error('Error loading todos', error, 'useTodos')
-      // 尝试从备份恢复
+
       loadFromBackup()
     }
   }
 
-  // 备份恢复机制
   const loadFromBackup = () => {
     try {
       const backup = localStorage.getItem('todos_backup')
@@ -48,7 +46,6 @@ export function useTodos() {
       logger.error('Error loading backup', error, 'useTodos')
     }
 
-    // 如果备份也失败，初始化为空数组
     todos.value = []
   }
 
@@ -69,21 +66,17 @@ export function useTodos() {
     try {
       const todosJson = JSON.stringify(todos.value)
 
-      // 先备份当前数据
       const currentData = localStorage.getItem('todos')
       if (currentData) {
         localStorage.setItem('todos_backup', currentData)
       }
 
-      // 保存新数据
       localStorage.setItem('todos', todosJson)
       logger.debug('Todos saved successfully', { count: todos.value.length }, 'useTodos')
     } catch (error) {
       logger.error('Error saving todos', error, 'useTodos')
 
-      // 如果保存失败，尝试清理存储空间
       try {
-        // 清理备份，为新数据腾出空间
         localStorage.removeItem('todos_backup')
         localStorage.setItem('todos', JSON.stringify(todos.value))
         logger.warn('Saved todos after cleanup', undefined, 'useTodos')
@@ -98,7 +91,6 @@ export function useTodos() {
       return false
     }
 
-    // 使用安全的文本验证和清理
     const sanitizedText = TodoValidator.sanitizeText(text)
     if (!TodoValidator.isTextSafe(sanitizedText)) {
       logger.warn('Attempted to add unsafe todo text', { text }, 'useTodos')
@@ -119,7 +111,7 @@ export function useTodos() {
 
     const now = new Date().toISOString()
     const newTodo: Todo = {
-      id: IdGenerator.generateId(), // 使用安全的 ID 生成器
+      id: IdGenerator.generateId(),
       text: sanitizedText,
       completed: false,
       tags: tags.filter(tag => tag.trim() !== '').map(tag => tag.trim()),
@@ -139,7 +131,6 @@ export function useTodos() {
     const now = new Date().toISOString()
     const validTodos: Todo[] = []
 
-    // 先验证所有 todos，避免部分添加的情况
     newTodos.forEach(({ text }) => {
       const sanitizedText = TodoValidator.sanitizeText(text)
 
@@ -152,7 +143,7 @@ export function useTodos() {
         duplicates.push(text)
       } else {
         validTodos.push({
-          id: IdGenerator.generateId(), // 使用安全的 ID 生成器
+          id: IdGenerator.generateId(),
           text: sanitizedText,
           completed: false,
           tags: [],
@@ -163,7 +154,6 @@ export function useTodos() {
       }
     })
 
-    // 批量添加有效的 todos
     todos.value.push(...validTodos)
     saveTodos()
     logger.debug(

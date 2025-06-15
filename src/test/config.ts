@@ -4,14 +4,12 @@
  */
 
 export const TEST_CONFIG = {
-  // 测试超时设置
   TIMEOUT: {
-    UNIT: 5000, // 单元测试超时 5 秒
-    INTEGRATION: 10000, // 集成测试超时 10 秒
-    E2E: 30000 // 端到端测试超时 30 秒
+    UNIT: 5000,
+    INTEGRATION: 10000,
+    E2E: 30000
   },
 
-  // 测试数据配置
   TEST_DATA: {
     MAX_TODOS: 1000,
     SAMPLE_TODOS: [
@@ -39,22 +37,19 @@ export const TEST_CONFIG = {
     ]
   },
 
-  // Mock 配置
   MOCKS: {
     API_KEY: 'test-api-key-12345',
     API_BASE_URL: 'https://api.deepseek.com',
-    RESPONSE_DELAY: 100, // 模拟网络延迟
-    ERROR_RATE: 0.1 // 模拟错误率 10%
+    RESPONSE_DELAY: 100,
+    ERROR_RATE: 0.1
   },
 
-  // 性能测试配置
   PERFORMANCE: {
-    MAX_RENDER_TIME: 100, // 最大渲染时间 100ms
-    MAX_OPERATION_TIME: 50, // 最大操作时间 50ms
-    LARGE_DATA_SIZE: 1000 // 大数据集大小
+    MAX_RENDER_TIME: 100,
+    MAX_OPERATION_TIME: 50,
+    LARGE_DATA_SIZE: 1000
   },
 
-  // 覆盖率配置
   COVERAGE: {
     STATEMENTS: 80,
     BRANCHES: 75,
@@ -63,9 +58,6 @@ export const TEST_CONFIG = {
   }
 }
 
-/**
- * 测试环境检测
- */
 export const isTestEnvironment = () => {
   return (
     process.env.NODE_ENV === 'test' ||
@@ -81,7 +73,7 @@ export const getTestType = () => {
   if (typeof expect === 'undefined') {
     return 'unit'
   }
-  const testFile = expect.getState().testPath || ''
+  const testFile = expect.getState()?.testPath || ''
 
   if (testFile.includes('integration')) {
     return 'integration'
@@ -92,9 +84,6 @@ export const getTestType = () => {
   }
 }
 
-/**
- * 获取当前测试类型的超时时间
- */
 export const getTestTimeout = () => {
   const testType = getTestType()
   return (
@@ -115,32 +104,26 @@ export const TEST_TAGS = {
   REGRESSION: 'regression'
 } as const
 
-/**
- * 测试分组
- */
 export const TEST_GROUPS = {
-  CORE: 'core', // 核心功能
-  UI: 'ui', // 用户界面
-  API: 'api', // API 接口
-  STORAGE: 'storage', // 数据存储
-  AI: 'ai', // AI 功能
-  MOBILE: 'mobile', // 移动端
-  PERFORMANCE: 'performance' // 性能测试
+  CORE: 'core',
+  UI: 'ui',
+  API: 'api',
+  STORAGE: 'storage',
+  AI: 'ai',
+  MOBILE: 'mobile',
+  PERFORMANCE: 'performance'
 } as const
 
 /**
  * 测试优先级
  */
 export const TEST_PRIORITY = {
-  CRITICAL: 1, // 关键功能
-  HIGH: 2, // 高优先级
-  MEDIUM: 3, // 中优先级
-  LOW: 4 // 低优先级
+  CRITICAL: 1,
+  HIGH: 2,
+  MEDIUM: 3,
+  LOW: 4
 } as const
 
-/**
- * 创建测试标识符
- */
 export const createTestId = (component: string, element: string) => {
   return `test-${component}-${element}`
 }
@@ -149,9 +132,6 @@ export const createTestId = (component: string, element: string) => {
  * 测试数据生成器
  */
 export const TestDataGenerator = {
-  /**
-   * 生成随机字符串
-   */
   randomString: (length = 10) => {
     const chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
     let result = ''
@@ -168,9 +148,6 @@ export const TestDataGenerator = {
     return Math.floor(Math.random() * (max - min + 1)) + min
   },
 
-  /**
-   * 生成随机布尔值
-   */
   randomBoolean: () => {
     return Math.random() < 0.5
   },
@@ -182,9 +159,6 @@ export const TestDataGenerator = {
     return new Date(start.getTime() + Math.random() * (end.getTime() - start.getTime()))
   },
 
-  /**
-   * 生成随机标签
-   */
   randomTags: (count = 3) => {
     const availableTags = [
       'work',
@@ -205,9 +179,6 @@ export const TestDataGenerator = {
  * 测试断言辅助函数
  */
 export const TestAssertions = {
-  /**
-   * 断言数组包含特定元素
-   */
   expectArrayToContain: <T>(array: T[], item: T) => {
     if (typeof expect !== 'undefined') {
       expect(array).toContain(item)
@@ -217,7 +188,7 @@ export const TestAssertions = {
   /**
    * 断言对象具有特定属性
    */
-  expectObjectToHaveProperty: (obj: Record<string, unknown>, property: string, value?: unknown) => {
+  expectObjectToHaveProperty: (obj: Record<string, any>, property: string, value?: any) => {
     if (typeof expect !== 'undefined') {
       expect(obj).toHaveProperty(property)
       if (value !== undefined) {
@@ -226,13 +197,7 @@ export const TestAssertions = {
     }
   },
 
-  /**
-   * 断言函数被调用
-   */
-  expectFunctionToBeCalled: (
-    fn: vi.MockedFunction<(...args: unknown[]) => unknown>,
-    times?: number
-  ) => {
+  expectFunctionToBeCalled: (fn: vi.MockedFunction<(...args: any[]) => any>, times?: number) => {
     if (typeof expect !== 'undefined') {
       expect(fn).toHaveBeenCalled()
       if (times !== undefined) {
@@ -253,9 +218,6 @@ export const TestAssertions = {
   }
 }
 
-/**
- * 测试工具函数
- */
 export const TestUtils = {
   /**
    * 等待条件满足
@@ -270,9 +232,6 @@ export const TestUtils = {
     }
   },
 
-  /**
-   * 模拟用户输入延迟
-   */
   simulateUserDelay: (min = 50, max = 200) => {
     const delay = Math.random() * (max - min) + min
     return new Promise(resolve => setTimeout(resolve, delay))
@@ -294,9 +253,6 @@ export const TestUtils = {
   }
 }
 
-/**
- * 导出所有配置
- */
 export default {
   TEST_CONFIG,
   TEST_TAGS,

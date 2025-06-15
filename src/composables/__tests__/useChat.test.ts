@@ -1,8 +1,7 @@
 import { createTestChatMessage, createTestConversation, setupTestEnvironment } from '@/test/helpers'
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { useChat } from '../useChat'
 
-// Mock dependencies
 vi.mock('@/services/deepseekService', () => ({
   streamAIResponse: vi.fn(),
   optimizeText: vi.fn(),
@@ -162,7 +161,6 @@ describe('useChat', () => {
 
   describe('消息发送', () => {
     it('应该发送消息并接收 AI 响应', async () => {
-      // Mock streaming response
       const mockStream = {
         async *[Symbol.asyncIterator]() {
           yield 'Hello'
@@ -174,7 +172,7 @@ describe('useChat', () => {
       const mockStreamAIResponse = streamAIResponse as vi.MockedFunction<typeof streamAIResponse>
       mockStreamAIResponse.mockResolvedValue(mockStream)
 
-      const { sendMessage, userMessage, chatHistory, isGenerating } = useChat()
+      const { sendMessage, userMessage, chatHistory, isGenerating, currentAIResponse } = useChat()
 
       userMessage.value = 'Test message'
 
@@ -190,6 +188,7 @@ describe('useChat', () => {
       expect(chatHistory.value[1].role).toBe('assistant')
       expect(chatHistory.value[1].content).toBe('Hello there!')
       expect(userMessage.value).toBe('')
+      expect(currentAIResponse.value).toBe('')
     })
 
     it('应该处理发送消息失败', async () => {
@@ -204,7 +203,6 @@ describe('useChat', () => {
       await sendMessage()
 
       expect(isGenerating.value).toBe(false)
-      // Note: Error handling is internal, we just verify the state
     })
 
     it('应该停止生成', async () => {
@@ -251,7 +249,6 @@ describe('useChat', () => {
       await optimizeMessage('Original text')
 
       expect(isOptimizing.value).toBe(false)
-      // Note: Error handling is internal
     })
   })
 
@@ -259,10 +256,7 @@ describe('useChat', () => {
     it('应该正确处理和显示错误', () => {
       const { error } = useChat()
 
-      // 测试错误状态的存在
       expect(error.value).toBe('')
-
-      // Note: showError is an internal method, we test the error state instead
     })
   })
 

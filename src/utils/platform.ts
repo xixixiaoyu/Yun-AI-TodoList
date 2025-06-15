@@ -22,9 +22,6 @@ export function isElectron(): boolean {
   )
 }
 
-/**
- * 检测是否在 Capacitor 环境中
- */
 export function isCapacitor(): boolean {
   return Capacitor.isNativePlatform()
 }
@@ -78,9 +75,6 @@ export function getPlatformClasses(): string[] {
   return classes
 }
 
-/**
- * 日志输出，包含平台信息
- */
 export function platformLog(message: string, ...args: unknown[]): void {
   const info = getPlatformInfo()
 

@@ -21,10 +21,6 @@ import {
   getPromptStats
 } from '../utils/promptUtils'
 
-/**
- * 增强的提示词管理 composable
- * 处理自定义提示词的完整生命周期管理
- */
 export function usePromptManagement(
   customPrompts: Ref<CustomPrompt[]>,
   selectedPromptTemplate: Ref<PromptTemplate>,
@@ -109,9 +105,6 @@ export function usePromptManagement(
     showSuccessToast()
   }
 
-  /**
-   * 重置新提示词表单
-   */
   const resetNewPromptForm = () => {
     newPromptName.value = ''
     newPromptContent.value = ''
@@ -175,9 +168,6 @@ export function usePromptManagement(
     }
   }
 
-  /**
-   * 确认删除提示词
-   */
   const confirmDeletePrompt = () => {
     if (window.confirm(t('confirmDeletePrompt'))) {
       deletePrompt(selectedPromptTemplate.value)
@@ -215,9 +205,6 @@ export function usePromptManagement(
     }
   }
 
-  /**
-   * 导出提示词
-   */
   const exportPromptsData = () => {
     try {
       const exportData = exportPrompts(customPrompts.value)
@@ -294,9 +281,6 @@ export function usePromptManagement(
     return localSystemPrompt.value.trim() !== ''
   })
 
-  /**
-   * 获取当前选中的自定义提示词
-   */
   const getCurrentCustomPrompt = () => {
     return customPrompts.value.find(p => p.id === selectedPromptTemplate.value)
   }

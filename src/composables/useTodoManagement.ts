@@ -105,7 +105,6 @@ export function useTodoManagement() {
   const sortActiveTodosWithAI = async () => {
     isSorting.value = true
 
-    // 备份原始数据，以防排序失败
     const originalTodos = [...todos.value]
 
     try {
@@ -123,7 +122,6 @@ export function useTodoManagement() {
         throw new Error(t('aiEmptyResponseError'))
       }
 
-      // 更严格的响应验证
       const newOrder = response.split(',').map(str => {
         const num = parseInt(str.trim(), 10)
         if (isNaN(num) || num < 1 || num > activeTodos.length) {
@@ -136,13 +134,11 @@ export function useTodoManagement() {
         throw new Error(t('aiSortMismatchError'))
       }
 
-      // 检查是否有重复的索引
       const uniqueIndices = new Set(newOrder)
       if (uniqueIndices.size !== newOrder.length) {
         throw new Error('Duplicate indices in AI response')
       }
 
-      // 安全的重排序：创建新的排序映射
       const sortedActiveTodos = newOrder.map(index => activeTodos[index - 1])
       let sortedIndex = 0
 
@@ -160,7 +156,6 @@ export function useTodoManagement() {
         'TodoManagement'
       )
     } catch (error) {
-      // 恢复原始数据
       todos.value = originalTodos
       handleError(error, t('aiSortError'), 'TodoManagement')
       showError(error instanceof Error ? error.message : t('aiSortError'))

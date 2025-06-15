@@ -132,9 +132,6 @@ export function getBuiltinPromptTemplate(id: string): BuiltinPromptTemplate | un
   return builtinPromptTemplates[id]
 }
 
-/**
- * 获取所有内置提示词模板
- */
 export function getAllBuiltinPromptTemplates(): BuiltinPromptTemplate[] {
   return Object.values(builtinPromptTemplates)
 }

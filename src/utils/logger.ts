@@ -26,9 +26,6 @@ class Logger {
     this.log(LogLevel.DEBUG, message, data, source)
   }
 
-  /**
-   * 一般信息 - 仅在开发环境输出
-   */
   info(message: string, data?: unknown, source?: string) {
     this.log(LogLevel.INFO, message, data, source)
   }
@@ -67,13 +64,11 @@ class Logger {
     switch (entry.level) {
       case LogLevel.DEBUG:
         if (this.isDevelopment) {
-          // 使用 console.warn 替代 console.debug 以符合 ESLint 规则
           console.warn(`[DEBUG] ${message}`, entry.data || '')
         }
         break
       case LogLevel.INFO:
         if (this.isDevelopment) {
-          // 使用 console.warn 替代 console.info 以符合 ESLint 规则
           console.warn(`[INFO] ${message}`, entry.data || '')
         }
         break

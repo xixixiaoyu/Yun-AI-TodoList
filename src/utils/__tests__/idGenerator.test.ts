@@ -22,7 +22,6 @@ describe('IdGenerator', () => {
       ids.push(IdGenerator.generateId())
     }
 
-    // 检查所有 ID 都是唯一的
     const uniqueIds = new Set(ids)
     expect(uniqueIds.size).toBe(ids.length)
   })
@@ -56,7 +55,6 @@ describe('IdGenerator', () => {
     IdGenerator.generateId()
     IdGenerator.reset()
 
-    // 重置后生成的 ID 应该从新的时间戳开始
     const id = IdGenerator.generateId()
     expect(typeof id).toBe('number')
     expect(id).toBeGreaterThan(0)

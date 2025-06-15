@@ -51,9 +51,6 @@ const removeTag = (index: number) => {
   )
 }
 
-/**
- * 处理标签输入键盘事件
- */
 const handleTagInputKeydown = (event: KeyboardEvent) => {
   if (event.key === ',' || event.key === '，') {
     event.preventDefault()

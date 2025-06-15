@@ -10,10 +10,6 @@ import type {
 import { PromptCategory, PromptPriority } from '../types/settings'
 import { handleError } from '../utils/logger'
 
-/**
- * 增强的设置状态管理 composable
- * 管理设置页面的所有状态
- */
 export function useSettingsState() {
   const showApiKey = ref(false)
   const showApiKeyPopover = ref(false)
@@ -135,9 +131,6 @@ export function useSettingsState() {
     localSystemPrompt.value = builtinPromptTemplates.my.content
   }
 
-  /**
-   * 显示成功消息
-   */
   const showSuccessToast = (duration = 2000) => {
     showSuccessMessage.value = true
     setTimeout(() => {
@@ -169,9 +162,6 @@ export function useSettingsState() {
     newPromptTags.value = []
   }
 
-  /**
-   * 保存过滤选项到本地存储
-   */
   const saveFilterOptions = () => {
     localStorage.setItem('promptFilter', JSON.stringify(promptFilter.value))
   }

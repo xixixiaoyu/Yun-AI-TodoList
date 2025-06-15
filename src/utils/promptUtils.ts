@@ -54,9 +54,6 @@ export function validatePrompt(prompt: Partial<CustomPrompt>): PromptValidationR
   }
 }
 
-/**
- * 过滤提示词列表
- */
 export function filterPrompts(prompts: CustomPrompt[], filter: PromptFilter): CustomPrompt[] {
   return prompts.filter(prompt => {
     if (filter.category && prompt.category !== filter.category) {
@@ -167,9 +164,6 @@ export function updatePrompt(prompt: CustomPrompt, updates: Partial<CustomPrompt
   }
 }
 
-/**
- * 复制提示词对象
- */
 export function duplicatePrompt(prompt: CustomPrompt): CustomPrompt {
   const now = Date.now()
 
@@ -239,9 +233,6 @@ export function processImportData(data: PromptExportData): CustomPrompt[] {
   }))
 }
 
-/**
- * 获取提示词统计信息
- */
 export function getPromptStats(prompts: CustomPrompt[]) {
   const total = prompts.length
   const active = prompts.filter(p => p.isActive).length

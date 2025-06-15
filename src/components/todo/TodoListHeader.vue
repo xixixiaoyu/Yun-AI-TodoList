@@ -81,9 +81,8 @@
           stroke-linejoin="round"
           class="button-icon"
         >
-          <!-- 左半部分：月亮 -->
           <path d="M12 3a9 9 0 1 0 0 18c-2.5-1.5-4-4.5-4-9s1.5-7.5 4-9z" />
-          <!-- 右半部分：太阳光芒 -->
+
           <path d="M16 8l1.5-1.5M20 12h2M16 16l1.5 1.5" />
         </svg>
       </button>

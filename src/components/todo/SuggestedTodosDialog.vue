@@ -41,9 +41,6 @@ const emit = defineEmits<Emits>()
 
 const { t } = useI18n()
 
-/**
- * 处理待办事项更新
- */
 const handleTodoUpdate = (index: number, event: Event) => {
   const target = event.target as HTMLInputElement
   emit('updateTodo', index, target.value)

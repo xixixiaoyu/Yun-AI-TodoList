@@ -8,28 +8,22 @@ import type { Todo } from '@/types/todo'
 import { vi } from 'vitest'
 import { createI18n } from 'vue-i18n'
 
-/**
- * 创建测试用的 i18n 实例
- */
 export function createTestI18n() {
   return createI18n({
     legacy: false,
     locale: 'zh',
     messages: {
       zh: {
-        // 基础消息
         addTodo: '添加待办事项',
         searchTodos: '搜索待办事项...',
         clearSearch: '清除搜索',
         duplicateError: '待办事项已存在',
         emptyTodoError: '待办事项不能为空',
 
-        // 过滤器
         all: '全部',
         active: '进行中',
         completed: '已完成',
 
-        // AI 相关
         configureApiKey: '请先配置 API Key',
         httpError: 'HTTP 错误: {status}',
         invalidAiResponse: '无效的 AI 响应',
@@ -38,18 +32,15 @@ export function createTestI18n() {
         noActiveTodosError: '没有待排序的活跃待办事项',
         sortPrompt: '请按优先级排序以下待办事项',
 
-        // 设置
         settings: '设置',
         apiKey: 'API Key',
         systemPrompt: '系统提示词',
         save: '保存',
         cancel: '取消',
 
-        // 聊天
         newConversation: '新对话',
         sendMessage: '发送消息',
 
-        // 其他
         confirm: '确认',
         delete: '删除',
         edit: '编辑',
@@ -102,9 +93,6 @@ export function createTestTodo(overrides: Partial<Todo> = {}): Todo {
   }
 }
 
-/**
- * 创建多个测试 Todo
- */
 export function createTestTodos(count: number, baseOverrides: Partial<Todo> = {}): Todo[] {
   return Array.from({ length: count }, (_, index) =>
     createTestTodo({
@@ -127,9 +115,6 @@ export function createTestChatMessage(overrides: Partial<ChatMessage> = {}): Cha
   }
 }
 
-/**
- * 创建测试用的对话
- */
 export function createTestConversation(overrides: Partial<Conversation> = {}): Conversation {
   return {
     id: Date.now().toString(),
@@ -165,9 +150,6 @@ export function mockLocalStorage() {
   }
 }
 
-/**
- * Mock fetch API
- */
 export function mockFetch() {
   const mockFetch = vi.fn()
   global.fetch = mockFetch
@@ -177,7 +159,7 @@ export function mockFetch() {
 /**
  * 创建成功的 fetch 响应
  */
-export function createMockResponse(data: unknown, status = 200) {
+export function createMockResponse(data: any, status = 200) {
   return Promise.resolve({
     ok: status >= 200 && status < 300,
     status,
@@ -186,9 +168,6 @@ export function createMockResponse(data: unknown, status = 200) {
   })
 }
 
-/**
- * 创建失败的 fetch 响应
- */
 export function createMockErrorResponse(status = 500, message = 'Server Error') {
   return Promise.resolve({
     ok: false,
@@ -206,9 +185,6 @@ export function nextTick() {
   return new Promise(resolve => setTimeout(resolve, 0))
 }
 
-/**
- * 等待指定时间
- */
 export function sleep(ms: number) {
   return new Promise(resolve => setTimeout(resolve, ms))
 }
@@ -225,9 +201,6 @@ export function mockConsole() {
   }
 }
 
-/**
- * 清理所有 mock
- */
 export function clearAllMocks() {
   vi.clearAllMocks()
   vi.clearAllTimers()
@@ -237,14 +210,11 @@ export function clearAllMocks() {
  * 设置测试环境
  */
 export function setupTestEnvironment() {
-  // 清理之前的状态
   clearAllMocks()
 
-  // Mock localStorage
   const localStorage = mockLocalStorage()
   Object.defineProperty(window, 'localStorage', { value: localStorage })
 
-  // Mock console
   const console = mockConsole()
 
   return {
@@ -260,9 +230,6 @@ export function setupTestEnvironment() {
   }
 }
 
-/**
- * 验证错误处理
- */
 export function expectErrorToBeHandled(
   errorHandler: vi.MockedFunction<(message: string) => void>,
   expectedMessage?: string

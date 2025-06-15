@@ -330,7 +330,6 @@ export default [
         sourceType: 'module'
       },
       globals: {
-        // Vitest globals
         describe: 'readonly',
         it: 'readonly',
         expect: 'readonly',
@@ -342,7 +341,6 @@ export default [
         test: 'readonly',
         suite: 'readonly',
 
-        // Browser globals for tests
         TextEncoder: 'readonly',
         TextDecoder: 'readonly',
         window: 'readonly',
@@ -363,7 +361,6 @@ export default [
         clearInterval: 'readonly',
         performance: 'readonly',
 
-        // Node.js globals for tests
         process: 'readonly',
         Buffer: 'readonly',
         global: 'readonly',
@@ -378,7 +375,7 @@ export default [
       '@typescript-eslint': typescript
     },
     rules: {
-      '@typescript-eslint/no-explicit-any': 'warn', // 放宽测试中的 any 限制
+      '@typescript-eslint/no-explicit-any': 'off', // 在测试中允许使用 any
       '@typescript-eslint/no-unused-vars': [
         'error',
         {
@@ -387,8 +384,8 @@ export default [
           caughtErrorsIgnorePattern: '^_'
         }
       ],
-      'no-console': 'off', // 测试中允许 console
-      'no-undef': 'off' // 关闭 no-undef，因为我们已经定义了全局变量
+      'no-console': 'off',
+      'no-undef': 'off'
     }
   },
 

@@ -1,8 +1,3 @@
-/**
- * Electron API 类型声明
- * 为渲染进程提供 Electron API 的类型支持
- */
-
 interface ElectronEnv {
   get(key: string): string | undefined
   isDevelopment: boolean

@@ -16,9 +16,6 @@ export function useAppState() {
     showApiKeyReminder.value = false
   }
 
-  /**
-   * 跳转到设置页面
-   */
   const goToSettings = () => {
     router.push('/settings')
     showApiKeyReminder.value = false

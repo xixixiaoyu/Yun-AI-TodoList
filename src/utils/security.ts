@@ -32,9 +32,6 @@ export const CSP_CONFIG = {
   'upgrade-insecure-requests': []
 }
 
-/**
- * 生成 CSP 字符串
- */
 export function generateCSPString(): string {
   return Object.entries(CSP_CONFIG)
     .map(([directive, sources]) => `${directive} ${sources.join(' ')}`)
@@ -95,9 +92,6 @@ export class SecureStorage {
   private static readonly PREFIX = 'todo_app_'
   private static readonly MAX_SIZE = 5 * 1024 * 1024
 
-  /**
-   * 安全地设置存储项
-   */
   static setItem(key: string, value: unknown): boolean {
     try {
       const serialized = JSON.stringify(value)
@@ -173,9 +167,6 @@ export class SecureStorage {
   }
 }
 
-/**
- * API 请求安全包装器
- */
 export class SecureAPIClient {
   private static readonly TIMEOUT = 10000
   private static readonly MAX_RETRIES = 3
@@ -238,9 +229,6 @@ export class InputValidator {
     return str.length >= min && str.length <= max
   }
 
-  /**
-   * 验证是否包含恶意脚本
-   */
   static containsScript(str: string): boolean {
     const scriptPatterns = [
       /<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi,

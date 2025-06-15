@@ -4,7 +4,7 @@ import {
   mockFetch,
   setupTestEnvironment
 } from '@/test/helpers'
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import {
   abortCurrentRequest,
   getAIResponse,
@@ -12,7 +12,6 @@ import {
   streamAIResponse
 } from '../deepseekService'
 
-// Mock dependencies
 vi.mock('../configService', () => ({
   getApiKey: vi.fn().mockReturnValue('test-api-key')
 }))
@@ -196,7 +195,6 @@ describe('deepseekService', () => {
         chunks.push(chunk)
       }
 
-      // 应该跳过无效的数据块
       expect(chunks).toEqual([])
     })
   })
@@ -236,7 +234,6 @@ describe('deepseekService', () => {
 
   describe('abortCurrentRequest', () => {
     it('应该能够中止当前请求', () => {
-      // 这个测试需要模拟正在进行的请求
       expect(() => abortCurrentRequest()).not.toThrow()
     })
   })
@@ -249,7 +246,6 @@ describe('deepseekService', () => {
     })
 
     it('应该处理超时错误', async () => {
-      // 模拟超时
       mockFetchFn.mockImplementation(
         () => new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout')), 100))
       )

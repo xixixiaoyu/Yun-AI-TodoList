@@ -58,9 +58,6 @@ class PerformanceMonitor {
     console.warn('Performance monitoring initialized (simplified mode)')
   }
 
-  /**
-   * 记录性能指标
-   */
   recordMetric(metric: PerformanceMetric) {
     this.metrics.push(metric)
 
@@ -131,9 +128,6 @@ class PerformanceMonitor {
     return null
   }
 
-  /**
-   * 获取性能报告
-   */
   getPerformanceReport() {
     const now = Date.now()
     const recentMetrics = this.metrics.filter(

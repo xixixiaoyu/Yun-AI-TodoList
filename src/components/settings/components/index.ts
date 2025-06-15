@@ -1,9 +1,6 @@
 export { default as ApiKeyCard } from './ApiKeyCard.vue'
 export { default as ApiKeyPopover } from './ApiKeyPopover.vue'
 
-/**
- * 提示词相关组件导出
- */
 export { default as PromptBasicInfoForm } from './PromptBasicInfoForm.vue'
 export { default as PromptContentForm } from './PromptContentForm.vue'
 export { default as PromptFormDialog } from './PromptFormDialog.vue'
