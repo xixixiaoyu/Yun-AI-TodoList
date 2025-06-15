@@ -5,7 +5,7 @@ import type {
   PromptTemplate,
   PromptFilter,
   PromptSortOptions,
-  PromptActionResult,
+  PromptActionResult
 } from '../types/settings'
 import { PromptCategory, PromptPriority } from '../types/settings'
 import { builtinPromptTemplates } from '../config/prompts'
@@ -18,7 +18,7 @@ import {
   exportPrompts,
   validateImportData,
   processImportData,
-  getPromptStats,
+  getPromptStats
 } from '../utils/promptUtils'
 
 /**
@@ -64,7 +64,7 @@ export function usePromptManagement(
     } else if (builtinPromptTemplates[template]) {
       localSystemPrompt.value = builtinPromptTemplates[template].content
     } else {
-      const customPrompt = customPrompts.value.find((p) => p.id === template)
+      const customPrompt = customPrompts.value.find(p => p.id === template)
       if (customPrompt) {
         localSystemPrompt.value = customPrompt.content
         // 增加使用次数
@@ -88,7 +88,7 @@ export function usePromptManagement(
       description: newPromptDescription.value,
       category: newPromptCategory.value,
       priority: newPromptPriority.value,
-      tags: newPromptTags.value,
+      tags: newPromptTags.value
     })
 
     if (!validation.isValid) {
@@ -102,7 +102,7 @@ export function usePromptManagement(
       description: newPromptDescription.value,
       category: newPromptCategory.value,
       priority: newPromptPriority.value,
-      tags: newPromptTags.value,
+      tags: newPromptTags.value
     })
 
     customPrompts.value.push(newPrompt)
@@ -143,7 +143,7 @@ export function usePromptManagement(
         name: t('customPrompt'),
         content: localSystemPrompt.value,
         category: PromptCategory.CUSTOM,
-        priority: PromptPriority.MEDIUM,
+        priority: PromptPriority.MEDIUM
       })
 
       customPrompts.value.push(newPrompt)
@@ -152,9 +152,7 @@ export function usePromptManagement(
       localStorage.setItem('lastSelectedTemplate', newPrompt.id)
     } else {
       // 更新现有的自定义提示词
-      const currentPrompt = customPrompts.value.find(
-        (p) => p.id === selectedPromptTemplate.value
-      )
+      const currentPrompt = customPrompts.value.find(p => p.id === selectedPromptTemplate.value)
       if (currentPrompt) {
         currentPrompt.content = localSystemPrompt.value
         currentPrompt.updatedAt = Date.now()
@@ -179,7 +177,7 @@ export function usePromptManagement(
    * 删除提示词
    */
   const deletePrompt = (promptId: string) => {
-    const index = customPrompts.value.findIndex((p) => p.id === promptId)
+    const index = customPrompts.value.findIndex(p => p.id === promptId)
     if (index > -1) {
       customPrompts.value.splice(index, 1)
       saveCustomPrompts()
@@ -208,9 +206,7 @@ export function usePromptManagement(
    * 复制提示词
    */
   const duplicateCurrentPrompt = () => {
-    const currentPrompt = customPrompts.value.find(
-      (p) => p.id === selectedPromptTemplate.value
-    )
+    const currentPrompt = customPrompts.value.find(p => p.id === selectedPromptTemplate.value)
     if (currentPrompt) {
       const duplicated = duplicatePrompt(currentPrompt)
       customPrompts.value.push(duplicated)
@@ -223,7 +219,7 @@ export function usePromptManagement(
    * 切换提示词收藏状态
    */
   const togglePromptFavorite = (promptId: string) => {
-    const prompt = customPrompts.value.find((p) => p.id === promptId)
+    const prompt = customPrompts.value.find(p => p.id === promptId)
     if (prompt) {
       prompt.isFavorite = !prompt.isFavorite
       prompt.updatedAt = Date.now()
@@ -235,7 +231,7 @@ export function usePromptManagement(
    * 切换提示词激活状态
    */
   const togglePromptActive = (promptId: string) => {
-    const prompt = customPrompts.value.find((p) => p.id === promptId)
+    const prompt = customPrompts.value.find(p => p.id === promptId)
     if (prompt) {
       prompt.isActive = !prompt.isActive
       prompt.updatedAt = Date.now()
@@ -250,7 +246,7 @@ export function usePromptManagement(
     try {
       const exportData = exportPrompts(customPrompts.value)
       const blob = new Blob([JSON.stringify(exportData, null, 2)], {
-        type: 'application/json',
+        type: 'application/json'
       })
       const url = URL.createObjectURL(blob)
       const a = document.createElement('a')
@@ -270,9 +266,9 @@ export function usePromptManagement(
    * 导入提示词
    */
   const importPromptsData = (file: File) => {
-    return new Promise<PromptActionResult>((resolve) => {
+    return new Promise<PromptActionResult>(resolve => {
       const reader = new FileReader()
-      reader.onload = (e) => {
+      reader.onload = e => {
         try {
           const data = JSON.parse(e.target?.result as string)
           const validation = validateImportData(data)
@@ -288,13 +284,13 @@ export function usePromptManagement(
 
           resolve({
             success: true,
-            message: `成功导入 ${importedPrompts.length} 个提示词`,
+            message: `成功导入 ${importedPrompts.length} 个提示词`
           })
           showSuccessToast()
         } catch (error) {
           resolve({
             success: false,
-            message: `文件解析失败: ${error instanceof Error ? error.message : '未知错误'}`,
+            message: `文件解析失败: ${error instanceof Error ? error.message : '未知错误'}`
           })
         }
       }
@@ -333,7 +329,7 @@ export function usePromptManagement(
    * 获取当前选中的自定义提示词
    */
   const getCurrentCustomPrompt = () => {
-    return customPrompts.value.find((p) => p.id === selectedPromptTemplate.value)
+    return customPrompts.value.find(p => p.id === selectedPromptTemplate.value)
   }
 
   /**
@@ -383,6 +379,6 @@ export function usePromptManagement(
     isSystemPromptValid,
     getCurrentCustomPrompt,
     isCustomPrompt,
-    isBuiltinPrompt,
+    isBuiltinPrompt
   }
 }

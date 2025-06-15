@@ -128,10 +128,10 @@ const startBreak = () => {
 
 const notifyUser = (isWorkTime: boolean) => {
   if ('Notification' in window) {
-    Notification.requestPermission().then((permission) => {
+    Notification.requestPermission().then(permission => {
       if (permission === 'granted') {
         new Notification(t('pomodoroComplete'), {
-          body: isWorkTime ? t('workTimeStarted') : t('breakTimeStarted'),
+          body: isWorkTime ? t('workTimeStarted') : t('breakTimeStarted')
           // icon: '../../public/logo.png',
         })
       }

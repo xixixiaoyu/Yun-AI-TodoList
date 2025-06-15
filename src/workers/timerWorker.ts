@@ -108,7 +108,7 @@ self.onmessage = (e: MessageEvent) => {
         self.postMessage({
           timeLeft,
           isActive,
-          action: 'status',
+          action: 'status'
         })
         break
 
@@ -120,7 +120,7 @@ self.onmessage = (e: MessageEvent) => {
     self.postMessage({
       action: 'error',
       error: error instanceof Error ? error.message : 'Unknown error',
-      timeLeft,
+      timeLeft
     })
   }
 }

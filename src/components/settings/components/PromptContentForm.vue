@@ -7,9 +7,7 @@
       class="content-textarea"
       rows="8"
       maxlength="10000"
-      @input="
-        $emit('update:newPromptContent', ($event.target as HTMLTextAreaElement).value)
-      "
+      @input="$emit('update:newPromptContent', ($event.target as HTMLTextAreaElement).value)"
     />
     <div class="char-count">{{ newPromptContent.length }}/10000</div>
   </div>
@@ -32,7 +30,7 @@ defineEmits<Emits>()
 const { t } = useI18n()
 
 defineOptions({
-  name: 'PromptContentForm',
+  name: 'PromptContentForm'
 })
 </script>
 

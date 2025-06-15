@@ -39,7 +39,7 @@
         :class="{
           'is-listening': isListening,
           'is-error': recognitionStatus === 'error',
-          'is-processing': recognitionStatus === 'processing',
+          'is-processing': recognitionStatus === 'processing'
         }"
         :disabled="!isRecognitionSupported"
         :title="lastError || t(isListening ? 'stopListening' : 'startListening')"
@@ -96,7 +96,7 @@ const {
   lastError,
   isRecognitionSupported,
   startListening,
-  stopListening,
+  stopListening
 } = useVoiceInput(handleTranscript)
 
 // 自动调整输入框高度
@@ -178,7 +178,7 @@ const focus = () => {
 }
 
 defineExpose({
-  focus,
+  focus
 })
 </script>
 

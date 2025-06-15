@@ -28,7 +28,7 @@ const toggleLanguage = () => {
 }
 
 defineOptions({
-  name: 'NavigationBar',
+  name: 'NavigationBar'
 })
 </script>
 

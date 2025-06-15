@@ -4,12 +4,7 @@
     <div class="popover-header">
       <div class="header-content">
         <div class="header-icon">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="24"
-            height="24"
-            viewBox="0 0 24 24"
-          >
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
             <path
               fill="currentColor"
               d="M7 14c-1.66 0-3-1.34-3-3s1.34-3 3-3s3 1.34 3 3s-1.34 3-3 3zm0-4c-.55 0-1 .45-1 1s.45 1 1 1s1-.45 1-1s-.45-1-1-1zm12.93-3.94l-3.99 4.99c-.14.17-.35.26-.56.26s-.42-.09-.56-.26l-2.24-2.8c-.31-.39-.25-.96.14-1.27c.39-.31.96-.25 1.27.14l1.68 2.1l3.43-4.29c.31-.39.88-.45 1.27-.14c.39.31.45.88.14 1.27z"
@@ -22,12 +17,7 @@
         </div>
       </div>
       <button class="close-button" @click="$emit('close')">
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="20"
-          height="20"
-          viewBox="0 0 24 24"
-        >
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
           <path
             fill="currentColor"
             d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"
@@ -41,12 +31,7 @@
       <!-- 输入提示信息 -->
       <div class="input-info">
         <div class="info-item">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="16"
-            height="16"
-            viewBox="0 0 24 24"
-          >
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24">
             <path
               fill="currentColor"
               d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10s10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5l1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"
@@ -55,12 +40,7 @@
           <span>密钥将安全存储在本地浏览器中</span>
         </div>
         <div class="info-item">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="16"
-            height="16"
-            viewBox="0 0 24 24"
-          >
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24">
             <path
               fill="currentColor"
               d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zM12 17c-1.1 0-2-.9-2-2s.9-2 2-2s2 .9 2 2s-.9 2-2 2zM15.1 8H8.9V6c0-1.71 1.39-3.1 3.1-3.1s3.1 1.39 3.1 3.1v2z"
@@ -81,9 +61,7 @@
             class="api-key-input"
             autocomplete="off"
             spellcheck="false"
-            @input="
-              $emit('update:localApiKey', ($event.target as HTMLInputElement).value)
-            "
+            @input="$emit('update:localApiKey', ($event.target as HTMLInputElement).value)"
           />
           <button class="toggle-button" @click="toggleShowApiKey">
             <svg
@@ -127,31 +105,14 @@
 
       <!-- 操作按钮 -->
       <div class="button-group">
-        <button
-          class="save-button"
-          :disabled="!localApiKey.trim()"
-          @click="$emit('save')"
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="16"
-            height="16"
-            viewBox="0 0 24 24"
-          >
-            <path
-              fill="currentColor"
-              d="M9 16.17L4.83 12l-1.42 1.41L9 19L21 7l-1.41-1.41z"
-            />
+        <button class="save-button" :disabled="!localApiKey.trim()" @click="$emit('save')">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24">
+            <path fill="currentColor" d="M9 16.17L4.83 12l-1.42 1.41L9 19L21 7l-1.41-1.41z" />
           </svg>
           {{ t('save') }}
         </button>
         <button class="clear-button" :disabled="!localApiKey" @click="$emit('clear')">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="16"
-            height="16"
-            viewBox="0 0 24 24"
-          >
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24">
             <path
               fill="currentColor"
               d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"
@@ -193,7 +154,7 @@ const toggleShowApiKey = () => {
 }
 
 defineOptions({
-  name: 'ApiKeyPopover',
+  name: 'ApiKeyPopover'
 })
 </script>
 
@@ -258,11 +219,7 @@ defineOptions({
   width: 48px;
   height: 48px;
   border-radius: 16px;
-  background: linear-gradient(
-    135deg,
-    var(--button-bg-color),
-    var(--button-hover-bg-color)
-  );
+  background: linear-gradient(135deg, var(--button-bg-color), var(--button-hover-bg-color));
   display: flex;
   align-items: center;
   justify-content: center;
@@ -455,11 +412,7 @@ defineOptions({
 }
 
 .save-button {
-  background: linear-gradient(
-    135deg,
-    var(--button-bg-color),
-    var(--button-hover-bg-color)
-  );
+  background: linear-gradient(135deg, var(--button-bg-color), var(--button-hover-bg-color));
   color: white;
   box-shadow: 0 4px 16px rgba(var(--button-bg-color-rgb), 0.3);
 }

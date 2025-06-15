@@ -47,14 +47,7 @@
 </template>
 
 <script setup lang="ts">
-import {
-  computed,
-  ref,
-  watchEffect,
-  onBeforeMount,
-  onMounted,
-  onErrorCaptured,
-} from 'vue'
+import { computed, ref, watchEffect, onBeforeMount, onMounted, onErrorCaptured } from 'vue'
 import { useI18n } from 'vue-i18n'
 import confetti from 'canvas-confetti'
 import type { Todo } from '../types/todo'
@@ -85,7 +78,7 @@ const toggleTodo = () => {
           particleCount: 100,
           spread: 70,
           origin: { y: 0.6 },
-          disableForReducedMotion: true, // 考虑可访问性
+          disableForReducedMotion: true // 考虑可访问性
         })
       })
     }

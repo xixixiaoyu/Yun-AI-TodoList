@@ -8,8 +8,7 @@ import { useTodos } from './useTodos'
 
 export function useTodoManagement() {
   const { t } = useI18n()
-  const { todos, addTodo, addMultipleTodos, toggleTodo, removeTodo, saveTodos } =
-    useTodos()
+  const { todos, addTodo, addMultipleTodos, toggleTodo, removeTodo, saveTodos } = useTodos()
   const { showError, error: duplicateError } = useErrorHandler()
 
   const filter = ref('active')
@@ -45,15 +44,14 @@ export function useTodoManagement() {
       // 然后按搜索查询过滤
       if (searchQuery.value.trim()) {
         const query = searchQuery.value.toLowerCase().trim()
-        result = result.filter((todo) => {
+        result = result.filter(todo => {
           if (!todo) {
             return false
           }
           // 搜索标题和描述（如果有的话）
           const titleMatch = todo.text.toLowerCase().includes(query)
           // 可以扩展到搜索标签
-          const tagsMatch =
-            todo.tags?.some((tag) => tag.toLowerCase().includes(query)) || false
+          const tagsMatch = todo.tags?.some(tag => tag.toLowerCase().includes(query)) || false
           return titleMatch || tagsMatch
         })
       }
@@ -67,7 +65,7 @@ export function useTodoManagement() {
 
   // 检查是否有未完成的待办事项
   const hasActiveTodos = computed(() => {
-    return todos.value.some((todo) => todo && !todo.completed)
+    return todos.value.some(todo => todo && !todo.completed)
   })
 
   // 生成建议待办事项
@@ -91,8 +89,8 @@ export function useTodoManagement() {
   // 确认添加建议待办事项
   const confirmSuggestedTodos = () => {
     const duplicates = addMultipleTodos(
-      suggestedTodos.value.map((todo) => ({
-        text: todo,
+      suggestedTodos.value.map(todo => ({
+        text: todo
       }))
     )
     if (duplicates.length > 0) {
@@ -117,14 +115,12 @@ export function useTodoManagement() {
   const sortActiveTodosWithAI = async () => {
     isSorting.value = true
     try {
-      const activeTodos = todos.value.filter((todo) => todo && !todo.completed)
+      const activeTodos = todos.value.filter(todo => todo && !todo.completed)
       if (activeTodos.length <= 1) {
         showError(t('noActiveTodosError'))
         return
       }
-      const todoTexts = activeTodos
-        .map((todo, index) => `${index + 1}. ${todo.text}`)
-        .join('\n')
+      const todoTexts = activeTodos.map((todo, index) => `${index + 1}. ${todo.text}`).join('\n')
       const prompt = `${t('sortPrompt')}:\n${todoTexts}`
       const response = await getAIResponse(prompt, 'zh', 0.1)
       if (!response) {
@@ -135,9 +131,9 @@ export function useTodoManagement() {
         throw new Error(t('aiSortMismatchError'))
       }
 
-      const sortedTodos = newOrder.map((index) => activeTodos[index - 1])
+      const sortedTodos = newOrder.map(index => activeTodos[index - 1])
 
-      todos.value = todos.value.map((todo) => {
+      todos.value = todos.value.map(todo => {
         if (!todo || todo.completed) {
           return todo
         }
@@ -184,6 +180,6 @@ export function useTodoManagement() {
     sortActiveTodosWithAI,
     handleAddTodo,
     toggleTodo,
-    removeTodo,
+    removeTodo
   }
 }

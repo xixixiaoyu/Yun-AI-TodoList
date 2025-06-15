@@ -4,7 +4,7 @@ import type {
   PromptExportData,
   PromptFilter,
   PromptSortOptions,
-  PromptValidationResult,
+  PromptValidationResult
 } from '../types/settings'
 import { PromptCategory, PromptPriority } from '../types/settings'
 
@@ -45,7 +45,7 @@ export function validatePrompt(prompt: Partial<CustomPrompt>): PromptValidationR
 
     // 检查是否包含常见的有害内容关键词
     const harmfulKeywords = ['hack', 'crack', 'illegal', 'violence']
-    const hasHarmfulContent = harmfulKeywords.some((keyword) =>
+    const hasHarmfulContent = harmfulKeywords.some(keyword =>
       prompt.content?.toLowerCase().includes(keyword)
     )
 
@@ -57,18 +57,15 @@ export function validatePrompt(prompt: Partial<CustomPrompt>): PromptValidationR
   return {
     isValid: errors.length === 0,
     errors,
-    warnings,
+    warnings
   }
 }
 
 /**
  * 过滤提示词列表
  */
-export function filterPrompts(
-  prompts: CustomPrompt[],
-  filter: PromptFilter
-): CustomPrompt[] {
-  return prompts.filter((prompt) => {
+export function filterPrompts(prompts: CustomPrompt[], filter: PromptFilter): CustomPrompt[] {
+  return prompts.filter(prompt => {
     // 分类过滤
     if (filter.category && prompt.category !== filter.category) {
       return false
@@ -91,10 +88,8 @@ export function filterPrompts(
 
     // 标签过滤
     if (filter.tags && filter.tags.length > 0) {
-      const hasMatchingTag = filter.tags.some((tag) =>
-        prompt.tags.some((promptTag) =>
-          promptTag.toLowerCase().includes(tag.toLowerCase())
-        )
+      const hasMatchingTag = filter.tags.some(tag =>
+        prompt.tags.some(promptTag => promptTag.toLowerCase().includes(tag.toLowerCase()))
       )
       if (!hasMatchingTag) {
         return false
@@ -107,9 +102,7 @@ export function filterPrompts(
       const matchesName = prompt.name.toLowerCase().includes(searchText)
       const matchesDescription = prompt.description?.toLowerCase().includes(searchText)
       const matchesContent = prompt.content.toLowerCase().includes(searchText)
-      const matchesTags = prompt.tags.some((tag) =>
-        tag.toLowerCase().includes(searchText)
-      )
+      const matchesTags = prompt.tags.some(tag => tag.toLowerCase().includes(searchText))
 
       if (!matchesName && !matchesDescription && !matchesContent && !matchesTags) {
         return false
@@ -147,7 +140,7 @@ export function sortPrompts(
         const priorityOrder = {
           [PromptPriority.HIGH]: 3,
           [PromptPriority.MEDIUM]: 2,
-          [PromptPriority.LOW]: 1,
+          [PromptPriority.LOW]: 1
         }
         comparison = priorityOrder[a.priority] - priorityOrder[b.priority]
         break
@@ -178,21 +171,18 @@ export function createPrompt(data: Partial<CustomPrompt>): CustomPrompt {
     updatedAt: now,
     isActive: data.isActive !== undefined ? data.isActive : true,
     usageCount: 0,
-    isFavorite: data.isFavorite || false,
+    isFavorite: data.isFavorite || false
   }
 }
 
 /**
  * 更新提示词对象
  */
-export function updatePrompt(
-  prompt: CustomPrompt,
-  updates: Partial<CustomPrompt>
-): CustomPrompt {
+export function updatePrompt(prompt: CustomPrompt, updates: Partial<CustomPrompt>): CustomPrompt {
   return {
     ...prompt,
     ...updates,
-    updatedAt: Date.now(),
+    updatedAt: Date.now()
   }
 }
 
@@ -208,7 +198,7 @@ export function duplicatePrompt(prompt: CustomPrompt): CustomPrompt {
     name: `${prompt.name} (副本)`,
     createdAt: now,
     updatedAt: now,
-    usageCount: 0,
+    usageCount: 0
   }
 }
 
@@ -219,11 +209,11 @@ export function exportPrompts(prompts: CustomPrompt[]): PromptExportData {
   return {
     version: '1.0.0',
     exportedAt: Date.now(),
-    prompts: prompts.map((prompt) => ({
+    prompts: prompts.map(prompt => ({
       ...prompt,
       // 清理敏感信息
-      usageCount: 0,
-    })),
+      usageCount: 0
+    }))
   }
 }
 
@@ -246,7 +236,7 @@ export function validateImportData(data: unknown): PromptActionResult {
       if (!validation.isValid) {
         return {
           success: false,
-          message: `提示词 "${prompt.name || '未命名'}" 验证失败: ${validation.errors.join(', ')}`,
+          message: `提示词 "${prompt.name || '未命名'}" 验证失败: ${validation.errors.join(', ')}`
         }
       }
     }
@@ -255,7 +245,7 @@ export function validateImportData(data: unknown): PromptActionResult {
   } catch (error) {
     return {
       success: false,
-      message: `数据解析失败: ${error instanceof Error ? error.message : '未知错误'}`,
+      message: `数据解析失败: ${error instanceof Error ? error.message : '未知错误'}`
     }
   }
 }
@@ -266,12 +256,12 @@ export function validateImportData(data: unknown): PromptActionResult {
 export function processImportData(data: PromptExportData): CustomPrompt[] {
   const now = Date.now()
 
-  return data.prompts.map((prompt) => ({
+  return data.prompts.map(prompt => ({
     ...prompt,
     id: `custom_${now}_${Math.random().toString(36).substr(2, 9)}`,
     createdAt: now,
     updatedAt: now,
-    usageCount: 0,
+    usageCount: 0
   }))
 }
 
@@ -280,12 +270,12 @@ export function processImportData(data: PromptExportData): CustomPrompt[] {
  */
 export function getPromptStats(prompts: CustomPrompt[]) {
   const total = prompts.length
-  const active = prompts.filter((p) => p.isActive).length
-  const favorites = prompts.filter((p) => p.isFavorite).length
+  const active = prompts.filter(p => p.isActive).length
+  const favorites = prompts.filter(p => p.isFavorite).length
 
   const categoryStats = Object.values(PromptCategory).reduce(
     (acc, category) => {
-      acc[category] = prompts.filter((p) => p.category === category).length
+      acc[category] = prompts.filter(p => p.category === category).length
       return acc
     },
     {} as Record<PromptCategory, number>
@@ -293,7 +283,7 @@ export function getPromptStats(prompts: CustomPrompt[]) {
 
   const priorityStats = Object.values(PromptPriority).reduce(
     (acc, priority) => {
-      acc[priority] = prompts.filter((p) => p.priority === priority).length
+      acc[priority] = prompts.filter(p => p.priority === priority).length
       return acc
     },
     {} as Record<PromptPriority, number>
@@ -304,6 +294,6 @@ export function getPromptStats(prompts: CustomPrompt[]) {
     active,
     favorites,
     categoryStats,
-    priorityStats,
+    priorityStats
   }
 }

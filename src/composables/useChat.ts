@@ -1,10 +1,6 @@
 import { ref, nextTick } from 'vue'
 import { useI18n } from 'vue-i18n'
-import {
-  getAIStreamResponse,
-  optimizeText,
-  abortCurrentRequest,
-} from '../services/deepseekService'
+import { getAIStreamResponse, optimizeText, abortCurrentRequest } from '../services/deepseekService'
 import type { ChatMessage, Conversation, Message } from '../services/types'
 
 export function useChat() {
@@ -58,7 +54,7 @@ export function useChat() {
       id: Date.now().toString(),
       title,
       messages: [],
-      lastUpdated: new Date().toISOString(),
+      lastUpdated: new Date().toISOString()
     }
     conversationHistory.value.unshift(newConversation)
     saveCurrentConversationId(newConversation.id)
@@ -68,7 +64,7 @@ export function useChat() {
 
   // 切换对话
   const switchConversation = (id: string) => {
-    const conversation = conversationHistory.value.find((c) => c.id === id)
+    const conversation = conversationHistory.value.find(c => c.id === id)
     if (conversation) {
       chatHistory.value = [...conversation.messages]
       saveCurrentConversationId(id)
@@ -77,7 +73,7 @@ export function useChat() {
 
   // 删除对话
   const deleteConversation = (id: string) => {
-    conversationHistory.value = conversationHistory.value.filter((c) => c.id !== id)
+    conversationHistory.value = conversationHistory.value.filter(c => c.id !== id)
     if (currentConversationId.value === id) {
       if (conversationHistory.value.length > 0) {
         switchConversation(conversationHistory.value[0].id)
@@ -113,29 +109,26 @@ export function useChat() {
       // 如果是新对话的第一条消息，更新对话标题
       if (chatHistory.value.length === 0) {
         const currentConversation = conversationHistory.value.find(
-          (conv) => conv.id === currentConversationId.value
+          conv => conv.id === currentConversationId.value
         )
         if (currentConversation) {
           currentConversation.title = message
-          localStorage.setItem(
-            'conversationHistory',
-            JSON.stringify(conversationHistory.value)
-          )
+          localStorage.setItem('conversationHistory', JSON.stringify(conversationHistory.value))
         }
       }
 
       // 保存用户消息到历史记录
       const userMsg: ChatMessage = {
         role: 'user',
-        content: message,
+        content: message
       }
       chatHistory.value.push(userMsg)
 
       // 开始生成 AI 响应
       currentAIResponse.value = ''
-      const messages: Message[] = chatHistory.value.map((msg) => ({
+      const messages: Message[] = chatHistory.value.map(msg => ({
         role: msg.role === 'user' ? 'user' : 'assistant',
-        content: msg.content,
+        content: msg.content
       }))
 
       await getAIStreamResponse(messages, (chunk: string) => {
@@ -144,7 +137,7 @@ export function useChat() {
           if (currentAIResponse.value) {
             const aiMsg: ChatMessage = {
               role: 'assistant',
-              content: currentAIResponse.value,
+              content: currentAIResponse.value
             }
             // 先添加到历史记录
             chatHistory.value.push(aiMsg)
@@ -212,15 +205,12 @@ export function useChat() {
     try {
       if (currentConversationId.value) {
         const currentConversation = conversationHistory.value.find(
-          (conv) => conv.id === currentConversationId.value
+          conv => conv.id === currentConversationId.value
         )
         if (currentConversation) {
           currentConversation.messages = [...chatHistory.value]
           currentConversation.lastUpdated = new Date().toISOString()
-          localStorage.setItem(
-            'conversationHistory',
-            JSON.stringify(conversationHistory.value)
-          )
+          localStorage.setItem('conversationHistory', JSON.stringify(conversationHistory.value))
         }
       }
     } catch (error) {
@@ -235,7 +225,7 @@ export function useChat() {
     if (currentAIResponse.value) {
       const aiMsg: ChatMessage = {
         role: 'assistant',
-        content: currentAIResponse.value,
+        content: currentAIResponse.value
       }
       chatHistory.value.push(aiMsg)
       saveConversationHistory()
@@ -263,6 +253,6 @@ export function useChat() {
     sendMessage,
     stopGenerating,
     optimizeMessage,
-    showError,
+    showError
   }
 }

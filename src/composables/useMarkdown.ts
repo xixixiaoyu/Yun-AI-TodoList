@@ -13,7 +13,7 @@ export function useMarkdown() {
         console.error('Error highlighting code:', err)
         return code
       }
-    },
+    }
   } as MarkedOptions)
 
   // 处理 Markdown 内容
@@ -23,6 +23,6 @@ export function useMarkdown() {
   }
 
   return {
-    sanitizeContent,
+    sanitizeContent
   }
 }

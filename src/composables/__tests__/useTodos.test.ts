@@ -55,7 +55,7 @@ describe('useTodos', () => {
     addTodo('Todo 3')
 
     // 获取 todo 的 ID
-    const todoIds = todos.value.map((todo) => todo.id)
+    const todoIds = todos.value.map(todo => todo.id)
 
     // 重新排序：第三个、第一个、第二个
     const newOrder = [todoIds[2], todoIds[0], todoIds[1]]

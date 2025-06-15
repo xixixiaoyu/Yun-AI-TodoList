@@ -124,7 +124,7 @@ defineEmits<Emits>()
 const { t } = useI18n()
 
 defineOptions({
-  name: 'TodoListHeader',
+  name: 'TodoListHeader'
 })
 </script>
 
@@ -161,11 +161,7 @@ h1 {
 }
 
 .icon-button {
-  background: linear-gradient(
-    135deg,
-    var(--card-bg-color) 0%,
-    rgba(255, 255, 255, 0.05) 100%
-  );
+  background: linear-gradient(135deg, var(--card-bg-color) 0%, rgba(255, 255, 255, 0.05) 100%);
   border: 1px solid rgba(255, 126, 103, 0.1);
   border-radius: 12px;
   cursor: pointer;
@@ -227,11 +223,7 @@ h1 {
 .icon-button.active {
   color: #ff7e67;
   opacity: 1;
-  background: linear-gradient(
-    135deg,
-    rgba(255, 126, 103, 0.1) 0%,
-    rgba(255, 107, 107, 0.05) 100%
-  );
+  background: linear-gradient(135deg, rgba(255, 126, 103, 0.1) 0%, rgba(255, 107, 107, 0.05) 100%);
   border-color: rgba(255, 126, 103, 0.3);
   box-shadow:
     0 2px 12px rgba(255, 126, 103, 0.2),

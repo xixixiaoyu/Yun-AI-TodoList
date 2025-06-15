@@ -65,7 +65,7 @@ const handleTagInputKeydown = (event: KeyboardEvent) => {
 }
 
 defineOptions({
-  name: 'PromptTagsInput',
+  name: 'PromptTagsInput'
 })
 </script>
 

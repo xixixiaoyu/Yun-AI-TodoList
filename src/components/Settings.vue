@@ -80,7 +80,7 @@ const {
   promptSortOptions,
   showSuccessMessage,
   showSuccessToast,
-  toggleFullscreen,
+  toggleFullscreen
 } = useSettingsState()
 
 // 使用提示词管理 composable
@@ -93,7 +93,7 @@ const {
   confirmDeletePrompt,
   duplicateCurrentPrompt,
   togglePromptFavorite,
-  resetNewPromptForm,
+  resetNewPromptForm
 } = usePromptManagement(
   customPrompts,
   selectedPromptTemplate,
@@ -116,7 +116,7 @@ const showAddPrompt = () => {
 }
 
 defineOptions({
-  name: 'AppSettings',
+  name: 'AppSettings'
 })
 </script>
 

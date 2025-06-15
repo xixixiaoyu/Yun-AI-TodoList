@@ -20,8 +20,7 @@ export function useTodoListState() {
   const todoListRef = ref<HTMLElement | null>(null)
 
   // 使用各种 composables
-  const { showConfirmDialog, confirmDialogConfig, handleConfirm, handleCancel } =
-    confirmDialog
+  const { showConfirmDialog, confirmDialogConfig, handleConfirm, handleCancel } = confirmDialog
 
   const { todos, loadTodos, updateTodosOrder } = useTodos()
 
@@ -45,7 +44,7 @@ export function useTodoListState() {
     toggleTodo,
     removeTodo,
     duplicateError,
-    isLoading,
+    isLoading
   } = useTodoManagement()
 
   // 搜索状态管理
@@ -73,7 +72,7 @@ export function useTodoListState() {
     closeCharts,
     handlePomodoroComplete,
     checkPomodoroCompletion,
-    onKeyDown: originalOnKeyDown,
+    onKeyDown: originalOnKeyDown
   } = useUIState()
 
   // 扩展键盘事件处理，添加搜索快捷键
@@ -118,11 +117,7 @@ export function useTodoListState() {
 
     const renderTime = performance.now() - renderStartTime
     if (renderTime > 100) {
-      logger.warn(
-        `TodoList render time: ${renderTime}ms`,
-        { renderTime },
-        'TodoListState'
-      )
+      logger.warn(`TodoList render time: ${renderTime}ms`, { renderTime }, 'TodoListState')
     }
   })
 
@@ -181,6 +176,6 @@ export function useTodoListState() {
 
     // 事件处理
     onKeyDown,
-    handleError,
+    handleError
   }
 }

@@ -57,32 +57,32 @@ const emit = defineEmits<Emits>()
 // 计算属性
 const newPromptName = computed({
   get: () => props.newPromptName,
-  set: (value) => emit('update:newPromptName', value),
+  set: value => emit('update:newPromptName', value)
 })
 
 const newPromptContent = computed({
   get: () => props.newPromptContent,
-  set: (value) => emit('update:newPromptContent', value),
+  set: value => emit('update:newPromptContent', value)
 })
 
 const newPromptDescription = computed({
   get: () => props.newPromptDescription,
-  set: (value) => emit('update:newPromptDescription', value),
+  set: value => emit('update:newPromptDescription', value)
 })
 
 const newPromptCategory = computed({
   get: () => props.newPromptCategory,
-  set: (value) => emit('update:newPromptCategory', value),
+  set: value => emit('update:newPromptCategory', value)
 })
 
 const newPromptPriority = computed({
   get: () => props.newPromptPriority,
-  set: (value) => emit('update:newPromptPriority', value),
+  set: value => emit('update:newPromptPriority', value)
 })
 
 const newPromptTags = computed({
   get: () => props.newPromptTags,
-  set: (value) => emit('update:newPromptTags', value),
+  set: value => emit('update:newPromptTags', value)
 })
 
 const isFormValid = computed(() => {
@@ -96,7 +96,7 @@ const closeDialog = () => {
 }
 
 defineOptions({
-  name: 'EnhancedCustomPromptManager',
+  name: 'EnhancedCustomPromptManager'
 })
 </script>
 

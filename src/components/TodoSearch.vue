@@ -80,21 +80,21 @@ const internalValue = ref('')
 // 初始化内部值
 watch(
   () => props.modelValue,
-  (newValue) => {
+  newValue => {
     internalValue.value = newValue
   },
   { immediate: true }
 )
 
 // 监听内部值变化并发出事件
-watch(internalValue, (newValue) => {
+watch(internalValue, newValue => {
   emit('update:modelValue', newValue)
 })
 
 // 监听展开状态变化，自动聚焦
 watch(
   () => props.isExpanded,
-  (newValue) => {
+  newValue => {
     if (newValue) {
       // 延迟聚焦，等待动画完成
       setTimeout(() => {
@@ -136,7 +136,7 @@ const handleBlur = () => {
 // 暴露方法给父组件
 defineExpose({
   focus: () => searchInput.value?.focus(),
-  clear: clearSearch,
+  clear: clearSearch
 })
 </script>
 

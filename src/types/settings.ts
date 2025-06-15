@@ -13,7 +13,7 @@ export enum PromptCategory {
   CREATIVE = 'creative',
   BUSINESS = 'business',
   EDUCATION = 'education',
-  CUSTOM = 'custom',
+  CUSTOM = 'custom'
 }
 
 /**
@@ -22,7 +22,7 @@ export enum PromptCategory {
 export enum PromptPriority {
   LOW = 'low',
   MEDIUM = 'medium',
-  HIGH = 'high',
+  HIGH = 'high'
 }
 
 /**

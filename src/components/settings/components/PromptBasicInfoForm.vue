@@ -10,9 +10,7 @@
           :placeholder="t('enterPromptName')"
           class="form-input"
           maxlength="50"
-          @input="
-            $emit('update:newPromptName', ($event.target as HTMLInputElement).value)
-          "
+          @input="$emit('update:newPromptName', ($event.target as HTMLInputElement).value)"
         />
       </div>
       <div class="input-group">
@@ -23,12 +21,7 @@
           :placeholder="t('enterPromptDescription')"
           class="form-input"
           maxlength="100"
-          @input="
-            $emit(
-              'update:newPromptDescription',
-              ($event.target as HTMLInputElement).value
-            )
-          "
+          @input="$emit('update:newPromptDescription', ($event.target as HTMLInputElement).value)"
         />
       </div>
     </div>
@@ -46,11 +39,7 @@
             )
           "
         >
-          <option
-            v-for="category in categoryOptions"
-            :key="category.value"
-            :value="category.value"
-          >
+          <option v-for="category in categoryOptions" :key="category.value" :value="category.value">
             {{ category.label }}
           </option>
         </select>
@@ -67,11 +56,7 @@
             )
           "
         >
-          <option
-            v-for="priority in priorityOptions"
-            :key="priority.value"
-            :value="priority.value"
-          >
+          <option v-for="priority in priorityOptions" :key="priority.value" :value="priority.value">
             {{ priority.label }}
           </option>
         </select>
@@ -80,10 +65,7 @@
 
     <div class="input-group">
       <label>{{ t('promptTags') }}</label>
-      <PromptTagsInput
-        :tags="newPromptTags"
-        @update:tags="$emit('update:newPromptTags', $event)"
-      />
+      <PromptTagsInput :tags="newPromptTags" @update:tags="$emit('update:newPromptTags', $event)" />
     </div>
   </div>
 </template>
@@ -123,17 +105,17 @@ const categoryOptions = computed(() => [
   { value: PromptCategory.CREATIVE, label: t('categoryCreative') },
   { value: PromptCategory.BUSINESS, label: t('categoryBusiness') },
   { value: PromptCategory.EDUCATION, label: t('categoryEducation') },
-  { value: PromptCategory.CUSTOM, label: t('categoryCustom') },
+  { value: PromptCategory.CUSTOM, label: t('categoryCustom') }
 ])
 
 const priorityOptions = computed(() => [
   { value: PromptPriority.HIGH, label: t('priorityHigh') },
   { value: PromptPriority.MEDIUM, label: t('priorityMedium') },
-  { value: PromptPriority.LOW, label: t('priorityLow') },
+  { value: PromptPriority.LOW, label: t('priorityLow') }
 ])
 
 defineOptions({
-  name: 'PromptBasicInfoForm',
+  name: 'PromptBasicInfoForm'
 })
 </script>
 

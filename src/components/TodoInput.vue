@@ -102,11 +102,7 @@ input:focus {
 .add-btn {
   padding: 0.875rem 1.25rem;
   font-size: 0.95rem;
-  background: linear-gradient(
-    135deg,
-    var(--button-bg-color) 0%,
-    rgba(121, 180, 166, 0.9) 100%
-  );
+  background: linear-gradient(135deg, var(--button-bg-color) 0%, rgba(121, 180, 166, 0.9) 100%);
   color: var(--button-text-color);
   border: none;
   border-radius: calc(var(--border-radius) / 1.5);

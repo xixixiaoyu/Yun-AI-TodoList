@@ -102,7 +102,9 @@ pnpm electron:build:linux
 
 ## 📄 许可证
 
-本项目采用 [GNU General Public License v3.0](LICENSE) 开源协议。该协议要求任何基于本项目的衍生作品必须以相同的协议开源，并且禁止闭源商业使用。详情请参阅 [LICENSE](LICENSE) 文件。
+本项目采用 [GNU General Public License v3.0](LICENSE)
+开源协议。该协议要求任何基于本项目的衍生作品必须以相同的协议开源，并且禁止闭源商业使用。详情请参阅
+[LICENSE](LICENSE) 文件。
 
 ## 🙏 致谢
 

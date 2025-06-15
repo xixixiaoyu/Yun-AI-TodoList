@@ -12,7 +12,7 @@ export const builtinPromptTemplates: Record<string, BuiltinPromptTemplate> = {
     description: '不使用任何系统提示词，让 AI 以默认方式回复',
     category: PromptCategory.GENERAL,
     temperature: 0.7,
-    isReadonly: true,
+    isReadonly: true
   },
   my: {
     id: 'my',
@@ -29,7 +29,7 @@ export const builtinPromptTemplates: Record<string, BuiltinPromptTemplate> = {
     description: '适合日常对话和通用问题的友好助手',
     category: PromptCategory.GENERAL,
     temperature: 0.7,
-    isReadonly: true,
+    isReadonly: true
   },
   coding: {
     id: 'coding',
@@ -66,7 +66,7 @@ export const builtinPromptTemplates: Record<string, BuiltinPromptTemplate> = {
     description: '专业的编程开发助手，提供高质量的代码解决方案',
     category: PromptCategory.CODING,
     temperature: 0.3,
-    isReadonly: true,
+    isReadonly: true
   },
   writing: {
     id: 'writing',
@@ -95,7 +95,7 @@ export const builtinPromptTemplates: Record<string, BuiltinPromptTemplate> = {
     description: '专业的写作和文案助手，帮助提升文字表达质量',
     category: PromptCategory.WRITING,
     temperature: 0.8,
-    isReadonly: true,
+    isReadonly: true
   },
   analysis: {
     id: 'analysis',
@@ -124,8 +124,8 @@ export const builtinPromptTemplates: Record<string, BuiltinPromptTemplate> = {
     description: '专业的分析和研究助手，提供深度洞察和建议',
     category: PromptCategory.ANALYSIS,
     temperature: 0.4,
-    isReadonly: true,
-  },
+    isReadonly: true
+  }
 }
 
 /**
@@ -148,9 +148,7 @@ export function getAllBuiltinPromptTemplates(): BuiltinPromptTemplate[] {
 export function getBuiltinPromptTemplatesByCategory(
   category: PromptCategory
 ): BuiltinPromptTemplate[] {
-  return Object.values(builtinPromptTemplates).filter(
-    (template) => template.category === category
-  )
+  return Object.values(builtinPromptTemplates).filter(template => template.category === category)
 }
 
 /**
@@ -160,10 +158,10 @@ export function getBuiltinPromptTemplatesByCategory(
 export const promptsConfig = {
   none: {
     temperature: builtinPromptTemplates.none.temperature,
-    content: builtinPromptTemplates.none.content,
+    content: builtinPromptTemplates.none.content
   },
   my: {
     temperature: builtinPromptTemplates.my.temperature,
-    content: builtinPromptTemplates.my.content,
-  },
+    content: builtinPromptTemplates.my.content
+  }
 }

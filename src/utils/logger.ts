@@ -7,7 +7,7 @@ export enum LogLevel {
   DEBUG = 0,
   INFO = 1,
   WARN = 2,
-  ERROR = 3,
+  ERROR = 3
 }
 
 interface LogEntry {
@@ -60,16 +60,14 @@ class Logger {
       message,
       data,
       timestamp: new Date(),
-      source,
+      source
     }
 
     this.output(entry)
   }
 
   private output(entry: LogEntry) {
-    const prefix = `[${entry.timestamp.toISOString()}]${
-      entry.source ? ` [${entry.source}]` : ''
-    }`
+    const prefix = `[${entry.timestamp.toISOString()}]${entry.source ? ` [${entry.source}]` : ''}`
     const message = `${prefix} ${entry.message}`
 
     switch (entry.level) {
@@ -112,7 +110,7 @@ export function handleAsyncError<T>(
   context: string,
   source?: string
 ): Promise<T> {
-  return promise.catch((error) => {
+  return promise.catch(error => {
     handleError(error, context, source)
     throw error // 重新抛出错误，让调用者决定如何处理
   })

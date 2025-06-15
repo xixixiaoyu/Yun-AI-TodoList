@@ -32,7 +32,7 @@ const isVisible = ref(false)
 
 watch(
   () => props.show,
-  (newValue) => {
+  newValue => {
     isVisible.value = newValue
   }
 )

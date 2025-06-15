@@ -4,7 +4,7 @@ export default {
   copyright: 'Copyright © 2024 yunmu',
   electronDownload: {
     mirror: 'https://npmmirror.com/mirrors/electron/',
-    cache: '.cache/electron',
+    cache: '.cache/electron'
   },
   // 网络优化配置
   downloadAlternateFFmpeg: false,
@@ -13,7 +13,7 @@ export default {
   npmRebuild: false,
   directories: {
     output: 'release/${version}',
-    buildResources: 'build',
+    buildResources: 'build'
   },
   files: [
     'dist/**/*',
@@ -28,21 +28,21 @@ export default {
     '!scripts/**/*',
     '!*.config.*',
     '!.env*',
-    '!.git*',
+    '!.git*'
   ],
   extraResources: [
     {
       from: 'public/logo.png',
-      to: 'logo.png',
-    },
+      to: 'logo.png'
+    }
   ],
   mac: {
     icon: 'build/icon.icns',
     target: [
       {
         target: 'zip',
-        arch: ['x64', 'arm64'],
-      },
+        arch: ['x64', 'arm64']
+      }
     ],
     category: 'public.app-category.productivity',
     darkModeSupport: true,
@@ -50,7 +50,7 @@ export default {
     gatekeeperAssess: false,
     entitlements: 'build/entitlements.mac.plist',
     entitlementsInherit: 'build/entitlements.mac.plist',
-    notarize: false,
+    notarize: false
   },
   dmg: {
     title: '${productName} ${version}',
@@ -60,18 +60,18 @@ export default {
         x: 410,
         y: 150,
         type: 'link',
-        path: '/Applications',
+        path: '/Applications'
       },
       {
         x: 130,
         y: 150,
-        type: 'file',
-      },
+        type: 'file'
+      }
     ],
     window: {
       width: 540,
-      height: 380,
-    },
+      height: 380
+    }
   },
   win: {
     signAndEditExecutable: false,
@@ -79,14 +79,14 @@ export default {
     target: [
       {
         target: 'nsis',
-        arch: ['x64', 'ia32'],
+        arch: ['x64', 'ia32']
       },
       {
         target: 'portable',
-        arch: ['x64'],
-      },
+        arch: ['x64']
+      }
     ],
-    verifyUpdateCodeSignature: false,
+    verifyUpdateCodeSignature: false
   },
   nsis: {
     oneClick: false,
@@ -100,19 +100,19 @@ export default {
     installerHeaderIcon: 'build/icon.ico',
     deleteAppDataOnUninstall: false,
     runAfterFinish: true,
-    menuCategory: true,
+    menuCategory: true
   },
   linux: {
     icon: 'build/icon.png',
     target: [
       {
         target: 'deb',
-        arch: ['x64'],
+        arch: ['x64']
       },
       {
         target: 'rpm',
-        arch: ['x64'],
-      },
+        arch: ['x64']
+      }
     ],
     category: 'Office',
     maintainer: 'yunmu <1416900346@qq.com>',
@@ -124,9 +124,9 @@ export default {
         Name: 'Yun AI Todo',
         Comment: 'A modern AI-powered todo application',
         Keywords: 'todo;task;productivity;ai;',
-        StartupWMClass: 'yun-ai-todo',
-      },
-    },
+        StartupWMClass: 'yun-ai-todo'
+      }
+    }
   },
   publish: {
     provider: 'github',
@@ -134,9 +134,9 @@ export default {
     repo: 'todo',
     releaseType: 'release',
     private: false,
-    publishAutoUpdate: true,
+    publishAutoUpdate: true
   },
   compression: 'maximum',
   asar: true,
-  asarUnpack: ['**/*.{node,dll}', '**/node_modules/sharp/**/*'],
+  asarUnpack: ['**/*.{node,dll}', '**/node_modules/sharp/**/*']
 }

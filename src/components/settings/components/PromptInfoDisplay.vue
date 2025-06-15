@@ -66,7 +66,7 @@ const getCategoryLabel = (category: PromptCategory) => {
     [PromptCategory.CREATIVE]: t('categoryCreative'),
     [PromptCategory.BUSINESS]: t('categoryBusiness'),
     [PromptCategory.EDUCATION]: t('categoryEducation'),
-    [PromptCategory.CUSTOM]: t('categoryCustom'),
+    [PromptCategory.CUSTOM]: t('categoryCustom')
   }
   return categoryMap[category] || category
 }
@@ -78,13 +78,13 @@ const getPriorityLabel = (priority: PromptPriority) => {
   const priorityMap = {
     [PromptPriority.HIGH]: t('priorityHigh'),
     [PromptPriority.MEDIUM]: t('priorityMedium'),
-    [PromptPriority.LOW]: t('priorityLow'),
+    [PromptPriority.LOW]: t('priorityLow')
   }
   return priorityMap[priority] || priority
 }
 
 defineOptions({
-  name: 'PromptInfoDisplay',
+  name: 'PromptInfoDisplay'
 })
 </script>
 

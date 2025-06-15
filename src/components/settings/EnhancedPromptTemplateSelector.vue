@@ -63,7 +63,7 @@ const { t } = useI18n()
 
 // 计算属性
 const filteredCustomPrompts = computed(() => {
-  return props.customPrompts.filter((prompt) => prompt.isActive)
+  return props.customPrompts.filter(prompt => prompt.isActive)
 })
 
 const isCustomPrompt = computed(() => {
@@ -75,7 +75,7 @@ const isBuiltinPrompt = computed(() => {
 })
 
 const currentPrompt = computed(() => {
-  return props.customPrompts.find((p) => p.id === props.selectedTemplate)
+  return props.customPrompts.find(p => p.id === props.selectedTemplate)
 })
 
 const currentPromptName = computed(() => {
@@ -105,7 +105,7 @@ const toggleFavorite = () => {
 }
 
 defineOptions({
-  name: 'EnhancedPromptTemplateSelector',
+  name: 'EnhancedPromptTemplateSelector'
 })
 </script>
 

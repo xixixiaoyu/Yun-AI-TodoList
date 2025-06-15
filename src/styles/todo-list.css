@@ -28,11 +28,7 @@
     'Helvetica Neue',
     sans-serif;
   padding: 1.5rem;
-  background: linear-gradient(
-    135deg,
-    var(--card-bg-color) 0%,
-    rgba(255, 255, 255, 0.02) 100%
-  );
+  background: linear-gradient(135deg, var(--card-bg-color) 0%, rgba(255, 255, 255, 0.02) 100%);
   border-radius: calc(var(--border-radius) * 1.5);
   box-shadow:
     0 10px 30px rgba(0, 0, 0, 0.1),
@@ -48,11 +44,7 @@
 /* 番茄钟计时器集成样式 */
 .todo-card-header {
   margin-bottom: 1rem;
-  background: linear-gradient(
-    135deg,
-    var(--card-bg-color) 0%,
-    rgba(255, 126, 103, 0.02) 100%
-  );
+  background: linear-gradient(135deg, var(--card-bg-color) 0%, rgba(255, 126, 103, 0.02) 100%);
   border-radius: var(--border-radius);
   box-shadow: 0 2px 8px rgba(255, 126, 103, 0.08);
   margin-bottom: 0.75rem;

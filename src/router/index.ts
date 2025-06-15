@@ -10,29 +10,25 @@ const router = createRouter({
       path: '/',
       name: 'home',
       component: TodoList,
-      meta: { title: '待办事项' },
+      meta: { title: '待办事项' }
     },
     {
       path: '/ai-assistant',
       name: 'ai-assistant',
       component: AIChatDialog,
-      meta: { title: 'AI 助手' },
+      meta: { title: 'AI 助手' }
     },
     {
       path: '/settings',
       name: 'settings',
       component: Settings,
-      meta: { title: '设置' },
-    },
-  ],
+      meta: { title: '设置' }
+    }
+  ]
 })
 
 router.beforeEach(
-  (
-    to: RouteLocationNormalized,
-    from: RouteLocationNormalized,
-    next: NavigationGuardNext
-  ) => {
+  (to: RouteLocationNormalized, from: RouteLocationNormalized, next: NavigationGuardNext) => {
     document.title = to.meta.title as string
     next()
   }

@@ -15,9 +15,9 @@ export default [
       'release/**',
       '*.min.js',
       'public/**',
-      '.husky/**',
+      '.husky/**'
       // 不再忽略 electron 目录，而是为其单独配置
-    ],
+    ]
   },
 
   // 基础 JavaScript 配置
@@ -30,7 +30,7 @@ export default [
       parser: typescriptParser,
       parserOptions: {
         ecmaVersion: 'latest',
-        sourceType: 'module',
+        sourceType: 'module'
       },
       globals: {
         // Vue 相关
@@ -94,11 +94,11 @@ export default [
         Response: 'readonly',
         Request: 'readonly',
         Headers: 'readonly',
-        FormData: 'readonly',
-      },
+        FormData: 'readonly'
+      }
     },
     plugins: {
-      '@typescript-eslint': typescript,
+      '@typescript-eslint': typescript
     },
     rules: {
       // 基础规则
@@ -112,8 +112,8 @@ export default [
         {
           argsIgnorePattern: '^_',
           varsIgnorePattern: '^_',
-          caughtErrorsIgnorePattern: '^_',
-        },
+          caughtErrorsIgnorePattern: '^_'
+        }
       ],
       '@typescript-eslint/no-explicit-any': 'error',
       '@typescript-eslint/explicit-function-return-type': 'off',
@@ -128,8 +128,8 @@ export default [
       'no-eval': 'error',
       'no-implied-eval': 'error',
       'no-new-func': 'error',
-      'no-script-url': 'error',
-    },
+      'no-script-url': 'error'
+    }
   },
 
   // Vue 文件配置
@@ -142,7 +142,7 @@ export default [
         parser: typescriptParser,
         ecmaVersion: 'latest',
         sourceType: 'module',
-        extraFileExtensions: ['.vue'],
+        extraFileExtensions: ['.vue']
       },
       globals: {
         // Vue 相关
@@ -206,12 +206,12 @@ export default [
         Response: 'readonly',
         Request: 'readonly',
         Headers: 'readonly',
-        FormData: 'readonly',
-      },
+        FormData: 'readonly'
+      }
     },
     plugins: {
       '@typescript-eslint': typescript,
-      vue,
+      vue
     },
     rules: {
       // Vue 规则
@@ -230,8 +230,8 @@ export default [
         {
           argsIgnorePattern: '^_',
           varsIgnorePattern: '^_',
-          caughtErrorsIgnorePattern: '^_',
-        },
+          caughtErrorsIgnorePattern: '^_'
+        }
       ],
       '@typescript-eslint/no-explicit-any': 'error',
       '@typescript-eslint/explicit-function-return-type': 'off',
@@ -246,8 +246,8 @@ export default [
       'no-eval': 'error',
       'no-implied-eval': 'error',
       'no-new-func': 'error',
-      'no-script-url': 'error',
-    },
+      'no-script-url': 'error'
+    }
   },
 
   // Worker 文件特殊配置
@@ -264,9 +264,9 @@ export default [
         setTimeout: 'readonly',
         clearTimeout: 'readonly',
         setInterval: 'readonly',
-        clearInterval: 'readonly',
-      },
-    },
+        clearInterval: 'readonly'
+      }
+    }
   },
 
   // 配置文件特殊规则
@@ -274,8 +274,8 @@ export default [
     files: ['*.config.js', '*.config.ts', 'vite.config.ts', 'vitest.config.ts'],
     rules: {
       'no-console': 'off',
-      '@typescript-eslint/no-var-requires': 'off',
-    },
+      '@typescript-eslint/no-var-requires': 'off'
+    }
   },
 
   // Node.js 环境文件配置 (Electron 主进程、脚本等)
@@ -285,7 +285,7 @@ export default [
       'scripts/**/*.js',
       'scripts/**/*.mjs',
       '*.config.js',
-      '*.config.mjs',
+      '*.config.mjs'
     ],
     languageOptions: {
       ecmaVersion: 'latest',
@@ -316,8 +316,8 @@ export default [
         fetch: 'readonly',
         Response: 'readonly',
         Request: 'readonly',
-        Headers: 'readonly',
-      },
+        Headers: 'readonly'
+      }
     },
     rules: {
       'no-console': 'off', // 允许在 Node.js 环境中使用 console
@@ -326,10 +326,10 @@ export default [
         {
           argsIgnorePattern: '^_',
           varsIgnorePattern: '^_',
-          caughtErrorsIgnorePattern: '^_',
-        },
-      ],
-    },
+          caughtErrorsIgnorePattern: '^_'
+        }
+      ]
+    }
   },
 
   // TypeScript 声明文件特殊规则
@@ -344,15 +344,15 @@ export default [
         Window: 'readonly',
         Document: 'readonly',
         Element: 'readonly',
-        Event: 'readonly',
-      },
+        Event: 'readonly'
+      }
     },
     rules: {
       '@typescript-eslint/no-unused-vars': 'off',
-      'no-undef': 'off', // TypeScript 声明文件中允许未定义的类型
-    },
+      'no-undef': 'off' // TypeScript 声明文件中允许未定义的类型
+    }
   },
 
   // Prettier 配置（必须放在最后）
-  prettier,
+  prettier
 ]

@@ -24,7 +24,7 @@ export function useTodos() {
         if (Array.isArray(parsedTodos)) {
           todos.value = parsedTodos
             .filter(
-              (todo) =>
+              todo =>
                 todo &&
                 typeof todo.id === 'number' &&
                 typeof todo.text === 'string' &&
@@ -32,7 +32,7 @@ export function useTodos() {
             )
             .map((todo, index) => ({
               ...todo,
-              order: todo.order ?? index,
+              order: todo.order ?? index
             }))
             .sort((a, b) => a.order - b.order)
         }
@@ -50,7 +50,7 @@ export function useTodos() {
   const validateDataConsistency = () => {
     // 确保 ID 的唯一性
     const seenIds = new Set<number>()
-    todos.value = todos.value.filter((todo) => {
+    todos.value = todos.value.filter(todo => {
       if (seenIds.has(todo.id)) {
         return false
       }
@@ -77,11 +77,7 @@ export function useTodos() {
     }
 
     const isDuplicate = todos.value.some(
-      (todo) =>
-        todo &&
-        todo.text &&
-        todo.text.toLowerCase() === text.toLowerCase() &&
-        !todo.completed
+      todo => todo && todo.text && todo.text.toLowerCase() === text.toLowerCase() && !todo.completed
     )
 
     if (isDuplicate) {
@@ -96,7 +92,7 @@ export function useTodos() {
       tags: tags,
       createdAt: now,
       updatedAt: now,
-      order: todos.value.length,
+      order: todos.value.length
     }
 
     todos.value.push(newTodo)
@@ -109,7 +105,7 @@ export function useTodos() {
     const duplicates: string[] = []
     const now = new Date().toISOString()
     newTodos.forEach(({ text }) => {
-      if (todos.value.some((todo) => todo.text === text)) {
+      if (todos.value.some(todo => todo.text === text)) {
         duplicates.push(text)
       } else {
         todos.value.push({
@@ -119,7 +115,7 @@ export function useTodos() {
           tags: [],
           createdAt: now,
           updatedAt: now,
-          order: todos.value.length,
+          order: todos.value.length
         })
       }
     })
@@ -128,7 +124,7 @@ export function useTodos() {
   }
 
   const toggleTodo = (id: number) => {
-    const todo = todos.value.find((todo) => todo && todo.id === id)
+    const todo = todos.value.find(todo => todo && todo.id === id)
     if (todo) {
       todo.completed = !todo.completed
       if (todo.completed) {
@@ -141,7 +137,7 @@ export function useTodos() {
   }
 
   const removeTodo = (id: number) => {
-    todos.value = todos.value.filter((todo) => todo && todo.id !== id)
+    todos.value = todos.value.filter(todo => todo && todo.id !== id)
     saveTodos()
   }
 
@@ -151,10 +147,10 @@ export function useTodos() {
 
     // 更新所有 todo 的顺序
     todos.value = todos.value
-      .map((todo) => ({
+      .map(todo => ({
         ...todo,
         order: orderMap.get(todo.id) ?? todo.order,
-        updatedAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
       }))
       .sort((a, b) => a.order - b.order)
 
@@ -167,7 +163,7 @@ export function useTodos() {
   // 修改 getCompletedTodosByDate 函数
   const getCompletedTodosByDate = () => {
     const completedByDate: { [key: string]: number } = {}
-    todos.value.forEach((todo) => {
+    todos.value.forEach(todo => {
       // 添加空值检查
       if (todo && todo.completed && todo.completedAt) {
         const date = new Date(todo.completedAt).toISOString().split('T')[0]
@@ -179,7 +175,7 @@ export function useTodos() {
 
   // 添加一个新函数来更新 todo 的标签
   const updateTodoTags = (id: number, tags: string[]) => {
-    const todo = todos.value.find((todo) => todo && todo.id === id)
+    const todo = todos.value.find(todo => todo && todo.id === id)
     if (todo) {
       todo.tags = tags
       saveTodos()
@@ -197,6 +193,6 @@ export function useTodos() {
     getCompletedTodosByDate,
     updateTodoTags,
     saveTodos,
-    loadTodos,
+    loadTodos
   }
 }

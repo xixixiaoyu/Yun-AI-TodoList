@@ -63,6 +63,6 @@ export function useTheme() {
     theme,
     systemTheme,
     toggleTheme,
-    initTheme, // 确保这里导出了 initTheme 函数
+    initTheme // 确保这里导出了 initTheme 函数
   }
 }

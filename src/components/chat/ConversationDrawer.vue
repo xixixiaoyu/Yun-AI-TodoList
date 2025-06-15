@@ -6,11 +6,7 @@
           {{ t('conversations') }}
         </h3>
         <div class="drawer-header-controls">
-          <button
-            class="clear-all-btn"
-            :title="t('clearAllConversations')"
-            @click="$emit('clear')"
-          >
+          <button class="clear-all-btn" :title="t('clearAllConversations')" @click="$emit('clear')">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               viewBox="0 0 24 24"
@@ -25,12 +21,7 @@
             </svg>
           </button>
           <button class="close-drawer-btn" @click="$emit('update:isOpen', false)">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              width="24"
-              height="24"
-            >
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
               <path fill="none" d="M0 0h24v24H0z" />
               <path
                 d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"
@@ -48,16 +39,8 @@
           @click.stop="$emit('switch', conversation.id)"
         >
           <span>{{ conversation.title }}</span>
-          <button
-            class="delete-conversation-btn"
-            @click.stop="$emit('delete', conversation.id)"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              width="18"
-              height="18"
-            >
+          <button class="delete-conversation-btn" @click.stop="$emit('delete', conversation.id)">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="18" height="18">
               <path fill="none" d="M0 0h24v24H0z" />
               <path
                 d="M17 6h5v2h-2v13a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V8H2V6h5V3a1 1 0 0 1 1-1h8a1 1 0 0 1 1 1v3zm1 2H6v12h12V8zm-9 3h2v6H9v-6zm4 0h2v6h-2v-6zM9 4v2h6V4H9z"

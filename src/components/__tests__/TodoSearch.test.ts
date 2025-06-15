@@ -10,13 +10,13 @@ const i18n = createI18n({
   messages: {
     zh: {
       searchTodos: '搜索待办事项...',
-      clearSearch: '清除搜索',
+      clearSearch: '清除搜索'
     },
     en: {
       searchTodos: 'Search todos...',
-      clearSearch: 'Clear search',
-    },
-  },
+      clearSearch: 'Clear search'
+    }
+  }
 })
 
 describe('TodoSearch', () => {
@@ -24,11 +24,11 @@ describe('TodoSearch', () => {
     const wrapper = mount(TodoSearch, {
       props: {
         modelValue: '',
-        isExpanded: true,
+        isExpanded: true
       },
       global: {
-        plugins: [i18n],
-      },
+        plugins: [i18n]
+      }
     })
 
     const input = wrapper.find('.search-input')
@@ -40,11 +40,11 @@ describe('TodoSearch', () => {
     const wrapper = mount(TodoSearch, {
       props: {
         modelValue: '',
-        isExpanded: true,
+        isExpanded: true
       },
       global: {
-        plugins: [i18n],
-      },
+        plugins: [i18n]
+      }
     })
 
     const input = wrapper.find('.search-input')
@@ -58,11 +58,11 @@ describe('TodoSearch', () => {
     const wrapper = mount(TodoSearch, {
       props: {
         modelValue: 'test',
-        isExpanded: true,
+        isExpanded: true
       },
       global: {
-        plugins: [i18n],
-      },
+        plugins: [i18n]
+      }
     })
 
     const clearButton = wrapper.find('.clear-search-btn')
@@ -73,11 +73,11 @@ describe('TodoSearch', () => {
     const wrapper = mount(TodoSearch, {
       props: {
         modelValue: '',
-        isExpanded: true,
+        isExpanded: true
       },
       global: {
-        plugins: [i18n],
-      },
+        plugins: [i18n]
+      }
     })
 
     const clearButton = wrapper.find('.clear-search-btn')
@@ -88,11 +88,11 @@ describe('TodoSearch', () => {
     const wrapper = mount(TodoSearch, {
       props: {
         modelValue: 'test',
-        isExpanded: true,
+        isExpanded: true
       },
       global: {
-        plugins: [i18n],
-      },
+        plugins: [i18n]
+      }
     })
 
     const clearButton = wrapper.find('.clear-search-btn')
@@ -106,11 +106,11 @@ describe('TodoSearch', () => {
     const wrapper = mount(TodoSearch, {
       props: {
         modelValue: '',
-        isExpanded: true,
+        isExpanded: true
       },
       global: {
-        plugins: [i18n],
-      },
+        plugins: [i18n]
+      }
     })
 
     const input = wrapper.find('.search-input')
@@ -123,11 +123,11 @@ describe('TodoSearch', () => {
     const wrapper = mount(TodoSearch, {
       props: {
         modelValue: 'test',
-        isExpanded: true,
+        isExpanded: true
       },
       global: {
-        plugins: [i18n],
-      },
+        plugins: [i18n]
+      }
     })
 
     const input = wrapper.find('.search-input')
@@ -141,11 +141,11 @@ describe('TodoSearch', () => {
     const wrapper = mount(TodoSearch, {
       props: {
         modelValue: '',
-        isExpanded: true,
+        isExpanded: true
       },
       global: {
-        plugins: [i18n],
-      },
+        plugins: [i18n]
+      }
     })
 
     expect(wrapper.vm.focus).toBeDefined()
@@ -156,11 +156,11 @@ describe('TodoSearch', () => {
     const wrapper = mount(TodoSearch, {
       props: {
         modelValue: '',
-        isExpanded: false,
+        isExpanded: false
       },
       global: {
-        plugins: [i18n],
-      },
+        plugins: [i18n]
+      }
     })
 
     const container = wrapper.find('.search-container')

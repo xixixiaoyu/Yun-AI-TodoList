@@ -20,7 +20,7 @@ defineProps<Props>()
 const { t } = useI18n()
 
 defineOptions({
-  name: 'SettingsToast',
+  name: 'SettingsToast'
 })
 </script>
 

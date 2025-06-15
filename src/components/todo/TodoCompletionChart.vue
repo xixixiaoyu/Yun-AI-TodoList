@@ -53,7 +53,7 @@ const getCompletionTrendData = () => {
     const dateStr = date.toISOString().split('T')[0]
     const displayDate = date.toLocaleDateString(t('locale'), {
       month: 'short',
-      day: 'numeric',
+      day: 'numeric'
     })
 
     labels.push(displayDate)
@@ -66,7 +66,7 @@ const getCompletionTrendData = () => {
 // 计算总体统计数据
 const getOverallStats = computed(() => {
   const total = todos.value.length
-  const completed = todos.value.filter((todo) => todo.completed).length
+  const completed = todos.value.filter(todo => todo.completed).length
   const pending = total - completed
   const completionRate = total > 0 ? Math.round((completed / total) * 100) : 0
 
@@ -74,7 +74,7 @@ const getOverallStats = computed(() => {
     total,
     completed,
     pending,
-    completionRate,
+    completionRate
   }
 })
 
@@ -111,28 +111,28 @@ const updateChart = () => {
           pointBorderColor: '#ffffff',
           pointBorderWidth: 2,
           pointRadius: 6,
-          pointHoverRadius: 8,
-        },
-      ],
+          pointHoverRadius: 8
+        }
+      ]
     },
     options: {
       responsive: true,
       maintainAspectRatio: false,
       plugins: {
         legend: {
-          display: false,
+          display: false
         },
         title: {
           display: true,
           text: t('completionTrend'),
           font: {
             size: 16,
-            weight: 'bold',
+            weight: 'bold'
           },
           color: 'var(--text-color)',
           padding: {
-            bottom: 20,
-          },
+            bottom: 20
+          }
         },
         tooltip: {
           backgroundColor: 'rgba(0, 0, 0, 0.8)',
@@ -143,47 +143,47 @@ const updateChart = () => {
           cornerRadius: 8,
           displayColors: false,
           callbacks: {
-            title: (context) => {
+            title: context => {
               return context[0].label
             },
-            label: (context) => {
+            label: context => {
               const value = context.parsed.y
               return `${t('completed')}: ${value} ${value === 1 ? t('task') : t('tasks')}`
-            },
-          },
-        },
+            }
+          }
+        }
       },
       scales: {
         x: {
           grid: {
-            display: false,
+            display: false
           },
           ticks: {
             color: 'var(--text-color)',
             font: {
-              size: 12,
-            },
-          },
+              size: 12
+            }
+          }
         },
         y: {
           beginAtZero: true,
           grid: {
-            color: 'rgba(0, 0, 0, 0.1)',
+            color: 'rgba(0, 0, 0, 0.1)'
           },
           ticks: {
             color: 'var(--text-color)',
             font: {
-              size: 12,
+              size: 12
             },
-            stepSize: 1,
-          },
-        },
+            stepSize: 1
+          }
+        }
       },
       interaction: {
         intersect: false,
-        mode: 'index',
-      },
-    },
+        mode: 'index'
+      }
+    }
   })
 }
 
@@ -197,7 +197,7 @@ onUnmounted(() => {
 })
 
 defineOptions({
-  name: 'TodoCompletionChart',
+  name: 'TodoCompletionChart'
 })
 </script>
 
@@ -214,11 +214,7 @@ defineOptions({
   gap: 1rem;
   margin-bottom: 2rem;
   padding: 1rem;
-  background: linear-gradient(
-    135deg,
-    var(--card-bg-color) 0%,
-    rgba(255, 255, 255, 0.05) 100%
-  );
+  background: linear-gradient(135deg, var(--card-bg-color) 0%, rgba(255, 255, 255, 0.05) 100%);
   border-radius: 12px;
   border: 1px solid rgba(255, 126, 103, 0.1);
 }

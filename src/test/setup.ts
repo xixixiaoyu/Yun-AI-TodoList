@@ -34,46 +34,46 @@ Object.defineProperty(HTMLCanvasElement.prototype, 'getContext', {
     clip: vi.fn(),
     // Chart.js 需要的额外方法
     createLinearGradient: vi.fn(() => ({
-      addColorStop: vi.fn(),
+      addColorStop: vi.fn()
     })),
     createRadialGradient: vi.fn(() => ({
-      addColorStop: vi.fn(),
+      addColorStop: vi.fn()
     })),
     getLineDash: vi.fn(() => []),
     setLineDash: vi.fn(),
-    lineDashOffset: 0,
-  })),
+    lineDashOffset: 0
+  }))
 })
 
 // Mock HTMLCanvasElement 的其他属性
 Object.defineProperty(HTMLCanvasElement.prototype, 'width', {
   value: 800,
-  writable: true,
+  writable: true
 })
 
 Object.defineProperty(HTMLCanvasElement.prototype, 'height', {
   value: 600,
-  writable: true,
+  writable: true
 })
 
 // Mock ResizeObserver - 某些组件可能需要
 global.ResizeObserver = vi.fn().mockImplementation(() => ({
   observe: vi.fn(),
   unobserve: vi.fn(),
-  disconnect: vi.fn(),
+  disconnect: vi.fn()
 }))
 
 // Mock IntersectionObserver - 某些组件可能需要
 global.IntersectionObserver = vi.fn().mockImplementation(() => ({
   observe: vi.fn(),
   unobserve: vi.fn(),
-  disconnect: vi.fn(),
+  disconnect: vi.fn()
 }))
 
 // Mock matchMedia - 响应式设计测试可能需要
 Object.defineProperty(window, 'matchMedia', {
   writable: true,
-  value: vi.fn().mockImplementation((query) => ({
+  value: vi.fn().mockImplementation(query => ({
     matches: false,
     media: query,
     onchange: null,
@@ -81,8 +81,8 @@ Object.defineProperty(window, 'matchMedia', {
     removeListener: vi.fn(), // deprecated
     addEventListener: vi.fn(),
     removeEventListener: vi.fn(),
-    dispatchEvent: vi.fn(),
-  })),
+    dispatchEvent: vi.fn()
+  }))
 })
 
 // Mock localStorage 和 sessionStorage
@@ -102,16 +102,16 @@ const createStorageMock = () => {
     get length() {
       return Object.keys(store).length
     },
-    key: vi.fn((index: number) => Object.keys(store)[index] || null),
+    key: vi.fn((index: number) => Object.keys(store)[index] || null)
   }
 }
 
 Object.defineProperty(window, 'localStorage', {
-  value: createStorageMock(),
+  value: createStorageMock()
 })
 
 Object.defineProperty(window, 'sessionStorage', {
-  value: createStorageMock(),
+  value: createStorageMock()
 })
 
 // 抑制 console 警告（可选）

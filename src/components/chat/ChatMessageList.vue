@@ -71,10 +71,10 @@ const { sanitizeContent } = useMarkdown()
 const chatHistoryRef = ref<HTMLDivElement | null>(null)
 
 const sanitizedMessages = computed(() =>
-  props.messages.map((message) => ({
+  props.messages.map(message => ({
     ...message,
     sanitizedContent:
-      message.role === 'assistant' ? sanitizeContent(message.content) : message.content,
+      message.role === 'assistant' ? sanitizeContent(message.content) : message.content
   }))
 )
 
@@ -112,8 +112,7 @@ const scrollToBottom = () => {
 const handleScroll = () => {
   if (chatHistoryRef.value) {
     const element = chatHistoryRef.value
-    const isAtBottom =
-      element.scrollHeight - element.scrollTop <= element.clientHeight + 30
+    const isAtBottom = element.scrollHeight - element.scrollTop <= element.clientHeight + 30
 
     // 检测用户是否在向上滚动
     if (element.scrollTop < lastScrollTop.value) {
@@ -126,7 +125,7 @@ const handleScroll = () => {
       isAtBottom,
       scrollTop: element.scrollTop,
       scrollHeight: element.scrollHeight,
-      clientHeight: element.clientHeight,
+      clientHeight: element.clientHeight
     })
   }
 }
@@ -175,7 +174,7 @@ watch(
 
 defineExpose({
   scrollToBottom,
-  scrollToBottomInstantly,
+  scrollToBottomInstantly
 })
 </script>
 

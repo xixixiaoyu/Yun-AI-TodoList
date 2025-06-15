@@ -36,9 +36,7 @@ export function isCapacitor(): boolean {
  * 检测是否在移动设备上
  */
 export function isMobileDevice(): boolean {
-  return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
-    navigator.userAgent
-  )
+  return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
 }
 
 /**
@@ -68,7 +66,7 @@ export function getPlatformInfo(): PlatformInfo {
     isMobile: isMobileEnv,
     isAndroid: isCapacitorEnv && Capacitor.getPlatform() === 'android',
     isIOS: isCapacitorEnv && Capacitor.getPlatform() === 'ios',
-    platform,
+    platform
   }
 }
 

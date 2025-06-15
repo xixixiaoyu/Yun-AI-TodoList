@@ -16,10 +16,7 @@ export default [
       // 复杂度控制
       complexity: ['warn', { max: 10 }],
       'max-depth': ['warn', { max: 4 }],
-      'max-lines-per-function': [
-        'warn',
-        { max: 50, skipBlankLines: true, skipComments: true },
-      ],
+      'max-lines-per-function': ['warn', { max: 50, skipBlankLines: true, skipComments: true }],
       'max-params': ['warn', { max: 4 }],
 
       // 代码质量
@@ -28,8 +25,8 @@ export default [
         {
           ignore: [-1, 0, 1, 2, 100, 1000],
           ignoreArrayIndexes: true,
-          ignoreDefaultValues: true,
-        },
+          ignoreDefaultValues: true
+        }
       ],
       'prefer-template': 'error',
       'no-nested-ternary': 'error',
@@ -39,16 +36,16 @@ export default [
         'error',
         {
           array: false,
-          object: true,
-        },
+          object: true
+        }
       ],
 
       // 安全相关
       'no-eval': 'error',
       'no-implied-eval': 'error',
       'no-new-func': 'error',
-      'no-script-url': 'error',
-    },
+      'no-script-url': 'error'
+    }
   },
 
   // Vue 特定增强规则
@@ -58,10 +55,7 @@ export default [
       // 复杂度控制
       complexity: ['warn', { max: 15 }], // Vue 组件允许稍微复杂一些
       'max-depth': ['warn', { max: 4 }],
-      'max-lines-per-function': [
-        'warn',
-        { max: 80, skipBlankLines: true, skipComments: true },
-      ],
+      'max-lines-per-function': ['warn', { max: 80, skipBlankLines: true, skipComments: true }],
 
       // Vue 性能
       'vue/no-v-html': 'warn',
@@ -77,7 +71,7 @@ export default [
 
       // Vue 基础规则
       'vue/no-multiple-template-root': 'off',
-      'vue/multi-word-component-names': 'off',
-    },
-  },
+      'vue/multi-word-component-names': 'off'
+    }
+  }
 ]

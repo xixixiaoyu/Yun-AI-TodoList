@@ -4,7 +4,7 @@ import { useI18n } from 'vue-i18n'
 import type {
   SpeechRecognition,
   SpeechRecognitionErrorEvent,
-  SpeechRecognitionEvent,
+  SpeechRecognitionEvent
 } from '../types/web-speech-api'
 
 // 添加 SpeechRecognition 类型声明
@@ -27,8 +27,7 @@ export function useVoiceInput(onTranscript: (text: string) => void) {
 
   // 检查浏览器是否支持语音识别
   const checkSpeechRecognitionSupport = () => {
-    const SpeechRecognitionAPI =
-      window.SpeechRecognition || window.webkitSpeechRecognition
+    const SpeechRecognitionAPI = window.SpeechRecognition || window.webkitSpeechRecognition
     if (!SpeechRecognitionAPI) {
       isRecognitionSupported.value = false
       logger.error(t('browserSpeechNotSupported'), undefined, 'VoiceInput')
@@ -68,8 +67,7 @@ export function useVoiceInput(onTranscript: (text: string) => void) {
       }
 
       // 4. 创建新实例
-      const SpeechRecognitionAPI =
-        window.SpeechRecognition || window.webkitSpeechRecognition
+      const SpeechRecognitionAPI = window.SpeechRecognition || window.webkitSpeechRecognition
       if (!SpeechRecognitionAPI) {
         return
       }
@@ -108,11 +106,7 @@ export function useVoiceInput(onTranscript: (text: string) => void) {
       }
 
       recognition.value.onerror = (event: SpeechRecognitionErrorEvent) => {
-        logger.error(
-          t('speechRecognitionError', { error: event.error }),
-          event,
-          'VoiceInput'
-        )
+        logger.error(t('speechRecognitionError', { error: event.error }), event, 'VoiceInput')
         recognitionStatus.value = 'error'
         lastError.value = t('speechRecognitionError')
 
@@ -235,6 +229,6 @@ export function useVoiceInput(onTranscript: (text: string) => void) {
     lastError,
     isRecognitionSupported,
     startListening,
-    stopListening,
+    stopListening
   }
 }

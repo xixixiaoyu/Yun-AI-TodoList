@@ -17,7 +17,7 @@ const updateSW = registerSW({
   },
   onOfflineReady() {
     logger.info('应用已准备好离线使用', undefined, 'PWA')
-  },
+  }
 })
 
 createApp(App).use(router).use(i18n).mount('#app')

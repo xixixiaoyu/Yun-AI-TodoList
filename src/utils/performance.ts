@@ -40,7 +40,7 @@ const PERFORMANCE_CONSTANTS = {
   METRICS_CLEANUP_COUNT: 500,
   MEMORY_WARNING_SIZE: 50 * 1024 * 1024, // 50MB
   MEMORY_ERROR_SIZE: 100 * 1024 * 1024, // 100MB
-  RECENT_METRICS_TIME: 60000, // 1分钟
+  RECENT_METRICS_TIME: 60000 // 1分钟
 } as const
 
 class PerformanceMonitor {
@@ -52,7 +52,7 @@ class PerformanceMonitor {
     'component-render': { warning: 16, error: 50 }, // 16ms = 60fps
     'route-change': { warning: 100, error: 300 },
     'api-request': { warning: 1000, error: 3000 },
-    'memory-usage': { warning: 50 * 1024 * 1024, error: 100 * 1024 * 1024 }, // 50MB/100MB
+    'memory-usage': { warning: 50 * 1024 * 1024, error: 100 * 1024 * 1024 } // 50MB/100MB
   }
 
   constructor() {
@@ -106,7 +106,7 @@ class PerformanceMonitor {
       name,
       value: duration,
       timestamp: start,
-      category,
+      category
     })
 
     return result
@@ -128,7 +128,7 @@ class PerformanceMonitor {
       name,
       value: duration,
       timestamp: start,
-      category,
+      category
     })
 
     return result
@@ -139,16 +139,12 @@ class PerformanceMonitor {
    */
   getMemoryUsage() {
     // 简化实现，避免使用浏览器特定的 API
-    if (
-      typeof window !== 'undefined' &&
-      'performance' in window &&
-      'memory' in performance
-    ) {
+    if (typeof window !== 'undefined' && 'performance' in window && 'memory' in performance) {
       const memory = (performance as PerformanceWithMemory).memory
       return {
         used: memory.usedJSHeapSize,
         total: memory.totalJSHeapSize,
-        limit: memory.jsHeapSizeLimit,
+        limit: memory.jsHeapSizeLimit
       }
     }
     return null
@@ -160,26 +156,22 @@ class PerformanceMonitor {
   getPerformanceReport() {
     const now = Date.now()
     const recentMetrics = this.metrics.filter(
-      (m) => now - m.timestamp < PERFORMANCE_CONSTANTS.RECENT_METRICS_TIME
+      m => now - m.timestamp < PERFORMANCE_CONSTANTS.RECENT_METRICS_TIME
     )
 
     const report = {
       timestamp: now,
       memory: this.getMemoryUsage(),
       metrics: {
-        render: recentMetrics.filter((m) => m.category === 'render'),
-        network: recentMetrics.filter((m) => m.category === 'network'),
-        userInteraction: recentMetrics.filter((m) => m.category === 'user-interaction'),
+        render: recentMetrics.filter(m => m.category === 'render'),
+        network: recentMetrics.filter(m => m.category === 'network'),
+        userInteraction: recentMetrics.filter(m => m.category === 'user-interaction')
       },
       summary: {
         totalMetrics: recentMetrics.length,
-        averageRenderTime: this.getAverageTime(
-          recentMetrics.filter((m) => m.category === 'render')
-        ),
-        averageNetworkTime: this.getAverageTime(
-          recentMetrics.filter((m) => m.category === 'network')
-        ),
-      },
+        averageRenderTime: this.getAverageTime(recentMetrics.filter(m => m.category === 'render')),
+        averageNetworkTime: this.getAverageTime(recentMetrics.filter(m => m.category === 'network'))
+      }
     }
 
     return report
@@ -194,7 +186,7 @@ class PerformanceMonitor {
    * 清理资源
    */
   destroy() {
-    this.observers.forEach((observer) => observer.disconnect())
+    this.observers.forEach(observer => observer.disconnect())
     this.observers = []
     this.metrics = []
   }
@@ -209,6 +201,6 @@ export function usePerformanceMonitor() {
     measure: performanceMonitor.measure.bind(performanceMonitor),
     measureAsync: performanceMonitor.measureAsync.bind(performanceMonitor),
     getReport: performanceMonitor.getPerformanceReport.bind(performanceMonitor),
-    getMemoryUsage: performanceMonitor.getMemoryUsage.bind(performanceMonitor),
+    getMemoryUsage: performanceMonitor.getMemoryUsage.bind(performanceMonitor)
   }
 }

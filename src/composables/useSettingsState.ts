@@ -5,7 +5,7 @@ import type {
   CustomPrompt,
   PromptFilter,
   PromptSortOptions,
-  PromptTemplate,
+  PromptTemplate
 } from '../types/settings'
 import { PromptCategory, PromptPriority } from '../types/settings'
 import { handleError } from '../utils/logger'
@@ -44,12 +44,12 @@ export function useSettingsState() {
     priority: undefined,
     tags: [],
     isFavorite: undefined,
-    isActive: undefined,
+    isActive: undefined
   })
 
   const promptSortOptions = ref<PromptSortOptions>({
     field: 'updatedAt',
-    order: 'desc',
+    order: 'desc'
   })
 
   // 通知状态
@@ -94,7 +94,7 @@ export function useSettingsState() {
               updatedAt: prompt.updatedAt || Date.now(),
               isActive: prompt.isActive !== undefined ? prompt.isActive : true,
               usageCount: prompt.usageCount || 0,
-              isFavorite: prompt.isFavorite || false,
+              isFavorite: prompt.isFavorite || false
             } as CustomPrompt
           }
           return prompt as CustomPrompt
@@ -120,7 +120,7 @@ export function useSettingsState() {
       try {
         promptSortOptions.value = {
           ...promptSortOptions.value,
-          ...JSON.parse(savedSortOptions),
+          ...JSON.parse(savedSortOptions)
         }
       } catch (error) {
         handleError(error, 'Failed to parse prompt sort options', 'SettingsState')
@@ -137,7 +137,7 @@ export function useSettingsState() {
       localSystemPrompt.value = builtinPromptTemplates[template].content
     } else {
       // 如果是自定义模板，从自定义提示词中查找
-      const customPrompt = customPrompts.value.find((p) => p.id === template)
+      const customPrompt = customPrompts.value.find(p => p.id === template)
       if (customPrompt) {
         localSystemPrompt.value = customPrompt.content
       } else if (fallbackContent) {
@@ -252,6 +252,6 @@ export function useSettingsState() {
     toggleShowApiKey,
     resetPopoverStates,
     saveFilterOptions,
-    saveSortOptions,
+    saveSortOptions
   }
 }

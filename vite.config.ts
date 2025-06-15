@@ -19,34 +19,34 @@ export default defineConfig({
           {
             src: 'pwa-192x192.png',
             sizes: '192x192',
-            type: 'image/png',
+            type: 'image/png'
+          },
+          {
+            src: 'pwa-512x512.png',
+            sizes: '512x512',
+            type: 'image/png'
           },
           {
             src: 'pwa-512x512.png',
             sizes: '512x512',
             type: 'image/png',
-          },
-          {
-            src: 'pwa-512x512.png',
-            sizes: '512x512',
-            type: 'image/png',
-            purpose: 'any maskable',
-          },
-        ],
-      },
-    }),
+            purpose: 'any maskable'
+          }
+        ]
+      }
+    })
   ],
   base: './',
   resolve: {
     alias: {
-      '@': fileURLToPath(new URL('./src', import.meta.url)),
-    },
+      '@': fileURLToPath(new URL('./src', import.meta.url))
+    }
   },
   server: {
     port: 3000,
     open: false,
     cors: true,
-    host: true,
+    host: true
   },
   build: {
     outDir: 'dist',
@@ -60,12 +60,12 @@ export default defineConfig({
           vendor: ['vue', 'vue-router', 'vue-i18n'],
           chart: ['chart.js', 'chartjs-chart-matrix'],
           utils: ['lodash-es', 'date-fns', '@vueuse/core'],
-          ui: ['canvas-confetti', 'dompurify'],
+          ui: ['canvas-confetti', 'dompurify']
         },
         entryFileNames: 'assets/[name]-[hash].js',
         chunkFileNames: 'assets/[name]-[hash].js',
-        assetFileNames: 'assets/[name]-[hash][extname]',
-      },
+        assetFileNames: 'assets/[name]-[hash][extname]'
+      }
     },
     // 启用压缩
     minify: 'terser',
@@ -73,22 +73,22 @@ export default defineConfig({
       compress: {
         drop_console: process.env.NODE_ENV === 'production',
         drop_debugger: true,
-        pure_funcs: ['console.log', 'console.info'],
-      },
+        pure_funcs: ['console.log', 'console.info']
+      }
     },
     // 启用 CSS 代码分割
     cssCodeSplit: true,
     // 预加载模块
     modulePreload: {
-      polyfill: true,
-    },
+      polyfill: true
+    }
   },
   define: {
     // 移动端环境变量
     __CAPACITOR__: JSON.stringify(process.env.CAPACITOR !== undefined),
-    __ELECTRON__: JSON.stringify(process.env.ELECTRON !== undefined),
+    __ELECTRON__: JSON.stringify(process.env.ELECTRON !== undefined)
   },
   optimizeDeps: {
-    include: ['vue', 'vue-router', 'vue-i18n', '@vueuse/core'],
-  },
+    include: ['vue', 'vue-router', 'vue-i18n', '@vueuse/core']
+  }
 })

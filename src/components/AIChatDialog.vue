@@ -98,7 +98,7 @@ const {
   clearAllConversations,
   sendMessage,
   stopGenerating,
-  optimizeMessage,
+  optimizeMessage
 } = useChat()
 
 const isDrawerOpen = ref(false)
@@ -116,7 +116,7 @@ const handleTemplateChange = () => {
   } else if (template === 'my') {
     localStorage.setItem('systemPrompt', promptsConfig[template].content)
   } else {
-    const customPrompt = customPrompts.value.find((p) => p.id === template)
+    const customPrompt = customPrompts.value.find(p => p.id === template)
     if (customPrompt) {
       localStorage.setItem('systemPrompt', customPrompt.content)
     }
@@ -171,7 +171,7 @@ onMounted(() => {
     createNewConversation()
   } else if (savedConversationId) {
     // 尝试恢复上次激活的会话
-    const exists = conversationHistory.value.some((c) => c.id === savedConversationId)
+    const exists = conversationHistory.value.some(c => c.id === savedConversationId)
     if (exists) {
       switchConversation(savedConversationId)
     } else {

@@ -22,8 +22,8 @@ const i18n = createI18n({
   fallbackLocale: 'en',
   messages: {
     en,
-    zh,
-  },
+    zh
+  }
 })
 
 // 导出函数来更新语言设置

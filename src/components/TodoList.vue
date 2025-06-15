@@ -33,11 +33,7 @@
       <TodoFilters v-model:filter="filter" />
 
       <!-- 搜索组件 - 可展开收缩 -->
-      <TodoSearch
-        v-model="searchQuery"
-        :is-expanded="showSearch"
-        @collapse="collapseSearch"
-      />
+      <TodoSearch v-model="searchQuery" :is-expanded="showSearch" @collapse="collapseSearch" />
       <!-- 待办事项列表 -->
       <div ref="todoListRef" class="todo-grid">
         <!-- 空状态提示 -->
@@ -156,7 +152,7 @@ const {
   toggleSearch,
   closeCharts,
   collapseSearch,
-  handlePomodoroComplete,
+  handlePomodoroComplete
 } = useTodoListState()
 </script>
 

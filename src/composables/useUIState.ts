@@ -49,7 +49,7 @@ export function useUIState() {
     confetti({
       particleCount: 300,
       spread: 100,
-      origin: { y: 0.6 },
+      origin: { y: 0.6 }
     })
   }
 
@@ -109,6 +109,6 @@ export function useUIState() {
     closeCharts,
     handlePomodoroComplete,
     checkPomodoroCompletion,
-    onKeyDown,
+    onKeyDown
   }
 }

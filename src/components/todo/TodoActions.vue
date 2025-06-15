@@ -1,11 +1,7 @@
 <template>
   <div class="actions">
     <!-- 生成建议待办事项按钮 -->
-    <button
-      class="generate-btn"
-      :disabled="isGenerating"
-      @click="$emit('generateSuggestions')"
-    >
+    <button class="generate-btn" :disabled="isGenerating" @click="$emit('generateSuggestions')">
       {{ isGenerating ? t('generating') : t('generateSuggestions') }}
     </button>
     <!-- AI优先级排序按钮 -->
@@ -41,7 +37,7 @@ defineEmits<Emits>()
 const { t } = useI18n()
 
 defineOptions({
-  name: 'TodoActions',
+  name: 'TodoActions'
 })
 </script>
 
@@ -53,11 +49,7 @@ defineOptions({
   margin-bottom: 0.75rem;
   flex-wrap: wrap;
   padding: 1rem;
-  background: linear-gradient(
-    135deg,
-    rgba(255, 255, 255, 0.04) 0%,
-    rgba(255, 126, 103, 0.02) 100%
-  );
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.04) 0%, rgba(255, 126, 103, 0.02) 100%);
   border-radius: calc(var(--border-radius) * 1.2);
   border: 1px solid rgba(255, 126, 103, 0.1);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);

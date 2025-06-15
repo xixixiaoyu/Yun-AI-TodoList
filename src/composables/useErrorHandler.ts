@@ -14,6 +14,6 @@ export function useErrorHandler() {
 
   return {
     error,
-    showError,
+    showError
   }
 }

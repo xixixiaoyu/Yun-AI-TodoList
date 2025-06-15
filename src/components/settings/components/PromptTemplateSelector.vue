@@ -1,9 +1,5 @@
 <template>
-  <select
-    :value="selectedTemplate"
-    class="template-select"
-    @change="handleTemplateChange"
-  >
+  <select :value="selectedTemplate" class="template-select" @change="handleTemplateChange">
     <!-- 内置模板 -->
     <optgroup :label="t('builtinPrompts')">
       <option value="none">{{ t('nonePrompt') }}</option>
@@ -57,7 +53,7 @@ const handleTemplateChange = (event: Event) => {
 }
 
 defineOptions({
-  name: 'PromptTemplateSelector',
+  name: 'PromptTemplateSelector'
 })
 </script>
 
