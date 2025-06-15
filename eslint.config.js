@@ -16,7 +16,7 @@ export default [
       '*.min.js',
       'public/**',
       '.husky/**',
-      'electron/**/*.js',
+      // 不再忽略 electron 目录，而是为其单独配置
     ],
   },
 
@@ -278,11 +278,78 @@ export default [
     },
   },
 
+  // Node.js 环境文件配置 (Electron 主进程、脚本等)
+  {
+    files: [
+      'electron/**/*.js',
+      'scripts/**/*.js',
+      'scripts/**/*.mjs',
+      '*.config.js',
+      '*.config.mjs',
+    ],
+    languageOptions: {
+      ecmaVersion: 'latest',
+      sourceType: 'module',
+      globals: {
+        // Node.js 全局变量
+        process: 'readonly',
+        Buffer: 'readonly',
+        global: 'readonly',
+        __dirname: 'readonly',
+        __filename: 'readonly',
+        module: 'readonly',
+        require: 'readonly',
+        exports: 'readonly',
+        console: 'readonly',
+        setTimeout: 'readonly',
+        clearTimeout: 'readonly',
+        setInterval: 'readonly',
+        clearInterval: 'readonly',
+        // Electron 特定
+        electron: 'readonly',
+        // ES6+ 全局变量
+        URL: 'readonly',
+        URLSearchParams: 'readonly',
+        TextDecoder: 'readonly',
+        TextEncoder: 'readonly',
+        AbortController: 'readonly',
+        fetch: 'readonly',
+        Response: 'readonly',
+        Request: 'readonly',
+        Headers: 'readonly',
+      },
+    },
+    rules: {
+      'no-console': 'off', // 允许在 Node.js 环境中使用 console
+      'no-unused-vars': [
+        'error',
+        {
+          argsIgnorePattern: '^_',
+          varsIgnorePattern: '^_',
+          caughtErrorsIgnorePattern: '^_',
+        },
+      ],
+    },
+  },
+
   // TypeScript 声明文件特殊规则
   {
     files: ['*.d.ts'],
+    languageOptions: {
+      globals: {
+        // DOM 类型
+        NotificationOptions: 'readonly',
+        Notification: 'readonly',
+        // 其他全局类型
+        Window: 'readonly',
+        Document: 'readonly',
+        Element: 'readonly',
+        Event: 'readonly',
+      },
+    },
     rules: {
       '@typescript-eslint/no-unused-vars': 'off',
+      'no-undef': 'off', // TypeScript 声明文件中允许未定义的类型
     },
   },
 

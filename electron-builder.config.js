@@ -1,6 +1,7 @@
 export default {
   appId: 'com.yunmu.yuntodo',
   productName: 'Yun AI Todo',
+  copyright: 'Copyright © 2024 yunmu',
   electronDownload: {
     mirror: 'https://npmmirror.com/mirrors/electron/',
   },
@@ -15,19 +16,44 @@ export default {
     '!node_modules/**/*',
     '!**/node_modules/*/{CHANGELOG.md,README.md,README,readme.md,readme}',
     '!**/node_modules/*/{test,__tests__,tests,powered-test,example,examples}',
+    '!**/node_modules/.cache/**/*',
+    '!src/**/*',
+    '!docs/**/*',
+    '!scripts/**/*',
+    '!*.config.*',
+    '!.env*',
+    '!.git*',
   ],
-  extraResources: [],
+  extraResources: [
+    {
+      from: 'public/logo.png',
+      to: 'logo.png',
+    },
+  ],
   mac: {
-    icon: 'null',
-    target: ['dmg', 'zip'],
+    icon: 'build/icon.icns',
+    target: [
+      {
+        target: 'dmg',
+        arch: ['x64', 'arm64'],
+      },
+      {
+        target: 'zip',
+        arch: ['x64', 'arm64'],
+      },
+    ],
     category: 'public.app-category.productivity',
     darkModeSupport: true,
     hardenedRuntime: true,
     gatekeeperAssess: false,
     entitlements: 'build/entitlements.mac.plist',
     entitlementsInherit: 'build/entitlements.mac.plist',
+    notarize: false,
   },
   dmg: {
+    title: '${productName} ${version}',
+    icon: 'build/icon.icns',
+    background: 'build/dmg-background.png',
     contents: [
       {
         x: 410,
@@ -45,38 +71,79 @@ export default {
       width: 540,
       height: 380,
     },
+    format: 'ULFO',
   },
   win: {
     sign: false,
     signAndEditExecutable: false,
-    icon: 'null',
+    icon: 'build/icon.ico',
     target: [
+      {
+        target: 'nsis',
+        arch: ['x64', 'ia32'],
+      },
       {
         target: 'portable',
         arch: ['x64'],
       },
     ],
+    publisherName: 'yunmu',
+    verifyUpdateCodeSignature: false,
   },
   nsis: {
     oneClick: false,
     allowToChangeInstallationDirectory: true,
+    allowElevation: true,
     createDesktopShortcut: true,
     createStartMenuShortcut: true,
     shortcutName: 'Yun AI Todo',
+    installerIcon: 'build/icon.ico',
+    uninstallerIcon: 'build/icon.ico',
+    installerHeaderIcon: 'build/icon.ico',
+    deleteAppDataOnUninstall: false,
+    runAfterFinish: true,
+    menuCategory: true,
   },
   linux: {
-    icon: 'null',
-    target: ['AppImage', 'deb', 'snap'],
-    category: 'Utility',
-    maintainer: 'Yun AI Todo Team',
+    icon: 'build/icon.png',
+    target: [
+      {
+        target: 'AppImage',
+        arch: ['x64'],
+      },
+      {
+        target: 'deb',
+        arch: ['x64'],
+      },
+      {
+        target: 'rpm',
+        arch: ['x64'],
+      },
+    ],
+    category: 'Office',
+    maintainer: 'yunmu <1416900346@qq.com>',
     synopsis: 'A modern AI-powered todo application',
+    description:
+      'Yun AI Todo is a modern, feature-rich todo application with AI integration, built with Vue 3 and Electron.',
+    desktop: {
+      Name: 'Yun AI Todo',
+      Comment: 'A modern AI-powered todo application',
+      Keywords: 'todo;task;productivity;ai;',
+      StartupWMClass: 'yun-ai-todo',
+    },
   },
   publish: {
     provider: 'github',
+    owner: 'xixixiaoyu',
+    repo: 'todo',
     releaseType: 'release',
     private: false,
     publishAutoUpdate: true,
   },
+  compression: 'maximum',
   asar: true,
-  asarUnpack: ['**/*.{node,dll}', '**/node_modules/sharp/**/*', 'dist/**/*'],
+  asarUnpack: ['**/*.{node,dll}', '**/node_modules/sharp/**/*'],
+  buildDependenciesFromSource: false,
+  nodeGypRebuild: false,
+  npmRebuild: false,
 }

@@ -1,4 +1,4 @@
-import { app, BrowserWindow } from 'electron'
+import { app, BrowserWindow, dialog, shell } from 'electron'
 import path from 'path'
 import { fileURLToPath } from 'url'
 
@@ -6,6 +6,9 @@ import { fileURLToPath } from 'url'
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
 let mainWindow = null
+
+// 安全配置
+const isDevelopment = process.env.NODE_ENV === 'development'
 
 function createWindow() {
   mainWindow = new BrowserWindow({
@@ -16,21 +19,61 @@ function createWindow() {
     webPreferences: {
       nodeIntegration: false,
       contextIsolation: true,
+      enableRemoteModule: false,
+      allowRunningInsecureContent: false,
+      experimentalFeatures: false,
+      webSecurity: true,
       preload: path.join(__dirname, 'preload.js'),
+      sandbox: false, // 如果需要更高安全性，可以设置为 true
     },
     show: false,
-    backgroundColor: '#fff',
+    backgroundColor: '#f8f7f6',
+    titleBarStyle: process.platform === 'darwin' ? 'hiddenInset' : 'default',
+    icon:
+      process.platform === 'linux'
+        ? path.join(__dirname, '../build/icon.png')
+        : undefined,
+  })
+
+  // 安全：阻止新窗口创建
+  mainWindow.webContents.setWindowOpenHandler(({ url }) => {
+    // 允许在外部浏览器中打开链接
+    shell.openExternal(url)
+    return { action: 'deny' }
+  })
+
+  // 安全：阻止导航到外部 URL
+  mainWindow.webContents.on('will-navigate', (event, navigationUrl) => {
+    const parsedUrl = new URL(navigationUrl)
+
+    if (parsedUrl.origin !== 'http://localhost:3000' && parsedUrl.origin !== 'file://') {
+      event.preventDefault()
+      shell.openExternal(navigationUrl)
+    }
   })
 
   // 优雅地显示窗口
   mainWindow.once('ready-to-show', () => {
     mainWindow.show()
+
+    // 开发环境下打开开发者工具
+    if (isDevelopment) {
+      mainWindow.webContents.openDevTools()
+    }
   })
 
   // 添加页面加载错误处理
-  mainWindow.webContents.on('did-fail-load', (_event, _errorCode, _errorDescription) => {
-    // 记录错误到日志文件或错误追踪系统
-  })
+  mainWindow.webContents.on(
+    'did-fail-load',
+    (_event, errorCode, errorDescription, validatedURL) => {
+      console.error('页面加载失败:', errorCode, errorDescription, validatedURL)
+
+      // 在生产环境中显示友好的错误页面
+      if (!isDevelopment) {
+        dialog.showErrorBox('加载错误', '应用程序无法正常加载，请重试。')
+      }
+    }
+  )
 
   if (process.env.WEBPACK_DEV_SERVER_URL) {
     mainWindow.loadURL(process.env.WEBPACK_DEV_SERVER_URL)
@@ -53,7 +96,10 @@ function createWindow() {
 }
 
 // 应用程序准备就绪时创建窗口
-app.whenReady().then(() => {
+app.whenReady().then(async () => {
+  // 设置应用程序安全策略
+  app.setAsDefaultProtocolClient('yun-ai-todo')
+
   createWindow()
 
   // macOS 应用程序激活时重新创建窗口
@@ -72,7 +118,8 @@ const gotTheLock = app.requestSingleInstanceLock()
 if (!gotTheLock) {
   app.quit()
 } else {
-  app.on('second-instance', () => {
+  app.on('second-instance', (_event, _commandLine, _workingDirectory) => {
+    // 当运行第二个实例时，将焦点放在主窗口上
     if (mainWindow) {
       if (mainWindow.isMinimized()) mainWindow.restore()
       mainWindow.focus()
@@ -80,9 +127,24 @@ if (!gotTheLock) {
   })
 }
 
-// 开发环境下的错误处理
-if (process.env.NODE_ENV === 'development') {
-  process.on('uncaughtException', (_error) => {
-    // 记录错误到日志文件或错误追踪系统
+// 安全：阻止权限请求
+app.on('web-contents-created', (_event, contents) => {
+  contents.on('new-window', (event, _navigationUrl) => {
+    event.preventDefault()
   })
-}
+})
+
+// 全局错误处理
+process.on('uncaughtException', (error) => {
+  console.error('未捕获的异常:', error)
+
+  if (!isDevelopment) {
+    dialog.showErrorBox('应用程序错误', '应用程序遇到了一个错误，将会重启。')
+    app.relaunch()
+    app.exit(0)
+  }
+})
+
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('未处理的 Promise 拒绝:', reason, 'at:', promise)
+})
