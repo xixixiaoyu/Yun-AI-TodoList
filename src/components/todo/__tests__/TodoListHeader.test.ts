@@ -1,7 +1,7 @@
-import { describe, it, expect } from 'vitest'
 import { mount } from '@vue/test-utils'
-import TodoListHeader from '../TodoListHeader.vue'
+import { describe, expect, it } from 'vitest'
 import { createI18n } from 'vue-i18n'
+import TodoListHeader from '../TodoListHeader.vue'
 
 // 创建 i18n 实例用于测试
 const i18n = createI18n({
@@ -14,6 +14,8 @@ const i18n = createI18n({
       showCharts: '统计图表',
       openCharts: '打开统计图表',
       closeCharts: '关闭统计图表',
+      openSearch: '打开搜索',
+      closeSearch: '关闭搜索',
       switchToLightMode: '切换到浅色模式',
       switchToDarkMode: '切换到深色模式',
       switchToAutoMode: '切换到自动模式',
@@ -26,6 +28,7 @@ describe('TodoListHeader', () => {
     themeIcon: 'sun',
     themeTooltip: '切换到深色模式',
     showCharts: false,
+    showSearch: false,
   }
 
   it('应该正确渲染所有按钮', () => {
@@ -36,15 +39,17 @@ describe('TodoListHeader', () => {
       },
     })
 
-    // 检查是否有两个按钮
+    // 检查是否有三个按钮
     const buttons = wrapper.findAll('.icon-button')
-    expect(buttons).toHaveLength(2)
+    expect(buttons).toHaveLength(3)
 
     // 检查按钮类名
+    expect(wrapper.find('.search-button').exists()).toBe(true)
     expect(wrapper.find('.theme-toggle').exists()).toBe(true)
     expect(wrapper.find('.charts-button').exists()).toBe(true)
 
     // 检查每个按钮都包含图标
+    expect(wrapper.find('.search-button .button-icon').exists()).toBe(true)
     expect(wrapper.find('.theme-toggle .button-icon').exists()).toBe(true)
     expect(wrapper.find('.charts-button .button-icon').exists()).toBe(true)
 

@@ -158,13 +158,5 @@
   "audioEnded": "Audio input ended",
   "noMatchFound": "No matching speech content found",
 
-  "dragToReorder": "Drag to reorder",
-  "dragHint": "Add some todos and drag to reorder them",
-  "dragSortError": "Failed to update todo order",
-  "dragRollbackError": "Failed to restore original order",
-  "dragEndError": "Failed to complete drag operation",
-  "dragStatusDragging": "Dragging item...",
-  "dragStatusProcessing": "Updating order...",
-  "dragStatusSuccess": "Order updated!",
-  "dragStatusError": "Failed to update order"
+  "emptyTodoHint": "No todos yet. Add some to get started!"
 }

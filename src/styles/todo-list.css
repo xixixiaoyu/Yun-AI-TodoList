@@ -112,6 +112,29 @@
   background: var(--scrollbar-thumb-hover-color, rgba(0, 0, 0, 0.3));
 }
 
+/* 空状态提示样式 */
+.empty-hint {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  color: var(--text-color-secondary, #666);
+  text-align: center;
+  min-height: 200px;
+}
+
+.empty-hint svg {
+  margin-bottom: 1rem;
+  opacity: 0.5;
+}
+
+.empty-hint p {
+  margin: 0;
+  font-size: 1rem;
+  opacity: 0.8;
+}
+
 /* 加载状态样式 */
 .todo-list.is-loading {
   pointer-events: none;
