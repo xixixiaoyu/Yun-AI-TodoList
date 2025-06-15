@@ -5,10 +5,10 @@ let lastTickTime = 0
 let heartbeatCheck: ReturnType<typeof setInterval> | null = null
 let lastHeartbeat = Date.now()
 
-const TICK_INTERVAL = 1000 // 1 second
-const MAX_TICK_DRIFT = 100 // 100ms
-const HEARTBEAT_INTERVAL = 5000 // 5秒
-const HEARTBEAT_TIMEOUT = 10000 // 10秒
+const TICK_INTERVAL = 1000
+const MAX_TICK_DRIFT = 100
+const HEARTBEAT_INTERVAL = 5000
+const HEARTBEAT_TIMEOUT = 10000
 
 const cleanup = () => {
   if (interval) {
@@ -28,7 +28,7 @@ const validateDuration = (duration: number): number => {
   if (typeof duration !== 'number' || isNaN(duration) || duration < 0) {
     throw new Error('Invalid duration')
   }
-  return Math.floor(duration) // 确保是整数
+  return Math.floor(duration)
 }
 
 const handleTick = () => {
@@ -37,10 +37,8 @@ const handleTick = () => {
     lastTickTime = now
   }
 
-  // 检查是否有严重的时间偏移
   const actualInterval = now - lastTickTime
   if (Math.abs(actualInterval - TICK_INTERVAL) > MAX_TICK_DRIFT) {
-    // 如果偏移太大，调整剩余时间
     const missedTicks = Math.floor(actualInterval / TICK_INTERVAL)
     timeLeft = Math.max(0, timeLeft - missedTicks)
   } else {
@@ -65,7 +63,7 @@ self.onmessage = (e: MessageEvent) => {
     switch (e.data.action) {
       case 'start':
         if (isActive) {
-          cleanup() // 如果已经在运行，先清理
+          cleanup()
         }
         timeLeft = validateDuration(e.data.duration)
         isActive = true
@@ -125,10 +123,8 @@ self.onmessage = (e: MessageEvent) => {
   }
 }
 
-// 确保在 worker 终止时清理资源
 self.addEventListener('unload', cleanup)
 
-// 定期同步检查，防止定时器漂移
 setInterval(() => {
   if (isActive && interval) {
     handleTick()

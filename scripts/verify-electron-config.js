@@ -12,32 +12,31 @@ import { fileURLToPath } from 'url'
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const rootDir = path.resolve(__dirname, '..')
 
-// 验证配置
 const checks = [
   {
     name: '检查 package.json 配置',
-    check: checkPackageJson,
+    check: checkPackageJson
   },
   {
     name: '检查 Electron 主进程文件',
-    check: checkMainProcess,
+    check: checkMainProcess
   },
   {
     name: '检查预加载脚本',
-    check: checkPreloadScript,
+    check: checkPreloadScript
   },
   {
     name: '检查构建配置',
-    check: checkBuilderConfig,
+    check: checkBuilderConfig
   },
   {
     name: '检查构建资源',
-    check: checkBuildResources,
+    check: checkBuildResources
   },
   {
     name: '检查安全配置',
-    check: checkSecurityConfig,
-  },
+    check: checkSecurityConfig
+  }
 ]
 
 function checkPackageJson() {
@@ -48,12 +47,10 @@ function checkPackageJson() {
 
   const pkg = JSON.parse(readFileSync(packagePath, 'utf8'))
 
-  // 检查主入口
   if (pkg.main !== 'electron/main.js') {
     throw new Error(`主入口配置错误: ${pkg.main}，应为 electron/main.js`)
   }
 
-  // 检查必要的依赖
   const requiredDeps = ['electron', 'electron-builder', 'concurrently']
   for (const dep of requiredDeps) {
     if (!pkg.devDependencies[dep]) {
@@ -61,13 +58,12 @@ function checkPackageJson() {
     }
   }
 
-  // 检查脚本
   const requiredScripts = [
     'electron:serve',
     'electron:build',
     'electron:build:mac',
     'electron:build:win',
-    'electron:build:linux',
+    'electron:build:linux'
   ]
 
   for (const script of requiredScripts) {
@@ -87,12 +83,11 @@ function checkMainProcess() {
 
   const content = readFileSync(mainPath, 'utf8')
 
-  // 检查安全配置
   const securityChecks = [
     'nodeIntegration: false',
     'contextIsolation: true',
     'webSecurity: true',
-    'enableRemoteModule: false',
+    'enableRemoteModule: false'
   ]
 
   for (const check of securityChecks) {
@@ -112,7 +107,6 @@ function checkPreloadScript() {
 
   const content = readFileSync(preloadPath, 'utf8')
 
-  // 检查关键配置
   const requiredFeatures = ['contextBridge', 'exposeInMainWorld', 'ALLOWED_ENV_VARS']
 
   for (const feature of requiredFeatures) {
@@ -132,7 +126,6 @@ function checkBuilderConfig() {
 
   const content = readFileSync(configPath, 'utf8')
 
-  // 检查关键配置
   const requiredConfigs = ['appId', 'productName', 'compression', 'asar: true']
 
   for (const config of requiredConfigs) {
@@ -150,13 +143,11 @@ function checkBuildResources() {
     throw new Error('build 目录不存在')
   }
 
-  // 检查权限文件
   const entitlementsPath = path.join(buildDir, 'entitlements.mac.plist')
   if (!existsSync(entitlementsPath)) {
     throw new Error('macOS 权限文件不存在')
   }
 
-  // 检查图标文件
   const iconPath = path.join(buildDir, 'icon.png')
   if (!existsSync(iconPath)) {
     console.warn('⚠️  缺少图标文件 build/icon.png')
@@ -166,7 +157,6 @@ function checkBuildResources() {
 }
 
 function checkSecurityConfig() {
-  // 检查是否存在过时的配置文件
   const oldConfigPath = path.join(rootDir, 'vue.config.js')
   if (existsSync(oldConfigPath)) {
     throw new Error('发现过时的配置文件 vue.config.js，应该删除')
@@ -175,7 +165,6 @@ function checkSecurityConfig() {
   return '✅ 安全配置正确'
 }
 
-// 执行验证
 async function verify() {
   console.log('🔍 开始验证 Electron 配置...')
   console.log('')

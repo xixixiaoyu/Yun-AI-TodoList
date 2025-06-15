@@ -61,7 +61,6 @@ defineOptions({
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-/* 响应式样式 */
 @media (max-width: 768px) {
   .nav-bar {
     position: fixed;

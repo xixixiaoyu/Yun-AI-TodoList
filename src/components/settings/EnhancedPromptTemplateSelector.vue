@@ -1,6 +1,5 @@
 <template>
   <div class="enhanced-prompt-selector">
-    <!-- 模板选择器 -->
     <div class="template-selector-section">
       <label class="selector-label">{{ t('systemPrompt') }}</label>
       <div class="selector-wrapper">
@@ -10,7 +9,6 @@
           @template-change="handleTemplateChange"
         />
 
-        <!-- 操作按钮 -->
         <PromptActionButtons
           :is-custom-prompt="isCustomPrompt"
           :current-prompt="currentPrompt"
@@ -22,7 +20,6 @@
       </div>
     </div>
 
-    <!-- 提示词信息显示 -->
     <PromptInfoDisplay
       v-if="currentPrompt || isBuiltinPrompt"
       :current-prompt="currentPrompt"
@@ -61,7 +58,6 @@ const emit = defineEmits<Emits>()
 
 const { t } = useI18n()
 
-// 计算属性
 const filteredCustomPrompts = computed(() => {
   return props.customPrompts.filter(prompt => prompt.isActive)
 })
@@ -92,7 +88,6 @@ const currentPromptDescription = computed(() => {
   return currentPrompt.value?.description || ''
 })
 
-// 方法
 const handleTemplateChange = (newTemplate: PromptTemplate) => {
   emit('update:selectedTemplate', newTemplate)
   emit('templateChange')

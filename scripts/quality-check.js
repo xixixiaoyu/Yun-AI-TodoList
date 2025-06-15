@@ -13,7 +13,6 @@ import { fileURLToPath } from 'url'
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const rootDir = path.resolve(__dirname, '..')
 
-// 颜色输出工具
 const colors = {
   reset: '\x1b[0m',
   red: '\x1b[31m',
@@ -22,37 +21,31 @@ const colors = {
   blue: '\x1b[34m',
   magenta: '\x1b[35m',
   cyan: '\x1b[36m',
-  white: '\x1b[37m',
+  white: '\x1b[37m'
 }
 
 function colorize(text, color) {
   return `${colors[color]}${text}${colors.reset}`
 }
 
-// 质量检查配置
 const qualityConfig = {
-  // 文件大小限制（字节）
   maxFileSize: {
-    vue: 500 * 1024, // 500KB
-    ts: 300 * 1024, // 300KB
-    js: 200 * 1024, // 200KB
+    vue: 500 * 1024,
+    ts: 300 * 1024,
+    js: 200 * 1024
   },
 
-  // 行数限制
   maxLines: {
     vue: 500,
     ts: 300,
-    js: 200,
+    js: 200
   },
 
-  // 复杂度限制
   maxComplexity: 10,
 
-  // 依赖分析
   maxDependencies: 50,
 
-  // 测试覆盖率要求
-  minCoverage: 80,
+  minCoverage: 80
 }
 
 class QualityChecker {
@@ -65,13 +58,10 @@ class QualityChecker {
       coverage: null,
       security: [],
       performance: [],
-      score: 0,
+      score: 0
     }
   }
 
-  /**
-   * 运行所有质量检查
-   */
   async runAllChecks() {
     console.log(colorize('🔍 开始代码质量检查...', 'cyan'))
     console.log('')
@@ -108,7 +98,7 @@ class QualityChecker {
           file: path.relative(rootDir, file),
           size: stats.size,
           maxSize,
-          ratio: (stats.size / maxSize).toFixed(2),
+          ratio: (stats.size / maxSize).toFixed(2)
         })
       }
     }
@@ -117,7 +107,7 @@ class QualityChecker {
 
     if (oversizedFiles.length > 0) {
       console.log(colorize(`  ⚠️  发现 ${oversizedFiles.length} 个过大文件:`, 'yellow'))
-      oversizedFiles.forEach((f) => {
+      oversizedFiles.forEach(f => {
         console.log(`    ${f.file} (${(f.size / 1024).toFixed(1)}KB, 超出 ${f.ratio}x)`)
       })
     } else {
@@ -125,9 +115,6 @@ class QualityChecker {
     }
   }
 
-  /**
-   * 检查行数
-   */
   async checkLineCount() {
     console.log(colorize('📊 检查文件行数...', 'blue'))
 
@@ -145,7 +132,7 @@ class QualityChecker {
           file: path.relative(rootDir, file),
           lines,
           maxLines,
-          ratio: (lines / maxLines).toFixed(2),
+          ratio: (lines / maxLines).toFixed(2)
         })
       }
     }
@@ -154,7 +141,7 @@ class QualityChecker {
 
     if (longFiles.length > 0) {
       console.log(colorize(`  ⚠️  发现 ${longFiles.length} 个过长文件:`, 'yellow'))
-      longFiles.forEach((f) => {
+      longFiles.forEach(f => {
         console.log(`    ${f.file} (${f.lines} 行, 超出 ${f.ratio}x)`)
       })
     } else {
@@ -183,35 +170,25 @@ class QualityChecker {
       production: deps.length,
       development: devDeps.length,
       total: totalDeps,
-      maxAllowed: qualityConfig.maxDependencies,
+      maxAllowed: qualityConfig.maxDependencies
     }
 
     if (totalDeps > qualityConfig.maxDependencies) {
       console.log(
-        colorize(
-          `  ⚠️  依赖过多: ${totalDeps}/${qualityConfig.maxDependencies}`,
-          'yellow'
-        )
+        colorize(`  ⚠️  依赖过多: ${totalDeps}/${qualityConfig.maxDependencies}`, 'yellow')
       )
     } else {
       console.log(
-        colorize(
-          `  ✅ 依赖数量正常: ${totalDeps}/${qualityConfig.maxDependencies}`,
-          'green'
-        )
+        colorize(`  ✅ 依赖数量正常: ${totalDeps}/${qualityConfig.maxDependencies}`, 'green')
       )
     }
   }
 
-  /**
-   * 检查安全性
-   */
   async checkSecurity() {
     console.log(colorize('🔒 检查安全性...', 'blue'))
 
     const securityIssues = []
 
-    // 检查是否使用了不安全的函数
     const files = this.getSourceFiles()
     const unsafeFunctions = ['eval(', 'innerHTML', 'document.write', 'setTimeout(string']
 
@@ -222,7 +199,7 @@ class QualityChecker {
           securityIssues.push({
             file: path.relative(rootDir, file),
             issue: `使用了不安全的函数: ${unsafeFunc}`,
-            severity: 'high',
+            severity: 'high'
           })
         }
       }
@@ -232,7 +209,7 @@ class QualityChecker {
 
     if (securityIssues.length > 0) {
       console.log(colorize(`  ⚠️  发现 ${securityIssues.length} 个安全问题:`, 'yellow'))
-      securityIssues.forEach((issue) => {
+      securityIssues.forEach(issue => {
         console.log(`    ${issue.file}: ${issue.issue}`)
       })
     } else {
@@ -247,13 +224,11 @@ class QualityChecker {
     console.log(colorize('🧪 检查测试覆盖率...', 'blue'))
 
     try {
-      // 运行测试覆盖率
       execSync('pnpm run test:coverage --reporter=json', {
         cwd: rootDir,
-        stdio: 'pipe',
+        stdio: 'pipe'
       })
 
-      // 读取覆盖率报告（如果存在）
       const coveragePath = path.join(rootDir, 'coverage/coverage-summary.json')
       if (existsSync(coveragePath)) {
         const coverage = JSON.parse(readFileSync(coveragePath, 'utf8'))
@@ -261,7 +236,7 @@ class QualityChecker {
 
         this.results.coverage = {
           lines: totalCoverage,
-          required: qualityConfig.minCoverage,
+          required: qualityConfig.minCoverage
         }
 
         if (totalCoverage < qualityConfig.minCoverage) {
@@ -282,54 +257,39 @@ class QualityChecker {
     }
   }
 
-  /**
-   * 生成质量报告
-   */
   async generateReport() {
     console.log('')
     console.log(colorize('📋 生成质量报告...', 'cyan'))
 
-    // 计算质量分数
     let score = 100
 
-    // 文件大小扣分
     score -= this.results.fileSize.length * 5
 
-    // 行数扣分
     score -= this.results.lineCount.length * 3
 
-    // 依赖扣分
     if (this.results.dependencies.total > qualityConfig.maxDependencies) {
       score -= 10
     }
 
-    // 安全问题扣分
     score -= this.results.security.length * 10
 
-    // 测试覆盖率扣分
-    if (
-      this.results.coverage &&
-      this.results.coverage.lines < qualityConfig.minCoverage
-    ) {
+    if (this.results.coverage && this.results.coverage.lines < qualityConfig.minCoverage) {
       score -= qualityConfig.minCoverage - this.results.coverage.lines
     }
 
     score = Math.max(0, score)
     this.results.score = score
 
-    // 输出报告
     console.log('')
     console.log(colorize('='.repeat(50), 'cyan'))
     console.log(colorize('代码质量报告', 'cyan'))
     console.log(colorize('='.repeat(50), 'cyan'))
     console.log('')
 
-    // 质量分数
     const scoreColor = score >= 90 ? 'green' : score >= 70 ? 'yellow' : 'red'
     console.log(colorize(`总体质量分数: ${score}/100`, scoreColor))
     console.log('')
 
-    // 详细结果
     console.log('📊 检查结果:')
     console.log(`  文件大小问题: ${this.results.fileSize.length}`)
     console.log(`  文件行数问题: ${this.results.lineCount.length}`)
@@ -339,13 +299,11 @@ class QualityChecker {
       console.log(`  测试覆盖率: ${this.results.coverage.lines}%`)
     }
 
-    // 保存报告到文件
     const reportPath = path.join(rootDir, 'quality-report.json')
     writeFileSync(reportPath, JSON.stringify(this.results, null, 2))
     console.log('')
     console.log(`📄 详细报告已保存到: ${reportPath}`)
 
-    // 根据分数决定退出码
     if (score < 70) {
       console.log('')
       console.log(colorize('❌ 代码质量需要改进！', 'red'))
@@ -363,17 +321,13 @@ class QualityChecker {
     const files = []
     const extensions = ['.vue', '.ts', '.js']
 
-    const walkDir = (dir) => {
+    const walkDir = dir => {
       try {
         const entries = readdirSync(dir, { withFileTypes: true })
 
         for (const entry of entries) {
           const fullPath = path.join(dir, entry.name)
-          if (
-            entry.isDirectory() &&
-            !entry.name.startsWith('.') &&
-            entry.name !== 'node_modules'
-          ) {
+          if (entry.isDirectory() && !entry.name.startsWith('.') && entry.name !== 'node_modules') {
             walkDir(fullPath)
           } else if (entry.isFile()) {
             const ext = path.extname(entry.name)
@@ -395,14 +349,10 @@ class QualityChecker {
     return files
   }
 
-  /**
-   * 获取文件统计信息
-   */
   getFileStats(filePath) {
     return statSync(filePath)
   }
 }
 
-// 运行质量检查
 const checker = new QualityChecker()
 checker.runAllChecks()

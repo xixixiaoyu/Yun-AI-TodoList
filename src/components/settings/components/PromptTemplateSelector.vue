@@ -1,6 +1,5 @@
 <template>
   <select :value="selectedTemplate" class="template-select" @change="handleTemplateChange">
-    <!-- 内置模板 -->
     <optgroup :label="t('builtinPrompts')">
       <option value="none">{{ t('nonePrompt') }}</option>
       <option value="my">{{ t('defaultPrompt') }}</option>
@@ -9,7 +8,6 @@
       <option value="analysis">{{ t('categoryAnalysis') }}</option>
     </optgroup>
 
-    <!-- 自定义模板 -->
     <optgroup v-if="filteredCustomPrompts.length > 0" :label="t('customPrompts')">
       <option
         v-for="prompt in filteredCustomPrompts"

@@ -128,9 +128,6 @@ export const builtinPromptTemplates: Record<string, BuiltinPromptTemplate> = {
   }
 }
 
-/**
- * 获取内置提示词模板
- */
 export function getBuiltinPromptTemplate(id: string): BuiltinPromptTemplate | undefined {
   return builtinPromptTemplates[id]
 }
@@ -142,9 +139,6 @@ export function getAllBuiltinPromptTemplates(): BuiltinPromptTemplate[] {
   return Object.values(builtinPromptTemplates)
 }
 
-/**
- * 根据分类获取内置提示词模板
- */
 export function getBuiltinPromptTemplatesByCategory(
   category: PromptCategory
 ): BuiltinPromptTemplate[] {

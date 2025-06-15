@@ -42,8 +42,8 @@ import TimerWorker from '../workers/timerWorker?worker'
 
 const { t } = useI18n()
 
-const WORK_TIME = 25 * 60 // 25 minutes in seconds
-const BREAK_TIME = 5 * 60 // 5 minutes in seconds
+const WORK_TIME = 25 * 60
+const BREAK_TIME = 5 * 60
 
 const isActive = ref(false)
 const isPaused = ref(false)
@@ -53,7 +53,7 @@ const timeLeft = ref(WORK_TIME)
 const interval: number | null = null
 let startTime: number | null = null
 let animationFrameId: number | null = null
-let initialTime = WORK_TIME // 新增：初始时间变量
+let initialTime = WORK_TIME
 
 const formattedTime = computed(() => {
   const minutes = Math.floor(timeLeft.value / 60)
@@ -69,16 +69,14 @@ timerWorker.onmessage = (e: MessageEvent) => {
   }
   if (e.data.action === 'complete') {
     if (!isBreak.value) {
-      // 工作时间结束
       isActive.value = false
       isBreak.value = true
       timeLeft.value = BREAK_TIME
-      initialTime = BREAK_TIME // 更新初始时间
+      initialTime = BREAK_TIME
       isWorkCompleted.value = false
 
       notifyUser(false)
     } else {
-      // 休息时间结束
       resetTimer()
       notifyUser(true)
     }
@@ -90,7 +88,7 @@ const startTimer = () => {
   isPaused.value = false
   isWorkCompleted.value = false
   startTime = null
-  initialTime = isBreak.value ? BREAK_TIME : WORK_TIME // 设置初始时间
+  initialTime = isBreak.value ? BREAK_TIME : WORK_TIME
   animationFrameId = requestAnimationFrame(updateTimer)
 }
 
@@ -118,7 +116,7 @@ const resetTimer = () => {
   isBreak.value = false
   isWorkCompleted.value = false
   timeLeft.value = WORK_TIME
-  initialTime = WORK_TIME // 重置初始时间
+  initialTime = WORK_TIME
   startTime = null
 }
 
@@ -132,7 +130,6 @@ const notifyUser = (isWorkTime: boolean) => {
       if (permission === 'granted') {
         new Notification(t('pomodoroComplete'), {
           body: isWorkTime ? t('workTimeStarted') : t('breakTimeStarted')
-          // icon: '../../public/logo.png',
         })
       }
     })
@@ -151,17 +148,15 @@ const updateTimer = (timestamp: number) => {
     animationFrameId = requestAnimationFrame(updateTimer)
   } else if (timeLeft.value === 0) {
     if (!isBreak.value) {
-      // 工作时间结束
       isActive.value = false
       isBreak.value = true
       timeLeft.value = BREAK_TIME
-      initialTime = BREAK_TIME // 更新初始时间
+      initialTime = BREAK_TIME
       isWorkCompleted.value = false
       notifyUser(false)
       startTime = null
       startTimer()
     } else {
-      // 休息时间结束
       resetTimer()
       notifyUser(true)
     }
@@ -175,8 +170,6 @@ onUnmounted(() => {
 })
 
 const emit = defineEmits(['pomodoroComplete'])
-
-// 使用 getServerTime() 服务器时间可替代所有的 Date.now() 调用
 </script>
 
 <style scoped>
@@ -192,7 +185,6 @@ const emit = defineEmits(['pomodoroComplete'])
   align-items: center;
 }
 
-/* 当作为集成组件时的样式覆盖 */
 .pomodoro-timer-integrated {
   background: transparent !important;
   box-shadow: none !important;

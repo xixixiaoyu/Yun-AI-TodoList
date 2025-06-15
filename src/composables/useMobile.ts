@@ -16,7 +16,6 @@ export function useMobile() {
   const platformInfo = getPlatformInfo()
   const isReady = ref(false)
 
-  // 初始化移动端功能
   const initMobile = async () => {
     if (!platformInfo.isCapacitor) {
       isReady.value = true
@@ -24,11 +23,9 @@ export function useMobile() {
     }
 
     try {
-      // 设置状态栏样式
       await StatusBar.setStyle({ style: Style.Default })
       await StatusBar.setBackgroundColor({ color: '#f8f7f6' })
 
-      // 隐藏启动屏幕
       await SplashScreen.hide()
 
       isReady.value = true
@@ -38,7 +35,6 @@ export function useMobile() {
     }
   }
 
-  // 触觉反馈
   const hapticFeedback = async (style: ImpactStyle = ImpactStyle.Medium) => {
     if (!platformInfo.isCapacitor) return
 
@@ -49,10 +45,8 @@ export function useMobile() {
     }
   }
 
-  // 显示 Toast 消息
   const showToast = async (text: string, duration: 'short' | 'long' = 'short') => {
     if (!platformInfo.isCapacitor) {
-      // Web 环境下的 fallback - 可以使用其他提示方式
       return
     }
 
@@ -67,7 +61,6 @@ export function useMobile() {
     }
   }
 
-  // 存储偏好设置
   const setPreference = async (key: string, value: string) => {
     if (!platformInfo.isCapacitor) {
       localStorage.setItem(key, value)
@@ -81,7 +74,6 @@ export function useMobile() {
     }
   }
 
-  // 获取偏好设置
   const getPreference = async (key: string): Promise<string | null> => {
     if (!platformInfo.isCapacitor) {
       return localStorage.getItem(key)
@@ -96,7 +88,6 @@ export function useMobile() {
     }
   }
 
-  // 移除偏好设置
   const removePreference = async (key: string) => {
     if (!platformInfo.isCapacitor) {
       localStorage.removeItem(key)
@@ -110,7 +101,6 @@ export function useMobile() {
     }
   }
 
-  // 写入文件
   const writeFile = async (path: string, data: string) => {
     if (!platformInfo.isCapacitor) {
       console.warn('文件写入仅在移动端支持')
@@ -130,7 +120,6 @@ export function useMobile() {
     }
   }
 
-  // 读取文件
   const readFile = async (path: string): Promise<string | null> => {
     if (!platformInfo.isCapacitor) {
       console.warn('文件读取仅在移动端支持')
@@ -150,7 +139,6 @@ export function useMobile() {
     }
   }
 
-  // 删除文件
   const deleteFile = async (path: string) => {
     if (!platformInfo.isCapacitor) {
       console.warn('文件删除仅在移动端支持')
@@ -168,17 +156,14 @@ export function useMobile() {
     }
   }
 
-  // 组件挂载时初始化
   onMounted(() => {
     initMobile()
   })
 
   return {
-    // 状态
     isReady,
     platformInfo,
 
-    // 方法
     initMobile,
     hapticFeedback,
     showToast,

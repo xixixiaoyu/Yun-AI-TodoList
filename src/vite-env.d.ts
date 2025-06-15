@@ -1,10 +1,6 @@
-/// <reference types="vite/client" />
-
-// 环境变量类型定义
 declare const __CAPACITOR__: boolean
 declare const __ELECTRON__: boolean
 
-// Capacitor 全局类型
 interface Window {
   electronAPI?: {
     env?: {
@@ -27,7 +23,6 @@ interface Window {
     }
   }
 }
-/// <reference types="vite-plugin-pwa/client" />
 
 declare module '*.vue' {
   import type { DefineComponent } from 'vue'

@@ -4,7 +4,6 @@ import hljs from 'highlight.js'
 import type { MarkedOptions } from 'marked'
 
 export function useMarkdown() {
-  // 配置 marked 使用 highlight.js
   marked.setOptions({
     highlight: function (code: string, lang: string) {
       try {
@@ -16,7 +15,6 @@ export function useMarkdown() {
     }
   } as MarkedOptions)
 
-  // 处理 Markdown 内容
   const sanitizeContent = (content: string): string => {
     const rawHtml = marked.parse(content) as string
     return DOMPurify.sanitize(rawHtml)

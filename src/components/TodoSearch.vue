@@ -59,7 +59,6 @@
 import { ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
-// Props 和 Emits
 const props = defineProps<{
   modelValue: string
   isExpanded: boolean
@@ -70,14 +69,11 @@ const emit = defineEmits<{
   collapse: []
 }>()
 
-// 组合式 API
 const { t } = useI18n()
 const searchInput = ref<HTMLInputElement>()
 
-// 内部输入值，用于处理输入事件
 const internalValue = ref('')
 
-// 初始化内部值
 watch(
   () => props.modelValue,
   newValue => {
@@ -86,17 +82,14 @@ watch(
   { immediate: true }
 )
 
-// 监听内部值变化并发出事件
 watch(internalValue, newValue => {
   emit('update:modelValue', newValue)
 })
 
-// 监听展开状态变化，自动聚焦
 watch(
   () => props.isExpanded,
   newValue => {
     if (newValue) {
-      // 延迟聚焦，等待动画完成
       setTimeout(() => {
         searchInput.value?.focus()
       }, 150)
@@ -104,10 +97,7 @@ watch(
   }
 )
 
-// 方法
-const handleInput = () => {
-  // 实时搜索，通过 v-model 自动触发
-}
+const handleInput = () => {}
 
 const clearSearch = () => {
   internalValue.value = ''
@@ -123,7 +113,6 @@ const handleEscape = () => {
 }
 
 const handleBlur = () => {
-  // 如果没有搜索内容，延迟收缩（给用户时间点击清除按钮）
   if (!internalValue.value) {
     setTimeout(() => {
       if (!internalValue.value) {
@@ -133,7 +122,6 @@ const handleBlur = () => {
   }
 }
 
-// 暴露方法给父组件
 defineExpose({
   focus: () => searchInput.value?.focus(),
   clear: clearSearch
@@ -148,7 +136,6 @@ defineExpose({
   overflow: hidden;
 }
 
-/* 展开收缩动画 */
 .search-expand-enter-active,
 .search-expand-leave-active {
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -240,10 +227,9 @@ defineExpose({
   transform: scale(0.95);
 }
 
-/* 响应式样式 */
 @media (max-width: 768px) {
   .search-input {
-    font-size: 16px; /* 防止 iOS Safari 缩放 */
+    font-size: 16px;
   }
 
   .search-icon {
@@ -255,7 +241,6 @@ defineExpose({
   }
 }
 
-/* 深色模式优化 */
 @media (prefers-color-scheme: dark) {
   .search-input-wrapper {
     backdrop-filter: blur(10px);

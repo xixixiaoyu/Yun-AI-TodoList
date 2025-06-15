@@ -26,7 +26,6 @@ const getHeaders = () => {
   }
 }
 
-// 获取系统提示词
 const getSystemPrompt = (): string => {
   const lastSelectedTemplate = localStorage.getItem('lastSelectedTemplate')
   if (lastSelectedTemplate === 'none') {
@@ -53,14 +52,13 @@ export async function getAIStreamResponse(
       body: JSON.stringify({
         model: 'deepseek-reasoner',
         messages: [
-          // 系统提示
           {
             role: 'system',
             content: getSystemPrompt()
           },
-          ...messages // 包含历史消息
+          ...messages
         ],
-        // temperature: promptsConfig.my.temperature,
+
         stream: true
       }),
       signal

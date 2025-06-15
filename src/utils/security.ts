@@ -5,7 +5,6 @@
 
 import DOMPurify from 'dompurify'
 
-// 类型声明
 interface SecureRequestInit {
   method?: string
   headers?: Record<string, string>
@@ -18,12 +17,9 @@ interface SecureRequestInit {
   }
 }
 
-/**
- * 内容安全策略配置
- */
 export const CSP_CONFIG = {
   'default-src': ["'self'"],
-  'script-src': ["'self'", "'unsafe-inline'"], // 开发环境可能需要 unsafe-inline
+  'script-src': ["'self'", "'unsafe-inline'"],
   'style-src': ["'self'", "'unsafe-inline'"],
   'img-src': ["'self'", 'data:', 'https:'],
   'font-src': ["'self'", 'data:'],
@@ -45,9 +41,6 @@ export function generateCSPString(): string {
     .join('; ')
 }
 
-/**
- * 安全的 HTML 清理
- */
 export function sanitizeHTML(html: string): string {
   return DOMPurify.sanitize(html, {
     ALLOWED_TAGS: [
@@ -86,17 +79,11 @@ export function isSecureURL(url: string): boolean {
   try {
     const parsedURL = new URL(url)
 
-    // 只允许 https 和 http 协议
     if (!['https:', 'http:'].includes(parsedURL.protocol)) {
       return false
     }
 
-    // 检查是否为恶意域名（简单示例）
-    const suspiciousDomains = [
-      'malware.com',
-      'phishing.com'
-      // 添加更多已知恶意域名
-    ]
+    const suspiciousDomains = ['malware.com', 'phishing.com']
 
     return !suspiciousDomains.some(domain => parsedURL.hostname.includes(domain))
   } catch {
@@ -104,12 +91,9 @@ export function isSecureURL(url: string): boolean {
   }
 }
 
-/**
- * 安全的本地存储操作
- */
 export class SecureStorage {
   private static readonly PREFIX = 'todo_app_'
-  private static readonly MAX_SIZE = 5 * 1024 * 1024 // 5MB
+  private static readonly MAX_SIZE = 5 * 1024 * 1024
 
   /**
    * 安全地设置存储项
@@ -118,13 +102,11 @@ export class SecureStorage {
     try {
       const serialized = JSON.stringify(value)
 
-      // 检查大小限制
       if (serialized.length > this.MAX_SIZE) {
         console.warn('Storage item too large:', key)
         return false
       }
 
-      // 添加前缀防止命名冲突
       const prefixedKey = this.PREFIX + key
       localStorage.setItem(prefixedKey, serialized)
       return true
@@ -134,9 +116,6 @@ export class SecureStorage {
     }
   }
 
-  /**
-   * 安全地获取存储项
-   */
   static getItem<T>(key: string, defaultValue: T): T {
     try {
       const prefixedKey = this.PREFIX + key
@@ -165,9 +144,6 @@ export class SecureStorage {
     }
   }
 
-  /**
-   * 清理过期或无效的存储项
-   */
   static cleanup(): void {
     try {
       const keysToRemove: string[] = []
@@ -178,7 +154,7 @@ export class SecureStorage {
           try {
             const value = localStorage.getItem(key)
             if (value) {
-              JSON.parse(value) // 验证是否为有效 JSON
+              JSON.parse(value)
             }
           } catch {
             keysToRemove.push(key)
@@ -201,33 +177,27 @@ export class SecureStorage {
  * API 请求安全包装器
  */
 export class SecureAPIClient {
-  private static readonly TIMEOUT = 10000 // 10秒超时
+  private static readonly TIMEOUT = 10000
   private static readonly MAX_RETRIES = 3
 
-  /**
-   * 安全的 fetch 请求
-   */
   static async secureRequest(
     url: string,
     options: SecureRequestInit = {},
     retries = 0
   ): Promise<Response> {
-    // 验证 URL
     if (!isSecureURL(url)) {
       throw new Error('Insecure URL detected')
     }
 
-    // 设置默认安全选项
     const secureOptions: SecureRequestInit = {
       ...options,
-      credentials: 'same-origin', // 防止 CSRF
+      credentials: 'same-origin',
       headers: {
         'Content-Type': 'application/json',
         ...options.headers
       }
     }
 
-    // 创建带超时的 AbortController
     const controller = new AbortController()
     const timeoutId = setTimeout(() => controller.abort(), this.TIMEOUT)
 
@@ -239,10 +209,8 @@ export class SecureAPIClient {
 
       clearTimeout(timeoutId)
 
-      // 检查响应状态
       if (!response.ok) {
         if (response.status >= 500 && retries < this.MAX_RETRIES) {
-          // 服务器错误时重试
           await new Promise(resolve => setTimeout(resolve, 1000 * (retries + 1)))
           return this.secureRequest(url, options, retries + 1)
         }
@@ -266,9 +234,6 @@ export class SecureAPIClient {
  * 输入验证工具
  */
 export class InputValidator {
-  /**
-   * 验证字符串长度
-   */
   static validateLength(str: string, min: number, max: number): boolean {
     return str.length >= min && str.length <= max
   }
@@ -288,31 +253,23 @@ export class InputValidator {
     return scriptPatterns.some(pattern => pattern.test(str))
   }
 
-  /**
-   * 清理用户输入
-   */
   static sanitizeInput(input: string): string {
     return input
       .trim()
-      .replace(/[<>]/g, '') // 移除尖括号
-      .replace(/javascript:/gi, '') // 移除 javascript: 协议
-      .substring(0, 1000) // 限制长度
+      .replace(/[<>]/g, '')
+      .replace(/javascript:/gi, '')
+      .substring(0, 1000)
   }
 }
 
-// 初始化安全措施
 export function initSecurity(): void {
-  // 清理存储
   SecureStorage.cleanup()
 
-  // 设置全局错误处理
   window.addEventListener('error', event => {
     console.error('Global error:', event.error)
-    // 可以发送到错误监控服务
   })
 
   window.addEventListener('unhandledrejection', event => {
     console.error('Unhandled promise rejection:', event.reason)
-    // 可以发送到错误监控服务
   })
 }

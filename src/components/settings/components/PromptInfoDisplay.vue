@@ -71,9 +71,6 @@ const getCategoryLabel = (category: PromptCategory) => {
   return categoryMap[category] || category
 }
 
-/**
- * 获取优先级标签
- */
 const getPriorityLabel = (priority: PromptPriority) => {
   const priorityMap = {
     [PromptPriority.HIGH]: t('priorityHigh'),
@@ -181,7 +178,6 @@ defineOptions({
   color: var(--text-secondary-color);
 }
 
-/* 针对小屏幕高度的优化 */
 @media (max-height: 800px) {
   .prompt-info {
     padding: 0.5rem;
@@ -199,7 +195,7 @@ defineOptions({
 
 @media (max-height: 700px) {
   .prompt-info {
-    display: none; /* 在极小高度下隐藏详细信息 */
+    display: none;
   }
 }
 

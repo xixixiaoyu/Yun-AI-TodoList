@@ -3,7 +3,6 @@ import { useTodos } from '../useTodos'
 
 describe('useTodos', () => {
   beforeEach(() => {
-    // 清除 localStorage
     localStorage.clear()
   })
 
@@ -54,14 +53,11 @@ describe('useTodos', () => {
     addTodo('Todo 2')
     addTodo('Todo 3')
 
-    // 获取 todo 的 ID
     const todoIds = todos.value.map(todo => todo.id)
 
-    // 重新排序：第三个、第一个、第二个
     const newOrder = [todoIds[2], todoIds[0], todoIds[1]]
     updateTodosOrder(newOrder)
 
-    // 检查新的顺序是否正确
     expect(todos.value[0].text).toBe('Todo 3')
     expect(todos.value[1].text).toBe('Todo 1')
     expect(todos.value[2].text).toBe('Todo 2')

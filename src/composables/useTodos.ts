@@ -18,7 +18,6 @@ export function useTodos() {
     try {
       const storedTodos = localStorage.getItem('todos')
 
-      // 数据完整性检查
       if (storedTodos) {
         const parsedTodos = JSON.parse(storedTodos)
         if (Array.isArray(parsedTodos)) {
@@ -38,17 +37,15 @@ export function useTodos() {
         }
       }
 
-      // 数据一致性检查
       validateDataConsistency()
     } catch (error) {
       console.error('Error loading todos:', error)
-      // 如果加载失败，初始化为空数组
+
       todos.value = []
     }
   }
 
   const validateDataConsistency = () => {
-    // 确保 ID 的唯一性
     const seenIds = new Set<number>()
     todos.value = todos.value.filter(todo => {
       if (seenIds.has(todo.id)) {
@@ -58,7 +55,6 @@ export function useTodos() {
       return true
     })
 
-    // 保存清理后的数据
     saveTodos()
   }
 
@@ -67,7 +63,6 @@ export function useTodos() {
       localStorage.setItem('todos', JSON.stringify(todos.value))
     } catch (error) {
       console.error('Error saving todos:', error)
-      // 可以在这里添加用户通知机制
     }
   }
 
@@ -100,7 +95,6 @@ export function useTodos() {
     return true
   }
 
-  // 新增：批量添加待办事项的函数
   const addMultipleTodos = (newTodos: { text: string }[]) => {
     const duplicates: string[] = []
     const now = new Date().toISOString()
@@ -132,7 +126,7 @@ export function useTodos() {
       } else {
         delete todo.completedAt
       }
-      saveTodos() // 确保保存更改
+      saveTodos()
     }
   }
 
@@ -142,10 +136,8 @@ export function useTodos() {
   }
 
   const updateTodosOrder = (newOrder: number[]) => {
-    // 创建一个映射来存储每个 todo 的新顺序
     const orderMap = new Map(newOrder.map((id, index) => [id, index]))
 
-    // 更新所有 todo 的顺序
     todos.value = todos.value
       .map(todo => ({
         ...todo,
@@ -154,17 +146,14 @@ export function useTodos() {
       }))
       .sort((a, b) => a.order - b.order)
 
-    // 保存更新后的顺序
     saveTodos()
   }
 
-  loadTodos() // 在初始化时加载数据
+  loadTodos()
 
-  // 修改 getCompletedTodosByDate 函数
   const getCompletedTodosByDate = () => {
     const completedByDate: { [key: string]: number } = {}
     todos.value.forEach(todo => {
-      // 添加空值检查
       if (todo && todo.completed && todo.completedAt) {
         const date = new Date(todo.completedAt).toISOString().split('T')[0]
         completedByDate[date] = (completedByDate[date] || 0) + 1
@@ -173,7 +162,6 @@ export function useTodos() {
     return completedByDate
   }
 
-  // 添加一个新函数来更新 todo 的标签
   const updateTodoTags = (id: number, tags: string[]) => {
     const todo = todos.value.find(todo => todo && todo.id === id)
     if (todo) {
@@ -182,7 +170,6 @@ export function useTodos() {
     }
   }
 
-  // 返回所有需要的状态和方法
   return {
     todos,
     addTodo,

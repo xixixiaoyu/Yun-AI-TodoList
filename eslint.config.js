@@ -6,7 +6,6 @@ import vue from 'eslint-plugin-vue'
 import vueParser from 'vue-eslint-parser'
 
 export default [
-  // 忽略文件配置
   {
     ignores: [
       'dist/**',
@@ -16,14 +15,11 @@ export default [
       '*.min.js',
       'public/**',
       '.husky/**'
-      // 不再忽略 electron 目录，而是为其单独配置
     ]
   },
 
-  // 基础 JavaScript 配置
   js.configs.recommended,
 
-  // TypeScript 文件配置
   {
     files: ['**/*.ts', '**/*.tsx'],
     languageOptions: {
@@ -33,18 +29,17 @@ export default [
         sourceType: 'module'
       },
       globals: {
-        // Vue 相关
         __VUE_I18N_LEGACY_API__: 'readonly',
         __VUE_I18N_FULL_INSTALL__: 'readonly',
         __INTLIFY_PROD_DEVTOOLS__: 'readonly',
-        // 浏览器环境
+
         window: 'readonly',
         document: 'readonly',
         navigator: 'readonly',
         localStorage: 'readonly',
         sessionStorage: 'readonly',
         console: 'readonly',
-        // Web APIs
+
         fetch: 'readonly',
         URL: 'readonly',
         Blob: 'readonly',
@@ -61,7 +56,7 @@ export default [
         performance: 'readonly',
         confirm: 'readonly',
         alert: 'readonly',
-        // DOM 类型
+
         Event: 'readonly',
         KeyboardEvent: 'readonly',
         MessageEvent: 'readonly',
@@ -73,15 +68,15 @@ export default [
         HTMLCanvasElement: 'readonly',
         HTMLDivElement: 'readonly',
         EventTarget: 'readonly',
-        // Web APIs
+
         Notification: 'readonly',
         SpeechRecognition: 'readonly',
         webkitSpeechRecognition: 'readonly',
         SpeechRecognitionResultList: 'readonly',
-        // Vue Router
+
         RouteLocationNormalized: 'readonly',
         NavigationGuardNext: 'readonly',
-        // Node.js (for config files)
+
         process: 'readonly',
         Buffer: 'readonly',
         global: 'readonly',
@@ -90,7 +85,7 @@ export default [
         module: 'readonly',
         require: 'readonly',
         exports: 'readonly',
-        // Fetch API
+
         Response: 'readonly',
         Request: 'readonly',
         Headers: 'readonly',
@@ -101,12 +96,10 @@ export default [
       '@typescript-eslint': typescript
     },
     rules: {
-      // 基础规则
       'no-console': ['warn', { allow: ['error', 'warn'] }],
       'no-debugger': 'warn',
       'no-unused-vars': 'off',
 
-      // TypeScript 规则
       '@typescript-eslint/no-unused-vars': [
         'error',
         {
@@ -120,7 +113,6 @@ export default [
       '@typescript-eslint/explicit-module-boundary-types': 'off',
       '@typescript-eslint/no-non-null-assertion': 'warn',
 
-      // 代码质量规则
       'prefer-const': 'error',
       'no-var': 'error',
       eqeqeq: ['error', 'always'],
@@ -132,7 +124,6 @@ export default [
     }
   },
 
-  // Vue 文件配置
   ...vue.configs['flat/recommended'],
   {
     files: ['**/*.vue'],
@@ -145,18 +136,17 @@ export default [
         extraFileExtensions: ['.vue']
       },
       globals: {
-        // Vue 相关
         __VUE_I18N_LEGACY_API__: 'readonly',
         __VUE_I18N_FULL_INSTALL__: 'readonly',
         __INTLIFY_PROD_DEVTOOLS__: 'readonly',
-        // 浏览器环境
+
         window: 'readonly',
         document: 'readonly',
         navigator: 'readonly',
         localStorage: 'readonly',
         sessionStorage: 'readonly',
         console: 'readonly',
-        // Web APIs
+
         fetch: 'readonly',
         URL: 'readonly',
         Blob: 'readonly',
@@ -173,7 +163,7 @@ export default [
         performance: 'readonly',
         confirm: 'readonly',
         alert: 'readonly',
-        // DOM 类型
+
         Event: 'readonly',
         KeyboardEvent: 'readonly',
         MessageEvent: 'readonly',
@@ -185,15 +175,15 @@ export default [
         HTMLCanvasElement: 'readonly',
         HTMLDivElement: 'readonly',
         EventTarget: 'readonly',
-        // Web APIs
+
         Notification: 'readonly',
         SpeechRecognition: 'readonly',
         webkitSpeechRecognition: 'readonly',
         SpeechRecognitionResultList: 'readonly',
-        // Vue Router
+
         RouteLocationNormalized: 'readonly',
         NavigationGuardNext: 'readonly',
-        // Node.js (for config files)
+
         process: 'readonly',
         Buffer: 'readonly',
         global: 'readonly',
@@ -202,7 +192,7 @@ export default [
         module: 'readonly',
         require: 'readonly',
         exports: 'readonly',
-        // Fetch API
+
         Response: 'readonly',
         Request: 'readonly',
         Headers: 'readonly',
@@ -214,17 +204,14 @@ export default [
       vue
     },
     rules: {
-      // Vue 规则
       'vue/no-v-html': 'off',
       'vue/multi-word-component-names': 'off',
       'vue/no-multiple-template-root': 'off',
 
-      // 基础规则
       'no-console': ['warn', { allow: ['error', 'warn'] }],
       'no-debugger': 'warn',
       'no-unused-vars': 'off',
 
-      // TypeScript 规则
       '@typescript-eslint/no-unused-vars': [
         'error',
         {
@@ -238,7 +225,6 @@ export default [
       '@typescript-eslint/explicit-module-boundary-types': 'off',
       '@typescript-eslint/no-non-null-assertion': 'warn',
 
-      // 代码质量规则
       'prefer-const': 'error',
       'no-var': 'error',
       eqeqeq: ['error', 'always'],
@@ -250,7 +236,6 @@ export default [
     }
   },
 
-  // Worker 文件特殊配置
   {
     files: ['**/workers/**/*.ts', '**/worker*.ts', 'src/workers/**/*.ts'],
     languageOptions: {
@@ -269,7 +254,6 @@ export default [
     }
   },
 
-  // 配置文件特殊规则
   {
     files: ['*.config.js', '*.config.ts', 'vite.config.ts', 'vitest.config.ts'],
     rules: {
@@ -278,7 +262,6 @@ export default [
     }
   },
 
-  // Node.js 环境文件配置 (Electron 主进程、脚本等)
   {
     files: [
       'electron/**/*.js',
@@ -291,7 +274,6 @@ export default [
       ecmaVersion: 'latest',
       sourceType: 'module',
       globals: {
-        // Node.js 全局变量
         process: 'readonly',
         Buffer: 'readonly',
         global: 'readonly',
@@ -305,9 +287,9 @@ export default [
         clearTimeout: 'readonly',
         setInterval: 'readonly',
         clearInterval: 'readonly',
-        // Electron 特定
+
         electron: 'readonly',
-        // ES6+ 全局变量
+
         URL: 'readonly',
         URLSearchParams: 'readonly',
         TextDecoder: 'readonly',
@@ -320,7 +302,7 @@ export default [
       }
     },
     rules: {
-      'no-console': 'off', // 允许在 Node.js 环境中使用 console
+      'no-console': 'off',
       'no-unused-vars': [
         'error',
         {
@@ -332,15 +314,13 @@ export default [
     }
   },
 
-  // TypeScript 声明文件特殊规则
   {
     files: ['*.d.ts'],
     languageOptions: {
       globals: {
-        // DOM 类型
         NotificationOptions: 'readonly',
         Notification: 'readonly',
-        // 其他全局类型
+
         Window: 'readonly',
         Document: 'readonly',
         Element: 'readonly',
@@ -349,10 +329,9 @@ export default [
     },
     rules: {
       '@typescript-eslint/no-unused-vars': 'off',
-      'no-undef': 'off' // TypeScript 声明文件中允许未定义的类型
+      'no-undef': 'off'
     }
   },
 
-  // Prettier 配置（必须放在最后）
   prettier
 ]

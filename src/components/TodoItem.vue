@@ -63,7 +63,6 @@ const { t } = useI18n()
 const emit = defineEmits(['toggle', 'remove'])
 const isCompleted = ref(false)
 
-// 使用 watchEffect 优化性能
 watchEffect(() => {
   isCompleted.value = props.todo.completed
 })
@@ -72,13 +71,12 @@ const toggleTodo = () => {
   try {
     emit('toggle', props.todo.id)
     if (!isCompleted.value) {
-      // 优化礼花效果的性能
       requestAnimationFrame(() => {
         confetti({
           particleCount: 100,
           spread: 70,
           origin: { y: 0.6 },
-          disableForReducedMotion: true // 考虑可访问性
+          disableForReducedMotion: true
         })
       })
     }
@@ -98,7 +96,6 @@ const removeTodo = () => {
   }
 }
 
-// 使用 computed 优化文本处理
 const formattedTitle = computed(() => {
   try {
     if (!props.todo?.text) {
@@ -118,7 +115,6 @@ const formattedTitle = computed(() => {
   }
 })
 
-// 添加性能监控
 let renderStartTime = 0
 onBeforeMount(() => {
   renderStartTime = performance.now()
@@ -127,12 +123,10 @@ onBeforeMount(() => {
 onMounted(() => {
   const renderTime = performance.now() - renderStartTime
   if (renderTime > 50) {
-    // TodoItem 应该渲染得更快
     console.warn(`TodoItem render time: ${renderTime}ms`)
   }
 })
 
-// 添加错误边界处理
 const handleError = (error: Error) => {
   console.error('TodoItem error:', error)
   showError(t('generalError'))

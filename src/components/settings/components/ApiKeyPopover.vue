@@ -1,6 +1,5 @@
 <template>
   <div class="api-key-popover">
-    <!-- 弹窗头部 -->
     <div class="popover-header">
       <div class="header-content">
         <div class="header-icon">
@@ -26,9 +25,7 @@
       </button>
     </div>
 
-    <!-- 弹窗内容 -->
     <div class="popover-content">
-      <!-- 输入提示信息 -->
       <div class="input-info">
         <div class="info-item">
           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24">
@@ -50,7 +47,6 @@
         </div>
       </div>
 
-      <!-- API 密钥输入区域 -->
       <div class="input-section">
         <label class="input-label">DeepSeek API Key</label>
         <div class="input-group">
@@ -103,7 +99,6 @@
         </div>
       </div>
 
-      <!-- 操作按钮 -->
       <div class="button-group">
         <button class="save-button" :disabled="!localApiKey.trim()" @click="$emit('save')">
           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24">
@@ -271,7 +266,6 @@ defineOptions({
   gap: 2rem;
 }
 
-/* 输入提示信息样式 */
 .input-info {
   display: flex;
   flex-direction: column;
@@ -299,7 +293,6 @@ defineOptions({
   flex-shrink: 0;
 }
 
-/* 输入区域样式 */
 .input-section {
   display: flex;
   flex-direction: column;
@@ -386,7 +379,6 @@ defineOptions({
   text-decoration: underline;
 }
 
-/* 按钮组样式 */
 .button-group {
   display: flex;
   gap: 1rem;
@@ -476,7 +468,6 @@ defineOptions({
   transform: translateY(-1px);
 }
 
-/* 动画效果 */
 @keyframes popoverIn {
   0% {
     opacity: 0;
@@ -495,7 +486,6 @@ defineOptions({
   }
 }
 
-/* 响应式设计 */
 @media (max-width: 768px) {
   .api-key-popover {
     width: calc(100% - 1rem);

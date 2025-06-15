@@ -1,10 +1,9 @@
 <template>
   <div class="actions">
-    <!-- 生成建议待办事项按钮 -->
     <button class="generate-btn" :disabled="isGenerating" @click="$emit('generateSuggestions')">
       {{ isGenerating ? t('generating') : t('generateSuggestions') }}
     </button>
-    <!-- AI优先级排序按钮 -->
+
     <button
       v-if="hasActiveTodos"
       class="sort-btn"

@@ -2,9 +2,6 @@
  * 设置相关的类型定义
  */
 
-/**
- * 提示词分类枚举
- */
 export enum PromptCategory {
   GENERAL = 'general',
   CODING = 'coding',
@@ -25,9 +22,6 @@ export enum PromptPriority {
   HIGH = 'high'
 }
 
-/**
- * 自定义提示词接口
- */
 export interface CustomPrompt {
   id: string
   name: string
@@ -56,9 +50,6 @@ export interface BuiltinPromptTemplate {
   isReadonly: boolean
 }
 
-/**
- * 提示词模板类型
- */
 export type PromptTemplate = 'none' | 'my' | string
 
 /**
@@ -73,9 +64,6 @@ export interface PromptFilter {
   isActive?: boolean
 }
 
-/**
- * 提示词排序选项
- */
 export interface PromptSortOptions {
   field: 'name' | 'createdAt' | 'updatedAt' | 'usageCount' | 'priority'
   order: 'asc' | 'desc'
@@ -90,9 +78,6 @@ export interface PromptExportData {
   prompts: CustomPrompt[]
 }
 
-/**
- * 提示词验证结果
- */
 export interface PromptValidationResult {
   isValid: boolean
   errors: string[]
@@ -124,9 +109,6 @@ export interface SettingsState {
   promptSortOptions: PromptSortOptions
 }
 
-/**
- * API 密钥配置状态
- */
 export interface ApiKeyState {
   showApiKey: boolean
   showApiKeyPopover: boolean
@@ -147,9 +129,6 @@ export type PromptAction =
   | 'export'
   | 'import'
 
-/**
- * 提示词操作结果
- */
 export interface PromptActionResult {
   success: boolean
   message: string
@@ -169,9 +148,6 @@ export interface PromptManagementState {
   customPrompts: CustomPrompt[]
 }
 
-/**
- * 通知状态
- */
 export interface ToastState {
   showSuccessMessage: boolean
   message?: string

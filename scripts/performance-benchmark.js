@@ -13,27 +13,23 @@ import { fileURLToPath } from 'url'
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const rootDir = path.resolve(__dirname, '..')
 
-// 性能基准配置
 const benchmarkConfig = {
-  // 构建性能基准
   build: {
-    maxTime: 120, // 最大构建时间（秒）
-    maxBundleSize: 2 * 1024 * 1024, // 最大包大小（2MB）
+    maxTime: 120,
+    maxBundleSize: 2 * 1024 * 1024
   },
 
-  // 运行时性能基准
   runtime: {
-    maxFirstContentfulPaint: 2000, // 首次内容绘制时间（ms）
-    maxLargestContentfulPaint: 3000, // 最大内容绘制时间（ms）
-    maxCumulativeLayoutShift: 0.1, // 累积布局偏移
-    maxFirstInputDelay: 100, // 首次输入延迟（ms）
+    maxFirstContentfulPaint: 2000,
+    maxLargestContentfulPaint: 3000,
+    maxCumulativeLayoutShift: 0.1,
+    maxFirstInputDelay: 100
   },
 
-  // 内存使用基准
   memory: {
-    maxHeapSize: 100 * 1024 * 1024, // 最大堆内存（100MB）
-    maxInitialLoad: 50 * 1024 * 1024, // 初始加载内存（50MB）
-  },
+    maxHeapSize: 100 * 1024 * 1024,
+    maxInitialLoad: 50 * 1024 * 1024
+  }
 }
 
 class PerformanceBenchmark {
@@ -44,13 +40,10 @@ class PerformanceBenchmark {
       runtime: {},
       memory: {},
       score: 0,
-      timestamp: new Date().toISOString(),
+      timestamp: new Date().toISOString()
     }
   }
 
-  /**
-   * 运行所有性能基准测试
-   */
   async runAllBenchmarks() {
     console.log('🚀 开始性能基准测试...')
     console.log('')
@@ -72,7 +65,6 @@ class PerformanceBenchmark {
   async benchmarkBuild() {
     console.log('🏗️  测试构建性能...')
 
-    // 清理之前的构建
     if (existsSync(path.join(rootDir, 'dist'))) {
       execSync('rm -rf dist', { cwd: rootDir })
     }
@@ -83,7 +75,7 @@ class PerformanceBenchmark {
       execSync('pnpm run build', {
         cwd: rootDir,
         stdio: 'pipe',
-        timeout: benchmarkConfig.build.maxTime * 1000,
+        timeout: benchmarkConfig.build.maxTime * 1000
       })
 
       const buildTime = (Date.now() - startTime) / 1000
@@ -91,7 +83,7 @@ class PerformanceBenchmark {
       this.results.build = {
         time: buildTime,
         maxTime: benchmarkConfig.build.maxTime,
-        passed: buildTime <= benchmarkConfig.build.maxTime,
+        passed: buildTime <= benchmarkConfig.build.maxTime
       }
 
       if (buildTime <= benchmarkConfig.build.maxTime) {
@@ -109,14 +101,11 @@ class PerformanceBenchmark {
         time: null,
         maxTime: benchmarkConfig.build.maxTime,
         passed: false,
-        error: error.message,
+        error: error.message
       }
     }
   }
 
-  /**
-   * Bundle 大小基准测试
-   */
   async benchmarkBundle() {
     console.log('📦 测试 Bundle 大小...')
 
@@ -127,14 +116,12 @@ class PerformanceBenchmark {
     }
 
     try {
-      // 跨平台计算 Bundle 大小
       const distPath = path.join(rootDir, 'dist')
       let totalSize = 0
       let jsBundleSize = 0
       const jsFiles = []
 
-      // 递归计算目录大小
-      const calculateDirSize = (dir) => {
+      const calculateDirSize = dir => {
         try {
           const entries = readdirSync(dir, { withFileTypes: true })
           for (const entry of entries) {
@@ -152,7 +139,7 @@ class PerformanceBenchmark {
             }
           }
         } catch (_error) {
-          // 忽略无法访问的目录
+          // 忽略无法访问的文件
         }
       }
 
@@ -163,7 +150,7 @@ class PerformanceBenchmark {
         jsBundleSize,
         maxSize: benchmarkConfig.build.maxBundleSize,
         passed: jsBundleSize <= benchmarkConfig.build.maxBundleSize,
-        files: jsFiles.length,
+        files: jsFiles.length
       }
 
       const sizeMB = (jsBundleSize / 1024 / 1024).toFixed(2)
@@ -187,20 +174,15 @@ class PerformanceBenchmark {
   async benchmarkRuntime() {
     console.log('⚡ 测试运行时性能...')
 
-    // 这里可以集成 Lighthouse 或其他性能测试工具
-    // 由于需要实际运行应用，这里提供一个框架
-
     try {
-      // 启动开发服务器进行测试
       console.log('  🚀 启动测试服务器...')
 
-      // 模拟性能数据（实际应用中应该使用真实的性能测试）
       const mockPerformanceData = {
         firstContentfulPaint: 1200,
         largestContentfulPaint: 2100,
         cumulativeLayoutShift: 0.05,
         firstInputDelay: 50,
-        timeToInteractive: 2500,
+        timeToInteractive: 2500
       }
 
       this.results.runtime = {
@@ -216,10 +198,8 @@ class PerformanceBenchmark {
           cls:
             mockPerformanceData.cumulativeLayoutShift <=
             benchmarkConfig.runtime.maxCumulativeLayoutShift,
-          fid:
-            mockPerformanceData.firstInputDelay <=
-            benchmarkConfig.runtime.maxFirstInputDelay,
-        },
+          fid: mockPerformanceData.firstInputDelay <= benchmarkConfig.runtime.maxFirstInputDelay
+        }
       }
 
       console.log(`  📊 首次内容绘制: ${mockPerformanceData.firstContentfulPaint}ms`)
@@ -227,58 +207,44 @@ class PerformanceBenchmark {
       console.log(`  📊 累积布局偏移: ${mockPerformanceData.cumulativeLayoutShift}`)
       console.log(`  📊 首次输入延迟: ${mockPerformanceData.firstInputDelay}ms`)
 
-      console.log(
-        '  💡 注意: 运行时性能数据为模拟数据，建议集成 Lighthouse CI 获取真实数据'
-      )
+      console.log('  💡 注意: 运行时性能数据为模拟数据，建议集成 Lighthouse CI 获取真实数据')
     } catch (error) {
       console.log('  ❌ 运行时性能测试失败:', error.message)
     }
   }
 
-  /**
-   * 生成性能报告
-   */
   async generateReport() {
     console.log('')
     console.log('📋 生成性能报告...')
 
-    // 计算性能分数
     let score = 100
 
-    // 构建性能扣分
     if (!this.results.build.passed) {
       score -= 20
     }
 
-    // Bundle 大小扣分
     if (!this.results.bundle.passed) {
       score -= 15
     }
 
-    // 运行时性能扣分
     if (this.results.runtime.passed) {
-      const failedMetrics = Object.values(this.results.runtime.passed).filter(
-        (p) => !p
-      ).length
+      const failedMetrics = Object.values(this.results.runtime.passed).filter(p => !p).length
       score -= failedMetrics * 10
     }
 
     score = Math.max(0, score)
     this.results.score = score
 
-    // 输出报告
     console.log('')
     console.log('='.repeat(50))
     console.log('性能基准测试报告')
     console.log('='.repeat(50))
     console.log('')
 
-    // 性能分数
     const scoreColor = score >= 90 ? '🟢' : score >= 70 ? '🟡' : '🔴'
     console.log(`${scoreColor} 总体性能分数: ${score}/100`)
     console.log('')
 
-    // 详细结果
     console.log('📊 测试结果:')
     if (this.results.build.time) {
       console.log(
@@ -287,18 +253,14 @@ class PerformanceBenchmark {
     }
     if (this.results.bundle.jsBundleSize) {
       const sizeMB = (this.results.bundle.jsBundleSize / 1024 / 1024).toFixed(2)
-      console.log(
-        `  Bundle 大小: ${sizeMB}MB ${this.results.bundle.passed ? '✅' : '❌'}`
-      )
+      console.log(`  Bundle 大小: ${sizeMB}MB ${this.results.bundle.passed ? '✅' : '❌'}`)
     }
 
-    // 保存报告到文件
     const reportPath = path.join(rootDir, 'performance-report.json')
     writeFileSync(reportPath, JSON.stringify(this.results, null, 2))
     console.log('')
     console.log(`📄 详细报告已保存到: ${reportPath}`)
 
-    // 性能建议
     console.log('')
     console.log('💡 性能优化建议:')
     if (!this.results.build.passed) {
@@ -323,6 +285,5 @@ class PerformanceBenchmark {
   }
 }
 
-// 运行性能基准测试
 const benchmark = new PerformanceBenchmark()
 benchmark.runAllBenchmarks()

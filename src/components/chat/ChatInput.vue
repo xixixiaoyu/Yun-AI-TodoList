@@ -84,7 +84,6 @@ const emit = defineEmits<{
 const { t } = useI18n()
 const inputRef = ref<HTMLTextAreaElement | null>(null)
 
-// 处理语音输入
 const handleTranscript = (text: string) => {
   const currentText = props.modelValue.trim()
   emit('update:modelValue', currentText + (currentText ? ' ' : '') + text)
@@ -99,13 +98,11 @@ const {
   stopListening
 } = useVoiceInput(handleTranscript)
 
-// 自动调整输入框高度
 const adjustTextareaHeight = () => {
   if (inputRef.value) {
     const textarea = inputRef.value
     const cursorPosition = textarea.selectionStart
 
-    // 创建一个隐藏的 div 来计算实际高度
     const dummyElement = document.createElement('div')
     dummyElement.style.cssText = window.getComputedStyle(textarea).cssText
     dummyElement.style.height = 'auto'
@@ -115,16 +112,13 @@ const adjustTextareaHeight = () => {
     dummyElement.textContent = textarea.value
     document.body.appendChild(dummyElement)
 
-    // 计算新的高度
     const newHeight = Math.min(dummyElement.scrollHeight, 200)
     document.body.removeChild(dummyElement)
 
-    // 只有当高度真正需要改变时才改变
     if (Math.abs(parseInt(textarea.style.height) - newHeight) > 2) {
       textarea.style.height = `${newHeight}px`
     }
 
-    // 计算光标位置和滚动
     const textBeforeCursor = textarea.value.substring(0, cursorPosition)
     const cursorDummy = document.createElement('div')
     cursorDummy.style.cssText = window.getComputedStyle(textarea).cssText
@@ -145,7 +139,6 @@ const adjustTextareaHeight = () => {
   }
 }
 
-// 监听输入内容变化
 watch(
   () => props.modelValue,
   () => {
@@ -155,7 +148,6 @@ watch(
   }
 )
 
-// 处理换行
 const handleNewline = (event: KeyboardEvent) => {
   event.preventDefault()
   const textarea = event.target as HTMLTextAreaElement
@@ -170,7 +162,6 @@ const handleNewline = (event: KeyboardEvent) => {
   })
 }
 
-// 聚焦输入框
 const focus = () => {
   if (inputRef.value) {
     inputRef.value.focus()

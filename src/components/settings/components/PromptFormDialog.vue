@@ -14,7 +14,6 @@
       </div>
 
       <div class="dialog-content">
-        <!-- 基本信息表单 -->
         <PromptBasicInfoForm
           :new-prompt-name="newPromptName"
           :new-prompt-description="newPromptDescription"
@@ -28,18 +27,15 @@
           @update:new-prompt-tags="$emit('update:newPromptTags', $event)"
         />
 
-        <!-- 内容表单 -->
         <PromptContentForm
           :new-prompt-content="newPromptContent"
           @update:new-prompt-content="$emit('update:newPromptContent', $event)"
         />
 
-        <!-- 错误提示 -->
         <div v-if="error" class="error-message">
           {{ error }}
         </div>
 
-        <!-- 操作按钮 -->
         <div class="dialog-actions">
           <button class="cancel-button" @click="$emit('close')">
             {{ t('cancel') }}

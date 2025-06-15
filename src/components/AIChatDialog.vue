@@ -108,7 +108,6 @@ const shouldAutoScroll = ref(true)
 const selectedPromptTemplate = ref<string>('my')
 const customPrompts = ref<{ id: string; name: string; content: string }[]>([])
 
-// 处理模板变更
 const handleTemplateChange = () => {
   const template = selectedPromptTemplate.value
   if (template === 'none') {
@@ -121,18 +120,16 @@ const handleTemplateChange = () => {
       localStorage.setItem('systemPrompt', customPrompt.content)
     }
   }
-  // 保存当前选择的模板
+
   localStorage.setItem('lastSelectedTemplate', template)
 }
 
-// 处理滚动状态
 const handleScroll = (scrollInfo: {
   isAtBottom: boolean
   scrollTop: number
   scrollHeight: number
   clientHeight: number
 }) => {
-  // 只有用户主动向上滚动时才禁用自动滚动
   if (
     !scrollInfo.isAtBottom &&
     scrollInfo.scrollTop < scrollInfo.scrollHeight - scrollInfo.clientHeight - 100
@@ -143,23 +140,19 @@ const handleScroll = (scrollInfo: {
   }
 }
 
-// 处理发送消息
 const handleSendMessage = async () => {
-  shouldAutoScroll.value = true // 发送消息时重置自动滚动状态
+  shouldAutoScroll.value = true
   await sendMessage()
 }
 
-// 初始化
 onMounted(() => {
   loadConversationHistory()
 
-  // 加载自定义提示词
   const savedCustomPrompts = localStorage.getItem('customPrompts')
   if (savedCustomPrompts) {
     customPrompts.value = JSON.parse(savedCustomPrompts)
   }
 
-  // 从 localStorage 获取上次激活的会话 ID 和模板
   const savedConversationId = localStorage.getItem('currentConversationId')
   const lastSelectedTemplate = localStorage.getItem('lastSelectedTemplate')
 
@@ -170,20 +163,16 @@ onMounted(() => {
   if (conversationHistory.value.length === 0) {
     createNewConversation()
   } else if (savedConversationId) {
-    // 尝试恢复上次激活的会话
     const exists = conversationHistory.value.some(c => c.id === savedConversationId)
     if (exists) {
       switchConversation(savedConversationId)
     } else {
-      // 如果上次激活的会话不存在，切换到第一个会话
       switchConversation(conversationHistory.value[0].id)
     }
   } else {
-    // 如果没有保存的会话 ID，切换到第一个会话
     switchConversation(conversationHistory.value[0].id)
   }
 
-  // 聚焦输入框
   if (inputRef.value) {
     inputRef.value.focus()
   }
@@ -225,13 +214,13 @@ onMounted(() => {
   align-items: center;
   gap: 1rem;
   flex: 1;
-  min-width: 0; /* 防止子元素溢出 */
+  min-width: 0;
 }
 
 .prompt-template-selector {
   margin-left: 1rem;
   flex: 1;
-  min-width: 0; /* 防止子元素溢出 */
+  min-width: 0;
 }
 
 .prompt-template-selector select {

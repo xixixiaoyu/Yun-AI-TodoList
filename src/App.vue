@@ -1,19 +1,14 @@
 <template>
   <div class="app" :class="[currentTheme, ...getPlatformClasses()]">
-    <!-- 导航栏组件 -->
     <NavigationBar />
 
-    <!-- 主要内容区域 -->
     <div class="content-wrapper">
       <div class="router-view-container">
         <router-view />
       </div>
-      <div class="top-components" :class="{ 'small-screen': isSmallScreen }">
-        <!-- 预留位置用于其他组件 -->
-      </div>
+      <div class="top-components" :class="{ 'small-screen': isSmallScreen }"></div>
     </div>
 
-    <!-- API Key 提醒组件 -->
     <ApiKeyReminder
       :show="showApiKeyReminder"
       @close="closeReminder"
@@ -34,10 +29,8 @@ import { getPlatformClasses } from './utils/platform'
 
 const { theme, systemTheme, initTheme } = useTheme()
 
-// 使用应用状态管理
 const { showApiKeyReminder, closeReminder, goToSettings } = useAppState()
 
-// 使用移动端功能
 const { isReady: _mobileReady, platformInfo: _platformInfo } = useMobile()
 
 onErrorCaptured((err, instance, info) => {
@@ -64,7 +57,6 @@ onMounted(() => {
 </script>
 
 <style>
-/* 引入全局样式 */
 @import './styles/themes.css';
 @import './styles/global.css';
 @import './styles/mobile.css';

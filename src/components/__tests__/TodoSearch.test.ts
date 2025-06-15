@@ -3,7 +3,6 @@ import { describe, expect, it } from 'vitest'
 import { createI18n } from 'vue-i18n'
 import TodoSearch from '../TodoSearch.vue'
 
-// 创建 i18n 实例用于测试
 const i18n = createI18n({
   legacy: false,
   locale: 'zh',

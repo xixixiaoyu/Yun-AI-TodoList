@@ -12,14 +12,10 @@ import { PromptCategory, PromptPriority } from '../types/settings'
  * 提示词工具函数集合
  */
 
-/**
- * 验证提示词数据
- */
 export function validatePrompt(prompt: Partial<CustomPrompt>): PromptValidationResult {
   const errors: string[] = []
   const warnings: string[] = []
 
-  // 必填字段验证
   if (!prompt.name?.trim()) {
     errors.push('提示词名称不能为空')
   }
@@ -28,7 +24,6 @@ export function validatePrompt(prompt: Partial<CustomPrompt>): PromptValidationR
     errors.push('提示词内容不能为空')
   }
 
-  // 长度验证
   if (prompt.name && prompt.name.length > 50) {
     warnings.push('提示词名称过长，建议控制在 50 字符以内')
   }
@@ -37,13 +32,11 @@ export function validatePrompt(prompt: Partial<CustomPrompt>): PromptValidationR
     warnings.push('提示词内容过长，建议控制在 10000 字符以内')
   }
 
-  // 内容质量检查
   if (prompt.content) {
     if (prompt.content.length < 10) {
       warnings.push('提示词内容过短，建议提供更详细的指导')
     }
 
-    // 检查是否包含常见的有害内容关键词
     const harmfulKeywords = ['hack', 'crack', 'illegal', 'violence']
     const hasHarmfulContent = harmfulKeywords.some(keyword =>
       prompt.content?.toLowerCase().includes(keyword)
@@ -66,27 +59,22 @@ export function validatePrompt(prompt: Partial<CustomPrompt>): PromptValidationR
  */
 export function filterPrompts(prompts: CustomPrompt[], filter: PromptFilter): CustomPrompt[] {
   return prompts.filter(prompt => {
-    // 分类过滤
     if (filter.category && prompt.category !== filter.category) {
       return false
     }
 
-    // 优先级过滤
     if (filter.priority && prompt.priority !== filter.priority) {
       return false
     }
 
-    // 收藏状态过滤
     if (filter.isFavorite !== undefined && prompt.isFavorite !== filter.isFavorite) {
       return false
     }
 
-    // 激活状态过滤
     if (filter.isActive !== undefined && prompt.isActive !== filter.isActive) {
       return false
     }
 
-    // 标签过滤
     if (filter.tags && filter.tags.length > 0) {
       const hasMatchingTag = filter.tags.some(tag =>
         prompt.tags.some(promptTag => promptTag.toLowerCase().includes(tag.toLowerCase()))
@@ -96,7 +84,6 @@ export function filterPrompts(prompts: CustomPrompt[], filter: PromptFilter): Cu
       }
     }
 
-    // 文本搜索过滤
     if (filter.searchText) {
       const searchText = filter.searchText.toLowerCase()
       const matchesName = prompt.name.toLowerCase().includes(searchText)
@@ -113,9 +100,6 @@ export function filterPrompts(prompts: CustomPrompt[], filter: PromptFilter): Cu
   })
 }
 
-/**
- * 排序提示词列表
- */
 export function sortPrompts(
   prompts: CustomPrompt[],
   sortOptions: PromptSortOptions
@@ -175,9 +159,6 @@ export function createPrompt(data: Partial<CustomPrompt>): CustomPrompt {
   }
 }
 
-/**
- * 更新提示词对象
- */
 export function updatePrompt(prompt: CustomPrompt, updates: Partial<CustomPrompt>): CustomPrompt {
   return {
     ...prompt,
@@ -202,16 +183,13 @@ export function duplicatePrompt(prompt: CustomPrompt): CustomPrompt {
   }
 }
 
-/**
- * 导出提示词数据
- */
 export function exportPrompts(prompts: CustomPrompt[]): PromptExportData {
   return {
     version: '1.0.0',
     exportedAt: Date.now(),
     prompts: prompts.map(prompt => ({
       ...prompt,
-      // 清理敏感信息
+
       usageCount: 0
     }))
   }
@@ -230,7 +208,6 @@ export function validateImportData(data: unknown): PromptActionResult {
       return { success: false, message: '缺少必要的数据字段' }
     }
 
-    // 验证每个提示词
     for (const prompt of data.prompts) {
       const validation = validatePrompt(prompt)
       if (!validation.isValid) {
@@ -250,9 +227,6 @@ export function validateImportData(data: unknown): PromptActionResult {
   }
 }
 
-/**
- * 处理导入的提示词数据
- */
 export function processImportData(data: PromptExportData): CustomPrompt[] {
   const now = Date.now()
 

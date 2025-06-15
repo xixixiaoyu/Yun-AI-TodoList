@@ -7,13 +7,8 @@ import { getApiKey, shouldShowApiKeyReminder, hideApiKeyReminder } from '../serv
  * 管理 API Key 提醒、导航等全局状态
  */
 export function useAppState() {
-  // API Key 提醒状态
   const showApiKeyReminder = ref(false)
 
-  /**
-   * 关闭 API Key 提醒
-   * @param dontShowAgain 是否不再显示
-   */
   const closeReminder = (dontShowAgain = false) => {
     if (dontShowAgain) {
       hideApiKeyReminder()
@@ -29,11 +24,7 @@ export function useAppState() {
     showApiKeyReminder.value = false
   }
 
-  /**
-   * 初始化应用状态
-   */
   const initializeApp = () => {
-    // 检查是否配置了 API Key 且是否应该显示提醒
     if (!getApiKey() && shouldShowApiKeyReminder()) {
       showApiKeyReminder.value = true
     }

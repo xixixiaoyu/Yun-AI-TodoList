@@ -22,9 +22,6 @@ class Logger {
   private isDevelopment = import.meta.env.DEV
   private minLevel = this.isDevelopment ? LogLevel.DEBUG : LogLevel.WARN
 
-  /**
-   * 调试信息 - 仅在开发环境输出
-   */
   debug(message: string, data?: unknown, source?: string) {
     this.log(LogLevel.DEBUG, message, data, source)
   }
@@ -36,9 +33,6 @@ class Logger {
     this.log(LogLevel.INFO, message, data, source)
   }
 
-  /**
-   * 警告信息 - 开发和生产环境都输出
-   */
   warn(message: string, data?: unknown, source?: string) {
     this.log(LogLevel.WARN, message, data, source)
   }
@@ -73,14 +67,14 @@ class Logger {
     switch (entry.level) {
       case LogLevel.DEBUG:
         if (this.isDevelopment) {
-          // eslint-disable-next-line no-console
-          console.debug(message, entry.data || '')
+          // 使用 console.warn 替代 console.debug 以符合 ESLint 规则
+          console.warn(`[DEBUG] ${message}`, entry.data || '')
         }
         break
       case LogLevel.INFO:
         if (this.isDevelopment) {
-          // eslint-disable-next-line no-console
-          console.info(message, entry.data || '')
+          // 使用 console.warn 替代 console.info 以符合 ESLint 规则
+          console.warn(`[INFO] ${message}`, entry.data || '')
         }
         break
       case LogLevel.WARN:
@@ -93,10 +87,8 @@ class Logger {
   }
 }
 
-// 导出单例实例
 export const logger = new Logger()
 
-// 便捷的错误处理函数
 export function handleError(error: unknown, context: string, source?: string): void {
   const errorMessage = error instanceof Error ? error.message : String(error)
   const errorStack = error instanceof Error ? error.stack : undefined
@@ -104,7 +96,6 @@ export function handleError(error: unknown, context: string, source?: string): v
   logger.error(`${context}: ${errorMessage}`, { error, stack: errorStack }, source)
 }
 
-// 便捷的异步错误处理函数
 export function handleAsyncError<T>(
   promise: Promise<T>,
   context: string,
@@ -112,6 +103,6 @@ export function handleAsyncError<T>(
 ): Promise<T> {
   return promise.catch(error => {
     handleError(error, context, source)
-    throw error // 重新抛出错误，让调用者决定如何处理
+    throw error
   })
 }

@@ -20,7 +20,6 @@
 
       <h2>{{ t('productivityInsights') }}</h2>
 
-      <!-- 统一的完成趋势图表 -->
       <TodoCompletionChart />
     </div>
   </div>
@@ -111,7 +110,7 @@ defineOptions({
   font-weight: 600;
   color: var(--text-color);
   text-align: center;
-  padding-right: 3rem; /* 为关闭按钮留出空间 */
+  padding-right: 3rem;
 }
 
 @media (max-width: 768px) {
@@ -172,7 +171,6 @@ defineOptions({
   }
 }
 
-/* 滚动条样式 */
 .charts-content {
   scrollbar-width: thin;
   scrollbar-color: rgba(255, 154, 139, 0.6) rgba(0, 0, 0, 0.05);
@@ -197,7 +195,6 @@ defineOptions({
   background: rgba(255, 140, 127, 0.8);
 }
 
-/* 深色主题下的滚动条样式 */
 @media (prefers-color-scheme: dark) {
   .charts-content {
     scrollbar-color: rgba(255, 154, 139, 0.7) rgba(255, 255, 255, 0.1);

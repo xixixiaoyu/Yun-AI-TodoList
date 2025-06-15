@@ -1,9 +1,7 @@
 <template>
   <div class="settings-page">
     <div class="settings-container">
-      <!-- 设置内容区域 -->
       <div class="settings-content">
-        <!-- API 密钥配置区域 -->
         <div class="settings-section-wrapper">
           <ApiKeySection
             v-model:local-api-key="localApiKey"
@@ -13,7 +11,6 @@
           />
         </div>
 
-        <!-- 系统提示词配置区域 -->
         <div class="settings-section-wrapper">
           <SystemPromptSection
             v-model:local-system-prompt="localSystemPrompt"
@@ -32,10 +29,8 @@
         </div>
       </div>
 
-      <!-- 通知提示组件 -->
       <SettingsToast :show="showSuccessMessage" />
 
-      <!-- 增强版自定义提示词管理组件 -->
       <EnhancedCustomPromptManager
         v-model:show-add-prompt-popover="showAddPromptPopover"
         v-model:new-prompt-name="newPromptName"
@@ -60,7 +55,6 @@ import EnhancedCustomPromptManager from './settings/EnhancedCustomPromptManager.
 import SettingsToast from './settings/SettingsToast.vue'
 import SystemPromptSection from './settings/SystemPromptSection.vue'
 
-// 使用设置状态管理 composable
 const {
   showApiKey,
   showApiKeyPopover,
@@ -83,7 +77,6 @@ const {
   toggleFullscreen
 } = useSettingsState()
 
-// 使用提示词管理 composable
 const {
   error,
   handleTemplateChange,
@@ -110,7 +103,6 @@ const {
   showSuccessToast
 )
 
-// 显示添加提示词弹窗
 const showAddPrompt = () => {
   showAddPromptPopover.value = true
 }
@@ -160,7 +152,6 @@ defineOptions({
   justify-content: center;
 }
 
-/* 设置页面专用滚动条样式 */
 .settings-page {
   scrollbar-width: thin;
   scrollbar-color: rgba(255, 154, 139, 0.6) rgba(0, 0, 0, 0.05);
@@ -186,7 +177,6 @@ defineOptions({
   background: rgba(255, 140, 127, 0.8);
 }
 
-/* 深色主题下的设置页面滚动条样式 */
 @media (prefers-color-scheme: dark) {
   .settings-page {
     scrollbar-color: rgba(255, 154, 139, 0.7) rgba(255, 255, 255, 0.1);
@@ -205,7 +195,6 @@ defineOptions({
   }
 }
 
-/* 响应式设计 */
 @media (max-width: 1024px) {
   .settings-page {
     padding: 1.5rem 1rem;

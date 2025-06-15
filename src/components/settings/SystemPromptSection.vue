@@ -1,6 +1,5 @@
 <template>
   <div class="settings-section" :class="{ fullscreen: isFullscreen }">
-    <!-- 区域标题 -->
     <div class="section-header">
       <div class="header-content">
         <h3 class="section-title">{{ t('systemPrompt') }}</h3>
@@ -34,7 +33,6 @@
       </div>
     </div>
 
-    <!-- 增强版提示词选择器 -->
     <div class="prompt-controls">
       <EnhancedPromptTemplateSelector
         :selected-template="selectedPromptTemplate"
@@ -100,7 +98,6 @@ defineEmits<Emits>()
 
 const { t } = useI18n()
 
-// 计算属性
 const isSystemPromptValid = computed(() => {
   return props.localSystemPrompt.trim() !== ''
 })
@@ -349,7 +346,6 @@ defineOptions({
   font-size: 1rem;
 }
 
-/* 确保在小屏幕高度上能一屏展示 */
 @media (max-height: 800px) {
   .settings-section {
     padding: 1rem;

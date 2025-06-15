@@ -3,7 +3,6 @@ import { mount } from '@vue/test-utils'
 import ChartsDialog from '../ChartsDialog.vue'
 import { createI18n } from 'vue-i18n'
 
-// Mock Chart.js
 vi.mock('chart.js/auto', () => ({
   default: vi.fn().mockImplementation(() => ({
     destroy: vi.fn(),
@@ -11,7 +10,6 @@ vi.mock('chart.js/auto', () => ({
   }))
 }))
 
-// Mock useTodos composable
 vi.mock('../../../composables/useTodos', () => ({
   useTodos: () => ({
     todos: { value: [] },
@@ -19,7 +17,6 @@ vi.mock('../../../composables/useTodos', () => ({
   })
 }))
 
-// 创建 i18n 实例用于测试
 const i18n = createI18n({
   legacy: false,
   locale: 'zh',

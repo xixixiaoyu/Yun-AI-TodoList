@@ -6,7 +6,7 @@ export default {
     mirror: 'https://npmmirror.com/mirrors/electron/',
     cache: '.cache/electron'
   },
-  // 网络优化配置
+
   downloadAlternateFFmpeg: false,
   buildDependenciesFromSource: false,
   nodeGypRebuild: false,

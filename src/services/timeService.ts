@@ -1,7 +1,7 @@
 const TIME_SYNC_ENDPOINT = 'https://worldtimeapi.org/api/ip'
 const MAX_RETRIES = 3
-const RETRY_DELAY = 1000 // 1 second
-const SYNC_THRESHOLD = 5000 // 5 seconds
+const RETRY_DELAY = 1000
+const SYNC_THRESHOLD = 5000
 
 interface TimeResponse {
   datetime: string
@@ -45,25 +45,21 @@ async function fetchServerTime(attempt = 0): Promise<TimeResponse> {
 }
 
 export async function syncWithServerTime(): Promise<number> {
-  // 如果已经有同步在进行中，返回该Promise
   if (syncInProgress) {
     return syncInProgress
   }
 
-  // 如果上次同步时间在阈值内，直接返回已知的时间偏移
   if (lastSyncTime && Date.now() - lastSyncTime < SYNC_THRESHOLD) {
     return timeOffset
   }
 
   try {
-    // 创建新的同步Promise
     syncInProgress = (async () => {
       const beforeRequest = Date.now()
       const serverTime = await fetchServerTime()
       const afterRequest = Date.now()
       const requestTime = afterRequest - beforeRequest
 
-      // 如果请求时间太长，可能不够准确，重试
       if (requestTime > SYNC_THRESHOLD) {
         return syncWithServerTime()
       }
@@ -92,10 +88,8 @@ export function getAdjustedTime(): number {
 }
 
 export function startPeriodicSync(interval: number = 60 * 60 * 1000): () => void {
-  // 确保只有一个定期同步在运行
   stopPeriodicSync()
 
-  // 立即进行一次同步
   syncWithServerTime().catch(error => {
     console.error('Initial time sync failed:', error)
   })
@@ -118,7 +112,6 @@ export function stopPeriodicSync(): void {
   }
 }
 
-// 导出用于测试的内部状态
 export const __timeServiceInternals = {
   timeOffset,
   lastSyncTime,

@@ -18,24 +18,23 @@ console.log('')
 
 let allPassed = true
 
-// 验证配置
 const checks = [
   {
     name: '检查 electron-builder 配置',
-    check: checkBuilderConfig,
+    check: checkBuilderConfig
   },
   {
     name: '检查图标资源',
-    check: checkIconResources,
+    check: checkIconResources
   },
   {
     name: '检查构建脚本',
-    check: checkBuildScript,
+    check: checkBuildScript
   },
   {
     name: '测试构建命令',
-    check: testBuildCommands,
-  },
+    check: testBuildCommands
+  }
 ]
 
 function checkBuilderConfig() {
@@ -46,14 +45,7 @@ function checkBuilderConfig() {
 
   const content = readFileSync(configPath, 'utf8')
 
-  // 检查是否移除了不兼容的配置
-  const incompatibleConfigs = [
-    'sign: false',
-    'publisherName:',
-    'Name:',
-    'Comment:',
-    'Keywords:',
-  ]
+  const incompatibleConfigs = ['sign: false', 'publisherName:', 'Name:', 'Comment:', 'Keywords:']
 
   for (const config of incompatibleConfigs) {
     if (content.includes(config) && !content.includes('entry:')) {
@@ -61,12 +53,7 @@ function checkBuilderConfig() {
     }
   }
 
-  // 检查是否有正确的配置结构
-  if (
-    !content.includes('mac:') ||
-    !content.includes('win:') ||
-    !content.includes('linux:')
-  ) {
+  if (!content.includes('mac:') || !content.includes('win:') || !content.includes('linux:')) {
     throw new Error('缺少平台配置')
   }
 
@@ -79,13 +66,11 @@ function checkIconResources() {
     throw new Error('build 目录不存在')
   }
 
-  // 检查基础图标
   const iconPath = path.join(buildDir, 'icon.png')
   if (!existsSync(iconPath)) {
     throw new Error('基础图标 build/icon.png 不存在')
   }
 
-  // 检查图标尺寸（通过 file 命令）
   try {
     const output = execSync(`file "${iconPath}"`, { encoding: 'utf8' })
     if (!output.includes('512 x 512')) {
@@ -95,7 +80,6 @@ function checkIconResources() {
     console.warn('⚠️  无法检查图标尺寸')
   }
 
-  // 检查 macOS 图标
   const icnsPath = path.join(buildDir, 'icon.icns')
   if (!existsSync(icnsPath)) {
     console.warn('⚠️  缺少 macOS 图标 build/icon.icns')
@@ -112,12 +96,10 @@ function checkBuildScript() {
 
   const content = readFileSync(scriptPath, 'utf8')
 
-  // 检查是否修复了平台配置
   if (!content.includes("all: ['--mac', '--win', '--linux']")) {
     throw new Error('构建脚本平台配置未修复')
   }
 
-  // 检查是否移除了 eval 调用
   if (content.includes('eval(')) {
     throw new Error('构建脚本仍使用不安全的 eval() 调用')
   }
@@ -126,21 +108,19 @@ function checkBuildScript() {
 }
 
 function testBuildCommands() {
-  // 测试帮助命令
   try {
     execSync('node scripts/build-electron.js --help', {
       cwd: rootDir,
-      stdio: 'pipe',
+      stdio: 'pipe'
     })
   } catch (_error) {
     throw new Error('构建脚本帮助命令失败')
   }
 
-  // 测试验证命令
   try {
     execSync('node scripts/verify-electron-config.js', {
       cwd: rootDir,
-      stdio: 'pipe',
+      stdio: 'pipe'
     })
   } catch (_error) {
     throw new Error('Electron 配置验证失败')
@@ -149,7 +129,6 @@ function testBuildCommands() {
   return '✅ 构建命令测试通过'
 }
 
-// 执行验证
 async function verify() {
   let passed = 0
   let failed = 0

@@ -1,15 +1,12 @@
 <template>
   <div class="api-key-section">
-    <!-- 区域标题 -->
     <div class="section-header">
       <h3 class="section-title">{{ t('apiKeyConfiguration') }}</h3>
       <p class="section-description">配置您的 OpenAI API 密钥以启用 AI 功能</p>
     </div>
 
-    <!-- API 密钥状态卡片 -->
     <ApiKeyCard :local-api-key="localApiKey" @show-popover="showApiKeyPopover = true" />
 
-    <!-- API 密钥配置弹窗 -->
     <ApiKeyPopover
       v-if="showApiKeyPopover"
       :local-api-key="localApiKey"
@@ -21,7 +18,6 @@
       @clear="clearKey"
     />
 
-    <!-- 遮罩层 -->
     <div v-if="showApiKeyPopover" class="popover-overlay" @click="showApiKeyPopover = false" />
   </div>
 </template>
@@ -51,7 +47,6 @@ const emit = defineEmits<Emits>()
 
 const { t } = useI18n()
 
-// 计算属性和方法
 const localApiKey = computed({
   get: () => props.localApiKey,
   set: value => emit('update:localApiKey', value)
@@ -76,9 +71,6 @@ const saveAndClosePopover = () => {
   showApiKeyPopover.value = false
 }
 
-/**
- * 清除 API 密钥
- */
 const clearKey = () => {
   clearApiKey()
   localApiKey.value = ''

@@ -58,7 +58,6 @@ interface ElectronAPI {
   notification: ElectronNotification
 }
 
-// 向后兼容的 electron 对象
 interface ElectronLegacy {
   versions: ElectronVersions
   system: ElectronSystem

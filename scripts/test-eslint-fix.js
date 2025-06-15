@@ -12,14 +12,13 @@ import { fileURLToPath } from 'url'
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const rootDir = path.resolve(__dirname, '..')
 
-// 测试文件列表
 const testFiles = [
   'electron/main.js',
   'electron/preload.js',
   'electron/dev-config.js',
   'scripts/build-electron.js',
   'scripts/verify-electron-config.js',
-  'src/types/electron.d.ts',
+  'src/types/electron.d.ts'
 ]
 
 console.log('🔍 验证 ESLint 修复结果...')
@@ -27,17 +26,15 @@ console.log('')
 
 let allPassed = true
 
-// 测试每个文件
 for (const file of testFiles) {
   const filePath = path.join(rootDir, file)
 
   try {
     console.log(`📄 检查 ${file}...`)
 
-    // 运行 ESLint 检查
     execSync(`npx eslint "${filePath}" --no-error-on-unmatched-pattern`, {
       cwd: rootDir,
-      stdio: 'pipe',
+      stdio: 'pipe'
     })
 
     console.log(`  ✅ ${file} - 通过`)
@@ -50,14 +47,11 @@ for (const file of testFiles) {
 
 console.log('')
 
-// 测试 lint-staged 配置
 try {
   console.log('🔧 测试 lint-staged 配置...')
 
-  // 添加一个测试文件到暂存区
   execSync('git add electron/main.js', { cwd: rootDir, stdio: 'pipe' })
 
-  // 运行 lint-staged（但不实际提交）
   execSync('pnpm lint-staged', { cwd: rootDir, stdio: 'pipe' })
 
   console.log('  ✅ lint-staged 配置正常')
@@ -69,7 +63,6 @@ try {
 
 console.log('')
 
-// 总结
 if (allPassed) {
   console.log('🎉 所有 ESLint 问题已修复！')
   console.log('')

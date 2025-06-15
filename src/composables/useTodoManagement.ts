@@ -19,10 +19,8 @@ export function useTodoManagement() {
   const isSorting = ref(false)
   const MAX_TODO_LENGTH = 50
 
-  // 计算是否正在加载中
   const isLoading = computed(() => isSorting.value)
 
-  // 计算已过滤的待办事项
   const filteredTodos = computed(() => {
     try {
       const filtered = todos.value
@@ -31,7 +29,6 @@ export function useTodoManagement() {
         return []
       }
 
-      // 首先按状态过滤
       const statusFilterFn =
         filter.value === 'active'
           ? (todo: Todo) => todo && !todo.completed
@@ -41,16 +38,15 @@ export function useTodoManagement() {
 
       let result = filtered.filter(statusFilterFn)
 
-      // 然后按搜索查询过滤
       if (searchQuery.value.trim()) {
         const query = searchQuery.value.toLowerCase().trim()
         result = result.filter(todo => {
           if (!todo) {
             return false
           }
-          // 搜索标题和描述（如果有的话）
+
           const titleMatch = todo.text.toLowerCase().includes(query)
-          // 可以扩展到搜索标签
+
           const tagsMatch = todo.tags?.some(tag => tag.toLowerCase().includes(query)) || false
           return titleMatch || tagsMatch
         })
@@ -63,12 +59,10 @@ export function useTodoManagement() {
     }
   })
 
-  // 检查是否有未完成的待办事项
   const hasActiveTodos = computed(() => {
     return todos.value.some(todo => todo && !todo.completed)
   })
 
-  // 生成建议待办事项
   const generateSuggestedTodos = async () => {
     isGenerating.value = true
     try {
@@ -86,7 +80,6 @@ export function useTodoManagement() {
     }
   }
 
-  // 确认添加建议待办事项
   const confirmSuggestedTodos = () => {
     const duplicates = addMultipleTodos(
       suggestedTodos.value.map(todo => ({
@@ -100,18 +93,15 @@ export function useTodoManagement() {
     suggestedTodos.value = []
   }
 
-  // 取消添加建议待办事项
   const cancelSuggestedTodos = () => {
     showSuggestedTodos.value = false
     suggestedTodos.value = []
   }
 
-  // 更新建议待办事项
   const updateSuggestedTodo = (index: number, newText: string) => {
     suggestedTodos.value[index] = newText
   }
 
-  // 使用 AI 对未完成的待办事项进行排序
   const sortActiveTodosWithAI = async () => {
     isSorting.value = true
     try {
@@ -149,7 +139,6 @@ export function useTodoManagement() {
     }
   }
 
-  // 处理添加新待办事项
   const handleAddTodo = (text: string, tags: string[]) => {
     if (text && text.trim() !== '') {
       const success = addTodo(text, tags)

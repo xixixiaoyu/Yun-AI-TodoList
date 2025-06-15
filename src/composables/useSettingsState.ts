@@ -15,17 +15,14 @@ import { handleError } from '../utils/logger'
  * 管理设置页面的所有状态
  */
 export function useSettingsState() {
-  // API 密钥相关状态
   const showApiKey = ref(false)
   const showApiKeyPopover = ref(false)
   const localApiKey = ref('')
 
-  // 系统提示词相关状态
   const localSystemPrompt = ref('')
   const isFullscreen = ref(false)
   const selectedPromptTemplate = ref<PromptTemplate>('my')
 
-  // 自定义提示词相关状态
   const showAddPromptPopover = ref(false)
   const showPromptImportDialog = ref(false)
   const showPromptExportDialog = ref(false)
@@ -37,7 +34,6 @@ export function useSettingsState() {
   const newPromptTags = ref<string[]>([])
   const customPrompts = ref<CustomPrompt[]>([])
 
-  // 提示词过滤和排序状态
   const promptFilter = ref<PromptFilter>({
     searchText: '',
     category: undefined,
@@ -52,17 +48,11 @@ export function useSettingsState() {
     order: 'desc'
   })
 
-  // 通知状态
   const showSuccessMessage = ref(false)
 
-  /**
-   * 初始化设置状态
-   */
   const initializeSettings = () => {
-    // 加载 API 密钥
     localApiKey.value = apiKey.value
 
-    // 初始化系统提示词
     const savedSystemPrompt = localStorage.getItem('systemPrompt')
     if (savedSystemPrompt) {
       localSystemPrompt.value = savedSystemPrompt
@@ -70,18 +60,16 @@ export function useSettingsState() {
       localSystemPrompt.value = builtinPromptTemplates.my.content
     }
 
-    // 初始化选中的模板
     const lastSelectedTemplate = localStorage.getItem('lastSelectedTemplate')
     if (lastSelectedTemplate) {
       selectedPromptTemplate.value = lastSelectedTemplate as PromptTemplate
     }
 
-    // 初始化自定义提示词
     const savedCustomPrompts = localStorage.getItem('customPrompts')
     if (savedCustomPrompts) {
       try {
         const parsed = JSON.parse(savedCustomPrompts)
-        // 迁移旧格式的提示词数据
+
         customPrompts.value = parsed.map((prompt: Partial<CustomPrompt>) => {
           if (!prompt.category) {
             return {
@@ -105,7 +93,6 @@ export function useSettingsState() {
       }
     }
 
-    // 初始化过滤和排序选项
     const savedFilter = localStorage.getItem('promptFilter')
     if (savedFilter) {
       try {
@@ -133,23 +120,17 @@ export function useSettingsState() {
    */
   const loadPromptContent = (template: string, fallbackContent?: string | null) => {
     if (builtinPromptTemplates[template]) {
-      // 如果是内置模板，直接使用配置内容
       localSystemPrompt.value = builtinPromptTemplates[template].content
     } else {
-      // 如果是自定义模板，从自定义提示词中查找
       const customPrompt = customPrompts.value.find(p => p.id === template)
       if (customPrompt) {
         localSystemPrompt.value = customPrompt.content
       } else if (fallbackContent) {
-        // 如果找不到自定义模板但有保存的内容，使用保存的内容
         localSystemPrompt.value = fallbackContent
       }
     }
   }
 
-  /**
-   * 加载默认提示词
-   */
   const loadDefaultPrompt = () => {
     localSystemPrompt.value = builtinPromptTemplates.my.content
   }
@@ -164,9 +145,6 @@ export function useSettingsState() {
     }, duration)
   }
 
-  /**
-   * 切换全屏模式
-   */
   const toggleFullscreen = () => {
     isFullscreen.value = !isFullscreen.value
   }
@@ -178,9 +156,6 @@ export function useSettingsState() {
     showApiKey.value = !showApiKey.value
   }
 
-  /**
-   * 重置所有弹窗状态
-   */
   const resetPopoverStates = () => {
     showApiKeyPopover.value = false
     showAddPromptPopover.value = false
@@ -201,30 +176,23 @@ export function useSettingsState() {
     localStorage.setItem('promptFilter', JSON.stringify(promptFilter.value))
   }
 
-  /**
-   * 保存排序选项到本地存储
-   */
   const saveSortOptions = () => {
     localStorage.setItem('promptSortOptions', JSON.stringify(promptSortOptions.value))
   }
 
-  // 组件挂载时初始化设置
   onMounted(() => {
     initializeSettings()
   })
 
   return {
-    // API 密钥状态
     showApiKey,
     showApiKeyPopover,
     localApiKey,
 
-    // 系统提示词状态
     localSystemPrompt,
     isFullscreen,
     selectedPromptTemplate,
 
-    // 自定义提示词状态
     showAddPromptPopover,
     showPromptImportDialog,
     showPromptExportDialog,
@@ -236,14 +204,11 @@ export function useSettingsState() {
     newPromptTags,
     customPrompts,
 
-    // 过滤和排序状态
     promptFilter,
     promptSortOptions,
 
-    // 通知状态
     showSuccessMessage,
 
-    // 方法
     initializeSettings,
     loadPromptContent,
     loadDefaultPrompt,

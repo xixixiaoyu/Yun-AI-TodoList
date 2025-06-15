@@ -15,9 +15,6 @@ export interface PlatformInfo {
   platform: 'web' | 'electron' | 'android' | 'ios'
 }
 
-/**
- * 检测是否在 Electron 环境中
- */
 export function isElectron(): boolean {
   return (
     !!(window as typeof window & { electronAPI?: unknown }).electronAPI ||
@@ -32,9 +29,6 @@ export function isCapacitor(): boolean {
   return Capacitor.isNativePlatform()
 }
 
-/**
- * 检测是否在移动设备上
- */
 export function isMobileDevice(): boolean {
   return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
 }
@@ -70,9 +64,6 @@ export function getPlatformInfo(): PlatformInfo {
   }
 }
 
-/**
- * 平台特定的样式类名
- */
 export function getPlatformClasses(): string[] {
   const info = getPlatformInfo()
   const classes: string[] = []
@@ -92,6 +83,6 @@ export function getPlatformClasses(): string[] {
  */
 export function platformLog(message: string, ...args: unknown[]): void {
   const info = getPlatformInfo()
-  // 使用 console.warn 以符合 ESLint 规则
+
   console.warn(`[${info.platform.toUpperCase()}] ${message}`, ...args)
 }

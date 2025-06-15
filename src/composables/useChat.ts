@@ -14,19 +14,16 @@ export function useChat() {
   const conversationHistory = ref<Conversation[]>([])
   const currentConversationId = ref<string | null>(null)
 
-  // 添加新的状态
   const isLoading = ref(false)
   const retryCount = ref(0)
   const MAX_RETRIES = 3
 
-  // 改进错误处理
   const handleError = (error: unknown, context: string) => {
     console.error(`Error in ${context}:`, error)
     const errorMessage = error instanceof Error ? error.message : String(error)
     showError(errorMessage)
   }
 
-  // 加载对话历史
   const loadConversationHistory = () => {
     try {
       const savedHistory = localStorage.getItem('conversationHistory')
@@ -38,7 +35,6 @@ export function useChat() {
     }
   }
 
-  // 保存当前对话 ID
   const saveCurrentConversationId = (id: string | null) => {
     currentConversationId.value = id
     if (id) {
@@ -48,7 +44,6 @@ export function useChat() {
     }
   }
 
-  // 创建新对话
   const createNewConversation = (title: string = t('newConversation')) => {
     const newConversation: Conversation = {
       id: Date.now().toString(),
@@ -62,7 +57,6 @@ export function useChat() {
     localStorage.setItem('conversationHistory', JSON.stringify(conversationHistory.value))
   }
 
-  // 切换对话
   const switchConversation = (id: string) => {
     const conversation = conversationHistory.value.find(c => c.id === id)
     if (conversation) {
@@ -71,7 +65,6 @@ export function useChat() {
     }
   }
 
-  // 删除对话
   const deleteConversation = (id: string) => {
     conversationHistory.value = conversationHistory.value.filter(c => c.id !== id)
     if (currentConversationId.value === id) {
@@ -84,7 +77,6 @@ export function useChat() {
     localStorage.setItem('conversationHistory', JSON.stringify(conversationHistory.value))
   }
 
-  // 清空所有对话
   const clearAllConversations = () => {
     conversationHistory.value = []
     chatHistory.value = []
@@ -94,7 +86,6 @@ export function useChat() {
     createNewConversation()
   }
 
-  // 改进消息发送逻辑
   const sendMessage = async () => {
     if (!userMessage.value.trim() || isGenerating.value) {
       return
@@ -106,7 +97,6 @@ export function useChat() {
     retryCount.value = 0
 
     try {
-      // 如果是新对话的第一条消息，更新对话标题
       if (chatHistory.value.length === 0) {
         const currentConversation = conversationHistory.value.find(
           conv => conv.id === currentConversationId.value
@@ -117,14 +107,12 @@ export function useChat() {
         }
       }
 
-      // 保存用户消息到历史记录
       const userMsg: ChatMessage = {
         role: 'user',
         content: message
       }
       chatHistory.value.push(userMsg)
 
-      // 开始生成 AI 响应
       currentAIResponse.value = ''
       const messages: Message[] = chatHistory.value.map(msg => ({
         role: msg.role === 'user' ? 'user' : 'assistant',
@@ -133,16 +121,15 @@ export function useChat() {
 
       await getAIStreamResponse(messages, (chunk: string) => {
         if (chunk === '[DONE]') {
-          // 保存完整的 AI 响应到历史记录
           if (currentAIResponse.value) {
             const aiMsg: ChatMessage = {
               role: 'assistant',
               content: currentAIResponse.value
             }
-            // 先添加到历史记录
+
             chatHistory.value.push(aiMsg)
             saveConversationHistory()
-            // 等待下一个渲染周期再清空当前响应
+
             nextTick(() => {
               currentAIResponse.value = ''
               isGenerating.value = false
@@ -161,7 +148,7 @@ export function useChat() {
       })
     } catch (error) {
       handleError(error, 'sendMessage')
-      // 在错误发生时，尝试重试
+
       if (retryCount.value < MAX_RETRIES) {
         retryCount.value++
         await sendMessage()
@@ -171,7 +158,6 @@ export function useChat() {
     }
   }
 
-  // 改进优化消息逻辑
   const optimizeMessage = async () => {
     if (!userMessage.value.trim() || isOptimizing.value) {
       return
@@ -191,7 +177,6 @@ export function useChat() {
     }
   }
 
-  // 改进错误显示逻辑
   const showError = (message: string) => {
     error.value = message
     const timer = setTimeout(() => {
@@ -200,7 +185,6 @@ export function useChat() {
     }, 3000)
   }
 
-  // 改进历史记录保存逻辑
   const saveConversationHistory = () => {
     try {
       if (currentConversationId.value) {
@@ -218,10 +202,9 @@ export function useChat() {
     }
   }
 
-  // 停止生成
   const stopGenerating = () => {
     abortCurrentRequest()
-    // 如果有已生成的内容，将其保存到聊天历史
+
     if (currentAIResponse.value) {
       const aiMsg: ChatMessage = {
         role: 'assistant',

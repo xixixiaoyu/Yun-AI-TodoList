@@ -12,7 +12,6 @@ export function useUIState() {
 
   const isSmallScreen = computed(() => width.value < 768)
 
-  // 计算主题图标
   const themeIcon = computed(() => {
     if (theme.value === 'auto') {
       return 'auto'
@@ -20,7 +19,6 @@ export function useUIState() {
     return theme.value === 'light' ? 'moon' : 'sun'
   })
 
-  // 计算主题切换提示文本
   const themeTooltip = computed(() => {
     switch (theme.value) {
       case 'light':
@@ -34,17 +32,14 @@ export function useUIState() {
     }
   })
 
-  // 切换图表显示状态
   const toggleCharts = () => {
     showCharts.value = !showCharts.value
   }
 
-  // 关闭图表
   const closeCharts = () => {
     showCharts.value = false
   }
 
-  // 显示大型礼花效果
   const showBigConfetti = () => {
     confetti({
       particleCount: 300,
@@ -53,7 +48,6 @@ export function useUIState() {
     })
   }
 
-  // 处理番茄钟完成事件
   const handlePomodoroComplete = (isBreakStarted: boolean) => {
     if (isBreakStarted) {
       showBigConfetti()
@@ -63,7 +57,6 @@ export function useUIState() {
     }
   }
 
-  // 检查番茄钟完成状态并显示礼花效果
   const checkPomodoroCompletion = () => {
     if (!document.hidden) {
       const pomodoroCompleted = localStorage.getItem('pomodoroCompleted')
@@ -74,9 +67,7 @@ export function useUIState() {
     }
   }
 
-  // 处理按键事件
   const onKeyDown = (event: KeyboardEvent) => {
-    // ESC 键关闭弹窗
     if (event.key === 'Escape') {
       if (showCharts.value) {
         showCharts.value = false
@@ -84,7 +75,6 @@ export function useUIState() {
       }
     }
 
-    // 快捷键（需要按住 Ctrl/Cmd）
     if (event.ctrlKey || event.metaKey) {
       switch (event.key.toLowerCase()) {
         case 's':

@@ -13,7 +13,6 @@ import { fileURLToPath } from 'url'
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const rootDir = path.resolve(__dirname, '..')
 
-// 检查 Node.js 版本
 function checkNodeVersion() {
   const nodeVersion = process.version
   const requiredVersion = '18.0.0'
@@ -25,7 +24,6 @@ function checkNodeVersion() {
   }
 }
 
-// 检查依赖
 function checkDependencies() {
   console.log('🔍 检查依赖...')
 
@@ -34,7 +32,6 @@ function checkDependencies() {
     throw new Error('package.json 不存在')
   }
 
-  // 检查关键依赖
   const criticalDeps = ['electron', 'electron-builder', 'vite']
   const nodeModulesPath = path.join(rootDir, 'node_modules')
 
@@ -46,7 +43,6 @@ function checkDependencies() {
   }
 }
 
-// 检查构建资源
 function checkBuildResources() {
   console.log('🔍 检查构建资源...')
 
@@ -56,7 +52,6 @@ function checkBuildResources() {
     mkdirSync(buildDir, { recursive: true })
   }
 
-  // 检查图标文件
   const iconFiles = ['icon.png']
   const missingIcons = []
 
@@ -73,19 +68,16 @@ function checkBuildResources() {
   }
 }
 
-// 清理构建目录
 function clean() {
   console.log('🧹 清理构建目录...')
   execSync('pnpm run clean', { cwd: rootDir, stdio: 'inherit' })
 }
 
-// 构建渲染进程
 function buildRenderer() {
   console.log('🏗️  构建渲染进程...')
   execSync('vite build', { cwd: rootDir, stdio: 'inherit' })
 }
 
-// 构建 Electron 应用
 function buildElectron(platform = 'all') {
   console.log(`📦 构建 Electron 应用 (${platform})...`)
 
@@ -95,23 +87,19 @@ function buildElectron(platform = 'all') {
   execSync(command, { cwd: rootDir, stdio: 'inherit' })
 }
 
-// 构建配置
 const buildConfig = {
   platforms: {
     mac: ['--mac'],
     win: ['--win'],
     linux: ['--linux'],
-    all: ['--mac', '--win', '--linux'], // 构建所有平台
+    all: ['--mac', '--win', '--linux']
   },
 
-  // 构建前检查函数
   preChecks: [checkNodeVersion, checkDependencies, checkBuildResources],
 
-  // 构建步骤函数
-  buildSteps: [clean, buildRenderer, buildElectron],
+  buildSteps: [clean, buildRenderer, buildElectron]
 }
 
-// 主构建函数
 async function build(platform = 'all') {
   const startTime = Date.now()
 
@@ -120,14 +108,12 @@ async function build(platform = 'all') {
     console.log(`📋 目标平台: ${platform}`)
     console.log('')
 
-    // 执行构建前检查
     for (const check of buildConfig.preChecks) {
       check()
     }
 
     console.log('')
 
-    // 执行构建步骤
     clean()
     buildRenderer()
     buildElectron(platform)
@@ -147,12 +133,10 @@ async function build(platform = 'all') {
   }
 }
 
-// 命令行参数处理
 const args = process.argv.slice(2)
 const platform = args[0] || 'all'
 const validPlatforms = Object.keys(buildConfig.platforms)
 
-// 显示帮助信息
 if (args.includes('--help') || args.includes('-h')) {
   console.log('🚀 Electron 构建脚本')
   console.log('')
@@ -180,5 +164,4 @@ if (!validPlatforms.includes(platform)) {
   process.exit(1)
 }
 
-// 执行构建
 build(platform)

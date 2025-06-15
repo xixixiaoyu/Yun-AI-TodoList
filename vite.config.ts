@@ -3,7 +3,6 @@ import { fileURLToPath, URL } from 'node:url'
 import { defineConfig } from 'vite'
 import { VitePWA } from 'vite-plugin-pwa'
 
-// https://vitejs.dev/config/
 export default defineConfig({
   plugins: [
     vue(),
@@ -67,7 +66,7 @@ export default defineConfig({
         assetFileNames: 'assets/[name]-[hash][extname]'
       }
     },
-    // 启用压缩
+
     minify: 'terser',
     terserOptions: {
       compress: {
@@ -76,15 +75,14 @@ export default defineConfig({
         pure_funcs: ['console.log', 'console.info']
       }
     },
-    // 启用 CSS 代码分割
+
     cssCodeSplit: true,
-    // 预加载模块
+
     modulePreload: {
       polyfill: true
     }
   },
   define: {
-    // 移动端环境变量
     __CAPACITOR__: JSON.stringify(process.env.CAPACITOR !== undefined),
     __ELECTRON__: JSON.stringify(process.env.ELECTRON !== undefined)
   },

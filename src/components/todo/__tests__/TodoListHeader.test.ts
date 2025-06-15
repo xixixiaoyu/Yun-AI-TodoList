@@ -3,7 +3,6 @@ import { describe, expect, it } from 'vitest'
 import { createI18n } from 'vue-i18n'
 import TodoListHeader from '../TodoListHeader.vue'
 
-// 创建 i18n 实例用于测试
 const i18n = createI18n({
   legacy: false,
   locale: 'zh',
@@ -39,21 +38,17 @@ describe('TodoListHeader', () => {
       }
     })
 
-    // 检查是否有三个按钮
     const buttons = wrapper.findAll('.icon-button')
     expect(buttons).toHaveLength(3)
 
-    // 检查按钮类名
     expect(wrapper.find('.search-button').exists()).toBe(true)
     expect(wrapper.find('.theme-toggle').exists()).toBe(true)
     expect(wrapper.find('.charts-button').exists()).toBe(true)
 
-    // 检查每个按钮都包含图标
     expect(wrapper.find('.search-button .button-icon').exists()).toBe(true)
     expect(wrapper.find('.theme-toggle .button-icon').exists()).toBe(true)
     expect(wrapper.find('.charts-button .button-icon').exists()).toBe(true)
 
-    // 检查按钮不包含文本（纯图标显示）
     expect(wrapper.find('.button-text').exists()).toBe(false)
   })
 
@@ -79,11 +74,9 @@ describe('TodoListHeader', () => {
       }
     })
 
-    // 测试主题切换
     await wrapper.find('.theme-toggle').trigger('click')
     expect(wrapper.emitted('toggleTheme')).toHaveLength(1)
 
-    // 测试图表切换
     await wrapper.find('.charts-button').trigger('click')
     expect(wrapper.emitted('toggleCharts')).toHaveLength(1)
   })
@@ -107,7 +100,6 @@ describe('TodoListHeader', () => {
   })
 
   it('应该根据不同主题图标显示不同的 SVG', () => {
-    // 测试太阳图标
     const sunWrapper = mount(TodoListHeader, {
       props: { ...defaultProps, themeIcon: 'sun' },
       global: { plugins: [i18n] }
@@ -117,7 +109,6 @@ describe('TodoListHeader', () => {
     expect(sunSvg.attributes('width')).toBe('22')
     expect(sunSvg.attributes('height')).toBe('22')
 
-    // 测试月亮图标
     const moonWrapper = mount(TodoListHeader, {
       props: { ...defaultProps, themeIcon: 'moon' },
       global: { plugins: [i18n] }
@@ -127,7 +118,6 @@ describe('TodoListHeader', () => {
     expect(moonSvg.attributes('width')).toBe('22')
     expect(moonSvg.attributes('height')).toBe('22')
 
-    // 测试自动图标
     const autoWrapper = mount(TodoListHeader, {
       props: { ...defaultProps, themeIcon: 'auto' },
       global: { plugins: [i18n] }
@@ -148,10 +138,8 @@ describe('TodoListHeader', () => {
 
     const buttons = wrapper.findAll('.icon-button')
     buttons.forEach(button => {
-      // 检查按钮具有正确的CSS类
       expect(button.classes()).toContain('icon-button')
 
-      // 检查图标尺寸
       const icon = button.find('.button-icon')
       expect(icon.exists()).toBe(true)
       expect(icon.attributes('width')).toBe('22')

@@ -16,15 +16,12 @@ export function useTodoListState() {
   const { showError } = useErrorHandler()
   const confirmDialog = useConfirmDialog()
 
-  // 创建待办事项列表的 ref，用于拖拽排序功能
   const todoListRef = ref<HTMLElement | null>(null)
 
-  // 使用各种 composables
   const { showConfirmDialog, confirmDialogConfig, handleConfirm, handleCancel } = confirmDialog
 
   const { todos, loadTodos, updateTodosOrder } = useTodos()
 
-  // 待办事项管理相关
   const {
     filter,
     searchQuery,
@@ -47,12 +44,10 @@ export function useTodoListState() {
     isLoading
   } = useTodoManagement()
 
-  // 搜索状态管理
   const showSearch = ref(false)
   const toggleSearch = () => {
     showSearch.value = !showSearch.value
     if (!showSearch.value) {
-      // 收缩时清除搜索内容
       searchQuery.value = ''
     }
   }
@@ -61,7 +56,6 @@ export function useTodoListState() {
     searchQuery.value = ''
   }
 
-  // UI状态管理相关
   const {
     showCharts,
     isSmallScreen,
@@ -75,12 +69,9 @@ export function useTodoListState() {
     onKeyDown: originalOnKeyDown
   } = useUIState()
 
-  // 扩展键盘事件处理，添加搜索快捷键
   const onKeyDown = (event: KeyboardEvent) => {
-    // 先调用原始的键盘事件处理
     originalOnKeyDown(event)
 
-    // 添加搜索快捷键 Ctrl+F
     if (event.ctrlKey || event.metaKey) {
       if (event.key.toLowerCase() === 'f') {
         event.preventDefault()
@@ -89,7 +80,6 @@ export function useTodoListState() {
     }
   }
 
-  // 添加错误边界处理
   const handleError = (error: Error) => {
     logError(error, 'TodoList error', 'TodoListState')
     showError(t('generalError'))
@@ -97,7 +87,6 @@ export function useTodoListState() {
 
   onErrorCaptured(handleError)
 
-  // 添加性能监控
   let renderStartTime = 0
   onBeforeMount(() => {
     renderStartTime = performance.now()
@@ -108,7 +97,7 @@ export function useTodoListState() {
     document.addEventListener('keydown', onKeyDown)
 
     try {
-      loadTodos() // 加载待办事项数据
+      loadTodos()
       logger.debug('Todos loaded', todos.value, 'TodoListState')
     } catch (error) {
       logError(error, 'Error loading todos', 'TodoListState')
@@ -127,20 +116,16 @@ export function useTodoListState() {
   })
 
   return {
-    // Refs
     todoListRef,
 
-    // 确认对话框
     showConfirmDialog,
     confirmDialogConfig,
     handleConfirm,
     handleCancel,
 
-    // 待办事项数据
     todos,
     updateTodosOrder,
 
-    // 待办事项管理
     filter,
     searchQuery,
     filteredTodos,
@@ -161,7 +146,6 @@ export function useTodoListState() {
     duplicateError,
     isLoading,
 
-    // UI 状态
     showCharts,
     showSearch,
     isSmallScreen,
@@ -174,7 +158,6 @@ export function useTodoListState() {
     collapseSearch,
     handlePomodoroComplete,
 
-    // 事件处理
     onKeyDown,
     handleError
   }

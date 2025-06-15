@@ -34,7 +34,7 @@
         </div>
       </div>
     </div>
-    <!-- 显示正在生成的回答 -->
+
     <div v-if="currentResponse" class="message-container ai">
       <div class="message-content" dir="ltr">
         <div class="ai-message">
@@ -78,7 +78,6 @@ const sanitizedMessages = computed(() =>
   }))
 )
 
-// 复制到剪贴板
 const copyToClipboard = async (text: string) => {
   try {
     await navigator.clipboard.writeText(text)
@@ -90,7 +89,6 @@ const copyToClipboard = async (text: string) => {
 const isUserScrolling = ref(false)
 const lastScrollTop = ref(0)
 
-// 立即滚动到底部（无动画）
 const scrollToBottomInstantly = () => {
   if (chatHistoryRef.value) {
     const element = chatHistoryRef.value
@@ -99,7 +97,6 @@ const scrollToBottomInstantly = () => {
   }
 }
 
-// 平滑滚动到底部
 const scrollToBottom = () => {
   if (chatHistoryRef.value) {
     const element = chatHistoryRef.value
@@ -108,13 +105,11 @@ const scrollToBottom = () => {
   }
 }
 
-// 处理滚动事件
 const handleScroll = () => {
   if (chatHistoryRef.value) {
     const element = chatHistoryRef.value
     const isAtBottom = element.scrollHeight - element.scrollTop <= element.clientHeight + 30
 
-    // 检测用户是否在向上滚动
     if (element.scrollTop < lastScrollTop.value) {
       isUserScrolling.value = true
     }
@@ -130,28 +125,23 @@ const handleScroll = () => {
   }
 }
 
-// 智能滚动到底部
 const smartScrollToBottom = () => {
   if (!chatHistoryRef.value) {
     return
   }
 
-  // 只要用户没有主动向上滚动就自动滚动到底部
   if (!isUserScrolling.value) {
     scrollToBottomInstantly()
   }
 }
 
-// 组件挂载时立即滚动到底部
 onMounted(() => {
   scrollToBottomInstantly()
 })
 
-// 监听消息变化
 watch(
   () => props.messages,
   () => {
-    // 新消息来时重置滚动状态
     isUserScrolling.value = false
     nextTick(() => {
       smartScrollToBottom()
@@ -160,7 +150,6 @@ watch(
   { immediate: true }
 )
 
-// 监听当前响应变化
 watch(
   () => props.currentResponse,
   (newVal, oldVal) => {
@@ -259,10 +248,9 @@ defineExpose({
 
 .ai-message {
   position: relative;
-  padding-bottom: 8px; /* 为复制按钮留出空间 */
+  padding-bottom: 8px;
 }
 
-/* 添加代码高亮样式 */
 .ai-message :deep(pre) {
   background-color: var(--input-bg-color);
   padding: 1em;
@@ -285,7 +273,6 @@ defineExpose({
   font-size: 0.9em;
 }
 
-/* 代码块语言标识 */
 .ai-message :deep(pre[class*='language-']) {
   position: relative;
 }
@@ -303,7 +290,6 @@ defineExpose({
   opacity: 0.8;
 }
 
-/* 代码高亮主题颜色 */
 .ai-message :deep(.hljs-keyword),
 .ai-message :deep(.hljs-tag),
 .ai-message :deep(.hljs-name) {
@@ -355,7 +341,6 @@ defineExpose({
   color: #abb2bf;
 }
 
-/* 深色主题适配 */
 @media (prefers-color-scheme: dark) {
   .ai-message :deep(pre) {
     background-color: rgba(0, 0, 0, 0.2);
@@ -423,7 +408,7 @@ defineExpose({
   }
 
   .ai-message {
-    padding-bottom: 32px; /* 增加底部空间以容纳复制按钮 */
+    padding-bottom: 32px;
   }
 
   .copy-button {
@@ -450,7 +435,6 @@ defineExpose({
   }
 }
 
-/* 添加深色模式下的样式优化 */
 @media (prefers-color-scheme: dark) {
   .copy-button {
     background-color: rgba(255, 255, 255, 0.15);

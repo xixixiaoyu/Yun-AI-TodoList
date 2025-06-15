@@ -42,13 +42,9 @@ export function usePromptManagement(
 ) {
   const { t } = useI18n()
 
-  // 内部状态
   const isLoading = ref(false)
   const error = ref<string | null>(null)
 
-  /**
-   * 保存自定义提示词到本地存储
-   */
   const saveCustomPrompts = () => {
     localStorage.setItem('customPrompts', JSON.stringify(customPrompts.value))
   }
@@ -67,21 +63,17 @@ export function usePromptManagement(
       const customPrompt = customPrompts.value.find(p => p.id === template)
       if (customPrompt) {
         localSystemPrompt.value = customPrompt.content
-        // 增加使用次数
+
         customPrompt.usageCount++
         customPrompt.updatedAt = Date.now()
         saveCustomPrompts()
       }
     }
-    // 保存当前选择的模板
+
     localStorage.setItem('lastSelectedTemplate', template)
   }
 
-  /**
-   * 保存新的自定义提示词
-   */
   const saveNewPrompt = () => {
-    // 验证提示词数据
     const validation = validatePrompt({
       name: newPromptName.value,
       content: newPromptContent.value,
@@ -112,7 +104,6 @@ export function usePromptManagement(
     localSystemPrompt.value = newPrompt.content
     localStorage.setItem('lastSelectedTemplate', newPrompt.id)
 
-    // 重置表单
     resetNewPromptForm()
     showAddPromptPopover.value = false
     showSuccessToast()
@@ -131,13 +122,9 @@ export function usePromptManagement(
     error.value = null
   }
 
-  /**
-   * 保存系统提示词
-   */
   const saveSystemPrompt = () => {
     localStorage.setItem('systemPrompt', localSystemPrompt.value)
 
-    // 如果当前不是自定义模板，保存时创建一个新的自定义模板
     if (!selectedPromptTemplate.value.startsWith('custom_')) {
       const newPrompt = createPrompt({
         name: t('customPrompt'),
@@ -151,7 +138,6 @@ export function usePromptManagement(
       selectedPromptTemplate.value = newPrompt.id
       localStorage.setItem('lastSelectedTemplate', newPrompt.id)
     } else {
-      // 更新现有的自定义提示词
       const currentPrompt = customPrompts.value.find(p => p.id === selectedPromptTemplate.value)
       if (currentPrompt) {
         currentPrompt.content = localSystemPrompt.value
@@ -173,16 +159,12 @@ export function usePromptManagement(
     localStorage.removeItem('lastSelectedTemplate')
   }
 
-  /**
-   * 删除提示词
-   */
   const deletePrompt = (promptId: string) => {
     const index = customPrompts.value.findIndex(p => p.id === promptId)
     if (index > -1) {
       customPrompts.value.splice(index, 1)
       saveCustomPrompts()
 
-      // 如果删除的是当前选中的提示词，重置为默认
       if (selectedPromptTemplate.value === promptId) {
         selectedPromptTemplate.value = 'my'
         localSystemPrompt.value = builtinPromptTemplates.my.content
@@ -202,9 +184,6 @@ export function usePromptManagement(
     }
   }
 
-  /**
-   * 复制提示词
-   */
   const duplicateCurrentPrompt = () => {
     const currentPrompt = customPrompts.value.find(p => p.id === selectedPromptTemplate.value)
     if (currentPrompt) {
@@ -227,9 +206,6 @@ export function usePromptManagement(
     }
   }
 
-  /**
-   * 切换提示词激活状态
-   */
   const togglePromptActive = (promptId: string) => {
     const prompt = customPrompts.value.find(p => p.id === promptId)
     if (prompt) {
@@ -262,9 +238,6 @@ export function usePromptManagement(
     }
   }
 
-  /**
-   * 导入提示词
-   */
   const importPromptsData = (file: File) => {
     return new Promise<PromptActionResult>(resolve => {
       const reader = new FileReader()
@@ -298,7 +271,6 @@ export function usePromptManagement(
     })
   }
 
-  // 计算属性
   const filteredPrompts = computed(() => {
     return filterPrompts(customPrompts.value, promptFilter.value)
   })
@@ -318,9 +290,6 @@ export function usePromptManagement(
     return newPromptName.value.trim() !== '' && newPromptContent.value.trim() !== ''
   })
 
-  /**
-   * 验证系统提示词
-   */
   const isSystemPromptValid = computed(() => {
     return localSystemPrompt.value.trim() !== ''
   })
@@ -332,9 +301,6 @@ export function usePromptManagement(
     return customPrompts.value.find(p => p.id === selectedPromptTemplate.value)
   }
 
-  /**
-   * 检查是否为自定义提示词
-   */
   const isCustomPrompt = computed(() => {
     return selectedPromptTemplate.value.startsWith('custom_')
   })
@@ -347,19 +313,16 @@ export function usePromptManagement(
   })
 
   return {
-    // 状态
     isLoading,
     error,
     filteredPrompts,
     sortedPrompts,
     promptStats,
 
-    // 模板管理
     handleTemplateChange,
     saveSystemPrompt,
     resetSystemPrompt,
 
-    // 提示词 CRUD
     saveNewPrompt,
     deletePrompt,
     confirmDeletePrompt,
@@ -367,14 +330,11 @@ export function usePromptManagement(
     togglePromptFavorite,
     togglePromptActive,
 
-    // 导入导出
     exportPromptsData,
     importPromptsData,
 
-    // 表单管理
     resetNewPromptForm,
 
-    // 验证和计算属性
     isPromptFormValid,
     isSystemPromptValid,
     getCurrentCustomPrompt,

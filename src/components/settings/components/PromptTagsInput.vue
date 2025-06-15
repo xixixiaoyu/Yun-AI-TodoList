@@ -44,9 +44,6 @@ const addTag = () => {
   }
 }
 
-/**
- * 移除标签
- */
 const removeTag = (index: number) => {
   emit(
     'update:tags',

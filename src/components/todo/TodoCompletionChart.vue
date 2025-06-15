@@ -1,6 +1,5 @@
 <template>
   <div class="todo-completion-chart">
-    <!-- 统计概览 -->
     <div class="stats-overview">
       <div class="stat-item">
         <div class="stat-value">{{ getOverallStats.total }}</div>
@@ -20,7 +19,6 @@
       </div>
     </div>
 
-    <!-- 趋势图表 -->
     <div class="chart-container">
       <canvas ref="chartRef" />
     </div>
@@ -39,14 +37,12 @@ const { todos, getCompletedTodosByDate } = useTodos()
 const chartRef = ref<HTMLCanvasElement | null>(null)
 let chart: Chart | null = null
 
-// 计算过去7天的完成趋势数据
 const getCompletionTrendData = () => {
   const completedByDate = getCompletedTodosByDate()
   const today = new Date()
   const labels: string[] = []
   const data: number[] = []
 
-  // 生成过去7天的日期
   for (let i = 6; i >= 0; i--) {
     const date = new Date(today)
     date.setDate(date.getDate() - i)
@@ -63,7 +59,6 @@ const getCompletionTrendData = () => {
   return { labels, data }
 }
 
-// 计算总体统计数据
 const getOverallStats = computed(() => {
   const total = todos.value.length
   const completed = todos.value.filter(todo => todo.completed).length
@@ -251,7 +246,6 @@ defineOptions({
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
-/* 响应式设计 */
 @media (max-width: 768px) {
   .stats-overview {
     grid-template-columns: repeat(2, 1fr);

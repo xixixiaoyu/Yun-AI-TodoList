@@ -1,11 +1,9 @@
 <template>
   <div class="header">
-    <!-- 应用标题 -->
     <h1 style="margin-right: 10px">
       {{ t('appTitle') }}
     </h1>
     <div class="header-actions">
-      <!-- 搜索按钮 -->
       <button
         class="icon-button search-button"
         :class="{ active: showSearch }"
@@ -26,7 +24,6 @@
         </svg>
       </button>
 
-      <!-- 主题切换按钮 -->
       <button
         class="icon-button theme-toggle"
         :class="{ active: themeIcon !== 'auto' }"
@@ -34,7 +31,6 @@
         :aria-label="themeTooltip"
         @click="$emit('toggleTheme')"
       >
-        <!-- 根据当前主题显示不同的图标 -->
         <svg
           v-if="themeIcon === 'moon'"
           xmlns="http://www.w3.org/2000/svg"
@@ -76,7 +72,6 @@
         </svg>
       </button>
 
-      <!-- 统计图表按钮 -->
       <button
         class="icon-button charts-button"
         :class="{ active: showCharts }"
@@ -264,12 +259,10 @@ h1 {
   }
 }
 
-/* 主题切换按钮特殊样式 */
 .theme-toggle {
   position: relative;
 }
 
-/* 工具提示样式 */
 .icon-button {
   position: relative;
 }
@@ -307,7 +300,6 @@ h1 {
   }
 }
 
-/* 响应式设计 */
 @media (max-width: 768px) {
   .header {
     flex-direction: column;

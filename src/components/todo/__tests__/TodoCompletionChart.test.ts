@@ -4,10 +4,8 @@ import { createI18n } from 'vue-i18n'
 import { useTodos } from '../../../composables/useTodos'
 import TodoCompletionChart from '../TodoCompletionChart.vue'
 
-// 获取 mocked 版本的 useTodos
 const mockedUseTodos = vi.mocked(useTodos)
 
-// Mock Chart.js
 vi.mock('chart.js/auto', () => ({
   default: vi.fn().mockImplementation(() => ({
     destroy: vi.fn(),
@@ -15,7 +13,6 @@ vi.mock('chart.js/auto', () => ({
   }))
 }))
 
-// Mock Canvas getContext
 Object.defineProperty(HTMLCanvasElement.prototype, 'getContext', {
   value: vi.fn(() => ({
     fillRect: vi.fn(),
@@ -45,7 +42,6 @@ Object.defineProperty(HTMLCanvasElement.prototype, 'getContext', {
   }))
 })
 
-// Mock useTodos composable
 vi.mock('../../../composables/useTodos', () => {
   const mockTodos = [
     {
@@ -89,7 +85,6 @@ vi.mock('../../../composables/useTodos', () => {
   }
 })
 
-// 创建 i18n 实例用于测试
 const i18n = createI18n({
   legacy: false,
   locale: 'zh',
@@ -110,7 +105,6 @@ const i18n = createI18n({
 
 describe('TodoCompletionChart', () => {
   beforeEach(() => {
-    // 清除所有 mock 调用记录
     vi.clearAllMocks()
   })
 
@@ -137,12 +131,11 @@ describe('TodoCompletionChart', () => {
     const statItems = wrapper.findAll('.stat-item')
     expect(statItems).toHaveLength(4)
 
-    // 检查统计数据
     const statValues = wrapper.findAll('.stat-value')
-    expect(statValues[0].text()).toBe('3') // 总任务数
-    expect(statValues[1].text()).toBe('2') // 已完成任务数
-    expect(statValues[2].text()).toBe('1') // 待完成任务数
-    expect(statValues[3].text()).toBe('67%') // 完成率
+    expect(statValues[0].text()).toBe('3')
+    expect(statValues[1].text()).toBe('2')
+    expect(statValues[2].text()).toBe('1')
+    expect(statValues[3].text()).toBe('67%')
   })
 
   it('应该正确显示统计标签', () => {
@@ -160,7 +153,6 @@ describe('TodoCompletionChart', () => {
   })
 
   it('应该在没有任务时正确处理', () => {
-    // 临时修改 mock 返回空数组
     mockedUseTodos.mockReturnValueOnce({
       todos: { value: [] },
       getCompletedTodosByDate: () => ({})
@@ -173,10 +165,10 @@ describe('TodoCompletionChart', () => {
     })
 
     const statValues = wrapper.findAll('.stat-value')
-    expect(statValues[0].text()).toBe('0') // 总任务数
-    expect(statValues[1].text()).toBe('0') // 已完成任务数
-    expect(statValues[2].text()).toBe('0') // 待完成任务数
-    expect(statValues[3].text()).toBe('0%') // 完成率
+    expect(statValues[0].text()).toBe('0')
+    expect(statValues[1].text()).toBe('0')
+    expect(statValues[2].text()).toBe('0')
+    expect(statValues[3].text()).toBe('0%')
   })
 
   it('应该具有正确的CSS类', () => {
@@ -199,10 +191,8 @@ describe('TodoCompletionChart', () => {
       }
     })
 
-    // 模拟组件卸载
     wrapper.unmount()
 
-    // 由于我们 mock 了 Chart.js，这里主要是确保组件能正常卸载
     expect(wrapper.vm).toBeDefined()
   })
 })

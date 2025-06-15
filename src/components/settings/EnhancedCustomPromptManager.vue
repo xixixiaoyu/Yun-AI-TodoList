@@ -1,6 +1,5 @@
 <template>
   <div class="enhanced-prompt-manager">
-    <!-- 添加新提示词弹窗 -->
     <PromptFormDialog
       v-if="showAddPromptPopover"
       :new-prompt-name="newPromptName"
@@ -54,7 +53,6 @@ interface Emits {
 const props = defineProps<Props>()
 const emit = defineEmits<Emits>()
 
-// 计算属性
 const newPromptName = computed({
   get: () => props.newPromptName,
   set: value => emit('update:newPromptName', value)
@@ -89,7 +87,6 @@ const isFormValid = computed(() => {
   return newPromptName.value.trim() !== '' && newPromptContent.value.trim() !== ''
 })
 
-// 方法
 const closeDialog = () => {
   emit('update:showAddPromptPopover', false)
   emit('resetForm')
