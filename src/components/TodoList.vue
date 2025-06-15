@@ -142,6 +142,7 @@ const {
   handleConfirm,
   handleCancel,
 
+  todos,
   updateTodosOrder,
   filter,
   searchQuery,
@@ -175,8 +176,54 @@ const {
   handlePomodoroComplete,
 } = useTodoListState()
 
-// 使用增强的拖拽排序功能
-const dragSort = useTodoDragSort(todoListRef, filteredTodos, updateTodosOrder)
+// 创建智能的拖拽顺序更新函数
+const handleDragOrderUpdate = async (newOrder: number[]) => {
+  // 如果当前有过滤条件，我们需要特殊处理
+  if (filter.value !== 'all' || searchQuery.value.trim() !== '') {
+    // 获取当前过滤后的 todos
+    const currentFilteredTodos = filteredTodos.value
+
+    // 创建新的顺序映射
+    const orderMap = new Map()
+    newOrder.forEach((id, index) => {
+      orderMap.set(id, index)
+    })
+
+    // 更新过滤后的 todos 的顺序
+    const updatedFilteredTodos = currentFilteredTodos
+      .map((todo) => ({
+        ...todo,
+        order: orderMap.has(todo.id) ? orderMap.get(todo.id) : todo.order,
+      }))
+      .sort((a, b) => a.order - b.order)
+
+    // 找到所有原始 todos 中不在过滤列表中的项目
+    const filteredIds = new Set(currentFilteredTodos.map((todo) => todo.id))
+    const unFilteredTodos = todos.value.filter((todo) => !filteredIds.has(todo.id))
+
+    // 重新构建完整的 todos 列表，保持未过滤项目的原始顺序
+    const maxFilteredOrder = Math.max(
+      ...updatedFilteredTodos.map((todo) => todo.order),
+      -1
+    )
+    const finalTodos = [
+      ...updatedFilteredTodos,
+      ...unFilteredTodos.map((todo, index) => ({
+        ...todo,
+        order: maxFilteredOrder + 1 + index,
+      })),
+    ].sort((a, b) => a.order - b.order)
+
+    // 更新顺序
+    await updateTodosOrder(finalTodos.map((todo) => todo.id))
+  } else {
+    // 没有过滤条件，直接更新顺序
+    await updateTodosOrder(newOrder)
+  }
+}
+
+// 使用增强的拖拽排序功能 - 使用过滤后的 todos 进行显示，但用智能函数处理顺序更新
+const dragSort = useTodoDragSort(todoListRef, filteredTodos, handleDragOrderUpdate)
 </script>
 
 <style scoped>

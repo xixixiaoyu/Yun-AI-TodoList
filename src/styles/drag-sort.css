@@ -10,12 +10,19 @@
   margin-right: 8px;
   cursor: grab;
   opacity: 0.6;
-  transition: all 0.2s ease;
+  transition:
+    opacity 0.1s ease,
+    background-color 0.1s ease; /* 减少过渡时间，提高响应性 */
   border-radius: 4px;
   background: transparent;
   border: none;
   padding: 2px;
   flex-shrink: 0;
+  user-select: none; /* 防止文本选择 */
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  touch-action: none; /* 优化触摸设备的拖拽体验 */
 }
 
 .drag-handle:hover {
@@ -25,7 +32,8 @@
 
 .drag-handle:active {
   cursor: grabbing;
-  transform: scale(1.1);
+  transform: scale(1.05); /* 减少缩放幅度，提高稳定性 */
+  transition: none; /* 移除过渡，立即响应 */
 }
 
 .drag-handle svg {
@@ -221,6 +229,14 @@
   .drag-handle {
     opacity: 1;
     background-color: var(--input-border-color, rgba(0, 0, 0, 0.1));
+    width: 28px; /* 增大触摸区域 */
+    height: 28px;
+    margin-right: 10px;
+  }
+
+  .drag-handle svg {
+    width: 20px; /* 相应增大图标 */
+    height: 20px;
   }
 
   .todo-item.todo-chosen {

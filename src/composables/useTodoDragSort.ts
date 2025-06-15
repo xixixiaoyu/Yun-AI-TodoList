@@ -85,13 +85,13 @@ export function useTodoDragSort(
     dragClass: 'todo-drag',
     disabled: false,
     handle: '.drag-handle',
-    delay: 150, // 增加延迟以避免误触
-    delayOnTouchStart: true,
-    touchStartThreshold: 15, // 增加触摸阈值
+    delay: 0, // 移除延迟，立即响应拖拽
+    delayOnTouchStart: false, // 触摸时也立即响应
+    touchStartThreshold: 5, // 降低触摸阈值，提高响应性
     forceFallback: false,
     fallbackClass: 'todo-fallback',
     fallbackOnBody: true,
-    fallbackTolerance: 8, // 增加容错范围
+    fallbackTolerance: 3, // 降低容错范围，提高精确度
     scroll: true,
     scrollSensitivity: 40, // 调整滚动敏感度
     scrollSpeed: 15, // 调整滚动速度
