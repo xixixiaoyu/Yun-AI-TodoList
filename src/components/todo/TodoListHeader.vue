@@ -16,11 +16,15 @@
           viewBox="0 0 24 24"
           width="22"
           height="22"
-          fill="currentColor"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
           class="button-icon"
         >
-          <circle cx="11" cy="11" r="8" />
-          <path d="m21 21-4.35-4.35" />
+          <circle cx="10" cy="10" r="7" fill="none" stroke="currentColor" />
+          <path d="m21 21-6-6" />
         </svg>
       </button>
 
@@ -37,12 +41,14 @@
           viewBox="0 0 24 24"
           width="22"
           height="22"
-          fill="currentColor"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
           class="button-icon"
         >
-          <path
-            d="M17.75 4.09L15.5 6.34l1.42 1.42L19.34 5.34A8.95 8.95 0 0 0 17.75 4.09zM4.66 5.34l2.42 2.42 1.42-1.42L6.08 4.09A8.95 8.95 0 0 0 4.66 5.34zM12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm0-14c-3.31 0-6 2.69-6 6s2.69 6 6 6 6-2.69 6-6-2.69-6-6-6z"
-          />
+          <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
         </svg>
         <svg
           v-else-if="themeIcon === 'sun'"
@@ -50,11 +56,16 @@
           viewBox="0 0 24 24"
           width="22"
           height="22"
-          fill="currentColor"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
           class="button-icon"
         >
+          <circle cx="12" cy="12" r="5" />
           <path
-            d="M12 7c-2.76 0-5 2.24-5 5s2.24 5 5 5 5-2.24 5-5-2.24-5-5-5zM2 13h2c.55 0 1-.45 1-1s-.45-1-1-1H2c-.55 0-1 .45-1 1s.45 1 1 1zm18 0h2c.55 0 1-.45 1-1s-.45-1-1-1h-2c-.55 0-1 .45-1 1s.45 1 1 1zM11 2v2c0 .55.45 1 1 1s1-.45 1-1V2c0-.55-.45-1-1-1s-1 .45-1 1zm0 18v2c0 .55.45 1 1 1s1-.45 1-1v-2c0-.55-.45-1-1-1s-1 .45-1 1zM5.99 4.58c-.39-.39-1.03-.39-1.41 0-.39.39-.39 1.03 0 1.41l1.06 1.06c.39.39 1.03.39 1.41 0s.39-1.03 0-1.41L5.99 4.58zm12.37 12.37c-.39-.39-1.03-.39-1.41 0-.39.39-.39 1.03 0 1.41l1.06 1.06c.39.39 1.03.39 1.41 0 .39-.39.39-1.03 0-1.41l-1.06-1.06zm1.06-10.96c.39-.39.39-1.03 0-1.41-.39-.39-1.03-.39-1.41 0l-1.06 1.06c-.39.39-.39 1.03 0 1.41s1.03.39 1.41 0l1.06-1.06zM7.05 18.36c.39-.39.39-1.03 0-1.41-.39-.39-1.03-.39-1.41 0l-1.06 1.06c-.39.39-.39 1.03 0 1.41s1.03.39 1.41 0l1.06-1.06z"
+            d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"
           />
         </svg>
         <svg
@@ -63,12 +74,17 @@
           viewBox="0 0 24 24"
           width="22"
           height="22"
-          fill="currentColor"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
           class="button-icon"
         >
-          <path
-            d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8 0-1.48.41-2.86 1.12-4.06l10.94 10.94C14.86 19.59 13.48 20 12 20zm6.88-3.94L8.94 6.12C10.14 4.41 11.52 4 12 4c4.41 0 8 3.59 8 8 0 1.48-.41 2.86-1.12 4.06z"
-          />
+          <!-- 左半部分：月亮 -->
+          <path d="M12 3a9 9 0 1 0 0 18c-2.5-1.5-4-4.5-4-9s1.5-7.5 4-9z" />
+          <!-- 右半部分：太阳光芒 -->
+          <path d="M16 8l1.5-1.5M20 12h2M16 16l1.5 1.5" />
         </svg>
       </button>
 
@@ -84,12 +100,16 @@
           viewBox="0 0 24 24"
           width="22"
           height="22"
-          fill="currentColor"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
           class="button-icon"
         >
-          <path
-            d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"
-          />
+          <line x1="18" y1="20" x2="18" y2="10" />
+          <line x1="12" y1="20" x2="12" y2="4" />
+          <line x1="6" y1="20" x2="6" y2="14" />
         </svg>
       </button>
     </div>
@@ -271,12 +291,12 @@ h1 {
   position: relative;
 }
 
-.icon-button:hover::after {
+.icon-button::after {
   content: attr(title);
   position: absolute;
   bottom: calc(100% + 12px);
   left: 50%;
-  transform: translateX(-50%);
+  transform: translateX(-50%) translateY(-5px);
   background: rgba(0, 0, 0, 0.9);
   color: white;
   padding: 0.5rem 0.75rem;
@@ -286,18 +306,19 @@ h1 {
   white-space: nowrap;
   z-index: 1001;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  animation: tooltipFadeIn 0.3s ease;
+  pointer-events: none;
+  opacity: 0;
+  visibility: hidden;
+  transition:
+    opacity 0.05s ease,
+    visibility 0.05s ease,
+    transform 0.05s ease;
 }
 
-@keyframes tooltipFadeIn {
-  from {
-    opacity: 0;
-    transform: translateX(-50%) translateY(4px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(-50%) translateY(0);
-  }
+.icon-button:hover::after {
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(-50%) translateY(0);
 }
 
 @media (max-width: 768px) {

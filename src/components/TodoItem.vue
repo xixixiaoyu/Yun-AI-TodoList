@@ -267,12 +267,11 @@ onErrorCaptured(handleError)
   opacity: 1;
   transform: translateX(0);
   color: var(--error-color);
-  border-color: var(--error-color);
 }
 
 .delete-btn:hover {
-  background-color: var(--error-color);
-  color: white;
+  background-color: rgba(229, 62, 62, 0.1);
+  color: var(--error-color);
   transform: scale(1.05);
 }
 

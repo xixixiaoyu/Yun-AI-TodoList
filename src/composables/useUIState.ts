@@ -16,7 +16,7 @@ export function useUIState() {
     if (theme.value === 'auto') {
       return 'auto'
     }
-    return theme.value === 'light' ? 'moon' : 'sun'
+    return theme.value === 'light' ? 'sun' : 'moon'
   })
 
   const themeTooltip = computed(() => {
