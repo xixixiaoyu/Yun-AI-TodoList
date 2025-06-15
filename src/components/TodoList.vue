@@ -99,7 +99,6 @@ import TodoItem from './TodoItem.vue'
 import ConfirmDialog from './ConfirmDialog.vue'
 import PomodoroTimer from './PomodoroTimer.vue'
 import LoadingOverlay from './common/LoadingOverlay.vue'
-import { useI18n } from 'vue-i18n'
 import { useTodoListState } from '../composables/useTodoListState'
 import { TodoListHeader, TodoActions, SuggestedTodosDialog, ChartsDialog } from './todo'
 

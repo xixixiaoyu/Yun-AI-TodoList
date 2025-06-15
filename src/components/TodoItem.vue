@@ -47,8 +47,6 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watchEffect, onBeforeMount, onMounted, onErrorCaptured } from 'vue'
-import { useI18n } from 'vue-i18n'
 import confetti from 'canvas-confetti'
 import type { Todo } from '../types/todo'
 import { useErrorHandler } from '../composables/useErrorHandler'

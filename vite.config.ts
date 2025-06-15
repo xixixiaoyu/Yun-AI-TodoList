@@ -3,9 +3,21 @@ import { fileURLToPath, URL } from 'node:url'
 import { defineConfig } from 'vite'
 import { VitePWA } from 'vite-plugin-pwa'
 
+// @ts-ignore
+import AutoImport from 'unplugin-auto-import/vite'
+
 export default defineConfig({
   plugins: [
     vue(),
+    AutoImport({
+      imports: ['vue', 'vue-router', 'vue-i18n', '@vueuse/core'],
+      dts: true,
+      eslintrc: {
+        enabled: true,
+        filepath: './.eslintrc-auto-import.json',
+        globalsPropValue: true
+      }
+    }),
     VitePWA({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'mask-icon.svg'],

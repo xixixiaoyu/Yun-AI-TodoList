@@ -24,7 +24,6 @@
 </template>
 
 <script setup lang="ts">
-import { ref, nextTick } from 'vue'
 import { useVoiceInput } from '../../composables/useVoiceInput'
 import ChatTextarea from './ChatTextarea.vue'
 import ChatInputControls from './ChatInputControls.vue'

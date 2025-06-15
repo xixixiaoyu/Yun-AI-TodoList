@@ -38,8 +38,6 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
-import { useI18n } from 'vue-i18n'
 import type { CustomPrompt, PromptTemplate } from '../../types/settings'
 import { builtinPromptTemplates } from '../../config/prompts'
 import PromptTemplateSelector from './components/PromptTemplateSelector.vue'

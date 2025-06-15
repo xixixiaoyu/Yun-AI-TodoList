@@ -26,8 +26,6 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, onUnmounted, ref, watch, computed } from 'vue'
-import { useI18n } from 'vue-i18n'
 import Chart from 'chart.js/auto'
 import { useTodos } from '../../composables/useTodos'
 

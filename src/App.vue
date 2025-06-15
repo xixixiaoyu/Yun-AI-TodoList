@@ -18,8 +18,6 @@
 </template>
 
 <script setup lang="ts">
-import { useWindowSize } from '@vueuse/core'
-import { computed, onErrorCaptured, onMounted, provide } from 'vue'
 import ApiKeyReminder from './components/layout/ApiKeyReminder.vue'
 import NavigationBar from './components/layout/NavigationBar.vue'
 import { useAppState } from './composables/useAppState'

@@ -1,6 +1,5 @@
-import { ref, onMounted } from 'vue'
 import router from '../router'
-import { getApiKey, shouldShowApiKeyReminder, hideApiKeyReminder } from '../services/configService'
+import { getApiKey, hideApiKeyReminder, shouldShowApiKeyReminder } from '../services/configService'
 
 /**
  * 应用全局状态管理

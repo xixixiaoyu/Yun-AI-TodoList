@@ -20,7 +20,6 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, nextTick, watch } from 'vue'
 import { useMarkdown } from '../../composables/useMarkdown'
 import ChatMessage from './ChatMessage.vue'
 import type { ChatMessage as ChatMessageType } from '../../services/types'

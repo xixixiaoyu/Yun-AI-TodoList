@@ -1,5 +1,3 @@
-import { ref, watch, onMounted, onUnmounted } from 'vue'
-
 export function useTheme() {
   const theme = ref(localStorage.getItem('theme') || 'auto')
   const systemTheme = ref(getSystemTheme())
