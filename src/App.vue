@@ -1,3 +1,27 @@
+<template>
+  <div class="app" :class="currentTheme">
+    <!-- 导航栏组件 -->
+    <NavigationBar />
+
+    <!-- 主要内容区域 -->
+    <div class="content-wrapper">
+      <div class="router-view-container">
+        <router-view />
+      </div>
+      <div class="top-components" :class="{ 'small-screen': isSmallScreen }">
+        <!-- 预留位置用于其他组件 -->
+      </div>
+    </div>
+
+    <!-- API Key 提醒组件 -->
+    <ApiKeyReminder
+      :show="showApiKeyReminder"
+      @close="closeReminder"
+      @go-to-settings="goToSettings"
+    />
+  </div>
+</template>
+
 <script setup lang="ts">
 import { onErrorCaptured, computed, onMounted, provide } from 'vue'
 import { useTheme } from './composables/useTheme'
@@ -33,30 +57,6 @@ onMounted(() => {
   }
 })
 </script>
-
-<template>
-  <div class="app" :class="currentTheme">
-    <!-- 导航栏组件 -->
-    <NavigationBar />
-
-    <!-- 主要内容区域 -->
-    <div class="content-wrapper">
-      <div class="router-view-container">
-        <router-view />
-      </div>
-      <div class="top-components" :class="{ 'small-screen': isSmallScreen }">
-        <!-- 预留位置用于其他组件 -->
-      </div>
-    </div>
-
-    <!-- API Key 提醒组件 -->
-    <ApiKeyReminder
-      :show="showApiKeyReminder"
-      @close="closeReminder"
-      @go-to-settings="goToSettings"
-    />
-  </div>
-</template>
 
 <style>
 /* 引入全局样式 */

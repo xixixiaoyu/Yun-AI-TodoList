@@ -1,3 +1,14 @@
+<template>
+  <div class="filter-buttons">
+    <button :class="{ active: filter === 'active' }" @click="setFilter('active')">
+      {{ t('active') }}
+    </button>
+    <button :class="{ active: filter === 'completed' }" @click="setFilter('completed')">
+      {{ t('completed') }}
+    </button>
+  </div>
+</template>
+
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n'
 
@@ -13,17 +24,6 @@ const setFilter = (newFilter: string) => {
   emit('update:filter', newFilter)
 }
 </script>
-
-<template>
-  <div class="filter-buttons">
-    <button :class="{ active: filter === 'active' }" @click="setFilter('active')">
-      {{ t('active') }}
-    </button>
-    <button :class="{ active: filter === 'completed' }" @click="setFilter('completed')">
-      {{ t('completed') }}
-    </button>
-  </div>
-</template>
 
 <style scoped>
 .filter-buttons {

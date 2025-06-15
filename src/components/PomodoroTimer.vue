@@ -1,3 +1,39 @@
+<template>
+  <div class="pomodoro-timer">
+    <div class="timer-content">
+      <div class="timer-display">
+        {{ formattedTime }}
+      </div>
+      <div class="timer-status">
+        {{ isBreak ? t('breakTime') : t('workTime') }}
+      </div>
+    </div>
+    <div class="timer-controls">
+      <template v-if="!isActive && !isWorkCompleted">
+        <button @click="startTimer">
+          {{ t('start') }}
+        </button>
+      </template>
+      <template v-else-if="isActive">
+        <button v-if="!isPaused" @click="pauseTimer">
+          {{ t('pause') }}
+        </button>
+        <button v-else @click="resumeTimer">
+          {{ t('resume') }}
+        </button>
+      </template>
+      <template v-if="isWorkCompleted">
+        <button @click="startBreak">
+          {{ t('startBreak') }}
+        </button>
+      </template>
+      <button @click="resetTimer">
+        {{ t('reset') }}
+      </button>
+    </div>
+  </div>
+</template>
+
 <script setup lang="ts">
 import { ref, computed, onUnmounted } from 'vue'
 import { useI18n } from 'vue-i18n'
@@ -142,42 +178,6 @@ const emit = defineEmits(['pomodoroComplete'])
 
 // 使用 getServerTime() 服务器时间可替代所有的 Date.now() 调用
 </script>
-
-<template>
-  <div class="pomodoro-timer">
-    <div class="timer-content">
-      <div class="timer-display">
-        {{ formattedTime }}
-      </div>
-      <div class="timer-status">
-        {{ isBreak ? t('breakTime') : t('workTime') }}
-      </div>
-    </div>
-    <div class="timer-controls">
-      <template v-if="!isActive && !isWorkCompleted">
-        <button @click="startTimer">
-          {{ t('start') }}
-        </button>
-      </template>
-      <template v-else-if="isActive">
-        <button v-if="!isPaused" @click="pauseTimer">
-          {{ t('pause') }}
-        </button>
-        <button v-else @click="resumeTimer">
-          {{ t('resume') }}
-        </button>
-      </template>
-      <template v-if="isWorkCompleted">
-        <button @click="startBreak">
-          {{ t('startBreak') }}
-        </button>
-      </template>
-      <button @click="resetTimer">
-        {{ t('reset') }}
-      </button>
-    </div>
-  </div>
-</template>
 
 <style scoped>
 .pomodoro-timer {

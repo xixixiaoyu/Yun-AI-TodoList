@@ -1,7 +1,7 @@
 let interval: ReturnType<typeof setInterval> | null = null
-let timeLeft: number = 0
-let isActive: boolean = false
-let lastTickTime: number = 0
+let timeLeft = 0
+let isActive = false
+let lastTickTime = 0
 let heartbeatCheck: ReturnType<typeof setInterval> | null = null
 let lastHeartbeat = Date.now()
 

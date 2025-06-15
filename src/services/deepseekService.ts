@@ -122,8 +122,8 @@ export async function getAIStreamResponse(
 
 export async function getAIResponse(
   userMessage: string,
-  language: string = 'zh',
-  temperature: number = 0.5
+  language = 'zh',
+  temperature = 0.5
 ): Promise<string> {
   try {
     const languageInstruction = language === 'zh' ? '请用中文回复。' : '请用英文回复。'

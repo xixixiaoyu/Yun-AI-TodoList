@@ -1,3 +1,76 @@
+<template>
+  <div class="ai-chat-dialog">
+    <div class="dialog-header">
+      <div class="header-left">
+        <h2>{{ t('aiAssistant') }}</h2>
+        <div class="prompt-template-selector">
+          <select v-model="selectedPromptTemplate" @change="handleTemplateChange">
+            <option value="none">{{ t('nonePrompt') }}</option>
+            <option value="my">{{ t('defaultPrompt') }}</option>
+
+            <optgroup v-if="customPrompts.length > 0" :label="t('customPrompts')">
+              <option v-for="prompt in customPrompts" :key="prompt.id" :value="prompt.id">
+                {{ prompt.name }}
+              </option>
+            </optgroup>
+          </select>
+        </div>
+      </div>
+      <router-link to="/" class="close-button" aria-label="close">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 24 24"
+          fill="currentColor"
+          width="24"
+          height="24"
+        >
+          <path
+            d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"
+          />
+        </svg>
+      </router-link>
+    </div>
+
+    <div class="dialog-content">
+      <ConversationDrawer
+        v-model:is-open="isDrawerOpen"
+        :conversations="conversationHistory"
+        :current-conversation-id="currentConversationId"
+        @switch="switchConversation"
+        @delete="deleteConversation"
+        @clear="clearAllConversations"
+      />
+
+      <ChatMessageList
+        ref="messageListRef"
+        :messages="chatHistory"
+        :current-response="currentAIResponse"
+        @scroll="handleScroll"
+      />
+
+      <div class="input-section">
+        <ChatToolbar
+          :is-optimizing="isOptimizing"
+          :user-message="userMessage"
+          @new="createNewConversation"
+          @optimize="optimizeMessage"
+          @toggle-drawer="isDrawerOpen = !isDrawerOpen"
+        />
+
+        <ChatInput
+          ref="inputRef"
+          v-model="userMessage"
+          :is-generating="isGenerating"
+          :is-optimizing="isOptimizing"
+          @send="handleSendMessage"
+          @stop="stopGenerating"
+          @optimize="optimizeMessage"
+        />
+      </div>
+    </div>
+  </div>
+</template>
+
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
@@ -33,7 +106,7 @@ const messageListRef = ref<InstanceType<typeof ChatMessageList> | null>(null)
 const inputRef = ref<InstanceType<typeof ChatInput> | null>(null)
 const shouldAutoScroll = ref(true)
 const selectedPromptTemplate = ref<string>('my')
-const customPrompts = ref<Array<{ id: string; name: string; content: string }>>([])
+const customPrompts = ref<{ id: string; name: string; content: string }[]>([])
 
 // 处理模板变更
 const handleTemplateChange = () => {
@@ -116,79 +189,6 @@ onMounted(() => {
   }
 })
 </script>
-
-<template>
-  <div class="ai-chat-dialog">
-    <div class="dialog-header">
-      <div class="header-left">
-        <h2>{{ t('aiAssistant') }}</h2>
-        <div class="prompt-template-selector">
-          <select v-model="selectedPromptTemplate" @change="handleTemplateChange">
-            <option value="none">{{ t('nonePrompt') }}</option>
-            <option value="my">{{ t('defaultPrompt') }}</option>
-
-            <optgroup v-if="customPrompts.length > 0" :label="t('customPrompts')">
-              <option v-for="prompt in customPrompts" :key="prompt.id" :value="prompt.id">
-                {{ prompt.name }}
-              </option>
-            </optgroup>
-          </select>
-        </div>
-      </div>
-      <router-link to="/" class="close-button" aria-label="close">
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          viewBox="0 0 24 24"
-          fill="currentColor"
-          width="24"
-          height="24"
-        >
-          <path
-            d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"
-          />
-        </svg>
-      </router-link>
-    </div>
-
-    <div class="dialog-content">
-      <ConversationDrawer
-        v-model:is-open="isDrawerOpen"
-        :conversations="conversationHistory"
-        :current-conversation-id="currentConversationId"
-        @switch="switchConversation"
-        @delete="deleteConversation"
-        @clear="clearAllConversations"
-      />
-
-      <ChatMessageList
-        ref="messageListRef"
-        :messages="chatHistory"
-        :current-response="currentAIResponse"
-        @scroll="handleScroll"
-      />
-
-      <div class="input-section">
-        <ChatToolbar
-          :is-optimizing="isOptimizing"
-          :user-message="userMessage"
-          @new="createNewConversation"
-          @optimize="optimizeMessage"
-          @toggle-drawer="isDrawerOpen = !isDrawerOpen"
-        />
-
-        <ChatInput
-          ref="inputRef"
-          v-model="userMessage"
-          :is-generating="isGenerating"
-          :is-optimizing="isOptimizing"
-          @send="handleSendMessage"
-          @stop="stopGenerating"
-          @optimize="optimizeMessage"
-        />
-      </div>
-    </div>
-  </div>
-</template>
 
 <style scoped>
 .ai-chat-dialog {

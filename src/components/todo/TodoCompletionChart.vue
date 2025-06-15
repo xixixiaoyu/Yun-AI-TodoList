@@ -1,3 +1,32 @@
+<template>
+  <div class="todo-completion-chart">
+    <!-- 统计概览 -->
+    <div class="stats-overview">
+      <div class="stat-item">
+        <div class="stat-value">{{ getOverallStats.total }}</div>
+        <div class="stat-label">{{ t('totalTasks') }}</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-value">{{ getOverallStats.completed }}</div>
+        <div class="stat-label">{{ t('completed') }}</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-value">{{ getOverallStats.pending }}</div>
+        <div class="stat-label">{{ t('pending') }}</div>
+      </div>
+      <div class="stat-item completion-rate">
+        <div class="stat-value">{{ getOverallStats.completionRate }}%</div>
+        <div class="stat-label">{{ t('completionRate') }}</div>
+      </div>
+    </div>
+
+    <!-- 趋势图表 -->
+    <div class="chart-container">
+      <canvas ref="chartRef" />
+    </div>
+  </div>
+</template>
+
 <script setup lang="ts">
 import { onMounted, onUnmounted, ref, watch, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
@@ -171,35 +200,6 @@ defineOptions({
   name: 'TodoCompletionChart',
 })
 </script>
-
-<template>
-  <div class="todo-completion-chart">
-    <!-- 统计概览 -->
-    <div class="stats-overview">
-      <div class="stat-item">
-        <div class="stat-value">{{ getOverallStats.total }}</div>
-        <div class="stat-label">{{ t('totalTasks') }}</div>
-      </div>
-      <div class="stat-item">
-        <div class="stat-value">{{ getOverallStats.completed }}</div>
-        <div class="stat-label">{{ t('completed') }}</div>
-      </div>
-      <div class="stat-item">
-        <div class="stat-value">{{ getOverallStats.pending }}</div>
-        <div class="stat-label">{{ t('pending') }}</div>
-      </div>
-      <div class="stat-item completion-rate">
-        <div class="stat-value">{{ getOverallStats.completionRate }}%</div>
-        <div class="stat-label">{{ t('completionRate') }}</div>
-      </div>
-    </div>
-
-    <!-- 趋势图表 -->
-    <div class="chart-container">
-      <canvas ref="chartRef" />
-    </div>
-  </div>
-</template>
 
 <style scoped>
 .todo-completion-chart {

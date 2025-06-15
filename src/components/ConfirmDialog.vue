@@ -1,3 +1,20 @@
+<template>
+  <Transition name="fade">
+    <div v-if="isVisible" class="dialog-overlay">
+      <div class="dialog-content">
+        <h2>{{ title }}</h2>
+        <p>{{ message }}</p>
+        <div class="dialog-buttons">
+          <button class="cancel-btn" @click="cancel">{{ cancelText }}</button>
+          <button class="confirm-btn" @click="confirm">
+            {{ confirmText }}
+          </button>
+        </div>
+      </div>
+    </div>
+  </Transition>
+</template>
+
 <script setup lang="ts">
 import { ref, watch } from 'vue'
 
@@ -11,7 +28,7 @@ const props = defineProps<{
 
 const emit = defineEmits(['confirm', 'cancel'])
 
-const isVisible = ref(props.show)
+const isVisible = ref(false)
 
 watch(
   () => props.show,
@@ -30,23 +47,6 @@ const cancel = () => {
   isVisible.value = false
 }
 </script>
-
-<template>
-  <Transition name="fade">
-    <div v-if="isVisible" class="dialog-overlay">
-      <div class="dialog-content">
-        <h2>{{ title }}</h2>
-        <p>{{ message }}</p>
-        <div class="dialog-buttons">
-          <button class="cancel-btn" @click="cancel">{{ cancelText }}</button>
-          <button class="confirm-btn" @click="confirm">
-            {{ confirmText }}
-          </button>
-        </div>
-      </div>
-    </div>
-  </Transition>
-</template>
 
 <style scoped>
 .dialog-overlay {

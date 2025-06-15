@@ -1,9 +1,9 @@
 export interface AIStreamResponse {
-  choices: Array<{
+  choices: {
     delta: {
       content?: string
     }
-  }>
+  }[]
 }
 
 export interface Message {

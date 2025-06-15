@@ -1,3 +1,22 @@
+<template>
+  <form class="add-todo" @submit.prevent="addTodo">
+    <div class="input-wrapper">
+      <input
+        v-model.trim="newTodo"
+        class="todo-input"
+        :placeholder="placeholder"
+        :maxlength="maxLength"
+      />
+    </div>
+    <button type="submit" class="add-btn">
+      {{ t('add') }}
+    </button>
+  </form>
+  <p v-if="errorMessage || duplicateError" class="error-message">
+    {{ errorMessage || duplicateError }}
+  </p>
+</template>
+
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useI18n } from 'vue-i18n'
@@ -37,25 +56,6 @@ const addTodo = async () => {
   errorMessage.value = ''
 }
 </script>
-
-<template>
-  <form class="add-todo" @submit.prevent="addTodo">
-    <div class="input-wrapper">
-      <input
-        v-model.trim="newTodo"
-        class="todo-input"
-        :placeholder="placeholder"
-        :maxlength="maxLength"
-      />
-    </div>
-    <button type="submit" class="add-btn">
-      {{ t('add') }}
-    </button>
-  </form>
-  <p v-if="errorMessage || duplicateError" class="error-message">
-    {{ errorMessage || duplicateError }}
-  </p>
-</template>
 
 <style scoped>
 .add-todo {

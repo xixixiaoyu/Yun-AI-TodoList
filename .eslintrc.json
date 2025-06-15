@@ -39,10 +39,14 @@
         "caughtErrorsIgnorePattern": "^_"
       }
     ],
-    "@typescript-eslint/no-explicit-any": "warn",
+    "@typescript-eslint/no-explicit-any": "error",
     "@typescript-eslint/explicit-function-return-type": "off",
     "@typescript-eslint/explicit-module-boundary-types": "off",
     "@typescript-eslint/no-non-null-assertion": "warn",
+    "@typescript-eslint/prefer-as-const": "error",
+    "@typescript-eslint/no-inferrable-types": "warn",
+    "@typescript-eslint/array-type": ["error", { "default": "array" }],
+    "@typescript-eslint/consistent-type-definitions": ["error", "interface"],
 
     "@typescript-eslint/no-var-requires": "error",
 
@@ -54,6 +58,22 @@
     "vue/prop-name-casing": ["error", "camelCase"],
     "vue/attribute-hyphenation": ["error", "always"],
     "vue/v-on-event-hyphenation": ["error", "always"],
+
+    // Vue 3 Composition API 最佳实践
+    "vue/no-setup-props-destructure": "error",
+    "vue/no-ref-as-operand": "error",
+    "vue/no-watch-after-await": "error",
+    "vue/no-multiple-template-root": "off", // Vue 3 允许多个根元素
+    "vue/require-explicit-emits": "error",
+    "vue/prefer-import-from-vue": "error",
+    "vue/prefer-separate-static-class": "warn",
+    "vue/padding-line-between-blocks": ["error", "always"],
+    "vue/component-tags-order": [
+      "warn",
+      {
+        "order": ["template", "script", "style"]
+      }
+    ],
     "vue/max-attributes-per-line": [
       "error",
       {

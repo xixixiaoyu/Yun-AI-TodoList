@@ -1,23 +1,3 @@
-<script setup lang="ts">
-import { useI18n } from 'vue-i18n'
-import type { Conversation } from '../../services/types'
-
-defineProps<{
-  isOpen: boolean
-  conversations: Conversation[]
-  currentConversationId: string | null
-}>()
-
-defineEmits<{
-  'update:isOpen': [value: boolean]
-  switch: [id: string]
-  delete: [id: string]
-  clear: []
-}>()
-
-const { t } = useI18n()
-</script>
-
 <template>
   <div class="drawer-container" :class="{ 'drawer-open': isOpen }">
     <div class="drawer">
@@ -90,6 +70,26 @@ const { t } = useI18n()
   </div>
   <div v-if="isOpen" class="drawer-overlay" @click="$emit('update:isOpen', false)" />
 </template>
+
+<script setup lang="ts">
+import { useI18n } from 'vue-i18n'
+import type { Conversation } from '../../services/types'
+
+defineProps<{
+  isOpen: boolean
+  conversations: Conversation[]
+  currentConversationId: string | null
+}>()
+
+defineEmits<{
+  'update:isOpen': [value: boolean]
+  switch: [id: string]
+  delete: [id: string]
+  clear: []
+}>()
+
+const { t } = useI18n()
+</script>
 
 <style scoped>
 .drawer-container {

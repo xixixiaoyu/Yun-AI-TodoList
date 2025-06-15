@@ -9,15 +9,12 @@ interface TimeResponse {
 }
 
 let lastSyncTime: number | null = null
-let timeOffset: number = 0
+let timeOffset = 0
 let syncInProgress: Promise<number> | null = null
 
 const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
 
-const fetchWithTimeout = async (
-  url: string,
-  timeout: number = 5000
-): Promise<Response> => {
+const fetchWithTimeout = async (url: string, timeout = 5000): Promise<Response> => {
   const controller = new AbortController()
   const id = setTimeout(() => controller.abort(), timeout)
 
@@ -31,7 +28,7 @@ const fetchWithTimeout = async (
   }
 }
 
-async function fetchServerTime(attempt: number = 0): Promise<TimeResponse> {
+async function fetchServerTime(attempt = 0): Promise<TimeResponse> {
   try {
     const response = await fetchWithTimeout(TIME_SYNC_ENDPOINT)
     if (!response.ok) {

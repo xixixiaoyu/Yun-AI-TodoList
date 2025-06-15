@@ -1,3 +1,46 @@
+<template>
+  <div class="todo-item" :class="{ completed: isCompleted }" @click="toggleTodo">
+    <div class="todo-content">
+      <span class="checkbox-wrapper">
+        <transition name="fade">
+          <i v-show="true" class="checkbox" :class="{ checked: isCompleted }" />
+        </transition>
+      </span>
+      <div class="todo-text-wrapper">
+        <span class="todo-text" :title="formattedTitle">
+          <transition>
+            <span v-show="true" class="text-content">{{ formattedTitle }}</span>
+          </transition>
+        </span>
+      </div>
+    </div>
+    <button
+      class="delete-btn"
+      :title="t('delete')"
+      :aria-label="t('delete')"
+      @click.stop="removeTodo"
+    >
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="16"
+        height="16"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      >
+        <path d="M3 6h18" />
+        <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
+        <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
+        <line x1="10" y1="11" x2="10" y2="17" />
+        <line x1="14" y1="11" x2="14" y2="17" />
+      </svg>
+    </button>
+  </div>
+</template>
+
 <script setup lang="ts">
 import {
   computed,
@@ -20,7 +63,7 @@ const { showError } = useErrorHandler()
 const { t } = useI18n()
 
 const emit = defineEmits(['toggle', 'remove'])
-const isCompleted = ref(props.todo.completed)
+const isCompleted = ref(false)
 
 // 使用 watchEffect 优化性能
 watchEffect(() => {
@@ -99,49 +142,6 @@ const handleError = (error: Error) => {
 
 onErrorCaptured(handleError)
 </script>
-
-<template>
-  <div class="todo-item" :class="{ completed: isCompleted }" @click="toggleTodo">
-    <div class="todo-content">
-      <span class="checkbox-wrapper">
-        <transition name="fade">
-          <i v-show="true" class="checkbox" :class="{ checked: isCompleted }" />
-        </transition>
-      </span>
-      <div class="todo-text-wrapper">
-        <span class="todo-text" :title="formattedTitle">
-          <transition>
-            <span v-show="true" class="text-content">{{ formattedTitle }}</span>
-          </transition>
-        </span>
-      </div>
-    </div>
-    <button
-      class="delete-btn"
-      :title="t('delete')"
-      :aria-label="t('delete')"
-      @click.stop="removeTodo"
-    >
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        width="16"
-        height="16"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="2"
-        stroke-linecap="round"
-        stroke-linejoin="round"
-      >
-        <path d="M3 6h18" />
-        <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
-        <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
-        <line x1="10" y1="11" x2="10" y2="17" />
-        <line x1="14" y1="11" x2="14" y2="17" />
-      </svg>
-    </button>
-  </div>
-</template>
 
 <style scoped>
 .todo-item {

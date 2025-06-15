@@ -1,20 +1,3 @@
-<script setup lang="ts">
-import { useI18n } from 'vue-i18n'
-
-defineProps<{
-  isOptimizing: boolean
-  userMessage: string
-}>()
-
-defineEmits<{
-  (e: 'new'): void
-  (e: 'optimize'): void
-  (e: 'toggleDrawer'): void
-}>()
-
-const { t } = useI18n()
-</script>
-
 <template>
   <div class="conversation-controls">
     <button class="new-conversation-btn" @click="$emit('new')">
@@ -60,6 +43,23 @@ const { t } = useI18n()
     </button>
   </div>
 </template>
+
+<script setup lang="ts">
+import { useI18n } from 'vue-i18n'
+
+defineProps<{
+  isOptimizing: boolean
+  userMessage: string
+}>()
+
+defineEmits<{
+  (e: 'new'): void
+  (e: 'optimize'): void
+  (e: 'toggleDrawer'): void
+}>()
+
+const { t } = useI18n()
+</script>
 
 <style scoped>
 .conversation-controls {
