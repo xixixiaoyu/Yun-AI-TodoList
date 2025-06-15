@@ -135,6 +135,22 @@ const removeTodo = () => {
   }
 }
 
+// 键盘排序处理
+const handleKeyboardSort = (event: KeyboardEvent) => {
+  if (!props.onKeyboardSort) {
+    return
+  }
+
+  // 阻止默认行为
+  if (event.key === 'ArrowUp' || event.key === 'ArrowDown') {
+    event.preventDefault()
+    event.stopPropagation()
+
+    const direction = event.key === 'ArrowUp' ? 'up' : 'down'
+    props.onKeyboardSort(props.todo.id, direction)
+  }
+}
+
 // 使用 computed 优化文本处理
 const formattedTitle = computed(() => {
   try {

@@ -69,6 +69,7 @@
           v-for="todo in filteredTodos"
           :key="todo.id"
           :todo="todo"
+          :on-keyboard-sort="dragSort.handleKeyboardSort"
           @toggle="toggleTodo"
           @remove="removeTodo"
         />
@@ -105,6 +106,13 @@
 
     <!-- 图表对话框组件 -->
     <ChartsDialog :show="showCharts" @close="closeCharts" />
+
+    <!-- 拖拽状态指示器 -->
+    <DragStatusIndicator
+      :status="dragSort.dragState.value.status"
+      :show="dragSort.dragState.value.status !== 'idle'"
+      :message="dragSort.dragState.value.statusMessage"
+    />
   </div>
 </template>
 
@@ -117,6 +125,7 @@ import TodoItem from './TodoItem.vue'
 import ConfirmDialog from './ConfirmDialog.vue'
 import PomodoroTimer from './PomodoroTimer.vue'
 import LoadingOverlay from './common/LoadingOverlay.vue'
+import DragStatusIndicator from './common/DragStatusIndicator.vue'
 import { useI18n } from 'vue-i18n'
 import { useTodoListState } from '../composables/useTodoListState'
 import { useTodoDragSort } from '../composables/useTodoDragSort'

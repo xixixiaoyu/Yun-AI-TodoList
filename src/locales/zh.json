@@ -254,5 +254,9 @@
   "dragHint": "添加一些待办事项，然后拖拽来重新排序",
   "dragSortError": "更新待办事项顺序失败",
   "dragRollbackError": "恢复原始顺序失败",
-  "dragEndError": "拖拽操作失败"
+  "dragEndError": "拖拽操作失败",
+  "dragStatusDragging": "正在拖拽项目...",
+  "dragStatusProcessing": "正在更新顺序...",
+  "dragStatusSuccess": "顺序更新成功！",
+  "dragStatusError": "更新顺序失败"
 }

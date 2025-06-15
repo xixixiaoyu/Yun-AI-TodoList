@@ -23,12 +23,12 @@
 </template>
 
 <script setup lang="ts">
-import { onErrorCaptured, computed, onMounted, provide } from 'vue'
-import { useTheme } from './composables/useTheme'
 import { useWindowSize } from '@vueuse/core'
-import NavigationBar from './components/layout/NavigationBar.vue'
+import { computed, onErrorCaptured, onMounted, provide } from 'vue'
 import ApiKeyReminder from './components/layout/ApiKeyReminder.vue'
+import NavigationBar from './components/layout/NavigationBar.vue'
 import { useAppState } from './composables/useAppState'
+import { useTheme } from './composables/useTheme'
 
 const { theme, systemTheme, initTheme } = useTheme()
 

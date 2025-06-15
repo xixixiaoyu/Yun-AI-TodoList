@@ -1,6 +1,7 @@
-import { useSortable } from '@vueuse/integrations/useSortable'
 import { debounce } from 'lodash-es'
-import { computed, ref, type Ref } from 'vue'
+// @ts-expect-error - sortablejs types may not be available
+import Sortable from 'sortablejs'
+import { computed, nextTick, onUnmounted, ref, watch, type Ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import type { Todo } from '../types/todo'
 import { useErrorHandler } from './useErrorHandler'
@@ -50,6 +51,8 @@ interface DragSortState {
   draggedItem: Todo | null
   originalOrder: number[]
   isProcessing: boolean
+  status: 'idle' | 'dragging' | 'processing' | 'success' | 'error'
+  statusMessage: string
 }
 
 /**
@@ -70,6 +73,8 @@ export function useTodoDragSort(
     draggedItem: null,
     originalOrder: [],
     isProcessing: false,
+    status: 'idle',
+    statusMessage: '',
   })
 
   // 拖拽配置选项
@@ -97,12 +102,33 @@ export function useTodoDragSort(
   const debouncedOrderUpdate = debounce(async (newOrder: number[]) => {
     try {
       dragState.value.isProcessing = true
+      dragState.value.status = 'processing'
+      dragState.value.statusMessage = ''
+
       await onOrderChange(newOrder)
+
+      // 成功状态
+      dragState.value.status = 'success'
+      setTimeout(() => {
+        if (dragState.value.status === 'success') {
+          resetDragState()
+        }
+      }, 1500)
     } catch (error) {
       console.error('Error updating todo order:', error)
+      dragState.value.status = 'error'
+      dragState.value.statusMessage = error instanceof Error ? error.message : ''
       showError(t('dragSortError', 'Failed to update todo order'))
+
       // 回滚到原始顺序
       await rollbackOrder()
+
+      // 错误状态持续一段时间后重置
+      setTimeout(() => {
+        if (dragState.value.status === 'error') {
+          resetDragState()
+        }
+      }, 3000)
     } finally {
       dragState.value.isProcessing = false
     }
@@ -130,6 +156,8 @@ export function useTodoDragSort(
       draggedItem: draggedTodo || null,
       originalOrder: todos.value.map((todo) => todo.id),
       isProcessing: false,
+      status: 'dragging',
+      statusMessage: '',
     }
 
     // 添加拖拽开始的视觉反馈
@@ -183,6 +211,8 @@ export function useTodoDragSort(
       draggedItem: null,
       originalOrder: [],
       isProcessing: false,
+      status: 'idle',
+      statusMessage: '',
     }
   }
 
@@ -198,33 +228,80 @@ export function useTodoDragSort(
   })
 
   // 初始化拖拽排序
-  const { option } = useSortable(containerRef, todos, {
-    ...defaultOptions,
-    disabled: isDragDisabled,
-    onStart: onDragStart,
-    onEnd: onDragEnd,
-    onMove: onDragMove,
-  })
+
+  let sortableInstance: typeof Sortable | null = null
+  let option: ((key: string, value: unknown) => void) | null = null
+
+  // 等待 DOM 准备好后初始化
+  const initializeSortable = async () => {
+    await nextTick()
+    if (containerRef.value && todos.value.length > 0 && !sortableInstance) {
+      // 销毁现有实例（如果存在）
+      if (sortableInstance) {
+        sortableInstance.destroy()
+      }
+
+      // 创建新的 Sortable 实例
+      sortableInstance = new Sortable(containerRef.value, {
+        ...defaultOptions,
+        disabled: isDragDisabled.value,
+        onStart: onDragStart,
+        onEnd: onDragEnd,
+        onMove: onDragMove,
+      })
+
+      // 创建 option 函数
+      option = (key: string, value: unknown) => {
+        if (sortableInstance) {
+          sortableInstance.option(key, value)
+        }
+      }
+    }
+  }
+
+  // 立即尝试初始化
+  initializeSortable()
+
+  // 监听容器和数据变化
+  watch(
+    [containerRef, todos],
+    () => {
+      if (containerRef.value && todos.value.length > 0 && !sortableInstance) {
+        initializeSortable()
+      }
+    },
+    { immediate: true }
+  )
 
   // 动态更新配置选项
   const updateOptions = (newOptions: Partial<DragSortOptions>) => {
-    Object.entries(newOptions).forEach(([key, value]) => {
-      option(key as keyof DragSortOptions, value)
-    })
+    if (option) {
+      Object.entries(newOptions).forEach(([key, value]) => {
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        option!(key as keyof DragSortOptions, value)
+      })
+    }
   }
 
   // 启用/禁用拖拽
   const setDragEnabled = (enabled: boolean) => {
-    option('disabled', !enabled)
+    if (option) {
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      option!('disabled', !enabled)
+    }
   }
 
   // 键盘支持功能
   const handleKeyboardSort = (todoId: number, direction: 'up' | 'down') => {
     const currentIndex = todos.value.findIndex((todo) => todo.id === todoId)
-    if (currentIndex === -1) {return}
+    if (currentIndex === -1) {
+      return
+    }
 
     const newIndex = direction === 'up' ? currentIndex - 1 : currentIndex + 1
-    if (newIndex < 0 || newIndex >= todos.value.length) {return}
+    if (newIndex < 0 || newIndex >= todos.value.length) {
+      return
+    }
 
     // 创建新的顺序数组
     const todoIds = todos.value.map((todo) => todo.id)
@@ -239,7 +316,14 @@ export function useTodoDragSort(
   const cleanup = () => {
     debouncedOrderUpdate.cancel()
     resetDragState()
+    if (sortableInstance) {
+      sortableInstance.destroy()
+      sortableInstance = null
+    }
   }
+
+  // 组件卸载时清理
+  onUnmounted(cleanup)
 
   return {
     // 状态
