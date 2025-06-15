@@ -40,6 +40,8 @@
     "electron:dist": "pnpm run electron:build:all",
     "electron:verify": "node scripts/verify-electron-config.js",
     "eslint:test": "node scripts/test-eslint-fix.js",
+    "icons:generate": "./scripts/generate-icons.sh",
+    "build:verify": "node scripts/verify-build-fix.js",
     "postinstall": "electron-builder install-app-deps",
     "postuninstall": "electron-builder install-app-deps",
     "clean": "rimraf dist release"

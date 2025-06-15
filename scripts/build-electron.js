@@ -101,7 +101,7 @@ const buildConfig = {
     mac: ['--mac'],
     win: ['--win'],
     linux: ['--linux'],
-    all: ['--all'],
+    all: ['--mac', '--win', '--linux'], // 构建所有平台
   },
 
   // 构建前检查函数

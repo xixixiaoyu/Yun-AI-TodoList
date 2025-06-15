@@ -34,10 +34,6 @@ export default {
     icon: 'build/icon.icns',
     target: [
       {
-        target: 'dmg',
-        arch: ['x64', 'arm64'],
-      },
-      {
         target: 'zip',
         arch: ['x64', 'arm64'],
       },
@@ -53,7 +49,6 @@ export default {
   dmg: {
     title: '${productName} ${version}',
     icon: 'build/icon.icns',
-    background: 'build/dmg-background.png',
     contents: [
       {
         x: 410,
@@ -71,10 +66,8 @@ export default {
       width: 540,
       height: 380,
     },
-    format: 'ULFO',
   },
   win: {
-    sign: false,
     signAndEditExecutable: false,
     icon: 'build/icon.ico',
     target: [
@@ -87,7 +80,6 @@ export default {
         arch: ['x64'],
       },
     ],
-    publisherName: 'yunmu',
     verifyUpdateCodeSignature: false,
   },
   nsis: {
@@ -126,10 +118,12 @@ export default {
     description:
       'Yun AI Todo is a modern, feature-rich todo application with AI integration, built with Vue 3 and Electron.',
     desktop: {
-      Name: 'Yun AI Todo',
-      Comment: 'A modern AI-powered todo application',
-      Keywords: 'todo;task;productivity;ai;',
-      StartupWMClass: 'yun-ai-todo',
+      entry: {
+        Name: 'Yun AI Todo',
+        Comment: 'A modern AI-powered todo application',
+        Keywords: 'todo;task;productivity;ai;',
+        StartupWMClass: 'yun-ai-todo',
+      },
     },
   },
   publish: {
