@@ -1,5 +1,4 @@
 import { handleError, logger } from '@/utils/logger'
-import { promptsConfig } from '../config/prompts'
 import i18n from '../i18n'
 import { getApiKey } from './configService'
 import { AIStreamResponse, Message } from './types'
@@ -32,7 +31,7 @@ const getSystemPrompt = (): string => {
     return ''
   }
   const savedSystemPrompt = localStorage.getItem('systemPrompt')
-  return savedSystemPrompt || promptsConfig.my.content
+  return savedSystemPrompt || ''
 }
 
 export async function getAIStreamResponse(

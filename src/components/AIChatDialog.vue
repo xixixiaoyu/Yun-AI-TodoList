@@ -36,7 +36,6 @@ import { ref, onMounted } from 'vue'
 import { useChat } from '../composables/useChat'
 import AIChatHeader from './chat/AIChatHeader.vue'
 import AIChatContent from './chat/AIChatContent.vue'
-import { promptsConfig } from '../config/prompts'
 
 const {
   chatHistory,
@@ -59,15 +58,13 @@ const {
 const isDrawerOpen = ref(false)
 const messageListRef = ref<InstanceType<typeof AIChatContent> | null>(null)
 const shouldAutoScroll = ref(true)
-const selectedPromptTemplate = ref<string>('my')
+const selectedPromptTemplate = ref<string>('none')
 const customPrompts = ref<{ id: string; name: string; content: string }[]>([])
 
 const handleTemplateChange = (template: string) => {
   selectedPromptTemplate.value = template
   if (template === 'none') {
     localStorage.setItem('systemPrompt', '')
-  } else if (template === 'my') {
-    localStorage.setItem('systemPrompt', promptsConfig[template].content)
   } else {
     const customPrompt = customPrompts.value.find(p => p.id === template)
     if (customPrompt) {

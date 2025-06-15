@@ -5,7 +5,6 @@
       <div class="prompt-template-selector">
         <select :value="selectedPromptTemplate" @change="handleTemplateChange">
           <option value="none">{{ t('nonePrompt') }}</option>
-          <option value="my">{{ t('defaultPrompt') }}</option>
 
           <optgroup v-if="customPrompts.length > 0" :label="t('customPrompts')">
             <option v-for="prompt in customPrompts" :key="prompt.id" :value="prompt.id">

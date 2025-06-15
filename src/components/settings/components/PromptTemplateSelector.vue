@@ -2,10 +2,6 @@
   <select :value="selectedTemplate" class="template-select" @change="handleTemplateChange">
     <optgroup :label="t('builtinPrompts')">
       <option value="none">{{ t('nonePrompt') }}</option>
-      <option value="my">{{ t('defaultPrompt') }}</option>
-      <option value="coding">{{ t('categoryCoding') }}</option>
-      <option value="writing">{{ t('categoryWriting') }}</option>
-      <option value="analysis">{{ t('categoryAnalysis') }}</option>
     </optgroup>
 
     <optgroup v-if="filteredCustomPrompts.length > 0" :label="t('customPrompts')">

@@ -17,7 +17,7 @@ export function useSettingsState() {
 
   const localSystemPrompt = ref('')
   const isFullscreen = ref(false)
-  const selectedPromptTemplate = ref<PromptTemplate>('my')
+  const selectedPromptTemplate = ref<PromptTemplate>('none')
 
   const showAddPromptPopover = ref(false)
   const showPromptImportDialog = ref(false)
@@ -53,12 +53,14 @@ export function useSettingsState() {
     if (savedSystemPrompt) {
       localSystemPrompt.value = savedSystemPrompt
     } else {
-      localSystemPrompt.value = builtinPromptTemplates.my.content
+      localSystemPrompt.value = builtinPromptTemplates.none.content
     }
 
     const lastSelectedTemplate = localStorage.getItem('lastSelectedTemplate')
     if (lastSelectedTemplate) {
       selectedPromptTemplate.value = lastSelectedTemplate as PromptTemplate
+    } else {
+      selectedPromptTemplate.value = 'none'
     }
 
     const savedCustomPrompts = localStorage.getItem('customPrompts')
@@ -128,7 +130,7 @@ export function useSettingsState() {
   }
 
   const loadDefaultPrompt = () => {
-    localSystemPrompt.value = builtinPromptTemplates.my.content
+    localSystemPrompt.value = builtinPromptTemplates.none.content
   }
 
   const showSuccessToast = (duration = 2000) => {

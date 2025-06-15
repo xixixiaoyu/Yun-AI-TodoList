@@ -1,24 +1,24 @@
-import { ref, computed, type Ref } from 'vue'
+import { computed, ref, type Ref } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { builtinPromptTemplates } from '../config/prompts'
 import type {
   CustomPrompt,
-  PromptTemplate,
+  PromptActionResult,
   PromptFilter,
   PromptSortOptions,
-  PromptActionResult
+  PromptTemplate
 } from '../types/settings'
 import { PromptCategory, PromptPriority } from '../types/settings'
-import { builtinPromptTemplates } from '../config/prompts'
 import {
-  validatePrompt,
-  filterPrompts,
-  sortPrompts,
   createPrompt,
   duplicatePrompt,
   exportPrompts,
-  validateImportData,
+  filterPrompts,
+  getPromptStats,
   processImportData,
-  getPromptStats
+  sortPrompts,
+  validateImportData,
+  validatePrompt
 } from '../utils/promptUtils'
 
 export function usePromptManagement(
@@ -146,8 +146,8 @@ export function usePromptManagement(
    * 重置系统提示词
    */
   const resetSystemPrompt = () => {
-    selectedPromptTemplate.value = 'my'
-    localSystemPrompt.value = builtinPromptTemplates.my.content
+    selectedPromptTemplate.value = 'none'
+    localSystemPrompt.value = builtinPromptTemplates.none.content
     localStorage.removeItem('systemPrompt')
     localStorage.removeItem('lastSelectedTemplate')
   }
@@ -159,9 +159,9 @@ export function usePromptManagement(
       saveCustomPrompts()
 
       if (selectedPromptTemplate.value === promptId) {
-        selectedPromptTemplate.value = 'my'
-        localSystemPrompt.value = builtinPromptTemplates.my.content
-        localStorage.setItem('lastSelectedTemplate', 'my')
+        selectedPromptTemplate.value = 'none'
+        localSystemPrompt.value = builtinPromptTemplates.none.content
+        localStorage.setItem('lastSelectedTemplate', 'none')
       }
 
       showSuccessToast()
