@@ -52,18 +52,35 @@ export default defineConfig({
     outDir: 'dist',
     assetsDir: 'assets',
     emptyOutDir: true,
-    sourcemap: false,
+    sourcemap: process.env.NODE_ENV === 'development',
     chunkSizeWarningLimit: 1500,
     rollupOptions: {
       output: {
         manualChunks: {
           vendor: ['vue', 'vue-router', 'vue-i18n'],
           chart: ['chart.js', 'chartjs-chart-matrix'],
+          utils: ['lodash-es', 'date-fns', '@vueuse/core'],
+          ui: ['canvas-confetti', 'dompurify'],
         },
-        entryFileNames: 'assets/[name].js',
-        chunkFileNames: 'assets/[name].js',
-        assetFileNames: 'assets/[name][extname]',
+        entryFileNames: 'assets/[name]-[hash].js',
+        chunkFileNames: 'assets/[name]-[hash].js',
+        assetFileNames: 'assets/[name]-[hash][extname]',
       },
+    },
+    // 启用压缩
+    minify: 'terser',
+    terserOptions: {
+      compress: {
+        drop_console: process.env.NODE_ENV === 'production',
+        drop_debugger: true,
+        pure_funcs: ['console.log', 'console.info'],
+      },
+    },
+    // 启用 CSS 代码分割
+    cssCodeSplit: true,
+    // 预加载模块
+    modulePreload: {
+      polyfill: true,
     },
   },
   define: {

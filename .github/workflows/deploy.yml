@@ -45,6 +45,15 @@ jobs:
       - name: Install dependencies
         run: pnpm install
 
+      - name: Run quality checks
+        run: |
+          pnpm run lint:check
+          pnpm run type-check
+          pnpm run quality:check
+
+      - name: Run tests
+        run: pnpm run test:coverage
+
       - name: Build
         run: pnpm build
 
