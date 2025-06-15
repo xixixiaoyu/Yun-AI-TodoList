@@ -80,49 +80,78 @@ defineOptions({
 <style scoped>
 .selector-actions {
   display: flex;
-  gap: 0.25rem;
+  gap: 0.375rem;
+  align-items: center;
 }
 
 .action-btn {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 28px;
-  height: 28px;
-  border: none;
-  border-radius: 5px;
-  background-color: var(--input-bg-color);
+  width: 32px;
+  height: 32px;
+  border: 1px solid var(--input-border-color);
+  border-radius: 6px;
+  background-color: var(--card-bg-color);
   color: var(--text-secondary-color);
   cursor: pointer;
   transition: all 0.2s ease;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
 }
 
 .action-btn svg {
-  width: 14px;
-  height: 14px;
+  width: 16px;
+  height: 16px;
 }
 
 .action-btn:hover {
   background-color: var(--button-bg-color);
+  border-color: var(--button-bg-color);
   color: white;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .favorite-btn.active {
   background-color: #fbbf24;
+  border-color: #fbbf24;
   color: white;
+}
+
+.favorite-btn.active:hover {
+  background-color: #f59e0b;
+  border-color: #f59e0b;
 }
 
 .delete-btn:hover {
   background-color: #ef4444;
+  border-color: #ef4444;
 }
 
 .add-btn:hover {
   background-color: #10b981;
+  border-color: #10b981;
+}
+
+.duplicate-btn:hover {
+  background-color: #3b82f6;
+  border-color: #3b82f6;
 }
 
 @media (max-width: 768px) {
   .selector-actions {
     justify-content: center;
+    gap: 0.5rem;
+  }
+
+  .action-btn {
+    width: 36px;
+    height: 36px;
+  }
+
+  .action-btn svg {
+    width: 18px;
+    height: 18px;
   }
 }
 </style>

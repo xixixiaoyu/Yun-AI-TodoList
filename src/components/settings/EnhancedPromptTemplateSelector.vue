@@ -1,32 +1,39 @@
 <template>
   <div class="enhanced-prompt-selector">
-    <div class="template-selector-section">
-      <label class="selector-label">{{ t('systemPrompt') }}</label>
+    <!-- 选择器区域 -->
+    <div class="selector-section">
+      <div class="selector-header">
+        <label class="selector-label">{{ t('currentPrompt') }}</label>
+        <div class="selector-actions">
+          <PromptActionButtons
+            :is-custom-prompt="isCustomPrompt"
+            :current-prompt="currentPrompt"
+            @duplicate-prompt="$emit('duplicatePrompt')"
+            @toggle-favorite="toggleFavorite"
+            @confirm-delete-prompt="$emit('confirmDeletePrompt')"
+            @show-add-prompt="$emit('showAddPrompt')"
+          />
+        </div>
+      </div>
+
       <div class="selector-wrapper">
         <PromptTemplateSelector
           :selected-template="selectedTemplate"
           :filtered-custom-prompts="filteredCustomPrompts"
           @template-change="handleTemplateChange"
         />
-
-        <PromptActionButtons
-          :is-custom-prompt="isCustomPrompt"
-          :current-prompt="currentPrompt"
-          @duplicate-prompt="$emit('duplicatePrompt')"
-          @toggle-favorite="toggleFavorite"
-          @confirm-delete-prompt="$emit('confirmDeletePrompt')"
-          @show-add-prompt="$emit('showAddPrompt')"
-        />
       </div>
     </div>
 
-    <PromptInfoDisplay
-      v-if="currentPrompt || isBuiltinPrompt"
-      :current-prompt="currentPrompt"
-      :current-prompt-name="currentPromptName"
-      :current-prompt-description="currentPromptDescription"
-      :is-builtin-prompt="isBuiltinPrompt"
-    />
+    <!-- 信息展示区域 -->
+    <div v-if="currentPrompt || isBuiltinPrompt" class="info-section">
+      <PromptInfoDisplay
+        :current-prompt="currentPrompt"
+        :current-prompt-name="currentPromptName"
+        :current-prompt-description="currentPromptDescription"
+        :is-builtin-prompt="isBuiltinPrompt"
+      />
+    </div>
   </div>
 </template>
 
@@ -108,32 +115,52 @@ defineOptions({
 .enhanced-prompt-selector {
   display: flex;
   flex-direction: column;
+  gap: 1rem;
+}
+
+.selector-section {
+  display: flex;
+  flex-direction: column;
   gap: 0.75rem;
 }
 
-.template-selector-section {
+.selector-header {
   display: flex;
-  flex-direction: column;
-  gap: 0.375rem;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.5rem;
 }
 
 .selector-label {
   font-weight: 600;
   color: var(--text-color);
-  font-size: 0.8rem;
+  font-size: 0.875rem;
+  margin: 0;
+}
+
+.selector-actions {
+  flex-shrink: 0;
 }
 
 .selector-wrapper {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
+  width: 100%;
+}
+
+.info-section {
+  margin-top: 0.5rem;
 }
 
 @media (max-width: 768px) {
-  .selector-wrapper {
+  .selector-header {
     flex-direction: column;
-    align-items: stretch;
-    gap: 0.375rem;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  .selector-actions {
+    width: 100%;
+    display: flex;
+    justify-content: center;
   }
 }
 </style>

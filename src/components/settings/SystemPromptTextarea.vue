@@ -33,20 +33,23 @@ defineOptions({
 .system-prompt-input {
   width: 100%;
   max-width: 100%;
-  padding: 0.875rem;
+  padding: 1rem;
   border: 2px solid var(--input-border-color);
   border-radius: 10px;
   font-size: 0.875rem;
-  background-color: var(--input-bg-color);
+  background-color: var(--card-bg-color);
   color: var(--text-color);
   transition: all 0.2s ease;
   resize: vertical;
-  min-height: 140px;
-  max-height: 350px;
-  font-family: inherit;
-  line-height: 1.5;
+  min-height: 200px;
+  max-height: 500px;
+  font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', monospace;
+  line-height: 1.6;
   margin: 0;
-  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.05);
+  box-shadow:
+    inset 0 1px 3px rgba(0, 0, 0, 0.1),
+    0 1px 2px rgba(0, 0, 0, 0.05);
+  flex: 1;
 }
 
 .system-prompt-input:focus {
@@ -54,7 +57,13 @@ defineOptions({
   border-color: var(--button-bg-color);
   box-shadow:
     0 0 0 3px rgba(var(--button-bg-color-rgb), 0.15),
-    inset 0 1px 2px rgba(0, 0, 0, 0.05);
+    inset 0 1px 3px rgba(0, 0, 0, 0.1),
+    0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.system-prompt-input::placeholder {
+  color: var(--text-secondary-color);
+  opacity: 0.7;
 }
 
 @media (max-height: 800px) {

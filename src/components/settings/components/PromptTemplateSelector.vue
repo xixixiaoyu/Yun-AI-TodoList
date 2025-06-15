@@ -53,36 +53,54 @@ defineOptions({
 
 <style scoped>
 .template-select {
-  flex: 1;
-  padding: 0.375rem 2rem 0.375rem 0.75rem;
-  border-radius: 6px;
+  width: 100%;
+  padding: 0.75rem 2.5rem 0.75rem 1rem;
+  border-radius: 8px;
   border: 2px solid var(--input-border-color);
-  background-color: var(--input-bg-color);
+  background-color: var(--card-bg-color);
   color: var(--text-color);
-  font-size: 0.8rem;
+  font-size: 0.875rem;
+  font-weight: 500;
   cursor: pointer;
   transition: all 0.2s ease;
   appearance: none;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Cpath fill='%23666' d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
-  background-position: right 0.375rem center;
-  background-size: 16px;
-  min-width: 180px;
+  background-position: right 0.75rem center;
+  background-size: 18px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 .template-select:hover {
   border-color: var(--button-bg-color);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+  transform: translateY(-1px);
 }
 
 .template-select:focus {
   outline: none;
   border-color: var(--button-bg-color);
   box-shadow: 0 0 0 3px rgba(var(--button-bg-color-rgb), 0.15);
+  transform: translateY(-1px);
+}
+
+.template-select option {
+  padding: 0.5rem;
+  font-weight: 500;
+}
+
+.template-select optgroup {
+  font-weight: 600;
+  color: var(--text-secondary-color);
+  font-size: 0.8rem;
 }
 
 @media (max-width: 768px) {
   .template-select {
-    min-width: unset;
+    padding: 0.625rem 2rem 0.625rem 0.875rem;
+    font-size: 0.8rem;
+    background-size: 16px;
+    background-position: right 0.625rem center;
   }
 }
 </style>

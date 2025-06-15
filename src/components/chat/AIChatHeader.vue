@@ -1,7 +1,14 @@
 <template>
   <div class="dialog-header">
     <div class="header-left">
-      <h2>{{ t('aiAssistant') }}</h2>
+      <div class="header-title-section">
+        <h2>{{ t('aiAssistant') }}</h2>
+        <div class="current-prompt-indicator">
+          <span class="prompt-label">{{ t('currentPrompt') }}:</span>
+          <span class="prompt-name">{{ currentPromptName }}</span>
+        </div>
+      </div>
+
       <div class="prompt-template-selector">
         <select :value="selectedPromptTemplate" @change="handleTemplateChange">
           <option value="none">{{ t('nonePrompt') }}</option>
@@ -9,11 +16,13 @@
           <optgroup v-if="customPrompts.length > 0" :label="t('customPrompts')">
             <option v-for="prompt in customPrompts" :key="prompt.id" :value="prompt.id">
               {{ prompt.name }}
+              <span v-if="prompt.isFavorite">⭐</span>
             </option>
           </optgroup>
         </select>
       </div>
     </div>
+
     <router-link to="/" class="close-button" aria-label="close">
       <CloseIcon />
     </router-link>
@@ -21,6 +30,7 @@
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import CloseIcon from '../common/icons/CloseIcon.vue'
 
@@ -28,6 +38,7 @@ interface CustomPrompt {
   id: string
   name: string
   content: string
+  isFavorite?: boolean
 }
 
 interface Props {
@@ -39,10 +50,19 @@ interface Emits {
   (e: 'templateChange', template: string): void
 }
 
-defineProps<Props>()
+const props = defineProps<Props>()
 const emit = defineEmits<Emits>()
 
 const { t } = useI18n()
+
+const currentPromptName = computed(() => {
+  if (props.selectedPromptTemplate === 'none') {
+    return t('nonePrompt')
+  }
+
+  const customPrompt = props.customPrompts.find(p => p.id === props.selectedPromptTemplate)
+  return customPrompt?.name || t('nonePrompt')
+})
 
 const handleTemplateChange = (event: Event) => {
   const target = event.target as HTMLSelectElement
@@ -72,42 +92,80 @@ defineOptions({
 .header-left {
   display: flex;
   align-items: center;
-  gap: 1rem;
+  gap: 1.5rem;
   flex: 1;
   min-width: 0;
+}
+
+.header-title-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.current-prompt-indicator {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.75rem;
+  opacity: 0.9;
+}
+
+.prompt-label {
+  color: rgba(255, 255, 255, 0.7);
+  font-weight: 500;
+}
+
+.prompt-name {
+  color: rgba(255, 255, 255, 0.95);
+  font-weight: 600;
+  background-color: rgba(255, 255, 255, 0.1);
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+  max-width: 150px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .prompt-template-selector {
-  margin-left: 1rem;
   flex: 1;
   min-width: 0;
+  max-width: 300px;
 }
 
 .prompt-template-selector select {
-  padding: 0.5rem 2.5rem 0.5rem 1rem;
+  padding: 0.625rem 2.5rem 0.625rem 1rem;
   border-radius: 8px;
-  border: none;
-  background-color: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background-color: rgba(255, 255, 255, 0.15);
   color: var(--card-bg-color);
-  font-size: 0.9rem;
+  font-size: 0.875rem;
+  font-weight: 500;
   cursor: pointer;
   transition: all 0.2s ease;
   appearance: none;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
   background-repeat: no-repeat;
-  background-position: right 0.5rem center;
+  background-position: right 0.75rem center;
   background-size: 1.2em;
   width: 100%;
-  max-width: 300px;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .prompt-template-selector select:hover {
-  background-color: rgba(255, 255, 255, 0.3);
+  background-color: rgba(255, 255, 255, 0.25);
+  border-color: rgba(255, 255, 255, 0.3);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
 }
 
 .prompt-template-selector select:focus {
   outline: none;
-  background-color: rgba(255, 255, 255, 0.3);
+  background-color: rgba(255, 255, 255, 0.25);
+  border-color: rgba(255, 255, 255, 0.4);
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.2);
 }
 
 .prompt-template-selector select option,
@@ -146,7 +204,7 @@ defineOptions({
 
 @media (max-width: 768px) {
   .dialog-header {
-    padding: 8px 12px;
+    padding: 10px 12px;
     gap: 8px;
   }
 
@@ -156,20 +214,31 @@ defineOptions({
   }
 
   .header-left {
-    gap: 0.5rem;
+    gap: 0.75rem;
     overflow: hidden;
   }
 
+  .header-title-section {
+    flex-shrink: 0;
+  }
+
+  .current-prompt-indicator {
+    font-size: 0.7rem;
+  }
+
+  .prompt-name {
+    max-width: 100px;
+  }
+
   .prompt-template-selector {
-    margin-left: 0.5rem;
-    position: relative;
+    max-width: 200px;
   }
 
   .prompt-template-selector select {
-    font-size: 0.85rem;
-    padding: 0.4rem 1.8rem 0.4rem 0.8rem;
+    font-size: 0.8rem;
+    padding: 0.5rem 2rem 0.5rem 0.75rem;
     background-size: 1em;
-    background-position: right 0.3rem center;
+    background-position: right 0.5rem center;
   }
 
   .close-button {
@@ -184,16 +253,49 @@ defineOptions({
 
 @media (max-width: 480px) {
   .dialog-header {
-    padding: 6px 10px;
+    padding: 8px 10px;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.75rem;
+  }
+
+  .header-left {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .header-title-section {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
   }
 
   .dialog-header h2 {
     font-size: 15px;
   }
 
+  .current-prompt-indicator {
+    font-size: 0.65rem;
+  }
+
+  .prompt-name {
+    max-width: 80px;
+  }
+
+  .prompt-template-selector {
+    max-width: none;
+  }
+
   .prompt-template-selector select {
     font-size: 0.8rem;
-    padding: 0.35rem 1.6rem 0.35rem 0.6rem;
+    padding: 0.5rem 1.8rem 0.5rem 0.75rem;
+  }
+
+  .close-button {
+    position: absolute;
+    top: 8px;
+    right: 10px;
   }
 
   .close-button :deep(svg) {

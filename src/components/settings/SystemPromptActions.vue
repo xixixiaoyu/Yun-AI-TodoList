@@ -38,25 +38,29 @@ defineOptions({
   gap: 0.75rem;
   justify-content: flex-end;
   align-items: center;
-  margin-top: 0.5rem;
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--input-border-color);
 }
 
 .save-button,
 .reset-button {
-  padding: 0.5rem 1rem;
-  border: none;
+  padding: 0.75rem 1.5rem;
+  border: 2px solid transparent;
   border-radius: 8px;
   cursor: pointer;
-  font-size: 0.8rem;
-  font-weight: 500;
+  font-size: 0.875rem;
+  font-weight: 600;
   transition: all 0.2s ease;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 0.25rem;
-  height: 32px;
-  min-width: 80px;
+  gap: 0.375rem;
+  height: 40px;
+  min-width: 100px;
   white-space: nowrap;
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
 }
 
 .save-button {
@@ -67,26 +71,30 @@ defineOptions({
 
 .save-button:hover:not(:disabled) {
   background-color: var(--button-hover-bg-color);
-  transform: translateY(-1px);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
 }
 
 .save-button:disabled {
-  opacity: 0.6;
+  opacity: 0.5;
   cursor: not-allowed;
   transform: none !important;
+  box-shadow: none;
 }
 
 .reset-button {
-  background-color: var(--language-toggle-bg);
-  color: var(--language-toggle-color);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  background-color: transparent;
+  color: var(--text-secondary-color);
+  border-color: var(--input-border-color);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
 }
 
 .reset-button:hover {
-  background-color: var(--language-toggle-hover-bg);
-  transform: translateY(-1px);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  background-color: var(--input-bg-color);
+  border-color: var(--button-bg-color);
+  color: var(--button-bg-color);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 @media (max-height: 700px) {
