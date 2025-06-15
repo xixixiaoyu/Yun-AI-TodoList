@@ -5,6 +5,7 @@ export interface Todo {
   tags: string[]
   createdAt: string
   updatedAt: string
+  order: number
 }
 
 export interface HistoryItem {

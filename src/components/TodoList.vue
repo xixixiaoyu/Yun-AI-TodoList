@@ -39,7 +39,32 @@
         @collapse="collapseSearch"
       />
       <!-- 待办事项列表 -->
-      <div ref="todoListRef" class="todo-grid">
+      <div
+        ref="todoListRef"
+        class="todo-grid sortable-container"
+        :class="{
+          'drag-disabled': dragSort.isDragDisabled.value,
+          'drag-processing': dragSort.dragState.value.isProcessing,
+        }"
+      >
+        <!-- 拖拽提示（当列表为空时显示） -->
+        <div v-if="filteredTodos.length === 0" class="drag-hint">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="48"
+            height="48"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path d="M3 12h18m-9-9v18" />
+          </svg>
+          <p>{{ t('dragHint', 'Add some todos and drag to reorder them') }}</p>
+        </div>
+
         <TodoItem
           v-for="todo in filteredTodos"
           :key="todo.id"
@@ -92,15 +117,10 @@ import TodoItem from './TodoItem.vue'
 import ConfirmDialog from './ConfirmDialog.vue'
 import PomodoroTimer from './PomodoroTimer.vue'
 import LoadingOverlay from './common/LoadingOverlay.vue'
-import { useSortable } from '@vueuse/integrations/useSortable'
 import { useI18n } from 'vue-i18n'
 import { useTodoListState } from '../composables/useTodoListState'
+import { useTodoDragSort } from '../composables/useTodoDragSort'
 import { TodoListHeader, TodoActions, SuggestedTodosDialog, ChartsDialog } from './todo'
-
-interface SortableEvent {
-  oldIndex: number
-  newIndex: number
-}
 
 // 使用组合式函数
 const { t } = useI18n()
@@ -144,39 +164,15 @@ const {
   closeCharts,
   collapseSearch,
   handlePomodoroComplete,
-  handleError,
 } = useTodoListState()
 
-// 使用 useSortable 为待办事项列表添加拖拽排序功能
-const { option } = useSortable(todoListRef, filteredTodos, {
-  animation: 150,
-  onEnd: async (evt: SortableEvent) => {
-    try {
-      const { oldIndex, newIndex } = evt
-      if (oldIndex === newIndex) {
-        return
-      }
-
-      // 获取所有待办事项的 ID 数组
-      const todoIds = filteredTodos.value.map((todo) => todo.id)
-
-      // 移动 ID
-      const [movedId] = todoIds.splice(oldIndex, 1)
-      todoIds.splice(newIndex, 0, movedId)
-
-      // 更新顺序
-      updateTodosOrder(todoIds)
-    } catch (error) {
-      console.error('Error saving todo order:', error)
-      handleError(error as Error)
-    }
-  },
-})
-
-option('animation', 150)
+// 使用增强的拖拽排序功能
+const dragSort = useTodoDragSort(todoListRef, filteredTodos, updateTodosOrder)
 </script>
 
 <style scoped>
 /* 引入 TodoList 样式 */
 @import '../styles/todo-list.css';
+/* 引入拖拽排序样式 */
+@import '../styles/drag-sort.css';
 </style>

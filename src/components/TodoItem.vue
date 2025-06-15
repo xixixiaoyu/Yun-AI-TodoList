@@ -1,5 +1,39 @@
 <template>
-  <div class="todo-item" :class="{ completed: isCompleted }" @click="toggleTodo">
+  <div
+    class="todo-item"
+    :class="{ completed: isCompleted }"
+    :data-todo-id="todo.id"
+    @click="toggleTodo"
+  >
+    <!-- 拖拽手柄 -->
+    <button
+      class="drag-handle"
+      :title="t('dragToReorder', 'Drag to reorder')"
+      :aria-label="t('dragToReorder', 'Drag to reorder')"
+      tabindex="0"
+      @click.stop
+      @keydown="handleKeyboardSort"
+    >
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="16"
+        height="16"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      >
+        <circle cx="9" cy="12" r="1" />
+        <circle cx="9" cy="5" r="1" />
+        <circle cx="9" cy="19" r="1" />
+        <circle cx="15" cy="12" r="1" />
+        <circle cx="15" cy="5" r="1" />
+        <circle cx="15" cy="19" r="1" />
+      </svg>
+    </button>
+
     <div class="todo-content">
       <span class="checkbox-wrapper">
         <transition name="fade">
@@ -57,6 +91,7 @@ import { useErrorHandler } from '../composables/useErrorHandler'
 
 const props = defineProps<{
   todo: Todo
+  onKeyboardSort?: (todoId: number, direction: 'up' | 'down') => void
 }>()
 
 const { showError } = useErrorHandler()
@@ -144,10 +179,12 @@ onErrorCaptured(handleError)
 </script>
 
 <style scoped>
+/* 引入拖拽排序样式 */
+@import '../styles/drag-sort.css';
+
 .todo-item {
   font-family: 'LXGW WenKai Screen', sans-serif;
   display: flex;
-  justify-content: space-between;
   align-items: center;
   padding: 0.7rem;
   margin-bottom: 0.5rem;
@@ -159,6 +196,7 @@ onErrorCaptured(handleError)
   border-radius: 8px;
   will-change: transform;
   backface-visibility: hidden;
+  gap: 0.5rem;
 }
 
 .checkbox-wrapper {

@@ -156,5 +156,11 @@
   "reconnecting": "Reconnecting...",
   "audioDetected": "Audio input detected",
   "audioEnded": "Audio input ended",
-  "noMatchFound": "No matching speech content found"
+  "noMatchFound": "No matching speech content found",
+
+  "dragToReorder": "Drag to reorder",
+  "dragHint": "Add some todos and drag to reorder them",
+  "dragSortError": "Failed to update todo order",
+  "dragRollbackError": "Failed to restore original order",
+  "dragEndError": "Failed to complete drag operation"
 }
