@@ -22,7 +22,7 @@ export interface SpeechRecognition extends EventTarget {
   abort(): void
 }
 
-interface Window {
+interface _Window {
   SpeechRecognition: {
     new (): SpeechRecognition
   }
