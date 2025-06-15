@@ -104,34 +104,64 @@ export function useTodoManagement() {
 
   const sortActiveTodosWithAI = async () => {
     isSorting.value = true
+
+    // 备份原始数据，以防排序失败
+    const originalTodos = [...todos.value]
+
     try {
       const activeTodos = todos.value.filter(todo => todo && !todo.completed)
       if (activeTodos.length <= 1) {
         showError(t('noActiveTodosError'))
         return
       }
+
       const todoTexts = activeTodos.map((todo, index) => `${index + 1}. ${todo.text}`).join('\n')
       const prompt = `${t('sortPrompt')}:\n${todoTexts}`
       const response = await getAIResponse(prompt, 'zh', 0.1)
+
       if (!response) {
         throw new Error(t('aiEmptyResponseError'))
       }
-      const newOrder = response.split(',').map(Number)
+
+      // 更严格的响应验证
+      const newOrder = response.split(',').map(str => {
+        const num = parseInt(str.trim(), 10)
+        if (isNaN(num) || num < 1 || num > activeTodos.length) {
+          throw new Error(`Invalid sort index: ${str}`)
+        }
+        return num
+      })
+
       if (newOrder.length !== activeTodos.length) {
         throw new Error(t('aiSortMismatchError'))
       }
 
-      const sortedTodos = newOrder.map(index => activeTodos[index - 1])
+      // 检查是否有重复的索引
+      const uniqueIndices = new Set(newOrder)
+      if (uniqueIndices.size !== newOrder.length) {
+        throw new Error('Duplicate indices in AI response')
+      }
+
+      // 安全的重排序：创建新的排序映射
+      const sortedActiveTodos = newOrder.map(index => activeTodos[index - 1])
+      let sortedIndex = 0
 
       todos.value = todos.value.map(todo => {
         if (!todo || todo.completed) {
           return todo
         }
-        return sortedTodos.shift() || todo
+        return sortedActiveTodos[sortedIndex++] || todo
       })
 
       saveTodos()
+      logger.info(
+        'AI sort completed successfully',
+        { originalCount: activeTodos.length },
+        'TodoManagement'
+      )
     } catch (error) {
+      // 恢复原始数据
+      todos.value = originalTodos
       handleError(error, t('aiSortError'), 'TodoManagement')
       showError(error instanceof Error ? error.message : t('aiSortError'))
     } finally {

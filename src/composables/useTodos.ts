@@ -1,15 +1,8 @@
 import { ref } from 'vue'
-
-interface Todo {
-  id: number
-  text: string
-  completed: boolean
-  completedAt?: string
-  tags: string[]
-  createdAt: string
-  updatedAt: string
-  order: number
-}
+import type { Todo } from '../types/todo'
+import { IdGenerator } from '../utils/idGenerator'
+import { logger } from '../utils/logger'
+import { TodoValidator } from '../utils/todoValidator'
 
 export function useTodos() {
   const todos = ref<Todo[]>([])
@@ -21,28 +14,42 @@ export function useTodos() {
       if (storedTodos) {
         const parsedTodos = JSON.parse(storedTodos)
         if (Array.isArray(parsedTodos)) {
-          todos.value = parsedTodos
-            .filter(
-              todo =>
-                todo &&
-                typeof todo.id === 'number' &&
-                typeof todo.text === 'string' &&
-                typeof todo.completed === 'boolean'
-            )
-            .map((todo, index) => ({
-              ...todo,
-              order: todo.order ?? index
-            }))
-            .sort((a, b) => a.order - b.order)
+          // 使用增强的验证器
+          const { validTodos, invalidCount, errors } = TodoValidator.validateTodos(parsedTodos)
+
+          if (invalidCount > 0) {
+            logger.warn(`Found ${invalidCount} invalid todos`, { errors }, 'useTodos')
+          }
+
+          todos.value = validTodos.sort((a, b) => a.order - b.order)
         }
       }
 
       validateDataConsistency()
     } catch (error) {
-      console.error('Error loading todos:', error)
-
-      todos.value = []
+      logger.error('Error loading todos', error, 'useTodos')
+      // 尝试从备份恢复
+      loadFromBackup()
     }
+  }
+
+  // 备份恢复机制
+  const loadFromBackup = () => {
+    try {
+      const backup = localStorage.getItem('todos_backup')
+      if (backup) {
+        const parsedBackup = JSON.parse(backup)
+        const { validTodos } = TodoValidator.validateTodos(parsedBackup)
+        todos.value = validTodos
+        logger.info('Restored todos from backup', undefined, 'useTodos')
+        return
+      }
+    } catch (error) {
+      logger.error('Error loading backup', error, 'useTodos')
+    }
+
+    // 如果备份也失败，初始化为空数组
+    todos.value = []
   }
 
   const validateDataConsistency = () => {
@@ -60,9 +67,29 @@ export function useTodos() {
 
   const saveTodos = () => {
     try {
-      localStorage.setItem('todos', JSON.stringify(todos.value))
+      const todosJson = JSON.stringify(todos.value)
+
+      // 先备份当前数据
+      const currentData = localStorage.getItem('todos')
+      if (currentData) {
+        localStorage.setItem('todos_backup', currentData)
+      }
+
+      // 保存新数据
+      localStorage.setItem('todos', todosJson)
+      logger.debug('Todos saved successfully', { count: todos.value.length }, 'useTodos')
     } catch (error) {
-      console.error('Error saving todos:', error)
+      logger.error('Error saving todos', error, 'useTodos')
+
+      // 如果保存失败，尝试清理存储空间
+      try {
+        // 清理备份，为新数据腾出空间
+        localStorage.removeItem('todos_backup')
+        localStorage.setItem('todos', JSON.stringify(todos.value))
+        logger.warn('Saved todos after cleanup', undefined, 'useTodos')
+      } catch (retryError) {
+        logger.error('Failed to save todos even after cleanup', retryError, 'useTodos')
+      }
     }
   }
 
@@ -71,8 +98,19 @@ export function useTodos() {
       return false
     }
 
+    // 使用安全的文本验证和清理
+    const sanitizedText = TodoValidator.sanitizeText(text)
+    if (!TodoValidator.isTextSafe(sanitizedText)) {
+      logger.warn('Attempted to add unsafe todo text', { text }, 'useTodos')
+      return false
+    }
+
     const isDuplicate = todos.value.some(
-      todo => todo && todo.text && todo.text.toLowerCase() === text.toLowerCase() && !todo.completed
+      todo =>
+        todo &&
+        todo.text &&
+        todo.text.toLowerCase() === sanitizedText.toLowerCase() &&
+        !todo.completed
     )
 
     if (isDuplicate) {
@@ -80,11 +118,11 @@ export function useTodos() {
     }
 
     const now = new Date().toISOString()
-    const newTodo = {
-      id: Date.now() + Math.random(),
-      text: text.trim(),
+    const newTodo: Todo = {
+      id: IdGenerator.generateId(), // 使用安全的 ID 生成器
+      text: sanitizedText,
       completed: false,
-      tags: tags,
+      tags: tags.filter(tag => tag.trim() !== '').map(tag => tag.trim()),
       createdAt: now,
       updatedAt: now,
       order: todos.value.length
@@ -92,28 +130,47 @@ export function useTodos() {
 
     todos.value.push(newTodo)
     saveTodos()
+    logger.debug('Todo added', { id: newTodo.id, text: newTodo.text }, 'useTodos')
     return true
   }
 
   const addMultipleTodos = (newTodos: { text: string }[]) => {
     const duplicates: string[] = []
     const now = new Date().toISOString()
+    const validTodos: Todo[] = []
+
+    // 先验证所有 todos，避免部分添加的情况
     newTodos.forEach(({ text }) => {
-      if (todos.value.some(todo => todo.text === text)) {
+      const sanitizedText = TodoValidator.sanitizeText(text)
+
+      if (!TodoValidator.isTextSafe(sanitizedText)) {
+        logger.warn('Skipped unsafe todo text in batch add', { text }, 'useTodos')
+        return
+      }
+
+      if (todos.value.some(todo => todo.text.toLowerCase() === sanitizedText.toLowerCase())) {
         duplicates.push(text)
       } else {
-        todos.value.push({
-          id: Date.now() + Math.random(),
-          text,
+        validTodos.push({
+          id: IdGenerator.generateId(), // 使用安全的 ID 生成器
+          text: sanitizedText,
           completed: false,
           tags: [],
           createdAt: now,
           updatedAt: now,
-          order: todos.value.length
+          order: todos.value.length + validTodos.length
         })
       }
     })
+
+    // 批量添加有效的 todos
+    todos.value.push(...validTodos)
     saveTodos()
+    logger.debug(
+      'Multiple todos added',
+      { count: validTodos.length, duplicates: duplicates.length },
+      'useTodos'
+    )
     return duplicates
   }
 

@@ -2,6 +2,7 @@ export interface Todo {
   id: number
   text: string
   completed: boolean
+  completedAt?: string
   tags: string[]
   createdAt: string
   updatedAt: string
