@@ -16,6 +16,6 @@
 
 <script setup lang="ts">
 defineOptions({
-  name: 'PlusIcon'
+  name: 'PlusIcon',
 })
 </script>

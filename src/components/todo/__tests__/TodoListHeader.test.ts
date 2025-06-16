@@ -17,9 +17,9 @@ const i18n = createI18n({
       closeSearch: '关闭搜索',
       switchToLightMode: '切换到浅色模式',
       switchToDarkMode: '切换到深色模式',
-      switchToAutoMode: '切换到自动模式'
-    }
-  }
+      switchToAutoMode: '切换到自动模式',
+    },
+  },
 })
 
 describe('TodoListHeader', () => {
@@ -27,15 +27,15 @@ describe('TodoListHeader', () => {
     themeIcon: 'sun',
     themeTooltip: '切换到深色模式',
     showCharts: false,
-    showSearch: false
+    showSearch: false,
   }
 
   it('应该正确渲染所有按钮', () => {
     const wrapper = mount(TodoListHeader, {
       props: defaultProps,
       global: {
-        plugins: [i18n]
-      }
+        plugins: [i18n],
+      },
     })
 
     const buttons = wrapper.findAll('.icon-button')
@@ -56,11 +56,11 @@ describe('TodoListHeader', () => {
     const wrapper = mount(TodoListHeader, {
       props: {
         ...defaultProps,
-        showCharts: true
+        showCharts: true,
       },
       global: {
-        plugins: [i18n]
-      }
+        plugins: [i18n],
+      },
     })
 
     expect(wrapper.find('.charts-button').classes()).toContain('active')
@@ -70,8 +70,8 @@ describe('TodoListHeader', () => {
     const wrapper = mount(TodoListHeader, {
       props: defaultProps,
       global: {
-        plugins: [i18n]
-      }
+        plugins: [i18n],
+      },
     })
 
     await wrapper.find('.theme-toggle').trigger('click')
@@ -85,8 +85,8 @@ describe('TodoListHeader', () => {
     const wrapper = mount(TodoListHeader, {
       props: defaultProps,
       global: {
-        plugins: [i18n]
-      }
+        plugins: [i18n],
+      },
     })
 
     const themeButton = wrapper.find('.theme-toggle')
@@ -102,7 +102,7 @@ describe('TodoListHeader', () => {
   it('应该根据不同主题图标显示不同的 SVG', () => {
     const sunWrapper = mount(TodoListHeader, {
       props: { ...defaultProps, themeIcon: 'sun' },
-      global: { plugins: [i18n] }
+      global: { plugins: [i18n] },
     })
     const sunSvg = sunWrapper.find('.theme-toggle svg')
     expect(sunSvg.exists()).toBe(true)
@@ -111,7 +111,7 @@ describe('TodoListHeader', () => {
 
     const moonWrapper = mount(TodoListHeader, {
       props: { ...defaultProps, themeIcon: 'moon' },
-      global: { plugins: [i18n] }
+      global: { plugins: [i18n] },
     })
     const moonSvg = moonWrapper.find('.theme-toggle svg')
     expect(moonSvg.exists()).toBe(true)
@@ -120,7 +120,7 @@ describe('TodoListHeader', () => {
 
     const autoWrapper = mount(TodoListHeader, {
       props: { ...defaultProps, themeIcon: 'auto' },
-      global: { plugins: [i18n] }
+      global: { plugins: [i18n] },
     })
     const autoSvg = autoWrapper.find('.theme-toggle svg')
     expect(autoSvg.exists()).toBe(true)
@@ -132,12 +132,12 @@ describe('TodoListHeader', () => {
     const wrapper = mount(TodoListHeader, {
       props: defaultProps,
       global: {
-        plugins: [i18n]
-      }
+        plugins: [i18n],
+      },
     })
 
     const buttons = wrapper.findAll('.icon-button')
-    buttons.forEach(button => {
+    buttons.forEach((button) => {
       expect(button.classes()).toContain('icon-button')
 
       const icon = button.find('.button-icon')

@@ -18,7 +18,7 @@
               :todo="item.data"
               :class="{
                 'todo-item-entering': item.isEntering,
-                'todo-item-leaving': item.isLeaving
+                'todo-item-leaving': item.isLeaving,
               }"
               @toggle="handleToggle"
               @remove="handleRemove"
@@ -73,7 +73,7 @@ const props = withDefaults(defineProps<Props>(), {
   containerHeight: 400,
   overscan: 5,
   showScrollIndicator: true,
-  showPerformanceStats: false
+  showPerformanceStats: false,
 })
 
 const emit = defineEmits<{
@@ -121,7 +121,7 @@ const scrollThumbStyle = computed(() => {
 
   return {
     height: `${thumbHeight}px`,
-    transform: `translateY(${thumbTop}px)`
+    transform: `translateY(${thumbTop}px)`,
   }
 })
 
@@ -135,17 +135,17 @@ const updateVisibleItems = () => {
     if (i >= 0 && i < props.items.length) {
       newVisibleItems.push({
         data: props.items[i],
-        index: i
+        index: i,
       })
     }
   }
 
   // 处理进入和离开动画
-  const prevItemIds = new Set(visibleItems.value.map(item => item.data.id))
-  const newItemIds = new Set(newVisibleItems.map(item => item.data.id))
+  const prevItemIds = new Set(visibleItems.value.map((item) => item.data.id))
+  const newItemIds = new Set(newVisibleItems.map((item) => item.data.id))
 
   // 标记新进入的项目
-  newVisibleItems.forEach(item => {
+  newVisibleItems.forEach((item) => {
     if (!prevItemIds.has(item.data.id)) {
       item.isEntering = true
       // 移除进入标记
@@ -156,7 +156,7 @@ const updateVisibleItems = () => {
   })
 
   // 标记即将离开的项目
-  visibleItems.value.forEach(item => {
+  visibleItems.value.forEach((item) => {
     if (!newItemIds.has(item.data.id)) {
       item.isLeaving = true
     }
@@ -172,7 +172,7 @@ const handleScroll = (event: Event) => {
 
   emit('scroll', {
     scrollTop: target.scrollTop,
-    scrollLeft: target.scrollLeft
+    scrollLeft: target.scrollLeft,
   })
 
   // 使用 requestAnimationFrame 优化滚动性能
@@ -196,7 +196,7 @@ const scrollToIndex = (index: number, behavior: ScrollBehavior = 'smooth') => {
   const targetScrollTop = index * props.itemHeight
   containerRef.value.querySelector('.virtual-list-container')?.scrollTo({
     top: targetScrollTop,
-    behavior
+    behavior,
   })
 }
 
@@ -212,7 +212,7 @@ const getVisibleRange = () => {
   return {
     start: startIndex.value,
     end: endIndex.value,
-    total: totalItems.value
+    total: totalItems.value,
   }
 }
 
@@ -251,7 +251,7 @@ defineExpose({
   scrollToIndex,
   scrollToTop,
   scrollToBottom,
-  getVisibleRange
+  getVisibleRange,
 })
 </script>
 

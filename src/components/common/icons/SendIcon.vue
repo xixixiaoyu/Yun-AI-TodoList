@@ -12,6 +12,6 @@
 
 <script setup lang="ts">
 defineOptions({
-  name: 'SendIcon'
+  name: 'SendIcon',
 })
 </script>

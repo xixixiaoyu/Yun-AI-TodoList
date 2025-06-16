@@ -31,7 +31,7 @@ defineEmits<Emits>()
 const { t } = useI18n()
 
 defineOptions({
-  name: 'ApiKeyActionButtons'
+  name: 'ApiKeyActionButtons',
 })
 </script>
 

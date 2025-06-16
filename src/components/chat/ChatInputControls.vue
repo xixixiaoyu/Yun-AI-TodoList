@@ -23,7 +23,7 @@
           isListening,
         'bg-red-300 text-white border-red-300 shadow-[0_4px_12px_rgba(252,165,165,0.3)]':
           recognitionStatus === 'error',
-        'bg-button-hover text-white border-button-hover': recognitionStatus === 'processing'
+        'bg-button-hover text-white border-button-hover': recognitionStatus === 'processing',
       }"
       :disabled="!isRecognitionSupported"
       :title="lastError || t(isListening ? 'stopListening' : 'startListening')"
@@ -68,6 +68,6 @@ defineEmits<Emits>()
 const { t } = useI18n()
 
 defineOptions({
-  name: 'ChatInputControls'
+  name: 'ChatInputControls',
 })
 </script>

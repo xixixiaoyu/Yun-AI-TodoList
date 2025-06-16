@@ -13,7 +13,7 @@ export function useErrorHandler() {
     error.value = translatedMessage
     errorHistory.value.push({
       message: translatedMessage,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     })
 
     logger.info('Error message displayed', { message: translatedMessage }, 'ErrorHandler')
@@ -60,6 +60,6 @@ export function useErrorHandler() {
     showSuccess,
     clearError,
     clearSuccess,
-    getErrorHistory
+    getErrorHistory,
   }
 }

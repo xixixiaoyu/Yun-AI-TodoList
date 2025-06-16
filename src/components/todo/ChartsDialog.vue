@@ -59,6 +59,6 @@ defineEmits<Emits>()
 const { t } = useI18n()
 
 defineOptions({
-  name: 'ChartsDialog'
+  name: 'ChartsDialog',
 })
 </script>

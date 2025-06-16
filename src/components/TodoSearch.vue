@@ -75,19 +75,19 @@ const internalValue = ref('')
 
 watch(
   () => props.modelValue,
-  newValue => {
+  (newValue) => {
     internalValue.value = newValue
   },
   { immediate: true }
 )
 
-watch(internalValue, newValue => {
+watch(internalValue, (newValue) => {
   emit('update:modelValue', newValue)
 })
 
 watch(
   () => props.isExpanded,
-  newValue => {
+  (newValue) => {
     if (newValue) {
       setTimeout(() => {
         searchInput.value?.focus()
@@ -123,7 +123,7 @@ const handleBlur = () => {
 
 defineExpose({
   focus: () => searchInput.value?.focus(),
-  clear: clearSearch
+  clear: clearSearch,
 })
 </script>
 

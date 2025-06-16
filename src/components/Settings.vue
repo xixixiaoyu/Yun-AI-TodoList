@@ -58,7 +58,7 @@ const { showApiKey, showApiKeyPopover, localApiKey, showSuccessMessage, showSucc
   useSettingsState()
 
 defineOptions({
-  name: 'AppSettings'
+  name: 'AppSettings',
 })
 </script>
 

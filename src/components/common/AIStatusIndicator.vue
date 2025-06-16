@@ -67,7 +67,7 @@ const props = withDefaults(defineProps<Props>(), {
   description: '',
   progress: undefined,
   closable: false,
-  duration: 0
+  duration: 0,
 })
 
 const emit = defineEmits<Emits>()
@@ -77,7 +77,7 @@ const statusClass = computed(() => {
     'status-loading': props.type === 'loading',
     'status-success': props.type === 'success',
     'status-error': props.type === 'error',
-    'status-info': props.type === 'info'
+    'status-info': props.type === 'info',
   }
 })
 
@@ -89,7 +89,7 @@ if (props.duration > 0) {
 }
 
 defineOptions({
-  name: 'AIStatusIndicator'
+  name: 'AIStatusIndicator',
 })
 </script>
 

@@ -2,7 +2,7 @@
   <div
     class="bg-card rounded-[var(--border-radius)] shadow-card p-6 text-center transition-all-300"
     :class="{
-      'fixed top-0 left-0 right-0 bottom-0 z-[9999] rounded-none p-8 bg-bg': isFullscreen
+      'fixed top-0 left-0 right-0 bottom-0 z-[9999] rounded-none p-8 bg-bg': isFullscreen,
     }"
   >
     <div class="flex justify-between items-center mb-8">
@@ -259,7 +259,7 @@ const defaultSettings: PomodoroSettings = {
   longBreak: 15,
   sessionsBeforeLongBreak: 4,
   autoStartBreaks: false,
-  autoStartWork: false
+  autoStartWork: false,
 }
 
 // 响应式状态
@@ -303,7 +303,7 @@ const progressColor = computed(() => {
 })
 
 const circleStyle = computed(() => ({
-  '--progress-color': progressColor.value
+  '--progress-color': progressColor.value,
 }))
 
 // Worker 实例
@@ -465,7 +465,7 @@ const saveTodayStats = () => {
   const stats = {
     date: today,
     sessions: todaysSessions.value,
-    totalTime: totalFocusTime.value
+    totalTime: totalFocusTime.value,
   }
   localStorage.setItem('pomodoroStats', JSON.stringify(stats))
 }

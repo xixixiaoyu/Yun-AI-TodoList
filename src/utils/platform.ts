@@ -57,7 +57,7 @@ export function getPlatformInfo(): PlatformInfo {
     isMobile: isMobileEnv,
     isAndroid: isCapacitorEnv && Capacitor.getPlatform() === 'android',
     isIOS: isCapacitorEnv && Capacitor.getPlatform() === 'ios',
-    platform
+    platform,
   }
 }
 

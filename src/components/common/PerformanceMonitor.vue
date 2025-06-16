@@ -89,7 +89,7 @@ interface Props {
 
 const props = withDefaults(defineProps<Props>(), {
   autoStart: false,
-  position: 'top-right'
+  position: 'top-right',
 })
 
 const { t } = useI18n()
@@ -240,7 +240,7 @@ const exportReport = () => {
     timestamp: new Date().toISOString(),
     memory: memoryUsage.value,
     fps: { current: currentFps.value, history: fpsHistory },
-    performance: report
+    performance: report,
   }
 
   const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' })
@@ -285,7 +285,7 @@ defineExpose({
   show,
   hide,
   measure,
-  measureAsync
+  measureAsync,
 })
 </script>
 

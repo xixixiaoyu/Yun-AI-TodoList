@@ -41,8 +41,8 @@ vi.mock('@/composables/useTodoListState', () => ({
     toggleSearch: vi.fn(),
     closeCharts: vi.fn(),
     collapseSearch: vi.fn(),
-    handlePomodoroComplete: vi.fn()
-  })
+    handlePomodoroComplete: vi.fn(),
+  }),
 }))
 
 const i18n = createI18n({
@@ -56,9 +56,9 @@ const i18n = createI18n({
       search: '搜索',
       all: '全部',
       active: '未完成',
-      completed: '已完成'
-    }
-  }
+      completed: '已完成',
+    },
+  },
 })
 
 describe('TodoList', () => {
@@ -76,8 +76,8 @@ describe('TodoList', () => {
   it('应该正确渲染组件', () => {
     const wrapper = mount(TodoList, {
       global: {
-        plugins: [i18n]
-      }
+        plugins: [i18n],
+      },
     })
 
     expect(wrapper.find('.todo-app').exists()).toBe(true)
@@ -86,8 +86,8 @@ describe('TodoList', () => {
   it('应该显示正确的标题', () => {
     const wrapper = mount(TodoList, {
       global: {
-        plugins: [i18n]
-      }
+        plugins: [i18n],
+      },
     })
 
     expect(wrapper.text()).toContain('待办事项')
@@ -96,8 +96,8 @@ describe('TodoList', () => {
   it('应该包含必要的组件', () => {
     const wrapper = mount(TodoList, {
       global: {
-        plugins: [i18n]
-      }
+        plugins: [i18n],
+      },
     })
 
     // 检查是否包含主要的组件结构

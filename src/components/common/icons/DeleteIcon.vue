@@ -9,6 +9,6 @@
 
 <script setup lang="ts">
 defineOptions({
-  name: 'DeleteIcon'
+  name: 'DeleteIcon',
 })
 </script>

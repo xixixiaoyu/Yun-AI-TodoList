@@ -12,11 +12,11 @@ interface Props {
 }
 
 withDefaults(defineProps<Props>(), {
-  message: 'Loading...'
+  message: 'Loading...',
 })
 
 defineOptions({
-  name: 'LoadingOverlay'
+  name: 'LoadingOverlay',
 })
 </script>
 

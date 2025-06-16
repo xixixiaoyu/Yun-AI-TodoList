@@ -12,7 +12,7 @@ let lastSyncTime: number | null = null
 let timeOffset = 0
 let syncInProgress: Promise<number> | null = null
 
-const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms))
+const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
 
 const fetchWithTimeout = async (url: string, timeout = 5000): Promise<Response> => {
   const controller = new AbortController()
@@ -90,7 +90,7 @@ export function getAdjustedTime(): number {
 export function startPeriodicSync(interval: number = 60 * 60 * 1000): () => void {
   stopPeriodicSync()
 
-  syncWithServerTime().catch(error => {
+  syncWithServerTime().catch((error) => {
     console.error('Initial time sync failed:', error)
   })
 
@@ -119,5 +119,5 @@ export const __timeServiceInternals = {
     timeOffset = 0
     lastSyncTime = null
     stopPeriodicSync()
-  }
+  },
 }

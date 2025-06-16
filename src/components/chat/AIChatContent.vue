@@ -100,10 +100,10 @@ onMounted(() => {
 
 defineExpose({
   messageListRef,
-  inputRef
+  inputRef,
 })
 
 defineOptions({
-  name: 'AIChatContent'
+  name: 'AIChatContent',
 })
 </script>

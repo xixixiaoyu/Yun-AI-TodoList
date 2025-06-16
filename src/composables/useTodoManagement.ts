@@ -40,14 +40,14 @@ export function useTodoManagement() {
 
       if (searchQuery.value.trim()) {
         const query = searchQuery.value.toLowerCase().trim()
-        result = result.filter(todo => {
+        result = result.filter((todo) => {
           if (!todo) {
             return false
           }
 
           const titleMatch = todo.text.toLowerCase().includes(query)
 
-          const tagsMatch = todo.tags?.some(tag => tag.toLowerCase().includes(query)) || false
+          const tagsMatch = todo.tags?.some((tag) => tag.toLowerCase().includes(query)) || false
           return titleMatch || tagsMatch
         })
       }
@@ -61,7 +61,7 @@ export function useTodoManagement() {
 
   const hasActiveTodos = computed(() => {
     // AI 优先级排序只在待完成筛选状态下显示
-    return filter.value === 'active' && todos.value.some(todo => todo && !todo.completed)
+    return filter.value === 'active' && todos.value.some((todo) => todo && !todo.completed)
   })
 
   const generateSuggestedTodos = async () => {
@@ -73,22 +73,22 @@ export function useTodoManagement() {
       let parsedTodos: string[] = []
 
       // 首先尝试按行分割（支持编号格式）
-      const lines = response.split('\n').filter(line => line.trim() !== '')
+      const lines = response.split('\n').filter((line) => line.trim() !== '')
 
       if (lines.length >= 2) {
         // 如果有多行，尝试提取任务内容
         parsedTodos = lines
-          .map(line => {
+          .map((line) => {
             // 移除编号（如 "1. ", "- ", "• " 等）
             return line.replace(/^\s*[\d\-•*]+\.?\s*/, '').trim()
           })
-          .filter(todo => todo !== '' && todo.length > 0)
+          .filter((todo) => todo !== '' && todo.length > 0)
       } else {
         // 如果只有一行，尝试按逗号分割
         parsedTodos = response
           .split(/[,，]/)
-          .map(todo => todo.trim())
-          .filter(todo => todo !== '')
+          .map((todo) => todo.trim())
+          .filter((todo) => todo !== '')
       }
 
       // 确保有有效的建议
@@ -99,7 +99,7 @@ export function useTodoManagement() {
 
       // 限制数量并过滤空内容
       suggestedTodos.value = parsedTodos
-        .filter(todo => todo.length > 0 && todo.length <= MAX_TODO_LENGTH)
+        .filter((todo) => todo.length > 0 && todo.length <= MAX_TODO_LENGTH)
         .slice(0, 5)
 
       if (suggestedTodos.value.length > 0) {
@@ -122,8 +122,8 @@ export function useTodoManagement() {
 
   const confirmSuggestedTodos = () => {
     const duplicates = addMultipleTodos(
-      suggestedTodos.value.map(todo => ({
-        text: todo
+      suggestedTodos.value.map((todo) => ({
+        text: todo,
       }))
     )
     if (duplicates.length > 0) {
@@ -145,7 +145,7 @@ export function useTodoManagement() {
   const sortActiveTodosWithAI = async () => {
     if (isSorting.value) return
 
-    const activeTodos = todos.value.filter(todo => !todo.completed)
+    const activeTodos = todos.value.filter((todo) => !todo.completed)
     if (activeTodos.length === 0) {
       showError(t('noActiveTodosError'))
       return
@@ -164,12 +164,12 @@ export function useTodoManagement() {
       const prompt = `请按照优先级对以下待办事项进行排序，返回排序后的序号列表（用逗号分隔）：\n${todoTexts}`
 
       const aiResponse = await getAIResponse(prompt)
-      const sortedIndices = aiResponse.match(/\d+/g)?.map(num => parseInt(num) - 1) || []
+      const sortedIndices = aiResponse.match(/\d+/g)?.map((num) => parseInt(num) - 1) || []
 
       // 更新排序后的待办事项
       if (sortedIndices.length === activeTodos.length) {
-        const sortedTodos = sortedIndices.map(index => activeTodos[index]).filter(Boolean)
-        const todoMap = new Map(todos.value.map(todo => [todo.id, todo]))
+        const sortedTodos = sortedIndices.map((index) => activeTodos[index]).filter(Boolean)
+        const todoMap = new Map(todos.value.map((todo) => [todo.id, todo]))
         sortedTodos.forEach((sortedTodo, index) => {
           const originalTodo = todoMap.get(sortedTodo.id)
           if (originalTodo) {
@@ -218,6 +218,6 @@ export function useTodoManagement() {
     sortActiveTodosWithAI,
     handleAddTodo,
     toggleTodo,
-    removeTodo
+    removeTodo,
   }
 }

@@ -48,7 +48,7 @@ defineEmits<Emits>()
 const { t } = useI18n()
 
 defineOptions({
-  name: 'ApiKeyInputSection'
+  name: 'ApiKeyInputSection',
 })
 </script>
 

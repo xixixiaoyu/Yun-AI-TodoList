@@ -3,7 +3,7 @@
     class="max-w-[95%] md:max-w-[96%] relative opacity-100 translate-y-0 transition-all-300 m-0 group"
     :class="{
       'max-w-[92%] md:max-w-[94%] self-end': message.role === 'user',
-      'self-start': message.role === 'assistant'
+      'self-start': message.role === 'assistant',
     }"
   >
     <div
@@ -12,7 +12,7 @@
         'bg-button-bg text-white px-4 py-3 md:px-3.5 md:py-2.5 shadow-[0_2px_8px_rgba(121,180,166,0.3)] hover:shadow-[0_4px_12px_rgba(121,180,166,0.4)] leading-[1.4] font-medium':
           message.role === 'user',
         'bg-input-bg text-text hover:shadow-md border border-input-border px-8 py-6 md:px-6 md:py-5':
-          message.role === 'assistant'
+          message.role === 'assistant',
       }"
       dir="ltr"
     >
@@ -60,6 +60,6 @@ defineProps<Props>()
 defineEmits<Emits>()
 
 defineOptions({
-  name: 'ChatMessage'
+  name: 'ChatMessage',
 })
 </script>

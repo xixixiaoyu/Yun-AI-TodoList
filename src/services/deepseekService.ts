@@ -21,7 +21,7 @@ const getHeaders = () => {
   }
   return {
     Authorization: `Bearer ${apiKey}`,
-    'Content-Type': 'application/json'
+    'Content-Type': 'application/json',
   }
 }
 
@@ -42,9 +42,9 @@ export async function getAIStreamResponse(
       body: JSON.stringify({
         model: getAIModel(),
         messages: [...messages],
-        stream: true
+        stream: true,
       }),
-      signal
+      signal,
     })
 
     if (!response.ok) {
@@ -117,16 +117,16 @@ export async function getAIResponse(
         messages: [
           {
             role: 'system',
-            content: `你是一个智能助手，可以回答各种问题并提供帮助。${languageInstruction}`
+            content: `你是一个智能助手，可以回答各种问题并提供帮助。${languageInstruction}`,
           },
           {
             role: 'user',
-            content: userMessage
-          }
+            content: userMessage,
+          },
         ],
         temperature,
-        stream: false
-      })
+        stream: false,
+      }),
     })
 
     if (!response.ok) {
@@ -166,16 +166,16 @@ export async function optimizeText(text: string): Promise<string> {
           {
             role: 'system',
             content:
-              '你是一个顶级的文本优化助手，请优化文本使其更自然流畅、标点符号使用更正确、更符合用户的意图，优化后的文本请直接返回，不要添加任何解释。'
+              '你是一个顶级的文本优化助手，请优化文本使其更自然流畅、标点符号使用更正确、更符合用户的意图，优化后的文本请直接返回，不要添加任何解释。',
           },
           {
             role: 'user',
-            content: `请优化文本：\n"${text}"`
-          }
+            content: `请优化文本：\n"${text}"`,
+          },
         ],
         temperature: 0.5,
-        stream: false
-      })
+        stream: false,
+      }),
     })
 
     if (!response.ok) {

@@ -95,7 +95,7 @@ const handleTodoUpdate = (index: number, event: Event) => {
 }
 
 defineOptions({
-  name: 'SuggestedTodosDialog'
+  name: 'SuggestedTodosDialog',
 })
 </script>
 

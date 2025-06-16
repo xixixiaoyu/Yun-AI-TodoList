@@ -29,7 +29,7 @@ export const CSP_CONFIG = {
   'base-uri': ["'self'"],
   'form-action': ["'self'"],
   'frame-ancestors': ["'none'"],
-  'upgrade-insecure-requests': []
+  'upgrade-insecure-requests': [],
 }
 
 export function generateCSPString(): string {
@@ -59,13 +59,13 @@ export function sanitizeHTML(html: string): string {
       'ol',
       'li',
       'blockquote',
-      'a'
+      'a',
     ],
     ALLOWED_ATTR: ['href', 'title', 'target'],
     ALLOW_DATA_ATTR: false,
 
     FORBID_TAGS: ['script', 'object', 'embed', 'form', 'input'],
-    FORBID_ATTR: ['onerror', 'onload', 'onclick', 'onmouseover']
+    FORBID_ATTR: ['onerror', 'onload', 'onclick', 'onmouseover'],
   })
 }
 
@@ -82,7 +82,7 @@ export function isSecureURL(url: string): boolean {
 
     const suspiciousDomains = ['malware.com', 'phishing.com']
 
-    return !suspiciousDomains.some(domain => parsedURL.hostname.includes(domain))
+    return !suspiciousDomains.some((domain) => parsedURL.hostname.includes(domain))
   } catch {
     return false
   }
@@ -156,7 +156,7 @@ export class SecureStorage {
         }
       }
 
-      keysToRemove.forEach(key => localStorage.removeItem(key))
+      keysToRemove.forEach((key) => localStorage.removeItem(key))
 
       if (keysToRemove.length > 0) {
         console.warn(`Cleaned up ${keysToRemove.length} invalid storage items`)
@@ -185,8 +185,8 @@ export class SecureAPIClient {
       credentials: 'same-origin',
       headers: {
         'Content-Type': 'application/json',
-        ...options.headers
-      }
+        ...options.headers,
+      },
     }
 
     const controller = new AbortController()
@@ -195,14 +195,14 @@ export class SecureAPIClient {
     try {
       const response = await fetch(url, {
         ...secureOptions,
-        signal: controller.signal
+        signal: controller.signal,
       })
 
       clearTimeout(timeoutId)
 
       if (!response.ok) {
         if (response.status >= 500 && retries < this.MAX_RETRIES) {
-          await new Promise(resolve => setTimeout(resolve, 1000 * (retries + 1)))
+          await new Promise((resolve) => setTimeout(resolve, 1000 * (retries + 1)))
           return this.secureRequest(url, options, retries + 1)
         }
         throw new Error(`HTTP ${response.status}: ${response.statusText}`)
@@ -235,10 +235,10 @@ export class InputValidator {
       /javascript:/gi,
       /on\w+\s*=/gi,
       /eval\s*\(/gi,
-      /expression\s*\(/gi
+      /expression\s*\(/gi,
     ]
 
-    return scriptPatterns.some(pattern => pattern.test(str))
+    return scriptPatterns.some((pattern) => pattern.test(str))
   }
 
   static sanitizeInput(input: string): string {
@@ -253,11 +253,11 @@ export class InputValidator {
 export function initSecurity(): void {
   SecureStorage.cleanup()
 
-  window.addEventListener('error', event => {
+  window.addEventListener('error', (event) => {
     console.error('Global error:', event.error)
   })
 
-  window.addEventListener('unhandledrejection', event => {
+  window.addEventListener('unhandledrejection', (event) => {
     console.error('Unhandled promise rejection:', event.reason)
   })
 }

@@ -54,7 +54,7 @@ export function useMobile() {
       await Toast.show({
         text,
         duration: duration === 'short' ? 'short' : 'long',
-        position: 'bottom'
+        position: 'bottom',
       })
     } catch (error) {
       console.error('显示 Toast 失败:', error)
@@ -112,7 +112,7 @@ export function useMobile() {
         path,
         data,
         directory: Directory.Documents,
-        encoding: Encoding.UTF8
+        encoding: Encoding.UTF8,
       })
     } catch (error) {
       console.error('写入文件失败:', error)
@@ -130,7 +130,7 @@ export function useMobile() {
       const { data } = await Filesystem.readFile({
         path,
         directory: Directory.Documents,
-        encoding: Encoding.UTF8
+        encoding: Encoding.UTF8,
       })
       return data as string
     } catch (error) {
@@ -148,7 +148,7 @@ export function useMobile() {
     try {
       await Filesystem.deleteFile({
         path,
-        directory: Directory.Documents
+        directory: Directory.Documents,
       })
     } catch (error) {
       console.error('删除文件失败:', error)
@@ -172,6 +172,6 @@ export function useMobile() {
     removePreference,
     writeFile,
     readFile,
-    deleteFile
+    deleteFile,
   }
 }

@@ -9,6 +9,6 @@
 
 <script setup lang="ts">
 defineOptions({
-  name: 'CloseIcon'
+  name: 'CloseIcon',
 })
 </script>

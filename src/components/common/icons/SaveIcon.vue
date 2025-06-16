@@ -6,6 +6,6 @@
 
 <script setup lang="ts">
 defineOptions({
-  name: 'SaveIcon'
+  name: 'SaveIcon',
 })
 </script>

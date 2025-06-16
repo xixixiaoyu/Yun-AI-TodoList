@@ -55,6 +55,6 @@ export function useTheme() {
     theme,
     systemTheme,
     toggleTheme,
-    initTheme
+    initTheme,
   }
 }

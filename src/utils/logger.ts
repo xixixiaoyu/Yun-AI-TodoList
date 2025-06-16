@@ -7,7 +7,7 @@ export enum LogLevel {
   DEBUG = 0,
   INFO = 1,
   WARN = 2,
-  ERROR = 3
+  ERROR = 3,
 }
 
 interface LogEntry {
@@ -51,7 +51,7 @@ class Logger {
       message,
       data,
       timestamp: new Date(),
-      source
+      source,
     }
 
     this.output(entry)
@@ -96,7 +96,7 @@ export function handleAsyncError<T>(
   context: string,
   source?: string
 ): Promise<T> {
-  return promise.catch(error => {
+  return promise.catch((error) => {
     handleError(error, context, source)
     throw error
   })

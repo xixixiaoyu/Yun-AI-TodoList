@@ -56,7 +56,7 @@ const {
   lastError,
   isRecognitionSupported,
   startListening,
-  stopListening
+  stopListening,
 } = useVoiceInput(handleTranscript)
 
 const handleNewline = (event: KeyboardEvent) => {
@@ -80,10 +80,10 @@ const focus = () => {
 }
 
 defineExpose({
-  focus
+  focus,
 })
 
 defineOptions({
-  name: 'ChatInput'
+  name: 'ChatInput',
 })
 </script>

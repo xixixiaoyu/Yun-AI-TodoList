@@ -49,7 +49,7 @@ export function useChat() {
       id: Date.now().toString(),
       title,
       messages: [],
-      lastUpdated: new Date().toISOString()
+      lastUpdated: new Date().toISOString(),
     }
     conversationHistory.value.unshift(newConversation)
     saveCurrentConversationId(newConversation.id)
@@ -58,7 +58,7 @@ export function useChat() {
   }
 
   const switchConversation = (id: string) => {
-    const conversation = conversationHistory.value.find(c => c.id === id)
+    const conversation = conversationHistory.value.find((c) => c.id === id)
     if (conversation) {
       chatHistory.value = [...conversation.messages]
       saveCurrentConversationId(id)
@@ -66,7 +66,7 @@ export function useChat() {
   }
 
   const deleteConversation = (id: string) => {
-    conversationHistory.value = conversationHistory.value.filter(c => c.id !== id)
+    conversationHistory.value = conversationHistory.value.filter((c) => c.id !== id)
     if (currentConversationId.value === id) {
       if (conversationHistory.value.length > 0) {
         switchConversation(conversationHistory.value[0].id)
@@ -99,7 +99,7 @@ export function useChat() {
     try {
       if (chatHistory.value.length === 0) {
         const currentConversation = conversationHistory.value.find(
-          conv => conv.id === currentConversationId.value
+          (conv) => conv.id === currentConversationId.value
         )
         if (currentConversation) {
           currentConversation.title = message
@@ -109,14 +109,14 @@ export function useChat() {
 
       const userMsg: ChatMessage = {
         role: 'user',
-        content: message
+        content: message,
       }
       chatHistory.value.push(userMsg)
 
       currentAIResponse.value = ''
-      const messages: Message[] = chatHistory.value.map(msg => ({
+      const messages: Message[] = chatHistory.value.map((msg) => ({
         role: msg.role === 'user' ? 'user' : 'assistant',
-        content: msg.content
+        content: msg.content,
       }))
 
       await getAIStreamResponse(messages, (chunk: string) => {
@@ -124,7 +124,7 @@ export function useChat() {
           if (currentAIResponse.value) {
             const aiMsg: ChatMessage = {
               role: 'assistant',
-              content: currentAIResponse.value
+              content: currentAIResponse.value,
             }
 
             chatHistory.value.push(aiMsg)
@@ -189,7 +189,7 @@ export function useChat() {
     try {
       if (currentConversationId.value) {
         const currentConversation = conversationHistory.value.find(
-          conv => conv.id === currentConversationId.value
+          (conv) => conv.id === currentConversationId.value
         )
         if (currentConversation) {
           currentConversation.messages = [...chatHistory.value]
@@ -208,7 +208,7 @@ export function useChat() {
     if (currentAIResponse.value) {
       const aiMsg: ChatMessage = {
         role: 'assistant',
-        content: currentAIResponse.value
+        content: currentAIResponse.value,
       }
       chatHistory.value.push(aiMsg)
       saveConversationHistory()
@@ -236,6 +236,6 @@ export function useChat() {
     sendMessage,
     stopGenerating,
     optimizeMessage,
-    showError
+    showError,
   }
 }

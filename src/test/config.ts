@@ -7,7 +7,7 @@ export const TEST_CONFIG = {
   TIMEOUT: {
     UNIT: 5000,
     INTEGRATION: 10000,
-    E2E: 30000
+    E2E: 30000,
   },
 
   TEST_DATA: {
@@ -17,45 +17,45 @@ export const TEST_CONFIG = {
       { text: '写单元测试', tags: ['testing', 'development'] },
       { text: '部署应用', tags: ['deployment', 'devops'] },
       { text: '代码审查', tags: ['review', 'quality'] },
-      { text: '文档更新', tags: ['documentation'] }
+      { text: '文档更新', tags: ['documentation'] },
     ],
     SAMPLE_CONVERSATIONS: [
       {
         title: '项目规划讨论',
         messages: [
           { role: 'user', content: '帮我规划一个新项目' },
-          { role: 'assistant', content: '我可以帮你制定项目计划。首先，请告诉我项目的基本信息。' }
-        ]
+          { role: 'assistant', content: '我可以帮你制定项目计划。首先，请告诉我项目的基本信息。' },
+        ],
       },
       {
         title: '技术问题咨询',
         messages: [
           { role: 'user', content: 'Vue 3 和 Vue 2 有什么区别？' },
-          { role: 'assistant', content: 'Vue 3 相比 Vue 2 有很多改进...' }
-        ]
-      }
-    ]
+          { role: 'assistant', content: 'Vue 3 相比 Vue 2 有很多改进...' },
+        ],
+      },
+    ],
   },
 
   MOCKS: {
     API_KEY: 'test-api-key-12345',
     API_BASE_URL: 'https://api.deepseek.com',
     RESPONSE_DELAY: 100,
-    ERROR_RATE: 0.1
+    ERROR_RATE: 0.1,
   },
 
   PERFORMANCE: {
     MAX_RENDER_TIME: 100,
     MAX_OPERATION_TIME: 50,
-    LARGE_DATA_SIZE: 1000
+    LARGE_DATA_SIZE: 1000,
   },
 
   COVERAGE: {
     STATEMENTS: 80,
     BRANCHES: 75,
     FUNCTIONS: 80,
-    LINES: 80
-  }
+    LINES: 80,
+  },
 }
 
 export const isTestEnvironment = () => {
@@ -101,7 +101,7 @@ export const TEST_TAGS = {
   E2E: 'e2e',
   PERFORMANCE: 'performance',
   SMOKE: 'smoke',
-  REGRESSION: 'regression'
+  REGRESSION: 'regression',
 } as const
 
 export const TEST_GROUPS = {
@@ -111,7 +111,7 @@ export const TEST_GROUPS = {
   STORAGE: 'storage',
   AI: 'ai',
   MOBILE: 'mobile',
-  PERFORMANCE: 'performance'
+  PERFORMANCE: 'performance',
 } as const
 
 /**
@@ -121,7 +121,7 @@ export const TEST_PRIORITY = {
   CRITICAL: 1,
   HIGH: 2,
   MEDIUM: 3,
-  LOW: 4
+  LOW: 4,
 } as const
 
 export const createTestId = (component: string, element: string) => {
@@ -168,11 +168,11 @@ export const TestDataGenerator = {
       'health',
       'shopping',
       'travel',
-      'hobby'
+      'hobby',
     ]
     const shuffled = availableTags.sort(() => 0.5 - Math.random())
     return shuffled.slice(0, count)
-  }
+  },
 }
 
 /**
@@ -212,10 +212,10 @@ export const TestAssertions = {
   expectAsyncToComplete: async (promise: Promise<unknown>, timeout = 5000) => {
     const result = await Promise.race([
       promise,
-      new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout')), timeout))
+      new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout')), timeout)),
     ])
     return result
-  }
+  },
 }
 
 export const TestUtils = {
@@ -225,7 +225,7 @@ export const TestUtils = {
   waitFor: async (condition: () => boolean, timeout = 5000, interval = 100) => {
     const startTime = Date.now()
     while (!condition() && Date.now() - startTime < timeout) {
-      await new Promise(resolve => setTimeout(resolve, interval))
+      await new Promise((resolve) => setTimeout(resolve, interval))
     }
     if (!condition()) {
       throw new Error(`Condition not met within ${timeout}ms`)
@@ -234,7 +234,7 @@ export const TestUtils = {
 
   simulateUserDelay: (min = 50, max = 200) => {
     const delay = Math.random() * (max - min) + min
-    return new Promise(resolve => setTimeout(resolve, delay))
+    return new Promise((resolve) => setTimeout(resolve, delay))
   },
 
   /**
@@ -250,7 +250,7 @@ export const TestUtils = {
         }
       }, delay)
     })
-  }
+  },
 }
 
 export default {
@@ -264,5 +264,5 @@ export default {
   isTestEnvironment,
   getTestType,
   getTestTimeout,
-  createTestId
+  createTestId,
 }

@@ -8,7 +8,7 @@ vi.mock('@/services/deepseekService', () => ({
   streamAIResponse: vi.fn(),
   optimizeText: vi.fn(),
   abortCurrentRequest: vi.fn(),
-  getAIResponse: vi.fn()
+  getAIResponse: vi.fn(),
 }))
 
 vi.mock('@/composables/useTodos', () => ({
@@ -17,20 +17,20 @@ vi.mock('@/composables/useTodos', () => ({
     addTodo: vi.fn(),
     toggleTodo: vi.fn(),
     removeTodo: vi.fn(),
-    addMultipleTodos: vi.fn()
-  }))
+    addMultipleTodos: vi.fn(),
+  })),
 }))
 
 vi.mock('@/composables/useErrorHandler', () => ({
   useErrorHandler: vi.fn(() => ({
-    showError: vi.fn()
-  }))
+    showError: vi.fn(),
+  })),
 }))
 
 vi.mock('vue-i18n', () => ({
   useI18n: () => ({
-    t: (key: string) => key
-  })
+    t: (key: string) => key,
+  }),
 }))
 
 describe('AI 集成测试', () => {
@@ -54,7 +54,7 @@ describe('AI 集成测试', () => {
         async *[Symbol.asyncIterator]() {
           yield 'Hello'
           yield ' World'
-        }
+        },
       }
       mockStreamAIResponse.mockResolvedValue(mockStream)
 
@@ -120,7 +120,7 @@ describe('AI 集成测试', () => {
     it('应该保存和加载对话历史', () => {
       const testConversations = [
         createTestConversation({ id: '1', title: '对话1' }),
-        createTestConversation({ id: '2', title: '对话2' })
+        createTestConversation({ id: '2', title: '对话2' }),
       ]
 
       const { conversationHistory, saveConversationHistory, loadConversationHistory } = useChat()
@@ -150,9 +150,9 @@ describe('AI 集成测试', () => {
         createTestConversation({
           id: '1',
           title: '对话1',
-          messages: [createTestChatMessage({ content: '消息1' })]
+          messages: [createTestChatMessage({ content: '消息1' })],
         }),
-        createTestConversation({ id: '2', title: '对话2' })
+        createTestConversation({ id: '2', title: '对话2' }),
       ]
 
       const { conversationHistory, switchConversation, chatHistory, currentConversationId } =
@@ -169,7 +169,7 @@ describe('AI 集成测试', () => {
     it('应该删除对话', () => {
       const testConversations = [
         createTestConversation({ id: '1', title: '对话1' }),
-        createTestConversation({ id: '2', title: '对话2' })
+        createTestConversation({ id: '2', title: '对话2' }),
       ]
 
       const { conversationHistory, deleteConversation, currentConversationId } = useChat()

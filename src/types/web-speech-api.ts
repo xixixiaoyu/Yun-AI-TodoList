@@ -66,5 +66,5 @@ export type {
   SpeechRecognitionConstructor,
   SpeechRecognitionErrorCode,
   SpeechRecognitionErrorEvent,
-  SpeechRecognitionEvent
+  SpeechRecognitionEvent,
 }

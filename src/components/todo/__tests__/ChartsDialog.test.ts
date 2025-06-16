@@ -6,15 +6,15 @@ import { createI18n } from 'vue-i18n'
 vi.mock('chart.js/auto', () => ({
   default: vi.fn().mockImplementation(() => ({
     destroy: vi.fn(),
-    update: vi.fn()
-  }))
+    update: vi.fn(),
+  })),
 }))
 
 vi.mock('../../../composables/useTodos', () => ({
   useTodos: () => ({
     todos: { value: [] },
-    getCompletedTodosByDate: () => ({})
-  })
+    getCompletedTodosByDate: () => ({}),
+  }),
 }))
 
 const i18n = createI18n({
@@ -32,22 +32,22 @@ const i18n = createI18n({
       completionRate: '完成率',
       task: '个任务',
       tasks: '个任务',
-      locale: 'zh-CN'
-    }
-  }
+      locale: 'zh-CN',
+    },
+  },
 })
 
 describe('ChartsDialog', () => {
   const defaultProps = {
-    show: true
+    show: true,
   }
 
   it('应该在 show 为 true 时渲染对话框', () => {
     const wrapper = mount(ChartsDialog, {
       props: defaultProps,
       global: {
-        plugins: [i18n]
-      }
+        plugins: [i18n],
+      },
     })
 
     expect(wrapper.find('.charts-dialog').exists()).toBe(true)
@@ -58,8 +58,8 @@ describe('ChartsDialog', () => {
     const wrapper = mount(ChartsDialog, {
       props: { show: false },
       global: {
-        plugins: [i18n]
-      }
+        plugins: [i18n],
+      },
     })
 
     expect(wrapper.find('.charts-dialog').exists()).toBe(false)
@@ -69,8 +69,8 @@ describe('ChartsDialog', () => {
     const wrapper = mount(ChartsDialog, {
       props: defaultProps,
       global: {
-        plugins: [i18n]
-      }
+        plugins: [i18n],
+      },
     })
 
     expect(wrapper.find('h2').text()).toBe('生产力洞察')
@@ -80,8 +80,8 @@ describe('ChartsDialog', () => {
     const wrapper = mount(ChartsDialog, {
       props: defaultProps,
       global: {
-        plugins: [i18n]
-      }
+        plugins: [i18n],
+      },
     })
 
     const closeBtn = wrapper.find('.close-btn')
@@ -93,8 +93,8 @@ describe('ChartsDialog', () => {
     const wrapper = mount(ChartsDialog, {
       props: defaultProps,
       global: {
-        plugins: [i18n]
-      }
+        plugins: [i18n],
+      },
     })
 
     expect(wrapper.findComponent({ name: 'TodoCompletionChart' }).exists()).toBe(true)
@@ -104,8 +104,8 @@ describe('ChartsDialog', () => {
     const wrapper = mount(ChartsDialog, {
       props: defaultProps,
       global: {
-        plugins: [i18n]
-      }
+        plugins: [i18n],
+      },
     })
 
     await wrapper.find('.close-btn').trigger('click')
@@ -116,8 +116,8 @@ describe('ChartsDialog', () => {
     const wrapper = mount(ChartsDialog, {
       props: defaultProps,
       global: {
-        plugins: [i18n]
-      }
+        plugins: [i18n],
+      },
     })
 
     await wrapper.find('.charts-dialog').trigger('click')
@@ -128,8 +128,8 @@ describe('ChartsDialog', () => {
     const wrapper = mount(ChartsDialog, {
       props: defaultProps,
       global: {
-        plugins: [i18n]
-      }
+        plugins: [i18n],
+      },
     })
 
     await wrapper.find('.charts-content').trigger('click')
@@ -140,8 +140,8 @@ describe('ChartsDialog', () => {
     const wrapper = mount(ChartsDialog, {
       props: defaultProps,
       global: {
-        plugins: [i18n]
-      }
+        plugins: [i18n],
+      },
     })
 
     const closeBtn = wrapper.find('.close-btn')
@@ -152,8 +152,8 @@ describe('ChartsDialog', () => {
     const wrapper = mount(ChartsDialog, {
       props: defaultProps,
       global: {
-        plugins: [i18n]
-      }
+        plugins: [i18n],
+      },
     })
 
     expect(wrapper.find('.charts-dialog').exists()).toBe(true)

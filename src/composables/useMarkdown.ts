@@ -12,7 +12,7 @@ export function useMarkdown() {
         console.error('Error highlighting code:', err)
         return code
       }
-    }
+    },
   } as MarkedOptions)
 
   const sanitizeContent = (content: string): string => {
@@ -21,6 +21,6 @@ export function useMarkdown() {
   }
 
   return {
-    sanitizeContent
+    sanitizeContent,
   }
 }

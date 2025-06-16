@@ -4,7 +4,7 @@ import { useI18n } from 'vue-i18n'
 import type {
   SpeechRecognition,
   SpeechRecognitionErrorEvent,
-  SpeechRecognitionEvent
+  SpeechRecognitionEvent,
 } from '../types/web-speech-api'
 
 declare global {
@@ -212,6 +212,6 @@ export function useVoiceInput(onTranscript: (text: string) => void) {
     lastError,
     isRecognitionSupported,
     startListening,
-    stopListening
+    stopListening,
   }
 }

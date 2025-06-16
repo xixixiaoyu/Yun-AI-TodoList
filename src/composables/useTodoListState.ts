@@ -41,7 +41,7 @@ export function useTodoListState() {
     toggleTodo,
     removeTodo,
     duplicateError,
-    isLoading
+    isLoading,
   } = useTodoManagement()
 
   const showSearch = ref(false)
@@ -66,7 +66,7 @@ export function useTodoListState() {
     closeCharts,
     handlePomodoroComplete,
     checkPomodoroCompletion,
-    onKeyDown: originalOnKeyDown
+    onKeyDown: originalOnKeyDown,
   } = useUIState()
 
   const onKeyDown = (event: KeyboardEvent) => {
@@ -161,6 +161,6 @@ export function useTodoListState() {
     onKeyDown,
     handleError,
     error,
-    success
+    success,
   }
 }

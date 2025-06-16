@@ -43,6 +43,6 @@ export function useSettingsState() {
     showSuccessMessage,
     initializeSettings,
     showSuccessToast,
-    toggleShowApiKey
+    toggleShowApiKey,
   }
 }

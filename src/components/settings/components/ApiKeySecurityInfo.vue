@@ -16,7 +16,7 @@ import CheckIcon from '../../common/icons/CheckIcon.vue'
 import LockIcon from '../../common/icons/LockIcon.vue'
 
 defineOptions({
-  name: 'ApiKeySecurityInfo'
+  name: 'ApiKeySecurityInfo',
 })
 </script>
 

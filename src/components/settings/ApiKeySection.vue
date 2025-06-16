@@ -72,17 +72,17 @@ const { t } = useI18n()
 
 const localApiKey = computed({
   get: () => props.localApiKey,
-  set: value => emit('update:localApiKey', value)
+  set: (value) => emit('update:localApiKey', value),
 })
 
 const showApiKey = computed({
   get: () => props.showApiKey,
-  set: value => emit('update:showApiKey', value)
+  set: (value) => emit('update:showApiKey', value),
 })
 
 const showApiKeyPopover = computed({
   get: () => props.showApiKeyPopover,
-  set: value => emit('update:showApiKeyPopover', value)
+  set: (value) => emit('update:showApiKeyPopover', value),
 })
 
 /**
@@ -100,6 +100,6 @@ const clearKey = () => {
 }
 
 defineOptions({
-  name: 'ApiKeySection'
+  name: 'ApiKeySection',
 })
 </script>

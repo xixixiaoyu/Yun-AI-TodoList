@@ -15,6 +15,6 @@
 
 <script setup lang="ts">
 defineOptions({
-  name: 'CopyIcon'
+  name: 'CopyIcon',
 })
 </script>

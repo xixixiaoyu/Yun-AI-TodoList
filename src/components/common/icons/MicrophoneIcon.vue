@@ -14,6 +14,6 @@
 
 <script setup lang="ts">
 defineOptions({
-  name: 'MicrophoneIcon'
+  name: 'MicrophoneIcon',
 })
 </script>

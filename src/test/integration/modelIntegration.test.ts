@@ -12,18 +12,18 @@ const localStorageMock = {
   getItem: vi.fn(),
   setItem: vi.fn(),
   removeItem: vi.fn(),
-  clear: vi.fn()
+  clear: vi.fn(),
 }
 
 Object.defineProperty(window, 'localStorage', {
-  value: localStorageMock
+  value: localStorageMock,
 })
 
 describe('模型集成测试', () => {
   beforeEach(() => {
     vi.clearAllMocks()
     // Mock API key
-    localStorageMock.getItem.mockImplementation(key => {
+    localStorageMock.getItem.mockImplementation((key) => {
       if (key === 'deepseek_api_key') return 'test-api-key'
       if (key === 'deepseek_ai_model') return 'deepseek-chat'
       return null
@@ -48,8 +48,8 @@ describe('模型集成测试', () => {
       mockFetch.mockResolvedValueOnce({
         ok: true,
         json: async () => ({
-          choices: [{ message: { content: 'Test response' } }]
-        })
+          choices: [{ message: { content: 'Test response' } }],
+        }),
       })
 
       await getAIResponse('Test message')
@@ -59,7 +59,7 @@ describe('模型集成测试', () => {
         'https://api.deepseek.com/chat/completions',
         expect.objectContaining({
           method: 'POST',
-          body: expect.stringContaining('"model":"deepseek-chat"')
+          body: expect.stringContaining('"model":"deepseek-chat"'),
         })
       )
     })
@@ -71,8 +71,8 @@ describe('模型集成测试', () => {
       mockFetch.mockResolvedValueOnce({
         ok: true,
         json: async () => ({
-          choices: [{ message: { content: 'Response 1' } }]
-        })
+          choices: [{ message: { content: 'Response 1' } }],
+        }),
       })
 
       await getAIResponse('Message 1')
@@ -81,7 +81,7 @@ describe('模型集成测试', () => {
       expect(mockFetch).toHaveBeenLastCalledWith(
         'https://api.deepseek.com/chat/completions',
         expect.objectContaining({
-          body: expect.stringContaining('"model":"deepseek-chat"')
+          body: expect.stringContaining('"model":"deepseek-chat"'),
         })
       )
 
@@ -91,8 +91,8 @@ describe('模型集成测试', () => {
       mockFetch.mockResolvedValueOnce({
         ok: true,
         json: async () => ({
-          choices: [{ message: { content: 'Response 2' } }]
-        })
+          choices: [{ message: { content: 'Response 2' } }],
+        }),
       })
 
       await getAIResponse('Message 2')
@@ -101,7 +101,7 @@ describe('模型集成测试', () => {
       expect(mockFetch).toHaveBeenLastCalledWith(
         'https://api.deepseek.com/chat/completions',
         expect.objectContaining({
-          body: expect.stringContaining('"model":"deepseek-reasoner"')
+          body: expect.stringContaining('"model":"deepseek-reasoner"'),
         })
       )
     })
@@ -118,23 +118,25 @@ describe('模型集成测试', () => {
           .fn()
           .mockResolvedValueOnce({
             done: false,
-            value: new TextEncoder().encode('data: {"choices":[{"delta":{"content":"Hello"}}]}\n\n')
+            value: new TextEncoder().encode(
+              'data: {"choices":[{"delta":{"content":"Hello"}}]}\n\n'
+            ),
           })
           .mockResolvedValueOnce({
             done: false,
-            value: new TextEncoder().encode('data: [DONE]\n\n')
+            value: new TextEncoder().encode('data: [DONE]\n\n'),
           })
           .mockResolvedValueOnce({
             done: true,
-            value: undefined
-          })
+            value: undefined,
+          }),
       }
 
       mockFetch.mockResolvedValueOnce({
         ok: true,
         body: {
-          getReader: () => mockReader
-        }
+          getReader: () => mockReader,
+        },
       })
 
       const chunks: string[] = []
@@ -149,7 +151,7 @@ describe('模型集成测试', () => {
         'https://api.deepseek.com/chat/completions',
         expect.objectContaining({
           method: 'POST',
-          body: expect.stringContaining('"model":"deepseek-reasoner"')
+          body: expect.stringContaining('"model":"deepseek-reasoner"'),
         })
       )
     })
@@ -158,7 +160,7 @@ describe('模型集成测试', () => {
   describe('默认模型行为', () => {
     it('应该在没有保存模型时使用默认的 deepseek-chat', async () => {
       // 清除 localStorage 中的模型设置
-      localStorageMock.getItem.mockImplementation(key => {
+      localStorageMock.getItem.mockImplementation((key) => {
         if (key === 'deepseek_ai_model') return null
         if (key === 'deepseek_api_key') return 'test-api-key'
         return null
@@ -171,8 +173,8 @@ describe('模型集成测试', () => {
       mockFetch.mockResolvedValueOnce({
         ok: true,
         json: async () => ({
-          choices: [{ message: { content: 'Default response' } }]
-        })
+          choices: [{ message: { content: 'Default response' } }],
+        }),
       })
 
       await getAIResponse('Test with default model')
@@ -181,7 +183,7 @@ describe('模型集成测试', () => {
       expect(mockFetch).toHaveBeenCalledWith(
         'https://api.deepseek.com/chat/completions',
         expect.objectContaining({
-          body: expect.stringContaining('"model":"deepseek-chat"')
+          body: expect.stringContaining('"model":"deepseek-chat"'),
         })
       )
     })

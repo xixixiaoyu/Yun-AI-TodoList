@@ -7,13 +7,13 @@ import { createI18n } from 'vue-i18n'
 // Mock dependencies
 vi.mock('@/services/deepseekService', () => ({
   getAIResponse: vi.fn(),
-  streamAIResponse: vi.fn()
+  streamAIResponse: vi.fn(),
 }))
 
 vi.mock('@/composables/useErrorHandler', () => ({
   useErrorHandler: vi.fn(() => ({
-    showError: vi.fn()
-  }))
+    showError: vi.fn(),
+  })),
 }))
 
 const _i18n = createI18n({
@@ -24,9 +24,9 @@ const _i18n = createI18n({
       addTodo: '添加待办事项',
       todoAdded: '待办事项已添加',
       todoCompleted: '待办事项已完成',
-      todoDeleted: '待办事项已删除'
-    }
-  }
+      todoDeleted: '待办事项已删除',
+    },
+  },
 })
 
 describe('待办事项工作流集成测试', () => {
@@ -77,7 +77,7 @@ describe('待办事项工作流集成测试', () => {
       const newTodos = [
         { text: '任务 2', tags: [] },
         { text: '任务 3', tags: [] },
-        { text: '任务 4', tags: [] }
+        { text: '任务 4', tags: [] },
       ]
       const duplicates = addMultipleTodos(newTodos)
 

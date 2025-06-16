@@ -7,11 +7,11 @@ const localStorageMock = {
   getItem: vi.fn(),
   setItem: vi.fn(),
   removeItem: vi.fn(),
-  clear: vi.fn()
+  clear: vi.fn(),
 }
 
 Object.defineProperty(window, 'localStorage', {
-  value: localStorageMock
+  value: localStorageMock,
 })
 
 describe('模型选择功能', () => {
@@ -81,7 +81,7 @@ describe('模型选择功能', () => {
     it('应该只接受有效的模型类型', () => {
       const validModels: AIModel[] = ['deepseek-chat', 'deepseek-reasoner']
 
-      validModels.forEach(model => {
+      validModels.forEach((model) => {
         expect(() => saveAIModel(model)).not.toThrow()
         expect(getAIModel()).toBe(model)
       })

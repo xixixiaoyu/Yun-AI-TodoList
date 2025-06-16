@@ -5,7 +5,7 @@ import { useChat } from '../useChat'
 vi.mock('@/services/deepseekService', () => ({
   streamAIResponse: vi.fn(),
   optimizeText: vi.fn(),
-  abortCurrentRequest: vi.fn()
+  abortCurrentRequest: vi.fn(),
 }))
 
 vi.mock('vue-i18n', () => ({
@@ -15,11 +15,11 @@ vi.mock('vue-i18n', () => ({
         newConversation: '新对话',
         httpError: 'HTTP 错误: {status}',
         networkError: '网络错误',
-        optimizationError: '优化失败'
+        optimizationError: '优化失败',
       }
       return messages[key] || key
-    }
-  })
+    },
+  }),
 }))
 
 describe('useChat', () => {
@@ -44,7 +44,7 @@ describe('useChat', () => {
         isOptimizing,
         error,
         conversationHistory,
-        currentConversationId
+        currentConversationId,
       } = useChat()
 
       expect(chatHistory.value).toEqual([])
@@ -62,7 +62,7 @@ describe('useChat', () => {
     it('应该加载对话历史', () => {
       const testConversations = [
         createTestConversation({ id: '1', title: 'Conversation 1' }),
-        createTestConversation({ id: '2', title: 'Conversation 2' })
+        createTestConversation({ id: '2', title: 'Conversation 2' }),
       ]
 
       testEnv.localStorage.store.conversationHistory = JSON.stringify(testConversations)
@@ -105,9 +105,9 @@ describe('useChat', () => {
         createTestConversation({
           id: '1',
           title: 'Conversation 1',
-          messages: [createTestChatMessage({ content: 'Hello' })]
+          messages: [createTestChatMessage({ content: 'Hello' })],
         }),
-        createTestConversation({ id: '2', title: 'Conversation 2' })
+        createTestConversation({ id: '2', title: 'Conversation 2' }),
       ]
 
       const { conversationHistory, switchConversation, chatHistory, currentConversationId } =
@@ -125,7 +125,7 @@ describe('useChat', () => {
     it('应该删除对话', () => {
       const testConversations = [
         createTestConversation({ id: '1', title: 'Conversation 1' }),
-        createTestConversation({ id: '2', title: 'Conversation 2' })
+        createTestConversation({ id: '2', title: 'Conversation 2' }),
       ]
 
       const { conversationHistory, deleteConversation, currentConversationId } = useChat()
@@ -143,7 +143,7 @@ describe('useChat', () => {
     it('应该清除所有对话', () => {
       const testConversations = [
         createTestConversation({ id: '1' }),
-        createTestConversation({ id: '2' })
+        createTestConversation({ id: '2' }),
       ]
 
       const { conversationHistory, clearAllConversations, chatHistory, currentConversationId } =
@@ -166,7 +166,7 @@ describe('useChat', () => {
           yield 'Hello'
           yield ' there'
           yield '!'
-        }
+        },
       }
       const { streamAIResponse } = await import('@/services/deepseekService')
       const mockStreamAIResponse = streamAIResponse as vi.MockedFunction<typeof streamAIResponse>

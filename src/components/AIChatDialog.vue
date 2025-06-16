@@ -48,7 +48,7 @@ const {
   clearAllConversations,
   sendMessage,
   stopGenerating,
-  optimizeMessage
+  optimizeMessage,
 } = useChat()
 
 const isDrawerOpen = ref(false)
@@ -84,7 +84,7 @@ onMounted(() => {
   if (conversationHistory.value.length === 0) {
     createNewConversation()
   } else if (savedConversationId) {
-    const exists = conversationHistory.value.some(c => c.id === savedConversationId)
+    const exists = conversationHistory.value.some((c) => c.id === savedConversationId)
     if (exists) {
       switchConversation(savedConversationId)
     } else {
@@ -96,7 +96,7 @@ onMounted(() => {
 })
 
 defineOptions({
-  name: 'AIChatDialog'
+  name: 'AIChatDialog',
 })
 </script>
 

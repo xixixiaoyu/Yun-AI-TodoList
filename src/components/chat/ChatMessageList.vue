@@ -16,7 +16,7 @@
       :message="{
         role: 'assistant',
         content: currentResponse,
-        sanitizedContent: sanitizeContent(currentResponse)
+        sanitizedContent: sanitizeContent(currentResponse),
       }"
       :is-streaming="true"
     />
@@ -49,10 +49,10 @@ const { sanitizeContent } = useMarkdown()
 const chatHistoryRef = ref<HTMLDivElement | null>(null)
 
 const sanitizedMessages = computed(() =>
-  props.messages.map(message => ({
+  props.messages.map((message) => ({
     ...message,
     sanitizedContent:
-      message.role === 'assistant' ? sanitizeContent(message.content) : message.content
+      message.role === 'assistant' ? sanitizeContent(message.content) : message.content,
   }))
 )
 
@@ -98,7 +98,7 @@ const handleScroll = () => {
       isAtBottom,
       scrollTop: element.scrollTop,
       scrollHeight: element.scrollHeight,
-      clientHeight: element.clientHeight
+      clientHeight: element.clientHeight,
     })
   }
 }
@@ -141,6 +141,6 @@ watch(
 
 defineExpose({
   scrollToBottom,
-  scrollToBottomInstantly
+  scrollToBottomInstantly,
 })
 </script>

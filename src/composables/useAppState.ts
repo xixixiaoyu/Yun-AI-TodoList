@@ -34,6 +34,6 @@ export function useAppState() {
     showApiKeyReminder,
     closeReminder,
     goToSettings,
-    initializeApp
+    initializeApp,
   }
 }

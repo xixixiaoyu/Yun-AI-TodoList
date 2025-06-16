@@ -9,7 +9,7 @@ describe('TodoValidator', () => {
     tags: ['work'],
     createdAt: '2023-01-01T00:00:00.000Z',
     updatedAt: '2023-01-01T00:00:00.000Z',
-    order: 0
+    order: 0,
   }
 
   describe('validateTodo', () => {

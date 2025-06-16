@@ -64,20 +64,20 @@ const selectedModel = computed({
   get: () => aiModel.value,
   set: (value: AIModel) => {
     saveAIModel(value)
-  }
+  },
 })
 
 const modelOptions = computed<ModelOption[]>(() => [
   {
     value: 'deepseek-chat',
     label: t('deepseekChat'),
-    description: t('deepseekChatDescription')
+    description: t('deepseekChatDescription'),
   },
   {
     value: 'deepseek-reasoner',
     label: t('deepseekReasoner'),
-    description: t('deepseekReasonerDescription')
-  }
+    description: t('deepseekReasonerDescription'),
+  },
 ])
 
 const selectModel = (model: AIModel) => {
@@ -85,12 +85,12 @@ const selectModel = (model: AIModel) => {
 }
 
 const getCurrentModelLabel = () => {
-  const currentOption = modelOptions.value.find(option => option.value === selectedModel.value)
+  const currentOption = modelOptions.value.find((option) => option.value === selectedModel.value)
   return currentOption?.label || selectedModel.value
 }
 
 defineOptions({
-  name: 'ModelSelectionSection'
+  name: 'ModelSelectionSection',
 })
 </script>
 

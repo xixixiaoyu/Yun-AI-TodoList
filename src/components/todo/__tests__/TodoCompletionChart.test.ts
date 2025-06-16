@@ -9,8 +9,8 @@ const mockedUseTodos = vi.mocked(useTodos)
 vi.mock('chart.js/auto', () => ({
   default: vi.fn().mockImplementation(() => ({
     destroy: vi.fn(),
-    update: vi.fn()
-  }))
+    update: vi.fn(),
+  })),
 }))
 
 Object.defineProperty(HTMLCanvasElement.prototype, 'getContext', {
@@ -38,8 +38,8 @@ Object.defineProperty(HTMLCanvasElement.prototype, 'getContext', {
     measureText: vi.fn(() => ({ width: 0 })),
     transform: vi.fn(),
     rect: vi.fn(),
-    clip: vi.fn()
-  }))
+    clip: vi.fn(),
+  })),
 })
 
 vi.mock('../../../composables/useTodos', () => {
@@ -52,7 +52,7 @@ vi.mock('../../../composables/useTodos', () => {
       tags: [],
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
-      order: 0
+      order: 0,
     },
     {
       id: 2,
@@ -61,7 +61,7 @@ vi.mock('../../../composables/useTodos', () => {
       tags: [],
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
-      order: 1
+      order: 1,
     },
     {
       id: 3,
@@ -71,17 +71,17 @@ vi.mock('../../../composables/useTodos', () => {
       tags: [],
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
-      order: 2
-    }
+      order: 2,
+    },
   ]
 
   return {
     useTodos: vi.fn(() => ({
       todos: { value: mockTodos },
       getCompletedTodosByDate: () => ({
-        [new Date().toISOString().split('T')[0]]: 2
-      })
-    }))
+        [new Date().toISOString().split('T')[0]]: 2,
+      }),
+    })),
   }
 })
 
@@ -98,9 +98,9 @@ const i18n = createI18n({
       completionRate: '完成率',
       task: '个任务',
       tasks: '个任务',
-      locale: 'zh-CN'
-    }
-  }
+      locale: 'zh-CN',
+    },
+  },
 })
 
 describe('TodoCompletionChart', () => {
@@ -111,8 +111,8 @@ describe('TodoCompletionChart', () => {
   it('应该正确渲染组件', () => {
     const wrapper = mount(TodoCompletionChart, {
       global: {
-        plugins: [i18n]
-      }
+        plugins: [i18n],
+      },
     })
 
     expect(wrapper.find('.todo-completion-chart').exists()).toBe(true)
@@ -124,8 +124,8 @@ describe('TodoCompletionChart', () => {
   it('应该正确显示统计概览', () => {
     const wrapper = mount(TodoCompletionChart, {
       global: {
-        plugins: [i18n]
-      }
+        plugins: [i18n],
+      },
     })
 
     const statItems = wrapper.findAll('.stat-item')
@@ -141,8 +141,8 @@ describe('TodoCompletionChart', () => {
   it('应该正确显示统计标签', () => {
     const wrapper = mount(TodoCompletionChart, {
       global: {
-        plugins: [i18n]
-      }
+        plugins: [i18n],
+      },
     })
 
     const statLabels = wrapper.findAll('.stat-label')
@@ -155,13 +155,13 @@ describe('TodoCompletionChart', () => {
   it('应该在没有任务时正确处理', () => {
     mockedUseTodos.mockReturnValueOnce({
       todos: { value: [] },
-      getCompletedTodosByDate: () => ({})
+      getCompletedTodosByDate: () => ({}),
     })
 
     const wrapper = mount(TodoCompletionChart, {
       global: {
-        plugins: [i18n]
-      }
+        plugins: [i18n],
+      },
     })
 
     const statValues = wrapper.findAll('.stat-value')
@@ -174,8 +174,8 @@ describe('TodoCompletionChart', () => {
   it('应该具有正确的CSS类', () => {
     const wrapper = mount(TodoCompletionChart, {
       global: {
-        plugins: [i18n]
-      }
+        plugins: [i18n],
+      },
     })
 
     expect(wrapper.find('.todo-completion-chart').exists()).toBe(true)
@@ -187,8 +187,8 @@ describe('TodoCompletionChart', () => {
   it('应该在组件卸载时清理图表实例', () => {
     const wrapper = mount(TodoCompletionChart, {
       global: {
-        plugins: [i18n]
-      }
+        plugins: [i18n],
+      },
     })
 
     wrapper.unmount()

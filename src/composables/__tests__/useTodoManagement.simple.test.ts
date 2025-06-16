@@ -9,25 +9,25 @@ vi.mock('@/composables/useTodos', () => ({
     addTodo: vi.fn(),
     toggleTodo: vi.fn(),
     removeTodo: vi.fn(),
-    addMultipleTodos: vi.fn()
-  }))
+    addMultipleTodos: vi.fn(),
+  })),
 }))
 
 vi.mock('@/composables/useErrorHandler', () => ({
   useErrorHandler: vi.fn(() => ({
-    showError: vi.fn()
-  }))
+    showError: vi.fn(),
+  })),
 }))
 
 vi.mock('@/services/deepseekService', () => ({
   getAIResponse: vi.fn(),
-  streamAIResponse: vi.fn()
+  streamAIResponse: vi.fn(),
 }))
 
 vi.mock('vue-i18n', () => ({
   useI18n: () => ({
-    t: (key: string, _params?: Record<string, any>) => key
-  })
+    t: (key: string, _params?: Record<string, any>) => key,
+  }),
 }))
 
 describe('useTodoManagement - 简化测试', () => {

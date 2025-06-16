@@ -3,21 +3,21 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 // Mock dependencies first
 vi.mock('@/composables/useTodos', () => ({
-  useTodos: vi.fn()
+  useTodos: vi.fn(),
 }))
 
 vi.mock('@/composables/useErrorHandler', () => ({
-  useErrorHandler: vi.fn()
+  useErrorHandler: vi.fn(),
 }))
 
 vi.mock('@/services/deepseekService', () => ({
-  getAIResponse: vi.fn()
+  getAIResponse: vi.fn(),
 }))
 
 vi.mock('vue-i18n', () => ({
   useI18n: () => ({
-    t: (key: string) => key
-  })
+    t: (key: string) => key,
+  }),
 }))
 
 // Import after mocks
@@ -48,12 +48,12 @@ describe('useTodoManagement', () => {
       addTodo: vi.fn(),
       toggleTodo: vi.fn(),
       removeTodo: vi.fn(),
-      addMultipleTodos: vi.fn().mockReturnValue([])
+      addMultipleTodos: vi.fn().mockReturnValue([]),
     })
 
     mockUseErrorHandler.mockReturnValue({
       showError: vi.fn(),
-      error: { value: '' }
+      error: { value: '' },
     })
   })
 
@@ -71,7 +71,7 @@ describe('useTodoManagement', () => {
         suggestedTodos,
         showSuggestedTodos,
         duplicateError,
-        isLoading
+        isLoading,
       } = useTodoManagement()
 
       expect(filter.value).toBe('active')
@@ -91,7 +91,7 @@ describe('useTodoManagement', () => {
         addTodo: mockAddTodo,
         toggleTodo: vi.fn(),
         removeTodo: vi.fn(),
-        addMultipleTodos: vi.fn()
+        addMultipleTodos: vi.fn(),
       })
 
       const { handleAddTodo } = useTodoManagement()
@@ -106,7 +106,7 @@ describe('useTodoManagement', () => {
         addTodo: vi.fn(),
         toggleTodo: vi.fn(),
         removeTodo: vi.fn(),
-        addMultipleTodos: vi.fn()
+        addMultipleTodos: vi.fn(),
       })
 
       const { toggleTodo } = useTodoManagement()
@@ -121,7 +121,7 @@ describe('useTodoManagement', () => {
         addTodo: vi.fn(),
         toggleTodo: vi.fn(),
         removeTodo: vi.fn(),
-        addMultipleTodos: vi.fn()
+        addMultipleTodos: vi.fn(),
       })
 
       const { removeTodo } = useTodoManagement()
@@ -165,7 +165,7 @@ describe('useTodoManagement', () => {
     it('应该处理 AI 生成失败', async () => {
       mockGetAIResponse.mockRejectedValue(new Error('API 错误'))
       mockUseErrorHandler.mockReturnValue({
-        showError: vi.fn()
+        showError: vi.fn(),
       })
 
       const { generateSuggestedTodos, isGenerating } = useTodoManagement()
@@ -181,14 +181,14 @@ describe('useTodoManagement', () => {
         todos: {
           value: [
             { id: 1, text: '任务1', completed: false },
-            { id: 2, text: '任务2', completed: false }
-          ]
+            { id: 2, text: '任务2', completed: false },
+          ],
         },
         addTodo: vi.fn(),
         toggleTodo: vi.fn(),
         removeTodo: vi.fn(),
         addMultipleTodos: vi.fn(),
-        saveTodos: vi.fn()
+        saveTodos: vi.fn(),
       })
 
       mockGetAIResponse.mockResolvedValue('2,1')
@@ -211,7 +211,7 @@ describe('useTodoManagement', () => {
         addTodo: vi.fn(),
         toggleTodo: vi.fn(),
         removeTodo: vi.fn(),
-        addMultipleTodos: vi.fn().mockReturnValue([])
+        addMultipleTodos: vi.fn().mockReturnValue([]),
       })
 
       const { suggestedTodos, showSuggestedTodos, confirmSuggestedTodos } = useTodoManagement()
@@ -223,7 +223,7 @@ describe('useTodoManagement', () => {
 
       expect(mockUseTodos().addMultipleTodos).toHaveBeenCalledWith([
         { text: '测试任务1' },
-        { text: '测试任务2' }
+        { text: '测试任务2' },
       ])
       expect(showSuggestedTodos.value).toBe(false)
       expect(suggestedTodos.value).toEqual([])

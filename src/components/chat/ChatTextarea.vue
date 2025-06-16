@@ -89,10 +89,10 @@ const focus = () => {
 }
 
 defineExpose({
-  focus
+  focus,
 })
 
 defineOptions({
-  name: 'ChatTextarea'
+  name: 'ChatTextarea',
 })
 </script>

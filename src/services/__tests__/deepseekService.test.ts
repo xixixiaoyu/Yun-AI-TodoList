@@ -2,18 +2,18 @@ import {
   createMockErrorResponse,
   createMockResponse,
   mockFetch,
-  setupTestEnvironment
+  setupTestEnvironment,
 } from '@/test/helpers'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import {
   abortCurrentRequest,
   getAIResponse,
   optimizeText,
-  streamAIResponse
+  streamAIResponse,
 } from '../deepseekService'
 
 vi.mock('../configService', () => ({
-  getApiKey: vi.fn().mockReturnValue('test-api-key')
+  getApiKey: vi.fn().mockReturnValue('test-api-key'),
 }))
 
 vi.mock('@/i18n', () => ({
@@ -24,16 +24,16 @@ vi.mock('@/i18n', () => ({
           configureApiKey: '请先配置 API Key',
           httpError: 'HTTP 错误: {status}',
           invalidAiResponse: '无效的 AI 响应',
-          networkError: '网络错误'
+          networkError: '网络错误',
         }
         let message = messages[key] || key
         if (params && params.status) {
           message = message.replace('{status}', params.status.toString())
         }
         return message
-      }
-    }
-  }
+      },
+    },
+  },
 }))
 
 describe('deepseekService', () => {
@@ -56,10 +56,10 @@ describe('deepseekService', () => {
         choices: [
           {
             message: {
-              content: 'AI response content'
-            }
-          }
-        ]
+              content: 'AI response content',
+            },
+          },
+        ],
       }
 
       mockFetchFn.mockResolvedValue(createMockResponse(mockResponseData))
@@ -73,9 +73,9 @@ describe('deepseekService', () => {
           method: 'POST',
           headers: expect.objectContaining({
             Authorization: 'Bearer test-api-key',
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
           }),
-          body: expect.stringContaining('Test message')
+          body: expect.stringContaining('Test message'),
         })
       )
     })
@@ -103,7 +103,7 @@ describe('deepseekService', () => {
 
     it('应该支持不同语言和温度参数', async () => {
       const mockResponseData = {
-        choices: [{ message: { content: 'English response' } }]
+        choices: [{ message: { content: 'English response' } }],
       }
       mockFetchFn.mockResolvedValue(createMockResponse(mockResponseData))
 
@@ -122,7 +122,7 @@ describe('deepseekService', () => {
       const mockStreamData = [
         'data: {"choices":[{"delta":{"content":"Hello"}}]}\n\n',
         'data: {"choices":[{"delta":{"content":" world"}}]}\n\n',
-        'data: [DONE]\n\n'
+        'data: [DONE]\n\n',
       ]
 
       const mockResponse = {
@@ -133,19 +133,19 @@ describe('deepseekService', () => {
               .fn()
               .mockResolvedValueOnce({
                 done: false,
-                value: new TextEncoder().encode(mockStreamData[0])
+                value: new TextEncoder().encode(mockStreamData[0]),
               })
               .mockResolvedValueOnce({
                 done: false,
-                value: new TextEncoder().encode(mockStreamData[1])
+                value: new TextEncoder().encode(mockStreamData[1]),
               })
               .mockResolvedValueOnce({
                 done: false,
-                value: new TextEncoder().encode(mockStreamData[2])
+                value: new TextEncoder().encode(mockStreamData[2]),
               })
-              .mockResolvedValueOnce({ done: true })
-          })
-        }
+              .mockResolvedValueOnce({ done: true }),
+          }),
+        },
       }
 
       mockFetchFn.mockResolvedValue(mockResponse)
@@ -178,11 +178,11 @@ describe('deepseekService', () => {
               .fn()
               .mockResolvedValueOnce({
                 done: false,
-                value: new TextEncoder().encode('data: invalid json\n\n')
+                value: new TextEncoder().encode('data: invalid json\n\n'),
               })
-              .mockResolvedValueOnce({ done: true })
-          })
-        }
+              .mockResolvedValueOnce({ done: true }),
+          }),
+        },
       }
 
       mockFetchFn.mockResolvedValue(mockResponse)
@@ -205,10 +205,10 @@ describe('deepseekService', () => {
         choices: [
           {
             message: {
-              content: 'Optimized text content'
-            }
-          }
-        ]
+              content: 'Optimized text content',
+            },
+          },
+        ],
       }
 
       mockFetchFn.mockResolvedValue(createMockResponse(mockResponseData))
@@ -220,7 +220,7 @@ describe('deepseekService', () => {
         'https://api.deepseek.com/chat/completions',
         expect.objectContaining({
           method: 'POST',
-          body: expect.stringContaining('Original text')
+          body: expect.stringContaining('Original text'),
         })
       )
     })
@@ -257,7 +257,7 @@ describe('deepseekService', () => {
   describe('请求配置', () => {
     it('应该设置正确的请求头', async () => {
       const mockResponseData = {
-        choices: [{ message: { content: 'Response' } }]
+        choices: [{ message: { content: 'Response' } }],
       }
       mockFetchFn.mockResolvedValue(createMockResponse(mockResponseData))
 
@@ -266,13 +266,13 @@ describe('deepseekService', () => {
       const callArgs = mockFetchFn.mock.calls[0][1]
       expect(callArgs.headers).toEqual({
         Authorization: 'Bearer test-api-key',
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
       })
     })
 
     it('应该设置正确的请求体', async () => {
       const mockResponseData = {
-        choices: [{ message: { content: 'Response' } }]
+        choices: [{ message: { content: 'Response' } }],
       }
       mockFetchFn.mockResolvedValue(createMockResponse(mockResponseData))
 

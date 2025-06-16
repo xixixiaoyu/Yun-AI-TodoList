@@ -138,7 +138,7 @@ defineEmits<Emits>()
 const { t } = useI18n()
 
 defineOptions({
-  name: 'TodoListHeader'
+  name: 'TodoListHeader',
 })
 </script>
 

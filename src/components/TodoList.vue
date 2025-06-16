@@ -158,7 +158,7 @@ const {
   collapseSearch,
   handlePomodoroComplete,
   error,
-  success
+  success,
 } = useTodoListState()
 </script>
 

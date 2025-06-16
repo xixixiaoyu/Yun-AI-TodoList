@@ -51,7 +51,7 @@ export function useTodos() {
 
   const validateDataConsistency = () => {
     const seenIds = new Set<number>()
-    todos.value = todos.value.filter(todo => {
+    todos.value = todos.value.filter((todo) => {
       if (seenIds.has(todo.id)) {
         return false
       }
@@ -98,7 +98,7 @@ export function useTodos() {
     }
 
     const isDuplicate = todos.value.some(
-      todo =>
+      (todo) =>
         todo &&
         todo.text &&
         todo.text.toLowerCase() === sanitizedText.toLowerCase() &&
@@ -114,10 +114,10 @@ export function useTodos() {
       id: IdGenerator.generateId(),
       text: sanitizedText,
       completed: false,
-      tags: tags.filter(tag => tag.trim() !== '').map(tag => tag.trim()),
+      tags: tags.filter((tag) => tag.trim() !== '').map((tag) => tag.trim()),
       createdAt: now,
       updatedAt: now,
-      order: todos.value.length
+      order: todos.value.length,
     }
 
     todos.value.push(newTodo)
@@ -139,7 +139,7 @@ export function useTodos() {
         return
       }
 
-      if (todos.value.some(todo => todo.text.toLowerCase() === sanitizedText.toLowerCase())) {
+      if (todos.value.some((todo) => todo.text.toLowerCase() === sanitizedText.toLowerCase())) {
         duplicates.push(text)
       } else {
         validTodos.push({
@@ -149,7 +149,7 @@ export function useTodos() {
           tags: [],
           createdAt: now,
           updatedAt: now,
-          order: todos.value.length + validTodos.length
+          order: todos.value.length + validTodos.length,
         })
       }
     })
@@ -165,7 +165,7 @@ export function useTodos() {
   }
 
   const toggleTodo = (id: number) => {
-    const todo = todos.value.find(todo => todo && todo.id === id)
+    const todo = todos.value.find((todo) => todo && todo.id === id)
     if (todo) {
       todo.completed = !todo.completed
       if (todo.completed) {
@@ -178,7 +178,7 @@ export function useTodos() {
   }
 
   const removeTodo = (id: number) => {
-    todos.value = todos.value.filter(todo => todo && todo.id !== id)
+    todos.value = todos.value.filter((todo) => todo && todo.id !== id)
     saveTodos()
   }
 
@@ -186,10 +186,10 @@ export function useTodos() {
     const orderMap = new Map(newOrder.map((id, index) => [id, index]))
 
     todos.value = todos.value
-      .map(todo => ({
+      .map((todo) => ({
         ...todo,
         order: orderMap.get(todo.id) ?? todo.order,
-        updatedAt: new Date().toISOString()
+        updatedAt: new Date().toISOString(),
       }))
       .sort((a, b) => a.order - b.order)
 
@@ -200,7 +200,7 @@ export function useTodos() {
 
   const getCompletedTodosByDate = () => {
     const completedByDate: { [key: string]: number } = {}
-    todos.value.forEach(todo => {
+    todos.value.forEach((todo) => {
       if (todo && todo.completed && todo.completedAt) {
         const date = new Date(todo.completedAt).toISOString().split('T')[0]
         completedByDate[date] = (completedByDate[date] || 0) + 1
@@ -210,7 +210,7 @@ export function useTodos() {
   }
 
   const updateTodoTags = (id: number, tags: string[]) => {
-    const todo = todos.value.find(todo => todo && todo.id === id)
+    const todo = todos.value.find((todo) => todo && todo.id === id)
     if (todo) {
       todo.tags = tags
       saveTodos()
@@ -227,6 +227,6 @@ export function useTodos() {
     getCompletedTodosByDate,
     updateTodoTags,
     saveTodos,
-    loadTodos
+    loadTodos,
   }
 }

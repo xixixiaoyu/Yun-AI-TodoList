@@ -45,7 +45,7 @@ export function createTestI18n() {
         delete: '删除',
         edit: '编辑',
         sorting: '排序中...',
-        loading: '加载中...'
+        loading: '加载中...',
       },
       en: {
         addTodo: 'Add Todo',
@@ -70,9 +70,9 @@ export function createTestI18n() {
         delete: 'Delete',
         edit: 'Edit',
         sorting: 'Sorting...',
-        loading: 'Loading...'
-      }
-    }
+        loading: 'Loading...',
+      },
+    },
   })
 }
 
@@ -89,7 +89,7 @@ export function createTestTodo(overrides: Partial<Todo> = {}): Todo {
     createdAt: now,
     updatedAt: now,
     order: 0,
-    ...overrides
+    ...overrides,
   }
 }
 
@@ -99,7 +99,7 @@ export function createTestTodos(count: number, baseOverrides: Partial<Todo> = {}
       id: Date.now() + index,
       text: `Test Todo ${index + 1}`,
       order: index,
-      ...baseOverrides
+      ...baseOverrides,
     })
   )
 }
@@ -111,7 +111,7 @@ export function createTestChatMessage(overrides: Partial<ChatMessage> = {}): Cha
   return {
     role: 'user',
     content: 'Test message',
-    ...overrides
+    ...overrides,
   }
 }
 
@@ -121,7 +121,7 @@ export function createTestConversation(overrides: Partial<Conversation> = {}): C
     title: 'Test Conversation',
     messages: [],
     lastUpdated: new Date().toISOString(),
-    ...overrides
+    ...overrides,
   }
 }
 
@@ -140,13 +140,13 @@ export function mockLocalStorage() {
       delete store[key]
     }),
     clear: vi.fn(() => {
-      Object.keys(store).forEach(key => delete store[key])
+      Object.keys(store).forEach((key) => delete store[key])
     }),
     get length() {
       return Object.keys(store).length
     },
     key: vi.fn((index: number) => Object.keys(store)[index] || null),
-    store
+    store,
   }
 }
 
@@ -164,7 +164,7 @@ export function createMockResponse(data: any, status = 200) {
     ok: status >= 200 && status < 300,
     status,
     json: () => Promise.resolve(data),
-    text: () => Promise.resolve(JSON.stringify(data))
+    text: () => Promise.resolve(JSON.stringify(data)),
   })
 }
 
@@ -174,7 +174,7 @@ export function createMockErrorResponse(status = 500, message = 'Server Error') 
     status,
     statusText: message,
     json: () => Promise.reject(new Error('Failed to parse JSON')),
-    text: () => Promise.resolve(message)
+    text: () => Promise.resolve(message),
   })
 }
 
@@ -182,11 +182,11 @@ export function createMockErrorResponse(status = 500, message = 'Server Error') 
  * 等待下一个 tick
  */
 export function nextTick() {
-  return new Promise(resolve => setTimeout(resolve, 0))
+  return new Promise((resolve) => setTimeout(resolve, 0))
 }
 
 export function sleep(ms: number) {
-  return new Promise(resolve => setTimeout(resolve, ms))
+  return new Promise((resolve) => setTimeout(resolve, ms))
 }
 
 /**
@@ -197,7 +197,7 @@ export function mockConsole() {
     log: vi.spyOn(console, 'log').mockImplementation(() => {}),
     error: vi.spyOn(console, 'error').mockImplementation(() => {}),
     warn: vi.spyOn(console, 'warn').mockImplementation(() => {}),
-    info: vi.spyOn(console, 'info').mockImplementation(() => {})
+    info: vi.spyOn(console, 'info').mockImplementation(() => {}),
   }
 }
 
@@ -226,7 +226,7 @@ export function setupTestEnvironment() {
       console.error.mockRestore()
       console.warn.mockRestore()
       console.info.mockRestore()
-    }
+    },
   }
 }
 

@@ -48,7 +48,7 @@ const toggleShowApiKey = () => {
 }
 
 defineOptions({
-  name: 'ApiKeyPopover'
+  name: 'ApiKeyPopover',
 })
 </script>
 

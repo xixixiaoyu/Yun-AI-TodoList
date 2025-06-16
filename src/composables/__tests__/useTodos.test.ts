@@ -53,7 +53,7 @@ describe('useTodos', () => {
     addTodo('Todo 2')
     addTodo('Todo 3')
 
-    const todoIds = todos.value.map(todo => todo.id)
+    const todoIds = todos.value.map((todo) => todo.id)
 
     const newOrder = [todoIds[2], todoIds[0], todoIds[1]]
     updateTodosOrder(newOrder)

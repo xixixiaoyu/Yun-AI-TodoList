@@ -29,7 +29,7 @@ defineEmits<Emits>()
 const { t } = useI18n()
 
 defineOptions({
-  name: 'ApiKeyPopoverHeader'
+  name: 'ApiKeyPopoverHeader',
 })
 </script>
 

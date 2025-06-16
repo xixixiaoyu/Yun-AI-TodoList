@@ -69,7 +69,7 @@ export class TodoValidator {
           .map((tag: string) => tag.trim()),
         createdAt: todoObj.createdAt as string,
         updatedAt: todoObj.updatedAt as string,
-        order: todoObj.order as number
+        order: todoObj.order as number,
       }
 
       if (todoObj.completedAt) {
@@ -133,9 +133,9 @@ export class TodoValidator {
       /javascript:/gi,
       /on\w+\s*=/gi,
       /eval\s*\(/gi,
-      /expression\s*\(/gi
+      /expression\s*\(/gi,
     ]
 
-    return !dangerousPatterns.some(pattern => pattern.test(text))
+    return !dangerousPatterns.some((pattern) => pattern.test(text))
   }
 }

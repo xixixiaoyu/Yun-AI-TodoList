@@ -14,7 +14,7 @@ export function useConfirmDialog() {
     message: '',
     confirmText: t('confirm'),
     cancelText: t('cancel'),
-    action: null
+    action: null,
   })
 
   const handleConfirm = () => {
@@ -32,6 +32,6 @@ export function useConfirmDialog() {
     showConfirmDialog,
     confirmDialogConfig,
     handleConfirm,
-    handleCancel
+    handleCancel,
   }
 }

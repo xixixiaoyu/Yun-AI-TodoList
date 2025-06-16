@@ -28,6 +28,6 @@ import CloseIcon from '../common/icons/CloseIcon.vue'
 const { t } = useI18n()
 
 defineOptions({
-  name: 'AIChatHeader'
+  name: 'AIChatHeader',
 })
 </script>

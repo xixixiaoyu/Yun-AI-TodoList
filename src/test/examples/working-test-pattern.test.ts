@@ -9,7 +9,7 @@ import { ref } from 'vue'
 vi.mock('@/services/deepseekService', () => ({
   getAIResponse: vi.fn(),
   streamAIResponse: vi.fn(),
-  optimizeText: vi.fn()
+  optimizeText: vi.fn(),
 }))
 
 import { getAIResponse } from '@/services/deepseekService'
@@ -62,12 +62,12 @@ describe('正确的测试模式示例', () => {
         async fetchData() {
           this.loading.value = true
           try {
-            await new Promise(resolve => setTimeout(resolve, 10))
+            await new Promise((resolve) => setTimeout(resolve, 10))
             this.data.value = '获取的数据'
           } finally {
             this.loading.value = false
           }
-        }
+        },
       }
 
       expect(state.loading.value).toBe(false)
@@ -89,32 +89,32 @@ describe('正确的测试模式示例', () => {
 
       expect(validateTodo('有效的待办事项')).toEqual({
         valid: true,
-        error: null
+        error: null,
       })
 
       expect(validateTodo('')).toEqual({
         valid: false,
-        error: '待办事项不能为空'
+        error: '待办事项不能为空',
       })
 
       expect(validateTodo('a'.repeat(51))).toEqual({
         valid: false,
-        error: '待办事项过长'
+        error: '待办事项过长',
       })
     })
 
     it('应该测试数据转换', () => {
       const formatTodoList = (todos: Array<{ id: number; text: string; completed: boolean }>) => {
-        return todos.map(todo => ({
+        return todos.map((todo) => ({
           ...todo,
           displayText: todo.completed ? `✓ ${todo.text}` : todo.text,
-          status: todo.completed ? 'completed' : 'active'
+          status: todo.completed ? 'completed' : 'active',
         }))
       }
 
       const todos = [
         { id: 1, text: '任务1', completed: false },
-        { id: 2, text: '任务2', completed: true }
+        { id: 2, text: '任务2', completed: true },
       ]
 
       const formatted = formatTodoList(todos)
@@ -129,7 +129,7 @@ describe('正确的测试模式示例', () => {
   describe('异步操作测试', () => {
     it('应该测试 Promise 处理', async () => {
       const asyncOperation = async (shouldFail = false) => {
-        await new Promise(resolve => setTimeout(resolve, 10))
+        await new Promise((resolve) => setTimeout(resolve, 10))
 
         if (shouldFail) {
           throw new Error('操作失败')

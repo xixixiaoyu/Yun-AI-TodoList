@@ -9,6 +9,6 @@
 
 <script setup lang="ts">
 defineOptions({
-  name: 'LockIcon'
+  name: 'LockIcon',
 })
 </script>

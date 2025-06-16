@@ -9,6 +9,6 @@
 
 <script setup lang="ts">
 defineOptions({
-  name: 'KeyIcon'
+  name: 'KeyIcon',
 })
 </script>

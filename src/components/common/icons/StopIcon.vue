@@ -12,6 +12,6 @@
 
 <script setup lang="ts">
 defineOptions({
-  name: 'StopIcon'
+  name: 'StopIcon',
 })
 </script>

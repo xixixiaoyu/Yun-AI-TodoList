@@ -58,7 +58,7 @@ interface Props {
 
 const props = withDefaults(defineProps<Props>(), {
   fallback: 'An unexpected error occurred',
-  onError: undefined
+  onError: undefined,
 })
 
 const { t } = useI18n()
@@ -101,18 +101,18 @@ onErrorCaptured((error: Error, instance: unknown, info: string) => {
 
 // 全局错误处理
 onMounted(() => {
-  window.addEventListener('error', event => {
+  window.addEventListener('error', (event) => {
     captureError(event.error, {
       componentStack: 'Global error',
       filename: event.filename,
       lineno: event.lineno,
-      colno: event.colno
+      colno: event.colno,
     })
   })
 
-  window.addEventListener('unhandledrejection', event => {
+  window.addEventListener('unhandledrejection', (event) => {
     captureError(new Error(event.reason), {
-      componentStack: 'Unhandled promise rejection'
+      componentStack: 'Unhandled promise rejection',
     })
   })
 })
