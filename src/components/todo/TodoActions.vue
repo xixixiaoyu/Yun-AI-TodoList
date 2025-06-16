@@ -1,11 +1,11 @@
 <template>
-  <div class="actions">
+  <div v-if="filter === 'active' || filter === 'completed'" class="actions">
     <button class="generate-btn" :disabled="isGenerating" @click="$emit('generateSuggestions')">
       {{ isGenerating ? t('generating') : t('generateSuggestions') }}
     </button>
 
     <button
-      v-if="hasActiveTodos"
+      v-if="filter === 'active' && hasActiveTodos"
       class="sort-btn"
       :disabled="isSorting"
       @click="$emit('sortWithAI')"
