@@ -1,6 +1,6 @@
 import { handleError, logger } from '@/utils/logger'
 import i18n from '../i18n'
-import { getApiKey } from './configService'
+import { getAIModel, getApiKey } from './configService'
 import { AIStreamResponse, Message } from './types'
 
 const API_URL = 'https://api.deepseek.com/chat/completions'
@@ -40,7 +40,7 @@ export async function getAIStreamResponse(
       method: 'POST',
       headers: getHeaders(),
       body: JSON.stringify({
-        model: 'deepseek-reasoner',
+        model: getAIModel(),
         messages: [...messages],
         stream: true
       }),
@@ -113,7 +113,7 @@ export async function getAIResponse(
       method: 'POST',
       headers: getHeaders(),
       body: JSON.stringify({
-        model: 'deepseek-chat',
+        model: getAIModel(),
         messages: [
           {
             role: 'system',
@@ -161,7 +161,7 @@ export async function optimizeText(text: string): Promise<string> {
       method: 'POST',
       headers: getHeaders(),
       body: JSON.stringify({
-        model: 'deepseek-chat',
+        model: getAIModel(),
         messages: [
           {
             role: 'system',

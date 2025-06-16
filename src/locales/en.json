@@ -145,5 +145,13 @@
   "audioEnded": "Audio input ended",
   "noMatchFound": "No matching speech content found",
 
+  "modelSelection": "Model Selection",
+  "modelSelectionDescription": "Choose the AI model to use",
+  "deepseekChat": "DeepSeek Chat",
+  "deepseekChatDescription": "General-purpose model for daily conversations and common tasks",
+  "deepseekReasoner": "DeepSeek Reasoner",
+  "deepseekReasonerDescription": "Advanced model with reasoning capabilities for complex problems",
+  "currentModel": "Current Model",
+
   "emptyTodoHint": "No todos yet. Add some to get started!"
 }

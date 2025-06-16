@@ -183,5 +183,13 @@
   "enterFullscreen": "进入全屏",
   "exitFullscreen": "退出全屏",
 
+  "modelSelection": "模型选择",
+  "modelSelectionDescription": "选择要使用的 AI 模型",
+  "deepseekChat": "DeepSeek Chat",
+  "deepseekChatDescription": "适合日常对话和通用任务的模型",
+  "deepseekReasoner": "DeepSeek Reasoner",
+  "deepseekReasonerDescription": "具有推理能力的高级模型，适合复杂问题",
+  "currentModel": "当前模型",
+
   "emptyTodoHint": "还没有待办事项，添加一些开始吧！"
 }

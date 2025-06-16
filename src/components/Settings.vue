@@ -10,6 +10,10 @@
             @show-success-toast="showSuccessToast"
           />
         </div>
+
+        <div class="settings-section-wrapper">
+          <ModelSelectionSection />
+        </div>
       </div>
 
       <SettingsToast :show="showSuccessMessage" />
@@ -20,6 +24,7 @@
 <script setup lang="ts">
 import { useSettingsState } from '../composables/useSettingsState'
 import ApiKeySection from './settings/ApiKeySection.vue'
+import ModelSelectionSection from './settings/ModelSelectionSection.vue'
 import SettingsToast from './settings/SettingsToast.vue'
 
 const { showApiKey, showApiKeyPopover, localApiKey, showSuccessMessage, showSuccessToast } =

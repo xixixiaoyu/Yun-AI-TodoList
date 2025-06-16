@@ -22,3 +22,11 @@ export interface Conversation {
   messages: ChatMessage[]
   lastUpdated: string
 }
+
+export type AIModel = 'deepseek-chat' | 'deepseek-reasoner'
+
+export interface ModelOption {
+  value: AIModel
+  label: string
+  description: string
+}
