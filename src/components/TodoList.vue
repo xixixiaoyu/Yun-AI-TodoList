@@ -46,7 +46,7 @@
       </div>
 
       <div ref="todoListRef" class="todo-grid">
-        <div v-if="filteredTodos.length === 0" class="empty-hint">
+        <div v-if="filteredTodos.length === 0 && filter === 'active'" class="empty-hint">
           <svg
             xmlns="http://www.w3.org/2000/svg"
             width="48"
@@ -60,7 +60,7 @@
           >
             <path d="M3 12h18m-9-9v18" />
           </svg>
-          <p>{{ t('emptyTodoHint', 'No todos yet. Add some to get started!') }}</p>
+          <p>{{ t('emptyTodoHint', '还没有待办事项，添加一些开始吧！') }}</p>
         </div>
 
         <TodoItem
