@@ -14,6 +14,10 @@
         <div class="settings-section-wrapper">
           <ModelSelectionSection />
         </div>
+
+        <div class="settings-section-wrapper">
+          <ThemeSection />
+        </div>
       </div>
 
       <SettingsToast :show="showSuccessMessage" />
@@ -26,6 +30,7 @@ import { useSettingsState } from '../composables/useSettingsState'
 import ApiKeySection from './settings/ApiKeySection.vue'
 import ModelSelectionSection from './settings/ModelSelectionSection.vue'
 import SettingsToast from './settings/SettingsToast.vue'
+import ThemeSection from './settings/ThemeSection.vue'
 
 const { showApiKey, showApiKeyPopover, localApiKey, showSuccessMessage, showSuccessToast } =
   useSettingsState()

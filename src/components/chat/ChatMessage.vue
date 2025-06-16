@@ -19,7 +19,7 @@
       <p v-if="message.role === 'user'" class="m-0 whitespace-pre-wrap break-words">
         {{ message.content }}
       </p>
-      <div v-else class="relative pb-3 md:pb-10">
+      <div v-else class="relative pb-3">
         <div
           class="prose prose-sm max-w-none break-words leading-relaxed text-text [&>*]:mb-3 [&>*:last-child]:mb-0 [&>p]:leading-7 [&>ul]:my-3 [&>ol]:my-3 [&>li]:my-1 [&>h1]:text-lg [&>h1]:font-semibold [&>h1]:mb-4 [&>h1]:mt-6 [&>h2]:text-base [&>h2]:font-semibold [&>h2]:mb-3 [&>h2]:mt-5 [&>h3]:text-sm [&>h3]:font-semibold [&>h3]:mb-2 [&>h3]:mt-4 [&>code]:bg-input-bg [&>code]:px-1.5 [&>code]:py-0.5 [&>code]:rounded [&>code]:text-sm [&>code]:font-mono [&>pre]:bg-input-bg [&>pre]:p-3 [&>pre]:rounded-lg [&>pre]:overflow-x-auto [&>pre]:my-3 [&>blockquote]:border-l-4 [&>blockquote]:border-button-bg [&>blockquote]:pl-4 [&>blockquote]:italic [&>blockquote]:my-3 [&>table]:w-full [&>table]:border-collapse [&>table]:my-3 [&>th]:border [&>th]:border-input-border [&>th]:p-2 [&>th]:bg-input-bg [&>th]:font-semibold [&>td]:border [&>td]:border-input-border [&>td]:p-2"
           v-html="message.sanitizedContent"

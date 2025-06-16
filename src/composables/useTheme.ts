@@ -1,6 +1,8 @@
+import type { ThemeValue } from '../types/theme'
+
 export function useTheme() {
-  const theme = ref(localStorage.getItem('theme') || 'auto')
-  const systemTheme = ref(getSystemTheme())
+  const theme = ref<ThemeValue>((localStorage.getItem('theme') as ThemeValue) || 'auto')
+  const systemTheme = ref<'light' | 'dark'>(getSystemTheme())
 
   function getSystemTheme() {
     return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'

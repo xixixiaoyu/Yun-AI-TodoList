@@ -153,5 +153,15 @@
   "deepseekReasonerDescription": "Advanced model with reasoning capabilities for complex problems",
   "currentModel": "Current Model",
 
-  "emptyTodoHint": "No todos yet. Add some to get started!"
+  "emptyTodoHint": "No todos yet. Add some to get started!",
+
+  "themeConfiguration": "Theme Configuration",
+  "themeConfigurationDescription": "Choose your preferred interface theme",
+  "lightTheme": "Light Theme",
+  "darkTheme": "Dark Theme",
+  "autoTheme": "Follow System",
+  "lightThemeDescription": "Bright and clean interface style",
+  "darkThemeDescription": "Eye-friendly dark interface style",
+  "autoThemeDescription": "Automatically switch theme based on system settings",
+  "currentTheme": "Current Theme"
 }

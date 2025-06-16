@@ -191,5 +191,15 @@
   "deepseekReasonerDescription": "具有推理能力的高级模型，适合复杂问题",
   "currentModel": "当前模型",
 
-  "emptyTodoHint": "还没有待办事项，添加一些开始吧！"
+  "emptyTodoHint": "还没有待办事项，添加一些开始吧！",
+
+  "themeConfiguration": "主题配置",
+  "themeConfigurationDescription": "选择您偏好的界面主题",
+  "lightTheme": "浅色主题",
+  "darkTheme": "深色主题",
+  "autoTheme": "跟随系统",
+  "lightThemeDescription": "明亮清爽的界面风格",
+  "darkThemeDescription": "护眼的深色界面风格",
+  "autoThemeDescription": "根据系统设置自动切换主题",
+  "currentTheme": "当前主题"
 }
