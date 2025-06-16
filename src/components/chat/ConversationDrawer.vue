@@ -1,12 +1,19 @@
 <template>
-  <div class="drawer-container" :class="{ 'drawer-open': isOpen }">
-    <div class="drawer">
-      <div class="drawer-header">
-        <h3 class="drawer-title">
+  <div
+    class="fixed -left-75 md:-left-[85%] md:max-w-75 top-0 h-full w-75 bg-bg transition-transform duration-300 shadow-lg z-1000"
+    :class="{ 'translate-x-75 md:translate-x-full': isOpen }"
+  >
+    <div class="h-full flex flex-col p-4">
+      <div class="flex justify-between items-center mb-4 pb-3 border-b border-input-border">
+        <h3 class="m-0 text-lg font-medium">
           {{ t('conversations') }}
         </h3>
-        <div class="drawer-header-controls">
-          <button class="clear-all-btn" :title="t('clearAllConversations')" @click="$emit('clear')">
+        <div class="flex gap-2 items-center">
+          <button
+            class="bg-transparent border-none cursor-pointer p-1 text-text opacity-70 transition-all duration-200 flex items-center justify-center hover:opacity-100 hover:text-red-500"
+            :title="t('clearAllConversations')"
+            @click="$emit('clear')"
+          >
             <svg
               xmlns="http://www.w3.org/2000/svg"
               viewBox="0 0 24 24"
@@ -20,7 +27,10 @@
               <path d="M9 10h2v8H9zm4 0h2v8h-2z" />
             </svg>
           </button>
-          <button class="close-drawer-btn" @click="$emit('update:isOpen', false)">
+          <button
+            class="bg-transparent border-none cursor-pointer p-1 text-text opacity-70 transition-all duration-200 flex items-center justify-center hover:opacity-100"
+            @click="$emit('update:isOpen', false)"
+          >
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
               <path fill="none" d="M0 0h24v24H0z" />
               <path
@@ -30,16 +40,21 @@
           </button>
         </div>
       </div>
-      <div class="conversation-list">
+      <div class="flex-grow overflow-y-auto pr-2">
         <div
           v-for="conversation in conversations"
           :key="conversation.id"
-          class="conversation-item"
-          :class="{ active: currentConversationId === conversation.id }"
+          class="flex justify-between items-center px-3 py-2.5 mb-2 cursor-pointer rounded-lg bg-input-bg transition-all duration-200 hover:opacity-90"
+          :class="{ 'bg-button-bg text-bg-card': currentConversationId === conversation.id }"
           @click.stop="$emit('switch', conversation.id)"
         >
-          <span>{{ conversation.title }}</span>
-          <button class="delete-conversation-btn" @click.stop="$emit('delete', conversation.id)">
+          <span class="flex-grow whitespace-nowrap overflow-hidden text-ellipsis mr-2">{{
+            conversation.title
+          }}</span>
+          <button
+            class="bg-transparent border-none p-1 cursor-pointer opacity-70 transition-all duration-200 text-inherit hover:opacity-100"
+            @click.stop="$emit('delete', conversation.id)"
+          >
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="18" height="18">
               <path fill="none" d="M0 0h24v24H0z" />
               <path
@@ -51,7 +66,11 @@
       </div>
     </div>
   </div>
-  <div v-if="isOpen" class="drawer-overlay" @click="$emit('update:isOpen', false)" />
+  <div
+    v-if="isOpen"
+    class="fixed top-0 left-0 w-full h-full bg-black/30 z-[999]"
+    @click="$emit('update:isOpen', false)"
+  />
 </template>
 
 <script setup lang="ts">
@@ -73,143 +92,3 @@ defineEmits<{
 
 const { t } = useI18n()
 </script>
-
-<style scoped>
-.drawer-container {
-  position: fixed;
-  left: -300px;
-  top: 0;
-  height: 100%;
-  width: 300px;
-  background-color: var(--bg-color);
-  transition: transform 0.3s ease;
-  box-shadow: 2px 0 8px rgba(0, 0, 0, 0.1);
-  z-index: 1000;
-}
-
-.drawer-container.drawer-open {
-  transform: translateX(300px);
-}
-
-.drawer {
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  padding: 16px;
-}
-
-.drawer-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 16px;
-  padding-bottom: 12px;
-  border-bottom: 1px solid var(--input-border-color);
-}
-
-.drawer-title {
-  margin: 0;
-  font-size: 18px;
-  font-weight: 500;
-}
-
-.drawer-header-controls {
-  display: flex;
-  gap: 8px;
-  align-items: center;
-}
-
-.clear-all-btn,
-.close-drawer-btn {
-  background: none;
-  border: none;
-  cursor: pointer;
-  padding: 4px;
-  color: var(--text-color);
-  opacity: 0.7;
-  transition: all 0.2s ease;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.clear-all-btn:hover {
-  opacity: 1;
-  color: #ff4d4f;
-}
-
-.close-drawer-btn:hover {
-  opacity: 1;
-}
-
-.conversation-list {
-  flex-grow: 1;
-  overflow-y: auto;
-  padding-right: 8px;
-}
-
-.conversation-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 10px 12px;
-  margin-bottom: 8px;
-  cursor: pointer;
-  border-radius: 8px;
-  background-color: var(--input-bg-color);
-  transition: all 0.2s ease;
-}
-
-.conversation-item:hover {
-  opacity: 0.9;
-}
-
-.conversation-item.active {
-  background-color: var(--button-bg-color);
-  color: var(--card-bg-color);
-}
-
-.conversation-item span {
-  flex-grow: 1;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  margin-right: 8px;
-}
-
-.delete-conversation-btn {
-  background: none;
-  border: none;
-  padding: 4px;
-  cursor: pointer;
-  opacity: 0.7;
-  transition: all 0.2s ease;
-  color: inherit;
-}
-
-.delete-conversation-btn:hover {
-  opacity: 1;
-}
-
-.drawer-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.3);
-  z-index: 999;
-}
-
-@media (max-width: 768px) {
-  .drawer-container {
-    width: 85%;
-    max-width: 300px;
-    left: -85%;
-  }
-
-  .drawer-container.drawer-open {
-    transform: translateX(100%);
-  }
-}
-</style>

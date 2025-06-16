@@ -1,5 +1,9 @@
 <template>
-  <div ref="chatHistoryRef" class="chat-history" @scroll="handleScroll">
+  <div
+    ref="chatHistoryRef"
+    class="flex-grow overflow-y-auto mb-4 flex flex-col px-6 py-6 md:px-4 md:py-4 gap-6 md:gap-4 bg-gradient-to-b from-white/3 to-transparent"
+    @scroll="handleScroll"
+  >
     <ChatMessage
       v-for="(message, index) in sanitizedMessages"
       :key="index"
@@ -21,8 +25,8 @@
 
 <script setup lang="ts">
 import { useMarkdown } from '../../composables/useMarkdown'
-import ChatMessage from './ChatMessage.vue'
 import type { ChatMessage as ChatMessageType } from '../../services/types'
+import ChatMessage from './ChatMessage.vue'
 
 const props = defineProps<{
   messages: ChatMessageType[]
@@ -140,23 +144,3 @@ defineExpose({
   scrollToBottomInstantly
 })
 </script>
-
-<style scoped>
-.chat-history {
-  flex-grow: 1;
-  overflow-y: auto;
-  margin-bottom: 16px;
-  display: flex;
-  flex-direction: column;
-  padding: 20px 20px;
-  gap: 20px;
-  background: linear-gradient(to bottom, rgba(255, 255, 255, 0.05), transparent);
-}
-
-@media (max-width: 768px) {
-  .chat-history {
-    padding: 12px 6px;
-    gap: 10px;
-  }
-}
-</style>

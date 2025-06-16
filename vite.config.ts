@@ -1,5 +1,6 @@
 import vue from '@vitejs/plugin-vue'
 import { fileURLToPath, URL } from 'node:url'
+import UnoCSS from 'unocss/vite'
 import { defineConfig } from 'vite'
 import { VitePWA } from 'vite-plugin-pwa'
 
@@ -8,6 +9,7 @@ import AutoImport from 'unplugin-auto-import/vite'
 
 export default defineConfig({
   plugins: [
+    UnoCSS(),
     vue(),
     AutoImport({
       imports: ['vue', 'vue-router', 'vue-i18n', '@vueuse/core'],

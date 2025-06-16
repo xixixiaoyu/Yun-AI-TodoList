@@ -1,0 +1,238 @@
+/* 字体定义 */
+@font-face {
+  font-family: 'LXGW WenKai Screen';
+  src: url('../assets/fonts/LXGWWenKaiScreen.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* CSS 变量定义 - 保留用于 UnoCSS 主题配置 */
+:root {
+  /* 基础变量 */
+  --border-radius: 20px;
+  --box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1), 0 4px 8px rgba(0, 0, 0, 0.06);
+
+  /* 浅色主题变量 */
+  --bg-color: #f8f7f6;
+  --text-color: #2d3748;
+  --card-bg-color: #ffffff;
+  --card-shadow: 0 4px 16px rgba(140, 152, 164, 0.08);
+  --input-bg-color: #ffffff;
+  --input-border-color: #e9ecef;
+  --button-bg-color: #79b4a6;
+  --button-hover-bg-color: #68a295;
+  --button-text-color: #ffffff;
+  --font-smoothing: antialiased;
+  --font-weight: 400;
+  --todo-text-color: #2d3748;
+  --completed-todo-text-color: #718096;
+  --filter-btn-bg: #ffffff;
+  --filter-btn-text: #2d3748;
+  --filter-btn-border: #e9ecef;
+  --filter-btn-active-bg: #79b4a6;
+  --filter-btn-active-text: #ffffff;
+  --filter-btn-active-border: #79b4a6;
+  --language-toggle-bg: rgba(121, 180, 166, 0.08);
+  --language-toggle-color: #2d3748;
+  --language-toggle-hover-bg: rgba(121, 180, 166, 0.16);
+  --project-tag-bg-color: #4a5568;
+  --project-tag-text-color: #ffffff;
+  --link-color: #79b4a6;
+  --link-hover-color: #68a295;
+  --input-focus-color: #79b4a6;
+  --error-color: #e53e3e;
+  --text-secondary-color: #718096;
+  --hover-bg-color: rgba(121, 180, 166, 0.08);
+  --primary-color: #79b4a6;
+  --primary-color-rgb: 121, 180, 166;
+}
+
+/* 深色主题变量 */
+[data-theme='dark'] {
+  --bg-color: #1a1f25;
+  --text-color: #f7fafc;
+  --card-bg-color: #252b32;
+  --card-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+  --input-bg-color: #2f353d;
+  --input-border-color: #404650;
+  --button-bg-color: #79b4a6;
+  --button-hover-bg-color: #68a295;
+  --button-text-color: #ffffff;
+  --font-smoothing: subpixel-antialiased;
+  --font-weight: 300;
+  --todo-text-color: #f7fafc;
+  --completed-todo-text-color: #a0aec0;
+  --filter-btn-bg: #2f353d;
+  --filter-btn-text: #f7fafc;
+  --filter-btn-border: #404650;
+  --filter-btn-active-bg: #79b4a6;
+  --filter-btn-active-text: #1a1f25;
+  --filter-btn-active-border: #79b4a6;
+  --language-toggle-bg: rgba(121, 180, 166, 0.12);
+  --language-toggle-color: #f7fafc;
+  --language-toggle-hover-bg: rgba(121, 180, 166, 0.24);
+  --project-tag-bg-color: #68d391;
+  --project-tag-text-color: #1a1f25;
+  --link-color: #79b4a6;
+  --link-hover-color: #68a295;
+  --input-focus-color: #79b4a6;
+  --error-color: #fc8181;
+  --text-secondary-color: #a0aec0;
+  --hover-bg-color: rgba(121, 180, 166, 0.12);
+  --primary-color: #79b4a6;
+  --primary-color-rgb: 121, 180, 166;
+}
+
+/* 基础样式重置 */
+html {
+  font-family: 'LXGW WenKai Screen', sans-serif;
+  line-height: 1.6;
+  font-weight: 400;
+  color-scheme: light;
+  color: #2d3748;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+  background: var(--bg-color);
+  color: var(--text-color);
+  font-family:
+    'LXGW WenKai Screen',
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    Roboto,
+    Oxygen-Sans,
+    Ubuntu,
+    Cantarell,
+    'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: var(--font-smoothing);
+  -moz-osx-font-smoothing: var(--font-smoothing);
+  font-weight: var(--font-weight);
+}
+
+/* 全局按钮样式重置 - 移除默认边框 */
+button {
+  border: none;
+  outline: none;
+  background: none;
+  padding: 0;
+  margin: 0;
+  font-family: inherit;
+  font-size: inherit;
+  cursor: pointer;
+}
+
+/* 全局输入框样式重置 */
+input,
+textarea,
+select {
+  border: none;
+  outline: none;
+  font-family: inherit;
+  font-size: inherit;
+}
+
+/* 自定义滚动条样式 */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.05);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 4px;
+  transition: all 0.3s ease;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.3);
+}
+
+/* Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0, 0, 0, 0.2) rgba(0, 0, 0, 0.05);
+}
+
+/* 深色主题下的滚动条样式 */
+@media (prefers-color-scheme: dark) {
+  ::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.1);
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.3);
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.4);
+  }
+
+  * {
+    scrollbar-color: rgba(255, 255, 255, 0.3) rgba(255, 255, 255, 0.1);
+  }
+}
+
+/* 无障碍支持 */
+@media (forced-colors: active) {
+  :root {
+    forced-color-adjust: none;
+  }
+
+  .language-toggle,
+  button,
+  input[type='range'] {
+    forced-color-adjust: none;
+  }
+
+  .language-toggle {
+    background-color: ButtonFace;
+    color: ButtonText;
+    border: 1px solid ButtonText;
+  }
+
+  .language-toggle:hover {
+    background-color: Highlight;
+    color: HighlightText;
+  }
+}
+
+/* 媒体查询 */
+@media (prefers-color-scheme: light) {
+  :root {
+    color: #2d3748;
+    background: #f8f7f6;
+  }
+}
+
+@media (max-width: 768px) {
+  body {
+    font-size: 14px;
+  }
+}
+
+/* 自定义动画关键帧 */
+@keyframes overlayIn {
+  from {
+    opacity: 0;
+    backdrop-filter: blur(0px);
+  }
+  to {
+    opacity: 1;
+    backdrop-filter: blur(8px);
+  }
+}

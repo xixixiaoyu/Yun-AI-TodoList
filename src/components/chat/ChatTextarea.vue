@@ -4,7 +4,7 @@
     :value="modelValue"
     :placeholder="t('askAiAssistant')"
     :disabled="isGenerating"
-    class="chat-textarea"
+    class="flex-grow px-4 py-3 md:px-3 md:py-2 text-sm border border-input-border rounded-xl outline-none bg-input-bg text-text resize-none min-h-[44px] max-h-32 font-inherit leading-[1.5] overflow-y-auto focus:border-button-bg focus:shadow-[0_0_0_3px_rgba(121,180,166,0.1)] transition-all duration-200 placeholder:text-text-secondary md:text-[13px] md:min-h-[40px]"
     @input="$emit('update:modelValue', ($event.target as HTMLTextAreaElement).value)"
     @keydown.enter.exact.prevent="$emit('send')"
     @keydown.enter.shift.exact="$emit('newline', $event)"
@@ -96,34 +96,3 @@ defineOptions({
   name: 'ChatTextarea'
 })
 </script>
-
-<style scoped>
-.chat-textarea {
-  flex-grow: 1;
-  padding: 8px 12px;
-  font-size: 14px;
-  border: 1px solid var(--input-border-color);
-  border-radius: 8px;
-  outline: none;
-  background-color: var(--input-bg-color);
-  color: var(--text-color);
-  resize: none;
-  min-height: 36px;
-  max-height: 120px;
-  font-family: inherit;
-  line-height: 1.4;
-  overflow-y: auto;
-}
-
-.chat-textarea:focus {
-  border-color: var(--button-bg-color);
-}
-
-@media (max-width: 768px) {
-  .chat-textarea {
-    padding: 6px 10px;
-    font-size: 13px;
-    min-height: 32px;
-  }
-}
-</style>

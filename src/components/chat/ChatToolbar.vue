@@ -1,12 +1,16 @@
 <template>
-  <div class="conversation-controls">
-    <button class="new-conversation-btn" @click="$emit('new')">
+  <div class="flex gap-3 px-6 md:px-4 md:gap-2">
+    <button
+      class="px-4 py-2.5 text-sm bg-input-bg text-text border border-input-border rounded-lg cursor-pointer flex items-center gap-2 transition-all duration-200 h-10 hover:bg-button-hover hover:text-white hover:border-button-bg hover:shadow-[0_2px_8px_rgba(121,180,166,0.2)] md:px-3 md:py-2 md:text-[13px] md:h-9"
+      @click="$emit('new')"
+    >
       <svg
         xmlns="http://www.w3.org/2000/svg"
         viewBox="0 0 24 24"
         width="16"
         height="16"
         fill="currentColor"
+        class="md:w-3.5 md:h-3.5"
       >
         <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z" />
       </svg>
@@ -14,7 +18,7 @@
     </button>
     <button
       :disabled="!userMessage.trim() || isOptimizing"
-      class="optimize-btn"
+      class="px-4 py-2.5 text-sm bg-input-bg text-text border border-input-border rounded-lg cursor-pointer flex items-center gap-2 transition-all duration-200 h-10 hover:bg-button-hover hover:text-white hover:border-button-bg hover:shadow-[0_2px_8px_rgba(121,180,166,0.2)] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-input-bg disabled:hover:text-text disabled:hover:border-input-border md:px-3 md:py-2 md:text-[13px] md:h-9"
       @click="$emit('optimize')"
     >
       <svg
@@ -23,6 +27,8 @@
         width="16"
         height="16"
         fill="currentColor"
+        class="md:w-3.5 md:h-3.5"
+        :class="{ 'animate-spin': isOptimizing }"
       >
         <path
           d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"
@@ -30,13 +36,17 @@
       </svg>
       {{ isOptimizing ? t('optimizing') : t('optimize') }}
     </button>
-    <button class="toggle-drawer-btn" @click="$emit('toggleDrawer')">
+    <button
+      class="px-3 py-2.5 text-sm bg-input-bg text-text border border-input-border rounded-lg cursor-pointer flex items-center justify-center transition-all duration-200 h-10 w-10 hover:bg-button-hover hover:text-white hover:border-button-bg hover:shadow-[0_2px_8px_rgba(121,180,166,0.2)] md:py-2 md:h-9 md:w-9"
+      @click="$emit('toggleDrawer')"
+    >
       <svg
         xmlns="http://www.w3.org/2000/svg"
         viewBox="0 0 24 24"
         width="16"
         height="16"
         fill="currentColor"
+        class="md:w-3.5 md:h-3.5"
       >
         <path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z" />
       </svg>
@@ -60,62 +70,3 @@ defineEmits<{
 
 const { t } = useI18n()
 </script>
-
-<style scoped>
-.conversation-controls {
-  display: flex;
-  gap: 8px;
-  padding: 0 20px;
-}
-
-.new-conversation-btn,
-.optimize-btn,
-.toggle-drawer-btn {
-  padding: 8px 16px;
-  font-size: 14px;
-  background-color: var(--input-bg-color);
-  color: var(--text-color);
-  border: 1px solid var(--input-border-color);
-  border-radius: 8px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  transition: all 0.2s ease;
-  height: 36px;
-}
-
-.new-conversation-btn:hover:not(:disabled),
-.optimize-btn:hover:not(:disabled),
-.toggle-drawer-btn:hover {
-  background-color: var(--button-hover-bg-color);
-  color: var(--card-bg-color);
-}
-
-.optimize-btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-@media (max-width: 768px) {
-  .conversation-controls {
-    padding: 0 12px;
-    gap: 6px;
-  }
-
-  .new-conversation-btn,
-  .optimize-btn,
-  .toggle-drawer-btn {
-    padding: 6px 12px;
-    font-size: 13px;
-    height: 32px;
-  }
-
-  .new-conversation-btn svg,
-  .optimize-btn svg,
-  .toggle-drawer-btn svg {
-    width: 14px;
-    height: 14px;
-  }
-}
-</style>

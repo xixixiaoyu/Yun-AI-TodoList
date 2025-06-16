@@ -1,12 +1,17 @@
 <template>
-  <div class="enhanced-pomodoro-timer" :class="{ fullscreen: isFullscreen }">
-    <div class="timer-header">
-      <h3 class="timer-title">
+  <div
+    class="bg-card rounded-[var(--border-radius)] shadow-card p-6 text-center transition-all-300"
+    :class="{
+      'fixed top-0 left-0 right-0 bottom-0 z-[9999] rounded-none p-8 bg-bg': isFullscreen
+    }"
+  >
+    <div class="flex justify-between items-center mb-8">
+      <h3 class="m-0 text-text text-xl">
         {{ isBreak ? t('pomodoro.breakTime', 'Break Time') : t('pomodoro.workTime', 'Work Time') }}
       </h3>
-      <div class="timer-controls">
+      <div class="flex gap-2">
         <button
-          class="control-button"
+          class="bg-transparent border border-input-border rounded px-2 py-2 cursor-pointer text-text transition-all duration-200 hover:bg-hover"
           :title="t('pomodoro.fullscreen', 'Fullscreen')"
           @click="toggleFullscreen"
         >
@@ -25,7 +30,7 @@
           </svg>
         </button>
         <button
-          class="control-button"
+          class="bg-transparent border border-input-border rounded px-2 py-2 cursor-pointer text-text transition-all duration-200 hover:bg-hover"
           :title="t('pomodoro.settings', 'Settings')"
           @click="openSettings"
         >
@@ -45,46 +50,45 @@
       </div>
     </div>
 
-    <div class="timer-display-container">
-      <div class="timer-circle" :style="circleStyle">
-        <svg class="progress-ring" width="200" height="200">
+    <div class="my-8">
+      <div class="relative inline-block" :style="circleStyle">
+        <svg class="rotate-[-90deg]" width="200" height="200">
           <circle
-            class="progress-ring-background"
+            class="fill-transparent stroke-[var(--border-color)] stroke-[8px]"
             cx="100"
             cy="100"
             r="90"
-            fill="transparent"
-            stroke="var(--border-color)"
-            stroke-width="8"
           />
           <circle
-            class="progress-ring-progress"
+            class="fill-transparent stroke-[8px] stroke-round transition-all duration-500"
             cx="100"
             cy="100"
             r="90"
-            fill="transparent"
             :stroke="progressColor"
-            stroke-width="8"
             stroke-linecap="round"
             :stroke-dasharray="circumference"
             :stroke-dashoffset="strokeDashoffset"
             transform="rotate(-90 100 100)"
           />
         </svg>
-        <div class="timer-content">
-          <div class="timer-display">{{ formattedTime }}</div>
-          <div class="timer-status">
+        <div class="absolute inset-0 flex flex-col items-center justify-center">
+          <div class="text-4xl font-bold text-text mb-2">{{ formattedTime }}</div>
+          <div class="text-lg text-text-secondary mb-1">
             {{ isBreak ? t('pomodoro.break', 'Break') : t('pomodoro.focus', 'Focus') }}
           </div>
-          <div class="session-counter">
+          <div class="text-sm text-text-secondary">
             {{ t('pomodoro.session', 'Session') }} {{ completedSessions + 1 }}
           </div>
         </div>
       </div>
     </div>
 
-    <div class="timer-actions">
-      <button class="action-button primary" :disabled="timeLeft === 0" @click="toggleTimer">
+    <div class="flex gap-3 justify-center mb-8">
+      <button
+        class="px-6 py-3 bg-button-bg text-white border-none rounded-lg cursor-pointer text-base font-semibold transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-button-hover hover:transform-hover-up active:scale-95"
+        :disabled="timeLeft === 0"
+        @click="toggleTimer"
+      >
         {{
           isActive
             ? isPaused
@@ -93,88 +97,139 @@
             : t('pomodoro.start', 'Start')
         }}
       </button>
-      <button class="action-button secondary" @click="resetTimer">
+      <button
+        class="px-6 py-3 bg-input-bg text-text border border-input-border rounded-lg cursor-pointer text-base font-semibold transition-all duration-200 hover:bg-hover hover:transform-hover-up active:scale-95"
+        @click="resetTimer"
+      >
         {{ t('pomodoro.reset', 'Reset') }}
       </button>
-      <button class="action-button secondary" @click="skipSession">
+      <button
+        class="px-6 py-3 bg-input-bg text-text border border-input-border rounded-lg cursor-pointer text-base font-semibold transition-all duration-200 hover:bg-hover hover:transform-hover-up active:scale-95"
+        @click="skipSession"
+      >
         {{ t('pomodoro.skip', 'Skip') }}
       </button>
     </div>
 
-    <div class="timer-stats">
-      <div class="stat-item">
-        <div class="stat-value">{{ completedSessions }}</div>
-        <div class="stat-label">{{ t('pomodoro.completed', 'Completed') }}</div>
+    <div class="grid grid-cols-3 gap-4 mb-8">
+      <div class="text-center p-4 bg-input-bg rounded-lg border border-input-border">
+        <div class="text-2xl font-bold text-text mb-1">{{ completedSessions }}</div>
+        <div class="text-sm text-text-secondary">{{ t('pomodoro.completed', 'Completed') }}</div>
       </div>
-      <div class="stat-item">
-        <div class="stat-value">{{ totalFocusTime }}</div>
-        <div class="stat-label">{{ t('pomodoro.totalTime', 'Total Time') }}</div>
+      <div class="text-center p-4 bg-input-bg rounded-lg border border-input-border">
+        <div class="text-2xl font-bold text-text mb-1">{{ totalFocusTime }}</div>
+        <div class="text-sm text-text-secondary">{{ t('pomodoro.totalTime', 'Total Time') }}</div>
       </div>
-      <div class="stat-item">
-        <div class="stat-value">{{ todaysSessions }}</div>
-        <div class="stat-label">{{ t('pomodoro.today', 'Today') }}</div>
+      <div class="text-center p-4 bg-input-bg rounded-lg border border-input-border">
+        <div class="text-2xl font-bold text-text mb-1">{{ todaysSessions }}</div>
+        <div class="text-sm text-text-secondary">{{ t('pomodoro.today', 'Today') }}</div>
       </div>
     </div>
 
     <!-- 设置弹窗 -->
-    <div v-if="showSettings" class="settings-overlay" @click="closeSettings">
-      <div class="settings-modal" @click.stop>
-        <div class="settings-header">
-          <h4>{{ t('pomodoro.timerSettings', 'Timer Settings') }}</h4>
-          <button class="close-button" @click="closeSettings">×</button>
+    <div
+      v-if="showSettings"
+      class="fixed inset-0 bg-black/50 backdrop-blur-sm z-[10000] flex items-center justify-center p-4"
+      @click="closeSettings"
+    >
+      <div
+        class="bg-card rounded-xl shadow-xl max-w-md w-full max-h-[90vh] overflow-y-auto"
+        @click.stop
+      >
+        <div class="flex justify-between items-center p-6 border-b border-input-border">
+          <h4 class="m-0 text-lg font-semibold text-text">
+            {{ t('pomodoro.timerSettings', 'Timer Settings') }}
+          </h4>
+          <button
+            class="bg-transparent border-none text-2xl cursor-pointer text-text-secondary hover:text-text transition-colors duration-200 w-8 h-8 flex items-center justify-center"
+            @click="closeSettings"
+          >
+            ×
+          </button>
         </div>
-        <div class="settings-content">
-          <div class="setting-group">
-            <label
-              >{{ t('pomodoro.workDuration', 'Work Duration') }} ({{
+        <div class="p-6 space-y-4">
+          <div class="flex flex-col gap-2">
+            <label class="text-sm font-medium text-text">
+              {{ t('pomodoro.workDuration', 'Work Duration') }} ({{
                 t('pomodoro.minutes', 'minutes')
-              }})</label
-            >
-            <input v-model.number="settings.workTime" type="number" min="1" max="60" />
+              }})
+            </label>
+            <input
+              v-model.number="settings.workTime"
+              type="number"
+              min="1"
+              max="60"
+              class="px-3 py-2 border border-input-border rounded-lg bg-input-bg text-text focus:outline-none focus:border-button-bg"
+            />
           </div>
-          <div class="setting-group">
-            <label
-              >{{ t('pomodoro.shortBreak', 'Short Break') }} ({{
-                t('pomodoro.minutes', 'minutes')
-              }})</label
-            >
-            <input v-model.number="settings.shortBreak" type="number" min="1" max="30" />
+          <div class="flex flex-col gap-2">
+            <label class="text-sm font-medium text-text">
+              {{ t('pomodoro.shortBreak', 'Short Break') }} ({{ t('pomodoro.minutes', 'minutes') }})
+            </label>
+            <input
+              v-model.number="settings.shortBreak"
+              type="number"
+              min="1"
+              max="30"
+              class="px-3 py-2 border border-input-border rounded-lg bg-input-bg text-text focus:outline-none focus:border-button-bg"
+            />
           </div>
-          <div class="setting-group">
-            <label
-              >{{ t('pomodoro.longBreak', 'Long Break') }} ({{
-                t('pomodoro.minutes', 'minutes')
-              }})</label
-            >
-            <input v-model.number="settings.longBreak" type="number" min="1" max="60" />
+          <div class="flex flex-col gap-2">
+            <label class="text-sm font-medium text-text">
+              {{ t('pomodoro.longBreak', 'Long Break') }} ({{ t('pomodoro.minutes', 'minutes') }})
+            </label>
+            <input
+              v-model.number="settings.longBreak"
+              type="number"
+              min="1"
+              max="60"
+              class="px-3 py-2 border border-input-border rounded-lg bg-input-bg text-text focus:outline-none focus:border-button-bg"
+            />
           </div>
-          <div class="setting-group">
-            <label>{{ t('pomodoro.sessionsBeforeLongBreak', 'Sessions before long break') }}</label>
+          <div class="flex flex-col gap-2">
+            <label class="text-sm font-medium text-text">{{
+              t('pomodoro.sessionsBeforeLongBreak', 'Sessions before long break')
+            }}</label>
             <input
               v-model.number="settings.sessionsBeforeLongBreak"
               type="number"
               min="2"
               max="10"
+              class="px-3 py-2 border border-input-border rounded-lg bg-input-bg text-text focus:outline-none focus:border-button-bg"
             />
           </div>
-          <div class="setting-group">
-            <label>
-              <input v-model="settings.autoStartBreaks" type="checkbox" />
+          <div class="flex items-center gap-3">
+            <input
+              v-model="settings.autoStartBreaks"
+              type="checkbox"
+              class="w-4 h-4 text-button-bg bg-input-bg border-input-border rounded focus:ring-button-bg"
+            />
+            <label class="text-sm font-medium text-text">
               {{ t('pomodoro.autoStartBreaks', 'Auto-start breaks') }}
             </label>
           </div>
-          <div class="setting-group">
-            <label>
-              <input v-model="settings.autoStartWork" type="checkbox" />
+          <div class="flex items-center gap-3">
+            <input
+              v-model="settings.autoStartWork"
+              type="checkbox"
+              class="w-4 h-4 text-button-bg bg-input-bg border-input-border rounded focus:ring-button-bg"
+            />
+            <label class="text-sm font-medium text-text">
               {{ t('pomodoro.autoStartWork', 'Auto-start work sessions') }}
             </label>
           </div>
         </div>
-        <div class="settings-actions">
-          <button class="action-button secondary" @click="resetSettings">
+        <div class="flex gap-3 p-6 border-t border-input-border">
+          <button
+            class="flex-1 px-4 py-2 bg-input-bg text-text border border-input-border rounded-lg cursor-pointer font-semibold transition-all duration-200 hover:bg-hover hover:transform-hover-up active:scale-95"
+            @click="resetSettings"
+          >
             {{ t('pomodoro.resetDefaults', 'Reset to Defaults') }}
           </button>
-          <button class="action-button primary" @click="saveSettings">
+          <button
+            class="flex-1 px-4 py-2 bg-button-bg text-white border-none rounded-lg cursor-pointer font-semibold transition-all duration-200 hover:bg-button-hover hover:transform-hover-up active:scale-95"
+            @click="saveSettings"
+          >
             {{ t('pomodoro.saveSettings', 'Save Settings') }}
           </button>
         </div>
@@ -432,272 +487,3 @@ watch(() => settings.value, saveTodayStats, { deep: true })
 
 const emit = defineEmits(['pomodoroComplete'])
 </script>
-
-<style scoped>
-.enhanced-pomodoro-timer {
-  background: var(--card-bg-color);
-  border-radius: var(--border-radius);
-  box-shadow: var(--card-shadow);
-  padding: 1.5rem;
-  text-align: center;
-  transition: all 0.3s ease;
-}
-
-.enhanced-pomodoro-timer.fullscreen {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  z-index: 9999;
-  border-radius: 0;
-  padding: 2rem;
-  background: var(--bg-color);
-}
-
-.timer-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 2rem;
-}
-
-.timer-title {
-  margin: 0;
-  color: var(--text-color);
-  font-size: 1.25rem;
-}
-
-.timer-controls {
-  display: flex;
-  gap: 0.5rem;
-}
-
-.control-button {
-  background: none;
-  border: 1px solid var(--border-color);
-  border-radius: 4px;
-  padding: 0.5rem;
-  cursor: pointer;
-  color: var(--text-color);
-  transition: all 0.2s ease;
-}
-
-.control-button:hover {
-  background: var(--hover-bg-color);
-}
-
-.timer-display-container {
-  margin: 2rem 0;
-}
-
-.timer-circle {
-  position: relative;
-  display: inline-block;
-}
-
-.progress-ring {
-  transform: rotate(-90deg);
-}
-
-.progress-ring-progress {
-  transition: stroke-dashoffset 0.3s ease;
-}
-
-.timer-content {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-}
-
-.timer-display {
-  font-size: 2.5rem;
-  font-weight: bold;
-  color: var(--text-color);
-  margin-bottom: 0.5rem;
-}
-
-.timer-status {
-  font-size: 1rem;
-  color: var(--text-color);
-  opacity: 0.8;
-  margin-bottom: 0.25rem;
-}
-
-.session-counter {
-  font-size: 0.9rem;
-  color: var(--text-color);
-  opacity: 0.6;
-}
-
-.timer-actions {
-  display: flex;
-  gap: 1rem;
-  justify-content: center;
-  margin: 2rem 0;
-}
-
-.action-button {
-  padding: 0.75rem 1.5rem;
-  border: none;
-  border-radius: var(--border-radius);
-  cursor: pointer;
-  font-size: 1rem;
-  font-weight: 500;
-  transition: all 0.2s ease;
-}
-
-.action-button.primary {
-  background: var(--primary-color);
-  color: white;
-}
-
-.action-button.primary:hover {
-  background: var(--primary-hover-color);
-}
-
-.action-button.secondary {
-  background: transparent;
-  color: var(--text-color);
-  border: 1px solid var(--border-color);
-}
-
-.action-button.secondary:hover {
-  background: var(--hover-bg-color);
-}
-
-.action-button:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.timer-stats {
-  display: flex;
-  justify-content: space-around;
-  margin-top: 2rem;
-  padding-top: 1rem;
-  border-top: 1px solid var(--border-color);
-}
-
-.stat-item {
-  text-align: center;
-}
-
-.stat-value {
-  font-size: 1.5rem;
-  font-weight: bold;
-  color: var(--primary-color);
-  margin-bottom: 0.25rem;
-}
-
-.stat-label {
-  font-size: 0.8rem;
-  color: var(--text-color);
-  opacity: 0.7;
-}
-
-/* 设置弹窗样式 */
-.settings-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 10000;
-}
-
-.settings-modal {
-  background: var(--card-bg-color);
-  border-radius: var(--border-radius);
-  box-shadow: var(--card-shadow);
-  width: 90%;
-  max-width: 400px;
-  max-height: 80vh;
-  overflow-y: auto;
-}
-
-.settings-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 1rem;
-  border-bottom: 1px solid var(--border-color);
-}
-
-.settings-header h4 {
-  margin: 0;
-  color: var(--text-color);
-}
-
-.close-button {
-  background: none;
-  border: none;
-  font-size: 1.5rem;
-  cursor: pointer;
-  color: var(--text-color);
-  padding: 0.25rem;
-}
-
-.settings-content {
-  padding: 1rem;
-}
-
-.setting-group {
-  margin-bottom: 1rem;
-}
-
-.setting-group label {
-  display: block;
-  margin-bottom: 0.5rem;
-  color: var(--text-color);
-  font-size: 0.9rem;
-}
-
-.setting-group input[type='number'] {
-  width: 100%;
-  padding: 0.5rem;
-  border: 1px solid var(--border-color);
-  border-radius: 4px;
-  background: var(--input-bg-color);
-  color: var(--text-color);
-}
-
-.setting-group input[type='checkbox'] {
-  margin-right: 0.5rem;
-}
-
-.settings-actions {
-  display: flex;
-  gap: 1rem;
-  padding: 1rem;
-  border-top: 1px solid var(--border-color);
-}
-
-.settings-actions .action-button {
-  flex: 1;
-}
-
-@media (max-width: 768px) {
-  .enhanced-pomodoro-timer {
-    padding: 1rem;
-  }
-
-  .timer-actions {
-    flex-direction: column;
-  }
-
-  .timer-stats {
-    flex-direction: column;
-    gap: 1rem;
-  }
-
-  .timer-display {
-    font-size: 2rem;
-  }
-}
-</style>

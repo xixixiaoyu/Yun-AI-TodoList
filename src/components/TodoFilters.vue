@@ -1,9 +1,17 @@
 <template>
   <div class="filter-buttons">
-    <button :class="{ active: filter === 'active' }" @click="setFilter('active')">
+    <button
+      class="filter-btn"
+      :class="{ active: filter === 'active' }"
+      @click="setFilter('active')"
+    >
       {{ t('active') }}
     </button>
-    <button :class="{ active: filter === 'completed' }" @click="setFilter('completed')">
+    <button
+      class="filter-btn"
+      :class="{ active: filter === 'completed' }"
+      @click="setFilter('completed')"
+    >
       {{ t('completed') }}
     </button>
   </div>
@@ -27,39 +35,33 @@ const setFilter = (newFilter: string) => {
 
 <style scoped>
 .filter-buttons {
-  font-family: 'LXGW WenKai Screen', sans-serif;
-  display: flex;
-  justify-content: center;
-  margin-bottom: 1rem;
-  flex-wrap: wrap;
-  gap: 0.5rem;
+  @apply font-sans flex justify-center mb-4 flex-wrap gap-2;
 }
 
-.filter-buttons button {
-  padding: 0.5rem 1rem;
-  font-size: 0.9rem;
+.filter-btn {
+  @apply py-2 px-4 text-sm cursor-pointer transition-all-300;
   background-color: var(--filter-btn-bg);
   color: var(--filter-btn-text);
   border: 1px solid var(--filter-btn-border);
   border-radius: 20px;
-  cursor: pointer;
-  transition: all 0.3s ease;
 }
 
-.filter-buttons button.active,
-.filter-buttons button:hover {
+.filter-btn.active,
+.filter-btn:hover {
   background-color: var(--filter-btn-active-bg);
   color: var(--filter-btn-active-text);
   border-color: var(--filter-btn-active-border);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(121, 180, 166, 0.2);
 }
 
 @media (max-width: 768px) {
   .filter-buttons {
-    flex-direction: column;
+    @apply flex-col;
   }
 
-  .filter-buttons button {
-    width: 100%;
+  .filter-btn {
+    @apply w-full;
   }
 }
 </style>

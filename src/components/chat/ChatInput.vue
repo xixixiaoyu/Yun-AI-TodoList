@@ -1,5 +1,7 @@
 <template>
-  <div class="chat-input">
+  <div
+    class="flex gap-3 px-6 py-4 md:px-4 md:py-3 sticky bottom-0 bg-bg z-10 border-t border-input-border/50"
+  >
     <ChatTextarea
       ref="inputRef"
       :model-value="modelValue"
@@ -25,8 +27,8 @@
 
 <script setup lang="ts">
 import { useVoiceInput } from '../../composables/useVoiceInput'
-import ChatTextarea from './ChatTextarea.vue'
 import ChatInputControls from './ChatInputControls.vue'
+import ChatTextarea from './ChatTextarea.vue'
 
 const props = defineProps<{
   modelValue: string
@@ -85,21 +87,3 @@ defineOptions({
   name: 'ChatInput'
 })
 </script>
-
-<style scoped>
-.chat-input {
-  display: flex;
-  gap: 8px;
-  padding: 0 16px;
-  position: sticky;
-  bottom: 0;
-  background-color: var(--bg-color);
-  z-index: 10;
-}
-
-@media (max-width: 768px) {
-  .chat-input {
-    padding: 8px 12px;
-  }
-}
-</style>

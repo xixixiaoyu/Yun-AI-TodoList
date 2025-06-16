@@ -25,15 +25,6 @@ const getHeaders = () => {
   }
 }
 
-const getSystemPrompt = (): string => {
-  const lastSelectedTemplate = localStorage.getItem('lastSelectedTemplate')
-  if (lastSelectedTemplate === 'none') {
-    return ''
-  }
-  const savedSystemPrompt = localStorage.getItem('systemPrompt')
-  return savedSystemPrompt || ''
-}
-
 export async function getAIStreamResponse(
   messages: Message[],
   onChunk: (chunk: string) => void
@@ -50,14 +41,7 @@ export async function getAIStreamResponse(
       headers: getHeaders(),
       body: JSON.stringify({
         model: 'deepseek-reasoner',
-        messages: [
-          {
-            role: 'system',
-            content: getSystemPrompt()
-          },
-          ...messages
-        ],
-
+        messages: [...messages],
         stream: true
       }),
       signal

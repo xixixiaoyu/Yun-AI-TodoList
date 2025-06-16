@@ -1,12 +1,20 @@
 <template>
-  <div class="app" :class="[currentTheme, ...getPlatformClasses()]">
+  <div
+    class="min-h-screen flex flex-col text-text"
+    :class="[currentTheme, ...getPlatformClasses()]"
+  >
     <NavigationBar />
 
-    <div class="content-wrapper">
-      <div class="router-view-container">
+    <div
+      class="flex-1 flex flex-col justify-center items-center p-4 min-h-[calc(100vh-60px)] overflow-hidden transition-all-300 md:pt-16 md:pb-2 md:justify-start md:overflow-y-auto"
+    >
+      <div class="w-full max-w-screen-xl flex flex-col justify-center">
         <router-view />
       </div>
-      <div class="top-components" :class="{ 'small-screen': isSmallScreen }"></div>
+      <div
+        class="flex flex-col gap-4 mb-4 flex-shrink-0"
+        :class="{ 'small-screen': isSmallScreen }"
+      ></div>
     </div>
 
     <ApiKeyReminder
@@ -21,8 +29,8 @@
 import ApiKeyReminder from './components/layout/ApiKeyReminder.vue'
 import NavigationBar from './components/layout/NavigationBar.vue'
 import { useAppState } from './composables/useAppState'
-import { useTheme } from './composables/useTheme'
 import { useMobile } from './composables/useMobile'
+import { useTheme } from './composables/useTheme'
 import { getPlatformClasses } from './utils/platform'
 
 const { theme, systemTheme, initTheme } = useTheme()
@@ -54,8 +62,4 @@ onMounted(() => {
 })
 </script>
 
-<style>
-@import './styles/themes.css';
-@import './styles/global.css';
-@import './styles/mobile.css';
-</style>
+<!-- 样式已迁移到 UnoCSS 和 variables.css -->

@@ -1,8 +1,14 @@
 <template>
-  <div class="api-key-section">
-    <div class="section-header">
-      <h3 class="section-title">{{ t('apiKeyConfiguration') }}</h3>
-      <p class="section-description">配置您的 OpenAI API 密钥以启用 AI 功能</p>
+  <div class="w-full max-w-[900px] mx-auto flex flex-col gap-4 md:max-w-full">
+    <div class="text-center mb-1">
+      <h3 class="m-0 mb-1 text-xl md:text-[1.3rem] sm:text-[1.2rem] font-semibold text-text">
+        {{ t('apiKeyConfiguration') }}
+      </h3>
+      <p
+        class="m-0 text-[0.85rem] md:text-[0.9rem] sm:text-[0.85rem] text-text-secondary leading-[1.4]"
+      >
+        配置您的 OpenAI API 密钥以启用 AI 功能
+      </p>
     </div>
 
     <ApiKeyCard :local-api-key="localApiKey" @show-popover="showApiKeyPopover = true" />
@@ -18,14 +24,18 @@
       @clear="clearKey"
     />
 
-    <div v-if="showApiKeyPopover" class="popover-overlay" @click="showApiKeyPopover = false" />
+    <div
+      v-if="showApiKeyPopover"
+      class="fixed top-0 left-0 right-0 bottom-0 bg-black/50 backdrop-blur-sm z-1000 animate-[overlayIn_0.3s_ease]"
+      @click="showApiKeyPopover = false"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { saveApiKey, clearApiKey } from '../../services/configService'
+import { clearApiKey, saveApiKey } from '../../services/configService'
 import ApiKeyCard from './components/ApiKeyCard.vue'
 import ApiKeyPopover from './components/ApiKeyPopover.vue'
 
@@ -80,80 +90,3 @@ defineOptions({
   name: 'ApiKeySection'
 })
 </script>
-
-<style scoped>
-.api-key-section {
-  width: 100%;
-  max-width: 900px;
-  margin: 0 auto;
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
-
-.section-header {
-  text-align: center;
-  margin-bottom: 0.25rem;
-}
-
-.section-title {
-  margin: 0 0 0.25rem 0;
-  font-size: 1.25rem;
-  font-weight: 600;
-  color: var(--text-color);
-}
-
-.section-description {
-  margin: 0;
-  font-size: 0.85rem;
-  color: var(--text-secondary-color, rgba(var(--text-color-rgb), 0.7));
-  line-height: 1.4;
-}
-
-.popover-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(0, 0, 0, 0.5);
-  backdrop-filter: blur(4px);
-  z-index: 1000;
-  animation: overlayIn 0.3s ease;
-}
-
-@keyframes overlayIn {
-  from {
-    opacity: 0;
-    backdrop-filter: blur(0px);
-  }
-  to {
-    opacity: 1;
-    backdrop-filter: blur(8px);
-  }
-}
-
-@media (max-width: 768px) {
-  .api-key-section {
-    max-width: 100%;
-  }
-
-  .section-title {
-    font-size: 1.3rem;
-  }
-
-  .section-description {
-    font-size: 0.9rem;
-  }
-}
-
-@media (max-width: 480px) {
-  .section-title {
-    font-size: 1.2rem;
-  }
-
-  .section-description {
-    font-size: 0.85rem;
-  }
-}
-</style>

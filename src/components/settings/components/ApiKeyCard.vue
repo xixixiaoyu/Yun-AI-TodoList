@@ -1,24 +1,36 @@
 <template>
-  <div class="api-key-card" @click="$emit('showPopover')">
-    <div class="card-content">
-      <div class="status-section">
-        <div class="status-indicator">
+  <div
+    class="bg-card rounded-2xl shadow-card cursor-pointer transition-all-300 border-2 border-transparent overflow-hidden hover:transform-hover-up hover:border-button-bg hover:shadow-[0_12px_32px_rgba(0,0,0,0.15)]"
+    @click="$emit('showPopover')"
+  >
+    <div
+      class="p-5 md:p-6 sm:p-5 flex items-center justify-between gap-5 md:flex-col md:gap-6 md:text-center sm:gap-5"
+    >
+      <div class="flex-1">
+        <div class="flex items-center gap-4 md:justify-center">
           <div
-            class="status-icon"
-            :class="{ configured: localApiKey, 'not-configured': !localApiKey }"
+            class="w-4 h-4 rounded-full relative flex-shrink-0"
+            :class="{
+              'bg-gradient-to-br from-green-500 to-green-600 shadow-[0_2px_8px_rgba(76,175,80,0.3)] before:absolute before:-top-0.75 before:-left-0.75 before:-right-0.75 before:-bottom-0.75 before:rounded-full before:bg-[radial-gradient(circle,rgba(76,175,80,0.2)_0%,transparent_70%)] before:animate-pulse':
+                localApiKey,
+              'bg-gradient-to-br from-red-500 to-red-600 shadow-[0_2px_8px_rgba(244,67,54,0.3)] before:absolute before:-top-0.75 before:-left-0.75 before:-right-0.75 before:-bottom-0.75 before:rounded-full before:bg-[radial-gradient(circle,rgba(244,67,54,0.2)_0%,transparent_70%)] before:animate-pulse':
+                !localApiKey
+            }"
           />
-          <div class="status-text">
-            <span class="status-label">{{
+          <div class="flex flex-col gap-1">
+            <span class="text-[1.1rem] font-semibold text-text">{{
               localApiKey ? t('apiKeyConfigured') : t('apiKeyNotConfigured')
             }}</span>
-            <span class="status-detail">{{
+            <span class="text-[0.9rem] text-text-secondary">{{
               localApiKey ? '密钥已安全保存' : '点击配置 API 密钥'
             }}</span>
           </div>
         </div>
       </div>
-      <div class="action-section">
-        <button class="configure-button">
+      <div class="flex-shrink-0 md:w-full">
+        <button
+          class="px-4 py-2.5 border-none rounded-lg bg-gradient-to-br from-button-bg to-button-hover text-white text-[0.8rem] md:text-[0.9rem] sm:text-[0.9rem] font-semibold cursor-pointer transition-all-300 whitespace-nowrap inline-flex items-center gap-1 shadow-[0_3px_8px_rgba(121,180,166,0.3)] relative overflow-hidden hover:transform-hover-up hover:shadow-[0_6px_20px_rgba(121,180,166,0.4)] active:translate-y-[-1px] md:w-full md:justify-center md:px-6 md:py-4 sm:px-5 sm:py-3.5 before:absolute before:top-0 before:-left-full before:w-full before:h-full before:bg-gradient-to-r before:from-transparent before:via-white/20 before:to-transparent before:transition-[left_0.5s_ease] hover:before:left-full"
+        >
           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24">
             <path
               fill="currentColor"
@@ -52,203 +64,3 @@ defineOptions({
   name: 'ApiKeyCard'
 })
 </script>
-
-<style scoped>
-.api-key-card {
-  background-color: var(--card-bg-color);
-  border-radius: 16px;
-  box-shadow: var(--card-shadow);
-  cursor: pointer;
-  transition: all 0.3s ease;
-  border: 2px solid transparent;
-  overflow: hidden;
-}
-
-.api-key-card:hover {
-  transform: translateY(-4px);
-  border-color: var(--button-bg-color);
-  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.15);
-}
-
-.card-content {
-  padding: 1.25rem;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1.25rem;
-}
-
-.status-section {
-  flex: 1;
-}
-
-.status-indicator {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-}
-
-.status-text {
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-}
-
-.status-label {
-  font-size: 1.1rem;
-  font-weight: 600;
-  color: var(--text-color);
-}
-
-.status-detail {
-  font-size: 0.9rem;
-  color: var(--text-secondary-color, rgba(var(--text-color-rgb), 0.6));
-}
-
-.action-section {
-  flex-shrink: 0;
-}
-
-.status-icon {
-  width: 16px;
-  height: 16px;
-  border-radius: 50%;
-  position: relative;
-  flex-shrink: 0;
-}
-
-.status-icon.configured {
-  background: linear-gradient(135deg, #4caf50, #45a049);
-  box-shadow: 0 2px 8px rgba(76, 175, 80, 0.3);
-}
-
-.status-icon.configured::after {
-  content: '';
-  position: absolute;
-  top: -3px;
-  left: -3px;
-  right: -3px;
-  bottom: -3px;
-  border-radius: 50%;
-  background: radial-gradient(circle, rgba(76, 175, 80, 0.2) 0%, transparent 70%);
-  animation: pulse 2s infinite;
-}
-
-.status-icon.not-configured {
-  background: linear-gradient(135deg, #f44336, #e53935);
-  box-shadow: 0 2px 8px rgba(244, 67, 54, 0.3);
-}
-
-.status-icon.not-configured::after {
-  content: '';
-  position: absolute;
-  top: -3px;
-  left: -3px;
-  right: -3px;
-  bottom: -3px;
-  border-radius: 50%;
-  background: radial-gradient(circle, rgba(244, 67, 54, 0.2) 0%, transparent 70%);
-  animation: pulse 2s infinite;
-}
-
-@keyframes pulse {
-  0% {
-    transform: scale(1);
-    opacity: 1;
-  }
-  50% {
-    transform: scale(1.5);
-    opacity: 0.5;
-  }
-  100% {
-    transform: scale(1);
-    opacity: 1;
-  }
-}
-
-.configure-button {
-  padding: 0.625rem 1rem;
-  border: none;
-  border-radius: 8px;
-  background: linear-gradient(135deg, var(--button-bg-color), var(--button-hover-bg-color));
-  color: white;
-  font-size: 0.8rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  white-space: nowrap;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.25rem;
-  box-shadow: 0 3px 8px rgba(var(--button-bg-color-rgb), 0.3);
-  position: relative;
-  overflow: hidden;
-}
-
-.configure-button::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-  transition: left 0.5s ease;
-}
-
-.configure-button:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(var(--button-bg-color-rgb), 0.4);
-}
-
-.configure-button:hover::before {
-  left: 100%;
-}
-
-.configure-button:active {
-  transform: translateY(-1px);
-}
-
-@media (max-width: 768px) {
-  .card-content {
-    padding: 1.5rem;
-    flex-direction: column;
-    gap: 1.5rem;
-    text-align: center;
-  }
-
-  .status-indicator {
-    justify-content: center;
-  }
-
-  .action-section {
-    width: 100%;
-  }
-
-  .configure-button {
-    width: 100%;
-    justify-content: center;
-    padding: 1rem 1.5rem;
-  }
-}
-
-@media (max-width: 480px) {
-  .card-content {
-    padding: 1.25rem;
-    gap: 1.25rem;
-  }
-
-  .status-label {
-    font-size: 1rem;
-  }
-
-  .status-detail {
-    font-size: 0.85rem;
-  }
-
-  .configure-button {
-    padding: 0.875rem 1.25rem;
-    font-size: 0.9rem;
-  }
-}
-</style>

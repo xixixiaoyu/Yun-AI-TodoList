@@ -1,6 +1,6 @@
 <template>
   <div
-    class="todo-item"
+    class="card-todo"
     :class="{ completed: isCompleted }"
     :data-todo-id="todo.id"
     @click="toggleTodo"
@@ -48,8 +48,8 @@
 
 <script setup lang="ts">
 import confetti from 'canvas-confetti'
-import type { Todo } from '../types/todo'
 import { useErrorHandler } from '../composables/useErrorHandler'
+import type { Todo } from '../types/todo'
 
 const props = defineProps<{
   todo: Todo
@@ -134,34 +134,28 @@ onErrorCaptured(handleError)
 </script>
 
 <style scoped>
-.todo-item {
-  font-family: 'LXGW WenKai Screen', sans-serif;
-  display: flex;
-  align-items: center;
+.card-todo {
+  @apply font-sans flex items-center w-full box-border gap-2 will-change-transform;
   padding: 0.7rem;
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.75rem;
   background-color: var(--input-bg-color);
   border: 1px solid var(--input-border-color);
+  border-radius: 12px;
   transition: all 0.3s ease;
-  width: 100%;
-  box-sizing: border-box;
-  border-radius: 8px;
-  will-change: transform;
-  backface-visibility: hidden;
-  gap: 0.5rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 
 .checkbox-wrapper {
-  display: flex;
-  align-items: center;
+  @apply flex items-center;
 }
 
-.todo-item:hover {
+.card-todo:hover {
   transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  border-color: var(--input-focus-color);
 }
 
-.todo-item.completed {
+.card-todo.completed {
   animation: completedTodo 0.3s ease forwards;
 }
 
@@ -176,43 +170,27 @@ onErrorCaptured(handleError)
   }
 }
 
-.todo-item.completed .text-content {
-  text-decoration: line-through;
-  opacity: 0.6;
+.card-todo.completed .text-content {
+  @apply line-through opacity-60;
   color: var(--completed-todo-text-color);
 }
 
 .todo-content {
-  display: flex;
-  align-items: center;
-  flex-grow: 1;
-  min-width: 0;
-  gap: 0.5rem;
+  @apply flex items-center flex-grow min-w-0 gap-2;
 }
 
 .todo-text-wrapper {
-  display: flex;
-  flex-direction: column;
-  flex-grow: 1;
-  min-width: 0;
-  gap: 0.25rem;
+  @apply flex flex-col flex-grow min-w-0 gap-1;
 }
 
 .todo-text {
-  display: flex;
-  align-items: center;
-  cursor: pointer;
+  @apply flex items-center cursor-pointer gap-2;
   color: var(--todo-text-color);
-  gap: 0.5rem;
+  font-family: 'LXGW WenKai Screen', sans-serif;
 }
 
 .text-content {
-  text-align: left;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  transition: all 0.3s ease;
-  flex: 1;
+  @apply text-left whitespace-nowrap overflow-hidden text-ellipsis transition-all-300 flex-1;
 }
 
 .checkbox {
@@ -227,6 +205,7 @@ onErrorCaptured(handleError)
   position: relative;
   flex-shrink: 0;
   cursor: pointer;
+  background-color: transparent;
 }
 
 .checkbox.checked {
@@ -238,61 +217,38 @@ onErrorCaptured(handleError)
   content: '✓';
   color: var(--card-bg-color);
   font-size: 12px;
+  font-weight: bold;
   transform: scale(1.2);
   transition: transform 0.2s ease;
 }
 
 .delete-btn {
-  background-color: transparent;
-  color: var(--completed-todo-text-color);
-  border: 1px solid var(--input-border-color);
-  border-radius: 6px;
-  padding: 0.4rem;
-  font-size: 0.8rem;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  opacity: 0.6;
-  transform: translateX(5px);
-  margin-left: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 32px;
-  height: 32px;
+  @apply bg-transparent text-completed border border-input-border rounded-md p-1.5 text-sm cursor-pointer transition-all duration-200 opacity-60 transform translate-x-1.25 ml-2 flex items-center justify-center min-w-8 h-8;
 }
 
-.todo-item:hover .delete-btn {
-  opacity: 1;
-  transform: translateX(0);
-  color: var(--error-color);
+.card-todo:hover .delete-btn {
+  @apply opacity-100 transform translate-x-0 text-error;
 }
 
 .delete-btn:hover {
-  background-color: rgba(229, 62, 62, 0.1);
-  color: var(--error-color);
-  transform: scale(1.05);
+  @apply bg-red-100 bg-opacity-10 text-error transform scale-105;
 }
 
 @media (max-width: 768px) {
-  .todo-item {
-    flex-direction: row;
-    align-items: center;
+  .card-todo {
+    @apply flex-row items-center;
   }
 
   .todo-content {
-    flex: 1;
-    min-width: 0;
+    @apply flex-1 min-w-0;
   }
 
   .delete-btn {
-    opacity: 0.8;
-    transform: translateX(0);
-    margin-left: 12px;
-    position: relative;
+    @apply opacity-80 transform translate-x-0 ml-3 relative;
   }
 
   .delete-btn:active {
-    transform: scale(0.95);
+    @apply transform scale-95;
   }
 }
 </style>

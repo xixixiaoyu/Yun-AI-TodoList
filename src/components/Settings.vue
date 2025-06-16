@@ -10,102 +10,20 @@
             @show-success-toast="showSuccessToast"
           />
         </div>
-
-        <div class="settings-section-wrapper">
-          <SystemPromptSection
-            v-model:local-system-prompt="localSystemPrompt"
-            v-model:selected-prompt-template="selectedPromptTemplate"
-            :is-fullscreen="isFullscreen"
-            :custom-prompts="customPrompts"
-            @template-change="handleTemplateChange"
-            @save-system-prompt="saveSystemPrompt"
-            @reset-system-prompt="resetSystemPrompt"
-            @confirm-delete-prompt="confirmDeletePrompt"
-            @duplicate-prompt="duplicateCurrentPrompt"
-            @toggle-favorite="togglePromptFavorite"
-            @show-add-prompt="showAddPrompt"
-            @toggle-fullscreen="toggleFullscreen"
-          />
-        </div>
       </div>
 
       <SettingsToast :show="showSuccessMessage" />
-
-      <EnhancedCustomPromptManager
-        v-model:show-add-prompt-popover="showAddPromptPopover"
-        v-model:new-prompt-name="newPromptName"
-        v-model:new-prompt-content="newPromptContent"
-        v-model:new-prompt-description="newPromptDescription"
-        v-model:new-prompt-category="newPromptCategory"
-        v-model:new-prompt-priority="newPromptPriority"
-        v-model:new-prompt-tags="newPromptTags"
-        :error="error"
-        @save-new-prompt="saveNewPrompt"
-        @reset-form="resetNewPromptForm"
-      />
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { usePromptManagement } from '../composables/usePromptManagement'
 import { useSettingsState } from '../composables/useSettingsState'
 import ApiKeySection from './settings/ApiKeySection.vue'
-import EnhancedCustomPromptManager from './settings/EnhancedCustomPromptManager.vue'
 import SettingsToast from './settings/SettingsToast.vue'
-import SystemPromptSection from './settings/SystemPromptSection.vue'
 
-const {
-  showApiKey,
-  showApiKeyPopover,
-  localApiKey,
-  localSystemPrompt,
-  isFullscreen,
-  selectedPromptTemplate,
-  showAddPromptPopover,
-  newPromptName,
-  newPromptContent,
-  newPromptDescription,
-  newPromptCategory,
-  newPromptPriority,
-  newPromptTags,
-  customPrompts,
-  promptFilter,
-  promptSortOptions,
-  showSuccessMessage,
-  showSuccessToast,
-  toggleFullscreen
-} = useSettingsState()
-
-const {
-  error,
-  handleTemplateChange,
-  saveNewPrompt,
-  saveSystemPrompt,
-  resetSystemPrompt,
-  confirmDeletePrompt,
-  duplicateCurrentPrompt,
-  togglePromptFavorite,
-  resetNewPromptForm
-} = usePromptManagement(
-  customPrompts,
-  selectedPromptTemplate,
-  localSystemPrompt,
-  newPromptName,
-  newPromptContent,
-  newPromptDescription,
-  newPromptCategory,
-  newPromptPriority,
-  newPromptTags,
-  showAddPromptPopover,
-  promptFilter,
-  promptSortOptions,
-  showSuccessToast
-)
-
-const showAddPrompt = () => {
-  showAddPromptPopover.value = true
-}
+const { showApiKey, showApiKeyPopover, localApiKey, showSuccessMessage, showSuccessToast } =
+  useSettingsState()
 
 defineOptions({
   name: 'AppSettings'

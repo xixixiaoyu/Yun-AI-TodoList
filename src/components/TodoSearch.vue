@@ -1,8 +1,10 @@
 <template>
   <Transition name="search-expand">
-    <div v-if="isExpanded" class="search-container">
-      <div class="search-input-wrapper">
-        <div class="search-icon">
+    <div v-if="isExpanded" class="font-sans mb-4 w-full overflow-hidden">
+      <div
+        class="relative flex items-center bg-input-bg border border-input-border rounded-lg transition-all-300 overflow-hidden focus-within:border-primary focus-within:shadow-primary focus-within:shadow-opacity-10"
+      >
+        <div class="flex items-center justify-center px-3 text-text-secondary pointer-events-none">
           <svg
             xmlns="http://www.w3.org/2000/svg"
             width="16"
@@ -22,7 +24,7 @@
           ref="searchInput"
           v-model="internalValue"
           type="text"
-          class="search-input"
+          class="flex-1 py-3 pr-2 border-none bg-transparent text-text text-sm font-sans outline-none w-full placeholder:text-text-secondary placeholder:opacity-70"
           :placeholder="t('searchTodos')"
           @input="handleInput"
           @keydown.escape="handleEscape"
@@ -30,7 +32,7 @@
         />
         <button
           v-if="internalValue"
-          class="clear-search-btn"
+          class="flex items-center justify-center p-2 mr-1 bg-transparent border-none rounded text-text-secondary cursor-pointer transition-all duration-200 opacity-70 hover:bg-hover hover:text-text hover:opacity-100 active:scale-95"
           :title="t('clearSearch')"
           :aria-label="t('clearSearch')"
           @click="clearSearch"
@@ -126,121 +128,41 @@ defineExpose({
 </script>
 
 <style scoped>
-.search-container {
-  font-family: 'LXGW WenKai Screen', sans-serif;
-  margin-bottom: 1rem;
-  width: 100%;
-  overflow: hidden;
-}
-
 .search-expand-enter-active,
 .search-expand-leave-active {
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  @apply transition-all duration-300 ease-out;
 }
 
 .search-expand-enter-from {
-  opacity: 0;
-  transform: translateY(-10px) scale(0.95);
-  max-height: 0;
+  @apply opacity-0 transform -translate-y-2.5 scale-95 max-h-0;
 }
 
 .search-expand-leave-to {
-  opacity: 0;
-  transform: translateY(-10px) scale(0.95);
-  max-height: 0;
+  @apply opacity-0 transform -translate-y-2.5 scale-95 max-h-0;
 }
 
 .search-expand-enter-to,
 .search-expand-leave-from {
-  opacity: 1;
-  transform: translateY(0) scale(1);
-  max-height: 100px;
-}
-
-.search-input-wrapper {
-  position: relative;
-  display: flex;
-  align-items: center;
-  background-color: var(--input-bg-color);
-  border: 1px solid var(--input-border-color);
-  border-radius: 8px;
-  transition: all 0.3s ease;
-  overflow: hidden;
-}
-
-.search-input-wrapper:focus-within {
-  border-color: var(--primary-color);
-  box-shadow: 0 0 0 2px rgba(var(--primary-color-rgb), 0.1);
-}
-
-.search-icon {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0 0.75rem;
-  color: var(--text-secondary-color);
-  pointer-events: none;
-}
-
-.search-input {
-  flex: 1;
-  padding: 0.75rem 0.5rem 0.75rem 0;
-  border: none;
-  background: transparent;
-  color: var(--text-color);
-  font-size: 0.9rem;
-  font-family: inherit;
-  outline: none;
-  width: 100%;
-}
-
-.search-input::placeholder {
-  color: var(--text-secondary-color);
-  opacity: 0.7;
-}
-
-.clear-search-btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0.5rem;
-  margin-right: 0.25rem;
-  background: transparent;
-  border: none;
-  border-radius: 4px;
-  color: var(--text-secondary-color);
-  cursor: pointer;
-  transition: all 0.2s ease;
-  opacity: 0.7;
-}
-
-.clear-search-btn:hover {
-  background-color: var(--hover-bg-color);
-  color: var(--text-color);
-  opacity: 1;
-}
-
-.clear-search-btn:active {
-  transform: scale(0.95);
+  @apply opacity-100 transform translate-y-0 scale-100 max-h-25;
 }
 
 @media (max-width: 768px) {
-  .search-input {
-    font-size: 16px;
+  input {
+    @apply text-base;
   }
 
   .search-icon {
-    padding: 0 0.5rem;
+    @apply px-2;
   }
 
-  .clear-search-btn {
-    padding: 0.4rem;
+  button {
+    @apply p-1.5;
   }
 }
 
 @media (prefers-color-scheme: dark) {
-  .search-input-wrapper {
-    backdrop-filter: blur(10px);
+  div:nth-child(2) {
+    @apply backdrop-blur-sm;
   }
 }
 </style>

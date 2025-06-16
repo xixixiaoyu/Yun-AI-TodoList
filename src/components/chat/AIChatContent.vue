@@ -1,5 +1,5 @@
 <template>
-  <div class="dialog-content">
+  <div class="flex-grow flex flex-col py-4 md:py-2 overflow-hidden h-[calc(100%-60px)] relative">
     <ConversationDrawer
       :is-open="isDrawerOpen"
       :conversations="conversationHistory"
@@ -17,7 +17,7 @@
       @scroll="$emit('scroll', $event)"
     />
 
-    <div class="input-section">
+    <div class="sticky bottom-0 bg-bg z-10 flex flex-col gap-3 py-3 sm:py-2">
       <ChatToolbar
         :is-optimizing="isOptimizing"
         :user-message="userMessage"
@@ -41,11 +41,11 @@
 </template>
 
 <script setup lang="ts">
-import ChatMessageList from './ChatMessageList.vue'
-import ChatInput from './ChatInput.vue'
-import ConversationDrawer from './ConversationDrawer.vue'
-import ChatToolbar from './ChatToolbar.vue'
 import type { ChatMessage } from '../../services/types'
+import ChatInput from './ChatInput.vue'
+import ChatMessageList from './ChatMessageList.vue'
+import ChatToolbar from './ChatToolbar.vue'
+import ConversationDrawer from './ConversationDrawer.vue'
 
 interface Conversation {
   id: string
@@ -107,38 +107,3 @@ defineOptions({
   name: 'AIChatContent'
 })
 </script>
-
-<style scoped>
-.dialog-content {
-  flex-grow: 1;
-  display: flex;
-  flex-direction: column;
-  padding: 16px 0;
-  overflow: hidden;
-  height: calc(100% - 60px);
-  position: relative;
-}
-
-.input-section {
-  position: sticky;
-  bottom: 0;
-  background-color: var(--bg-color);
-  z-index: 10;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  padding: 8px 0;
-}
-
-@media (max-width: 768px) {
-  .dialog-content {
-    padding: 8px 0;
-  }
-}
-
-@media (max-width: 480px) {
-  .input-section {
-    padding: 6px 0;
-  }
-}
-</style>

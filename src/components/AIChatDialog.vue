@@ -1,10 +1,6 @@
 <template>
   <div class="ai-chat-dialog">
-    <AIChatHeader
-      :selected-prompt-template="selectedPromptTemplate"
-      :custom-prompts="customPrompts"
-      @template-change="handleTemplateChange"
-    />
+    <AIChatHeader />
 
     <AIChatContent
       ref="messageListRef"
@@ -32,10 +28,10 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { onMounted, ref } from 'vue'
 import { useChat } from '../composables/useChat'
-import AIChatHeader from './chat/AIChatHeader.vue'
 import AIChatContent from './chat/AIChatContent.vue'
+import AIChatHeader from './chat/AIChatHeader.vue'
 
 const {
   chatHistory,
@@ -58,22 +54,6 @@ const {
 const isDrawerOpen = ref(false)
 const messageListRef = ref<InstanceType<typeof AIChatContent> | null>(null)
 const shouldAutoScroll = ref(true)
-const selectedPromptTemplate = ref<string>('none')
-const customPrompts = ref<{ id: string; name: string; content: string }[]>([])
-
-const handleTemplateChange = (template: string) => {
-  selectedPromptTemplate.value = template
-  if (template === 'none') {
-    localStorage.setItem('systemPrompt', '')
-  } else {
-    const customPrompt = customPrompts.value.find(p => p.id === template)
-    if (customPrompt) {
-      localStorage.setItem('systemPrompt', customPrompt.content)
-    }
-  }
-
-  localStorage.setItem('lastSelectedTemplate', template)
-}
 
 const handleScroll = (scrollInfo: {
   isAtBottom: boolean
@@ -99,17 +79,7 @@ const handleSendMessage = async () => {
 onMounted(() => {
   loadConversationHistory()
 
-  const savedCustomPrompts = localStorage.getItem('customPrompts')
-  if (savedCustomPrompts) {
-    customPrompts.value = JSON.parse(savedCustomPrompts)
-  }
-
   const savedConversationId = localStorage.getItem('currentConversationId')
-  const lastSelectedTemplate = localStorage.getItem('lastSelectedTemplate')
-
-  if (lastSelectedTemplate) {
-    selectedPromptTemplate.value = lastSelectedTemplate
-  }
 
   if (conversationHistory.value.length === 0) {
     createNewConversation()

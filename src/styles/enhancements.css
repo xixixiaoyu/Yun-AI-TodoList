@@ -1,0 +1,206 @@
+/* UnoCSS 增强样式 - 处理复杂的视觉效果 */
+
+/* 修复 todo-card-header 的伪元素样式 */
+.todo-card-header::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255, 126, 103, 0.3), transparent);
+}
+
+/* 增强输入框的聚焦效果 */
+.input-base:focus {
+  box-shadow:
+    0 0 8px rgba(121, 180, 166, 0.3),
+    0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* 增强按钮的渐变效果 */
+.btn-primary {
+  background: linear-gradient(135deg, var(--button-bg-color) 0%, rgba(121, 180, 166, 0.9) 100%);
+  box-shadow: 0 2px 6px rgba(121, 180, 166, 0.3);
+  letter-spacing: 0.5px;
+  height: 42px;
+}
+
+.btn-primary:hover {
+  background-color: var(--button-hover-bg-color);
+}
+
+/* 增强卡片的复杂阴影和背景 */
+.card-base {
+  background: linear-gradient(135deg, var(--card-bg-color) 0%, rgba(255, 255, 255, 0.02) 100%);
+  box-shadow:
+    0 10px 30px rgba(0, 0, 0, 0.1),
+    0 1px 8px rgba(0, 0, 0, 0.05),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* 增强 todo-card-header 的背景和阴影 */
+.todo-card-header {
+  background: linear-gradient(135deg, var(--card-bg-color) 0%, rgba(255, 126, 103, 0.02) 100%);
+  box-shadow: 0 2px 8px rgba(255, 126, 103, 0.08);
+  border-bottom: 1px solid rgba(255, 126, 103, 0.08);
+  position: relative;
+  z-index: 10;
+}
+
+/* 增强 todo-item 的悬停效果 */
+.card-todo:hover {
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+}
+
+/* 增强过滤器按钮的样式 */
+.btn-filter {
+  border-radius: 20px;
+}
+
+.btn-filter:hover,
+.btn-filter-active {
+  background-color: var(--filter-btn-active-bg);
+  color: var(--filter-btn-active-text);
+  border-color: var(--filter-btn-active-border);
+}
+
+/* 增强导航栏在移动端的阴影 */
+@media (max-width: 768px) {
+  .nav-bar {
+    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+  }
+}
+
+/* 增强搜索框的聚焦效果 */
+.search-input-wrapper:focus-within {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 2px rgba(var(--primary-color-rgb), 0.1);
+}
+
+/* 增强清除按钮的悬停效果 */
+.clear-search-btn:hover {
+  background-color: var(--hover-bg-color);
+  color: var(--text-color);
+  opacity: 1;
+}
+
+/* 增强复选框的样式 */
+.checkbox.checked::after {
+  content: '✓';
+  color: var(--card-bg-color);
+  font-size: 12px;
+  transform: scale(1.2);
+  transition: transform 0.2s ease;
+}
+
+/* 增强删除按钮的悬停效果 */
+.delete-btn:hover {
+  background-color: rgba(229, 62, 62, 0.1);
+  color: var(--error-color);
+  transform: scale(1.05);
+}
+
+/* 增强表单的背景和边框 */
+form {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 126, 103, 0.1);
+}
+
+/* 增强空状态的样式 */
+.empty-hint {
+  color: var(--text-color-secondary, #666);
+}
+
+.empty-hint svg {
+  opacity: 0.5;
+}
+
+.empty-hint p {
+  opacity: 0.8;
+}
+
+/* 增强加载状态 */
+.todo-list.is-loading {
+  pointer-events: none;
+  opacity: 0.7;
+}
+
+/* 增强主题切换工具提示 */
+.theme-toggle::after {
+  content: attr(title);
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: var(--text-color);
+  color: var(--bg-color);
+  padding: 5px 10px;
+  border-radius: 4px;
+  font-size: 12px;
+  white-space: nowrap;
+  opacity: 0;
+  visibility: hidden;
+  transition:
+    opacity 0.3s,
+    visibility 0.3s;
+}
+
+.theme-toggle:hover::after {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* 深色主题下的特殊效果 */
+@media (prefers-color-scheme: dark) {
+  .card-base {
+    backdrop-filter: blur(20px);
+  }
+
+  .search-input-wrapper {
+    backdrop-filter: blur(10px);
+  }
+}
+
+/* 移动端优化 */
+@media (max-width: 768px) {
+  .search-input {
+    font-size: 16px; /* 防止 iOS 缩放 */
+  }
+}
+
+/* 确保过渡动画的流畅性 */
+.transition-all-300 {
+  transition: all 0.3s ease;
+}
+
+.transition-all-500 {
+  transition: all 0.5s ease;
+}
+
+/* 确保变换效果的正确性 */
+.transform-hover-up {
+  transform: translateY(-2px);
+}
+
+.transform-hover-up-1 {
+  transform: translateY(-1px);
+}
+
+/* 确保字体渲染的一致性 */
+.font-sans {
+  font-family:
+    'LXGW WenKai Screen',
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    Roboto,
+    Oxygen-Sans,
+    Ubuntu,
+    Cantarell,
+    'Helvetica Neue',
+    sans-serif;
+}

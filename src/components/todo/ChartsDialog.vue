@@ -1,7 +1,18 @@
 <template>
-  <div v-if="show" class="charts-dialog" @click="$emit('close')">
-    <div class="charts-content" @click.stop>
-      <button class="close-btn" :aria-label="t('close')" @click="$emit('close')">
+  <div
+    v-if="show"
+    class="fixed inset-0 bg-black/50 backdrop-blur z-1000 flex items-center justify-center p-4"
+    @click="$emit('close')"
+  >
+    <div
+      class="bg-card rounded-2xl p-8 max-w-[800px] max-h-[90vh] overflow-y-auto relative shadow-[0_10px_40px_rgba(0,0,0,0.2)] border border-input-border w-full md:p-6 sm:p-4 sm:rounded-xl sm:max-h-full"
+      @click.stop
+    >
+      <button
+        class="absolute top-4 right-4 bg-[rgba(255,126,103,0.1)] text-text border border-[rgba(255,126,103,0.2)] rounded-lg p-2 cursor-pointer transition-all-300 flex items-center justify-center w-9 h-9 hover:bg-[rgba(255,126,103,0.2)] hover:border-[rgba(255,126,103,0.4)] hover:transform-hover-up-1 md:top-3 md:right-3 md:w-8 md:h-8 md:p-1.5 sm:top-2 sm:right-2 sm:w-7 sm:h-7 sm:p-1"
+        :aria-label="t('close')"
+        @click="$emit('close')"
+      >
         <svg
           xmlns="http://www.w3.org/2000/svg"
           width="20"
@@ -12,13 +23,18 @@
           stroke-width="2"
           stroke-linecap="round"
           stroke-linejoin="round"
+          class="md:w-4 md:h-4 sm:w-3.5 sm:h-3.5"
         >
           <line x1="18" y1="6" x2="6" y2="18" />
           <line x1="6" y1="6" x2="18" y2="18" />
         </svg>
       </button>
 
-      <h2>{{ t('productivityInsights') }}</h2>
+      <h2
+        class="m-0 mb-8 text-2xl font-semibold text-text text-center pr-12 md:text-xl md:mb-6 md:pr-10 sm:text-lg sm:mb-4 sm:pr-8"
+      >
+        {{ t('productivityInsights') }}
+      </h2>
 
       <TodoCompletionChart />
     </div>
@@ -46,170 +62,3 @@ defineOptions({
   name: 'ChartsDialog'
 })
 </script>
-
-<style scoped>
-.charts-dialog {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(0, 0, 0, 0.5);
-  backdrop-filter: blur(4px);
-  z-index: 1000;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 1rem;
-}
-
-.charts-content {
-  background-color: var(--card-bg-color);
-  border-radius: 16px;
-  padding: 2rem;
-  max-width: 800px;
-  max-height: 90vh;
-  overflow-y: auto;
-  position: relative;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
-  border: 1px solid var(--border-color);
-  width: 100%;
-}
-
-.close-btn {
-  position: absolute;
-  top: 1rem;
-  right: 1rem;
-  background: rgba(255, 126, 103, 0.1);
-  color: var(--text-color);
-  border: 1px solid rgba(255, 126, 103, 0.2);
-  border-radius: 8px;
-  padding: 0.5rem;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 36px;
-  height: 36px;
-}
-
-.close-btn:hover {
-  background: rgba(255, 126, 103, 0.2);
-  border-color: rgba(255, 126, 103, 0.4);
-  transform: translateY(-1px);
-}
-
-.close-btn svg {
-  stroke: currentColor;
-}
-
-.charts-content h2 {
-  margin: 0 0 2rem 0;
-  font-size: 1.5rem;
-  font-weight: 600;
-  color: var(--text-color);
-  text-align: center;
-  padding-right: 3rem;
-}
-
-@media (max-width: 768px) {
-  .charts-dialog {
-    padding: 0.5rem;
-  }
-
-  .charts-content {
-    padding: 1.5rem;
-    max-width: 100%;
-    max-height: 100%;
-    border-radius: 12px;
-  }
-
-  .close-btn {
-    top: 0.75rem;
-    right: 0.75rem;
-    width: 32px;
-    height: 32px;
-    padding: 0.4rem;
-  }
-
-  .close-btn svg {
-    width: 16px;
-    height: 16px;
-  }
-
-  .charts-content h2 {
-    font-size: 1.25rem;
-    margin-bottom: 1.5rem;
-    padding-right: 2.5rem;
-  }
-}
-
-@media (max-width: 480px) {
-  .charts-content {
-    padding: 1rem;
-    border-radius: 8px;
-  }
-
-  .close-btn {
-    top: 0.5rem;
-    right: 0.5rem;
-    width: 28px;
-    height: 28px;
-    padding: 0.3rem;
-  }
-
-  .close-btn svg {
-    width: 14px;
-    height: 14px;
-  }
-
-  .charts-content h2 {
-    font-size: 1.1rem;
-    margin-bottom: 1rem;
-    padding-right: 2rem;
-  }
-}
-
-.charts-content {
-  scrollbar-width: thin;
-  scrollbar-color: rgba(255, 154, 139, 0.6) rgba(0, 0, 0, 0.05);
-}
-
-.charts-content::-webkit-scrollbar {
-  width: 6px;
-}
-
-.charts-content::-webkit-scrollbar-track {
-  background: rgba(0, 0, 0, 0.05);
-  border-radius: 3px;
-}
-
-.charts-content::-webkit-scrollbar-thumb {
-  background: rgba(255, 154, 139, 0.6);
-  border-radius: 3px;
-  transition: all 0.3s ease;
-}
-
-.charts-content::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 140, 127, 0.8);
-}
-
-@media (prefers-color-scheme: dark) {
-  .charts-content {
-    scrollbar-color: rgba(255, 154, 139, 0.7) rgba(255, 255, 255, 0.1);
-  }
-
-  .charts-content::-webkit-scrollbar-track {
-    background: rgba(255, 255, 255, 0.1);
-  }
-
-  .charts-content::-webkit-scrollbar-thumb {
-    background: rgba(255, 154, 139, 0.7);
-  }
-
-  .charts-content::-webkit-scrollbar-thumb:hover {
-    background: rgba(255, 140, 127, 0.9);
-  }
-}
-</style>
