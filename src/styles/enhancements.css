@@ -99,7 +99,7 @@
 
 /* 增强删除按钮的悬停效果 */
 .delete-btn:hover {
-  background-color: rgba(229, 62, 62, 0.1);
+  background-color: rgba(245, 101, 101, 0.08);
   color: var(--error-color);
   transform: scale(1.05);
 }

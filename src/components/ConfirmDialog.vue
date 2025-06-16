@@ -117,8 +117,8 @@ button {
 }
 
 .confirm-btn:hover {
-  background-color: #c0392b;
-  border-color: #c0392b;
+  background-color: #f56565;
+  border-color: #f56565;
 }
 
 .fade-enter-active,

@@ -10,7 +10,7 @@
     </button>
     <button
       v-else
-      class="px-4 py-3 text-sm bg-red-500 text-white border-none rounded-xl cursor-pointer h-[44px] min-w-[80px] flex items-center justify-center gap-2 hover:bg-red-600 hover:shadow-[0_4px_12px_rgba(239,68,68,0.3)] disabled:bg-input-border disabled:cursor-not-allowed disabled:opacity-70 transition-all duration-200 font-medium md:h-[40px] md:min-w-[75px] md:text-[13px] md:px-3 md:py-2"
+      class="px-4 py-3 text-sm bg-red-300 text-white border-none rounded-xl cursor-pointer h-[44px] min-w-[80px] flex items-center justify-center gap-2 hover:bg-red-400 hover:shadow-[0_4px_12px_rgba(252,165,165,0.3)] disabled:bg-input-border disabled:cursor-not-allowed disabled:opacity-70 transition-all duration-200 font-medium md:h-[40px] md:min-w-[75px] md:text-[13px] md:px-3 md:py-2"
       @click="$emit('stop')"
     >
       <StopIcon class="w-4 h-4" />
@@ -21,7 +21,7 @@
       :class="{
         'bg-button-bg text-white border-button-bg animate-pulse shadow-[0_4px_12px_rgba(121,180,166,0.3)]':
           isListening,
-        'bg-red-500 text-white border-red-500 shadow-[0_4px_12px_rgba(239,68,68,0.3)]':
+        'bg-red-300 text-white border-red-300 shadow-[0_4px_12px_rgba(252,165,165,0.3)]':
           recognitionStatus === 'error',
         'bg-button-hover text-white border-button-hover': recognitionStatus === 'processing'
       }"
@@ -33,7 +33,7 @@
       <span class="font-medium">{{ isListening ? t('stopListening') : t('startListening') }}</span>
       <span
         v-if="lastError"
-        class="absolute -bottom-8 left-1/2 transform -translate-x-1/2 whitespace-nowrap text-xs text-red-500 bg-bg px-3 py-1.5 rounded-lg shadow-lg border border-red-200"
+        class="absolute -bottom-8 left-1/2 transform -translate-x-1/2 whitespace-nowrap text-xs text-red-400 bg-bg px-3 py-1.5 rounded-lg shadow-lg border border-red-100"
       >
         {{ lastError }}
       </span>

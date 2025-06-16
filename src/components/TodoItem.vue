@@ -231,7 +231,7 @@ onErrorCaptured(handleError)
 }
 
 .delete-btn:hover {
-  @apply bg-red-100 bg-opacity-10 text-error transform scale-105;
+  @apply bg-red-50 bg-opacity-10 text-error transform scale-105;
 }
 
 @media (max-width: 768px) {

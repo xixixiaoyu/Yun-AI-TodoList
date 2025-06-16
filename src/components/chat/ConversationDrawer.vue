@@ -10,7 +10,7 @@
         </h3>
         <div class="flex gap-2 items-center">
           <button
-            class="bg-transparent border-none cursor-pointer p-1 text-text opacity-70 transition-all duration-200 flex items-center justify-center hover:opacity-100 hover:text-red-500"
+            class="bg-transparent border-none cursor-pointer p-1 text-text opacity-70 transition-all duration-200 flex items-center justify-center hover:opacity-100 hover:text-red-300"
             :title="t('clearAllConversations')"
             @click="$emit('clear')"
           >

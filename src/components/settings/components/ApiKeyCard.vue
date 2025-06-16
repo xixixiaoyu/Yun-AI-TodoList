@@ -10,7 +10,7 @@
           class="w-3 h-3 rounded-full relative flex-shrink-0"
           :class="{
             'bg-green-500 shadow-[0_0_8px_rgba(76,175,80,0.4)]': localApiKey,
-            'bg-red-500 shadow-[0_0_8px_rgba(244,67,54,0.4)]': !localApiKey
+            'bg-red-300 shadow-[0_0_8px_rgba(252,165,165,0.3)]': !localApiKey
           }"
         />
         <div class="flex-1">
