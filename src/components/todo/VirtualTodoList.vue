@@ -28,12 +28,10 @@
       </div>
     </div>
 
-    <!-- 滚动指示器 -->
     <div v-if="showScrollIndicator" class="scroll-indicator">
       <div class="scroll-thumb" :style="scrollThumbStyle"></div>
     </div>
 
-    <!-- 性能统计 -->
     <div v-if="showPerformanceStats" class="performance-stats">
       <div class="stat">{{ t('virtualList.totalItems', 'Total') }}: {{ totalItems }}</div>
       <div class="stat">
@@ -49,7 +47,6 @@ import TodoItem from './TodoItem.vue'
 import type { Todo } from '@/types/todo'
 import { usePerformanceMonitor } from '@/utils/performance'
 
-// 本地类型定义
 type ScrollBehavior = 'auto' | 'smooth'
 
 interface VirtualListItem {
@@ -85,13 +82,11 @@ const emit = defineEmits<{
 const { t } = useI18n()
 const { measure } = usePerformanceMonitor()
 
-// 响应式状态
 const containerRef = ref<HTMLElement>()
 const scrollTop = ref(0)
 const visibleItems = ref<VirtualListItem[]>([])
 const renderTime = ref(0)
 
-// 计算属性
 const totalItems = computed(() => props.items.length)
 const totalHeight = computed(() => totalItems.value * props.itemHeight)
 
@@ -125,7 +120,6 @@ const scrollThumbStyle = computed(() => {
   }
 })
 
-// 方法
 const updateVisibleItems = () => {
   const startTime = performance.now()
 
@@ -140,22 +134,19 @@ const updateVisibleItems = () => {
     }
   }
 
-  // 处理进入和离开动画
   const prevItemIds = new Set(visibleItems.value.map((item) => item.data.id))
   const newItemIds = new Set(newVisibleItems.map((item) => item.data.id))
 
-  // 标记新进入的项目
   newVisibleItems.forEach((item) => {
     if (!prevItemIds.has(item.data.id)) {
       item.isEntering = true
-      // 移除进入标记
+
       nextTick(() => {
         item.isEntering = false
       })
     }
   })
 
-  // 标记即将离开的项目
   visibleItems.value.forEach((item) => {
     if (!newItemIds.has(item.data.id)) {
       item.isLeaving = true
@@ -175,7 +166,6 @@ const handleScroll = (event: Event) => {
     scrollLeft: target.scrollLeft,
   })
 
-  // 使用 requestAnimationFrame 优化滚动性能
   requestAnimationFrame(() => {
     measure('virtual-list-update', updateVisibleItems, 'render')
   })
@@ -189,7 +179,6 @@ const handleRemove = (todo: Todo) => {
   emit('remove', todo)
 }
 
-// 公开方法
 const scrollToIndex = (index: number, behavior: ScrollBehavior = 'smooth') => {
   if (!containerRef.value) return
 
@@ -216,7 +205,6 @@ const getVisibleRange = () => {
   }
 }
 
-// 监听器
 watch(
   () => props.items,
   () => {
@@ -229,11 +217,9 @@ watch([startIndex, endIndex], () => {
   updateVisibleItems()
 })
 
-// 生命周期
 onMounted(() => {
   updateVisibleItems()
 
-  // 监听容器大小变化
   if (containerRef.value) {
     const resizeObserver = new ResizeObserver(() => {
       updateVisibleItems()
@@ -246,7 +232,6 @@ onMounted(() => {
   }
 })
 
-// 暴露方法给父组件
 defineExpose({
   scrollToIndex,
   scrollToTop,
@@ -365,7 +350,6 @@ defineExpose({
   margin-bottom: 0;
 }
 
-/* 自定义滚动条样式 */
 .virtual-list-container::-webkit-scrollbar {
   width: 6px;
 }
@@ -384,7 +368,6 @@ defineExpose({
   background: var(--primary-hover-color);
 }
 
-/* 响应式设计 */
 @media (max-width: 768px) {
   .virtual-list-item {
     padding: 0 0.5rem;
@@ -400,7 +383,6 @@ defineExpose({
   }
 }
 
-/* 高对比度模式支持 */
 @media (prefers-contrast: high) {
   .scroll-indicator {
     opacity: 0.8;
@@ -411,7 +393,6 @@ defineExpose({
   }
 }
 
-/* 减少动画模式支持 */
 @media (prefers-reduced-motion: reduce) {
   .virtual-list-item,
   .todo-item-entering,

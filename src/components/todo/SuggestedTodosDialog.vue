@@ -1,11 +1,8 @@
 <template>
-  <!-- 背景遮罩 -->
   <Transition name="overlay" appear>
     <div v-if="show" class="dialog-overlay" @click="$emit('cancel')">
-      <!-- 对话框主体 -->
       <Transition name="dialog" appear>
         <div v-if="show" class="suggested-todos-dialog" @click.stop>
-          <!-- 对话框头部 -->
           <div class="dialog-header">
             <div class="header-icon">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" class="w-6 h-6">
@@ -26,7 +23,6 @@
             </button>
           </div>
 
-          <!-- 建议列表 -->
           <div class="suggestions-list">
             <TransitionGroup name="suggestion" tag="div" class="suggestions-container">
               <div
@@ -48,7 +44,6 @@
             </TransitionGroup>
           </div>
 
-          <!-- 对话框操作按钮 -->
           <div class="dialog-actions">
             <button class="action-btn cancel-btn" @click="$emit('cancel')">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" class="btn-icon">
@@ -100,13 +95,11 @@ defineOptions({
 </script>
 
 <style scoped>
-/* 背景遮罩 */
 .dialog-overlay {
   @apply fixed inset-0 bg-black/50 backdrop-blur-sm z-1000;
   @apply flex items-center justify-center p-4;
 }
 
-/* 对话框主体 */
 .suggested-todos-dialog {
   @apply relative w-full max-w-lg max-h-90vh;
   @apply bg-bg-card rounded-2xl shadow-custom border border-white/10;
@@ -114,7 +107,6 @@ defineOptions({
   background: linear-gradient(135deg, var(--card-bg-color) 0%, rgba(255, 255, 255, 0.02) 100%);
 }
 
-/* 对话框头部 */
 .dialog-header {
   @apply flex items-center gap-4 p-6 pb-4;
   @apply border-b border-white/5;
@@ -148,7 +140,6 @@ defineOptions({
   @apply hover:transform-hover-up-1;
 }
 
-/* 建议列表 */
 .suggestions-list {
   @apply p-6 pt-4 max-h-60 overflow-y-auto scrollbar-thin;
 }
@@ -192,7 +183,6 @@ defineOptions({
   @apply opacity-100;
 }
 
-/* 对话框操作按钮 */
 .dialog-actions {
   @apply flex gap-3 p-6 pt-4;
   @apply border-t border-white/5;
@@ -220,7 +210,6 @@ defineOptions({
   @apply hover:shadow-hover hover:from-primary-hover hover:to-primary;
 }
 
-/* 过渡动画 */
 .overlay-enter-active,
 .overlay-leave-active {
   @apply transition-all-300;
@@ -255,7 +244,6 @@ defineOptions({
   @apply transition-transform-300;
 }
 
-/* 响应式设计 */
 @media (max-width: 768px) {
   .dialog-overlay {
     @apply p-3;
@@ -340,7 +328,6 @@ defineOptions({
   }
 }
 
-/* 滚动条样式 */
 .suggestions-list::-webkit-scrollbar {
   @apply w-1;
 }

@@ -16,20 +16,20 @@ const rootDir = path.resolve(__dirname, '..')
 const benchmarkConfig = {
   build: {
     maxTime: 120,
-    maxBundleSize: 2 * 1024 * 1024
+    maxBundleSize: 2 * 1024 * 1024,
   },
 
   runtime: {
     maxFirstContentfulPaint: 2000,
     maxLargestContentfulPaint: 3000,
     maxCumulativeLayoutShift: 0.1,
-    maxFirstInputDelay: 100
+    maxFirstInputDelay: 100,
   },
 
   memory: {
     maxHeapSize: 100 * 1024 * 1024,
-    maxInitialLoad: 50 * 1024 * 1024
-  }
+    maxInitialLoad: 50 * 1024 * 1024,
+  },
 }
 
 class PerformanceBenchmark {
@@ -40,7 +40,7 @@ class PerformanceBenchmark {
       runtime: {},
       memory: {},
       score: 0,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     }
   }
 
@@ -59,9 +59,6 @@ class PerformanceBenchmark {
     }
   }
 
-  /**
-   * 构建性能基准测试
-   */
   async benchmarkBuild() {
     console.log('🏗️  测试构建性能...')
 
@@ -75,7 +72,7 @@ class PerformanceBenchmark {
       execSync('pnpm run build', {
         cwd: rootDir,
         stdio: 'pipe',
-        timeout: benchmarkConfig.build.maxTime * 1000
+        timeout: benchmarkConfig.build.maxTime * 1000,
       })
 
       const buildTime = (Date.now() - startTime) / 1000
@@ -83,7 +80,7 @@ class PerformanceBenchmark {
       this.results.build = {
         time: buildTime,
         maxTime: benchmarkConfig.build.maxTime,
-        passed: buildTime <= benchmarkConfig.build.maxTime
+        passed: buildTime <= benchmarkConfig.build.maxTime,
       }
 
       if (buildTime <= benchmarkConfig.build.maxTime) {
@@ -101,7 +98,7 @@ class PerformanceBenchmark {
         time: null,
         maxTime: benchmarkConfig.build.maxTime,
         passed: false,
-        error: error.message
+        error: error.message,
       }
     }
   }
@@ -121,7 +118,7 @@ class PerformanceBenchmark {
       let jsBundleSize = 0
       const jsFiles = []
 
-      const calculateDirSize = dir => {
+      const calculateDirSize = (dir) => {
         try {
           const entries = readdirSync(dir, { withFileTypes: true })
           for (const entry of entries) {
@@ -139,7 +136,7 @@ class PerformanceBenchmark {
             }
           }
         } catch (_error) {
-          // 忽略无法访问的文件
+          // 忽略文件读取错误，继续处理其他文件
         }
       }
 
@@ -150,7 +147,7 @@ class PerformanceBenchmark {
         jsBundleSize,
         maxSize: benchmarkConfig.build.maxBundleSize,
         passed: jsBundleSize <= benchmarkConfig.build.maxBundleSize,
-        files: jsFiles.length
+        files: jsFiles.length,
       }
 
       const sizeMB = (jsBundleSize / 1024 / 1024).toFixed(2)
@@ -182,7 +179,7 @@ class PerformanceBenchmark {
         largestContentfulPaint: 2100,
         cumulativeLayoutShift: 0.05,
         firstInputDelay: 50,
-        timeToInteractive: 2500
+        timeToInteractive: 2500,
       }
 
       this.results.runtime = {
@@ -198,8 +195,8 @@ class PerformanceBenchmark {
           cls:
             mockPerformanceData.cumulativeLayoutShift <=
             benchmarkConfig.runtime.maxCumulativeLayoutShift,
-          fid: mockPerformanceData.firstInputDelay <= benchmarkConfig.runtime.maxFirstInputDelay
-        }
+          fid: mockPerformanceData.firstInputDelay <= benchmarkConfig.runtime.maxFirstInputDelay,
+        },
       }
 
       console.log(`  📊 首次内容绘制: ${mockPerformanceData.firstContentfulPaint}ms`)
@@ -228,7 +225,7 @@ class PerformanceBenchmark {
     }
 
     if (this.results.runtime.passed) {
-      const failedMetrics = Object.values(this.results.runtime.passed).filter(p => !p).length
+      const failedMetrics = Object.values(this.results.runtime.passed).filter((p) => !p).length
       score -= failedMetrics * 10
     }
 

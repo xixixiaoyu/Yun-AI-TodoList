@@ -1,6 +1,5 @@
 <template>
   <div class="flex flex-col h-full">
-    <!-- 区块标题 -->
     <div class="mb-6">
       <div class="flex items-center gap-3 mb-2">
         <div
@@ -21,7 +20,6 @@
       </p>
     </div>
 
-    <!-- API Key 卡片 -->
     <div class="flex-1">
       <ApiKeyCard :local-api-key="localApiKey" @show-popover="showApiKeyPopover = true" />
     </div>

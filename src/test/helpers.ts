@@ -1,8 +1,3 @@
-/**
- * 测试辅助工具函数
- * 提供通用的测试工具和 mock 函数
- */
-
 import type { ChatMessage, Conversation } from '@/services/types'
 import type { Todo } from '@/types/todo'
 import { vi } from 'vitest'
@@ -104,9 +99,6 @@ export function createTestTodos(count: number, baseOverrides: Partial<Todo> = {}
   )
 }
 
-/**
- * 创建测试用的聊天消息
- */
 export function createTestChatMessage(overrides: Partial<ChatMessage> = {}): ChatMessage {
   return {
     role: 'user',
@@ -156,9 +148,6 @@ export function mockFetch() {
   return mockFetch
 }
 
-/**
- * 创建成功的 fetch 响应
- */
 export function createMockResponse(data: any, status = 200) {
   return Promise.resolve({
     ok: status >= 200 && status < 300,
@@ -189,9 +178,6 @@ export function sleep(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms))
 }
 
-/**
- * Mock console 方法
- */
 export function mockConsole() {
   return {
     log: vi.spyOn(console, 'log').mockImplementation(() => {}),
@@ -242,9 +228,6 @@ export function expectErrorToBeHandled(
   }
 }
 
-/**
- * 验证事件发射
- */
 export function expectEventEmitted(
   wrapper: { emitted: (eventName: string) => unknown[][] | undefined },
   eventName: string,

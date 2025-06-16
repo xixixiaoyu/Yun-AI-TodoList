@@ -31,7 +31,6 @@
 
       <TodoSearch v-model="searchQuery" :is-expanded="showSearch" @collapse="collapseSearch" />
 
-      <!-- 错误消息显示 -->
       <div
         v-if="error"
         class="error-message mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded"
@@ -39,7 +38,6 @@
         {{ error }}
       </div>
 
-      <!-- 成功消息显示 -->
       <div
         v-if="success"
         class="success-message mb-4 p-3 bg-green-100 border border-green-400 text-green-700 rounded"
@@ -239,7 +237,6 @@ const {
   @apply pointer-events-none opacity-70;
 }
 
-/* 过渡动画 */
 .slide-enter-active,
 .slide-leave-active,
 .slide-fade-enter-active,
@@ -280,7 +277,6 @@ const {
   @apply opacity-0;
 }
 
-/* 响应式样式 */
 @media (min-width: 1201px) {
   .todo-container {
     @apply px-4;

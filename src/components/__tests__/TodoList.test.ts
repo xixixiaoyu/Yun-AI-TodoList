@@ -4,7 +4,6 @@ import { createI18n } from 'vue-i18n'
 import TodoList from '../TodoList.vue'
 import { setupTestEnvironment } from '@/test/helpers'
 
-// Mock composables
 vi.mock('@/composables/useTodoListState', () => ({
   useTodoListState: () => ({
     todoListRef: { value: null },
@@ -100,7 +99,6 @@ describe('TodoList', () => {
       },
     })
 
-    // 检查是否包含主要的组件结构
     expect(wrapper.find('.todo-app').exists()).toBe(true)
   })
 })

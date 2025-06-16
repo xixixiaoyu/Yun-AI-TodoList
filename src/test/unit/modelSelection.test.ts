@@ -2,7 +2,6 @@ import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { getAIModel, saveAIModel, aiModel } from '@/services/configService'
 import type { AIModel } from '@/services/types'
 
-// Mock localStorage
 const localStorageMock = {
   getItem: vi.fn(),
   setItem: vi.fn(),
@@ -17,7 +16,7 @@ Object.defineProperty(window, 'localStorage', {
 describe('模型选择功能', () => {
   beforeEach(() => {
     vi.clearAllMocks()
-    // 重置 aiModel 的值
+
     aiModel.value = 'deepseek-chat'
   })
 
@@ -43,11 +42,9 @@ describe('模型选择功能', () => {
     })
 
     it('应该能够切换回 deepseek-chat 模型', () => {
-      // 先设置为 reasoner
       saveAIModel('deepseek-reasoner')
       expect(getAIModel()).toBe('deepseek-reasoner')
 
-      // 再切换回 chat
       saveAIModel('deepseek-chat')
       expect(getAIModel()).toBe('deepseek-chat')
       expect(localStorageMock.setItem).toHaveBeenLastCalledWith(
@@ -61,7 +58,6 @@ describe('模型选择功能', () => {
     it('应该默认使用 deepseek-chat 模型', () => {
       localStorageMock.getItem.mockReturnValue(null)
 
-      // 重新导入模块以触发初始化
       vi.resetModules()
 
       expect(getAIModel()).toBe('deepseek-chat')
@@ -70,7 +66,6 @@ describe('模型选择功能', () => {
     it('应该从 localStorage 加载保存的模型', () => {
       localStorageMock.getItem.mockReturnValue('deepseek-reasoner')
 
-      // 模拟初始化过程
       aiModel.value = (localStorage.getItem('deepseek_ai_model') as AIModel) || 'deepseek-chat'
 
       expect(getAIModel()).toBe('deepseek-reasoner')

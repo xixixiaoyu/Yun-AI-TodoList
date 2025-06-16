@@ -1,6 +1,5 @@
 <template>
   <div v-if="filter === 'active' || filter === 'completed'" class="ai-actions-container">
-    <!-- AI 生成建议按钮 -->
     <button
       class="ai-action-btn ai-generate-btn"
       :class="{ 'is-loading': isGenerating }"
@@ -21,7 +20,6 @@
       <div class="btn-shine" />
     </button>
 
-    <!-- AI 优先级排序按钮 -->
     <button
       v-if="filter === 'active' && hasActiveTodos"
       class="ai-action-btn ai-sort-btn"
@@ -71,14 +69,12 @@ defineOptions({
 </script>
 
 <style scoped>
-/* AI 操作容器 */
 .ai-actions-container {
   @apply flex justify-center items-center gap-4 mb-3 flex-wrap p-4;
   @apply bg-gradient-pomodoro rounded-1.5x border border-orange-100/10;
   @apply shadow-sm backdrop-blur-10 transition-all-300;
 }
 
-/* AI 操作按钮基础样式 */
 .ai-action-btn {
   @apply relative flex items-center justify-center gap-3 px-6 py-3.5;
   @apply min-w-36 h-11 rounded-1.5x font-medium text-sm;
@@ -88,22 +84,18 @@ defineOptions({
   @apply disabled:cursor-not-allowed disabled:transform-none;
 }
 
-/* 按钮内容布局 */
 .btn-content {
   @apply flex items-center gap-2.5 relative z-10;
 }
 
-/* 按钮图标 */
 .btn-icon {
   @apply w-4 h-4 stroke-2 transition-transform-300;
 }
 
-/* 按钮文本 */
 .btn-text {
   @apply font-medium tracking-wide transition-all-300;
 }
 
-/* 按钮光泽效果 */
 .btn-shine {
   @apply absolute inset-0 opacity-0 transition-all-500;
   background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
@@ -115,7 +107,6 @@ defineOptions({
   transform: translateX(100%);
 }
 
-/* 生成建议按钮样式 */
 .ai-generate-btn {
   @apply text-white;
   background: linear-gradient(135deg, #4ecdc4 0%, #44a08d 100%);
@@ -133,7 +124,6 @@ defineOptions({
   @apply shadow-sm;
 }
 
-/* 排序按钮样式 */
 .ai-sort-btn {
   @apply text-emerald-800;
   background: linear-gradient(135deg, #a8e6cf 0%, #88d8a3 100%);
@@ -151,7 +141,6 @@ defineOptions({
   @apply text-gray-600 shadow-sm;
 }
 
-/* 加载状态动画 */
 .loading-spinner {
   @apply w-4 h-4 border-2 border-current border-t-transparent rounded-full;
   animation: spin 1s linear infinite;
@@ -165,7 +154,6 @@ defineOptions({
   @apply scale-100;
 }
 
-/* 响应式设计 */
 @media (max-width: 768px) {
   .ai-actions-container {
     @apply p-3 gap-3;
@@ -202,7 +190,6 @@ defineOptions({
   }
 }
 
-/* 动画关键帧 */
 @keyframes spin {
   from {
     transform: rotate(0deg);

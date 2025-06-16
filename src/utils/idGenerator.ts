@@ -1,8 +1,3 @@
-/**
- * 安全的 ID 生成器
- * 确保生成的 ID 在应用生命周期内唯一
- */
-
 export class IdGenerator {
   private static counter = 0
 
@@ -28,9 +23,6 @@ export class IdGenerator {
     return typeof id === 'number' && id > 0 && Number.isInteger(id)
   }
 
-  /**
-   * 重置计数器（主要用于测试）
-   */
   static reset(): void {
     this.counter = 0
   }

@@ -1,6 +1,5 @@
 <template>
   <div class="flex flex-col h-full">
-    <!-- 区块标题 -->
     <div class="mb-6">
       <div class="flex items-center gap-3 mb-2">
         <div
@@ -21,7 +20,6 @@
       </p>
     </div>
 
-    <!-- 主题选项 -->
     <div class="flex-1 space-y-3">
       <div
         v-for="option in themeOptions"
@@ -56,7 +54,6 @@ import { useI18n } from 'vue-i18n'
 import { useTheme } from '../../composables/useTheme'
 import type { ThemeValue } from '../../types/theme'
 
-// 图标组件
 const SunIcon = () =>
   h(
     'svg',
@@ -141,7 +138,6 @@ const themeOptions = computed(() => [
 
 const selectTheme = (themeValue: ThemeValue) => {
   selectedTheme.value = themeValue
-  // 主题切换会自动保存到 localStorage，无需额外提示
 }
 
 const getCurrentThemeLabel = () => {

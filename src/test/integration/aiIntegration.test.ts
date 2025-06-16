@@ -3,7 +3,6 @@ import { useTodoManagement } from '@/composables/useTodoManagement'
 import { createTestChatMessage, createTestConversation, setupTestEnvironment } from '@/test/helpers'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
-// Mock services
 vi.mock('@/services/deepseekService', () => ({
   streamAIResponse: vi.fn(),
   optimizeText: vi.fn(),
@@ -128,7 +127,6 @@ describe('AI 集成测试', () => {
       conversationHistory.value = testConversations
       saveConversationHistory()
 
-      // 清空并重新加载
       conversationHistory.value = []
       loadConversationHistory()
 
@@ -198,7 +196,6 @@ describe('AI 集成测试', () => {
 
       await sendMessage()
 
-      // 验证错误被正确处理
       expect(mockStreamAIResponse).toHaveBeenCalled()
     })
   })

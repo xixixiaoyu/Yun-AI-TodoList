@@ -4,7 +4,6 @@ import { setupTestEnvironment } from '@/test/helpers'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { createI18n } from 'vue-i18n'
 
-// Mock dependencies
 vi.mock('@/services/deepseekService', () => ({
   getAIResponse: vi.fn(),
   streamAIResponse: vi.fn(),
@@ -45,23 +44,19 @@ describe('待办事项工作流集成测试', () => {
     it('应该完成完整的待办事项生命周期', () => {
       const { todos, addTodo, toggleTodo, removeTodo } = useTodos()
 
-      // 1. 添加待办事项
       const success = addTodo('学习 Vue 3')
       expect(success).toBe(true)
       expect(todos.value).toHaveLength(1)
       expect(todos.value[0].text).toBe('学习 Vue 3')
       expect(todos.value[0].completed).toBe(false)
 
-      // 2. 完成待办事项
       const todoId = todos.value[0].id
       toggleTodo(todoId)
       expect(todos.value[0].completed).toBe(true)
 
-      // 3. 取消完成
       toggleTodo(todoId)
       expect(todos.value[0].completed).toBe(false)
 
-      // 4. 删除待办事项
       removeTodo(todoId)
       expect(todos.value).toHaveLength(0)
     })
@@ -69,11 +64,9 @@ describe('待办事项工作流集成测试', () => {
     it('应该处理多个待办事项', () => {
       const { todos, addTodo, addMultipleTodos } = useTodos()
 
-      // 添加单个待办事项
       addTodo('任务 1')
       expect(todos.value).toHaveLength(1)
 
-      // 批量添加待办事项
       const newTodos = [
         { text: '任务 2', tags: [] },
         { text: '任务 3', tags: [] },
@@ -88,12 +81,10 @@ describe('待办事项工作流集成测试', () => {
     it('应该防止重复的待办事项', () => {
       const { todos, addTodo } = useTodos()
 
-      // 添加第一个待办事项
       const success1 = addTodo('重复任务')
       expect(success1).toBe(true)
       expect(todos.value).toHaveLength(1)
 
-      // 尝试添加重复的待办事项
       const success2 = addTodo('重复任务')
       expect(success2).toBe(false)
       expect(todos.value).toHaveLength(1)
@@ -105,15 +96,12 @@ describe('待办事项工作流集成测试', () => {
       const { todos, addTodo, toggleTodo } = useTodos()
       const { filter, filteredTodos } = useTodoManagement()
 
-      // 添加测试数据
       addTodo('未完成任务 1')
       addTodo('未完成任务 2')
       addTodo('待完成任务')
 
-      // 完成一个任务
       toggleTodo(todos.value[2].id)
 
-      // 测试筛选
       filter.value = 'all'
       expect(filteredTodos.value).toHaveLength(3)
 
@@ -128,12 +116,10 @@ describe('待办事项工作流集成测试', () => {
       const { addTodo } = useTodos()
       const { searchQuery, filteredTodos } = useTodoManagement()
 
-      // 添加测试数据
       addTodo('学习 Vue 3')
       addTodo('学习 React')
       addTodo('写文档')
 
-      // 测试搜索
       searchQuery.value = 'Vue'
       expect(filteredTodos.value).toHaveLength(1)
       expect(filteredTodos.value[0].text).toContain('Vue')
@@ -157,12 +143,10 @@ describe('待办事项工作流集成测试', () => {
       const { generateSuggestedTodos, confirmSuggestedTodos, suggestedTodos, showSuggestedTodos } =
         useTodoManagement()
 
-      // 生成建议
       await generateSuggestedTodos()
       expect(suggestedTodos.value.length).toBeGreaterThan(0)
       expect(showSuggestedTodos.value).toBe(true)
 
-      // 确认建议
       confirmSuggestedTodos()
       expect(todos.value.length).toBeGreaterThan(0)
       expect(showSuggestedTodos.value).toBe(false)
@@ -179,11 +163,9 @@ describe('待办事项工作流集成测试', () => {
       const { generateSuggestedTodos, cancelSuggestedTodos, suggestedTodos, showSuggestedTodos } =
         useTodoManagement()
 
-      // 生成建议
       await generateSuggestedTodos()
       expect(suggestedTodos.value.length).toBeGreaterThan(0)
 
-      // 取消建议
       cancelSuggestedTodos()
       expect(todos.value).toHaveLength(0)
       expect(showSuggestedTodos.value).toBe(false)
@@ -195,14 +177,11 @@ describe('待办事项工作流集成测试', () => {
     it('应该保存和加载待办事项', () => {
       const { todos, addTodo, loadTodos, saveTodos } = useTodos()
 
-      // 添加待办事项
       addTodo('持久化测试')
       expect(todos.value).toHaveLength(1)
 
-      // 保存数据
       saveTodos()
 
-      // 清空并重新加载
       todos.value = []
       loadTodos()
 
@@ -211,13 +190,11 @@ describe('待办事项工作流集成测试', () => {
     })
 
     it('应该处理无效的存储数据', () => {
-      // 设置无效数据
       testEnv.localStorage.store.todos = 'invalid json'
 
       const { todos, loadTodos } = useTodos()
       loadTodos()
 
-      // 应该回退到空数组
       expect(todos.value).toEqual([])
     })
   })

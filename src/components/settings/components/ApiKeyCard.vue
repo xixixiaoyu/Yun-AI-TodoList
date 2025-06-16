@@ -4,7 +4,6 @@
     @click="$emit('showPopover')"
   >
     <div class="p-4">
-      <!-- 状态指示器和标题 -->
       <div class="flex items-center gap-3 mb-3">
         <div
           class="w-3 h-3 rounded-full relative flex-shrink-0"
@@ -23,7 +22,6 @@
         </div>
       </div>
 
-      <!-- 配置按钮 -->
       <button
         class="w-full bg-primary text-white px-3 py-2 rounded-lg text-sm font-medium transition-all-300 hover:bg-primary-hover hover:transform-hover-up-1 flex items-center justify-center gap-2"
       >

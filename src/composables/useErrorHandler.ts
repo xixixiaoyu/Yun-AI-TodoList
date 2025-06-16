@@ -18,7 +18,6 @@ export function useErrorHandler() {
 
     logger.info('Error message displayed', { message: translatedMessage }, 'ErrorHandler')
 
-    // 5秒后自动清除错误消息
     setTimeout(() => {
       error.value = ''
     }, 5000)
@@ -31,7 +30,6 @@ export function useErrorHandler() {
 
       logger.info('Success message displayed', { message: translatedMessage }, 'ErrorHandler')
 
-      // 3秒后自动清除成功消息
       setTimeout(() => {
         success.value = ''
       }, duration)

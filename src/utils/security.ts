@@ -69,9 +69,6 @@ export function sanitizeHTML(html: string): string {
   })
 }
 
-/**
- * 验证 URL 安全性
- */
 export function isSecureURL(url: string): boolean {
   try {
     const parsedURL = new URL(url)
@@ -221,9 +218,6 @@ export class SecureAPIClient {
   }
 }
 
-/**
- * 输入验证工具
- */
 export class InputValidator {
   static validateLength(str: string, min: number, max: number): boolean {
     return str.length >= min && str.length <= max

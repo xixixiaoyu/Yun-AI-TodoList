@@ -126,7 +126,6 @@
       </div>
     </div>
 
-    <!-- 设置弹窗 -->
     <div
       v-if="showSettings"
       class="fixed inset-0 bg-black/50 backdrop-blur-sm z-[10000] flex items-center justify-center p-4"
@@ -252,7 +251,6 @@ interface PomodoroSettings {
 
 const { t } = useI18n()
 
-// 默认设置
 const defaultSettings: PomodoroSettings = {
   workTime: 25,
   shortBreak: 5,
@@ -262,7 +260,6 @@ const defaultSettings: PomodoroSettings = {
   autoStartWork: false,
 }
 
-// 响应式状态
 const isActive = ref(false)
 const isPaused = ref(false)
 const isBreak = ref(false)
@@ -273,10 +270,8 @@ const todaysSessions = ref(0)
 const isFullscreen = ref(false)
 const showSettings = ref(false)
 
-// 设置
 const settings = ref<PomodoroSettings>({ ...defaultSettings })
 
-// 计算属性
 const formattedTime = computed(() => {
   const minutes = Math.floor(timeLeft.value / 60)
   const seconds = timeLeft.value % 60
@@ -306,10 +301,8 @@ const circleStyle = computed(() => ({
   '--progress-color': progressColor.value,
 }))
 
-// Worker 实例
 let timerWorker: Worker | null = null
 
-// 方法
 const initTimer = () => {
   timeLeft.value = settings.value.workTime * 60
   isBreak.value = false
@@ -367,7 +360,6 @@ const completeSession = () => {
     todaysSessions.value++
     totalFocusTime.value += settings.value.workTime
 
-    // 判断是长休息还是短休息
     const isLongBreak = completedSessions.value % settings.value.sessionsBeforeLongBreak === 0
     const breakDuration = isLongBreak ? settings.value.longBreak : settings.value.shortBreak
 
@@ -390,7 +382,6 @@ const completeSession = () => {
     }
   }
 
-  // 发送完成事件
   emit('pomodoroComplete', { isBreak: !isBreak.value, completedSessions: completedSessions.value })
 }
 
@@ -429,7 +420,6 @@ const resetSettings = () => {
   settings.value = { ...defaultSettings }
 }
 
-// 加载设置
 const loadSettings = () => {
   const saved = localStorage.getItem('pomodoroSettings')
   if (saved) {
@@ -441,7 +431,6 @@ const loadSettings = () => {
   }
 }
 
-// 加载今日统计
 const loadTodayStats = () => {
   const today = new Date().toDateString()
   const savedStats = localStorage.getItem('pomodoroStats')
@@ -459,7 +448,6 @@ const loadTodayStats = () => {
   }
 }
 
-// 保存今日统计
 const saveTodayStats = () => {
   const today = new Date().toDateString()
   const stats = {
@@ -470,7 +458,6 @@ const saveTodayStats = () => {
   localStorage.setItem('pomodoroStats', JSON.stringify(stats))
 }
 
-// 生命周期
 onMounted(() => {
   loadSettings()
   loadTodayStats()
@@ -482,7 +469,6 @@ onUnmounted(() => {
   saveTodayStats()
 })
 
-// 监听设置变化
 watch(() => settings.value, saveTodayStats, { deep: true })
 
 const emit = defineEmits(['pomodoroComplete'])

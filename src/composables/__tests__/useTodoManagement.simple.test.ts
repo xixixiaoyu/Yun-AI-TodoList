@@ -2,7 +2,6 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { useTodoManagement } from '../useTodoManagement'
 import { setupTestEnvironment } from '@/test/helpers'
 
-// Mock dependencies with proper types
 vi.mock('@/composables/useTodos', () => ({
   useTodos: vi.fn(() => ({
     todos: { value: [] },

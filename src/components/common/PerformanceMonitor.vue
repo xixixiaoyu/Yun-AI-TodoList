@@ -99,28 +99,23 @@ const showMonitor = ref(props.autoStart)
 const isMinimized = ref(false)
 const chartCanvas = ref<HTMLCanvasElement>()
 
-// 性能指标
 const memoryUsage = ref({ usedJSHeapSize: 0, totalJSHeapSize: 0, jsHeapSizeLimit: 0 })
 const currentFps = ref(60)
 const averageRenderTime = ref(0)
 const averageNetworkTime = ref(0)
 
-// FPS 计算
 let frameCount = 0
 let lastTime = performance.now()
 let fpsHistory: number[] = []
 
-// 性能历史数据
 const performanceHistory = ref<number[]>([])
 
 const updateMetrics = () => {
-  // 更新内存使用情况
   const memory = getMemoryUsage()
   if (memory) {
     memoryUsage.value = memory
   }
 
-  // 更新性能报告
   const report = getReport()
   if (report.renderMetrics.length > 0) {
     averageRenderTime.value = Math.round(
@@ -170,7 +165,6 @@ const updateChart = () => {
 
   ctx.clearRect(0, 0, width, height)
 
-  // 绘制 FPS 历史图表
   ctx.strokeStyle = '#4CAF50'
   ctx.lineWidth = 1
   ctx.beginPath()
@@ -189,7 +183,6 @@ const updateChart = () => {
   ctx.stroke()
 }
 
-// 状态判断方法
 const getMemoryStatus = () => {
   const used = memoryUsage.value.usedJSHeapSize
   if (used > 100 * 1024 * 1024) return 'status-error'
@@ -252,7 +245,6 @@ const exportReport = () => {
   URL.revokeObjectURL(url)
 }
 
-// 公开方法
 const show = () => {
   showMonitor.value = true
   nextTick(() => {
@@ -264,7 +256,6 @@ const hide = () => {
   showMonitor.value = false
 }
 
-// 定时更新指标
 let metricsInterval: number
 
 onMounted(() => {
@@ -306,7 +297,6 @@ defineExpose({
   min-width: auto;
 }
 
-/* 根据 position prop 设置位置 */
 .performance-monitor {
   top: 20px;
   right: 20px;

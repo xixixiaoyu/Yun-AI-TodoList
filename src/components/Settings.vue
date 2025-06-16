@@ -3,7 +3,6 @@
     class="h-full bg-bg flex flex-col items-center justify-center p-4 py-8 md:py-12 overflow-hidden"
   >
     <div class="w-full max-w-7xl mx-auto space-y-6 md:space-y-8">
-      <!-- 页面标题区域 -->
       <div class="text-center space-y-1">
         <h1 class="settings-title text-2xl md:text-3xl font-bold text-text tracking-tight">
           {{ t('settings') }}
@@ -13,7 +12,6 @@
         </p>
       </div>
 
-      <!-- 设置内容网格 -->
       <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 md:gap-8 items-start">
         <div
           class="settings-card bg-card rounded-2xl p-6 shadow-card border border-white/10 backdrop-blur-20 transition-all-300 hover:transform-hover-up hover:shadow-hover md:col-span-2 xl:col-span-1"
@@ -63,7 +61,6 @@ defineOptions({
 </script>
 
 <style scoped>
-/* 设置卡片的渐变背景动画 */
 .settings-card {
   background: linear-gradient(135deg, var(--card-bg-color) 0%, var(--card-bg-color) 100%);
   position: relative;
@@ -85,7 +82,6 @@ defineOptions({
   left: 100%;
 }
 
-/* 页面标题的渐变文字效果 */
 .settings-title {
   background: linear-gradient(135deg, var(--text-color) 0%, var(--primary-color) 100%);
   -webkit-background-clip: text;
@@ -93,7 +89,6 @@ defineOptions({
   background-clip: text;
 }
 
-/* 响应式优化 */
 @media (max-width: 768px) {
   .settings-card {
     min-height: auto;

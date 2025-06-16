@@ -20,8 +20,8 @@ export default [
       '.husky/**',
       '**/prettify.js',
       '**/sorter.js',
-      '**/block-navigation.js'
-    ]
+      '**/block-navigation.js',
+    ],
   },
 
   js.configs.recommended,
@@ -32,15 +32,13 @@ export default [
       parser: typescriptParser,
       parserOptions: {
         ecmaVersion: 'latest',
-        sourceType: 'module'
+        sourceType: 'module',
       },
       globals: {
-        // Vue I18n globals
         __VUE_I18N_LEGACY_API__: 'readonly',
         __VUE_I18N_FULL_INSTALL__: 'readonly',
         __INTLIFY_PROD_DEVTOOLS__: 'readonly',
 
-        // Browser globals
         window: 'readonly',
         document: 'readonly',
         navigator: 'readonly',
@@ -99,12 +97,10 @@ export default [
         Request: 'readonly',
         Headers: 'readonly',
 
-        // Web APIs
         Worker: 'readonly',
         ResizeObserver: 'readonly',
         FormData: 'readonly',
 
-        // Auto-imported Vue APIs
         ref: 'readonly',
         reactive: 'readonly',
         computed: 'readonly',
@@ -150,16 +146,13 @@ export default [
         useCssModule: 'readonly',
         useCssVars: 'readonly',
 
-        // Vue Router APIs
         useRouter: 'readonly',
         useRoute: 'readonly',
         onBeforeRouteLeave: 'readonly',
         onBeforeRouteUpdate: 'readonly',
 
-        // Vue I18n APIs
         useI18n: 'readonly',
 
-        // VueUse APIs (commonly used ones)
         useWindowSize: 'readonly',
         useMouse: 'readonly',
         useLocalStorage: 'readonly',
@@ -189,11 +182,11 @@ export default [
         useOnline: 'readonly',
         useNetwork: 'readonly',
         useFetch: 'readonly',
-        useAsyncState: 'readonly'
-      }
+        useAsyncState: 'readonly',
+      },
     },
     plugins: {
-      '@typescript-eslint': typescript
+      '@typescript-eslint': typescript,
     },
     rules: {
       'no-console': ['warn', { allow: ['error', 'warn'] }],
@@ -205,8 +198,8 @@ export default [
         {
           argsIgnorePattern: '^_',
           varsIgnorePattern: '^_',
-          caughtErrorsIgnorePattern: '^_'
-        }
+          caughtErrorsIgnorePattern: '^_',
+        },
       ],
       '@typescript-eslint/no-explicit-any': 'error',
       '@typescript-eslint/explicit-function-return-type': 'off',
@@ -220,8 +213,8 @@ export default [
       'no-eval': 'error',
       'no-implied-eval': 'error',
       'no-new-func': 'error',
-      'no-script-url': 'error'
-    }
+      'no-script-url': 'error',
+    },
   },
 
   ...vue.configs['flat/recommended'],
@@ -233,15 +226,13 @@ export default [
         parser: typescriptParser,
         ecmaVersion: 'latest',
         sourceType: 'module',
-        extraFileExtensions: ['.vue']
+        extraFileExtensions: ['.vue'],
       },
       globals: {
-        // Vue I18n globals
         __VUE_I18N_LEGACY_API__: 'readonly',
         __VUE_I18N_FULL_INSTALL__: 'readonly',
         __INTLIFY_PROD_DEVTOOLS__: 'readonly',
 
-        // Browser globals
         window: 'readonly',
         document: 'readonly',
         navigator: 'readonly',
@@ -300,11 +291,9 @@ export default [
         Headers: 'readonly',
         FormData: 'readonly',
 
-        // Web APIs
         Worker: 'readonly',
         ResizeObserver: 'readonly',
 
-        // Auto-imported Vue APIs
         ref: 'readonly',
         reactive: 'readonly',
         computed: 'readonly',
@@ -349,16 +338,13 @@ export default [
         useCssModule: 'readonly',
         useCssVars: 'readonly',
 
-        // Vue Router APIs
         useRouter: 'readonly',
         useRoute: 'readonly',
         onBeforeRouteLeave: 'readonly',
         onBeforeRouteUpdate: 'readonly',
 
-        // Vue I18n APIs
         useI18n: 'readonly',
 
-        // VueUse APIs (commonly used ones)
         useWindowSize: 'readonly',
         useMouse: 'readonly',
         useLocalStorage: 'readonly',
@@ -388,12 +374,12 @@ export default [
         useOnline: 'readonly',
         useNetwork: 'readonly',
         useFetch: 'readonly',
-        useAsyncState: 'readonly'
-      }
+        useAsyncState: 'readonly',
+      },
     },
     plugins: {
       '@typescript-eslint': typescript,
-      vue
+      vue,
     },
     rules: {
       'vue/no-v-html': 'off',
@@ -409,8 +395,8 @@ export default [
         {
           argsIgnorePattern: '^_',
           varsIgnorePattern: '^_',
-          caughtErrorsIgnorePattern: '^_'
-        }
+          caughtErrorsIgnorePattern: '^_',
+        },
       ],
       '@typescript-eslint/no-explicit-any': 'error',
       '@typescript-eslint/explicit-function-return-type': 'off',
@@ -424,8 +410,8 @@ export default [
       'no-eval': 'error',
       'no-implied-eval': 'error',
       'no-new-func': 'error',
-      'no-script-url': 'error'
-    }
+      'no-script-url': 'error',
+    },
   },
 
   {
@@ -441,17 +427,17 @@ export default [
         setTimeout: 'readonly',
         clearTimeout: 'readonly',
         setInterval: 'readonly',
-        clearInterval: 'readonly'
-      }
-    }
+        clearInterval: 'readonly',
+      },
+    },
   },
 
   {
     files: ['*.config.js', '*.config.ts', 'vite.config.ts', 'vitest.config.ts'],
     rules: {
       'no-console': 'off',
-      '@typescript-eslint/no-var-requires': 'off'
-    }
+      '@typescript-eslint/no-var-requires': 'off',
+    },
   },
 
   {
@@ -460,7 +446,7 @@ export default [
       'scripts/**/*.js',
       'scripts/**/*.mjs',
       '*.config.js',
-      '*.config.mjs'
+      '*.config.mjs',
     ],
     languageOptions: {
       ecmaVersion: 'latest',
@@ -490,8 +476,8 @@ export default [
         fetch: 'readonly',
         Response: 'readonly',
         Request: 'readonly',
-        Headers: 'readonly'
-      }
+        Headers: 'readonly',
+      },
     },
     rules: {
       'no-console': 'off',
@@ -500,10 +486,10 @@ export default [
         {
           argsIgnorePattern: '^_',
           varsIgnorePattern: '^_',
-          caughtErrorsIgnorePattern: '^_'
-        }
-      ]
-    }
+          caughtErrorsIgnorePattern: '^_',
+        },
+      ],
+    },
   },
 
   {
@@ -512,7 +498,7 @@ export default [
       parser: typescriptParser,
       parserOptions: {
         ecmaVersion: 'latest',
-        sourceType: 'module'
+        sourceType: 'module',
       },
       globals: {
         describe: 'readonly',
@@ -553,25 +539,25 @@ export default [
         __filename: 'readonly',
         module: 'readonly',
         require: 'readonly',
-        exports: 'readonly'
-      }
+        exports: 'readonly',
+      },
     },
     plugins: {
-      '@typescript-eslint': typescript
+      '@typescript-eslint': typescript,
     },
     rules: {
-      '@typescript-eslint/no-explicit-any': 'off', // 在测试中允许使用 any
+      '@typescript-eslint/no-explicit-any': 'off',
       '@typescript-eslint/no-unused-vars': [
         'error',
         {
           argsIgnorePattern: '^_',
           varsIgnorePattern: '^_',
-          caughtErrorsIgnorePattern: '^_'
-        }
+          caughtErrorsIgnorePattern: '^_',
+        },
       ],
       'no-console': 'off',
-      'no-undef': 'off'
-    }
+      'no-undef': 'off',
+    },
   },
 
   {
@@ -584,14 +570,14 @@ export default [
         Window: 'readonly',
         Document: 'readonly',
         Element: 'readonly',
-        Event: 'readonly'
-      }
+        Event: 'readonly',
+      },
     },
     rules: {
       '@typescript-eslint/no-unused-vars': 'off',
-      'no-undef': 'off'
-    }
+      'no-undef': 'off',
+    },
   },
 
-  prettier
+  prettier,
 ]

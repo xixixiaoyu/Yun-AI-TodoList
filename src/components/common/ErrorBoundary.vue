@@ -74,11 +74,9 @@ const captureError = (error: Error, errorInfo: ErrorInfo) => {
   errorMessage.value = error.message || props.fallback
   errorDetails.value = `${error.stack}\n\nComponent Stack:\n${errorInfo.componentStack}`
 
-  // 调用外部错误处理器
   props.onError?.(error, errorInfo)
   showError(errorMessage.value)
 
-  // 记录错误到控制台
   console.error('ErrorBoundary caught an error:', error, errorInfo)
 }
 
@@ -93,13 +91,11 @@ const toggleDetails = () => {
   showDetails.value = !showDetails.value
 }
 
-// Vue 3 错误捕获
 onErrorCaptured((error: Error, instance: unknown, info: string) => {
   captureError(error, { componentStack: info, instance })
-  return false // 阻止错误继续传播
+  return false
 })
 
-// 全局错误处理
 onMounted(() => {
   window.addEventListener('error', (event) => {
     captureError(event.error, {

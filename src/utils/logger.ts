@@ -34,9 +34,6 @@ class Logger {
     this.log(LogLevel.WARN, message, data, source)
   }
 
-  /**
-   * 错误信息 - 开发和生产环境都输出
-   */
   error(message: string, error?: unknown, source?: string) {
     this.log(LogLevel.ERROR, message, error, source)
   }

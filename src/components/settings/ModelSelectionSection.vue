@@ -1,6 +1,5 @@
 <template>
   <div class="flex flex-col h-full">
-    <!-- 区块标题 -->
     <div class="mb-6">
       <div class="flex items-center gap-3 mb-2">
         <div
@@ -21,7 +20,6 @@
       </p>
     </div>
 
-    <!-- 模型选项 -->
     <div class="flex-1 space-y-3">
       <div
         v-for="option in modelOptions"
@@ -42,7 +40,6 @@
       </div>
     </div>
 
-    <!-- 当前模型信息 -->
     <div class="mt-4 p-3 bg-bg-card rounded-lg border border-input-border/30">
       <span class="text-sm text-text-secondary">
         {{ t('currentModel') }}:

@@ -1,10 +1,5 @@
 #!/usr/bin/env node
 
-/**
- * Electron 配置验证脚本
- * 验证所有 Electron 相关配置是否正确
- */
-
 import { existsSync, readFileSync } from 'fs'
 import path from 'path'
 import { fileURLToPath } from 'url'
@@ -15,28 +10,28 @@ const rootDir = path.resolve(__dirname, '..')
 const checks = [
   {
     name: '检查 package.json 配置',
-    check: checkPackageJson
+    check: checkPackageJson,
   },
   {
     name: '检查 Electron 主进程文件',
-    check: checkMainProcess
+    check: checkMainProcess,
   },
   {
     name: '检查预加载脚本',
-    check: checkPreloadScript
+    check: checkPreloadScript,
   },
   {
     name: '检查构建配置',
-    check: checkBuilderConfig
+    check: checkBuilderConfig,
   },
   {
     name: '检查构建资源',
-    check: checkBuildResources
+    check: checkBuildResources,
   },
   {
     name: '检查安全配置',
-    check: checkSecurityConfig
-  }
+    check: checkSecurityConfig,
+  },
 ]
 
 function checkPackageJson() {
@@ -63,7 +58,7 @@ function checkPackageJson() {
     'electron:build',
     'electron:build:mac',
     'electron:build:win',
-    'electron:build:linux'
+    'electron:build:linux',
   ]
 
   for (const script of requiredScripts) {
@@ -87,7 +82,7 @@ function checkMainProcess() {
     'nodeIntegration: false',
     'contextIsolation: true',
     'webSecurity: true',
-    'enableRemoteModule: false'
+    'enableRemoteModule: false',
   ]
 
   for (const check of securityChecks) {

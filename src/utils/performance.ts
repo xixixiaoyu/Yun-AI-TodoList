@@ -94,9 +94,6 @@ class PerformanceMonitor {
     return result
   }
 
-  /**
-   * 测量异步函数执行时间
-   */
   async measureAsync<T>(
     name: string,
     fn: () => Promise<T>,

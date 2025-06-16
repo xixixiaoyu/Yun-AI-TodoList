@@ -1,4 +1,3 @@
-/// <reference types="vite/client" />
 declare const __CAPACITOR__: boolean
 declare const __ELECTRON__: boolean
 

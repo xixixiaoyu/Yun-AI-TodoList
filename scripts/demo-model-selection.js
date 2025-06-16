@@ -8,7 +8,6 @@
 
 console.log('🤖 AI 模型切换功能演示\n')
 
-// 模拟 localStorage
 const mockLocalStorage = {
   data: {},
   getItem(key) {
@@ -17,10 +16,9 @@ const mockLocalStorage = {
   setItem(key, value) {
     this.data[key] = value
     console.log(`💾 保存到 localStorage: ${key} = ${value}`)
-  }
+  },
 }
 
-// 模拟配置服务
 class ConfigService {
   constructor() {
     this.storage = mockLocalStorage
@@ -37,7 +35,6 @@ class ConfigService {
   }
 }
 
-// 模拟 AI 服务
 class AIService {
   constructor(configService) {
     this.config = configService
@@ -49,27 +46,25 @@ class AIService {
     console.log(`📋 使用模型: ${model}`)
     console.log(`📝 请求数据:`, JSON.stringify(data, null, 2))
 
-    // 模拟不同模型的响应
     const responses = {
       'deepseek-chat': '这是来自 DeepSeek Chat 的快速响应！',
-      'deepseek-reasoner': '这是来自 DeepSeek Reasoner 的深度推理响应，经过仔细分析...'
+      'deepseek-reasoner': '这是来自 DeepSeek Reasoner 的深度推理响应，经过仔细分析...',
     }
 
     return {
       model: model,
-      response: responses[model] || '未知模型响应'
+      response: responses[model] || '未知模型响应',
     }
   }
 
   async getAIResponse(message) {
     return await this.makeRequest('/chat/completions', {
       model: this.config.getAIModel(),
-      messages: [{ role: 'user', content: message }]
+      messages: [{ role: 'user', content: message }],
     })
   }
 }
 
-// 演示函数
 async function demonstrateModelSwitching() {
   const config = new ConfigService()
   const aiService = new AIService(config)
@@ -100,7 +95,6 @@ async function demonstrateModelSwitching() {
   console.log('🎉 演示完成！模型切换功能正常工作。')
 }
 
-// 显示支持的模型信息
 function showModelInfo() {
   console.log('📚 支持的模型信息:')
   console.log('┌─────────────────────┬──────────────────────────────────────┐')
@@ -111,7 +105,6 @@ function showModelInfo() {
   console.log('└─────────────────────┴──────────────────────────────────────┘\n')
 }
 
-// 显示使用说明
 function showUsageInstructions() {
   console.log('📖 在实际应用中的使用方法:')
   console.log('')
@@ -137,7 +130,6 @@ function showUsageInstructions() {
   console.log('')
 }
 
-// 主函数
 async function main() {
   try {
     showModelInfo()
@@ -149,5 +141,4 @@ async function main() {
   }
 }
 
-// 运行演示
 main()

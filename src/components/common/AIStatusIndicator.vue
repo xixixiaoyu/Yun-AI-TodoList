@@ -1,7 +1,6 @@
 <template>
   <Transition name="status" appear>
     <div v-if="show" class="ai-status-indicator" :class="statusClass">
-      <!-- 状态图标 -->
       <div class="status-icon">
         <div v-if="type === 'loading'" class="loading-animation">
           <div class="loading-dots">
@@ -24,7 +23,6 @@
         </svg>
       </div>
 
-      <!-- 状态内容 -->
       <div class="status-content">
         <div class="status-title">{{ title }}</div>
         <div v-if="description" class="status-description">{{ description }}</div>
@@ -33,7 +31,6 @@
         </div>
       </div>
 
-      <!-- 关闭按钮 -->
       <button v-if="closable" class="close-button" @click="$emit('close')">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
           <path d="M18 6L6 18" />
@@ -81,7 +78,6 @@ const statusClass = computed(() => {
   }
 })
 
-// 自动关闭
 if (props.duration > 0) {
   setTimeout(() => {
     emit('close')
@@ -94,7 +90,6 @@ defineOptions({
 </script>
 
 <style scoped>
-/* 状态指示器主体 */
 .ai-status-indicator {
   @apply fixed top-4 right-4 z-1000;
   @apply flex items-center gap-3 px-4 py-3 rounded-xl;
@@ -103,7 +98,6 @@ defineOptions({
   background: linear-gradient(135deg, var(--card-bg-color) 0%, rgba(255, 255, 255, 0.02) 100%);
 }
 
-/* 状态图标 */
 .status-icon {
   @apply flex-shrink-0 w-8 h-8 rounded-lg;
   @apply flex items-center justify-center;
@@ -129,7 +123,6 @@ defineOptions({
   @apply w-5 h-5 stroke-2;
 }
 
-/* 加载动画 */
 .loading-animation {
   @apply w-full h-full flex items-center justify-center;
 }
@@ -151,7 +144,6 @@ defineOptions({
   animation-delay: -0.16s;
 }
 
-/* 状态内容 */
 .status-content {
   @apply flex-1 min-w-0;
 }
@@ -164,7 +156,6 @@ defineOptions({
   @apply text-xs text-text-secondary opacity-80;
 }
 
-/* 进度条 */
 .progress-bar {
   @apply w-full h-1 bg-white/10 rounded-full mt-2 overflow-hidden;
 }
@@ -189,7 +180,6 @@ defineOptions({
   @apply bg-gray-400;
 }
 
-/* 关闭按钮 */
 .close-button {
   @apply flex-shrink-0 w-6 h-6 rounded-md;
   @apply flex items-center justify-center text-text-secondary;
@@ -200,7 +190,6 @@ defineOptions({
   @apply w-4 h-4 stroke-2;
 }
 
-/* 过渡动画 */
 .status-enter-active,
 .status-leave-active {
   @apply transition-all-300;
@@ -211,7 +200,6 @@ defineOptions({
   @apply opacity-0 translate-x-full scale-95;
 }
 
-/* 响应式设计 */
 @media (max-width: 768px) {
   .ai-status-indicator {
     @apply top-2 right-2 left-2 max-w-none;
@@ -240,7 +228,6 @@ defineOptions({
   }
 }
 
-/* 动画关键帧 */
 @keyframes loading-pulse {
   0%,
   80%,

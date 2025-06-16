@@ -82,9 +82,6 @@ export class TodoValidator {
     return { isValid, errors }
   }
 
-  /**
-   * 批量验证 Todo 数组
-   */
   static validateTodos(todos: unknown[]): {
     validTodos: Todo[]
     invalidCount: number

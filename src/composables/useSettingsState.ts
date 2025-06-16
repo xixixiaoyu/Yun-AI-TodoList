@@ -10,7 +10,6 @@ export function useSettingsState() {
   const initializeSettings = () => {
     localApiKey.value = apiKey.value
 
-    // 清理系统提示词相关的本地存储数据
     localStorage.removeItem('systemPrompt')
     localStorage.removeItem('lastSelectedTemplate')
     localStorage.removeItem('customPrompts')
@@ -25,9 +24,6 @@ export function useSettingsState() {
     }, duration)
   }
 
-  /**
-   * 切换 API 密钥显示状态
-   */
   const toggleShowApiKey = () => {
     showApiKey.value = !showApiKey.value
   }

@@ -30,9 +30,6 @@ export function isMobileDevice(): boolean {
   return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
 }
 
-/**
- * 获取当前平台信息
- */
 export function getPlatformInfo(): PlatformInfo {
   const isCapacitorEnv = isCapacitor()
   const isElectronEnv = isElectron()

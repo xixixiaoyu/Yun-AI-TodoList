@@ -1,10 +1,5 @@
 #!/usr/bin/env node
 
-/**
- * 移动端构建脚本
- * 用于构建和打包移动端应用
- */
-
 import { execSync } from 'child_process'
 import { existsSync } from 'fs'
 import path from 'path'
@@ -59,7 +54,7 @@ function checkPlatformDependencies(platform) {
 
   const platformDeps = {
     android: ['@capacitor/android'],
-    ios: ['@capacitor/ios']
+    ios: ['@capacitor/ios'],
   }
 
   const deps = platformDeps[platform]
@@ -122,16 +117,16 @@ const buildConfig = {
   preChecks: [
     checkNodeVersion,
     checkDependencies,
-    platform => checkPlatformDependencies(platform),
-    platform => checkPlatformDirectory(platform)
+    (platform) => checkPlatformDependencies(platform),
+    (platform) => checkPlatformDirectory(platform),
   ],
 
   buildSteps: {
     build: [clean, buildWeb, syncMobile],
     sync: [buildWeb, syncMobile],
     open: [openIDE],
-    run: [runApp]
-  }
+    run: [runApp],
+  },
 }
 
 async function main() {

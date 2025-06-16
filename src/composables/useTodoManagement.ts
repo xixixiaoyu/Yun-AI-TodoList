@@ -60,7 +60,6 @@ export function useTodoManagement() {
   })
 
   const hasActiveTodos = computed(() => {
-    // AI 优先级排序只在待完成筛选状态下显示
     return filter.value === 'active' && todos.value.some((todo) => todo && !todo.completed)
   })
 
@@ -69,35 +68,27 @@ export function useTodoManagement() {
     try {
       const response = await getAIResponse(`${t('generateSuggestionsPrompt')}`, 'zh', 1.5)
 
-      // 改进的解析逻辑，支持多种格式
       let parsedTodos: string[] = []
 
-      // 首先尝试按行分割（支持编号格式）
       const lines = response.split('\n').filter((line) => line.trim() !== '')
 
       if (lines.length >= 2) {
-        // 如果有多行，尝试提取任务内容
         parsedTodos = lines
           .map((line) => {
-            // 移除编号（如 "1. ", "- ", "• " 等）
             return line.replace(/^\s*[\d\-•*]+\.?\s*/, '').trim()
           })
           .filter((todo) => todo !== '' && todo.length > 0)
       } else {
-        // 如果只有一行，尝试按逗号分割
         parsedTodos = response
           .split(/[,，]/)
           .map((todo) => todo.trim())
           .filter((todo) => todo !== '')
       }
 
-      // 确保有有效的建议
       if (parsedTodos.length === 0) {
-        // 如果解析失败，使用原始响应作为单个建议
         parsedTodos = [response.trim()]
       }
 
-      // 限制数量并过滤空内容
       suggestedTodos.value = parsedTodos
         .filter((todo) => todo.length > 0 && todo.length <= MAX_TODO_LENGTH)
         .slice(0, 5)
@@ -159,14 +150,12 @@ export function useTodoManagement() {
     isSorting.value = true
 
     try {
-      // 构建 AI 排序请求
       const todoTexts = activeTodos.map((todo, index) => `${index + 1}. ${todo.text}`).join('\n')
       const prompt = `请按照优先级对以下待办事项进行排序，返回排序后的序号列表（用逗号分隔）：\n${todoTexts}`
 
       const aiResponse = await getAIResponse(prompt)
       const sortedIndices = aiResponse.match(/\d+/g)?.map((num) => parseInt(num) - 1) || []
 
-      // 更新排序后的待办事项
       if (sortedIndices.length === activeTodos.length) {
         const sortedTodos = sortedIndices.map((index) => activeTodos[index]).filter(Boolean)
         const todoMap = new Map(todos.value.map((todo) => [todo.id, todo]))

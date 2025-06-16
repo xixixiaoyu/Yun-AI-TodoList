@@ -66,9 +66,6 @@ export const isTestEnvironment = () => {
   )
 }
 
-/**
- * 测试类型检测
- */
 export const getTestType = () => {
   if (typeof expect === 'undefined') {
     return 'unit'
@@ -114,9 +111,6 @@ export const TEST_GROUPS = {
   PERFORMANCE: 'performance',
 } as const
 
-/**
- * 测试优先级
- */
 export const TEST_PRIORITY = {
   CRITICAL: 1,
   HIGH: 2,
@@ -141,9 +135,6 @@ export const TestDataGenerator = {
     return result
   },
 
-  /**
-   * 生成随机数字
-   */
   randomNumber: (min = 0, max = 100) => {
     return Math.floor(Math.random() * (max - min + 1)) + min
   },
@@ -175,9 +166,6 @@ export const TestDataGenerator = {
   },
 }
 
-/**
- * 测试断言辅助函数
- */
 export const TestAssertions = {
   expectArrayToContain: <T>(array: T[], item: T) => {
     if (typeof expect !== 'undefined') {
@@ -206,9 +194,6 @@ export const TestAssertions = {
     }
   },
 
-  /**
-   * 断言异步操作完成
-   */
   expectAsyncToComplete: async (promise: Promise<unknown>, timeout = 5000) => {
     const result = await Promise.race([
       promise,
@@ -237,9 +222,6 @@ export const TestUtils = {
     return new Promise((resolve) => setTimeout(resolve, delay))
   },
 
-  /**
-   * 创建测试用的 Promise
-   */
   createTestPromise: <T>(value: T, delay = 0, shouldReject = false) => {
     return new Promise<T>((resolve, reject) => {
       setTimeout(() => {

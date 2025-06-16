@@ -1,7 +1,6 @@
 import { setupTestEnvironment } from '@/test/helpers'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
-// Mock dependencies first
 vi.mock('@/composables/useTodos', () => ({
   useTodos: vi.fn(),
 }))
@@ -20,7 +19,6 @@ vi.mock('vue-i18n', () => ({
   }),
 }))
 
-// Import after mocks
 import { useTodoManagement } from '../useTodoManagement'
 
 describe('useTodoManagement', () => {
@@ -33,7 +31,6 @@ describe('useTodoManagement', () => {
     testEnv = setupTestEnvironment()
     vi.clearAllMocks()
 
-    // Get mock references
     const { useTodos } = await import('@/composables/useTodos')
     const { useErrorHandler } = await import('@/composables/useErrorHandler')
     const { getAIResponse } = await import('@/services/deepseekService')
@@ -42,7 +39,6 @@ describe('useTodoManagement', () => {
     mockUseErrorHandler = useErrorHandler as any
     mockGetAIResponse = getAIResponse as any
 
-    // Setup default mocks
     mockUseTodos.mockReturnValue({
       todos: { value: [] },
       addTodo: vi.fn(),

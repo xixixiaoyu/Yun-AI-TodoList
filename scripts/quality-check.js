@@ -21,7 +21,7 @@ const colors = {
   blue: '\x1b[34m',
   magenta: '\x1b[35m',
   cyan: '\x1b[36m',
-  white: '\x1b[37m'
+  white: '\x1b[37m',
 }
 
 function colorize(text, color) {
@@ -32,20 +32,20 @@ const qualityConfig = {
   maxFileSize: {
     vue: 500 * 1024,
     ts: 300 * 1024,
-    js: 200 * 1024
+    js: 200 * 1024,
   },
 
   maxLines: {
     vue: 500,
     ts: 300,
-    js: 200
+    js: 200,
   },
 
   maxComplexity: 10,
 
   maxDependencies: 50,
 
-  minCoverage: 80
+  minCoverage: 80,
 }
 
 class QualityChecker {
@@ -58,7 +58,7 @@ class QualityChecker {
       coverage: null,
       security: [],
       performance: [],
-      score: 0
+      score: 0,
     }
   }
 
@@ -79,9 +79,6 @@ class QualityChecker {
     }
   }
 
-  /**
-   * 检查文件大小
-   */
   async checkFileSize() {
     console.log(colorize('📏 检查文件大小...', 'blue'))
 
@@ -98,7 +95,7 @@ class QualityChecker {
           file: path.relative(rootDir, file),
           size: stats.size,
           maxSize,
-          ratio: (stats.size / maxSize).toFixed(2)
+          ratio: (stats.size / maxSize).toFixed(2),
         })
       }
     }
@@ -107,7 +104,7 @@ class QualityChecker {
 
     if (oversizedFiles.length > 0) {
       console.log(colorize(`  ⚠️  发现 ${oversizedFiles.length} 个过大文件:`, 'yellow'))
-      oversizedFiles.forEach(f => {
+      oversizedFiles.forEach((f) => {
         console.log(`    ${f.file} (${(f.size / 1024).toFixed(1)}KB, 超出 ${f.ratio}x)`)
       })
     } else {
@@ -132,7 +129,7 @@ class QualityChecker {
           file: path.relative(rootDir, file),
           lines,
           maxLines,
-          ratio: (lines / maxLines).toFixed(2)
+          ratio: (lines / maxLines).toFixed(2),
         })
       }
     }
@@ -141,7 +138,7 @@ class QualityChecker {
 
     if (longFiles.length > 0) {
       console.log(colorize(`  ⚠️  发现 ${longFiles.length} 个过长文件:`, 'yellow'))
-      longFiles.forEach(f => {
+      longFiles.forEach((f) => {
         console.log(`    ${f.file} (${f.lines} 行, 超出 ${f.ratio}x)`)
       })
     } else {
@@ -170,7 +167,7 @@ class QualityChecker {
       production: deps.length,
       development: devDeps.length,
       total: totalDeps,
-      maxAllowed: qualityConfig.maxDependencies
+      maxAllowed: qualityConfig.maxDependencies,
     }
 
     if (totalDeps > qualityConfig.maxDependencies) {
@@ -199,7 +196,7 @@ class QualityChecker {
           securityIssues.push({
             file: path.relative(rootDir, file),
             issue: `使用了不安全的函数: ${unsafeFunc}`,
-            severity: 'high'
+            severity: 'high',
           })
         }
       }
@@ -209,7 +206,7 @@ class QualityChecker {
 
     if (securityIssues.length > 0) {
       console.log(colorize(`  ⚠️  发现 ${securityIssues.length} 个安全问题:`, 'yellow'))
-      securityIssues.forEach(issue => {
+      securityIssues.forEach((issue) => {
         console.log(`    ${issue.file}: ${issue.issue}`)
       })
     } else {
@@ -217,16 +214,13 @@ class QualityChecker {
     }
   }
 
-  /**
-   * 检查测试覆盖率
-   */
   async checkTestCoverage() {
     console.log(colorize('🧪 检查测试覆盖率...', 'blue'))
 
     try {
       execSync('pnpm run test:coverage --reporter=json', {
         cwd: rootDir,
-        stdio: 'pipe'
+        stdio: 'pipe',
       })
 
       const coveragePath = path.join(rootDir, 'coverage/coverage-summary.json')
@@ -236,7 +230,7 @@ class QualityChecker {
 
         this.results.coverage = {
           lines: totalCoverage,
-          required: qualityConfig.minCoverage
+          required: qualityConfig.minCoverage,
         }
 
         if (totalCoverage < qualityConfig.minCoverage) {
@@ -321,7 +315,7 @@ class QualityChecker {
     const files = []
     const extensions = ['.vue', '.ts', '.js']
 
-    const walkDir = dir => {
+    const walkDir = (dir) => {
       try {
         const entries = readdirSync(dir, { withFileTypes: true })
 
@@ -337,7 +331,7 @@ class QualityChecker {
           }
         }
       } catch (_error) {
-        // 忽略无法访问的目录
+        // 忽略文件读取错误，继续处理其他文件
       }
     }
 
