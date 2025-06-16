@@ -1,17 +1,30 @@
 <template>
-  <div class="w-full max-w-[900px] mx-auto flex flex-col gap-4 md:max-w-full">
-    <div class="text-center mb-1">
-      <h3 class="m-0 mb-1 text-xl md:text-[1.3rem] sm:text-[1.2rem] font-semibold text-text">
-        {{ t('apiKeyConfiguration') }}
-      </h3>
-      <p
-        class="m-0 text-[0.85rem] md:text-[0.9rem] sm:text-[0.85rem] text-text-secondary leading-[1.4]"
-      >
+  <div class="flex flex-col h-full">
+    <!-- 区块标题 -->
+    <div class="mb-6">
+      <div class="flex items-center gap-3 mb-2">
+        <div
+          class="w-8 h-8 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center shadow-lg"
+        >
+          <svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 24 24">
+            <path
+              d="M7 14c-1.66 0-3 1.34-3 3 0 1.31.84 2.41 2 2.83V22h2v-2.17c1.16-.42 2-1.52 2-2.83 0-1.66-1.34-3-3-3zM10.5 6L9 4.5c-.39-.39-1.02-.39-1.41 0L6.17 6.01c-.78.78-.78 2.05 0 2.83L12 14.66l5.83-5.82c.78-.78.78-2.05 0-2.83L16.41 4.5c-.39-.39-1.02-.39-1.41 0L13.5 6l-1.5 1.5L10.5 6z"
+            />
+          </svg>
+        </div>
+        <h3 class="text-lg font-semibold text-text">
+          {{ t('apiKeyConfiguration') }}
+        </h3>
+      </div>
+      <p class="text-sm text-text-secondary leading-relaxed">
         配置您的 OpenAI API 密钥以启用 AI 功能
       </p>
     </div>
 
-    <ApiKeyCard :local-api-key="localApiKey" @show-popover="showApiKeyPopover = true" />
+    <!-- API Key 卡片 -->
+    <div class="flex-1">
+      <ApiKeyCard :local-api-key="localApiKey" @show-popover="showApiKeyPopover = true" />
+    </div>
 
     <ApiKeyPopover
       v-if="showApiKeyPopover"

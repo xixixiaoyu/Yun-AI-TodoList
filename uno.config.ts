@@ -315,7 +315,10 @@ export default defineConfig({
     [
       'nav-button',
       'bg-language-bg text-language-color border border-language-color rounded px-2.5 py-1.5 cursor-pointer font-bold text-sm transition-all-300 hover:bg-language-hover hover:transform-hover-up hover:shadow-sm whitespace-nowrap'
-    ]
+    ],
+
+    // 设置页面样式
+    ['settings-card', 'min-h-64 flex flex-col']
   ],
 
   // 内容检测配置

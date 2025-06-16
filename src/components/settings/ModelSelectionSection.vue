@@ -1,17 +1,28 @@
 <template>
-  <div class="w-full max-w-[900px] mx-auto flex flex-col gap-4 md:max-w-full">
-    <div class="text-center mb-1">
-      <h3 class="m-0 mb-1 text-xl md:text-[1.3rem] sm:text-[1.2rem] font-semibold text-text">
-        {{ t('modelSelection') }}
-      </h3>
-      <p
-        class="m-0 text-[0.85rem] md:text-[0.9rem] sm:text-[0.85rem] text-text-secondary leading-[1.4]"
-      >
+  <div class="flex flex-col h-full">
+    <!-- 区块标题 -->
+    <div class="mb-6">
+      <div class="flex items-center gap-3 mb-2">
+        <div
+          class="w-8 h-8 bg-gradient-to-br from-purple-500 to-purple-600 rounded-lg flex items-center justify-center shadow-lg"
+        >
+          <svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 24 24">
+            <path
+              d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"
+            />
+          </svg>
+        </div>
+        <h3 class="text-lg font-semibold text-text">
+          {{ t('modelSelection') }}
+        </h3>
+      </div>
+      <p class="text-sm text-text-secondary leading-relaxed">
         {{ t('modelSelectionDescription') }}
       </p>
     </div>
 
-    <div class="flex flex-col gap-3">
+    <!-- 模型选项 -->
+    <div class="flex-1 space-y-3">
       <div
         v-for="option in modelOptions"
         :key="option.value"
@@ -31,9 +42,11 @@
       </div>
     </div>
 
-    <div class="current-model-info">
+    <!-- 当前模型信息 -->
+    <div class="mt-4 p-3 bg-bg-card rounded-lg border border-input-border/30">
       <span class="text-sm text-text-secondary">
-        {{ t('currentModel') }}: {{ getCurrentModelLabel() }}
+        {{ t('currentModel') }}:
+        <span class="font-medium text-text">{{ getCurrentModelLabel() }}</span>
       </span>
     </div>
   </div>

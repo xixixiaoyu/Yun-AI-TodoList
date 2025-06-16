@@ -1,17 +1,28 @@
 <template>
-  <div class="w-full max-w-[900px] mx-auto flex flex-col gap-4 md:max-w-full">
-    <div class="text-center mb-1">
-      <h3 class="m-0 mb-1 text-xl md:text-[1.3rem] sm:text-[1.2rem] font-semibold text-text">
-        {{ t('themeConfiguration') }}
-      </h3>
-      <p
-        class="m-0 text-[0.85rem] md:text-[0.9rem] sm:text-[0.85rem] text-text-secondary leading-[1.4]"
-      >
+  <div class="flex flex-col h-full">
+    <!-- 区块标题 -->
+    <div class="mb-6">
+      <div class="flex items-center gap-3 mb-2">
+        <div
+          class="w-8 h-8 bg-gradient-to-br from-orange-500 to-orange-600 rounded-lg flex items-center justify-center shadow-lg"
+        >
+          <svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 24 24">
+            <path
+              d="M12 18.5A6.5 6.5 0 1 1 18.5 12A6.51 6.51 0 0 1 12 18.5zM12 2a1 1 0 0 0-1 1v3a1 1 0 0 0 2 0V3A1 1 0 0 0 12 2zM21 11H18a1 1 0 0 0 0 2h3a1 1 0 0 0 0-2zM6 11H3a1 1 0 0 0 0 2h3a1 1 0 0 0 0-2zM6.22 5a1 1 0 0 0-1.39 1.47l1.44 1.39a1 1 0 0 0 .73.28 1 1 0 0 0 .72-.31 1 1 0 0 0 0-1.41zM17 8.14a1 1 0 0 0 .69-.28l1.44-1.39A1 1 0 0 0 17.78 5l-1.44 1.42a1 1 0 0 0 0 1.41A1 1 0 0 0 17 8.14zM12 22a1 1 0 0 0 1-1V18a1 1 0 0 0-2 0v3A1 1 0 0 0 12 22zM5.64 17.36a1 1 0 0 0 .7.3 1 1 0 0 0 .71-.3 1 1 0 0 0 0-1.41L5.64 14.5a1 1 0 0 0-1.41 1.41zM18.36 17.36l1.41-1.41a1 1 0 0 0-1.41-1.41l-1.41 1.41a1 1 0 0 0 0 1.41 1 1 0 0 0 .7.3A1 1 0 0 0 18.36 17.36z"
+            />
+          </svg>
+        </div>
+        <h3 class="text-lg font-semibold text-text">
+          {{ t('themeConfiguration') }}
+        </h3>
+      </div>
+      <p class="text-sm text-text-secondary leading-relaxed">
         {{ t('themeConfigurationDescription') }}
       </p>
     </div>
 
-    <div class="flex flex-col gap-3">
+    <!-- 主题选项 -->
+    <div class="flex-1 space-y-3">
       <div
         v-for="option in themeOptions"
         :key="option.value"

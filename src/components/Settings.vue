@@ -1,8 +1,21 @@
 <template>
-  <div class="settings-page">
-    <div class="settings-container">
-      <div class="settings-content">
-        <div class="settings-section-wrapper">
+  <div class="min-h-screen bg-bg flex flex-col items-center justify-center p-4 py-8 md:py-12">
+    <div class="w-full max-w-7xl mx-auto space-y-6 md:space-y-8">
+      <!-- 页面标题区域 -->
+      <div class="text-center space-y-1">
+        <h1 class="settings-title text-2xl md:text-3xl font-bold text-text tracking-tight">
+          {{ t('settings') }}
+        </h1>
+        <p class="text-sm md:text-base text-text-secondary max-w-2xl mx-auto">
+          管理您的应用配置和偏好设置
+        </p>
+      </div>
+
+      <!-- 设置内容网格 -->
+      <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 md:gap-8 items-start">
+        <div
+          class="settings-card bg-card rounded-2xl p-6 shadow-card border border-white/10 backdrop-blur-20 transition-all-300 hover:transform-hover-up hover:shadow-hover md:col-span-2 xl:col-span-1"
+        >
           <ApiKeySection
             v-model:local-api-key="localApiKey"
             v-model:show-api-key="showApiKey"
@@ -11,26 +24,33 @@
           />
         </div>
 
-        <div class="settings-section-wrapper">
+        <div
+          class="settings-card bg-card rounded-2xl p-6 shadow-card border border-white/10 backdrop-blur-20 transition-all-300 hover:transform-hover-up hover:shadow-hover"
+        >
           <ModelSelectionSection />
         </div>
 
-        <div class="settings-section-wrapper">
+        <div
+          class="settings-card bg-card rounded-2xl p-6 shadow-card border border-white/10 backdrop-blur-20 transition-all-300 hover:transform-hover-up hover:shadow-hover md:col-span-2 xl:col-span-1"
+        >
           <ThemeSection />
         </div>
       </div>
-
-      <SettingsToast :show="showSuccessMessage" />
     </div>
+
+    <SettingsToast :show="showSuccessMessage" />
   </div>
 </template>
 
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n'
 import { useSettingsState } from '../composables/useSettingsState'
 import ApiKeySection from './settings/ApiKeySection.vue'
 import ModelSelectionSection from './settings/ModelSelectionSection.vue'
 import SettingsToast from './settings/SettingsToast.vue'
 import ThemeSection from './settings/ThemeSection.vue'
+
+const { t } = useI18n()
 
 const { showApiKey, showApiKeyPopover, localApiKey, showSuccessMessage, showSuccessToast } =
   useSettingsState()
@@ -41,136 +61,40 @@ defineOptions({
 </script>
 
 <style scoped>
-.settings-page {
-  min-height: 100vh;
-  background: var(--bg-color);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 2rem 1rem;
-}
-
-.settings-container {
-  width: 100%;
-  max-width: 1200px;
-  margin: 0 auto;
+/* 设置卡片的渐变背景动画 */
+.settings-card {
+  background: linear-gradient(135deg, var(--card-bg-color) 0%, var(--card-bg-color) 100%);
   position: relative;
-  display: flex;
-  flex-direction: column;
-  gap: 2.5rem;
+  overflow: hidden;
 }
 
-.page-subtitle {
-  margin: 0;
-  font-size: 1.1rem;
-  color: var(--text-secondary-color, rgba(var(--text-color-rgb), 0.7));
-  font-weight: 400;
-}
-
-.settings-content {
-  display: flex;
-  flex-direction: column;
-  gap: 2rem;
+.settings-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
   width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+  transition: left 0.6s ease;
 }
 
-.settings-section-wrapper {
-  width: 100%;
-  display: flex;
-  justify-content: center;
+.settings-card:hover::before {
+  left: 100%;
 }
 
-.settings-page {
-  scrollbar-width: thin;
-  scrollbar-color: rgba(255, 154, 139, 0.6) rgba(0, 0, 0, 0.05);
+/* 页面标题的渐变文字效果 */
+.settings-title {
+  background: linear-gradient(135deg, var(--text-color) 0%, var(--primary-color) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
-.settings-page::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
-}
-
-.settings-page::-webkit-scrollbar-track {
-  background: rgba(0, 0, 0, 0.05);
-  border-radius: 4px;
-}
-
-.settings-page::-webkit-scrollbar-thumb {
-  background: rgba(255, 154, 139, 0.6);
-  border-radius: 4px;
-  transition: all 0.3s ease;
-}
-
-.settings-page::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 140, 127, 0.8);
-}
-
-@media (prefers-color-scheme: dark) {
-  .settings-page {
-    scrollbar-color: rgba(255, 154, 139, 0.7) rgba(255, 255, 255, 0.1);
-  }
-
-  .settings-page::-webkit-scrollbar-track {
-    background: rgba(255, 255, 255, 0.1);
-  }
-
-  .settings-page::-webkit-scrollbar-thumb {
-    background: rgba(255, 154, 139, 0.7);
-  }
-
-  .settings-page::-webkit-scrollbar-thumb:hover {
-    background: rgba(255, 140, 127, 0.9);
-  }
-}
-
-@media (max-width: 1024px) {
-  .settings-page {
-    padding: 1.5rem 1rem;
-    align-items: flex-start;
-    justify-content: flex-start;
-    padding-top: 3rem;
-  }
-
-  .page-subtitle {
-    font-size: 1rem;
-  }
-}
-
+/* 响应式优化 */
 @media (max-width: 768px) {
-  .settings-page {
-    padding: 1rem 0.75rem;
-    padding-top: 2rem;
-  }
-
-  .settings-container {
-    gap: 1.5rem;
-  }
-
-  .page-subtitle {
-    font-size: 0.95rem;
-  }
-
-  .settings-content {
-    gap: 1.5rem;
-  }
-}
-
-@media (max-width: 480px) {
-  .settings-page {
-    padding: 0.75rem 0.5rem;
-    padding-top: 1.5rem;
-  }
-
-  .settings-container {
-    gap: 1rem;
-  }
-
-  .page-subtitle {
-    font-size: 0.9rem;
-  }
-
-  .settings-content {
-    gap: 1rem;
+  .settings-card {
+    min-height: auto;
   }
 }
 </style>
