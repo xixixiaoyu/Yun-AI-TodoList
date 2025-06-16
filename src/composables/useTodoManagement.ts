@@ -60,7 +60,8 @@ export function useTodoManagement() {
   })
 
   const hasActiveTodos = computed(() => {
-    return todos.value.some(todo => todo && !todo.completed)
+    // AI 优先级排序只在待完成筛选状态下显示
+    return filter.value === 'active' && todos.value.some(todo => todo && !todo.completed)
   })
 
   const generateSuggestedTodos = async () => {
