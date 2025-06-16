@@ -1,5 +1,7 @@
 <template>
-  <div class="min-h-screen bg-bg flex flex-col items-center justify-center p-4 py-8 md:py-12">
+  <div
+    class="h-full bg-bg flex flex-col items-center justify-center p-4 py-8 md:py-12 overflow-hidden"
+  >
     <div class="w-full max-w-7xl mx-auto space-y-6 md:space-y-8">
       <!-- 页面标题区域 -->
       <div class="text-center space-y-1">
