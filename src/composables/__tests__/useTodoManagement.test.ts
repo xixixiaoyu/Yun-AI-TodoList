@@ -1,23 +1,17 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { useTodoManagement } from '../useTodoManagement'
 import { setupTestEnvironment } from '@/test/helpers'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
-// Mock dependencies
-const mockUseTodos = vi.fn()
-const mockUseErrorHandler = vi.fn()
-const mockDeepseekService = vi.fn()
-
+// Mock dependencies first
 vi.mock('@/composables/useTodos', () => ({
-  useTodos: mockUseTodos
+  useTodos: vi.fn()
 }))
 
 vi.mock('@/composables/useErrorHandler', () => ({
-  useErrorHandler: mockUseErrorHandler
+  useErrorHandler: vi.fn()
 }))
 
 vi.mock('@/services/deepseekService', () => ({
-  getAIResponse: mockDeepseekService,
-  streamAIResponse: mockDeepseekService
+  getAIResponse: vi.fn()
 }))
 
 vi.mock('vue-i18n', () => ({
@@ -26,12 +20,27 @@ vi.mock('vue-i18n', () => ({
   })
 }))
 
+// Import after mocks
+import { useTodoManagement } from '../useTodoManagement'
+
 describe('useTodoManagement', () => {
   let testEnv: ReturnType<typeof setupTestEnvironment>
+  let mockUseTodos: any
+  let mockUseErrorHandler: any
+  let mockGetAIResponse: any
 
-  beforeEach(() => {
+  beforeEach(async () => {
     testEnv = setupTestEnvironment()
     vi.clearAllMocks()
+
+    // Get mock references
+    const { useTodos } = await import('@/composables/useTodos')
+    const { useErrorHandler } = await import('@/composables/useErrorHandler')
+    const { getAIResponse } = await import('@/services/deepseekService')
+
+    mockUseTodos = useTodos as any
+    mockUseErrorHandler = useErrorHandler as any
+    mockGetAIResponse = getAIResponse as any
 
     // Setup default mocks
     mockUseTodos.mockReturnValue({
@@ -43,7 +52,8 @@ describe('useTodoManagement', () => {
     })
 
     mockUseErrorHandler.mockReturnValue({
-      showError: vi.fn()
+      showError: vi.fn(),
+      error: { value: '' }
     })
   })
 
@@ -64,7 +74,7 @@ describe('useTodoManagement', () => {
         isLoading
       } = useTodoManagement()
 
-      expect(filter.value).toBe('all')
+      expect(filter.value).toBe('active')
       expect(searchQuery.value).toBe('')
       expect(isGenerating.value).toBe(false)
       expect(isSorting.value).toBe(false)
@@ -75,18 +85,19 @@ describe('useTodoManagement', () => {
     })
 
     it('应该正确处理添加待办事项', () => {
+      const mockAddTodo = vi.fn().mockReturnValue(true)
       mockUseTodos.mockReturnValue({
         todos: { value: [] },
-        addTodo: vi.fn().mockReturnValue(true),
+        addTodo: mockAddTodo,
         toggleTodo: vi.fn(),
         removeTodo: vi.fn(),
         addMultipleTodos: vi.fn()
       })
 
       const { handleAddTodo } = useTodoManagement()
-      const result = handleAddTodo('新的待办事项')
+      handleAddTodo('新的待办事项', [])
 
-      expect(result).toBe(true)
+      expect(mockAddTodo).toHaveBeenCalledWith('新的待办事项', [])
     })
 
     it('应该正确处理切换待办事项状态', () => {
@@ -122,7 +133,9 @@ describe('useTodoManagement', () => {
 
   describe('AI 功能', () => {
     it('应该生成建议的待办事项', async () => {
-      mockDeepseekService.mockResolvedValue('1. 学习 Vue\n2. 写测试\n3. 部署应用')
+      mockGetAIResponse.mockResolvedValue(
+        '1. 学习 Vue 3\n2. 编写单元测试\n3. 部署应用\n4. 代码重构\n5. 文档更新'
+      )
 
       const { generateSuggestedTodos, suggestedTodos, isGenerating } = useTodoManagement()
 
@@ -132,11 +145,25 @@ describe('useTodoManagement', () => {
       await promise
 
       expect(isGenerating.value).toBe(false)
-      expect(suggestedTodos.value.length).toBeGreaterThan(0)
+      expect(suggestedTodos.value.length).toBe(5)
+      expect(suggestedTodos.value[0]).toBe('学习 Vue 3')
+      expect(suggestedTodos.value[1]).toBe('编写单元测试')
+    })
+
+    it('应该处理逗号分隔的建议格式', async () => {
+      mockGetAIResponse.mockResolvedValue('学习 Vue,写测试,部署应用')
+
+      const { generateSuggestedTodos, suggestedTodos } = useTodoManagement()
+
+      await generateSuggestedTodos()
+
+      expect(suggestedTodos.value.length).toBe(3)
+      expect(suggestedTodos.value[0]).toBe('学习 Vue')
+      expect(suggestedTodos.value[1]).toBe('写测试')
     })
 
     it('应该处理 AI 生成失败', async () => {
-      mockDeepseekService.mockRejectedValue(new Error('API 错误'))
+      mockGetAIResponse.mockRejectedValue(new Error('API 错误'))
       mockUseErrorHandler.mockReturnValue({
         showError: vi.fn()
       })
@@ -161,10 +188,10 @@ describe('useTodoManagement', () => {
         toggleTodo: vi.fn(),
         removeTodo: vi.fn(),
         addMultipleTodos: vi.fn(),
-        updateTodosOrder: vi.fn()
+        saveTodos: vi.fn()
       })
 
-      mockDeepseekService.mockResolvedValue('排序后的任务列表')
+      mockGetAIResponse.mockResolvedValue('2,1')
 
       const { sortActiveTodosWithAI, isSorting } = useTodoManagement()
 
@@ -189,15 +216,15 @@ describe('useTodoManagement', () => {
 
       const { suggestedTodos, showSuggestedTodos, confirmSuggestedTodos } = useTodoManagement()
 
-      suggestedTodos.value = [
-        { text: '测试任务1', tags: [] },
-        { text: '测试任务2', tags: [] }
-      ]
+      suggestedTodos.value = ['测试任务1', '测试任务2']
       showSuggestedTodos.value = true
 
       confirmSuggestedTodos()
 
-      expect(mockUseTodos().addMultipleTodos).toHaveBeenCalledWith(suggestedTodos.value)
+      expect(mockUseTodos().addMultipleTodos).toHaveBeenCalledWith([
+        { text: '测试任务1' },
+        { text: '测试任务2' }
+      ])
       expect(showSuggestedTodos.value).toBe(false)
       expect(suggestedTodos.value).toEqual([])
     })
@@ -205,7 +232,7 @@ describe('useTodoManagement', () => {
     it('应该取消建议的待办事项', () => {
       const { suggestedTodos, showSuggestedTodos, cancelSuggestedTodos } = useTodoManagement()
 
-      suggestedTodos.value = [{ text: '测试任务', tags: [] }]
+      suggestedTodos.value = ['测试任务']
       showSuggestedTodos.value = true
 
       cancelSuggestedTodos()
@@ -217,14 +244,11 @@ describe('useTodoManagement', () => {
     it('应该更新建议的待办事项', () => {
       const { suggestedTodos, updateSuggestedTodo } = useTodoManagement()
 
-      suggestedTodos.value = [
-        { text: '原始任务', tags: [] },
-        { text: '另一个任务', tags: [] }
-      ]
+      suggestedTodos.value = ['原始任务', '另一个任务']
 
       updateSuggestedTodo(0, '更新后的任务')
 
-      expect(suggestedTodos.value[0].text).toBe('更新后的任务')
+      expect(suggestedTodos.value[0]).toBe('更新后的任务')
     })
   })
 })

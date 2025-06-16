@@ -171,7 +171,7 @@ const emit = defineEmits(['pomodoroComplete'])
 
 <style scoped>
 .pomodoro-timer {
-  font-family: 'LXGW WenKai Screen', sans-serif;
+  font-family: 'LXGW WenKai Lite Medium', sans-serif;
   background-color: var(--card-bg-color);
   border-radius: var(--border-radius);
   box-shadow: var(--card-shadow);

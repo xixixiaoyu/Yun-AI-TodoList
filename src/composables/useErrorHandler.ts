@@ -5,39 +5,47 @@ import { logger } from '../utils/logger'
 export function useErrorHandler() {
   const { t, te } = useI18n()
   const error = ref('')
+  const success = ref('')
   const errorHistory = ref<Array<{ message: string; timestamp: Date }>>([])
 
-  const showError = (message: string, duration = 3000) => {
+  const showError = (message: string) => {
+    const translatedMessage = typeof message === 'string' ? message : String(message)
+    error.value = translatedMessage
+    errorHistory.value.push({
+      message: translatedMessage,
+      timestamp: new Date().toISOString()
+    })
+
+    logger.info('Error message displayed', { message: translatedMessage }, 'ErrorHandler')
+
+    // 5秒后自动清除错误消息
+    setTimeout(() => {
+      error.value = ''
+    }, 5000)
+  }
+
+  const showSuccess = (message: string, duration = 3000) => {
     try {
       const translatedMessage = te(message) ? t(message) : message
+      success.value = translatedMessage
 
-      error.value = translatedMessage
+      logger.info('Success message displayed', { message: translatedMessage }, 'ErrorHandler')
 
-      errorHistory.value.push({
-        message: translatedMessage,
-        timestamp: new Date()
-      })
-
-      if (errorHistory.value.length > 10) {
-        errorHistory.value = errorHistory.value.slice(-10)
-      }
-
-      logger.warn('User error displayed', { message: translatedMessage }, 'ErrorHandler')
-
+      // 3秒后自动清除成功消息
       setTimeout(() => {
-        error.value = ''
+        success.value = ''
       }, duration)
     } catch (err) {
-      console.error('Error in error handler:', err)
-      error.value = 'An unexpected error occurred'
-      setTimeout(() => {
-        error.value = ''
-      }, duration)
+      console.error('Error in success handler:', err)
     }
   }
 
   const clearError = () => {
     error.value = ''
+  }
+
+  const clearSuccess = () => {
+    success.value = ''
   }
 
   const getErrorHistory = () => {
@@ -46,9 +54,12 @@ export function useErrorHandler() {
 
   return {
     error,
+    success,
     errorHistory,
     showError,
+    showSuccess,
     clearError,
+    clearSuccess,
     getErrorHistory
   }
 }

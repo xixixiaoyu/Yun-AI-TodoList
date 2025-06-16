@@ -1,16 +1,46 @@
 <template>
-  <div v-if="filter === 'active' || filter === 'completed'" class="actions">
-    <button class="generate-btn" :disabled="isGenerating" @click="$emit('generateSuggestions')">
-      {{ isGenerating ? t('generating') : t('generateSuggestions') }}
+  <div v-if="filter === 'active' || filter === 'completed'" class="ai-actions-container">
+    <!-- AI 生成建议按钮 -->
+    <button
+      class="ai-action-btn ai-generate-btn"
+      :class="{ 'is-loading': isGenerating }"
+      :disabled="isGenerating"
+      @click="$emit('generateSuggestions')"
+    >
+      <div class="btn-content">
+        <div v-if="isGenerating" class="loading-spinner" />
+        <svg v-else class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+          <path d="M12 2L2 7l10 5 10-5-10-5z" />
+          <path d="M2 17l10 5 10-5" />
+          <path d="M2 12l10 5 10-5" />
+        </svg>
+        <span class="btn-text">
+          {{ isGenerating ? t('generating') : t('generateSuggestions') }}
+        </span>
+      </div>
+      <div class="btn-shine" />
     </button>
 
+    <!-- AI 优先级排序按钮 -->
     <button
       v-if="filter === 'active' && hasActiveTodos"
-      class="sort-btn"
+      class="ai-action-btn ai-sort-btn"
+      :class="{ 'is-loading': isSorting }"
       :disabled="isSorting"
       @click="$emit('sortWithAI')"
     >
-      <span>{{ t('aiPrioritySort') }}</span>
+      <div class="btn-content">
+        <div v-if="isSorting" class="loading-spinner" />
+        <svg v-else class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+          <path d="M3 6h18" />
+          <path d="M7 12h10" />
+          <path d="M10 18h4" />
+        </svg>
+        <span class="btn-text">
+          {{ isSorting ? t('sorting') : t('aiPrioritySort') }}
+        </span>
+      </div>
+      <div class="btn-shine" />
     </button>
   </div>
 </template>
@@ -41,126 +71,144 @@ defineOptions({
 </script>
 
 <style scoped>
-.actions {
-  display: flex;
-  justify-content: center;
-  gap: 1rem;
-  margin-bottom: 0.75rem;
-  flex-wrap: wrap;
-  padding: 1rem;
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.04) 0%, rgba(255, 126, 103, 0.02) 100%);
-  border-radius: calc(var(--border-radius) * 1.2);
-  border: 1px solid rgba(255, 126, 103, 0.1);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+/* AI 操作容器 */
+.ai-actions-container {
+  @apply flex justify-center items-center gap-4 mb-3 flex-wrap p-4;
+  @apply bg-gradient-pomodoro rounded-1.5x border border-orange-100/10;
+  @apply shadow-sm backdrop-blur-10 transition-all-300;
 }
 
-.generate-btn,
-.sort-btn {
-  padding: 0.8rem 1.4rem;
-  font-size: 0.9rem;
-  min-width: 140px;
-  height: 44px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: calc(var(--border-radius) * 1.5);
-  cursor: pointer;
-  transition: all 0.3s ease;
-  font-weight: 500;
-  letter-spacing: 0.3px;
-  margin-bottom: 0;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  position: relative;
-  overflow: hidden;
-  backdrop-filter: blur(10px);
+/* AI 操作按钮基础样式 */
+.ai-action-btn {
+  @apply relative flex items-center justify-center gap-3 px-6 py-3.5;
+  @apply min-w-36 h-11 rounded-1.5x font-medium text-sm;
+  @apply border border-white/10 cursor-pointer transition-all-300;
+  @apply shadow-button backdrop-blur-10 overflow-hidden;
+  @apply hover:transform-hover-up-2 hover:shadow-hover;
+  @apply disabled:cursor-not-allowed disabled:transform-none;
 }
 
-.generate-btn::before,
-.sort-btn::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
+/* 按钮内容布局 */
+.btn-content {
+  @apply flex items-center gap-2.5 relative z-10;
+}
+
+/* 按钮图标 */
+.btn-icon {
+  @apply w-4 h-4 stroke-2 transition-transform-300;
+}
+
+/* 按钮文本 */
+.btn-text {
+  @apply font-medium tracking-wide transition-all-300;
+}
+
+/* 按钮光泽效果 */
+.btn-shine {
+  @apply absolute inset-0 opacity-0 transition-all-500;
   background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-  transition: left 0.5s;
+  transform: translateX(-100%);
 }
 
-.generate-btn:hover::before,
-.sort-btn:hover::before {
-  left: 100%;
+.ai-action-btn:hover .btn-shine {
+  @apply opacity-100;
+  transform: translateX(100%);
 }
 
-.generate-btn {
+/* 生成建议按钮样式 */
+.ai-generate-btn {
+  @apply text-white;
   background: linear-gradient(135deg, #4ecdc4 0%, #44a08d 100%);
-  color: white;
 }
 
-.generate-btn:hover:not(:disabled) {
+.ai-generate-btn:hover:not(:disabled) {
   background: linear-gradient(135deg, #26d0ce 0%, #2a9d8f 100%);
-  transform: translateY(-3px);
+  @apply border-white/20;
   box-shadow: 0 8px 20px rgba(78, 205, 196, 0.4);
-  border-color: rgba(255, 255, 255, 0.2);
 }
 
-.generate-btn:disabled {
+.ai-generate-btn:disabled,
+.ai-generate-btn.is-loading {
   background: linear-gradient(135deg, #95a5a6 0%, #7f8c8d 100%);
-  cursor: not-allowed;
-  transform: none;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  @apply shadow-sm;
 }
 
-.sort-btn {
+/* 排序按钮样式 */
+.ai-sort-btn {
+  @apply text-emerald-800;
   background: linear-gradient(135deg, #a8e6cf 0%, #88d8a3 100%);
-  color: #2d5a3d;
 }
 
-.sort-btn:hover:not(:disabled) {
+.ai-sort-btn:hover:not(:disabled) {
   background: linear-gradient(135deg, #7fcdcd 0%, #74c0fc 100%);
-  transform: translateY(-3px);
+  @apply text-emerald-900 border-white/20;
   box-shadow: 0 8px 20px rgba(168, 230, 207, 0.4);
-  border-color: rgba(255, 255, 255, 0.2);
-  color: #1a4a2e;
 }
 
-.sort-btn:disabled {
+.ai-sort-btn:disabled,
+.ai-sort-btn.is-loading {
   background: linear-gradient(135deg, #95a5a6 0%, #7f8c8d 100%);
-  cursor: not-allowed;
-  transform: none;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  @apply text-gray-600 shadow-sm;
 }
 
+/* 加载状态动画 */
+.loading-spinner {
+  @apply w-4 h-4 border-2 border-current border-t-transparent rounded-full;
+  animation: spin 1s linear infinite;
+}
+
+.is-loading .btn-icon {
+  @apply scale-0;
+}
+
+.is-loading .loading-spinner {
+  @apply scale-100;
+}
+
+/* 响应式设计 */
 @media (max-width: 768px) {
-  .actions {
-    padding: 0.75rem;
-    gap: 0.75rem;
+  .ai-actions-container {
+    @apply p-3 gap-3;
   }
 
-  .generate-btn,
-  .sort-btn {
-    padding: 0.7rem 1.2rem;
-    font-size: 0.85rem;
-    min-width: 120px;
-    height: 40px;
+  .ai-action-btn {
+    @apply px-5 py-3 min-w-32 h-10 text-xs;
+  }
+
+  .btn-icon {
+    @apply w-3.5 h-3.5;
+  }
+
+  .loading-spinner {
+    @apply w-3.5 h-3.5;
   }
 }
 
 @media (max-width: 480px) {
-  .actions {
-    flex-direction: column;
-    padding: 0.5rem;
-    gap: 0.5rem;
+  .ai-actions-container {
+    @apply flex-col p-2 gap-2;
   }
 
-  .generate-btn,
-  .sort-btn {
-    width: 100%;
-    min-width: unset;
-    padding: 0.6rem 1rem;
-    font-size: 0.8rem;
-    height: 36px;
+  .ai-action-btn {
+    @apply w-full min-w-0 px-4 py-2.5 h-9 text-xs;
+  }
+
+  .btn-icon {
+    @apply w-3 h-3;
+  }
+
+  .loading-spinner {
+    @apply w-3 h-3;
+  }
+}
+
+/* 动画关键帧 */
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
   }
 }
 </style>

@@ -13,7 +13,7 @@ import { useUIState } from './useUIState'
  */
 export function useTodoListState() {
   const { t } = useI18n()
-  const { showError } = useErrorHandler()
+  const { showError, error, success } = useErrorHandler()
   const confirmDialog = useConfirmDialog()
 
   const todoListRef = ref<HTMLElement | null>(null)
@@ -159,6 +159,8 @@ export function useTodoListState() {
     handlePomodoroComplete,
 
     onKeyDown,
-    handleError
+    handleError,
+    error,
+    success
   }
 }

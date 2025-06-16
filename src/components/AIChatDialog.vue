@@ -103,7 +103,7 @@ defineOptions({
 <style scoped>
 .ai-chat-dialog {
   overflow: hidden;
-  font-family: 'LXGW WenKai Screen', sans-serif;
+  font-family: 'LXGW WenKai Lite Medium', sans-serif;
   position: fixed;
   top: 0;
   left: 0;

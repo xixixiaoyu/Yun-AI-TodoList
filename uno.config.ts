@@ -26,7 +26,7 @@ export default defineConfig({
     presetWebFonts({
       // Web 字体预设
       fonts: {
-        sans: 'LXGW WenKai Screen',
+        sans: 'LXGW WenKai Lite Medium',
         mono: ['Fira Code', 'Consolas', 'monospace']
       }
     })
@@ -92,7 +92,7 @@ export default defineConfig({
       hover: 'var(--hover-bg-color)'
     },
     fontFamily: {
-      sans: ['LXGW WenKai Screen', 'sans-serif'],
+      sans: ['LXGW WenKai Lite Medium', 'sans-serif'],
       mono: ['Fira Code', 'Consolas', 'monospace']
     },
     borderRadius: {
@@ -135,6 +135,7 @@ export default defineConfig({
     ['transition-all-300', { transition: 'all 0.3s ease' }],
     ['transition-all-500', { transition: 'all 0.5s ease' }],
     ['transition-opacity-300', { transition: 'opacity 0.3s ease' }],
+    ['transition-transform-300', { transition: 'transform 0.3s ease' }],
 
     // 自定义背景渐变
     [
@@ -155,6 +156,8 @@ export default defineConfig({
     // 自定义变换效果
     ['transform-hover-up', { transform: 'translateY(-2px)' }],
     ['transform-hover-up-1', { transform: 'translateY(-1px)' }],
+    ['transform-hover-up-2', { transform: 'translateY(-2px)' }],
+    ['transform-hover-up-4', { transform: 'translateY(-4px)' }],
 
     // 自定义边框
     [
@@ -339,5 +342,15 @@ export default defineConfig({
   },
 
   // 安全列表 - 确保这些类名始终被包含
-  safelist: ['completed', 'small-screen', 'is-loading', 'dark', 'light']
+  safelist: [
+    'completed',
+    'small-screen',
+    'is-loading',
+    'dark',
+    'light',
+    'status-loading',
+    'status-success',
+    'status-error',
+    'status-info'
+  ]
 })

@@ -31,6 +31,22 @@
 
       <TodoSearch v-model="searchQuery" :is-expanded="showSearch" @collapse="collapseSearch" />
 
+      <!-- 错误消息显示 -->
+      <div
+        v-if="error"
+        class="error-message mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded"
+      >
+        {{ error }}
+      </div>
+
+      <!-- 成功消息显示 -->
+      <div
+        v-if="success"
+        class="success-message mb-4 p-3 bg-green-100 border border-green-400 text-green-700 rounded"
+      >
+        {{ success }}
+      </div>
+
       <div ref="todoListRef" class="todo-grid">
         <div v-if="filteredTodos.length === 0" class="empty-hint">
           <svg
@@ -140,7 +156,9 @@ const {
   toggleSearch,
   closeCharts,
   collapseSearch,
-  handlePomodoroComplete
+  handlePomodoroComplete,
+  error,
+  success
 } = useTodoListState()
 </script>
 

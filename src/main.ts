@@ -1,4 +1,5 @@
 import 'highlight.js/styles/github.css'
+import { createApp } from 'vue'
 import { registerSW } from 'virtual:pwa-register'
 import 'virtual:uno.css'
 import App from './App.vue'

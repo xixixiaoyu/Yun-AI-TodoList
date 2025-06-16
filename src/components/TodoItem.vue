@@ -186,7 +186,7 @@ onErrorCaptured(handleError)
 .todo-text {
   @apply flex items-center cursor-pointer gap-2;
   color: var(--todo-text-color);
-  font-family: 'LXGW WenKai Screen', sans-serif;
+  font-family: 'LXGW WenKai Lite Medium', sans-serif;
 }
 
 .text-content {

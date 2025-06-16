@@ -1,25 +1,73 @@
 <template>
-  <div v-if="show" class="suggested-todos-dialog">
-    <h3>{{ t('suggestedTodos') }}</h3>
-    <p>{{ t('confirmOrModify') }}</p>
-    <ul>
-      <li v-for="(todo, index) in suggestedTodos" :key="index">
-        <input
-          :value="todo"
-          class="suggested-todo-input"
-          @input="handleTodoUpdate(index, $event)"
-        />
-      </li>
-    </ul>
-    <div class="dialog-actions">
-      <button class="confirm-btn" @click="$emit('confirm')">
-        {{ t('confirmAdd') }}
-      </button>
-      <button class="cancel-btn" @click="$emit('cancel')">
-        {{ t('cancel') }}
-      </button>
+  <!-- 背景遮罩 -->
+  <Transition name="overlay" appear>
+    <div v-if="show" class="dialog-overlay" @click="$emit('cancel')">
+      <!-- 对话框主体 -->
+      <Transition name="dialog" appear>
+        <div v-if="show" class="suggested-todos-dialog" @click.stop>
+          <!-- 对话框头部 -->
+          <div class="dialog-header">
+            <div class="header-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" class="w-6 h-6">
+                <path d="M9 12l2 2 4-4" />
+                <path d="M21 12c-1 0-3-1-3-3s2-3 3-3 3 1 3 3-2 3-3 3" />
+                <path d="M3 12c1 0 3-1 3-3s-2-3-3-3-3 1-3 3 2 3 3 3" />
+              </svg>
+            </div>
+            <div class="header-content">
+              <h3 class="dialog-title">{{ t('suggestedTodos') }}</h3>
+              <p class="dialog-subtitle">{{ t('confirmOrModify') }}</p>
+            </div>
+            <button class="close-btn" @click="$emit('cancel')">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" class="w-5 h-5">
+                <path d="M18 6L6 18" />
+                <path d="M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+
+          <!-- 建议列表 -->
+          <div class="suggestions-list">
+            <TransitionGroup name="suggestion" tag="div" class="suggestions-container">
+              <div
+                v-for="(todo, index) in suggestedTodos"
+                :key="`suggestion-${index}`"
+                class="suggestion-item"
+              >
+                <div class="suggestion-number">{{ index + 1 }}</div>
+                <div class="suggestion-input-wrapper">
+                  <input
+                    :value="todo"
+                    class="suggestion-input"
+                    :placeholder="t('addTodo')"
+                    @input="handleTodoUpdate(index, $event)"
+                  />
+                  <div class="input-border" />
+                </div>
+              </div>
+            </TransitionGroup>
+          </div>
+
+          <!-- 对话框操作按钮 -->
+          <div class="dialog-actions">
+            <button class="action-btn cancel-btn" @click="$emit('cancel')">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" class="btn-icon">
+                <path d="M18 6L6 18" />
+                <path d="M6 6l12 12" />
+              </svg>
+              <span>{{ t('cancel') }}</span>
+            </button>
+            <button class="action-btn confirm-btn" @click="$emit('confirm')">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" class="btn-icon">
+                <path d="M20 6L9 17l-5-5" />
+              </svg>
+              <span>{{ t('confirmAdd') }}</span>
+            </button>
+          </div>
+        </div>
+      </Transition>
     </div>
-  </div>
+  </Transition>
 </template>
 
 <script setup lang="ts">
@@ -52,154 +100,260 @@ defineOptions({
 </script>
 
 <style scoped>
+/* 背景遮罩 */
+.dialog-overlay {
+  @apply fixed inset-0 bg-black/50 backdrop-blur-sm z-1000;
+  @apply flex items-center justify-center p-4;
+}
+
+/* 对话框主体 */
 .suggested-todos-dialog {
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  background-color: var(--card-bg-color);
-  border-radius: 16px;
-  padding: 2rem;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
-  z-index: 1000;
-  max-width: 500px;
-  width: calc(100% - 2rem);
-  max-height: 80vh;
-  overflow-y: auto;
-  border: 1px solid var(--border-color);
+  @apply relative w-full max-w-lg max-h-90vh;
+  @apply bg-bg-card rounded-2xl shadow-custom border border-white/10;
+  @apply backdrop-blur-20 overflow-hidden;
+  background: linear-gradient(135deg, var(--card-bg-color) 0%, rgba(255, 255, 255, 0.02) 100%);
 }
 
-.suggested-todos-dialog h3 {
-  margin: 0 0 1rem 0;
-  font-size: 1.25rem;
-  font-weight: 600;
-  color: var(--text-color);
-  text-align: center;
+/* 对话框头部 */
+.dialog-header {
+  @apply flex items-center gap-4 p-6 pb-4;
+  @apply border-b border-white/5;
+  background: linear-gradient(135deg, rgba(255, 126, 103, 0.05) 0%, transparent 100%);
 }
 
-.suggested-todos-dialog p {
-  margin: 0 0 1.5rem 0;
-  color: var(--text-secondary-color);
-  text-align: center;
-  font-size: 0.9rem;
+.header-icon {
+  @apply flex-shrink-0 w-12 h-12 rounded-xl;
+  @apply bg-gradient-to-br from-orange-400/20 to-orange-500/20;
+  @apply flex items-center justify-center text-orange-400;
+  @apply border border-orange-400/20;
 }
 
-.suggested-todos-dialog ul {
-  list-style: none;
-  padding: 0;
-  margin: 0 0 2rem 0;
+.header-content {
+  @apply flex-1;
 }
 
-.suggested-todos-dialog li {
-  margin-bottom: 0.75rem;
+.dialog-title {
+  @apply text-xl font-semibold text-text mb-1;
+  @apply bg-gradient-to-r from-text to-text-secondary bg-clip-text;
 }
 
-.suggested-todo-input {
-  width: 100%;
-  padding: 0.75rem 1rem;
-  border: 2px solid var(--input-border-color);
-  border-radius: 8px;
-  font-size: 0.9rem;
-  background-color: var(--input-bg-color);
-  color: var(--text-color);
-  transition: all 0.2s ease;
+.dialog-subtitle {
+  @apply text-sm text-text-secondary opacity-80;
 }
 
-.suggested-todo-input:focus {
-  outline: none;
-  border-color: var(--button-bg-color);
-  box-shadow: 0 0 0 3px rgba(var(--button-bg-color-rgb), 0.1);
+.close-btn {
+  @apply flex-shrink-0 w-8 h-8 rounded-lg;
+  @apply flex items-center justify-center text-text-secondary;
+  @apply hover:bg-white/5 hover:text-text transition-all-300;
+  @apply hover:transform-hover-up-1;
 }
 
+/* 建议列表 */
+.suggestions-list {
+  @apply p-6 pt-4 max-h-60 overflow-y-auto scrollbar-thin;
+}
+
+.suggestions-container {
+  @apply space-y-4;
+}
+
+.suggestion-item {
+  @apply flex items-center gap-4 group;
+}
+
+.suggestion-number {
+  @apply flex-shrink-0 w-8 h-8 rounded-full;
+  @apply bg-gradient-to-br from-primary/20 to-primary/10;
+  @apply flex items-center justify-center text-sm font-medium text-primary;
+  @apply border border-primary/20 transition-all-300;
+  @apply group-hover:scale-110 group-hover:border-primary/30;
+}
+
+.suggestion-input-wrapper {
+  @apply flex-1 relative;
+}
+
+.suggestion-input {
+  @apply w-full px-4 py-3 rounded-xl text-sm;
+  @apply bg-input-bg border-2 border-input-border text-text;
+  @apply transition-all-300 focus:outline-none;
+  @apply focus:border-primary focus:shadow-input-focus;
+  @apply hover:border-input-border/60;
+}
+
+.input-border {
+  @apply absolute inset-0 rounded-xl pointer-events-none;
+  @apply border-2 border-transparent transition-all-300;
+  background: linear-gradient(135deg, transparent, rgba(121, 180, 166, 0.1), transparent);
+  opacity: 0;
+}
+
+.suggestion-input:focus + .input-border {
+  @apply opacity-100;
+}
+
+/* 对话框操作按钮 */
 .dialog-actions {
-  display: flex;
-  gap: 1rem;
-  justify-content: center;
+  @apply flex gap-3 p-6 pt-4;
+  @apply border-t border-white/5;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.02) 0%, transparent 100%);
 }
 
-.confirm-btn,
+.action-btn {
+  @apply flex-1 flex items-center justify-center gap-2.5 px-6 py-3;
+  @apply rounded-xl font-medium text-sm transition-all-300;
+  @apply hover:transform-hover-up-1 active:scale-95;
+}
+
+.btn-icon {
+  @apply w-4 h-4 stroke-2;
+}
+
 .cancel-btn {
-  padding: 0.75rem 1.5rem;
-  border: none;
-  border-radius: 8px;
-  font-size: 0.9rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  min-width: 100px;
+  @apply bg-gray-100/10 text-text-secondary border border-gray-200/20;
+  @apply hover:bg-gray-100/20 hover:text-text hover:border-gray-200/30;
 }
 
 .confirm-btn {
-  background-color: var(--button-bg-color);
-  color: white;
+  @apply bg-gradient-to-r from-primary to-primary-hover text-white;
+  @apply border border-primary/20 shadow-button;
+  @apply hover:shadow-hover hover:from-primary-hover hover:to-primary;
 }
 
-.confirm-btn:hover {
-  background-color: var(--button-hover-bg-color);
-  transform: translateY(-1px);
+/* 过渡动画 */
+.overlay-enter-active,
+.overlay-leave-active {
+  @apply transition-all-300;
 }
 
-.cancel-btn {
-  background-color: var(--language-toggle-bg);
-  color: var(--language-toggle-color);
+.overlay-enter-from,
+.overlay-leave-to {
+  @apply opacity-0;
 }
 
-.cancel-btn:hover {
-  background-color: var(--language-toggle-hover-bg);
-  transform: translateY(-1px);
+.dialog-enter-active,
+.dialog-leave-active {
+  @apply transition-all-300;
 }
 
+.dialog-enter-from,
+.dialog-leave-to {
+  @apply opacity-0 scale-95 translate-y-4;
+}
+
+.suggestion-enter-active,
+.suggestion-leave-active {
+  @apply transition-all-300;
+}
+
+.suggestion-enter-from,
+.suggestion-leave-to {
+  @apply opacity-0 translate-x-4;
+}
+
+.suggestion-move {
+  @apply transition-transform-300;
+}
+
+/* 响应式设计 */
 @media (max-width: 768px) {
+  .dialog-overlay {
+    @apply p-3;
+  }
+
   .suggested-todos-dialog {
-    padding: 1.5rem;
-    max-width: calc(100% - 1rem);
+    @apply max-w-full;
   }
 
-  .suggested-todos-dialog h3 {
-    font-size: 1.1rem;
+  .dialog-header {
+    @apply p-5 pb-3;
   }
 
-  .suggested-todo-input {
-    padding: 0.6rem 0.8rem;
-    font-size: 0.85rem;
+  .dialog-title {
+    @apply text-lg;
+  }
+
+  .dialog-subtitle {
+    @apply text-xs;
+  }
+
+  .suggestions-list {
+    @apply p-5 pt-3;
+  }
+
+  .suggestion-input {
+    @apply py-2.5 text-xs;
   }
 
   .dialog-actions {
-    flex-direction: column;
-    gap: 0.75rem;
+    @apply p-5 pt-3 flex-col gap-2.5;
   }
 
-  .confirm-btn,
-  .cancel-btn {
-    width: 100%;
-    padding: 0.6rem 1rem;
-    font-size: 0.85rem;
+  .action-btn {
+    @apply py-2.5 text-xs;
   }
 }
 
 @media (max-width: 480px) {
+  .dialog-overlay {
+    @apply p-2;
+  }
+
   .suggested-todos-dialog {
-    padding: 1rem;
-    border-radius: 12px;
+    @apply rounded-xl;
   }
 
-  .suggested-todos-dialog h3 {
-    font-size: 1rem;
+  .dialog-header {
+    @apply p-4 pb-2;
   }
 
-  .suggested-todos-dialog p {
-    font-size: 0.85rem;
+  .header-icon {
+    @apply w-10 h-10;
   }
 
-  .suggested-todo-input {
-    padding: 0.5rem 0.7rem;
-    font-size: 0.8rem;
+  .dialog-title {
+    @apply text-base;
   }
 
-  .confirm-btn,
-  .cancel-btn {
-    padding: 0.5rem 0.8rem;
-    font-size: 0.8rem;
+  .suggestions-list {
+    @apply p-4 pt-2;
   }
+
+  .suggestion-number {
+    @apply w-7 h-7 text-xs;
+  }
+
+  .suggestion-input {
+    @apply px-3 py-2 text-xs;
+  }
+
+  .dialog-actions {
+    @apply p-4 pt-2;
+  }
+
+  .action-btn {
+    @apply py-2 text-xs;
+  }
+
+  .btn-icon {
+    @apply w-3.5 h-3.5;
+  }
+}
+
+/* 滚动条样式 */
+.suggestions-list::-webkit-scrollbar {
+  @apply w-1;
+}
+
+.suggestions-list::-webkit-scrollbar-track {
+  @apply bg-transparent;
+}
+
+.suggestions-list::-webkit-scrollbar-thumb {
+  @apply bg-white/10 rounded-full;
+}
+
+.suggestions-list::-webkit-scrollbar-thumb:hover {
+  @apply bg-white/20;
 }
 </style>

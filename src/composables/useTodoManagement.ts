@@ -9,7 +9,7 @@ import { useTodos } from './useTodos'
 export function useTodoManagement() {
   const { t } = useI18n()
   const { todos, addTodo, addMultipleTodos, toggleTodo, removeTodo, saveTodos } = useTodos()
-  const { showError, error: duplicateError } = useErrorHandler()
+  const { showError, showSuccess, error: duplicateError } = useErrorHandler()
 
   const filter = ref('active')
   const searchQuery = ref('')
@@ -68,11 +68,50 @@ export function useTodoManagement() {
     isGenerating.value = true
     try {
       const response = await getAIResponse(`${t('generateSuggestionsPrompt')}`, 'zh', 1.5)
-      suggestedTodos.value = response
-        .split(',')
-        .filter((todo: string) => todo.trim() !== '')
+
+      // 改进的解析逻辑，支持多种格式
+      let parsedTodos: string[] = []
+
+      // 首先尝试按行分割（支持编号格式）
+      const lines = response.split('\n').filter(line => line.trim() !== '')
+
+      if (lines.length >= 2) {
+        // 如果有多行，尝试提取任务内容
+        parsedTodos = lines
+          .map(line => {
+            // 移除编号（如 "1. ", "- ", "• " 等）
+            return line.replace(/^\s*[\d\-•*]+\.?\s*/, '').trim()
+          })
+          .filter(todo => todo !== '' && todo.length > 0)
+      } else {
+        // 如果只有一行，尝试按逗号分割
+        parsedTodos = response
+          .split(/[,，]/)
+          .map(todo => todo.trim())
+          .filter(todo => todo !== '')
+      }
+
+      // 确保有有效的建议
+      if (parsedTodos.length === 0) {
+        // 如果解析失败，使用原始响应作为单个建议
+        parsedTodos = [response.trim()]
+      }
+
+      // 限制数量并过滤空内容
+      suggestedTodos.value = parsedTodos
+        .filter(todo => todo.length > 0 && todo.length <= MAX_TODO_LENGTH)
         .slice(0, 5)
-      showSuggestedTodos.value = true
+
+      if (suggestedTodos.value.length > 0) {
+        showSuggestedTodos.value = true
+        logger.info(
+          'AI suggestions generated successfully',
+          { count: suggestedTodos.value.length, suggestions: suggestedTodos.value },
+          'TodoManagement'
+        )
+      } else {
+        throw new Error('No valid suggestions generated')
+      }
     } catch (error) {
       handleError(error, t('generateSuggestionsError'), 'TodoManagement')
       showError(error instanceof Error ? error.message : t('generateSuggestionsError'))
@@ -104,62 +143,46 @@ export function useTodoManagement() {
   }
 
   const sortActiveTodosWithAI = async () => {
+    if (isSorting.value) return
+
+    const activeTodos = todos.value.filter(todo => !todo.completed)
+    if (activeTodos.length === 0) {
+      showError(t('noActiveTodosError'))
+      return
+    }
+
+    if (activeTodos.length < 2) {
+      showError(t('noActiveTodosError'))
+      return
+    }
+
     isSorting.value = true
 
-    const originalTodos = [...todos.value]
-
     try {
-      const activeTodos = todos.value.filter(todo => todo && !todo.completed)
-      if (activeTodos.length <= 1) {
-        showError(t('noActiveTodosError'))
-        return
-      }
-
+      // 构建 AI 排序请求
       const todoTexts = activeTodos.map((todo, index) => `${index + 1}. ${todo.text}`).join('\n')
-      const prompt = `${t('sortPrompt')}:\n${todoTexts}`
-      const response = await getAIResponse(prompt, 'zh', 0.1)
+      const prompt = `请按照优先级对以下待办事项进行排序，返回排序后的序号列表（用逗号分隔）：\n${todoTexts}`
 
-      if (!response) {
-        throw new Error(t('aiEmptyResponseError'))
+      const aiResponse = await getAIResponse(prompt)
+      const sortedIndices = aiResponse.match(/\d+/g)?.map(num => parseInt(num) - 1) || []
+
+      // 更新排序后的待办事项
+      if (sortedIndices.length === activeTodos.length) {
+        const sortedTodos = sortedIndices.map(index => activeTodos[index]).filter(Boolean)
+        const todoMap = new Map(todos.value.map(todo => [todo.id, todo]))
+        sortedTodos.forEach((sortedTodo, index) => {
+          const originalTodo = todoMap.get(sortedTodo.id)
+          if (originalTodo) {
+            originalTodo.order = index
+          }
+        })
       }
-
-      const newOrder = response.split(',').map(str => {
-        const num = parseInt(str.trim(), 10)
-        if (isNaN(num) || num < 1 || num > activeTodos.length) {
-          throw new Error(`Invalid sort index: ${str}`)
-        }
-        return num
-      })
-
-      if (newOrder.length !== activeTodos.length) {
-        throw new Error(t('aiSortMismatchError'))
-      }
-
-      const uniqueIndices = new Set(newOrder)
-      if (uniqueIndices.size !== newOrder.length) {
-        throw new Error('Duplicate indices in AI response')
-      }
-
-      const sortedActiveTodos = newOrder.map(index => activeTodos[index - 1])
-      let sortedIndex = 0
-
-      todos.value = todos.value.map(todo => {
-        if (!todo || todo.completed) {
-          return todo
-        }
-        return sortedActiveTodos[sortedIndex++] || todo
-      })
 
       saveTodos()
-      logger.info(
-        'AI sort completed successfully',
-        { originalCount: activeTodos.length },
-        'TodoManagement'
-      )
+      showSuccess(t('aiSortSuccess'))
     } catch (error) {
-      todos.value = originalTodos
-      handleError(error, t('aiSortError'), 'TodoManagement')
-      showError(error instanceof Error ? error.message : t('aiSortError'))
+      console.error('AI 排序失败:', error)
+      showError(t('aiSortFailed'))
     } finally {
       isSorting.value = false
     }

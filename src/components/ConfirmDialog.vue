@@ -48,7 +48,7 @@ const cancel = () => {
 
 <style scoped>
 .dialog-overlay {
-  font-family: 'LXGW WenKai Screen', sans-serif;
+  font-family: 'LXGW WenKai Lite Medium', sans-serif;
   position: fixed;
   top: 0;
   left: 0;
