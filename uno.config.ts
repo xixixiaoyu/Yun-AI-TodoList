@@ -314,6 +314,48 @@ export default defineConfig({
       'flex flex-col items-center justify-center p-8 text-text-secondary text-center min-h-50',
     ],
 
+    // AI 回答样式快捷方式
+    [
+      'ai-message-container',
+      'bg-gradient-to-br from-white/98 via-white/95 to-gray-50/90 dark:from-gray-800/98 dark:via-gray-800/95 dark:to-gray-900/90 rounded-3xl p-5 sm:p-6 md:p-7 lg:p-8 shadow-[0_4px_24px_rgba(121,180,166,0.08)] hover:shadow-[0_8px_32px_rgba(121,180,166,0.12)] transition-all duration-700 border border-primary/8 hover:border-primary/15 backdrop-blur-md relative overflow-hidden',
+    ],
+    [
+      'ai-message-prose',
+      'max-w-none text-text leading-7 sm:leading-8 font-sans [&>*]:mb-3 sm:[&>*]:mb-4 [&>*:last-child]:mb-0',
+    ],
+    [
+      'ai-message-headings',
+      '[&>h1]:text-lg sm:[&>h1]:text-xl [&>h1]:font-bold [&>h1]:text-text [&>h1]:mb-4 sm:[&>h1]:mb-6 [&>h1]:mt-6 sm:[&>h1]:mt-8 [&>h1]:pb-2 [&>h1]:border-b [&>h1]:border-input-border/50 [&>h2]:text-base sm:[&>h2]:text-lg [&>h2]:font-semibold [&>h2]:text-text [&>h2]:mb-3 sm:[&>h2]:mb-4 [&>h2]:mt-4 sm:[&>h2]:mt-6 [&>h3]:text-sm sm:[&>h3]:text-base [&>h3]:font-medium [&>h3]:text-text [&>h3]:mb-2 sm:[&>h3]:mb-3 [&>h3]:mt-3 sm:[&>h3]:mt-5',
+    ],
+    [
+      'ai-message-paragraphs',
+      '[&>p]:leading-7 sm:[&>p]:leading-8 [&>p]:text-text [&>p]:mb-3 sm:[&>p]:mb-4 [&>p]:text-sm sm:[&>p]:text-base',
+    ],
+    [
+      'ai-message-lists',
+      '[&>ul]:my-3 sm:[&>ul]:my-4 [&>ul]:pl-4 sm:[&>ul]:pl-6 [&>ol]:my-3 sm:[&>ol]:my-4 [&>ol]:pl-4 sm:[&>ol]:pl-6 [&>li]:my-1 sm:[&>li]:my-2 [&>li]:text-text [&>li]:leading-6 sm:[&>li]:leading-7 [&>ul>li]:list-disc [&>ol>li]:list-decimal [&>li]:marker:text-primary [&>li]:text-sm sm:[&>li]:text-base',
+    ],
+    [
+      'ai-message-code-inline',
+      '[&>*>code]:bg-primary/8 [&>*>code]:text-primary-600 [&>*>code]:dark:text-primary-400 [&>*>code]:px-2 sm:[&>*>code]:px-2.5 [&>*>code]:py-1 [&>*>code]:rounded-lg [&>*>code]:text-xs sm:[&>*>code]:text-sm [&>*>code]:font-mono [&>*>code]:font-medium [&>*>code]:border [&>*>code]:border-primary/12 [&>*>code]:shadow-sm',
+    ],
+    [
+      'ai-message-code-block',
+      '[&>pre]:bg-gradient-to-br [&>pre]:from-slate-50/90 [&>pre]:to-slate-100/80 [&>pre]:dark:from-slate-800/90 [&>pre]:dark:to-slate-900/80 [&>pre]:p-4 sm:[&>pre]:p-5 [&>pre]:rounded-2xl [&>pre]:overflow-x-auto [&>pre]:my-4 sm:[&>pre]:my-6 [&>pre]:border [&>pre]:border-slate-200/50 [&>pre]:dark:border-slate-700/50 [&>pre]:shadow-[inset_0_1px_3px_rgba(0,0,0,0.05)] [&>pre]:backdrop-blur-sm [&>pre>code]:bg-transparent [&>pre>code]:text-xs sm:[&>pre>code]:text-sm [&>pre>code]:font-mono [&>pre>code]:leading-6 sm:[&>pre>code]:leading-7',
+    ],
+    [
+      'ai-message-blockquote',
+      '[&>blockquote]:border-l-4 [&>blockquote]:border-primary/60 [&>blockquote]:bg-gradient-to-r [&>blockquote]:from-primary/6 [&>blockquote]:to-primary/3 [&>blockquote]:pl-5 sm:[&>blockquote]:pl-6 [&>blockquote]:pr-4 sm:[&>blockquote]:pr-5 [&>blockquote]:py-4 sm:[&>blockquote]:py-5 [&>blockquote]:my-5 sm:[&>blockquote]:my-6 [&>blockquote]:italic [&>blockquote]:text-text [&>blockquote]:rounded-r-2xl [&>blockquote]:shadow-sm [&>blockquote]:text-sm sm:[&>blockquote]:text-base [&>blockquote]:backdrop-blur-sm',
+    ],
+    [
+      'ai-message-table',
+      '[&>table]:w-full [&>table]:border-collapse [&>table]:my-4 sm:[&>table]:my-5 [&>table]:rounded-lg [&>table]:overflow-hidden [&>table]:shadow-sm [&>table]:text-sm sm:[&>table]:text-base [&>th]:border [&>th]:border-input-border [&>th]:p-2 sm:[&>th]:p-3 [&>th]:bg-primary/10 [&>th]:font-semibold [&>th]:text-text [&>td]:border [&>td]:border-input-border [&>td]:p-2 sm:[&>td]:p-3 [&>td]:text-text',
+    ],
+    [
+      'ai-message-links',
+      '[&>*>a]:text-primary [&>*>a]:underline [&>*>a]:decoration-primary/50 [&>*>a]:underline-offset-2 [&>*>a]:transition-colors [&>*>a]:duration-200 [&>*>a:hover]:text-primary-hover [&>*>a:hover]:decoration-primary',
+    ],
+
     // 导航栏样式
     [
       'nav-button',

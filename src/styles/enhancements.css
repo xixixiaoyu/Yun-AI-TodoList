@@ -177,6 +177,210 @@ form {
   transition: all 0.3s ease;
 }
 
+/* AI 回答代码高亮主题切换 */
+:root {
+  --hljs-bg: #f6f8fa;
+  --hljs-color: #24292e;
+}
+
+[data-theme='dark'] {
+  --hljs-bg: #0d1117;
+  --hljs-color: #c9d1d9;
+}
+
+/* 代码块主题适配 */
+.ai-message-container pre {
+  background: var(--hljs-bg) !important;
+  color: var(--hljs-color) !important;
+}
+
+.ai-message-container pre code {
+  background: transparent !important;
+  color: inherit !important;
+}
+
+/* 浅色主题代码高亮 */
+:root .hljs {
+  background: var(--hljs-bg);
+  color: var(--hljs-color);
+}
+
+/* 深色主题代码高亮 */
+[data-theme='dark'] .hljs {
+  background: var(--hljs-bg);
+  color: var(--hljs-color);
+}
+
+[data-theme='dark'] .hljs-comment,
+[data-theme='dark'] .hljs-quote {
+  color: #8b949e;
+}
+
+[data-theme='dark'] .hljs-keyword,
+[data-theme='dark'] .hljs-selector-tag,
+[data-theme='dark'] .hljs-subst {
+  color: #ff7b72;
+}
+
+[data-theme='dark'] .hljs-number,
+[data-theme='dark'] .hljs-literal,
+[data-theme='dark'] .hljs-variable,
+[data-theme='dark'] .hljs-template-variable,
+[data-theme='dark'] .hljs-tag .hljs-attr {
+  color: #79c0ff;
+}
+
+[data-theme='dark'] .hljs-string,
+[data-theme='dark'] .hljs-doctag {
+  color: #a5d6ff;
+}
+
+[data-theme='dark'] .hljs-title,
+[data-theme='dark'] .hljs-section,
+[data-theme='dark'] .hljs-selector-id {
+  color: #d2a8ff;
+}
+
+[data-theme='dark'] .hljs-type,
+[data-theme='dark'] .hljs-class .hljs-title {
+  color: #ffa657;
+}
+
+[data-theme='dark'] .hljs-tag,
+[data-theme='dark'] .hljs-name,
+[data-theme='dark'] .hljs-attribute {
+  color: #7ee787;
+}
+
+[data-theme='dark'] .hljs-regexp,
+[data-theme='dark'] .hljs-link {
+  color: #f2cc60;
+}
+
+/* AI 回答容器增强视觉效果 */
+.ai-message-container {
+  position: relative;
+  overflow: hidden;
+}
+
+.ai-message-container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(121, 180, 166, 0.3), transparent);
+  z-index: 1;
+}
+
+.ai-message-container::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, transparent 50%);
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* AI 回答内容区域 */
+.ai-message-container > div {
+  position: relative;
+  z-index: 2;
+}
+
+/* 代码块增强效果 */
+.ai-message-container pre {
+  position: relative;
+  overflow: hidden;
+}
+
+.ai-message-container pre::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(121, 180, 166, 0.2), transparent);
+}
+
+/* 引用块增强效果 */
+.ai-message-container blockquote {
+  position: relative;
+  overflow: hidden;
+}
+
+.ai-message-container blockquote::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 4px;
+  background: linear-gradient(180deg, var(--primary-color), rgba(121, 180, 166, 0.6));
+  border-radius: 0 2px 2px 0;
+}
+
+/* 表格增强效果 */
+.ai-message-container table {
+  position: relative;
+  overflow: hidden;
+}
+
+.ai-message-container table::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(121, 180, 166, 0.2), transparent);
+}
+
+/* 链接悬停效果增强 */
+.ai-message-container a {
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+.ai-message-container a::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--primary-color), rgba(121, 180, 166, 0.6));
+  transition: width 0.3s ease;
+}
+
+.ai-message-container a:hover::after {
+  width: 100%;
+}
+
+/* 滚动条美化 */
+.ai-message-container pre::-webkit-scrollbar {
+  height: 6px;
+}
+
+.ai-message-container pre::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.05);
+  border-radius: 3px;
+}
+
+.ai-message-container pre::-webkit-scrollbar-thumb {
+  background: linear-gradient(90deg, var(--primary-color), rgba(121, 180, 166, 0.8));
+  border-radius: 3px;
+}
+
+.ai-message-container pre::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(90deg, rgba(121, 180, 166, 0.8), var(--primary-color));
+}
+
 .transition-all-500 {
   transition: all 0.5s ease;
 }

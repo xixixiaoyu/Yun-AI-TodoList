@@ -27,7 +27,7 @@ export interface SearchContext {
  */
 export class AISearchTool {
   private config: AISearchConfig = {
-    enabled: true,
+    enabled: false,
     maxResults: 10,
     timeout: 10000,
     locale: 'zh-CN',

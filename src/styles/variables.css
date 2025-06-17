@@ -46,6 +46,14 @@
   --hover-bg-color: rgba(121, 180, 166, 0.08);
   --primary-color: #79b4a6;
   --primary-color-rgb: 121, 180, 166;
+  --ai-message-bg: rgba(255, 255, 255, 0.98);
+  --ai-message-bg-secondary: rgba(248, 250, 252, 0.8);
+  --ai-message-border: rgba(121, 180, 166, 0.12);
+  --ai-message-shadow: rgba(121, 180, 166, 0.08);
+  --ai-code-bg: #f8fafc;
+  --ai-code-border: rgba(226, 232, 240, 0.6);
+  --ai-accent-color: rgba(121, 180, 166, 0.1);
+  --ai-accent-hover: rgba(121, 180, 166, 0.15);
 }
 
 /* 深色主题变量 */
@@ -82,6 +90,14 @@
   --hover-bg-color: rgba(121, 180, 166, 0.12);
   --primary-color: #79b4a6;
   --primary-color-rgb: 121, 180, 166;
+  --ai-message-bg: rgba(47, 53, 61, 0.98);
+  --ai-message-bg-secondary: rgba(37, 43, 50, 0.8);
+  --ai-message-border: rgba(121, 180, 166, 0.15);
+  --ai-message-shadow: rgba(0, 0, 0, 0.12);
+  --ai-code-bg: rgba(30, 35, 41, 0.9);
+  --ai-code-border: rgba(64, 70, 80, 0.6);
+  --ai-accent-color: rgba(121, 180, 166, 0.12);
+  --ai-accent-hover: rgba(121, 180, 166, 0.18);
 }
 
 /* 基础样式重置 */
