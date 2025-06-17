@@ -16,7 +16,7 @@
         </h3>
       </div>
       <p class="text-sm text-text-secondary leading-relaxed">
-        配置您的 DeepSeek API 密钥以启用 AI 功能
+        {{ t('configureDeepSeekApiKey') }}
       </p>
     </div>
 

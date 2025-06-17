@@ -8,7 +8,7 @@
           {{ t('settings') }}
         </h1>
         <p class="text-sm md:text-base text-text-secondary max-w-2xl mx-auto">
-          管理您的应用配置和偏好设置
+          {{ t('settingsDescription') }}
         </p>
       </div>
 

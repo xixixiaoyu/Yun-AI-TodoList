@@ -49,7 +49,9 @@
       <div class="conversations-list">
         <div v-if="filteredConversations.length === 0" class="empty-state">
           <div class="empty-icon">💬</div>
-          <p class="empty-text">{{ searchActive ? '没有找到匹配的对话' : '暂无对话记录' }}</p>
+          <p class="empty-text">
+            {{ searchActive ? t('noMatchingConversations') : t('noConversationRecords') }}
+          </p>
         </div>
 
         <div
@@ -100,7 +102,12 @@
       <div class="drawer-footer">
         <div class="stats-info">
           <span class="stats-text">
-            共 {{ conversations.length }} 个对话，{{ totalMessages }} 条消息
+            {{
+              t('conversationStats', {
+                conversations: conversations.length,
+                messages: totalMessages,
+              })
+            }}
           </span>
         </div>
       </div>
@@ -189,19 +196,19 @@ const handleExport = async () => {
 
     emit('export', { format: 'json', success: true })
   } catch (error) {
-    console.error('导出失败:', error)
+    console.error(t('exportFailed'), error)
     emit('export', { format: 'json', success: false, error })
   }
 }
 
 const handleClearAll = () => {
-  if (confirm('确定要清除所有对话记录吗？此操作不可撤销。')) {
+  if (confirm(t('confirmClearAllConversations'))) {
     emit('clear')
   }
 }
 
 const handleDeleteConversation = (id: string) => {
-  if (confirm('确定要删除这个对话吗？')) {
+  if (confirm(t('confirmDeleteConversation'))) {
     emit('delete', id)
   }
 }
@@ -212,9 +219,9 @@ const formatDate = (dateString: string) => {
   const diffTime = Math.abs(now.getTime() - date.getTime())
   const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
 
-  if (diffDays === 1) return '今天'
-  if (diffDays === 2) return '昨天'
-  if (diffDays <= 7) return `${diffDays} 天前`
+  if (diffDays === 1) return t('today')
+  if (diffDays === 2) return t('yesterday')
+  if (diffDays <= 7) return t('daysAgo', { days: diffDays })
 
   return date.toLocaleDateString('zh-CN', {
     month: 'short',

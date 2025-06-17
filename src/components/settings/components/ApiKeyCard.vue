@@ -17,7 +17,7 @@
             {{ localApiKey ? t('apiKeyConfigured') : t('apiKeyNotConfigured') }}
           </div>
           <div class="text-xs text-text-secondary mt-0.5">
-            {{ localApiKey ? '密钥已安全保存' : '点击配置 API 密钥' }}
+            {{ localApiKey ? t('apiKeySaved') : t('clickToConfigureApiKey') }}
           </div>
         </div>
       </div>

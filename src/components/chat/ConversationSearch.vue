@@ -7,7 +7,7 @@
         <input
           v-model="searchQuery"
           type="text"
-          placeholder="搜索对话内容..."
+          :placeholder="t('searchConversationContent')"
           class="search-input"
           @input="handleSearch"
           @keydown.enter="handleSearch"
@@ -22,22 +22,22 @@
     <div v-if="showAdvancedFilters" class="advanced-filters">
       <!-- 日期范围 -->
       <div class="filter-group">
-        <label class="filter-label">日期范围</label>
+        <label class="filter-label">{{ t('dateRange') }}</label>
         <div class="date-range">
           <input v-model="dateRange.start" type="date" class="date-input" />
-          <span class="date-separator">至</span>
+          <span class="date-separator">{{ t('to') }}</span>
           <input v-model="dateRange.end" type="date" class="date-input" />
         </div>
       </div>
 
       <!-- 消息数量 -->
       <div class="filter-group">
-        <label class="filter-label">消息数量</label>
+        <label class="filter-label">{{ t('messageCount') }}</label>
         <div class="message-count-range">
           <input
             v-model.number="messageCountRange.min"
             type="number"
-            placeholder="最少"
+            :placeholder="t('minimum')"
             class="number-input"
             min="0"
           />
@@ -45,7 +45,7 @@
           <input
             v-model.number="messageCountRange.max"
             type="number"
-            placeholder="最多"
+            :placeholder="t('maximum')"
             class="number-input"
             min="0"
           />
@@ -54,7 +54,7 @@
 
       <!-- 标签筛选 -->
       <div class="filter-group">
-        <label class="filter-label">标签</label>
+        <label class="filter-label">{{ t('tags') }}</label>
         <div class="tags-container">
           <div
             v-for="tag in availableTags"
@@ -73,11 +73,11 @@
     <div class="filter-controls">
       <button class="toggle-filters-button" @click="showAdvancedFilters = !showAdvancedFilters">
         <FilterIcon class="filter-icon" />
-        {{ showAdvancedFilters ? '隐藏筛选' : '高级筛选' }}
+        {{ showAdvancedFilters ? t('hideFilter') : t('advancedFilter') }}
       </button>
 
       <button v-if="hasActiveFilters" class="clear-filters-button" @click="clearAllFilters">
-        清除筛选
+        {{ t('clearFilter') }}
       </button>
     </div>
 
@@ -86,8 +86,8 @@
       <span class="stats-text">
         {{
           searchQuery
-            ? `找到 ${searchResults.length} 个匹配的对话`
-            : `共 ${totalConversations} 个对话`
+            ? t('foundMatchingConversations', { count: searchResults.length })
+            : t('totalConversations', { count: totalConversations })
         }}
       </span>
     </div>

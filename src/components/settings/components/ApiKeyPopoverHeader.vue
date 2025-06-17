@@ -6,7 +6,7 @@
       </div>
       <div class="header-text">
         <h3>{{ t('settingsApiKey') }}</h3>
-        <p>安全配置您的 DeepSeek API 密钥</p>
+        <p>{{ t('secureConfigureApiKey') }}</p>
       </div>
     </div>
     <button class="close-button" @click="$emit('close')">

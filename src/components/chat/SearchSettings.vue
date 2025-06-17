@@ -55,9 +55,9 @@
         <label class="setting-label">
           <span class="setting-text">{{ t('searchLocale') }}</span>
           <select v-model="localConfig.locale" class="setting-select" @change="updateSettings">
-            <option value="zh-CN">中文</option>
-            <option value="en-US">English</option>
-            <option value="ja-JP">日本語</option>
+            <option value="zh-CN">{{ t('chinese') }}</option>
+            <option value="en-US">{{ t('english') }}</option>
+            <option value="ja-JP">{{ t('japanese') }}</option>
           </select>
         </label>
         <p class="setting-description">{{ t('searchLocaleDesc') }}</p>
@@ -110,15 +110,15 @@
         <div class="rule-item">
           <span class="rule-icon">🤖</span>
           <div class="rule-text">
-            <strong>AI 不确定性检测：</strong>
-            <div class="rule-examples">检测"我不确定"、"可能"、"据我所知"等表达，自动补充搜索</div>
+            <strong>{{ t('aiUncertaintyDetection') }}：</strong>
+            <div class="rule-examples">{{ t('uncertaintyDetectionDesc') }}</div>
           </div>
         </div>
         <div class="rule-item">
           <span class="rule-icon">❌</span>
           <div class="rule-text">
-            <strong>不触发搜索：</strong>
-            <div class="rule-examples">创作类请求（写作、编程）、计算类问题、个人隐私相关</div>
+            <strong>{{ t('noTriggerSearch') }}：</strong>
+            <div class="rule-examples">{{ t('noTriggerSearchDesc') }}</div>
           </div>
         </div>
       </div>

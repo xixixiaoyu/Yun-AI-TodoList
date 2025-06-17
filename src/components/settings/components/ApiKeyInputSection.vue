@@ -18,9 +18,9 @@
     </div>
     <div class="input-hint">
       <span>
-        获取 API Key：访问
+        {{ t('getApiKeyVisitConsole') }}
         <a href="https://platform.deepseek.com/api_keys" target="_blank" rel="noopener noreferrer">
-          DeepSeek 控制台
+          DeepSeek Console
         </a>
       </span>
     </div>

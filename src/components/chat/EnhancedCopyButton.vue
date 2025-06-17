@@ -28,6 +28,7 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 import CopyIcon from '../common/icons/CopyIcon.vue'
 import CheckIcon from '../common/icons/CheckIcon.vue'
 import ExclamationIcon from '../common/icons/ExclamationIcon.vue'
@@ -49,6 +50,7 @@ const props = withDefaults(defineProps<Props>(), {
 })
 
 const emit = defineEmits<Emits>()
+const { t } = useI18n()
 
 const showSuccess = ref(false)
 const showError = ref(false)
@@ -57,15 +59,15 @@ const feedbackType = ref<'success' | 'error'>('success')
 const feedbackMessage = ref('')
 
 const buttonTitle = computed(() => {
-  if (showSuccess.value) return '复制成功'
-  if (showError.value) return '复制失败'
-  return '复制内容'
+  if (showSuccess.value) return t('copySuccess')
+  if (showError.value) return t('copyFailed')
+  return t('copyContent')
 })
 
 const buttonText = computed(() => {
-  if (showSuccess.value) return '已复制'
-  if (showError.value) return '失败'
-  return '复制'
+  if (showSuccess.value) return t('copied')
+  if (showError.value) return t('failed')
+  return t('copy')
 })
 
 const handleCopy = async () => {
@@ -93,7 +95,7 @@ const handleCopy = async () => {
 
     // 显示反馈动画
     feedbackType.value = 'success'
-    feedbackMessage.value = '复制成功'
+    feedbackMessage.value = t('copySuccess')
     showFeedback.value = true
 
     emit('copy-success', props.text)
@@ -112,7 +114,7 @@ const handleCopy = async () => {
 
     // 显示反馈动画
     feedbackType.value = 'error'
-    feedbackMessage.value = '复制失败'
+    feedbackMessage.value = t('copyFailed')
     showFeedback.value = true
 
     emit('copy-error', error as Error)

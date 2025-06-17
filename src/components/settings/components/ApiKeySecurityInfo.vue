@@ -2,18 +2,21 @@
   <div class="input-info">
     <div class="info-item">
       <CheckIcon />
-      <span>密钥将安全存储在本地浏览器中</span>
+      <span>{{ t('apiKeyStoredLocally') }}</span>
     </div>
     <div class="info-item">
       <LockIcon />
-      <span>不会上传到任何服务器</span>
+      <span>{{ t('noUploadToServer') }}</span>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n'
 import CheckIcon from '../../common/icons/CheckIcon.vue'
 import LockIcon from '../../common/icons/LockIcon.vue'
+
+const { t } = useI18n()
 
 defineOptions({
   name: 'ApiKeySecurityInfo',
