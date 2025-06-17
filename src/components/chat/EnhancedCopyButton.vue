@@ -13,24 +13,22 @@
       <CheckIcon v-else-if="showSuccess" class="copy-icon success-icon" />
       <ExclamationIcon v-else class="copy-icon error-icon" />
     </div>
-    <span class="copy-text">{{ buttonText }}</span>
 
     <!-- 成功/失败反馈动画 -->
     <div v-if="showFeedback" class="feedback-overlay" :class="feedbackType">
       <div class="feedback-content">
         <CheckIcon v-if="feedbackType === 'success'" class="feedback-icon" />
         <ExclamationIcon v-else class="feedback-icon" />
-        <span class="feedback-text">{{ feedbackMessage }}</span>
       </div>
     </div>
   </button>
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
-import CopyIcon from '../common/icons/CopyIcon.vue'
 import CheckIcon from '../common/icons/CheckIcon.vue'
+import CopyIcon from '../common/icons/CopyIcon.vue'
 import ExclamationIcon from '../common/icons/ExclamationIcon.vue'
 
 interface Props {
@@ -62,12 +60,6 @@ const buttonTitle = computed(() => {
   if (showSuccess.value) return t('copySuccess')
   if (showError.value) return t('copyFailed')
   return t('copyContent')
-})
-
-const buttonText = computed(() => {
-  if (showSuccess.value) return t('copied')
-  if (showError.value) return t('failed')
-  return t('copy')
 })
 
 const handleCopy = async () => {
@@ -134,7 +126,7 @@ defineOptions({
 
 <style scoped>
 .enhanced-copy-button {
-  @apply relative inline-flex items-center gap-2 px-3 py-2 rounded-lg cursor-pointer;
+  @apply relative inline-flex items-center justify-center p-2 rounded-lg cursor-pointer;
   @apply bg-primary/10 hover:bg-primary/20 border border-primary/20 hover:border-primary/40;
   @apply text-primary text-sm font-medium transition-all duration-300;
   @apply opacity-0 invisible group-hover:opacity-90 group-hover:visible;
@@ -170,10 +162,6 @@ defineOptions({
   animation: errorShake 0.6s ease-out;
 }
 
-.copy-text {
-  @apply hidden sm:inline transition-all duration-200;
-}
-
 .feedback-overlay {
   @apply absolute inset-0 flex items-center justify-center;
   @apply bg-white/95 dark:bg-gray-800/95 rounded-lg backdrop-blur-sm;
@@ -197,14 +185,10 @@ defineOptions({
   @apply w-3.5 h-3.5;
 }
 
-.feedback-text {
-  @apply hidden sm:inline;
-}
-
 /* 响应式调整 */
 @media (max-width: 640px) {
   .enhanced-copy-button {
-    @apply px-2 py-1.5 text-xs;
+    @apply p-1.5 text-xs;
   }
 
   .copy-icon-container {

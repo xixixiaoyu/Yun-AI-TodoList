@@ -98,7 +98,7 @@ defineOptions({
 
 <style scoped>
 .message-action-bar {
-  @apply absolute top-3 right-3 flex items-center gap-1;
+  @apply absolute bottom-3 right-3 flex items-center gap-1;
   @apply opacity-0 invisible transition-all duration-300;
   @apply bg-white/95 dark:bg-gray-800/95 backdrop-blur-sm;
   @apply border border-white/20 dark:border-gray-700/20 rounded-lg;
@@ -110,7 +110,7 @@ defineOptions({
 }
 
 .action-button {
-  @apply flex items-center gap-1.5 px-2 py-1.5 rounded-md;
+  @apply flex items-center justify-center p-1.5 rounded-md;
   @apply text-text-secondary hover:text-text;
   @apply bg-transparent hover:bg-input-bg;
   @apply transition-all duration-200 cursor-pointer;
@@ -127,29 +127,25 @@ defineOptions({
 }
 
 .action-icon {
-  @apply w-3.5 h-3.5;
+  @apply w-4 h-4;
 }
 
 .action-text {
-  @apply hidden sm:inline;
+  @apply hidden;
 }
 
 /* 响应式调整 */
 @media (max-width: 640px) {
   .message-action-bar {
-    @apply top-2 right-2 p-0.5;
+    @apply bottom-2 right-2 p-0.5;
   }
 
   .action-button {
-    @apply px-1.5 py-1;
+    @apply p-1;
   }
 
   .action-icon {
-    @apply w-3 h-3;
-  }
-
-  .action-text {
-    @apply hidden;
+    @apply w-3.5 h-3.5;
   }
 }
 

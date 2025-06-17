@@ -18,8 +18,6 @@
       <LoadingIcon v-else class="retry-icon loading-spin" />
     </div>
 
-    <span class="retry-text">{{ buttonText }}</span>
-
     <!-- 重试计数器 -->
     <span v-if="retryCount > 0" class="retry-count">
       {{ retryCount }}
@@ -65,13 +63,6 @@ const buttonTitle = computed(() => {
   return '重试上一个请求'
 })
 
-const buttonText = computed(() => {
-  if (props.isRetrying) return '重试中'
-  if (props.hasError) return '重试'
-  if (props.retryCount >= props.maxRetries) return '已达上限'
-  return '重试'
-})
-
 const handleRetry = () => {
   if (props.isRetrying || props.retryCount >= props.maxRetries) {
     return
@@ -88,7 +79,7 @@ defineOptions({
 
 <style scoped>
 .retry-button {
-  @apply relative inline-flex items-center gap-2 px-3 py-2 rounded-lg cursor-pointer;
+  @apply relative inline-flex items-center justify-center p-2 rounded-lg cursor-pointer;
   @apply bg-orange-500/10 hover:bg-orange-500/20 border border-orange-500/20 hover:border-orange-500/40;
   @apply text-orange-600 text-sm font-medium transition-all duration-300;
   @apply disabled:opacity-50 disabled:cursor-not-allowed;
@@ -122,10 +113,6 @@ defineOptions({
   animation: spin 1s linear infinite;
 }
 
-.retry-text {
-  @apply transition-all duration-200;
-}
-
 .retry-count {
   @apply ml-1 px-1.5 py-0.5 bg-current/20 text-xs rounded-full;
   @apply min-w-[1.25rem] text-center;
@@ -133,7 +120,7 @@ defineOptions({
 
 /* 尺寸变体 */
 .retry-button.size-sm {
-  @apply px-2 py-1.5 text-xs;
+  @apply p-1.5 text-xs;
 }
 
 .retry-button.size-sm .retry-icon-container {
@@ -141,7 +128,7 @@ defineOptions({
 }
 
 .retry-button.size-lg {
-  @apply px-4 py-3 text-base;
+  @apply p-3 text-base;
 }
 
 .retry-button.size-lg .retry-icon-container {
@@ -162,15 +149,11 @@ defineOptions({
 /* 响应式调整 */
 @media (max-width: 640px) {
   .retry-button {
-    @apply px-2 py-1.5 text-xs;
+    @apply p-1.5 text-xs;
   }
 
   .retry-icon-container {
     @apply w-3.5 h-3.5;
-  }
-
-  .retry-text {
-    @apply hidden;
   }
 }
 
