@@ -8,6 +8,7 @@
     "name": "yunmu"
   },
   "type": "module",
+  "packageManager": "pnpm@9.0.0",
   "scripts": {
     "dev": "vite",
     "build": "vue-tsc && vite build",
