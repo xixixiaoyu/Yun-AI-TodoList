@@ -35,6 +35,8 @@ export function useChat() {
   const isLoading = ref(false)
   const retryCount = ref(0)
   const MAX_RETRIES = 3
+  const isRetrying = ref(false)
+  const lastFailedMessage = ref<string>('')
 
   const handleError = (error: unknown, context: string) => {
     console.error(`Error in ${context}:`, error)
@@ -354,6 +356,42 @@ export function useChat() {
   // 更新搜索配置
   const updateSearchConfig = (config: Record<string, unknown>) => updateConfig(config)
 
+  // 重试最后一条消息
+  const retryLastMessage = async () => {
+    if (isGenerating.value || isRetrying.value) {
+      return
+    }
+
+    // 获取最后一条用户消息
+    const lastUserMessage = [...chatHistory.value].reverse().find((msg) => msg.role === 'user')
+    if (!lastUserMessage) {
+      return
+    }
+
+    isRetrying.value = true
+    lastFailedMessage.value = lastUserMessage.content
+
+    try {
+      // 移除最后一条 AI 回答（如果存在）
+      if (
+        chatHistory.value.length > 0 &&
+        chatHistory.value[chatHistory.value.length - 1].role === 'assistant'
+      ) {
+        chatHistory.value.pop()
+      }
+
+      // 重新设置用户消息并发送
+      userMessage.value = lastUserMessage.content
+      await sendMessage()
+
+      retryCount.value++
+    } catch (error) {
+      handleError(error, 'retryLastMessage')
+    } finally {
+      isRetrying.value = false
+    }
+  }
+
   return {
     chatHistory,
     currentAIResponse,
@@ -375,6 +413,11 @@ export function useChat() {
     stopGenerating,
     optimizeMessage,
     showError,
+    // 重试相关功能
+    retryLastMessage,
+    isRetrying,
+    retryCount,
+    lastFailedMessage,
     // 搜索相关功能
     isSearching,
     lastSearchContext,

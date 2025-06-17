@@ -78,6 +78,7 @@
   "showConversations": "显示对话列表",
   "hideConversations": "隐藏对话列表",
   "conversations": "对话列表（本地保存）",
+  "deleteConversation": "删除对话",
   "track4Title": "执迷不悟",
   "addTags": "添加标签（用逗号分隔）",
   "generatingTags": "生成标签中...",

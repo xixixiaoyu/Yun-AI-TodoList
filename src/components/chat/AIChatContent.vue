@@ -16,6 +16,8 @@
       :current-response="currentAiResponse"
       :is-searching="isSearching"
       @scroll="$emit('scroll', $event)"
+      @retry="$emit('retry')"
+      @optimize="$emit('optimize')"
     />
 
     <div class="sticky bottom-0 bg-bg z-10 flex flex-col gap-3 py-3 sm:py-2">
@@ -84,6 +86,7 @@ interface Emits {
   (e: 'clearConversations'): void
   (e: 'newConversation'): void
   (e: 'optimize'): void
+  (e: 'retry'): void
   (e: 'send'): void
   (e: 'stop'): void
   (e: 'scroll', scrollInfo: ScrollInfo): void

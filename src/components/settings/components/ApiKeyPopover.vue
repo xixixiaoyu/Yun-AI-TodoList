@@ -60,18 +60,21 @@ defineOptions({
   transform: translate(-50%, -50%);
   width: calc(100% - 2rem);
   max-width: 520px;
+  max-height: calc(100vh - 2rem);
   background-color: var(--card-bg-color);
   border-radius: 24px;
   box-shadow:
     0 20px 60px rgba(0, 0, 0, 0.15),
     0 8px 32px rgba(0, 0, 0, 0.1),
     0 0 0 1px rgba(255, 255, 255, 0.1);
-  z-index: 1001;
+  z-index: 9999;
   animation: popoverIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
   display: flex;
   flex-direction: column;
   overflow: hidden;
   backdrop-filter: blur(20px);
+  /* 确保弹窗不会超出视口 */
+  margin: 1rem;
 }
 
 .popover-content {
@@ -103,7 +106,9 @@ defineOptions({
   .api-key-popover {
     width: calc(100% - 1rem);
     max-width: none;
+    max-height: calc(100vh - 1rem);
     border-radius: 20px;
+    margin: 0.5rem;
   }
 
   .popover-content {
@@ -114,8 +119,14 @@ defineOptions({
 
 @media (max-width: 480px) {
   .api-key-popover {
-    width: calc(100% - 0.75rem);
+    width: calc(100% - 0.5rem);
+    max-height: calc(100vh - 0.5rem);
     border-radius: 16px;
+    margin: 0.25rem;
+    /* 在小屏幕上使用更安全的定位 */
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
   }
 
   .popover-content {

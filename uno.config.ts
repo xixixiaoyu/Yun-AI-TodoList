@@ -343,7 +343,7 @@ export default defineConfig({
     ],
     [
       'ai-message-code-inline',
-      '[&>*>code]:bg-primary/8 [&>*>code]:text-primary-600 [&>*>code]:dark:text-primary-400 [&>*>code]:px-2 sm:[&>*>code]:px-2.5 [&>*>code]:py-1 [&>*>code]:rounded-lg [&>*>code]:text-xs sm:[&>*>code]:text-sm [&>*>code]:font-mono [&>*>code]:font-medium [&>*>code]:border [&>*>code]:border-primary/12 [&>*>code]:shadow-sm',
+      '[&>*>code]:bg-primary/8 [&>*>code]:text-primary [&>*>code]:px-2 sm:[&>*>code]:px-2.5 [&>*>code]:py-1 [&>*>code]:rounded-lg [&>*>code]:text-xs sm:[&>*>code]:text-sm [&>*>code]:font-mono [&>*>code]:font-medium [&>*>code]:border [&>*>code]:border-primary/12 [&>*>code]:shadow-sm',
     ],
     [
       'ai-message-code-block',

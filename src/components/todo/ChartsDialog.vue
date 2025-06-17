@@ -1,15 +1,15 @@
 <template>
   <div
     v-if="show"
-    class="fixed inset-0 bg-black/50 backdrop-blur z-1000 flex items-center justify-center p-4"
+    class="fixed inset-0 bg-slate-900/40 backdrop-blur-md z-1000 flex items-center justify-center p-4"
     @click="$emit('close')"
   >
     <div
-      class="bg-card rounded-2xl p-8 max-w-[800px] max-h-[90vh] overflow-y-auto relative shadow-[0_10px_40px_rgba(0,0,0,0.2)] border border-input-border w-full md:p-6 sm:p-4 sm:rounded-xl sm:max-h-full"
+      class="bg-white/95 backdrop-blur-sm rounded-3xl p-8 max-w-[800px] max-h-[90vh] overflow-y-auto relative shadow-[0_20px_60px_rgba(0,0,0,0.08)] border border-slate-200/60 w-full md:p-6 sm:p-4 sm:rounded-2xl sm:max-h-full"
       @click.stop
     >
       <button
-        class="absolute top-4 right-4 bg-[rgba(255,126,103,0.1)] text-text border border-[rgba(255,126,103,0.2)] rounded-lg p-2 cursor-pointer transition-all-300 flex items-center justify-center w-9 h-9 hover:bg-[rgba(255,126,103,0.2)] hover:border-[rgba(255,126,103,0.4)] hover:transform-hover-up-1 md:top-3 md:right-3 md:w-8 md:h-8 md:p-1.5 sm:top-2 sm:right-2 sm:w-7 sm:h-7 sm:p-1"
+        class="absolute top-4 right-4 bg-emerald-50/80 text-slate-600 border border-emerald-100/80 rounded-xl p-2 cursor-pointer transition-all duration-300 ease-out flex items-center justify-center w-9 h-9 hover:bg-emerald-100/90 hover:border-emerald-200/90 hover:text-slate-700 hover:scale-105 hover:shadow-lg md:top-3 md:right-3 md:w-8 md:h-8 md:p-1.5 sm:top-2 sm:right-2 sm:w-7 sm:h-7 sm:p-1"
         :aria-label="t('close')"
         @click="$emit('close')"
       >
@@ -31,7 +31,7 @@
       </button>
 
       <h2
-        class="m-0 mb-8 text-2xl font-semibold text-text text-center pr-12 md:text-xl md:mb-6 md:pr-10 sm:text-lg sm:mb-4 sm:pr-8"
+        class="m-0 mb-8 text-2xl font-semibold text-slate-800 text-center pr-12 md:text-xl md:mb-6 md:pr-10 sm:text-lg sm:mb-4 sm:pr-8"
       >
         {{ t('productivityInsights') }}
       </h2>

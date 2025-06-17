@@ -21,6 +21,7 @@
       @clear-conversations="clearAllConversations"
       @new-conversation="createNewConversation"
       @optimize="optimizeMessage"
+      @retry="handleRetry"
       @send="handleSendMessage"
       @stop="stopGenerating"
       @scroll="handleScroll"
@@ -68,6 +69,9 @@ const {
   sendMessage,
   stopGenerating,
   optimizeMessage,
+  // 重试相关
+  retryLastMessage,
+  isRetrying: _isRetrying,
   // 搜索相关
   isSearching,
   lastSearchContext,
@@ -113,6 +117,11 @@ const handleUpdateSearchConfig = (config: Record<string, unknown>) => {
 
 const handleManualSearch = async (query: string) => {
   await performManualSearch(query)
+}
+
+const handleRetry = async () => {
+  shouldAutoScroll.value = true
+  await retryLastMessage()
 }
 
 onMounted(() => {

@@ -11,6 +11,8 @@
       @copy="copyToClipboard"
       @copy-success="handleCopySuccess"
       @copy-error="handleCopyError"
+      @retry="handleRetry"
+      @optimize="handleOptimize"
     />
 
     <!-- 搜索状态指示器 -->
@@ -62,6 +64,8 @@ const emit = defineEmits<{
       clientHeight: number
     }
   ): void
+  (e: 'retry'): void
+  (e: 'optimize'): void
 }>()
 
 const { sanitizeContent } = useMarkdown()
@@ -91,6 +95,14 @@ const handleCopySuccess = (_text: string) => {
 const handleCopyError = (error: Error) => {
   console.error('复制失败:', error)
   // 可以在这里添加全局错误通知
+}
+
+const handleRetry = () => {
+  emit('retry')
+}
+
+const handleOptimize = () => {
+  emit('optimize')
 }
 
 const isUserScrolling = ref(false)

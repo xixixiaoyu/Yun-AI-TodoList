@@ -16,7 +16,7 @@
         </h3>
       </div>
       <p class="text-sm text-text-secondary leading-relaxed">
-        配置您的 OpenAI API 密钥以启用 AI 功能
+        配置您的 DeepSeek API 密钥以启用 AI 功能
       </p>
     </div>
 
@@ -24,22 +24,24 @@
       <ApiKeyCard :local-api-key="localApiKey" @show-popover="showApiKeyPopover = true" />
     </div>
 
-    <ApiKeyPopover
-      v-if="showApiKeyPopover"
-      :local-api-key="localApiKey"
-      :show-api-key="showApiKey"
-      @update:local-api-key="localApiKey = $event"
-      @update:show-api-key="showApiKey = $event"
-      @close="showApiKeyPopover = false"
-      @save="saveAndClosePopover"
-      @clear="clearKey"
-    />
-
-    <div
-      v-if="showApiKeyPopover"
-      class="fixed top-0 left-0 right-0 bottom-0 bg-black/50 backdrop-blur-sm z-1000 animate-[overlayIn_0.3s_ease]"
-      @click="showApiKeyPopover = false"
-    />
+    <!-- 使用 Teleport 将弹窗渲染到 body 根部，避免父容器样式影响 -->
+    <Teleport to="body">
+      <div
+        v-if="showApiKeyPopover"
+        class="fixed inset-0 bg-black/50 backdrop-blur-sm z-[9998] animate-[overlayIn_0.3s_ease]"
+        @click="showApiKeyPopover = false"
+      />
+      <ApiKeyPopover
+        v-if="showApiKeyPopover"
+        :local-api-key="localApiKey"
+        :show-api-key="showApiKey"
+        @update:local-api-key="localApiKey = $event"
+        @update:show-api-key="showApiKey = $event"
+        @close="showApiKeyPopover = false"
+        @save="saveAndClosePopover"
+        @clear="clearKey"
+      />
+    </Teleport>
   </div>
 </template>
 

@@ -22,15 +22,20 @@
       @close="closeReminder"
       @go-to-settings="goToSettings"
     />
+
+    <!-- Toast 通知组件 -->
+    <SimpleToast ref="toastRef" />
   </div>
 </template>
 
 <script setup lang="ts">
+import SimpleToast from './components/common/SimpleToast.vue'
 import ApiKeyReminder from './components/layout/ApiKeyReminder.vue'
 import NavigationBar from './components/layout/NavigationBar.vue'
 import { useAppState } from './composables/useAppState'
 import { useMobile } from './composables/useMobile'
 import { useTheme } from './composables/useTheme'
+import { useToast } from './composables/useToast'
 import { getPlatformClasses } from './utils/platform'
 
 const { theme, systemTheme, initTheme } = useTheme()
@@ -53,13 +58,23 @@ provide('theme', theme)
 const { width } = useWindowSize()
 const isSmallScreen = computed(() => width.value < 768)
 
+// Toast 设置
+const toastRef = ref()
+const toast = useToast()
+
 onMounted(() => {
   try {
     initTheme()
+
+    // 设置 Toast 实例
+    if (toastRef.value) {
+      toast.setToastInstance(toastRef.value)
+    }
   } catch (error) {
     console.error('Error initializing app:', error)
   }
 })
-</script>
 
-<!-- 样式已迁移到 UnoCSS 和 variables.css -->
+// 提供 Toast 实例给子组件
+provide('toast', toast)
+</script>
