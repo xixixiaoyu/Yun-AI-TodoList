@@ -1,26 +1,19 @@
 import { mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
-import { createI18n } from 'vue-i18n'
+import { createTestI18n } from '@/test/helpers'
 import TodoListHeader from '../TodoListHeader.vue'
 
-const i18n = createI18n({
-  legacy: false,
-  locale: 'zh',
-  messages: {
-    zh: {
-      appTitle: '待办事项',
-      theme: '主题',
-      showCharts: '统计图表',
-      openCharts: '打开统计图表',
-      closeCharts: '关闭统计图表',
-      openSearch: '打开搜索',
-      closeSearch: '关闭搜索',
-      switchToLightMode: '切换到浅色模式',
-      switchToDarkMode: '切换到深色模式',
-      switchToAutoMode: '切换到自动模式',
+const i18n = createTestI18n()
+
+// 创建全局配置对象
+const globalConfig = {
+  plugins: [i18n],
+  config: {
+    globalProperties: {
+      $t: (key: string) => i18n.global.t(key),
     },
   },
-})
+}
 
 describe('TodoListHeader', () => {
   const defaultProps = {
@@ -33,9 +26,7 @@ describe('TodoListHeader', () => {
   it('应该正确渲染所有按钮', () => {
     const wrapper = mount(TodoListHeader, {
       props: defaultProps,
-      global: {
-        plugins: [i18n],
-      },
+      global: globalConfig,
     })
 
     const buttons = wrapper.findAll('.icon-button')
@@ -58,9 +49,7 @@ describe('TodoListHeader', () => {
         ...defaultProps,
         showCharts: true,
       },
-      global: {
-        plugins: [i18n],
-      },
+      global: globalConfig,
     })
 
     expect(wrapper.find('.charts-button').classes()).toContain('active')
@@ -69,9 +58,7 @@ describe('TodoListHeader', () => {
   it('应该正确触发事件', async () => {
     const wrapper = mount(TodoListHeader, {
       props: defaultProps,
-      global: {
-        plugins: [i18n],
-      },
+      global: globalConfig,
     })
 
     await wrapper.find('.theme-toggle').trigger('click')
@@ -84,9 +71,7 @@ describe('TodoListHeader', () => {
   it('应该显示正确的工具提示', () => {
     const wrapper = mount(TodoListHeader, {
       props: defaultProps,
-      global: {
-        plugins: [i18n],
-      },
+      global: globalConfig,
     })
 
     const themeButton = wrapper.find('.theme-toggle')
@@ -102,7 +87,7 @@ describe('TodoListHeader', () => {
   it('应该根据不同主题图标显示不同的 SVG', () => {
     const sunWrapper = mount(TodoListHeader, {
       props: { ...defaultProps, themeIcon: 'sun' },
-      global: { plugins: [i18n] },
+      global: globalConfig,
     })
     const sunSvg = sunWrapper.find('.theme-toggle svg')
     expect(sunSvg.exists()).toBe(true)
@@ -111,7 +96,7 @@ describe('TodoListHeader', () => {
 
     const moonWrapper = mount(TodoListHeader, {
       props: { ...defaultProps, themeIcon: 'moon' },
-      global: { plugins: [i18n] },
+      global: globalConfig,
     })
     const moonSvg = moonWrapper.find('.theme-toggle svg')
     expect(moonSvg.exists()).toBe(true)
@@ -120,7 +105,7 @@ describe('TodoListHeader', () => {
 
     const autoWrapper = mount(TodoListHeader, {
       props: { ...defaultProps, themeIcon: 'auto' },
-      global: { plugins: [i18n] },
+      global: globalConfig,
     })
     const autoSvg = autoWrapper.find('.theme-toggle svg')
     expect(autoSvg.exists()).toBe(true)
@@ -131,9 +116,7 @@ describe('TodoListHeader', () => {
   it('应该为按钮设置正确的尺寸和样式', () => {
     const wrapper = mount(TodoListHeader, {
       props: defaultProps,
-      global: {
-        plugins: [i18n],
-      },
+      global: globalConfig,
     })
 
     const buttons = wrapper.findAll('.icon-button')

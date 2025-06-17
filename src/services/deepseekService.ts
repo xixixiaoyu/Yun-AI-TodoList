@@ -65,7 +65,6 @@ export async function getAIStreamResponse(
     while (isReading) {
       const { done, value } = await reader.read()
       if (done) {
-        onChunk('[DONE]')
         isReading = false
         break
       }
@@ -78,7 +77,6 @@ export async function getAIStreamResponse(
         if (line.startsWith('data: ')) {
           const jsonData = line.slice(6)
           if (jsonData === '[DONE]') {
-            onChunk('[DONE]')
             isReading = false
             return
           }
@@ -149,7 +147,9 @@ export async function getAIResponse(
   } catch (error) {
     handleError(error, i18n.global.t('aiResponseError'), 'DeepSeekService')
     if (error instanceof Error) {
-      if (error.message.startsWith('HTTP 错误')) {
+      if (error.message === i18n.global.t('configureApiKey')) {
+        throw error
+      } else if (error.message.startsWith('HTTP 错误')) {
         throw new Error(i18n.global.t('apiError', { error: error.message }))
       } else if (error.message === i18n.global.t('invalidAiResponse')) {
         throw error

@@ -2,71 +2,17 @@ import type { ChatMessage, Conversation } from '@/services/types'
 import type { Todo } from '@/types/todo'
 import { vi } from 'vitest'
 import { createI18n } from 'vue-i18n'
+import zh from '../locales/zh.json'
+import en from '../locales/en.json'
 
 export function createTestI18n() {
   return createI18n({
     legacy: false,
     locale: 'zh',
+    fallbackLocale: 'en',
     messages: {
-      zh: {
-        addTodo: '添加待办事项',
-        searchTodos: '搜索待办事项...',
-        clearSearch: '清除搜索',
-        duplicateError: '待办事项已存在',
-        emptyTodoError: '待办事项不能为空',
-
-        all: '全部',
-        active: '进行中',
-        completed: '已完成',
-
-        configureApiKey: '请先配置 API Key',
-        httpError: 'HTTP 错误: {status}',
-        invalidAiResponse: '无效的 AI 响应',
-        aiEmptyResponseError: 'AI 响应为空',
-        aiSortMismatchError: 'AI 排序结果不匹配',
-        noActiveTodosError: '没有待排序的活跃待办事项',
-        sortPrompt: '请按优先级排序以下待办事项',
-
-        settings: '设置',
-        apiKey: 'API Key',
-        systemPrompt: '系统提示词',
-        save: '保存',
-        cancel: '取消',
-
-        newConversation: '新对话',
-        sendMessage: '发送消息',
-
-        confirm: '确认',
-        delete: '删除',
-        edit: '编辑',
-        sorting: '排序中...',
-        loading: '加载中...',
-      },
-      en: {
-        addTodo: 'Add Todo',
-        searchTodos: 'Search todos...',
-        clearSearch: 'Clear search',
-        duplicateError: 'Todo already exists',
-        emptyTodoError: 'Todo cannot be empty',
-        all: 'All',
-        active: 'Active',
-        completed: 'Completed',
-        configureApiKey: 'Please configure API Key first',
-        httpError: 'HTTP Error: {status}',
-        invalidAiResponse: 'Invalid AI response',
-        settings: 'Settings',
-        apiKey: 'API Key',
-        systemPrompt: 'System Prompt',
-        save: 'Save',
-        cancel: 'Cancel',
-        newConversation: 'New Conversation',
-        sendMessage: 'Send Message',
-        confirm: 'Confirm',
-        delete: 'Delete',
-        edit: 'Edit',
-        sorting: 'Sorting...',
-        loading: 'Loading...',
-      },
+      zh,
+      en,
     },
   })
 }

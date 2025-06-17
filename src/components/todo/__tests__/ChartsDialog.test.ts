@@ -1,7 +1,7 @@
 import { describe, it, expect, vi } from 'vitest'
 import { mount } from '@vue/test-utils'
+import { createTestI18n } from '@/test/helpers'
 import ChartsDialog from '../ChartsDialog.vue'
-import { createI18n } from 'vue-i18n'
 
 vi.mock('chart.js/auto', () => ({
   default: vi.fn().mockImplementation(() => ({
@@ -17,25 +17,7 @@ vi.mock('../../../composables/useTodos', () => ({
   }),
 }))
 
-const i18n = createI18n({
-  legacy: false,
-  locale: 'zh',
-  messages: {
-    zh: {
-      close: '关闭',
-      productivityInsights: '生产力洞察',
-      completionTrend: '完成趋势（过去7天）',
-      completedTodos: '已完成任务',
-      totalTasks: '总任务',
-      completed: '已完成',
-      pending: '待完成',
-      completionRate: '完成率',
-      task: '个任务',
-      tasks: '个任务',
-      locale: 'zh-CN',
-    },
-  },
-})
+const i18n = createTestI18n()
 
 describe('ChartsDialog', () => {
   const defaultProps = {

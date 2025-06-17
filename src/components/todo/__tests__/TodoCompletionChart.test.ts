@@ -1,6 +1,6 @@
 import { mount } from '@vue/test-utils'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { createI18n } from 'vue-i18n'
+import { createTestI18n } from '@/test/helpers'
 import { useTodos } from '../../../composables/useTodos'
 import TodoCompletionChart from '../TodoCompletionChart.vue'
 
@@ -85,23 +85,7 @@ vi.mock('../../../composables/useTodos', () => {
   }
 })
 
-const i18n = createI18n({
-  legacy: false,
-  locale: 'zh',
-  messages: {
-    zh: {
-      completionTrend: '完成趋势（过去7天）',
-      completedTodos: '已完成任务',
-      totalTasks: '总任务',
-      completed: '已完成',
-      pending: '待完成',
-      completionRate: '完成率',
-      task: '个任务',
-      tasks: '个任务',
-      locale: 'zh-CN',
-    },
-  },
-})
+const i18n = createTestI18n()
 
 describe('TodoCompletionChart', () => {
   beforeEach(() => {
