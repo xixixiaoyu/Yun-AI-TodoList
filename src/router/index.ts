@@ -1,4 +1,9 @@
-import { createRouter, createWebHashHistory } from 'vue-router'
+import {
+  createRouter,
+  createWebHashHistory,
+  type NavigationGuardNext,
+  type RouteLocationNormalized,
+} from 'vue-router'
 import AIChatDialog from '../components/AIChatDialog.vue'
 import Settings from '../components/Settings.vue'
 import TodoList from '../components/TodoList.vue'

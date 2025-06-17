@@ -165,5 +165,23 @@
   "lightThemeDescription": "Bright and clean interface style",
   "darkThemeDescription": "Eye-friendly dark interface style",
   "autoThemeDescription": "Automatically switch theme based on system settings",
-  "currentTheme": "Current Theme"
+  "currentTheme": "Current Theme",
+
+  "searching": "Searching...",
+  "searchLocale": "Search Language",
+
+  "searchSettings": "Search Settings",
+  "enableSearch": "Enable Search",
+  "enableSearchDesc": "Allow AI assistant to automatically search for web information when needed",
+  "intelligentSearch": "Intelligent Search",
+  "intelligentSearchDesc": "AI automatically determines whether to search to answer questions",
+  "maxResults": "Max Results",
+  "maxResultsDesc": "Maximum number of results returned per search",
+  "searchLocaleDesc": "Language and region settings for search",
+  "searchTimeout": "Search Timeout",
+  "searchTimeoutDesc": "Timeout duration for search requests",
+  "recentSearch": "Recent Search",
+  "results": "results",
+  "manualSearch": "Manual Search",
+  "searchPlaceholder": "Enter search keywords..."
 }

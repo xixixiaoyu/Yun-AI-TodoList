@@ -78,6 +78,7 @@ export async function getAIStreamResponse(
           const jsonData = line.slice(6)
           if (jsonData === '[DONE]') {
             isReading = false
+            onChunk('[DONE]')
             return
           }
           try {

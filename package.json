@@ -64,7 +64,9 @@
     "mobile:run:ios": "cap run ios",
     "mobile:sync": "cap sync",
     "mobile:sync:android": "cap sync android",
-    "mobile:sync:ios": "cap sync ios"
+    "mobile:sync:ios": "cap sync ios",
+    "search:start": "node scripts/start-mcp-search.js",
+    "search:dev": "concurrently \"pnpm dev\" \"pnpm search:start\""
   },
   "lint-staged": {
     "*.{vue,js,jsx,cjs,mjs,ts,tsx,cts,mts}": [
@@ -86,6 +88,7 @@
     "@capacitor/splash-screen": "6.0.2",
     "@capacitor/status-bar": "6.0.1",
     "@capacitor/toast": "6.0.2",
+    "@modelcontextprotocol/sdk": "^1.12.3",
     "@types/lodash-es": "4.17.12",
     "@vueuse/core": "13.3.0",
     "@vueuse/integrations": "13.3.0",
@@ -105,6 +108,7 @@
     "@capacitor/cli": "6.1.2",
     "@capacitor/ios": "6.1.2",
     "@eslint/js": "9.28.0",
+    "@iconify-json/carbon": "^1.2.9",
     "@typescript-eslint/eslint-plugin": "8.34.0",
     "@typescript-eslint/parser": "8.34.0",
     "@unocss/preset-attributify": "66.2.0",

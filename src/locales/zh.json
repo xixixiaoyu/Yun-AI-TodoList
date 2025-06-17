@@ -7,7 +7,6 @@
   "openSearch": "打开搜索",
   "closeSearch": "关闭搜索",
   "active": "待完成",
-  "completed": "已完成",
 
   "generateSuggestions": "AI 生成建议",
   "aiPrioritySort": "AI 优先级排序",
@@ -203,5 +202,23 @@
   "lightThemeDescription": "明亮清爽的界面风格",
   "darkThemeDescription": "护眼的深色界面风格",
   "autoThemeDescription": "根据系统设置自动切换主题",
-  "currentTheme": "当前主题"
+  "currentTheme": "当前主题",
+
+  "searching": "搜索中...",
+  "searchLocale": "搜索语言",
+
+  "searchSettings": "搜索设置",
+  "enableSearch": "启用搜索功能",
+  "enableSearchDesc": "允许 AI 助手在需要时自动搜索网络信息",
+  "intelligentSearch": "智能搜索",
+  "intelligentSearchDesc": "AI 自动判断是否需要搜索来回答问题",
+  "maxResults": "最大结果数",
+  "maxResultsDesc": "每次搜索返回的最大结果数量",
+  "searchLocaleDesc": "搜索使用的语言和地区设置",
+  "searchTimeout": "搜索超时",
+  "searchTimeoutDesc": "搜索请求的超时时间",
+  "recentSearch": "最近搜索",
+  "results": "条结果",
+  "manualSearch": "手动搜索",
+  "searchPlaceholder": "输入搜索关键词..."
 }

@@ -14,6 +14,7 @@
       ref="messageListRef"
       :messages="chatHistory"
       :current-response="currentAiResponse"
+      :is-searching="isSearching"
       @scroll="$emit('scroll', $event)"
     />
 
@@ -23,6 +24,7 @@
         :user-message="userMessage"
         @new="$emit('newConversation')"
         @optimize="$emit('optimize')"
+        @toggle-search="$emit('toggleSearch')"
         @toggle-drawer="$emit('toggleDrawer')"
       />
 
@@ -63,6 +65,7 @@ interface Props {
   userMessage: string
   isGenerating: boolean
   isOptimizing: boolean
+  isSearching?: boolean
 }
 
 interface ScrollInfo {
@@ -74,6 +77,7 @@ interface ScrollInfo {
 
 interface Emits {
   (e: 'toggleDrawer'): void
+  (e: 'toggleSearch'): void
   (e: 'update:isDrawerOpen', value: boolean): void
   (e: 'switchConversation', id: string): void
   (e: 'deleteConversation', id: string): void
