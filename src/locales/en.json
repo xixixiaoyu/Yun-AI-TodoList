@@ -42,6 +42,7 @@
   "aiSortMismatchError": "AI returned sort order does not match the number of todos",
   "aiSortError": "AI sorting failed, please try again later.",
   "aiSortSuccess": "AI priority sorting completed!",
+  "aiSortParseFailed": "Failed to parse AI sorting result, please try again",
   "noActiveTodosError": "At least 2 active todos are required for sorting",
 
   "aiStreamError": "Error in AI stream response",

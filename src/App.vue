@@ -6,10 +6,10 @@
     <NavigationBar />
 
     <div
-      class="flex-1 flex flex-col justify-center items-center p-4 min-h-[calc(100vh-60px)] overflow-hidden transition-all-300 md:pt-16 md:pb-2 md:justify-start md:overflow-y-auto"
+      class="flex-1 flex flex-col justify-center items-center p-4 min-h-[calc(100vh-60px)] overflow-hidden transition-all duration-300 ease-in-out pt-16 md:pt-4 md:pb-2 md:justify-start md:overflow-y-auto"
     >
-      <div class="w-full max-w-screen-xl flex flex-col justify-center">
-        <router-view />
+      <div class="w-full max-w-screen-xl flex flex-col justify-center px-2 md:px-4">
+        <router-view @open-ai-sidebar="openAISidebar" />
       </div>
       <div
         class="flex flex-col gap-4 mb-4 flex-shrink-0"
@@ -25,13 +25,18 @@
 
     <!-- Toast 通知组件 -->
     <SimpleToast ref="toastRef" />
+
+    <!-- AI 助手侧边栏 -->
+    <AISidebar :is-open="isAISidebarOpen" @close="closeAISidebar" />
   </div>
 </template>
 
 <script setup lang="ts">
+import AISidebar from './components/AISidebar.vue'
 import SimpleToast from './components/common/SimpleToast.vue'
 import ApiKeyReminder from './components/layout/ApiKeyReminder.vue'
 import NavigationBar from './components/layout/NavigationBar.vue'
+import { useAISidebar } from './composables/useAISidebar'
 import { useAppState } from './composables/useAppState'
 import { useMobile } from './composables/useMobile'
 import { useTheme } from './composables/useTheme'
@@ -41,6 +46,13 @@ import { getPlatformClasses } from './utils/platform'
 const { theme, systemTheme, initTheme } = useTheme()
 
 const { showApiKeyReminder, closeReminder, goToSettings } = useAppState()
+
+// AI 侧边栏状态管理
+const {
+  isOpen: isAISidebarOpen,
+  openSidebar: openAISidebar,
+  closeSidebar: closeAISidebar,
+} = useAISidebar()
 
 const { isReady: _mobileReady, platformInfo: _platformInfo } = useMobile()
 

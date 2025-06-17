@@ -6,9 +6,11 @@
       ref="inputRef"
       :model-value="modelValue"
       :is-generating="isGenerating"
+      :is-optimizing="isOptimizing"
       @update:model-value="$emit('update:modelValue', $event)"
       @send="$emit('send')"
       @newline="handleNewline"
+      @optimize="$emit('optimize')"
     />
 
     <ChatInputControls

@@ -1,11 +1,10 @@
 <template>
   <div
-    class="fixed top-0 h-full bg-bg transition-transform duration-300 shadow-lg z-[1001] drawer-responsive"
+    class="absolute top-0 left-0 h-full bg-bg/95 backdrop-blur-sm transition-transform duration-300 shadow-lg z-[1001] drawer-responsive w-80 md:w-72 sm:w-64"
     :class="{
-      'translate-x-full': isOpen,
+      'translate-x-0': isOpen,
       '-translate-x-full': !isOpen,
     }"
-    :style="{ left: isOpen ? '0' : '-100%' }"
   >
     <div class="h-full flex flex-col">
       <!-- 头部区域 -->
@@ -113,9 +112,6 @@
       </div>
     </div>
   </div>
-
-  <!-- 背景遮罩 -->
-  <div v-if="isOpen" class="drawer-overlay" @click="$emit('update:isOpen', false)" />
 </template>
 
 <script setup lang="ts">
@@ -383,7 +379,15 @@ defineOptions({
 }
 
 /* 响应式调整 */
+.drawer-responsive {
+  width: 320px;
+}
+
 @media (max-width: 768px) {
+  .drawer-responsive {
+    width: 280px;
+  }
+
   .conversation-item {
     @apply p-2;
   }
@@ -398,6 +402,36 @@ defineOptions({
 
   .search-section {
     @apply p-2;
+  }
+
+  .drawer-header {
+    @apply p-3;
+  }
+
+  .title-text {
+    @apply text-base;
+  }
+}
+
+@media (max-width: 640px) {
+  .drawer-responsive {
+    width: 260px;
+  }
+
+  .conversation-item {
+    @apply p-1.5;
+  }
+
+  .conversation-title {
+    @apply text-xs;
+  }
+
+  .header-actions {
+    @apply gap-1;
+  }
+
+  .action-button {
+    @apply p-1.5;
   }
 }
 </style>

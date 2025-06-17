@@ -1,12 +1,18 @@
 <template>
   <div class="nav-bar">
-    <button class="nav-button" @click="router.push('/')">
+    <button
+      class="nav-button"
+      :class="{ 'nav-button-active': $route.path === '/' }"
+      @click="router.push('/')"
+    >
       {{ t('home') }}
     </button>
-    <button class="nav-button" @click="router.push('/ai-assistant')">
-      {{ t('aiAssistant') }}
-    </button>
-    <button class="nav-button" @click="router.push('/settings')">
+
+    <button
+      class="nav-button"
+      :class="{ 'nav-button-active': $route.path === '/settings' }"
+      @click="router.push('/settings')"
+    >
       {{ t('settings') }}
     </button>
     <button class="nav-button" @click="toggleLanguage">
@@ -21,6 +27,8 @@ import { setLanguage } from '../../i18n'
 import router from '../../router'
 
 const { locale, t } = useI18n()
+
+// 移除了 AI 助手相关的事件定义，因为已移动到待办事项卡片内
 
 const toggleLanguage = () => {
   const newLocale = locale.value === 'zh' ? 'en' : 'zh'
@@ -46,20 +54,35 @@ defineOptions({
   background-color: var(--language-toggle-bg);
   color: var(--language-toggle-color);
   border: 1px solid var(--language-toggle-color);
-  border-radius: 8px;
+  border-radius: 10px;
   cursor: pointer;
   font-size: 14px;
-  font-weight: bold;
+  font-weight: 600;
   transition: all 0.3s ease;
-  padding: 8px 12px;
+  padding: 10px 16px;
   white-space: nowrap;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(10px);
 }
 
 .nav-button:hover {
   background-color: var(--language-toggle-hover-bg);
   transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+  border-color: var(--primary-color);
+}
+
+.nav-button-active {
+  background-color: var(--primary-color);
+  color: white;
+  border-color: var(--primary-color);
+  box-shadow: 0 4px 12px rgba(121, 180, 166, 0.3);
+}
+
+.nav-button-active:hover {
+  background-color: var(--primary-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(121, 180, 166, 0.4);
 }
 
 @media (max-width: 768px) {
@@ -77,15 +100,17 @@ defineOptions({
     gap: 0.25rem;
     backdrop-filter: blur(10px);
     box-sizing: border-box;
+    z-index: 1000;
   }
 
   .nav-button {
     flex: 1;
-    font-size: 12px;
-    padding: 10px 8px;
+    font-size: 13px;
+    padding: 12px 8px;
     text-align: center;
-    min-width: 60px;
-    border-radius: 6px;
+    min-width: 70px;
+    border-radius: 8px;
+    font-weight: 600;
   }
 
   .nav-button:hover {

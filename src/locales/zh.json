@@ -40,6 +40,7 @@
   "aiSortMismatchError": "AI 返回的排序数与待办事项数量不匹配",
   "aiSortError": "AI 排序失败，请稍后再试。",
   "aiSortSuccess": "AI 优先级排序完成！",
+  "aiSortParseFailed": "AI 排序结果解析失败，请重试",
   "noActiveTodosError": "需要至少 2 个未完成的待办事项才能进行排序",
 
   "aiStreamError": "AI 流式响应出错",

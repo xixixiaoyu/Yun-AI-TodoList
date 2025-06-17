@@ -21,7 +21,11 @@ export function useTodoDragSort(
   watch(
     todos,
     (newTodos) => {
-      sortableTodos.value = [...newTodos]
+      if (Array.isArray(newTodos)) {
+        sortableTodos.value = [...newTodos]
+      } else {
+        sortableTodos.value = []
+      }
     },
     { immediate: true, deep: true }
   )

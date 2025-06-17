@@ -18,6 +18,7 @@
         @toggle-theme="toggleTheme"
         @toggle-charts="toggleCharts"
         @toggle-search="toggleSearch"
+        @open-ai-sidebar="$emit('openAiSidebar')"
       />
 
       <TodoInput
@@ -126,6 +127,11 @@ import { ChartsDialog, SuggestedTodosDialog, TodoActions, TodoListHeader } from 
 
 const { t } = useI18n()
 
+// 定义事件
+defineEmits<{
+  openAiSidebar: []
+}>()
+
 const {
   todoListRef,
   showConfirmDialog,
@@ -170,8 +176,14 @@ const {
   success,
 } = useTodoListState()
 
-// 拖拽排序功能
-const isDragEnabled = computed(() => filter.value === 'active' && filteredTodos.value.length > 1)
+// 拖拽排序功能 - 在 AI 排序过程中禁用拖拽
+const isDragEnabled = computed(
+  () =>
+    filter.value === 'active' &&
+    filteredTodos.value.length > 1 &&
+    !isSorting.value &&
+    !isGenerating.value
+)
 
 // 创建专门的拖拽顺序更新函数
 const handleDragReorder = (reorderedTodos: Todo[]) => {
@@ -242,12 +254,12 @@ onUnmounted(() => {
 
 <style scoped>
 .todo-container {
-  @apply flex flex-col items-center justify-center w-full mx-auto box-border min-h-70vh transition-all-300;
-  max-width: 1400px;
+  @apply flex flex-col items-center justify-start w-full mx-auto box-border min-h-[calc(100vh-120px)] transition-all-300 pt-8;
+  max-width: 1200px;
 }
 
 .todo-container.small-screen {
-  @apply p-2 justify-start;
+  @apply p-2 justify-start pt-4;
 }
 
 .todo-list {
@@ -419,11 +431,11 @@ onUnmounted(() => {
 
 @media (max-width: 768px) {
   .todo-container {
-    @apply p-1 min-h-auto justify-start;
+    @apply p-1 min-h-[calc(100vh-100px)] justify-start pt-2;
   }
 
   .todo-container.small-screen {
-    @apply p-2;
+    @apply p-2 pt-2;
   }
 
   .todo-list {

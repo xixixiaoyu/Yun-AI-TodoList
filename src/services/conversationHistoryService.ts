@@ -169,13 +169,15 @@ export class ConversationHistoryService {
 
     // 按选项过滤对话
     if (options.conversations) {
-      conversations = conversations.filter((conv) => options.conversations!.includes(conv.id))
+      conversations = conversations.filter(
+        (conv) => options.conversations?.includes(conv.id) ?? false
+      )
     }
 
     if (options.dateRange) {
       conversations = conversations.filter((conv) => {
         const date = new Date(conv.createdAt)
-        return date >= options.dateRange!.start && date <= options.dateRange!.end
+        return options.dateRange && date >= options.dateRange.start && date <= options.dateRange.end
       })
     }
 
@@ -221,7 +223,7 @@ export class ConversationHistoryService {
     try {
       const backupData = localStorage.getItem(this.BACKUP_KEY)
       if (backupData) {
-        console.log('从备份恢复对话历史')
+        console.warn('从备份恢复对话历史')
         return JSON.parse(backupData)
       }
     } catch (error) {

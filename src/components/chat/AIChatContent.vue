@@ -1,5 +1,5 @@
 <template>
-  <div class="flex-grow flex flex-col py-4 md:py-2 overflow-hidden h-[calc(100%-60px)] relative">
+  <div class="flex-grow flex flex-col py-4 md:py-2 overflow-hidden relative">
     <ConversationDrawer
       :is-open="isDrawerOpen"
       :conversations="conversationHistory"
@@ -22,10 +22,7 @@
 
     <div class="sticky bottom-0 bg-bg z-10 flex flex-col gap-3 py-3 sm:py-2">
       <ChatToolbar
-        :is-optimizing="isOptimizing"
-        :user-message="userMessage"
         @new="$emit('newConversation')"
-        @optimize="$emit('optimize')"
         @toggle-search="$emit('toggleSearch')"
         @toggle-drawer="$emit('toggleDrawer')"
       />

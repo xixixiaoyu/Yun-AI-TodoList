@@ -57,9 +57,10 @@ const addTodo = async () => {
 <style scoped>
 .add-todo-form {
   @apply font-sans flex mb-6 flex-wrap gap-3 p-4 rounded;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 126, 103, 0.08);
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: var(--border-radius);
+  align-items: center;
 }
 
 .input-wrapper {
@@ -72,9 +73,11 @@ const addTodo = async () => {
   padding: 0.875rem 1rem;
   background-color: var(--input-bg-color);
   border: 2px solid var(--input-border-color);
-  border-radius: calc(var(--border-radius) / 1.5);
+  border-radius: var(--border-radius);
   color: var(--text-color);
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  height: 48px;
+  box-sizing: border-box;
 }
 
 .todo-input:focus {
@@ -89,18 +92,21 @@ const addTodo = async () => {
   @apply text-button-text border-none rounded cursor-pointer transition-all-300 font-semibold;
   padding: 0.875rem 1.25rem;
   font-size: 0.95rem;
-  background: linear-gradient(135deg, var(--button-bg-color) 0%, rgba(121, 180, 166, 0.9) 100%);
-  box-shadow: 0 2px 6px rgba(121, 180, 166, 0.3);
-  border-radius: calc(var(--border-radius) / 1.5);
-  letter-spacing: 0.5px;
-  height: 42px;
+  background-color: var(--button-bg-color);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  border-radius: var(--border-radius);
+  letter-spacing: 0.3px;
+  height: 48px;
   min-width: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .add-btn:hover {
   background-color: var(--button-hover-bg-color);
-  transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(121, 180, 166, 0.4);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
 }
 
 @media (max-width: 768px) {

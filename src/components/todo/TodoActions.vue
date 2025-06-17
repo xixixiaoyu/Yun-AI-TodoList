@@ -25,7 +25,7 @@
       class="ai-action-btn ai-sort-btn"
       :class="{ 'is-loading': isSorting }"
       :disabled="isSorting"
-      @click="$emit('sortWithAI')"
+      @click="handleSortClick"
     >
       <div class="btn-content">
         <div v-if="isSorting" class="loading-spinner" />
@@ -59,9 +59,13 @@ interface Emits {
 }
 
 defineProps<Props>()
-defineEmits<Emits>()
+const emit = defineEmits<Emits>()
 
 const { t } = useI18n()
+
+const handleSortClick = () => {
+  emit('sortWithAI')
+}
 
 defineOptions({
   name: 'TodoActions',
