@@ -1,6 +1,6 @@
 <template>
   <div
-    class="flex gap-3 px-6 py-4 md:px-4 md:py-3 sticky bottom-0 bg-bg z-10 border-t border-input-border/50"
+    class="flex gap-3 px-6 py-2 md:px-4 md:py-3 sticky bottom-0 bg-bg z-10 border-t border-input-border/50"
   >
     <ChatTextarea
       ref="inputRef"

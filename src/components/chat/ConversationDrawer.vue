@@ -1,7 +1,7 @@
 <template>
   <div
-    class="fixed -left-75 md:-left-[85%] md:max-w-75 top-0 h-full w-75 bg-bg transition-transform duration-300 shadow-lg z-1000"
-    :class="{ 'translate-x-75 md:translate-x-full': isOpen }"
+    class="fixed -left-75 md:-left-[85%] md:max-w-75 top-0 h-full w-75 bg-bg transition-transform duration-300 shadow-lg z-[1001]"
+    :class="{ 'translate-x-full md:translate-x-full': isOpen }"
   >
     <div class="h-full flex flex-col p-4">
       <div class="flex justify-between items-center mb-4 pb-3 border-b border-input-border">
@@ -68,7 +68,7 @@
   </div>
   <div
     v-if="isOpen"
-    class="fixed top-0 left-0 w-full h-full bg-black/30 z-[999]"
+    class="fixed top-0 left-0 w-full h-full bg-black/30 z-[1000]"
     @click="$emit('update:isOpen', false)"
   />
 </template>
