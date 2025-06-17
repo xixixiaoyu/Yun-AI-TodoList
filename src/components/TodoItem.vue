@@ -1,10 +1,41 @@
 <template>
   <div
     class="card-todo"
-    :class="{ completed: isCompleted }"
+    :class="{
+      completed: isCompleted,
+      'todo-draggable': isDraggable,
+      'todo-dragging': isDragging,
+    }"
     :data-todo-id="todo.id"
     @click="toggleTodo"
   >
+    <!-- 拖拽手柄 -->
+    <div
+      v-if="isDraggable"
+      class="todo-drag-handle"
+      :title="t('dragToReorder', '拖拽重新排序')"
+      @click.stop
+    >
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="16"
+        height="16"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      >
+        <circle cx="9" cy="12" r="1" />
+        <circle cx="9" cy="5" r="1" />
+        <circle cx="9" cy="19" r="1" />
+        <circle cx="15" cy="12" r="1" />
+        <circle cx="15" cy="5" r="1" />
+        <circle cx="15" cy="19" r="1" />
+      </svg>
+    </div>
+
     <div class="todo-content">
       <span class="checkbox-wrapper">
         <transition name="fade">
@@ -51,9 +82,17 @@ import confetti from 'canvas-confetti'
 import { useErrorHandler } from '../composables/useErrorHandler'
 import type { Todo } from '../types/todo'
 
-const props = defineProps<{
-  todo: Todo
-}>()
+const props = withDefaults(
+  defineProps<{
+    todo: Todo
+    isDraggable?: boolean
+    isDragging?: boolean
+  }>(),
+  {
+    isDraggable: false,
+    isDragging: false,
+  }
+)
 
 const { showError } = useErrorHandler()
 const { t } = useI18n()
@@ -234,6 +273,55 @@ onErrorCaptured(handleError)
   @apply bg-red-50 bg-opacity-10 text-error transform scale-105;
 }
 
+/* 拖拽手柄样式 */
+.todo-drag-handle {
+  @apply flex items-center justify-center cursor-grab opacity-40 transition-all duration-200 p-1 rounded;
+  min-width: 24px;
+  height: 24px;
+  margin-right: 8px;
+}
+
+.todo-drag-handle:hover {
+  @apply opacity-70 bg-gray-100 bg-opacity-20;
+}
+
+.todo-drag-handle:active {
+  @apply cursor-grabbing;
+}
+
+/* 拖拽状态样式 */
+.todo-draggable {
+  @apply cursor-move;
+}
+
+.todo-dragging {
+  @apply opacity-50 transform scale-105 shadow-lg;
+  z-index: 1000;
+}
+
+/* 拖拽过程中的全局样式 */
+:global(.dragging-todo) .card-todo:not(.todo-dragging) {
+  @apply opacity-70;
+}
+
+/* 拖拽占位符样式 */
+:global(.todo-ghost) {
+  @apply opacity-30 bg-blue-100 bg-opacity-30;
+  border: 2px dashed var(--input-focus-color);
+}
+
+:global(.todo-chosen) {
+  @apply shadow-lg transform scale-102;
+}
+
+:global(.todo-drag) {
+  @apply opacity-80 transform rotate-2;
+}
+
+:global(.todo-fallback) {
+  @apply opacity-60 transform scale-95;
+}
+
 @media (max-width: 768px) {
   .card-todo {
     @apply flex-row items-center;
@@ -249,6 +337,13 @@ onErrorCaptured(handleError)
 
   .delete-btn:active {
     @apply transform scale-95;
+  }
+
+  .todo-drag-handle {
+    @apply opacity-60;
+    min-width: 20px;
+    height: 20px;
+    margin-right: 6px;
   }
 }
 </style>

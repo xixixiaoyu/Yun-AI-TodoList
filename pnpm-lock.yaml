@@ -51,7 +51,7 @@ importers:
         version: 13.3.0(vue@3.5.16(typescript@5.8.3))
       '@vueuse/integrations':
         specifier: 13.3.0
-        version: 13.3.0(axios@1.10.0)(vue@3.5.16(typescript@5.8.3))
+        version: 13.3.0(axios@1.10.0)(sortablejs@1.15.6)(vue@3.5.16(typescript@5.8.3))
       canvas-confetti:
         specifier: 1.9.3
         version: 1.9.3
@@ -76,6 +76,9 @@ importers:
       playwright:
         specifier: ^1.53.0
         version: 1.53.0
+      sortablejs:
+        specifier: ^1.15.6
+        version: 1.15.6
       vue:
         specifier: 3.5.16
         version: 3.5.16(typescript@5.8.3)
@@ -101,6 +104,9 @@ importers:
       '@iconify-json/carbon':
         specifier: ^1.2.9
         version: 1.2.9
+      '@types/sortablejs':
+        specifier: ^1.15.8
+        version: 1.15.8
       '@typescript-eslint/eslint-plugin':
         specifier: 8.34.0
         version: 8.34.0(@typescript-eslint/parser@8.34.0(eslint@9.28.0(jiti@2.4.2))(typescript@5.8.3))(eslint@9.28.0(jiti@2.4.2))(typescript@5.8.3)
@@ -1671,6 +1677,9 @@ packages:
 
   '@types/sockjs@0.3.36':
     resolution: {integrity: sha512-MK9V6NzAS1+Ud7JV9lJLFqW85VbC9dq3LmwZCuBe4wBDgKC0Kj/jd8Xl+nSviU+Qc3+m7umHHyHg//2KSa0a0Q==}
+
+  '@types/sortablejs@1.15.8':
+    resolution: {integrity: sha512-b79830lW+RZfwaztgs1aVPgbasJ8e7AXtZYHTELNXZPsERt4ymJdjV4OccDbHQAvHrCcFpbF78jkm0R6h/pZVg==}
 
   '@types/trusted-types@2.0.7':
     resolution: {integrity: sha512-ScaPdn1dQczgbl0QFTeTOmVHFULt394XJgOQNoyVhZ6r2vLnMLJfBPd53SB52T/3G36VI1/g2MZaX0cwDuXsfw==}
@@ -6761,6 +6770,9 @@ packages:
     resolution: {integrity: sha512-iF+tNDQla22geJdTyJB1wM/qrX9DMRwWrciEPwWLPRWAUEM8sQiyxgckLxWT1f7+9VabJS0jTGGr4QgBuvi6Ww==}
     engines: {node: '>= 10.0.0', npm: '>= 3.0.0'}
 
+  sortablejs@1.15.6:
+    resolution: {integrity: sha512-aNfiuwMEpfBM/CN6LY0ibyhxPfPbyFeBTYJKCvzkJ2GkUpazIt3H+QIPAMHwqQ7tMKaHz1Qj+rJJCqljnf4p3A==}
+
   source-list-map@2.0.1:
     resolution: {integrity: sha512-qnQ7gVMxGNxsiL4lEuJwe/To8UnK7fAnmbGEEH8RpLouuKbeEm0lhbQVFIrNSuB+G7tVrAlVsZgETT5nljf+Iw==}
 
@@ -9697,6 +9709,8 @@ snapshots:
     dependencies:
       '@types/node': 24.0.3
 
+  '@types/sortablejs@1.15.8': {}
+
   '@types/trusted-types@2.0.7': {}
 
   '@types/verror@1.10.11':
@@ -10429,13 +10443,14 @@ snapshots:
       '@vueuse/shared': 13.3.0(vue@3.5.16(typescript@5.8.3))
       vue: 3.5.16(typescript@5.8.3)
 
-  '@vueuse/integrations@13.3.0(axios@1.10.0)(vue@3.5.16(typescript@5.8.3))':
+  '@vueuse/integrations@13.3.0(axios@1.10.0)(sortablejs@1.15.6)(vue@3.5.16(typescript@5.8.3))':
     dependencies:
       '@vueuse/core': 13.3.0(vue@3.5.16(typescript@5.8.3))
       '@vueuse/shared': 13.3.0(vue@3.5.16(typescript@5.8.3))
       vue: 3.5.16(typescript@5.8.3)
     optionalDependencies:
       axios: 1.10.0
+      sortablejs: 1.15.6
 
   '@vueuse/metadata@13.3.0': {}
 
@@ -15691,6 +15706,8 @@ snapshots:
     dependencies:
       ip-address: 9.0.5
       smart-buffer: 4.2.0
+
+  sortablejs@1.15.6: {}
 
   source-list-map@2.0.1: {}
 

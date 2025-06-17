@@ -261,29 +261,54 @@ form {
 .ai-message-container {
   position: relative;
   overflow: hidden;
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.98) 0%,
+    rgba(248, 250, 252, 0.95) 50%,
+    rgba(241, 245, 249, 0.92) 100%
+  );
+  border: 1px solid rgba(121, 180, 166, 0.12);
+  border-radius: 24px;
+  padding: 24px 28px;
+  margin: 16px 0;
+  box-shadow:
+    0 4px 24px rgba(121, 180, 166, 0.08),
+    0 2px 8px rgba(0, 0, 0, 0.04),
+    inset 0 1px 0 rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(12px);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.ai-message-container::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(121, 180, 166, 0.3), transparent);
-  z-index: 1;
+.ai-message-container:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    0 8px 32px rgba(121, 180, 166, 0.12),
+    0 4px 16px rgba(0, 0, 0, 0.06),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  border-color: rgba(121, 180, 166, 0.18);
 }
 
-.ai-message-container::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, transparent 50%);
-  pointer-events: none;
-  z-index: 1;
+/* 深色主题适配 */
+[data-theme='dark'] .ai-message-container {
+  background: linear-gradient(
+    135deg,
+    rgba(47, 53, 61, 0.98) 0%,
+    rgba(37, 43, 50, 0.95) 50%,
+    rgba(30, 35, 41, 0.92) 100%
+  );
+  border-color: rgba(121, 180, 166, 0.15);
+  box-shadow:
+    0 4px 24px rgba(0, 0, 0, 0.12),
+    0 2px 8px rgba(0, 0, 0, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+[data-theme='dark'] .ai-message-container:hover {
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.18),
+    0 4px 16px rgba(0, 0, 0, 0.12),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  border-color: rgba(121, 180, 166, 0.22);
 }
 
 /* AI 回答内容区域 */
@@ -295,71 +320,114 @@ form {
 /* 代码块增强效果 */
 .ai-message-container pre {
   position: relative;
-  overflow: hidden;
+  background: linear-gradient(
+    135deg,
+    rgba(248, 250, 252, 0.95) 0%,
+    rgba(241, 245, 249, 0.9) 100%
+  ) !important;
+  border: 1px solid rgba(226, 232, 240, 0.6);
+  border-radius: 16px;
+  padding: 20px 24px;
+  margin: 20px 0;
+  overflow-x: auto;
+  box-shadow:
+    inset 0 1px 3px rgba(0, 0, 0, 0.05),
+    0 2px 8px rgba(0, 0, 0, 0.04);
+  font-family: 'Fira Code', 'Consolas', monospace;
+  font-size: 14px;
+  line-height: 1.6;
+  backdrop-filter: blur(8px);
 }
 
-.ai-message-container pre::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(121, 180, 166, 0.2), transparent);
+[data-theme='dark'] .ai-message-container pre {
+  background: linear-gradient(
+    135deg,
+    rgba(30, 35, 41, 0.95) 0%,
+    rgba(17, 24, 39, 0.9) 100%
+  ) !important;
+  border-color: rgba(64, 70, 80, 0.6);
+  box-shadow:
+    inset 0 1px 3px rgba(0, 0, 0, 0.15),
+    0 2px 8px rgba(0, 0, 0, 0.12);
 }
 
 /* 引用块增强效果 */
 .ai-message-container blockquote {
   position: relative;
-  overflow: hidden;
+  background: linear-gradient(90deg, rgba(121, 180, 166, 0.08) 0%, rgba(121, 180, 166, 0.04) 100%);
+  border-left: 4px solid rgba(121, 180, 166, 0.6);
+  border-radius: 0 12px 12px 0;
+  padding: 16px 20px;
+  margin: 16px 0;
+  font-style: italic;
+  box-shadow: 0 2px 8px rgba(121, 180, 166, 0.06);
+  backdrop-filter: blur(4px);
 }
 
-.ai-message-container blockquote::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  width: 4px;
-  background: linear-gradient(180deg, var(--primary-color), rgba(121, 180, 166, 0.6));
-  border-radius: 0 2px 2px 0;
+[data-theme='dark'] .ai-message-container blockquote {
+  background: linear-gradient(90deg, rgba(121, 180, 166, 0.12) 0%, rgba(121, 180, 166, 0.06) 100%);
+  border-left-color: rgba(121, 180, 166, 0.8);
 }
 
 /* 表格增强效果 */
 .ai-message-container table {
-  position: relative;
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  background: rgba(255, 255, 255, 0.8);
+  border: 1px solid rgba(226, 232, 240, 0.6);
+  border-radius: 12px;
   overflow: hidden;
+  margin: 20px 0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  backdrop-filter: blur(4px);
 }
 
-.ai-message-container table::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(121, 180, 166, 0.2), transparent);
+[data-theme='dark'] .ai-message-container table {
+  background: rgba(47, 53, 61, 0.8);
+  border-color: rgba(64, 70, 80, 0.6);
+}
+
+.ai-message-container th {
+  background: linear-gradient(135deg, rgba(121, 180, 166, 0.12) 0%, rgba(121, 180, 166, 0.08) 100%);
+  padding: 12px 16px;
+  font-weight: 600;
+  text-align: left;
+  border-bottom: 1px solid rgba(226, 232, 240, 0.6);
+}
+
+.ai-message-container td {
+  padding: 12px 16px;
+  border-bottom: 1px solid rgba(226, 232, 240, 0.4);
+}
+
+.ai-message-container tr:last-child td {
+  border-bottom: none;
+}
+
+[data-theme='dark'] .ai-message-container th {
+  background: linear-gradient(135deg, rgba(121, 180, 166, 0.15) 0%, rgba(121, 180, 166, 0.1) 100%);
+  border-bottom-color: rgba(64, 70, 80, 0.6);
+}
+
+[data-theme='dark'] .ai-message-container td {
+  border-bottom-color: rgba(64, 70, 80, 0.4);
 }
 
 /* 链接悬停效果增强 */
 .ai-message-container a {
   position: relative;
-  transition: all 0.3s ease;
+  color: rgba(121, 180, 166, 0.9);
+  text-decoration: none;
+  font-weight: 500;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border-bottom: 1px solid rgba(121, 180, 166, 0.3);
 }
 
-.ai-message-container a::after {
-  content: '';
-  position: absolute;
-  bottom: -2px;
-  left: 0;
-  width: 0;
-  height: 2px;
-  background: linear-gradient(90deg, var(--primary-color), rgba(121, 180, 166, 0.6));
-  transition: width 0.3s ease;
-}
-
-.ai-message-container a:hover::after {
-  width: 100%;
+.ai-message-container a:hover {
+  color: rgba(121, 180, 166, 1);
+  border-bottom-color: rgba(121, 180, 166, 0.8);
+  transform: translateY(-1px);
 }
 
 /* 滚动条美化 */
@@ -407,4 +475,99 @@ form {
     Cantarell,
     'Helvetica Neue',
     sans-serif;
+}
+
+/* AI 消息排版增强 */
+.ai-message-container h1,
+.ai-message-container h2,
+.ai-message-container h3,
+.ai-message-container h4,
+.ai-message-container h5,
+.ai-message-container h6 {
+  color: var(--text-color);
+  font-weight: 600;
+  line-height: 1.4;
+  margin-top: 24px;
+  margin-bottom: 16px;
+}
+
+.ai-message-container h1 {
+  font-size: 1.5rem;
+  border-bottom: 2px solid rgba(121, 180, 166, 0.2);
+  padding-bottom: 8px;
+}
+
+.ai-message-container h2 {
+  font-size: 1.25rem;
+}
+
+.ai-message-container h3 {
+  font-size: 1.125rem;
+}
+
+.ai-message-container p {
+  line-height: 1.7;
+  margin-bottom: 16px;
+  color: var(--text-color);
+  font-size: 15px;
+}
+
+.ai-message-container ul,
+.ai-message-container ol {
+  margin: 16px 0;
+  padding-left: 24px;
+}
+
+.ai-message-container li {
+  margin: 8px 0;
+  line-height: 1.6;
+  color: var(--text-color);
+}
+
+.ai-message-container li::marker {
+  color: rgba(121, 180, 166, 0.8);
+}
+
+.ai-message-container code:not(pre code) {
+  background: rgba(121, 180, 166, 0.1);
+  color: rgba(121, 180, 166, 0.9);
+  padding: 2px 6px;
+  border-radius: 6px;
+  font-size: 0.9em;
+  font-family: 'Fira Code', 'Consolas', monospace;
+  border: 1px solid rgba(121, 180, 166, 0.15);
+}
+
+[data-theme='dark'] .ai-message-container code:not(pre code) {
+  background: rgba(121, 180, 166, 0.15);
+  color: rgba(121, 180, 166, 1);
+  border-color: rgba(121, 180, 166, 0.2);
+}
+
+/* 响应式优化 */
+@media (max-width: 768px) {
+  .ai-message-container {
+    padding: 20px 16px;
+    margin: 12px 0;
+    border-radius: 20px;
+  }
+
+  .ai-message-container pre {
+    padding: 16px;
+    margin: 16px 0;
+    border-radius: 12px;
+    font-size: 13px;
+  }
+
+  .ai-message-container h1 {
+    font-size: 1.25rem;
+  }
+
+  .ai-message-container h2 {
+    font-size: 1.125rem;
+  }
+
+  .ai-message-container p {
+    font-size: 14px;
+  }
 }

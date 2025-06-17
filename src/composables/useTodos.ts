@@ -196,6 +196,63 @@ export function useTodos() {
     saveTodos()
   }
 
+  /**
+   * 更新待办事项顺序（通过 Todo 数组）
+   * 用于拖拽排序功能
+   */
+  const updateTodosOrderByArray = (newTodos: Todo[]) => {
+    try {
+      // 验证新的 todos 数组
+      if (!Array.isArray(newTodos) || newTodos.length !== todos.value.length) {
+        logger.warn(
+          'Invalid todos array for order update',
+          {
+            newLength: newTodos?.length,
+            currentLength: todos.value.length,
+          },
+          'useTodos'
+        )
+        return false
+      }
+
+      // 确保所有 ID 都存在
+      const currentIds = new Set(todos.value.map((todo) => todo.id))
+      const newIds = new Set(newTodos.map((todo) => todo.id))
+
+      if (currentIds.size !== newIds.size || ![...currentIds].every((id) => newIds.has(id))) {
+        logger.warn(
+          'Todo IDs mismatch during order update',
+          {
+            currentIds: [...currentIds],
+            newIds: [...newIds],
+          },
+          'useTodos'
+        )
+        return false
+      }
+
+      // 更新顺序
+      todos.value = newTodos.map((todo, index) => ({
+        ...todo,
+        order: index,
+        updatedAt: new Date().toISOString(),
+      }))
+
+      saveTodos()
+      logger.debug(
+        'Todos order updated successfully',
+        {
+          count: newTodos.length,
+        },
+        'useTodos'
+      )
+      return true
+    } catch (error) {
+      logger.error('Error updating todos order', error, 'useTodos')
+      return false
+    }
+  }
+
   loadTodos()
 
   const getCompletedTodosByDate = () => {
@@ -224,6 +281,7 @@ export function useTodos() {
     toggleTodo,
     removeTodo,
     updateTodosOrder,
+    updateTodosOrderByArray,
     getCompletedTodosByDate,
     updateTodoTags,
     saveTodos,

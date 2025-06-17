@@ -61,6 +61,9 @@ export default [
         requestAnimationFrame: 'readonly',
         cancelAnimationFrame: 'readonly',
         performance: 'readonly',
+        Performance: 'readonly',
+        PerformanceEntry: 'readonly',
+        PerformanceNavigationTiming: 'readonly',
         confirm: 'readonly',
         alert: 'readonly',
 
@@ -99,6 +102,7 @@ export default [
 
         Worker: 'readonly',
         ResizeObserver: 'readonly',
+        PerformanceObserver: 'readonly',
         FormData: 'readonly',
 
         ref: 'readonly',
@@ -254,6 +258,9 @@ export default [
         requestAnimationFrame: 'readonly',
         cancelAnimationFrame: 'readonly',
         performance: 'readonly',
+        Performance: 'readonly',
+        PerformanceEntry: 'readonly',
+        PerformanceNavigationTiming: 'readonly',
         confirm: 'readonly',
         alert: 'readonly',
 
@@ -293,6 +300,7 @@ export default [
 
         Worker: 'readonly',
         ResizeObserver: 'readonly',
+        PerformanceObserver: 'readonly',
 
         ref: 'readonly',
         reactive: 'readonly',

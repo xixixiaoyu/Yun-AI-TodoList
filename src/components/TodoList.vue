@@ -45,7 +45,11 @@
         {{ success }}
       </div>
 
-      <div ref="todoListRef" class="todo-grid">
+      <div
+        ref="todoListRef"
+        class="todo-grid"
+        :class="{ 'todo-sortable-container': isDragEnabled }"
+      >
         <div v-if="filteredTodos.length === 0 && filter === 'active'" class="empty-hint">
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -67,6 +71,9 @@
           v-for="todo in filteredTodos"
           :key="todo.id"
           :todo="todo"
+          :is-draggable="isDragEnabled"
+          :is-dragging="isDragging && draggedItem?.id === todo.id"
+          :data-todo-id="todo.id"
           @toggle="toggleTodo"
           @remove="removeTodo"
         />
@@ -111,6 +118,8 @@ import TodoItem from './TodoItem.vue'
 import TodoSearch from './TodoSearch.vue'
 
 import { useTodoListState } from '../composables/useTodoListState'
+import { useTodoDragSort } from '../composables/useTodoDragSort'
+import type { Todo } from '@/types/todo'
 import ConfirmDialog from './ConfirmDialog.vue'
 import PomodoroTimer from './PomodoroTimer.vue'
 import LoadingOverlay from './common/LoadingOverlay.vue'
@@ -124,6 +133,9 @@ const {
   confirmDialogConfig,
   handleConfirm,
   handleCancel,
+
+  todos,
+  handleDragOrderChange,
 
   filter,
   searchQuery,
@@ -158,6 +170,52 @@ const {
   error,
   success,
 } = useTodoListState()
+
+// 拖拽排序功能
+const isDragEnabled = computed(() => filter.value === 'active' && filteredTodos.value.length > 1)
+
+// 创建专门的拖拽顺序更新函数
+const handleDragReorder = (reorderedTodos: Todo[]) => {
+  // 由于我们只对 filteredTodos 进行拖拽，需要将重新排序的结果合并回完整的 todos 数组
+  if (filter.value === 'active') {
+    // 获取所有非活跃的待办事项
+    const completedTodos = todos.value.filter((todo) => todo.completed)
+
+    // 重新计算所有待办事项的顺序
+    const allTodos = [
+      ...reorderedTodos.map((todo, index) => ({ ...todo, order: index })),
+      ...completedTodos.map((todo, index) => ({ ...todo, order: reorderedTodos.length + index })),
+    ].sort((a, b) => a.order - b.order)
+
+    handleDragOrderChange(allTodos)
+  }
+}
+
+const { sortableContainer, isDragging, draggedItem, enableDragSort, disableDragSort } =
+  useTodoDragSort(filteredTodos, handleDragReorder)
+
+// 监听拖拽启用状态
+watch(
+  isDragEnabled,
+  (enabled) => {
+    if (enabled) {
+      nextTick(() => {
+        if (todoListRef.value) {
+          sortableContainer.value = todoListRef.value
+          enableDragSort()
+        }
+      })
+    } else {
+      disableDragSort()
+    }
+  },
+  { immediate: true }
+)
+
+// 组件卸载时禁用拖拽
+onUnmounted(() => {
+  disableDragSort()
+})
 </script>
 
 <style scoped>
@@ -211,6 +269,40 @@ const {
   @apply overflow-y-auto flex h-40vh max-h-125 flex-col mb-4 rounded;
   gap: 0.75rem;
   padding: 0.5rem 0.5rem 0.5rem 0;
+}
+
+/* 拖拽容器样式 */
+.todo-sortable-container {
+  @apply relative;
+}
+
+/* 拖拽过程中的全局样式 */
+:global(.dragging-todo) .todo-grid {
+  @apply cursor-grabbing;
+}
+
+:global(.dragging-todo) .todo-grid .card-todo:not(.todo-dragging) {
+  @apply opacity-60 transition-opacity-200;
+}
+
+/* 拖拽占位符样式 */
+:global(.todo-ghost) {
+  @apply opacity-40 bg-blue-50 bg-opacity-50 border-2 border-dashed border-blue-300 rounded-xl;
+  transform: scale(0.98);
+}
+
+:global(.todo-chosen) {
+  @apply shadow-xl transform scale-102 z-50;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+}
+
+:global(.todo-drag) {
+  @apply opacity-80 transform rotate-1 shadow-2xl;
+  z-index: 1000;
+}
+
+:global(.todo-fallback) {
+  @apply opacity-70 transform scale-95 shadow-lg;
 }
 
 .empty-hint {

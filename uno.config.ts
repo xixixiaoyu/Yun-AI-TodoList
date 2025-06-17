@@ -40,6 +40,15 @@ export default defineConfig({
 
   // 主题配置
   theme: {
+    // 响应式断点
+    breakpoints: {
+      xs: '375px',
+      sm: '640px',
+      md: '768px',
+      lg: '1024px',
+      xl: '1280px',
+      '2xl': '1536px',
+    },
     colors: {
       // 基于现有 CSS 变量定义的颜色系统
       primary: {
@@ -314,11 +323,8 @@ export default defineConfig({
       'flex flex-col items-center justify-center p-8 text-text-secondary text-center min-h-50',
     ],
 
-    // AI 回答样式快捷方式
-    [
-      'ai-message-container',
-      'bg-gradient-to-br from-white/98 via-white/95 to-gray-50/90 dark:from-gray-800/98 dark:via-gray-800/95 dark:to-gray-900/90 rounded-3xl p-5 sm:p-6 md:p-7 lg:p-8 shadow-[0_4px_24px_rgba(121,180,166,0.08)] hover:shadow-[0_8px_32px_rgba(121,180,166,0.12)] transition-all duration-700 border border-primary/8 hover:border-primary/15 backdrop-blur-md relative overflow-hidden',
-    ],
+    // AI 回答样式快捷方式 - 现在主要通过 CSS 文件控制
+    ['ai-message-container', 'relative overflow-hidden transition-all duration-400 ease-out'],
     [
       'ai-message-prose',
       'max-w-none text-text leading-7 sm:leading-8 font-sans [&>*]:mb-3 sm:[&>*]:mb-4 [&>*:last-child]:mb-0',
@@ -364,6 +370,44 @@ export default defineConfig({
 
     // 设置页面样式
     ['settings-card', 'min-h-64 flex flex-col'],
+
+    // 响应式容器样式
+    ['responsive-container', 'w-full max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8'],
+    [
+      'responsive-grid',
+      'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6',
+    ],
+    ['responsive-flex', 'flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4'],
+
+    // AI 消息响应式样式
+    [
+      'ai-message-responsive',
+      'max-w-[95%] sm:max-w-[90%] md:max-w-[85%] lg:max-w-[80%] xl:max-w-[75%]',
+    ],
+    [
+      'user-message-responsive',
+      'max-w-[90%] sm:max-w-[85%] md:max-w-[80%] lg:max-w-[75%] xl:max-w-[70%] self-end',
+    ],
+
+    // 对话抽屉响应式样式
+    ['drawer-responsive', 'w-80 sm:w-96 md:w-[400px] lg:w-[450px] max-w-[90vw]'],
+
+    // 搜索组件响应式样式
+    ['search-responsive', 'w-full max-w-md mx-auto sm:max-w-lg md:max-w-xl'],
+
+    // 按钮响应式样式
+    ['button-responsive', 'px-3 py-2 sm:px-4 sm:py-2.5 text-sm sm:text-base'],
+    ['button-small-responsive', 'px-2 py-1.5 sm:px-3 sm:py-2 text-xs sm:text-sm'],
+
+    // 文本响应式样式
+    ['text-responsive-sm', 'text-xs sm:text-sm'],
+    ['text-responsive-base', 'text-sm sm:text-base'],
+    ['text-responsive-lg', 'text-base sm:text-lg md:text-xl'],
+
+    // 间距响应式样式
+    ['spacing-responsive-sm', 'p-2 sm:p-3 md:p-4'],
+    ['spacing-responsive-md', 'p-3 sm:p-4 md:p-6'],
+    ['spacing-responsive-lg', 'p-4 sm:p-6 md:p-8'],
   ],
 
   // 内容检测配置

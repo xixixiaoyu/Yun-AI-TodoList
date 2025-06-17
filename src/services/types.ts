@@ -20,7 +20,12 @@ export interface Conversation {
   id: string
   title: string
   messages: ChatMessage[]
+  createdAt: number
   lastUpdated: string
+  tags?: string[]
+  summary?: string
+  messageCount?: number
+  wordCount?: number
 }
 
 export type AIModel = 'deepseek-chat' | 'deepseek-reasoner'

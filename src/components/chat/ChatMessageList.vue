@@ -9,6 +9,8 @@
       :key="index"
       :message="message"
       @copy="copyToClipboard"
+      @copy-success="handleCopySuccess"
+      @copy-error="handleCopyError"
     />
 
     <!-- 搜索状态指示器 -->
@@ -32,6 +34,9 @@
         sanitizedContent: sanitizeContent(currentResponse),
       }"
       :is-streaming="true"
+      @copy="copyToClipboard"
+      @copy-success="handleCopySuccess"
+      @copy-error="handleCopyError"
     />
   </div>
 </template>
@@ -76,6 +81,16 @@ const copyToClipboard = async (text: string) => {
   } catch (err) {
     console.error('复制失败:', err)
   }
+}
+
+const handleCopySuccess = (_text: string) => {
+  // 复制成功处理
+  // 可以在这里添加全局通知或其他成功反馈
+}
+
+const handleCopyError = (error: Error) => {
+  console.error('复制失败:', error)
+  // 可以在这里添加全局错误通知
 }
 
 const isUserScrolling = ref(false)

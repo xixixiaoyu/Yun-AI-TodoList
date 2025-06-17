@@ -183,5 +183,6 @@
   "recentSearch": "Recent Search",
   "results": "results",
   "manualSearch": "Manual Search",
-  "searchPlaceholder": "Enter search keywords..."
+  "searchPlaceholder": "Enter search keywords...",
+  "dragToReorder": "Drag to reorder"
 }

@@ -1,3 +1,4 @@
+import type { Todo } from '@/types/todo'
 import { handleError as logError, logger } from '@/utils/logger'
 import { onBeforeMount, onErrorCaptured, onMounted, onUnmounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
@@ -20,7 +21,7 @@ export function useTodoListState() {
 
   const { showConfirmDialog, confirmDialogConfig, handleConfirm, handleCancel } = confirmDialog
 
-  const { todos, loadTodos, updateTodosOrder } = useTodos()
+  const { todos, loadTodos, updateTodosOrder, updateTodosOrderByArray } = useTodos()
 
   const {
     filter,
@@ -43,6 +44,16 @@ export function useTodoListState() {
     duplicateError,
     isLoading,
   } = useTodoManagement()
+
+  // 拖拽排序功能
+  const handleDragOrderChange = (newTodos: Todo[]) => {
+    const success = updateTodosOrderByArray(newTodos)
+    if (success) {
+      logger.debug('Drag sort completed successfully', { count: newTodos.length }, 'TodoListState')
+    } else {
+      showError(t('dragSortError', '拖拽排序失败'))
+    }
+  }
 
   const showSearch = ref(false)
   const toggleSearch = () => {
@@ -125,6 +136,8 @@ export function useTodoListState() {
 
     todos,
     updateTodosOrder,
+    updateTodosOrderByArray,
+    handleDragOrderChange,
 
     filter,
     searchQuery,
