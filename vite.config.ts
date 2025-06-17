@@ -98,8 +98,11 @@ export default defineConfig({
   define: {
     __CAPACITOR__: JSON.stringify(process.env.CAPACITOR !== undefined),
     __ELECTRON__: JSON.stringify(process.env.ELECTRON !== undefined),
+    global: 'globalThis',
+    'process.env': {},
   },
   optimizeDeps: {
     include: ['vue', 'vue-router', 'vue-i18n', '@vueuse/core'],
+    exclude: [],
   },
 })

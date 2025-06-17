@@ -124,20 +124,6 @@
       </div>
     </div>
 
-    <!-- 搜索数据源说明 -->
-    <div v-if="localConfig.enabled" class="search-source-info">
-      <div class="source-status real-search">
-        <span class="source-icon">🌐</span>
-        <div class="source-text">
-          <strong>搜索数据源：</strong>
-          <span>真实搜索引擎</span>
-        </div>
-      </div>
-      <p class="source-description">
-        正在使用真实的搜索引擎获取最新信息，如果服务不可用会自动回退到模拟数据
-      </p>
-    </div>
-
     <!-- 手动搜索 -->
     <div v-if="localConfig.enabled" class="manual-search">
       <h4 class="manual-title">{{ t('manualSearch') }}</h4>
