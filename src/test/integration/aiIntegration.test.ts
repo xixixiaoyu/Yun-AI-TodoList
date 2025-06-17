@@ -4,7 +4,7 @@ import { createTestChatMessage, createTestConversation, setupTestEnvironment } f
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 vi.mock('@/services/deepseekService', () => ({
-  streamAIResponse: vi.fn(),
+  getAIStreamResponse: vi.fn(),
   optimizeText: vi.fn(),
   abortCurrentRequest: vi.fn(),
   getAIResponse: vi.fn(),
@@ -46,16 +46,15 @@ describe('AI 集成测试', () => {
 
   describe('聊天功能集成', () => {
     it('应该能够发送消息并接收响应', async () => {
-      const { streamAIResponse } = await import('@/services/deepseekService')
-      const mockStreamAIResponse = streamAIResponse as vi.MockedFunction<typeof streamAIResponse>
+      const { getAIStreamResponse } = await import('@/services/deepseekService')
+      const mockGetAIStreamResponse = getAIStreamResponse as vi.MockedFunction<
+        typeof getAIStreamResponse
+      >
 
-      const mockStream = {
-        async *[Symbol.asyncIterator]() {
-          yield 'Hello'
-          yield ' World'
-        },
-      }
-      mockStreamAIResponse.mockResolvedValue(mockStream)
+      mockGetAIStreamResponse.mockImplementation(async (messages, onChunk) => {
+        onChunk('Hello')
+        onChunk(' World')
+      })
 
       const { sendMessage, userMessage, chatHistory, isGenerating, currentAIResponse } = useChat()
 
@@ -71,10 +70,12 @@ describe('AI 集成测试', () => {
     })
 
     it('应该处理流式响应错误', async () => {
-      const { streamAIResponse } = await import('@/services/deepseekService')
-      const mockStreamAIResponse = streamAIResponse as vi.MockedFunction<typeof streamAIResponse>
+      const { getAIStreamResponse } = await import('@/services/deepseekService')
+      const mockGetAIStreamResponse = getAIStreamResponse as vi.MockedFunction<
+        typeof getAIStreamResponse
+      >
 
-      mockStreamAIResponse.mockRejectedValue(new Error('网络错误'))
+      mockGetAIStreamResponse.mockRejectedValue(new Error('网络错误'))
 
       const { sendMessage, userMessage, isGenerating } = useChat()
 
@@ -185,10 +186,12 @@ describe('AI 集成测试', () => {
 
   describe('错误处理集成', () => {
     it('应该正确处理网络错误', async () => {
-      const { streamAIResponse } = await import('@/services/deepseekService')
-      const mockStreamAIResponse = streamAIResponse as vi.MockedFunction<typeof streamAIResponse>
+      const { getAIStreamResponse } = await import('@/services/deepseekService')
+      const mockGetAIStreamResponse = getAIStreamResponse as vi.MockedFunction<
+        typeof getAIStreamResponse
+      >
 
-      mockStreamAIResponse.mockRejectedValue(new Error('网络连接失败'))
+      mockGetAIStreamResponse.mockRejectedValue(new Error('网络连接失败'))
 
       const { sendMessage, userMessage } = useChat()
 
@@ -196,7 +199,7 @@ describe('AI 集成测试', () => {
 
       await sendMessage()
 
-      expect(mockStreamAIResponse).toHaveBeenCalled()
+      expect(mockGetAIStreamResponse).toHaveBeenCalled()
     })
   })
 })

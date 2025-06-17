@@ -1,6 +1,5 @@
-import { saveAIModel } from '@/services/configService'
+import { aiModel, apiKey, saveAIModel } from '@/services/configService'
 import { getAIResponse, getAIStreamResponse } from '@/services/deepseekService'
-import type { AIModel } from '@/services/types'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 const mockFetch = vi.fn()
@@ -27,7 +26,7 @@ describe('模型集成测试', () => {
       return null
     })
 
-    const { apiKey, aiModel } = require('@/services/configService')
+    // 直接设置导入的响应式变量
     apiKey.value = 'test-api-key'
     aiModel.value = 'deepseek-chat'
   })
@@ -152,8 +151,8 @@ describe('模型集成测试', () => {
         return null
       })
 
-      const { aiModel } = await import('@/services/configService')
-      aiModel.value = (localStorage.getItem('deepseek_ai_model') as AIModel) || 'deepseek-chat'
+      // 重置为默认值
+      aiModel.value = 'deepseek-chat'
 
       mockFetch.mockResolvedValueOnce({
         ok: true,

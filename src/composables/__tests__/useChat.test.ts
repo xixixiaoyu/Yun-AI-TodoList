@@ -3,7 +3,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { useChat } from '../useChat'
 
 vi.mock('@/services/deepseekService', () => ({
-  streamAIResponse: vi.fn(),
+  getAIStreamResponse: vi.fn(),
   optimizeText: vi.fn(),
   abortCurrentRequest: vi.fn(),
 }))
@@ -168,9 +168,15 @@ describe('useChat', () => {
           yield '!'
         },
       }
-      const { streamAIResponse } = await import('@/services/deepseekService')
-      const mockStreamAIResponse = streamAIResponse as vi.MockedFunction<typeof streamAIResponse>
-      mockStreamAIResponse.mockResolvedValue(mockStream)
+      const { getAIStreamResponse } = await import('@/services/deepseekService')
+      const mockGetAIStreamResponse = getAIStreamResponse as vi.MockedFunction<
+        typeof getAIStreamResponse
+      >
+      mockGetAIStreamResponse.mockImplementation(async (messages, onChunk) => {
+        for await (const chunk of mockStream) {
+          onChunk(chunk)
+        }
+      })
 
       const { sendMessage, userMessage, chatHistory, isGenerating, currentAIResponse } = useChat()
 
@@ -192,9 +198,11 @@ describe('useChat', () => {
     })
 
     it('应该处理发送消息失败', async () => {
-      const { streamAIResponse } = await import('@/services/deepseekService')
-      const mockStreamAIResponse = streamAIResponse as vi.MockedFunction<typeof streamAIResponse>
-      mockStreamAIResponse.mockRejectedValue(new Error('API Error'))
+      const { getAIStreamResponse } = await import('@/services/deepseekService')
+      const mockGetAIStreamResponse = getAIStreamResponse as vi.MockedFunction<
+        typeof getAIStreamResponse
+      >
+      mockGetAIStreamResponse.mockRejectedValue(new Error('API Error'))
 
       const { sendMessage, userMessage, isGenerating } = useChat()
 

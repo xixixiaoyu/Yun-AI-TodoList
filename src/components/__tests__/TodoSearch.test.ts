@@ -30,9 +30,9 @@ describe('TodoSearch', () => {
       },
     })
 
-    const input = wrapper.find('.search-input')
+    const input = wrapper.find('input[type="text"]')
     expect(input.exists()).toBe(true)
-    expect(input.attributes('placeholder')).toBe('搜索待办事项...')
+    expect(input.attributes('placeholder')).toBe('searchTodos')
   })
 
   it('emits update:modelValue when input changes', async () => {
@@ -46,7 +46,7 @@ describe('TodoSearch', () => {
       },
     })
 
-    const input = wrapper.find('.search-input')
+    const input = wrapper.find('input[type="text"]')
     await input.setValue('test search')
 
     expect(wrapper.emitted('update:modelValue')).toBeTruthy()
@@ -64,7 +64,8 @@ describe('TodoSearch', () => {
       },
     })
 
-    const clearButton = wrapper.find('.clear-search-btn')
+    await wrapper.vm.$nextTick()
+    const clearButton = wrapper.find('button')
     expect(clearButton.exists()).toBe(true)
   })
 
@@ -79,7 +80,7 @@ describe('TodoSearch', () => {
       },
     })
 
-    const clearButton = wrapper.find('.clear-search-btn')
+    const clearButton = wrapper.find('button')
     expect(clearButton.exists()).toBe(false)
   })
 
@@ -94,7 +95,8 @@ describe('TodoSearch', () => {
       },
     })
 
-    const clearButton = wrapper.find('.clear-search-btn')
+    await wrapper.vm.$nextTick()
+    const clearButton = wrapper.find('button')
     await clearButton.trigger('click')
 
     expect(wrapper.emitted('update:modelValue')).toBeTruthy()
@@ -112,7 +114,7 @@ describe('TodoSearch', () => {
       },
     })
 
-    const input = wrapper.find('.search-input')
+    const input = wrapper.find('input[type="text"]')
     await input.trigger('keydown.escape')
 
     expect(wrapper.emitted('collapse')).toBeTruthy()
@@ -129,7 +131,7 @@ describe('TodoSearch', () => {
       },
     })
 
-    const input = wrapper.find('.search-input')
+    const input = wrapper.find('input[type="text"]')
     await input.trigger('keydown.escape')
 
     expect(wrapper.emitted('update:modelValue')).toBeTruthy()
@@ -162,7 +164,7 @@ describe('TodoSearch', () => {
       },
     })
 
-    const container = wrapper.find('.search-container')
-    expect(container.exists()).toBe(false)
+    const input = wrapper.find('input[type="text"]')
+    expect(input.exists()).toBe(false)
   })
 })

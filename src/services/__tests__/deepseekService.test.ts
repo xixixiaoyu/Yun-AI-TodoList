@@ -8,8 +8,8 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import {
   abortCurrentRequest,
   getAIResponse,
+  getAIStreamResponse,
   optimizeText,
-  streamAIResponse,
 } from '../deepseekService'
 
 vi.mock('../configService', () => ({
@@ -25,10 +25,20 @@ vi.mock('@/i18n', () => ({
           httpError: 'HTTP 错误: {status}',
           invalidAiResponse: '无效的 AI 响应',
           networkError: '网络错误',
+          networkConnectionError: '网络连接错误',
+          streamError: '流错误',
+          jsonParseError: 'JSON 解析错误',
+          requestAborted: '请求已中止',
+          aiResponseError: 'AI 响应错误',
+          apiError: 'API 错误: {error}',
+          unknownError: '未知错误',
+          textOptimizationError: '文本优化错误',
         }
         let message = messages[key] || key
-        if (params && params.status) {
-          message = message.replace('{status}', params.status.toString())
+        if (params) {
+          Object.keys(params).forEach((paramKey) => {
+            message = message.replace(`{${paramKey}}`, params[paramKey]?.toString() || '')
+          })
         }
         return message
       },
@@ -117,7 +127,7 @@ describe('deepseekService', () => {
     })
   })
 
-  describe('streamAIResponse', () => {
+  describe('getAIStreamResponse', () => {
     it('应该成功流式获取 AI 响应', async () => {
       const mockStreamData = [
         'data: {"choices":[{"delta":{"content":"Hello"}}]}\n\n',
@@ -151,12 +161,10 @@ describe('deepseekService', () => {
       mockFetchFn.mockResolvedValue(mockResponse)
 
       const messages = [{ role: 'user' as const, content: 'Test message' }]
-      const stream = await streamAIResponse(messages)
+      const chunks: string[] = []
+      const onChunk = (chunk: string) => chunks.push(chunk)
 
-      const chunks = []
-      for await (const chunk of stream) {
-        chunks.push(chunk)
-      }
+      await getAIStreamResponse(messages, onChunk)
 
       expect(chunks).toEqual(['Hello', ' world'])
     })
@@ -165,8 +173,9 @@ describe('deepseekService', () => {
       mockFetchFn.mockResolvedValue(createMockErrorResponse(500))
 
       const messages = [{ role: 'user' as const, content: 'Test message' }]
+      const onChunk = (_chunk: string) => {}
 
-      await expect(streamAIResponse(messages)).rejects.toThrow('HTTP 错误: 500')
+      await expect(getAIStreamResponse(messages, onChunk)).rejects.toThrow('HTTP 错误: 500')
     })
 
     it('应该处理流式响应中的无效数据', async () => {
@@ -188,12 +197,10 @@ describe('deepseekService', () => {
       mockFetchFn.mockResolvedValue(mockResponse)
 
       const messages = [{ role: 'user' as const, content: 'Test message' }]
-      const stream = await streamAIResponse(messages)
+      const chunks: string[] = []
+      const onChunk = (chunk: string) => chunks.push(chunk)
 
-      const chunks = []
-      for await (const chunk of stream) {
-        chunks.push(chunk)
-      }
+      await getAIStreamResponse(messages, onChunk)
 
       expect(chunks).toEqual([])
     })

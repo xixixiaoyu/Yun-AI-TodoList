@@ -1,6 +1,6 @@
+import { setupTestEnvironment } from '@/test/helpers'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { useTodoManagement } from '../useTodoManagement'
-import { setupTestEnvironment } from '@/test/helpers'
 
 vi.mock('@/composables/useTodos', () => ({
   useTodos: vi.fn(() => ({
@@ -20,7 +20,7 @@ vi.mock('@/composables/useErrorHandler', () => ({
 
 vi.mock('@/services/deepseekService', () => ({
   getAIResponse: vi.fn(),
-  streamAIResponse: vi.fn(),
+  getAIStreamResponse: vi.fn(),
 }))
 
 vi.mock('vue-i18n', () => ({
