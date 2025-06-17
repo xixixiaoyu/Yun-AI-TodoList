@@ -1,0 +1,45 @@
+name: Security Audit Fix
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+  schedule:
+    # 每周一凌晨 2 点运行安全审计
+    - cron: '0 2 * * 1'
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        
+    - name: Setup pnpm
+      uses: pnpm/action-setup@v2
+      with:
+        version: 9
+        
+    - name: Install dependencies
+      run: |
+        # 临时切换到官方 registry 进行 audit
+        pnpm config set registry https://registry.npmjs.org
+        pnpm install
+        
+    - name: Run security audit
+      run: |
+        # 使用官方 registry 运行 audit
+        pnpm audit --audit-level moderate --registry https://registry.npmjs.org
+        
+    - name: Restore registry config
+      if: always()
+      run: |
+        # 恢复原始 registry 配置
+        pnpm config set registry https://registry.npmmirror.com
