@@ -1,25 +1,21 @@
 import type { Todo } from '@/types/todo'
-import { useSortable } from '@vueuse/integrations/useSortable'
-import { computed, nextTick, ref, watch, type Ref } from 'vue'
-
-// 拖拽事件类型定义
-interface SortableEvent {
-  item: HTMLElement
-  oldIndex: number
-  newIndex: number
-}
+import { moveArrayElement, useSortable } from '@vueuse/integrations/useSortable'
+import { computed, nextTick, ref, shallowRef, watch, type Ref } from 'vue'
 
 /**
  * 待办事项拖拽排序 composable
  * 提供拖拽排序功能，包括视觉反馈和数据更新
  */
-export function useTodoDragSort(todos: Ref<Todo[]>, onOrderChange: (newOrder: Todo[]) => void) {
-  const sortableContainer = ref<HTMLElement>()
+export function useTodoDragSort(
+  todos: Ref<Todo[]>,
+  onOrderChange: (newOrder: Todo[]) => void,
+  containerRef: Ref<HTMLElement | undefined>
+) {
   const isDragging = ref(false)
   const draggedItem = ref<Todo | null>(null)
 
-  // 创建一个可变的 ref 来存储当前的 todos，避免 computed readonly 问题
-  const sortableTodos = ref<Todo[]>([])
+  // 使用 shallowRef 来存储 todos，避免深度响应式问题
+  const sortableTodos = shallowRef<Todo[]>([])
 
   // 监听 todos 变化，同步到 sortableTodos
   watch(
@@ -33,6 +29,7 @@ export function useTodoDragSort(todos: Ref<Todo[]>, onOrderChange: (newOrder: To
   // 拖拽配置选项
   const sortableOptions = {
     animation: 200,
+    handle: '.todo-drag-handle', // 指定拖拽手柄
     ghostClass: 'todo-ghost',
     chosenClass: 'todo-chosen',
     dragClass: 'todo-drag',
@@ -41,70 +38,52 @@ export function useTodoDragSort(todos: Ref<Todo[]>, onOrderChange: (newOrder: To
     fallbackOnBody: true,
     swapThreshold: 0.65,
     invertSwap: false,
-    direction: 'vertical',
+    direction: 'vertical' as const,
     scroll: true,
     scrollSensitivity: 30,
     scrollSpeed: 10,
     bubbleScroll: true,
 
     // 拖拽开始事件
-    onStart: (evt: SortableEvent) => {
+    onStart: (evt: { item: HTMLElement; oldIndex: number }) => {
+      console.warn('拖拽开始:', evt)
       isDragging.value = true
-      const todoId = parseInt(evt.item.dataset.todoId)
+      const todoId = parseInt(evt.item.dataset.todoId || '0')
       draggedItem.value = todos.value.find((todo) => todo.id === todoId) || null
+      console.warn('拖拽的待办事项:', draggedItem.value)
 
       // 添加拖拽开始的视觉效果
       document.body.classList.add('dragging-todo')
     },
 
     // 拖拽结束事件
-    onEnd: (evt: SortableEvent) => {
+    onEnd: (evt: { item: HTMLElement; newIndex: number }) => {
+      console.warn('拖拽结束:', evt)
       isDragging.value = false
       draggedItem.value = null
       document.body.classList.remove('dragging-todo')
+    },
 
-      // 如果位置发生变化，更新顺序
-      if (evt.oldIndex !== evt.newIndex) {
-        updateTodoOrder(evt.oldIndex, evt.newIndex)
-      }
+    // 自定义更新处理
+    onUpdate: (evt: { oldIndex: number; newIndex: number }) => {
+      console.warn('拖拽更新:', evt)
+      // 使用 VueUse 提供的 moveArrayElement 函数
+      moveArrayElement(sortableTodos.value, evt.oldIndex, evt.newIndex)
+
+      // 等待下一个 tick 后调用回调
+      nextTick(() => {
+        onOrderChange([...sortableTodos.value])
+      })
     },
 
     // 拖拽移动事件
     onMove: () => {
-      // 可以在这里添加额外的移动逻辑
       return true
     },
   }
 
-  // 初始化拖拽排序 - 使用可变的 sortableTodos 而不是 computed todos
-  const { start, stop } = useSortable(sortableContainer, sortableTodos, sortableOptions)
-
-  /**
-   * 更新待办事项顺序
-   */
-  const updateTodoOrder = async (oldIndex: number, newIndex: number) => {
-    try {
-      // 使用 sortableTodos 的当前值来计算新顺序
-      const newTodos = [...sortableTodos.value]
-      const [movedTodo] = newTodos.splice(oldIndex, 1)
-      newTodos.splice(newIndex, 0, movedTodo)
-
-      // 重新计算 order 值
-      const updatedTodos = newTodos.map((todo, index) => ({
-        ...todo,
-        order: index,
-        updatedAt: new Date().toISOString(),
-      }))
-
-      // 等待下一个 tick 确保 DOM 更新完成
-      await nextTick()
-
-      // 调用回调函数更新数据
-      onOrderChange(updatedTodos)
-    } catch (error) {
-      console.error('更新待办事项顺序失败:', error)
-    }
-  }
+  // 初始化拖拽排序
+  const { start, stop } = useSortable(containerRef, sortableTodos, sortableOptions)
 
   /**
    * 启用拖拽排序
@@ -157,7 +136,6 @@ export function useTodoDragSort(todos: Ref<Todo[]>, onOrderChange: (newOrder: To
   })
 
   return {
-    sortableContainer,
     isDragging: isCurrentlyDragging,
     draggedItem: currentDraggedItem,
     enableDragSort,
@@ -165,7 +143,6 @@ export function useTodoDragSort(todos: Ref<Todo[]>, onOrderChange: (newOrder: To
     isItemBeingDragged,
     getDragHandleProps,
     getDraggableItemProps,
-    updateTodoOrder,
   }
 }
 

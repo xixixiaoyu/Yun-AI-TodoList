@@ -184,5 +184,6 @@
   "results": "results",
   "manualSearch": "Manual Search",
   "searchPlaceholder": "Enter search keywords...",
-  "dragToReorder": "Drag to reorder"
+  "dragToReorder": "Drag to reorder",
+  "dragSortError": "Drag sort failed"
 }

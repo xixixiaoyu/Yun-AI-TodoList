@@ -221,5 +221,6 @@
   "results": "条结果",
   "manualSearch": "手动搜索",
   "searchPlaceholder": "输入搜索关键词...",
-  "dragToReorder": "拖拽重新排序"
+  "dragToReorder": "拖拽重新排序",
+  "dragSortError": "拖拽排序失败"
 }

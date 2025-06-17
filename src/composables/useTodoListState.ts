@@ -47,10 +47,22 @@ export function useTodoListState() {
 
   // 拖拽排序功能
   const handleDragOrderChange = (newTodos: Todo[]) => {
-    const success = updateTodosOrderByArray(newTodos)
-    if (success) {
-      logger.debug('Drag sort completed successfully', { count: newTodos.length }, 'TodoListState')
-    } else {
+    console.warn('handleDragOrderChange 被调用:', newTodos)
+    try {
+      const success = updateTodosOrderByArray(newTodos)
+      if (success) {
+        logger.debug(
+          'Drag sort completed successfully',
+          { count: newTodos.length },
+          'TodoListState'
+        )
+        console.warn('拖拽排序成功完成')
+      } else {
+        console.error('updateTodosOrderByArray 返回 false')
+        showError(t('dragSortError', '拖拽排序失败'))
+      }
+    } catch (error) {
+      console.error('handleDragOrderChange 错误:', error)
       showError(t('dragSortError', '拖拽排序失败'))
     }
   }

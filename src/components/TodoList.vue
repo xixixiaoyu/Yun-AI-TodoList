@@ -73,7 +73,6 @@
           :todo="todo"
           :is-draggable="isDragEnabled"
           :is-dragging="isDragging && draggedItem?.id === todo.id"
-          :data-todo-id="todo.id"
           @toggle="toggleTodo"
           @remove="removeTodo"
         />
@@ -176,23 +175,49 @@ const isDragEnabled = computed(() => filter.value === 'active' && filteredTodos.
 
 // 创建专门的拖拽顺序更新函数
 const handleDragReorder = (reorderedTodos: Todo[]) => {
-  // 由于我们只对 filteredTodos 进行拖拽，需要将重新排序的结果合并回完整的 todos 数组
-  if (filter.value === 'active') {
-    // 获取所有非活跃的待办事项
-    const completedTodos = todos.value.filter((todo) => todo.completed)
+  console.warn('处理拖拽重排序:', reorderedTodos)
 
-    // 重新计算所有待办事项的顺序
-    const allTodos = [
-      ...reorderedTodos.map((todo, index) => ({ ...todo, order: index })),
-      ...completedTodos.map((todo, index) => ({ ...todo, order: reorderedTodos.length + index })),
-    ].sort((a, b) => a.order - b.order)
+  try {
+    // 由于我们只对 filteredTodos 进行拖拽，需要将重新排序的结果合并回完整的 todos 数组
+    if (filter.value === 'active') {
+      // 获取所有已完成的待办事项
+      const completedTodos = todos.value.filter((todo) => todo.completed)
 
-    handleDragOrderChange(allTodos)
+      // 重新计算所有待办事项的顺序
+      const allTodos = [
+        ...reorderedTodos.map((todo, index) => ({
+          ...todo,
+          order: index,
+          updatedAt: new Date().toISOString(),
+        })),
+        ...completedTodos.map((todo, index) => ({
+          ...todo,
+          order: reorderedTodos.length + index,
+          updatedAt: new Date().toISOString(),
+        })),
+      ].sort((a, b) => a.order - b.order)
+
+      console.warn('合并后的所有待办事项:', allTodos)
+      handleDragOrderChange(allTodos)
+    } else {
+      // 如果不是 active 筛选状态，直接更新
+      const updatedTodos = reorderedTodos.map((todo, index) => ({
+        ...todo,
+        order: index,
+        updatedAt: new Date().toISOString(),
+      }))
+      handleDragOrderChange(updatedTodos)
+    }
+  } catch (error) {
+    console.error('拖拽重排序失败:', error)
   }
 }
 
-const { sortableContainer, isDragging, draggedItem, enableDragSort, disableDragSort } =
-  useTodoDragSort(filteredTodos, handleDragReorder)
+const { isDragging, draggedItem, enableDragSort, disableDragSort } = useTodoDragSort(
+  filteredTodos,
+  handleDragReorder,
+  todoListRef
+)
 
 // 监听拖拽启用状态
 watch(
@@ -200,10 +225,7 @@ watch(
   (enabled) => {
     if (enabled) {
       nextTick(() => {
-        if (todoListRef.value) {
-          sortableContainer.value = todoListRef.value
-          enableDragSort()
-        }
+        enableDragSort()
       })
     } else {
       disableDragSort()
