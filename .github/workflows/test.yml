@@ -63,7 +63,7 @@ jobs:
           fail_ci_if_error: false
 
       - name: 📈 Upload coverage reports
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: coverage-reports-${{ matrix.node-version }}
           path: coverage/
@@ -96,7 +96,7 @@ jobs:
         run: pnpm run build
 
       - name: 📦 Upload build artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: build-files
           path: dist/
@@ -126,7 +126,7 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: 📥 Download build artifacts
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: build-files
           path: dist/
@@ -136,7 +136,7 @@ jobs:
         continue-on-error: true
 
       - name: 📊 Upload performance results
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: performance-results
           path: performance-results.json
@@ -208,7 +208,7 @@ jobs:
           echo "Generated dependency report with $(jq '.dependencies | length' dependency-report.json) direct dependencies" >> $GITHUB_STEP_SUMMARY
 
       - name: 📦 Upload dependency report
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: dependency-report
           path: dependency-report.json
@@ -222,7 +222,7 @@ jobs:
 
     steps:
       - name: 📥 Download all artifacts
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
 
       - name: 📊 Generate test summary
         run: |
