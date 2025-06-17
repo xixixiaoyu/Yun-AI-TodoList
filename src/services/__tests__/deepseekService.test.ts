@@ -14,6 +14,7 @@ import {
 
 vi.mock('../configService', () => ({
   getApiKey: vi.fn().mockReturnValue('test-api-key'),
+  getAIModel: vi.fn().mockReturnValue('deepseek-chat'),
 }))
 
 vi.mock('@/i18n', () => ({
@@ -93,9 +94,12 @@ describe('deepseekService', () => {
     it('应该处理 API Key 缺失', async () => {
       const { getApiKey } = await import('../configService')
       const mockGetApiKey = getApiKey as vi.MockedFunction<typeof getApiKey>
-      mockGetApiKey.mockReturnValue('')
+      mockGetApiKey.mockReturnValueOnce('')
 
       await expect(getAIResponse('Test message')).rejects.toThrow('请先配置 API Key')
+
+      // 恢复原始 mock
+      mockGetApiKey.mockReturnValue('test-api-key')
     })
 
     it('应该处理 HTTP 错误', async () => {

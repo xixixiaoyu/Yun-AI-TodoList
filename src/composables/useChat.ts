@@ -30,6 +30,11 @@ export function useChat() {
       if (savedHistory) {
         conversationHistory.value = JSON.parse(savedHistory)
       }
+
+      const savedCurrentId = localStorage.getItem('currentConversationId')
+      if (savedCurrentId) {
+        currentConversationId.value = savedCurrentId
+      }
     } catch (error) {
       handleError(error, 'loadConversationHistory')
     }

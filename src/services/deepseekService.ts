@@ -1,7 +1,13 @@
-import { handleError, logger } from '@/utils/logger'
 import i18n from '../i18n'
+import { logger } from '../utils/logger'
 import { getAIModel, getApiKey } from './configService'
 import { AIStreamResponse, Message } from './types'
+
+// 错误处理函数
+function handleError(error: unknown, context: string, source: string) {
+  const errorMessage = error instanceof Error ? error.message : String(error)
+  logger.error(`${context}: ${errorMessage}`, error, source)
+}
 
 const API_URL = 'https://api.deepseek.com/chat/completions'
 
