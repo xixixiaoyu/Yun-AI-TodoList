@@ -151,6 +151,19 @@ pnpm build
 docker-compose -f docker-compose.prod.yml up -d
 ```
 
+#### Cloudflare Workers 部署 (前端)
+
+```bash
+# 快速部署到 Cloudflare Workers
+pnpm deploy:cf:prod
+
+# 或者分步执行
+pnpm build:frontend
+./scripts/deploy-cloudflare.sh prod
+```
+
+详细部署指南请参考 [Cloudflare 部署文档](./docs/CLOUDFLARE-DEPLOYMENT.md)。
+
 ## 🛠️ 技术栈
 
 ### 前端技术栈
@@ -210,6 +223,7 @@ docker-compose -f docker-compose.prod.yml up -d
 ## 📚 文档
 
 - [Docker 部署指南](./docs/DOCKER.md)
+- [Cloudflare Workers 部署指南](./docs/CLOUDFLARE-DEPLOYMENT.md)
 - [后端 API 文档](./apps/backend/docs/API.md)
 - [后端开发文档](./apps/backend/README.md)
 - [Google 搜索工具文档](./google-search/README.md)

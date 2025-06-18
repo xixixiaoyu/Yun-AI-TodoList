@@ -41,7 +41,10 @@
     "migration:generate": "pnpm --filter backend migration:generate",
     "migration:run": "pnpm --filter backend migration:run",
     "migration:revert": "pnpm --filter backend migration:revert",
-    "seed": "pnpm --filter backend seed"
+    "seed": "pnpm --filter backend seed",
+    "deploy:cf": "./scripts/deploy-cloudflare.sh",
+    "deploy:cf:dev": "./scripts/deploy-cloudflare.sh dev",
+    "deploy:cf:prod": "./scripts/deploy-cloudflare.sh prod"
   },
   "lint-staged": {
     "*.{vue,js,jsx,cjs,mjs,ts,tsx,cts,mts}": [
