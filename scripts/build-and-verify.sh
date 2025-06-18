@@ -51,12 +51,20 @@ else
   echo "✅ index.html 文件存在"
 fi
 
-# 创建根目录符号链接（用于兼容性）
+# 确保根目录 dist 目录存在（用于兼容性）
 if [ -L "dist" ]; then
   rm dist
+elif [ -d "dist" ] && [ ! -L "dist" ]; then
+  rm -rf dist
 fi
 ln -sf apps/frontend/dist dist
 echo "✅ 创建符号链接：dist -> apps/frontend/dist"
+
+# 验证符号链接是否正确创建
+if [ ! -d "dist" ]; then
+  echo "❌ 符号链接创建失败"
+  exit 1
+fi
 
 # 显示构建统计信息
 echo "📊 构建统计信息："

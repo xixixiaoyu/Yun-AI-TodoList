@@ -105,18 +105,29 @@ jobs:
 
       - name: 🔍 Verify build output
         run: |
-          if [ ! -d "dist" ]; then
-            echo "❌ Build failed: dist directory not found"
+          if [ ! -d "apps/frontend/dist" ]; then
+            echo "❌ Build failed: frontend dist directory not found"
+            echo "Available dist directories:"
+            find . -name "dist" -type d 2>/dev/null || echo "No dist directories found"
             exit 1
           fi
-          echo "✅ Build successful: dist directory exists"
-          ls -la dist/
+          echo "✅ Build successful: apps/frontend/dist directory exists"
+          ls -la apps/frontend/dist/
+
+          # Create symlink for compatibility
+          if [ -L "dist" ]; then
+            rm dist
+          elif [ -d "dist" ] && [ ! -L "dist" ]; then
+            rm -rf dist
+          fi
+          ln -sf apps/frontend/dist dist
+          echo "✅ Created symlink: dist -> apps/frontend/dist"
 
       - name: 📦 Upload build artifacts
         uses: actions/upload-artifact@v4
         with:
           name: build-files
-          path: dist/
+          path: apps/frontend/dist/
           if-no-files-found: error
           retention-days: 1
 
