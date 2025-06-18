@@ -33,7 +33,6 @@ Electron 构建的现代化全栈 AI 智能待办事项应用，支持桌面端�
 
 ### 🌐 跨平台支持
 
-- 📱 **移动端**：支持 iOS 和 Android 原生应用（Capacitor）
 - 💻 **桌面端**：支持 macOS、Windows、Linux 桌面应用（Electron）
 - 🌐 **Web 端**：响应式设计，支持现代浏览器
 - 🔄 **数据同步**：跨设备数据同步和备份
@@ -211,11 +210,9 @@ docker-compose -f docker-compose.prod.yml up -d
 ## 📚 文档
 
 - [Docker 部署指南](./docs/DOCKER.md)
-- [Docker 配置总结](./README-DOCKER.md)
 - [后端 API 文档](./apps/backend/docs/API.md)
 - [后端开发文档](./apps/backend/README.md)
 - [Google 搜索工具文档](./google-search/README.md)
-- [移动端开发指南](./scripts/verify-mobile-setup.sh)
 
 ## 📁 项目结构
 
