@@ -68,6 +68,15 @@ export default defineConfig({
     sourcemap: process.env.NODE_ENV === 'development',
     chunkSizeWarningLimit: 1500,
     rollupOptions: {
+      external: [
+        // 排除 MCP SDK 的 Node.js 特定模块
+        '@modelcontextprotocol/sdk/client/stdio.js',
+        '@modelcontextprotocol/sdk/client/stdio',
+        'node:stream',
+        'node:process',
+        'child_process',
+        'cross-spawn',
+      ],
       output: {
         manualChunks: {
           vendor: ['vue', 'vue-router', 'vue-i18n'],
@@ -104,6 +113,10 @@ export default defineConfig({
   },
   optimizeDeps: {
     include: ['vue', 'vue-router', 'vue-i18n', '@vueuse/core'],
-    exclude: [],
+    exclude: [
+      // 排除 MCP SDK 的 Node.js 特定模块
+      '@modelcontextprotocol/sdk/client/stdio.js',
+      '@modelcontextprotocol/sdk/client/stdio',
+    ],
   },
 })
