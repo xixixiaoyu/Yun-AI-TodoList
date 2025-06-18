@@ -25,6 +25,7 @@
     "test:frontend": "pnpm --filter frontend test",
     "test:backend": "pnpm --filter backend test",
     "lint": "pnpm --recursive lint",
+    "lint:check": "pnpm --recursive lint",
     "lint:fix": "pnpm --recursive lint:fix",
     "format": "prettier --write \"**/*.{js,ts,json,css,scss,vue,html,md}\" --ignore-unknown",
     "format:check": "prettier --check \"**/*.{js,ts,json,css,scss,vue,html,md}\" --ignore-unknown",
