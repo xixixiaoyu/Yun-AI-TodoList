@@ -143,7 +143,7 @@ export class TodosService {
     }
 
     return {
-      todos: todos.map((todo) => this.mapPrismaTodoToTodo(todo)),
+      todos: todos.map((todo: any) => this.mapPrismaTodoToTodo(todo)),
       total,
       page,
       limit,

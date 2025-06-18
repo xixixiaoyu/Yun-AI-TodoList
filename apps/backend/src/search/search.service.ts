@@ -84,7 +84,7 @@ export class SearchService {
     ])
 
     return {
-      history: history.map((item) => this.mapPrismaSearchHistoryToSearchHistory(item)),
+      history: history.map((item: any) => this.mapPrismaSearchHistoryToSearchHistory(item)),
       total,
       page,
       limit,
@@ -222,7 +222,7 @@ export class SearchService {
       orderBy: { createdAt: 'desc' },
     })
 
-    return relatedHistory.map((h) => h.query).filter((q) => q !== query)
+    return relatedHistory.map((h: any) => h.query).filter((q: string) => q !== query)
   }
 
   private async getSearchesByDate(userId: string) {
@@ -242,7 +242,7 @@ export class SearchService {
     const searchesByDate: Array<{ date: string; count: number }> = []
     const dateMap = new Map<string, number>()
 
-    searches.forEach((search) => {
+    searches.forEach((search: any) => {
       const date = search.createdAt.toISOString().split('T')[0]
       dateMap.set(date, (dateMap.get(date) || 0) + search._count.id)
     })
@@ -263,7 +263,7 @@ export class SearchService {
       take: 10,
     })
 
-    return topQueries.map((item) => ({
+    return topQueries.map((item: any) => ({
       query: item.query,
       count: item._count.id,
     }))
