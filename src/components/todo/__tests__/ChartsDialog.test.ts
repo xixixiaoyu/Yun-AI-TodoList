@@ -1,6 +1,6 @@
-import { describe, it, expect, vi } from 'vitest'
-import { mount } from '@vue/test-utils'
 import { createTestI18n } from '@/test/helpers'
+import { mount } from '@vue/test-utils'
+import { describe, expect, it, vi } from 'vitest'
 import ChartsDialog from '../ChartsDialog.vue'
 
 vi.mock('chart.js/auto', () => ({
@@ -32,8 +32,8 @@ describe('ChartsDialog', () => {
       },
     })
 
-    expect(wrapper.find('.charts-dialog').exists()).toBe(true)
-    expect(wrapper.find('.charts-content').exists()).toBe(true)
+    expect(wrapper.find('div[class*="fixed"]').exists()).toBe(true)
+    expect(wrapper.find('div[class*="bg-white"]').exists()).toBe(true)
   })
 
   it('应该在 show 为 false 时不渲染对话框', () => {
@@ -44,7 +44,7 @@ describe('ChartsDialog', () => {
       },
     })
 
-    expect(wrapper.find('.charts-dialog').exists()).toBe(false)
+    expect(wrapper.find('div[class*="fixed"]').exists()).toBe(false)
   })
 
   it('应该显示正确的标题', () => {
@@ -66,7 +66,7 @@ describe('ChartsDialog', () => {
       },
     })
 
-    const closeBtn = wrapper.find('.close-btn')
+    const closeBtn = wrapper.find('button[aria-label="关闭"]')
     expect(closeBtn.exists()).toBe(true)
     expect(closeBtn.find('svg').exists()).toBe(true)
   })
@@ -90,7 +90,7 @@ describe('ChartsDialog', () => {
       },
     })
 
-    await wrapper.find('.close-btn').trigger('click')
+    await wrapper.find('button[aria-label="关闭"]').trigger('click')
     expect(wrapper.emitted('close')).toHaveLength(1)
   })
 
@@ -102,7 +102,7 @@ describe('ChartsDialog', () => {
       },
     })
 
-    await wrapper.find('.charts-dialog').trigger('click')
+    await wrapper.find('div[class*="fixed"]').trigger('click')
     expect(wrapper.emitted('close')).toHaveLength(1)
   })
 
@@ -114,7 +114,7 @@ describe('ChartsDialog', () => {
       },
     })
 
-    await wrapper.find('.charts-content').trigger('click')
+    await wrapper.find('div[class*="bg-white"]').trigger('click')
     expect(wrapper.emitted('close')).toBeFalsy()
   })
 
@@ -126,7 +126,7 @@ describe('ChartsDialog', () => {
       },
     })
 
-    const closeBtn = wrapper.find('.close-btn')
+    const closeBtn = wrapper.find('button[aria-label="关闭"]')
     expect(closeBtn.attributes('aria-label')).toBe('关闭')
   })
 
@@ -138,8 +138,8 @@ describe('ChartsDialog', () => {
       },
     })
 
-    expect(wrapper.find('.charts-dialog').exists()).toBe(true)
-    expect(wrapper.find('.charts-content').exists()).toBe(true)
-    expect(wrapper.find('.close-btn').exists()).toBe(true)
+    expect(wrapper.find('div[class*="fixed"]').exists()).toBe(true)
+    expect(wrapper.find('div[class*="bg-white"]').exists()).toBe(true)
+    expect(wrapper.find('button[aria-label="关闭"]').exists()).toBe(true)
   })
 })

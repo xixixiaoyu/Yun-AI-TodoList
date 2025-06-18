@@ -1,24 +1,42 @@
 import { setupTestEnvironment } from '@/test/helpers'
 import { mount } from '@vue/test-utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { ref } from 'vue'
 import { createI18n } from 'vue-i18n'
 import TodoList from '../TodoList.vue'
 
+// Mock Sortable.js
+vi.mock('sortablejs', () => ({
+  default: vi.fn().mockImplementation(() => ({
+    destroy: vi.fn(),
+    option: vi.fn(),
+    toArray: vi.fn(() => []),
+  })),
+}))
+
+// Mock useSortable from VueUse
+vi.mock('@vueuse/integrations/useSortable', () => ({
+  useSortable: vi.fn(() => ({
+    start: vi.fn(),
+    stop: vi.fn(),
+  })),
+}))
+
 vi.mock('@/composables/useTodoListState', () => ({
   useTodoListState: () => ({
-    todoListRef: { value: null },
-    showConfirmDialog: { value: false },
-    confirmDialogConfig: { value: {} },
+    todoListRef: ref(null),
+    showConfirmDialog: ref(false),
+    confirmDialogConfig: ref({}),
     handleConfirm: vi.fn(),
     handleCancel: vi.fn(),
-    filter: { value: 'all' },
-    searchQuery: { value: '' },
-    filteredTodos: { value: [] },
-    hasActiveTodos: { value: false },
-    isGenerating: { value: false },
-    isSorting: { value: false },
-    suggestedTodos: { value: [] },
-    showSuggestedTodos: { value: false },
+    filter: ref('all'),
+    searchQuery: ref(''),
+    filteredTodos: ref([]),
+    hasActiveTodos: ref(false),
+    isGenerating: ref(false),
+    isSorting: ref(false),
+    suggestedTodos: ref([]),
+    showSuggestedTodos: ref(false),
     MAX_TODO_LENGTH: 200,
     generateSuggestedTodos: vi.fn(),
     confirmSuggestedTodos: vi.fn(),
@@ -28,13 +46,13 @@ vi.mock('@/composables/useTodoListState', () => ({
     handleAddTodo: vi.fn(),
     toggleTodo: vi.fn(),
     removeTodo: vi.fn(),
-    duplicateError: { value: '' },
-    isLoading: { value: false },
-    showCharts: { value: false },
-    showSearch: { value: false },
-    isSmallScreen: { value: false },
-    themeIcon: { value: 'sun' },
-    themeTooltip: { value: '切换主题' },
+    duplicateError: ref(''),
+    isLoading: ref(false),
+    showCharts: ref(false),
+    showSearch: ref(false),
+    isSmallScreen: ref(false),
+    themeIcon: ref('sun'),
+    themeTooltip: ref('切换主题'),
     toggleTheme: vi.fn(),
     toggleCharts: vi.fn(),
     toggleSearch: vi.fn(),

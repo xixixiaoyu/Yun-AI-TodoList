@@ -165,7 +165,7 @@ describe('useChat', () => {
 
       // clearAllConversations 会创建一个新对话，所以长度应该是 1
       expect(conversationHistory.value).toHaveLength(1)
-      expect(conversationHistory.value[0].title).toBe('newConversation')
+      expect(conversationHistory.value[0].title).toBe('新对话')
       expect(currentConversationId.value).toBe(conversationHistory.value[0].id)
     })
   })
@@ -209,11 +209,18 @@ describe('useChat', () => {
       >
       mockGetAIStreamResponse.mockRejectedValue(new Error('API Error'))
 
-      const { sendMessage, userMessage, isGenerating } = useChat()
+      const { sendMessage, userMessage, isGenerating, createNewConversation } = useChat()
+
+      // 创建新对话以确保有当前对话 ID
+      createNewConversation('Test Conversation')
 
       userMessage.value = 'Test message'
 
+      // 发送消息，期望失败但不抛出异常
       await sendMessage()
+
+      // 等待异步操作完成
+      await new Promise((resolve) => setTimeout(resolve, 50))
 
       expect(isGenerating.value).toBe(false)
     })

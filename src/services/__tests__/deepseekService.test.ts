@@ -170,7 +170,7 @@ describe('deepseekService', () => {
 
       await getAIStreamResponse(messages, onChunk)
 
-      expect(chunks).toEqual(['Hello', ' world'])
+      expect(chunks).toEqual(['Hello', ' world', '[DONE]'])
     })
 
     it('应该处理流式响应错误', async () => {

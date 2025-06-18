@@ -1,5 +1,5 @@
-import { useTodos } from '@/composables/useTodos'
 import { useTodoManagement } from '@/composables/useTodoManagement'
+import { useTodos } from '@/composables/useTodos'
 import { setupTestEnvironment } from '@/test/helpers'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { createI18n } from 'vue-i18n'
@@ -92,42 +92,68 @@ describe('待办事项工作流集成测试', () => {
   })
 
   describe('待办事项筛选和搜索', () => {
-    it('应该正确筛选待办事项', () => {
+    it('应该正确筛选待办事项', async () => {
       const { todos, addTodo, toggleTodo } = useTodos()
       const { filter, filteredTodos } = useTodoManagement()
+
+      // 清空现有的 todos
+      todos.value = []
 
       addTodo('未完成任务 1')
       addTodo('未完成任务 2')
       addTodo('待完成任务')
 
+      // 确保有3个任务
+      expect(todos.value).toHaveLength(3)
+
+      // 完成第三个任务
       toggleTodo(todos.value[2].id)
 
+      // 等待响应式更新
+      await new Promise((resolve) => setTimeout(resolve, 0))
+
       filter.value = 'all'
+      await new Promise((resolve) => setTimeout(resolve, 0))
       expect(filteredTodos.value).toHaveLength(3)
 
       filter.value = 'active'
+      await new Promise((resolve) => setTimeout(resolve, 0))
       expect(filteredTodos.value).toHaveLength(2)
 
       filter.value = 'completed'
+      await new Promise((resolve) => setTimeout(resolve, 0))
       expect(filteredTodos.value).toHaveLength(1)
     })
 
-    it('应该正确搜索待办事项', () => {
-      const { addTodo } = useTodos()
-      const { searchQuery, filteredTodos } = useTodoManagement()
+    it('应该正确搜索待办事项', async () => {
+      const { todos, addTodo } = useTodos()
+      const { searchQuery, filteredTodos, filter } = useTodoManagement()
+
+      // 清空现有的 todos
+      todos.value = []
 
       addTodo('学习 Vue 3')
       addTodo('学习 React')
       addTodo('写文档')
 
+      // 确保有3个任务
+      expect(todos.value).toHaveLength(3)
+
+      // 设置为显示所有任务
+      filter.value = 'all'
+      await new Promise((resolve) => setTimeout(resolve, 0))
+
       searchQuery.value = 'Vue'
+      await new Promise((resolve) => setTimeout(resolve, 0))
       expect(filteredTodos.value).toHaveLength(1)
       expect(filteredTodos.value[0].text).toContain('Vue')
 
       searchQuery.value = '学习'
+      await new Promise((resolve) => setTimeout(resolve, 0))
       expect(filteredTodos.value).toHaveLength(2)
 
       searchQuery.value = ''
+      await new Promise((resolve) => setTimeout(resolve, 0))
       expect(filteredTodos.value).toHaveLength(3)
     })
   })
@@ -143,12 +169,27 @@ describe('待办事项工作流集成测试', () => {
       const { generateSuggestedTodos, confirmSuggestedTodos, suggestedTodos, showSuggestedTodos } =
         useTodoManagement()
 
+      // 清空现有的 todos
+      todos.value = []
+
+      // 设置 API Key 以避免错误
+      testEnv.localStorage.setItem('deepseek_api_key', 'test-key')
+
       await generateSuggestedTodos()
+
+      // 等待异步操作完成
+      await new Promise((resolve) => setTimeout(resolve, 10))
+
       expect(suggestedTodos.value.length).toBeGreaterThan(0)
       expect(showSuggestedTodos.value).toBe(true)
 
+      const initialTodoCount = todos.value.length
       confirmSuggestedTodos()
-      expect(todos.value.length).toBeGreaterThan(0)
+
+      // 等待异步操作完成
+      await new Promise((resolve) => setTimeout(resolve, 10))
+
+      expect(todos.value.length).toBeGreaterThan(initialTodoCount)
       expect(showSuggestedTodos.value).toBe(false)
       expect(suggestedTodos.value).toHaveLength(0)
     })

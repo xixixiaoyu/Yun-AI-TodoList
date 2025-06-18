@@ -1,6 +1,6 @@
+import { createTestI18n } from '@/test/helpers'
 import { mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
-import { createTestI18n } from '@/test/helpers'
 import TodoListHeader from '../TodoListHeader.vue'
 
 const i18n = createTestI18n()
@@ -30,12 +30,14 @@ describe('TodoListHeader', () => {
     })
 
     const buttons = wrapper.findAll('.icon-button')
-    expect(buttons).toHaveLength(3)
+    expect(buttons).toHaveLength(4)
 
+    expect(wrapper.find('.ai-assistant-button').exists()).toBe(true)
     expect(wrapper.find('.search-button').exists()).toBe(true)
     expect(wrapper.find('.theme-toggle').exists()).toBe(true)
     expect(wrapper.find('.charts-button').exists()).toBe(true)
 
+    expect(wrapper.find('.ai-assistant-button .button-icon').exists()).toBe(true)
     expect(wrapper.find('.search-button .button-icon').exists()).toBe(true)
     expect(wrapper.find('.theme-toggle .button-icon').exists()).toBe(true)
     expect(wrapper.find('.charts-button .button-icon').exists()).toBe(true)

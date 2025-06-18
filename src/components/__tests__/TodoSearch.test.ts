@@ -32,7 +32,7 @@ describe('TodoSearch', () => {
 
     const input = wrapper.find('input[type="text"]')
     expect(input.exists()).toBe(true)
-    expect(input.attributes('placeholder')).toBe('searchTodos')
+    expect(input.attributes('placeholder')).toBe('搜索待办事项')
   })
 
   it('emits update:modelValue when input changes', async () => {
