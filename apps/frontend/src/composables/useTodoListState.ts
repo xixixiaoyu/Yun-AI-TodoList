@@ -18,7 +18,7 @@ export function useTodoListState() {
   const { showError, error, success } = useErrorHandler()
   const confirmDialog = useConfirmDialog()
 
-  const todoListRef = ref<HTMLElement | null>(null)
+  const todoListRef = ref<HTMLElement | undefined>(undefined)
 
   const { showConfirmDialog, confirmDialogConfig, handleConfirm, handleCancel } = confirmDialog
 

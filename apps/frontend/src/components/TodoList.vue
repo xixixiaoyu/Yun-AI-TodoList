@@ -122,9 +122,9 @@ import TodoInput from './TodoInput.vue'
 import TodoItem from './TodoItem.vue'
 import TodoSearch from './TodoSearch.vue'
 
-import { useTodoListState } from '../composables/useTodoListState'
-import { useTodoDragSort } from '../composables/useTodoDragSort'
 import type { Todo } from '@/types/todo'
+import { useTodoDragSort } from '../composables/useTodoDragSort'
+import { useTodoListState } from '../composables/useTodoListState'
 import ConfirmDialog from './ConfirmDialog.vue'
 import PomodoroTimer from './PomodoroTimer.vue'
 import LoadingOverlay from './common/LoadingOverlay.vue'
@@ -267,7 +267,7 @@ onUnmounted(() => {
 
 <style scoped>
 .todo-container {
-  @apply flex flex-col items-center justify-start w-full mx-auto box-border min-h-[calc(100vh-120px)] transition-all-300 pt-8;
+  @apply flex flex-col items-center justify-start w-full mx-auto box-border min-h-[calc(100vh-120px)] transition-all-300 pt-10;
   max-width: 1200px;
 }
 
@@ -353,7 +353,9 @@ onUnmounted(() => {
 }
 
 .empty-hint {
-  @apply flex flex-col items-center justify-center p-8 text-center min-h-50;
+  @apply flex flex-col items-center justify-center p-8 text-center;
+  height: 100%;
+  min-height: 300px;
   color: var(--text-secondary-color);
 }
 
