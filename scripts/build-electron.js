@@ -92,12 +92,12 @@ const buildConfig = {
     mac: ['--mac'],
     win: ['--win'],
     linux: ['--linux'],
-    all: ['--mac', '--win', '--linux']
+    all: ['--mac', '--win', '--linux'],
   },
 
   preChecks: [checkNodeVersion, checkDependencies, checkBuildResources],
 
-  buildSteps: [clean, buildRenderer, buildElectron]
+  buildSteps: [clean, buildRenderer, buildElectron],
 }
 
 async function build(platform = 'all') {

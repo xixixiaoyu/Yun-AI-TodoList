@@ -5,7 +5,7 @@ const config: CapacitorConfig = {
   appName: 'Todo App',
   webDir: 'dist',
   server: {
-    androidScheme: 'https'
+    androidScheme: 'https',
   },
   plugins: {
     SplashScreen: {
@@ -16,13 +16,13 @@ const config: CapacitorConfig = {
       iosSpinnerStyle: 'small',
       spinnerColor: '#999999',
       splashFullScreen: true,
-      splashImmersive: true
+      splashImmersive: true,
     },
     StatusBar: {
       style: 'default',
-      backgroundColor: '#f8f7f6'
-    }
-  }
+      backgroundColor: '#f8f7f6',
+    },
+  },
 }
 
 export default config

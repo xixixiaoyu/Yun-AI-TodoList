@@ -1,0 +1,66 @@
+version: '3.8'
+
+services:
+  # PostgreSQL 数据库 (开发环境)
+  postgres-dev:
+    image: postgres:15-alpine
+    container_name: yun-todolist-postgres-dev
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: yun_ai_todolist_dev
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres123
+      PGDATA: /var/lib/postgresql/data/pgdata
+    volumes:
+      - postgres_dev_data:/var/lib/postgresql/data
+      - ./scripts/init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
+    ports:
+      - '5433:5432'
+    networks:
+      - todolist-dev-network
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U postgres -d yun_ai_todolist_dev']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Redis 缓存 (开发环境)
+  redis-dev:
+    image: redis:7-alpine
+    container_name: yun-todolist-redis-dev
+    restart: unless-stopped
+    command: redis-server --appendonly yes
+    volumes:
+      - redis_dev_data:/data
+    ports:
+      - '6380:6379'
+    networks:
+      - todolist-dev-network
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
+  # 数据库管理工具
+  adminer:
+    image: adminer:4.8.1
+    container_name: yun-todolist-adminer
+    restart: unless-stopped
+    ports:
+      - '8080:8080'
+    networks:
+      - todolist-dev-network
+    environment:
+      ADMINER_DEFAULT_SERVER: postgres-dev
+
+networks:
+  todolist-dev-network:
+    driver: bridge
+    name: yun-todolist-dev-network
+
+volumes:
+  postgres_dev_data:
+    name: yun-todolist-postgres-dev-data
+  redis_dev_data:
+    name: yun-todolist-redis-dev-data

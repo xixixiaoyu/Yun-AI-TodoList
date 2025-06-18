@@ -1,0 +1,12 @@
+{
+  "name": "@yun-ai-todolist/typescript-config",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Shared TypeScript configuration for Yun AI TodoList",
+  "main": "index.js",
+  "files": [
+    "base.json",
+    "frontend.json",
+    "backend.json"
+  ]
+}

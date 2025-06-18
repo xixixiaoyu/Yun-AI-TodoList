@@ -32,31 +32,57 @@
 ### 环境要求
 
 - Node.js >= 18.0.0
-- pnpm >= 8.0.0
+- pnpm >= 9.0.0
+- PostgreSQL >= 13 (可选，推荐使用 Docker)
+- Redis >= 6.0 (可选)
+- Docker >= 20.10.0 (推荐)
+- Docker Compose >= 2.0.0 (推荐)
 
-### 安装
+### 方式一：Docker 部署 (推荐)
 
 ```bash
 # 克隆项目
-git clone [项目地址]
+git clone https://github.com/xixixiaoyu/todo.git
+cd todo
 
-# 进入项目目录
+# 复制环境变量配置
+cp .env.example .env
+
+# 启动开发环境 (包含数据库和缓存)
+./scripts/docker-build.sh start dev
+
+# 访问应用
+# 前端: http://localhost:5173
+# 后端 API: http://localhost:3001
+# 数据库管理: http://localhost:8080
+
+# 停止服务
+./scripts/docker-build.sh stop dev
+```
+
+### 方式二：本地开发
+
+```bash
+# 克隆项目
+git clone https://github.com/xixixiaoyu/todo.git
 cd todo
 
 # 安装依赖
 pnpm install
 
-# 创建环境配置文件
+# 配置环境变量
 cp .env.example .env
-```
+# 编辑 .env 文件，配置数据库连接等
 
-### 开发
-
-```bash
-# 启动开发服务器
+# 启动后端服务
+cd apps/backend
 pnpm dev
 
-# 启动 Electron 开发环境
+# 启动前端服务 (新终端)
+cd apps/frontend
+pnpm dev
+
+# 启动 Electron 应用 (可选)
 pnpm electron:serve
 ```
 
@@ -75,13 +101,37 @@ pnpm electron:build:linux
 
 ## 🛠️ 技术栈
 
+### 前端
+
 - Vue 3 - 渐进式 JavaScript 框架
-- Electron - 跨平台桌面应用开发框架
 - TypeScript - JavaScript 的超集
 - Vite - 下一代前端构建工具
 - Vue Router - Vue.js 官方路由
+- UnoCSS - 原子化 CSS 引擎
+- VueUse - Vue 组合式 API 工具集
 - Chart.js - 数据可视化库
 - Vue I18n - 国际化解决方案
+
+### 后端
+
+- NestJS - 企业级 Node.js 框架
+- TypeScript - 类型安全的开发体验
+- Prisma - 现代化数据库 ORM
+- PostgreSQL - 可靠的关系型数据库
+- Redis - 高性能缓存数据库
+- JWT - JSON Web Token 认证
+- Swagger - API 文档生成
+
+### 桌面应用
+
+- Electron - 跨平台桌面应用开发框架
+
+### 部署和运维
+
+- Docker - 容器化部署
+- Docker Compose - 多容器编排
+- Nginx - 高性能 Web 服务器
+- GitHub Actions - CI/CD 自动化
 
 ## 📝 开发规范
 
@@ -89,6 +139,12 @@ pnpm electron:build:linux
 - 使用 Prettier 进行代码格式化
 - 使用 Husky 进行 Git 提交检查
 - 遵循 TypeScript 类型检查
+
+## 📚 文档
+
+- [Docker 部署指南](./docs/DOCKER.md)
+- [后端 API 文档](./apps/backend/docs/API.md)
+- [Docker 配置总结](./README-DOCKER.md)
 
 ## 🤝 贡献指南
 

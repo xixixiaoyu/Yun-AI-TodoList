@@ -48,8 +48,7 @@ const api = {
   fs: {
     // 仅允许读取应用程序数据目录
     readAppData: (filename) => ipcRenderer.invoke('fs-read-app-data', filename),
-    writeAppData: (filename, data) =>
-      ipcRenderer.invoke('fs-write-app-data', filename, data),
+    writeAppData: (filename, data) => ipcRenderer.invoke('fs-write-app-data', filename, data),
   },
 
   // 通知

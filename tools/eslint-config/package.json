@@ -1,0 +1,19 @@
+{
+  "name": "@yun-ai-todolist/eslint-config",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Shared ESLint configuration for Yun AI TodoList",
+  "main": "index.js",
+  "files": [
+    "base.js",
+    "frontend.js",
+    "backend.js"
+  ],
+  "dependencies": {
+    "@eslint/js": "^9.28.0",
+    "@typescript-eslint/eslint-plugin": "^8.34.0",
+    "@typescript-eslint/parser": "^8.34.0",
+    "eslint-config-prettier": "^10.1.5",
+    "eslint-plugin-import": "^2.31.0"
+  }
+}

@@ -25,8 +25,8 @@ export default [
         {
           ignore: [-1, 0, 1, 2, 100, 1000],
           ignoreArrayIndexes: true,
-          ignoreDefaultValues: true
-        }
+          ignoreDefaultValues: true,
+        },
       ],
       'prefer-template': 'error',
       'no-nested-ternary': 'error',
@@ -36,16 +36,16 @@ export default [
         'error',
         {
           array: false,
-          object: true
-        }
+          object: true,
+        },
       ],
 
       // 安全相关
       'no-eval': 'error',
       'no-implied-eval': 'error',
       'no-new-func': 'error',
-      'no-script-url': 'error'
-    }
+      'no-script-url': 'error',
+    },
   },
 
   // Vue 特定增强规则
@@ -71,7 +71,7 @@ export default [
 
       // Vue 基础规则
       'vue/no-multiple-template-root': 'off',
-      'vue/multi-word-component-names': 'off'
-    }
-  }
+      'vue/multi-word-component-names': 'off',
+    },
+  },
 ]

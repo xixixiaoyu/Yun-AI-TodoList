@@ -29,10 +29,7 @@ function createWindow() {
     show: false,
     backgroundColor: '#f8f7f6',
     titleBarStyle: process.platform === 'darwin' ? 'hiddenInset' : 'default',
-    icon:
-      process.platform === 'linux'
-        ? path.join(__dirname, '../build/icon.png')
-        : undefined,
+    icon: process.platform === 'linux' ? path.join(__dirname, '../build/icon.png') : undefined,
   })
 
   // 安全：阻止新窗口创建

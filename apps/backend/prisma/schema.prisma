@@ -1,0 +1,115 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  username  String   @unique
+  password  String
+  avatarUrl String?
+
+  // User preferences stored as JSON
+  theme         String  @default("light")
+  language      String  @default("zh-CN")
+  aiConfig      Json    @default("{}")
+  searchConfig  Json    @default("{}")
+  notifications Json    @default("{}")
+
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  todos         Todo[]
+  searchHistory SearchHistory[]
+  settings      UserSetting[]
+  todoHistory   TodoHistory[]
+
+  @@map("users")
+}
+
+model Todo {
+  id          String   @id @default(cuid())
+  title       String
+  description String?
+  completed   Boolean  @default(false)
+  completedAt DateTime?
+
+  // Priority and AI analysis
+  priority      Int?
+  estimatedTime String?
+  aiAnalyzed    Boolean @default(false)
+
+  // Organization
+  order    Int      @default(0)
+  tags     String   @default("[]") // JSON array as string
+  dueDate  DateTime?
+
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  history TodoHistory[]
+
+  @@map("todos")
+}
+
+model SearchHistory {
+  id          String   @id @default(cuid())
+  query       String
+  results     Json     @default("[]")
+  resultCount Int      @default(0)
+  searchTime  Int      @default(0) // milliseconds
+
+  createdAt DateTime @default(now())
+
+  // Relations
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("search_history")
+}
+
+model UserSetting {
+  id    String @id @default(cuid())
+  key   String
+  value Json
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, key])
+  @@map("user_settings")
+}
+
+model TodoHistory {
+  id       String @id @default(cuid())
+  action   String // created, updated, completed, deleted, analyzed
+  changes  Json?  // Store the changes made
+
+  createdAt DateTime @default(now())
+
+  // Relations
+  todoId String
+  todo   Todo   @relation(fields: [todoId], references: [id], onDelete: Cascade)
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("todo_history")
+}
