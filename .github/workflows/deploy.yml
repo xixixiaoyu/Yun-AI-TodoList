@@ -48,26 +48,8 @@ jobs:
           pnpm install --no-frozen-lockfile
         }
 
-      - name: Run quality checks
-        run: |
-          pnpm run lint:check
-          pnpm run type-check
-          pnpm run quality:check
-
-      - name: Run tests
-        run: pnpm run test:coverage
-
-      - name: Build
-        run: pnpm build
-
-      - name: 🔍 Verify build output
-        run: |
-          if [ ! -d "dist" ]; then
-            echo "❌ Build failed: dist directory not found"
-            exit 1
-          fi
-          echo "✅ Build successful: dist directory exists"
-          ls -la dist/
+      - name: Build and verify
+        run: pnpm run build:verify
 
       - name: Setup Pages
         uses: actions/configure-pages@v4
@@ -75,7 +57,7 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: './dist'
+          path: './apps/frontend/dist'
 
       - name: Deploy to GitHub Pages
         id: deployment

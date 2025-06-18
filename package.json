@@ -21,6 +21,7 @@
     "build": "pnpm --filter shared build && pnpm --filter frontend build && pnpm --filter backend build",
     "build:frontend": "pnpm --filter frontend build",
     "build:backend": "pnpm --filter backend build",
+    "build:verify": "./scripts/build-and-verify.sh",
     "test": "pnpm --recursive test",
     "test:frontend": "pnpm --filter frontend test",
     "test:backend": "pnpm --filter backend test",
