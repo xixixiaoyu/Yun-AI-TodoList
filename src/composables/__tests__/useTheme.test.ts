@@ -149,7 +149,7 @@ describe('useTheme', () => {
   })
 
   describe('系统主题监听', () => {
-    it('应该监听系统主题变化', () => {
+    it('应该监听系统主题变化', async () => {
       const mockAddListener = vi.fn()
 
       window.matchMedia = vi.fn().mockImplementation(() => ({
@@ -163,7 +163,16 @@ describe('useTheme', () => {
         dispatchEvent: vi.fn(),
       }))
 
-      useTheme()
+      // 模拟组件挂载
+      const { mount } = await import('@vue/test-utils')
+      const TestComponent = {
+        setup() {
+          return useTheme()
+        },
+        template: '<div></div>',
+      }
+
+      mount(TestComponent)
 
       expect(mockAddListener).toHaveBeenCalledWith(expect.any(Function))
     })
