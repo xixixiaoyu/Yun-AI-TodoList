@@ -57,6 +57,25 @@ export class TodoValidator {
       errors.push('Invalid order: must be a non-negative number')
     }
 
+    // 验证 AI 分析字段（可选）
+    if (todoObj.priority !== undefined) {
+      if (typeof todoObj.priority !== 'number' || todoObj.priority < 1 || todoObj.priority > 5) {
+        errors.push('Invalid priority: must be a number between 1 and 5')
+      }
+    }
+
+    if (todoObj.estimatedTime !== undefined) {
+      if (typeof todoObj.estimatedTime !== 'string' || todoObj.estimatedTime.trim() === '') {
+        errors.push('Invalid estimatedTime: must be a non-empty string')
+      }
+    }
+
+    if (todoObj.aiAnalyzed !== undefined) {
+      if (typeof todoObj.aiAnalyzed !== 'boolean') {
+        errors.push('Invalid aiAnalyzed: must be boolean')
+      }
+    }
+
     const isValid = errors.length === 0
 
     if (isValid) {
@@ -74,6 +93,19 @@ export class TodoValidator {
 
       if (todoObj.completedAt) {
         sanitizedData.completedAt = todoObj.completedAt as string
+      }
+
+      // 添加 AI 分析字段
+      if (todoObj.priority !== undefined) {
+        sanitizedData.priority = todoObj.priority as number
+      }
+
+      if (todoObj.estimatedTime !== undefined) {
+        sanitizedData.estimatedTime = (todoObj.estimatedTime as string).trim()
+      }
+
+      if (todoObj.aiAnalyzed !== undefined) {
+        sanitizedData.aiAnalyzed = todoObj.aiAnalyzed as boolean
       }
 
       return { isValid: true, errors: [], sanitizedData }

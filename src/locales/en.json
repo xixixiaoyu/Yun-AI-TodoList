@@ -261,5 +261,50 @@
   "yes": "Yes",
   "no": "No",
   "confidence": "Confidence",
-  "reason": "Reason"
+  "reason": "Reason",
+
+  "aiAnalysis": "AI Smart Analysis",
+  "aiAnalysisDescription": "Use AI to automatically analyze the priority level and time estimation of todos",
+  "batchAiAnalysis": "Batch AI Analysis",
+  "reanalyze": "Re-analyze",
+  "analyzing": "Analyzing...",
+  "batchAnalyzing": "Batch analyzing...",
+  "aiAnalysisSuccess": "AI analysis completed",
+  "aiAnalysisError": "AI analysis failed, please try again",
+  "batchAnalysisSuccess": "Batch analysis completed, successfully analyzed {count} todos",
+  "batchAnalysisError": "Batch analysis failed, please try again",
+  "batchAnalysisNoResults": "Batch analysis did not get valid results",
+  "reanalysisSuccess": "Re-analysis completed",
+  "reanalysisError": "Re-analysis failed, please try again",
+  "noTodosToAnalyze": "No todos to analyze",
+
+  "priorityLevel": "Priority Level",
+  "estimatedTime": "Estimated Time",
+  "priority1": "1 Star - Daily chores",
+  "priority2": "2 Stars - General tasks",
+  "priority3": "3 Stars - Important tasks",
+  "priority4": "4 Stars - High priority",
+  "priority5": "5 Stars - Urgent & Important",
+
+  "autoAnalyzeNewTodos": "Auto-analyze new todos",
+  "autoAnalyzeNewTodosDesc": "Automatically perform AI analysis when adding new todos",
+  "enablePriorityAnalysis": "Enable priority analysis",
+  "enablePriorityAnalysisDesc": "Use AI to analyze the priority level of todos",
+  "enableTimeEstimation": "Enable time estimation",
+  "enableTimeEstimationDesc": "Use AI to estimate the completion time of todos",
+
+  "aiAnalysisSettings": "AI Analysis Settings",
+  "aiAnalysisConfiguration": "AI Analysis Configuration",
+  "aiAnalysisConfigurationDescription": "Configure the behavior of AI smart analysis features",
+
+  "clickToSetPriority": "Click to set priority level",
+  "clickToSetTime": "Click to set estimated time",
+  "enterEstimatedTime": "Enter estimated time (e.g., 30 minutes, 2 hours, 1 day)",
+  "invalidTimeFormat": "Invalid time format, please use format like: 30 minutes, 2 hours, 1 day",
+
+  "analysisProgress": "Analysis Progress",
+  "analyzingTodos": "Analyzing todos...",
+  "enabled": "Enabled",
+  "disabled": "Disabled",
+  "updateError": "Update failed"
 }

@@ -40,7 +40,11 @@
   "aiSortMismatchError": "AI 返回的排序数与待办事项数量不匹配",
   "aiSortError": "AI 排序失败，请稍后再试。",
   "aiSortSuccess": "AI 优先级排序完成！",
+  "aiSortFailed": "AI 排序失败，请检查网络连接和 API 配置",
   "aiSortParseFailed": "AI 排序结果解析失败，请重试",
+  "configureApiKey": "请先在设置中配置 DeepSeek API Key",
+  "noActiveTodos": "没有活跃的待办事项",
+  "needMoreTodos": "至少需要2个待办事项才能进行排序",
   "noActiveTodosError": "需要至少 2 个未完成的待办事项才能进行排序",
 
   "aiStreamError": "AI 流式响应出错",
@@ -298,5 +302,50 @@
   "no": "否",
   "confidence": "置信度",
   "reason": "原因",
-  "settingsDescription": "管理您的应用配置和偏好设置"
+  "settingsDescription": "管理您的应用配置和偏好设置",
+
+  "aiAnalysis": "AI 智能分析",
+  "aiAnalysisDescription": "使用 AI 自动分析待办事项的重要等级和时间估算",
+  "batchAiAnalysis": "批量 AI 分析",
+  "reanalyze": "重新分析",
+  "analyzing": "分析中...",
+  "batchAnalyzing": "批量分析中...",
+  "aiAnalysisSuccess": "AI 分析完成",
+  "aiAnalysisError": "AI 分析失败，请重试",
+  "batchAnalysisSuccess": "批量分析完成，成功分析了 {count} 个待办事项",
+  "batchAnalysisError": "批量分析失败，请重试",
+  "batchAnalysisNoResults": "批量分析未获得有效结果",
+  "reanalysisSuccess": "重新分析完成",
+  "reanalysisError": "重新分析失败，请重试",
+  "noTodosToAnalyze": "没有需要分析的待办事项",
+
+  "priorityLevel": "重要等级",
+  "estimatedTime": "预估时间",
+  "priority1": "1星 - 日常琐事",
+  "priority2": "2星 - 一般任务",
+  "priority3": "3星 - 重要任务",
+  "priority4": "4星 - 高优先级",
+  "priority5": "5星 - 紧急重要",
+
+  "autoAnalyzeNewTodos": "自动分析新待办事项",
+  "autoAnalyzeNewTodosDesc": "添加新待办事项时自动进行 AI 分析",
+  "enablePriorityAnalysis": "启用重要等级分析",
+  "enablePriorityAnalysisDesc": "使用 AI 分析待办事项的重要等级",
+  "enableTimeEstimation": "启用时间估算",
+  "enableTimeEstimationDesc": "使用 AI 估算待办事项的完成时间",
+
+  "aiAnalysisSettings": "AI 分析设置",
+  "aiAnalysisConfiguration": "AI 分析配置",
+  "aiAnalysisConfigurationDescription": "配置 AI 智能分析功能的行为",
+
+  "clickToSetPriority": "点击设置重要等级",
+  "clickToSetTime": "点击设置预估时间",
+  "enterEstimatedTime": "请输入预估时间（如：30分钟、2小时、1天）",
+  "invalidTimeFormat": "时间格式无效，请使用如：30分钟、2小时、1天",
+
+  "analysisProgress": "分析进度",
+  "analyzingTodos": "正在分析待办事项...",
+  "enabled": "已启用",
+  "disabled": "已禁用",
+  "updateError": "更新失败"
 }

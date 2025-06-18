@@ -2,6 +2,7 @@ import type { Todo } from '@/types/todo'
 import { handleError as logError, logger } from '@/utils/logger'
 import { onBeforeMount, onErrorCaptured, onMounted, onUnmounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { useAIAnalysis } from './useAIAnalysis'
 import { useConfirmDialog } from './useConfirmDialog'
 import { useErrorHandler } from './useErrorHandler'
 import { useTodoManagement } from './useTodoManagement'
@@ -23,6 +24,9 @@ export function useTodoListState() {
 
   const { todos, loadTodos, updateTodosOrder, updateTodosOrderByArray } = useTodos()
 
+  // AI 分析功能
+  const { analyzeSingleTodo, batchAnalyzeTodosAction, isBatchAnalyzing } = useAIAnalysis()
+
   const {
     filter,
     searchQuery,
@@ -41,8 +45,11 @@ export function useTodoListState() {
     handleAddTodo,
     toggleTodo,
     removeTodo,
+    updateTodo,
+    batchUpdateTodos,
     duplicateError,
     isLoading,
+    isAnalyzing,
   } = useTodoManagement()
 
   // 拖拽排序功能
@@ -100,6 +107,40 @@ export function useTodoListState() {
         event.preventDefault()
         toggleSearch()
       }
+    }
+  }
+
+  // AI 分析处理函数
+  const handleUpdateTodo = (id: number, updates: Partial<Todo>) => {
+    try {
+      const success = updateTodo(id, updates)
+      if (!success) {
+        showError(t('updateError', '更新失败'))
+      }
+    } catch (error) {
+      logError(error, 'Error updating todo', 'TodoListState')
+      showError(t('updateError', '更新失败'))
+    }
+  }
+
+  const handleAnalyzeTodo = async (id: number) => {
+    try {
+      const todo = todos.value.find((t) => t.id === id)
+      if (todo) {
+        await analyzeSingleTodo(todo, handleUpdateTodo)
+      }
+    } catch (error) {
+      logError(error, 'Error analyzing todo', 'TodoListState')
+      showError(t('aiAnalysisError', 'AI 分析失败'))
+    }
+  }
+
+  const handleBatchAnalyze = async () => {
+    try {
+      await batchAnalyzeTodosAction(todos.value, batchUpdateTodos)
+    } catch (error) {
+      logError(error, 'Error in batch analysis', 'TodoListState')
+      showError(t('batchAnalysisError', '批量分析失败'))
     }
   }
 
@@ -170,6 +211,13 @@ export function useTodoListState() {
     removeTodo,
     duplicateError,
     isLoading,
+    isAnalyzing,
+
+    // AI 分析功能
+    handleUpdateTodo,
+    handleAnalyzeTodo,
+    handleBatchAnalyze,
+    isBatchAnalyzing,
 
     showCharts,
     showSearch,

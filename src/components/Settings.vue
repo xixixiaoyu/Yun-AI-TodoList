@@ -35,6 +35,12 @@
         >
           <ThemeSection />
         </div>
+
+        <div
+          class="settings-card bg-card rounded-2xl p-6 shadow-card border border-white/10 backdrop-blur-20 transition-all-300 hover:transform-hover-up hover:shadow-hover md:col-span-2 xl:col-span-1"
+        >
+          <AIAnalysisSection />
+        </div>
       </div>
     </div>
 
@@ -49,6 +55,7 @@ import ApiKeySection from './settings/ApiKeySection.vue'
 import ModelSelectionSection from './settings/ModelSelectionSection.vue'
 import SettingsToast from './settings/SettingsToast.vue'
 import ThemeSection from './settings/ThemeSection.vue'
+import AIAnalysisSection from './settings/AIAnalysisSection.vue'
 
 const { t } = useI18n()
 

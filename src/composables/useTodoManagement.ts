@@ -3,13 +3,26 @@ import { useI18n } from 'vue-i18n'
 import { getAIResponse } from '../services/deepseekService'
 import type { Todo } from '../types/todo'
 import { handleError, logger } from '../utils/logger'
+import { useAIAnalysis } from './useAIAnalysis'
 import { useErrorHandler } from './useErrorHandler'
 import { useTodos } from './useTodos'
 
 export function useTodoManagement() {
   const { t } = useI18n()
-  const { todos, addTodo, addMultipleTodos, toggleTodo, removeTodo, saveTodos } = useTodos()
+  const {
+    todos,
+    addTodo,
+    addMultipleTodos,
+    toggleTodo,
+    removeTodo,
+    updateTodo,
+    batchUpdateTodos,
+    saveTodos,
+  } = useTodos()
   const { showError, showSuccess, error: duplicateError } = useErrorHandler()
+
+  // AI 分析功能
+  const { analyzeSingleTodo, analysisConfig, isAnalyzing } = useAIAnalysis()
 
   const filter = ref('active')
   const searchQuery = ref('')
@@ -134,24 +147,45 @@ export function useTodoManagement() {
   }
 
   const sortActiveTodosWithAI = async () => {
+    console.warn('🎯 AI 排序功能被触发')
+
     if (isSorting.value) {
+      console.warn('⚠️ AI 排序正在进行中，忽略重复请求')
       return
     }
 
     const activeTodos = todos.value.filter((todo) => !todo.completed)
+    console.warn('📋 活跃待办事项数量:', activeTodos.length)
 
     if (activeTodos.length === 0) {
+      console.error('❌ 没有活跃的待办事项')
       showError(t('noActiveTodos', '没有活跃的待办事项'))
       return
     }
 
     if (activeTodos.length < 2) {
+      console.error('❌ 待办事项数量不足，需要至少2个')
       showError(t('needMoreTodos', '至少需要2个待办事项才能进行排序'))
       return
     }
+
+    console.warn(
+      '✅ 开始 AI 排序，待办事项:',
+      activeTodos.map((t) => t.text)
+    )
     isSorting.value = true
+    const _startTime = Date.now()
 
     try {
+      // 检查 API Key 配置
+      const apiKey = localStorage.getItem('deepseek_api_key')
+      if (!apiKey || apiKey.trim() === '') {
+        console.error('❌ DeepSeek API Key 未配置')
+        showError(t('configureApiKey', '请先在设置中配置 DeepSeek API Key'))
+        return
+      }
+      console.warn('✅ API Key 已配置')
+
       // 构建更详细的提示词，包含任务内容和上下文
       const todoTexts = activeTodos.map((todo, index) => `${index + 1}. ${todo.text}`).join('\n')
       const prompt = `作为一个专业的任务管理助手，请根据以下标准对待办事项进行优先级排序：
@@ -165,7 +199,9 @@ ${todoTexts}
 
 请返回排序后的序号列表，格式为：1,3,2,4（用逗号分隔，不要包含其他文字）`
 
+      console.warn('🤖 发送 AI 请求...')
       const aiResponse = await getAIResponse(prompt)
+      console.warn('📥 AI 响应:', aiResponse)
 
       // 改进的解析逻辑，支持多种格式
       let sortedIndices: number[] = []
@@ -202,7 +238,12 @@ ${todoTexts}
         sortedIndices.every((index) => index >= 0 && index < activeTodos.length)
       ) {
         // 应用排序
+        console.warn('🔄 应用新的排序顺序:', sortedIndices)
         const sortedTodos = sortedIndices.map((index) => activeTodos[index])
+        console.warn(
+          '📝 排序后的待办事项:',
+          sortedTodos.map((t) => t.text)
+        )
         const todoMap = new Map(todos.value.map((todo) => [todo.id, todo]))
 
         // 更新排序，保持已完成任务的位置不变
@@ -223,6 +264,7 @@ ${todoTexts}
 
         saveTodos()
 
+        console.warn('✅ AI 排序成功完成')
         showSuccess(t('aiSortSuccess', 'AI 优先级排序完成！'))
       } else {
         console.warn('AI 排序解析失败:', {
@@ -234,29 +276,86 @@ ${todoTexts}
         showError(t('aiSortParseFailed', 'AI 排序解析失败，请重试'))
       }
     } catch (error) {
-      console.error('AI 排序失败:', error)
+      console.error('❌ AI 排序失败:', error)
+
       if (error instanceof Error) {
+        console.error('错误详情:', {
+          message: error.message,
+          stack: error.stack,
+          name: error.name,
+        })
+
         if (error.message.includes('configureApiKey') || error.message.includes('API Key')) {
+          console.error('🔑 API Key 配置错误')
           showError(t('configureApiKey', '请先在设置中配置 DeepSeek API Key'))
+        } else if (error.message.includes('fetch') || error.message.includes('network')) {
+          console.error('🌐 网络连接错误')
+          showError('网络连接失败，请检查网络设置后重试')
+        } else if (error.message.includes('401') || error.message.includes('Unauthorized')) {
+          console.error('🔐 API Key 认证失败')
+          showError('API Key 认证失败，请检查 API Key 是否正确')
+        } else if (error.message.includes('429')) {
+          console.error('⏰ API 请求频率限制')
+          showError('请求过于频繁，请稍后再试')
         } else {
+          console.error('🔧 其他错误')
           showError(t('aiSortFailed', 'AI 排序失败，请检查网络连接和 API 配置'))
         }
       } else {
+        console.error('🔍 未知错误类型:', typeof error, error)
         showError(t('aiSortFailed', 'AI 排序失败，请重试'))
       }
     } finally {
+      console.warn('🏁 AI 排序流程结束，重置状态')
       isSorting.value = false
     }
   }
 
-  const handleAddTodo = (text: string, tags: string[]) => {
-    if (text && text.trim() !== '') {
-      const success = addTodo(text, tags)
-      if (!success) {
-        showError(t('duplicateError'))
+  const handleAddTodo = async (text: string, tags: string[]) => {
+    if (!text || text.trim() === '') {
+      showError(t('emptyTodoError'))
+      return
+    }
+
+    const success = addTodo(text, tags)
+    if (!success) {
+      showError(t('duplicateError'))
+      return
+    }
+
+    console.warn('任务添加成功，检查自动分析配置:', analysisConfig.value.autoAnalyzeNewTodos)
+
+    // 如果启用了自动分析新待办事项，则自动触发 AI 分析
+    if (analysisConfig.value.autoAnalyzeNewTodos) {
+      try {
+        // 找到刚添加的 Todo（最新的一个）
+        const newTodo = todos.value
+          .filter((todo) => !todo.completed && !todo.aiAnalyzed)
+          .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())[0]
+
+        console.warn('找到新添加的任务:', newTodo)
+
+        if (newTodo) {
+          console.warn('开始自动 AI 分析...')
+          // 异步执行 AI 分析，不阻塞用户操作
+          analyzeSingleTodo(newTodo, (id: number, updates: Partial<Todo>) => {
+            console.warn('自动分析完成，更新任务:', id, updates)
+            updateTodo(id, updates)
+          }).catch((error) => {
+            // 分析失败时静默处理，不影响任务添加
+            console.warn('Auto AI analysis failed for new todo:', error)
+            logger.warn('Auto AI analysis failed for new todo', error, 'TodoManagement')
+          })
+        } else {
+          console.warn('未找到需要分析的新任务')
+        }
+      } catch (error) {
+        // 分析失败时静默处理，不影响任务添加
+        console.warn('Error in auto AI analysis:', error)
+        logger.warn('Error in auto AI analysis', error, 'TodoManagement')
       }
     } else {
-      showError(t('emptyTodoError'))
+      console.warn('自动分析功能未启用')
     }
   }
 
@@ -268,6 +367,7 @@ ${todoTexts}
     isGenerating,
     isSorting,
     isLoading,
+    isAnalyzing,
     suggestedTodos,
     showSuggestedTodos,
     MAX_TODO_LENGTH,
@@ -280,5 +380,7 @@ ${todoTexts}
     handleAddTodo,
     toggleTodo,
     removeTodo,
+    updateTodo,
+    batchUpdateTodos,
   }
 }

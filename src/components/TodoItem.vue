@@ -43,11 +43,97 @@
         </transition>
       </span>
       <div class="todo-text-wrapper">
-        <span class="todo-text" :title="formattedTitle">
-          <transition>
-            <span v-show="true" class="text-content">{{ formattedTitle }}</span>
-          </transition>
-        </span>
+        <div class="todo-main-content">
+          <span class="todo-text" :title="formattedTitle">
+            <transition>
+              <span v-show="true" class="text-content">{{ formattedTitle }}</span>
+            </transition>
+          </span>
+
+          <!-- AI 分析信息 - 水平布局 -->
+          <div v-if="showAIAnalysis" class="ai-analysis-info">
+            <!-- 重要等级星级 -->
+            <div
+              v-if="todo.priority"
+              class="priority-stars"
+              :class="getPriorityColorClass(todo.priority)"
+              :title="getPriorityTitle(todo.priority)"
+              @click.stop="handlePriorityClick"
+            >
+              {{ getPriorityStars(todo.priority) }}
+            </div>
+
+            <!-- 时间估算 -->
+            <div
+              v-if="todo.estimatedTime"
+              class="estimated-time"
+              :title="t('estimatedTime')"
+              @click.stop="handleTimeClick"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="12"
+                height="12"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <circle cx="12" cy="12" r="10" />
+                <polyline points="12,6 12,12 16,14" />
+              </svg>
+              <span class="time-text">{{ todo.estimatedTime }}</span>
+            </div>
+
+            <!-- AI 分析按钮 -->
+            <button
+              v-if="!todo.aiAnalyzed && !isCompleted"
+              class="ai-analyze-btn"
+              :title="t('aiAnalysis')"
+              @click.stop="handleAnalyzeClick"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="12"
+                height="12"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path
+                  d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"
+                />
+              </svg>
+            </button>
+
+            <!-- 分析中状态指示 -->
+            <div
+              v-if="isAnalyzing && !todo.aiAnalyzed"
+              class="analyzing-indicator"
+              :title="t('analyzing')"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="12"
+                height="12"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                class="animate-spin"
+              >
+                <path d="M21 12a9 9 0 11-6.219-8.56" />
+              </svg>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
     <button
@@ -80,6 +166,7 @@
 <script setup lang="ts">
 import confetti from 'canvas-confetti'
 import { useErrorHandler } from '../composables/useErrorHandler'
+import { useAIAnalysis } from '../composables/useAIAnalysis'
 import type { Todo } from '../types/todo'
 
 const props = withDefaults(
@@ -87,17 +174,20 @@ const props = withDefaults(
     todo: Todo
     isDraggable?: boolean
     isDragging?: boolean
+    showAIAnalysis?: boolean
   }>(),
   {
     isDraggable: false,
     isDragging: false,
+    showAIAnalysis: true,
   }
 )
 
 const { showError } = useErrorHandler()
 const { t } = useI18n()
+const { getPriorityStars, getPriorityColorClass, isAnalyzing } = useAIAnalysis()
 
-const emit = defineEmits(['toggle', 'remove'])
+const emit = defineEmits(['toggle', 'remove', 'updateTodo', 'analyze'])
 const isCompleted = ref(false)
 
 watchEffect(() => {
@@ -151,6 +241,34 @@ const formattedTitle = computed(() => {
     return ''
   }
 })
+
+// AI 分析相关方法
+const getPriorityTitle = (priority: number): string => {
+  const priorityKeys = ['', 'priority1', 'priority2', 'priority3', 'priority4', 'priority5']
+  return t(priorityKeys[priority] || 'priority3')
+}
+
+const handlePriorityClick = () => {
+  // 触发优先级编辑
+  const newPriority = window.prompt(t('clickToSetPriority'), props.todo.priority?.toString() || '3')
+  if (newPriority !== null) {
+    const priority = Math.max(1, Math.min(5, parseInt(newPriority) || 3))
+    emit('updateTodo', props.todo.id, { priority })
+  }
+}
+
+const handleTimeClick = () => {
+  // 触发时间估算编辑
+  const newTime = window.prompt(t('enterEstimatedTime'), props.todo.estimatedTime || '')
+  if (newTime !== null && newTime.trim()) {
+    emit('updateTodo', props.todo.id, { estimatedTime: newTime.trim() })
+  }
+}
+
+const handleAnalyzeClick = () => {
+  // 触发单个 Todo 的 AI 分析
+  emit('analyze', props.todo.id)
+}
 
 let renderStartTime = 0
 onBeforeMount(() => {
@@ -219,7 +337,57 @@ onErrorCaptured(handleError)
 }
 
 .todo-text-wrapper {
-  @apply flex flex-col flex-grow min-w-0 gap-1;
+  @apply flex flex-col flex-grow min-w-0;
+}
+
+.todo-main-content {
+  @apply flex items-center justify-between gap-3 min-w-0;
+}
+
+/* AI 分析信息样式 - 水平布局 */
+.ai-analysis-info {
+  @apply flex items-center gap-2 text-xs opacity-80 flex-shrink-0;
+}
+
+.priority-stars {
+  @apply cursor-pointer transition-all duration-200 hover:opacity-100 hover:scale-110;
+  font-size: 10px;
+  line-height: 1;
+}
+
+.estimated-time {
+  @apply flex items-center gap-1 cursor-pointer transition-all duration-200 hover:opacity-100 text-gray-500;
+}
+
+.time-text {
+  @apply text-xs;
+}
+
+.ai-analyze-btn {
+  @apply flex items-center justify-center w-5 h-5 rounded-full bg-blue-100 bg-opacity-20 text-blue-500 hover:bg-blue-200 hover:bg-opacity-30 transition-all duration-200 cursor-pointer;
+}
+
+.ai-analyze-btn:hover {
+  @apply transform scale-110;
+}
+
+.analyzing-indicator {
+  @apply flex items-center justify-center w-5 h-5 text-blue-500;
+}
+
+.analyzing-indicator svg {
+  @apply animate-spin;
+}
+
+/* 移动端优化 */
+@media (max-width: 768px) {
+  .todo-main-content {
+    @apply flex-col items-start gap-2;
+  }
+
+  .ai-analysis-info {
+    @apply self-end;
+  }
 }
 
 .todo-text {

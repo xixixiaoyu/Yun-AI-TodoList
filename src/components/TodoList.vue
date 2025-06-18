@@ -74,8 +74,11 @@
           :todo="todo"
           :is-draggable="isDragEnabled"
           :is-dragging="isDragging && draggedItem?.id === todo.id"
+          :is-analyzing="isAnalyzing"
           @toggle="toggleTodo"
           @remove="removeTodo"
+          @update-todo="handleUpdateTodo"
+          @analyze="handleAnalyzeTodo"
         />
       </div>
 
@@ -84,8 +87,10 @@
         :has-active-todos="hasActiveTodos"
         :is-generating="isGenerating"
         :is-sorting="isSorting"
+        :is-batch-analyzing="isBatchAnalyzing"
         @generate-suggestions="generateSuggestedTodos"
         @sort-with-ai="sortActiveTodosWithAI"
+        @batch-analyze="handleBatchAnalyze"
       />
 
       <ConfirmDialog
@@ -161,6 +166,14 @@ const {
   removeTodo,
   duplicateError,
   isLoading,
+  isAnalyzing,
+
+  // AI 分析功能
+  handleUpdateTodo,
+  handleAnalyzeTodo,
+  handleBatchAnalyze,
+  isBatchAnalyzing,
+
   showCharts,
   showSearch,
   isSmallScreen,

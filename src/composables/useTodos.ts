@@ -274,6 +274,40 @@ export function useTodos() {
     }
   }
 
+  const updateTodo = (id: number, updates: Partial<Todo>) => {
+    const todo = todos.value.find((todo) => todo && todo.id === id)
+    if (todo) {
+      Object.assign(todo, {
+        ...updates,
+        updatedAt: new Date().toISOString(),
+      })
+      saveTodos()
+      return true
+    }
+    return false
+  }
+
+  const batchUpdateTodos = (updates: Array<{ id: number; updates: Partial<Todo> }>) => {
+    let updated = false
+    const now = new Date().toISOString()
+
+    updates.forEach(({ id, updates: todoUpdates }) => {
+      const todo = todos.value.find((todo) => todo && todo.id === id)
+      if (todo) {
+        Object.assign(todo, {
+          ...todoUpdates,
+          updatedAt: now,
+        })
+        updated = true
+      }
+    })
+
+    if (updated) {
+      saveTodos()
+    }
+    return updated
+  }
+
   return {
     todos,
     addTodo,
@@ -284,6 +318,8 @@ export function useTodos() {
     updateTodosOrderByArray,
     getCompletedTodosByDate,
     updateTodoTags,
+    updateTodo,
+    batchUpdateTodos,
     saveTodos,
     loadTodos,
   }

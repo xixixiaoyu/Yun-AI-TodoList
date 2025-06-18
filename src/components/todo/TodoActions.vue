@@ -40,6 +40,27 @@
       </div>
       <div class="btn-shine" />
     </button>
+
+    <button
+      v-if="filter === 'active' && hasActiveTodos"
+      class="ai-action-btn ai-analysis-btn"
+      :class="{ 'is-loading': isBatchAnalyzing }"
+      :disabled="isBatchAnalyzing"
+      @click="handleAnalysisClick"
+    >
+      <div class="btn-content">
+        <div v-if="isBatchAnalyzing" class="loading-spinner" />
+        <svg v-else class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+          <path
+            d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"
+          />
+        </svg>
+        <span class="btn-text">
+          {{ isBatchAnalyzing ? t('batchAnalyzing') : t('batchAiAnalysis') }}
+        </span>
+      </div>
+      <div class="btn-shine" />
+    </button>
   </div>
 </template>
 
@@ -51,11 +72,13 @@ interface Props {
   hasActiveTodos: boolean
   isGenerating: boolean
   isSorting: boolean
+  isBatchAnalyzing?: boolean
 }
 
 interface Emits {
   (e: 'generateSuggestions'): void
   (e: 'sortWithAI'): void
+  (e: 'batchAnalyze'): void
 }
 
 defineProps<Props>()
@@ -65,6 +88,10 @@ const { t } = useI18n()
 
 const handleSortClick = () => {
   emit('sortWithAI')
+}
+
+const handleAnalysisClick = () => {
+  emit('batchAnalyze')
 }
 
 defineOptions({
@@ -141,6 +168,23 @@ defineOptions({
 
 .ai-sort-btn:disabled,
 .ai-sort-btn.is-loading {
+  background: linear-gradient(135deg, #95a5a6 0%, #7f8c8d 100%);
+  @apply text-gray-600 shadow-sm;
+}
+
+.ai-analysis-btn {
+  @apply text-purple-800;
+  background: linear-gradient(135deg, #ddd6fe 0%, #c4b5fd 100%);
+}
+
+.ai-analysis-btn:hover:not(:disabled) {
+  background: linear-gradient(135deg, #c4b5fd 0%, #a78bfa 100%);
+  @apply text-purple-900 border-white/20;
+  box-shadow: 0 8px 20px rgba(196, 181, 253, 0.4);
+}
+
+.ai-analysis-btn:disabled,
+.ai-analysis-btn.is-loading {
   background: linear-gradient(135deg, #95a5a6 0%, #7f8c8d 100%);
   @apply text-gray-600 shadow-sm;
 }
