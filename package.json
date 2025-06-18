@@ -30,6 +30,8 @@
     "format": "prettier --write \"**/*.{js,ts,json,css,scss,vue,html,md}\" --ignore-unknown",
     "format:check": "prettier --check \"**/*.{js,ts,json,css,scss,vue,html,md}\" --ignore-unknown",
     "type-check": "pnpm --recursive type-check",
+    "quality:check": "node scripts/quality-check.js",
+    "test:coverage": "pnpm --recursive test:coverage",
     "clean": "pnpm --recursive clean && rimraf dist release node_modules/.cache",
     "prepare": "husky",
     "docker:dev": "docker-compose -f docker-compose.dev.yml up",
