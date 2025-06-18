@@ -8,9 +8,7 @@
 
 ## 📸 应用截图
 
-![应用截图1](/public/readmeImg/img1.png)
-![应用截图2](/public/readmeImg/img2.png)
-![应用截图3](/public/readmeImg/img3.png)
+<img src='https://cdn.nlark.com/yuque/0/2025/png/21596389/1750244289304-50f944bd-9923-4496-b02b-83872f93b9d2.png?x-oss-process=image%2Fformat%2Cwebp'>
 
 ## ✨ 功能特性
 
