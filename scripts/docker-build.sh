@@ -33,78 +33,83 @@ check_docker() {
         log_error "Docker 未安装，请先安装 Docker"
         exit 1
     fi
-    
+
     if ! command -v docker-compose &> /dev/null; then
         log_error "Docker Compose 未安装，请先安装 Docker Compose"
         exit 1
     fi
-    
+
     log_success "Docker 环境检查通过"
 }
 
 # 构建镜像
 build_images() {
     log_info "开始构建 Docker 镜像..."
-    
+
     # 构建后端镜像
     log_info "构建后端镜像..."
     docker build -t yun-todolist-backend:latest ./apps/backend
-    
-    # 构建前端镜像 (如果存在)
-    if [ -f "./apps/frontend/Dockerfile" ]; then
-        log_info "构建前端镜像..."
-        docker build -t yun-todolist-frontend:latest ./apps/frontend
-    else
-        log_warning "前端 Dockerfile 不存在，跳过前端镜像构建"
-    fi
-    
+
+    # 构建前端镜像
+    log_info "构建前端镜像..."
+    docker build -t yun-todolist-frontend:latest ./apps/frontend
+
     log_success "镜像构建完成"
 }
 
 # 启动服务
 start_services() {
     local env=${1:-"dev"}
-    
+
     log_info "启动 $env 环境服务..."
-    
-    if [ "$env" = "prod" ]; then
-        docker-compose up -d
-    else
-        docker-compose -f docker-compose.dev.yml up -d
-    fi
-    
+
+    case "$env" in
+        "prod")
+            docker-compose -f docker-compose.prod.yml up -d
+            ;;
+        "dev")
+            docker-compose -f docker-compose.dev.yml up -d
+            ;;
+        "test")
+            docker-compose -f docker-compose.test.yml up -d
+            ;;
+        *)
+            docker-compose up -d
+            ;;
+    esac
+
     log_success "$env 环境服务启动完成"
 }
 
 # 停止服务
 stop_services() {
     local env=${1:-"dev"}
-    
+
     log_info "停止 $env 环境服务..."
-    
+
     if [ "$env" = "prod" ]; then
         docker-compose down
     else
         docker-compose -f docker-compose.dev.yml down
     fi
-    
+
     log_success "$env 环境服务停止完成"
 }
 
 # 清理资源
 cleanup() {
     log_info "清理 Docker 资源..."
-    
+
     # 停止所有容器
     docker-compose down 2>/dev/null || true
     docker-compose -f docker-compose.dev.yml down 2>/dev/null || true
-    
+
     # 删除未使用的镜像
     docker image prune -f
-    
+
     # 删除未使用的卷
     docker volume prune -f
-    
+
     log_success "资源清理完成"
 }
 
@@ -112,7 +117,7 @@ cleanup() {
 view_logs() {
     local service=${1:-""}
     local env=${2:-"dev"}
-    
+
     if [ "$env" = "prod" ]; then
         if [ -n "$service" ]; then
             docker-compose logs -f "$service"

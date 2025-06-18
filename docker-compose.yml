@@ -15,11 +15,11 @@ services:
       - postgres_data:/var/lib/postgresql/data
       - ./scripts/init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
     ports:
-      - "5432:5432"
+      - '5432:5432'
     networks:
       - todolist-network
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres -d yun_ai_todolist"]
+      test: ['CMD-SHELL', 'pg_isready -U postgres -d yun_ai_todolist']
       interval: 10s
       timeout: 5s
       retries: 5
@@ -33,11 +33,11 @@ services:
     volumes:
       - redis_data:/data
     ports:
-      - "6379:6379"
+      - '6379:6379'
     networks:
       - todolist-network
     healthcheck:
-      test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
+      test: ['CMD', 'redis-cli', '--raw', 'incr', 'ping']
       interval: 10s
       timeout: 3s
       retries: 5
@@ -63,7 +63,7 @@ services:
       BCRYPT_ROUNDS: 12
       FRONTEND_URL: http://localhost:5173
     ports:
-      - "3000:3000"
+      - '3000:3000'
     depends_on:
       postgres:
         condition: service_healthy
@@ -73,8 +73,16 @@ services:
       - todolist-network
     volumes:
       - ./apps/backend/uploads:/app/uploads
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '0.5'
+        reservations:
+          memory: 256M
+          cpus: '0.25'
     healthcheck:
-      test: ["CMD", "node", "healthcheck.js"]
+      test: ['CMD', 'node', 'healthcheck.js']
       interval: 30s
       timeout: 10s
       retries: 3
@@ -86,24 +94,31 @@ services:
       context: ./apps/frontend
       dockerfile: Dockerfile
       args:
-        VITE_API_BASE_URL: http://localhost:3000/api/v1
+        VITE_API_BASE_URL: http://backend:3000/api/v1
     container_name: yun-todolist-frontend
     restart: unless-stopped
     ports:
-      - "80:80"
-      - "443:443"
+      - '80:8080'
+      - '443:8080'
     depends_on:
-      - backend
+      backend:
+        condition: service_healthy
     networks:
       - todolist-network
-    volumes:
-      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
-      - ./nginx/ssl:/etc/nginx/ssl:ro
+    deploy:
+      resources:
+        limits:
+          memory: 128M
+          cpus: '0.25'
+        reservations:
+          memory: 64M
+          cpus: '0.1'
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost/health"]
+      test: ['CMD', 'curl', '-f', 'http://localhost:8080/health']
       interval: 30s
       timeout: 10s
       retries: 3
+      start_period: 10s
 
 networks:
   todolist-network:
