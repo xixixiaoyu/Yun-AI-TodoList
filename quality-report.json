@@ -1,0 +1,15 @@
+{
+  "fileSize": [],
+  "lineCount": [],
+  "complexity": [],
+  "dependencies": {
+    "production": 0,
+    "development": 9,
+    "total": 9,
+    "maxAllowed": 50
+  },
+  "coverage": null,
+  "security": [],
+  "performance": [],
+  "score": 100
+}
