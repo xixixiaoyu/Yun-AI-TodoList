@@ -1,6 +1,5 @@
 import { nextTick, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { useAISearch, type SearchContext } from '../services/aiSearchTool'
 import { abortCurrentRequest, getAIStreamResponse, optimizeText } from '../services/deepseekService'
 import type { ChatMessage, Conversation, Message } from '../services/types'
 
@@ -14,22 +13,6 @@ export function useChat() {
   const error = ref('')
   const conversationHistory = ref<Conversation[]>([])
   const currentConversationId = ref<string | null>(null)
-
-  // 搜索功能
-  const {
-    analyzeSearchNeed,
-    analyzeResponseUncertainty,
-    search,
-    manualSearch,
-    formatForAI,
-    formatForUser,
-    getConfig,
-    updateConfig,
-    extractSearchQueryFromResponse,
-  } = useAISearch()
-
-  const isSearching = ref(false)
-  const lastSearchContext = ref<SearchContext | null>(null)
 
   const isLoading = ref(false)
   const retryCount = ref(0)
@@ -137,103 +120,19 @@ export function useChat() {
       }
       chatHistory.value.push(userMsg)
 
-      // 检查是否需要搜索
-      let searchContext: SearchContext | null = null
-      const searchAnalysis = analyzeSearchNeed(message)
-
-      if (searchAnalysis.needsSearch) {
-        isSearching.value = true
-        try {
-          console.warn('AI 助手检测到需要搜索:', {
-            message,
-            confidence: searchAnalysis.confidence,
-            reasons: searchAnalysis.reasons,
-          })
-          searchContext = await search(message)
-          lastSearchContext.value = searchContext
-          console.warn('AI 助手搜索完成:', searchContext)
-        } catch (searchError) {
-          console.error('AI 助手搜索失败:', searchError)
-        } finally {
-          isSearching.value = false
-        }
-      }
-
       currentAIResponse.value = ''
 
-      // 构建消息，包含搜索结果
-      let enhancedMessage = message
-      if (searchContext) {
-        enhancedMessage += formatForAI(searchContext)
-      }
-
-      const messages: Message[] = chatHistory.value.map((msg, index) => {
-        // 只对最后一条用户消息添加搜索结果
-        if (msg.role === 'user' && index === chatHistory.value.length - 1) {
-          return {
-            role: 'user',
-            content: enhancedMessage,
-          }
-        }
-        return {
-          role: msg.role === 'user' ? 'user' : 'assistant',
-          content: msg.content,
-        }
-      })
+      const messages: Message[] = chatHistory.value.map((msg) => ({
+        role: msg.role === 'user' ? 'user' : 'assistant',
+        content: msg.content,
+      }))
 
       await getAIStreamResponse(messages, async (chunk: string) => {
         if (chunk === '[DONE]') {
           if (currentAIResponse.value) {
-            let finalResponse = currentAIResponse.value
-
-            // 检查 AI 响应的不确定性
-            const uncertaintyAnalysis = analyzeResponseUncertainty(currentAIResponse.value)
-
-            // 如果 AI 不确定且没有进行过搜索，尝试搜索补充信息
-            if (
-              uncertaintyAnalysis.isUncertain &&
-              !searchContext &&
-              getConfig().enabled &&
-              getConfig().intelligentSearch
-            ) {
-              console.warn('AI 响应不确定，尝试搜索补充信息:', {
-                confidence: uncertaintyAnalysis.confidence,
-                reasons: uncertaintyAnalysis.reasons,
-                suggestedQuery: uncertaintyAnalysis.suggestedSearchQuery,
-              })
-
-              isSearching.value = true
-              try {
-                const searchQuery =
-                  uncertaintyAnalysis.suggestedSearchQuery ||
-                  extractSearchQueryFromResponse(currentAIResponse.value, message).join(' ')
-
-                if (searchQuery) {
-                  const supplementarySearchContext = await search(searchQuery)
-                  if (supplementarySearchContext) {
-                    lastSearchContext.value = supplementarySearchContext
-
-                    // 将搜索结果添加到响应中
-                    finalResponse += '\n\n---\n\n'
-                    finalResponse += '💡 **补充信息**（基于搜索结果）：\n\n'
-                    finalResponse += formatForUser(supplementarySearchContext)
-                  }
-                }
-              } catch (searchError) {
-                console.error('补充搜索失败:', searchError)
-              } finally {
-                isSearching.value = false
-              }
-            }
-
-            // 如果有原始搜索结果，在 AI 回答后添加搜索结果展示
-            if (searchContext) {
-              finalResponse += formatForUser(searchContext)
-            }
-
             const aiMsg: ChatMessage = {
               role: 'assistant',
-              content: finalResponse,
+              content: currentAIResponse.value,
             }
 
             chatHistory.value.push(aiMsg)
@@ -315,45 +214,15 @@ export function useChat() {
     abortCurrentRequest()
 
     if (currentAIResponse.value) {
-      let finalResponse = currentAIResponse.value
-
-      // 如果有搜索结果，在停止时也添加搜索结果展示
-      if (lastSearchContext.value) {
-        finalResponse += formatForUser(lastSearchContext.value)
-      }
-
       const aiMsg: ChatMessage = {
         role: 'assistant',
-        content: finalResponse,
+        content: currentAIResponse.value,
       }
       chatHistory.value.push(aiMsg)
       saveConversationHistory()
     }
     isGenerating.value = false
   }
-
-  // 手动搜索功能
-  const performManualSearch = async (query: string) => {
-    if (isSearching.value) return null
-
-    isSearching.value = true
-    try {
-      const searchContext = await manualSearch(query)
-      lastSearchContext.value = searchContext
-      return searchContext
-    } catch (error) {
-      console.error('手动搜索失败:', error)
-      return null
-    } finally {
-      isSearching.value = false
-    }
-  }
-
-  // 获取搜索配置
-  const getSearchConfig = () => getConfig()
-
-  // 更新搜索配置
-  const updateSearchConfig = (config: Record<string, unknown>) => updateConfig(config)
 
   // 重试最后一条消息
   const retryLastMessage = async () => {
@@ -417,11 +286,5 @@ export function useChat() {
     isRetrying,
     retryCount,
     lastFailedMessage,
-    // 搜索相关功能
-    isSearching,
-    lastSearchContext,
-    performManualSearch,
-    getSearchConfig,
-    updateSearchConfig,
   }
 }

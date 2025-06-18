@@ -15,19 +15,6 @@
       @optimize="handleOptimize"
     />
 
-    <!-- 搜索状态指示器 -->
-    <div v-if="isSearching" class="search-indicator">
-      <div class="search-content">
-        <span class="search-icon">🔍</span>
-        <span class="search-text">正在搜索相关信息...</span>
-        <div class="search-dots">
-          <span></span>
-          <span></span>
-          <span></span>
-        </div>
-      </div>
-    </div>
-
     <ChatMessage
       v-if="currentResponse"
       :message="{
@@ -51,7 +38,6 @@ import ChatMessage from './ChatMessage.vue'
 const props = defineProps<{
   messages: ChatMessageType[]
   currentResponse: string
-  isSearching?: boolean
 }>()
 
 const emit = defineEmits<{
@@ -186,55 +172,4 @@ defineExpose({
 })
 </script>
 
-<style scoped>
-.search-indicator {
-  @apply flex justify-start mb-4;
-}
-
-.search-content {
-  @apply bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800
-         rounded-lg px-4 py-3 flex items-center gap-3 max-w-xs;
-}
-
-.search-icon {
-  @apply text-lg;
-}
-
-.search-text {
-  @apply text-sm text-blue-700 dark:text-blue-300 font-medium;
-}
-
-.search-dots {
-  @apply flex gap-1;
-}
-
-.search-dots span {
-  @apply w-1.5 h-1.5 bg-blue-500 rounded-full animate-pulse;
-}
-
-.search-dots span:nth-child(1) {
-  animation-delay: 0s;
-}
-
-.search-dots span:nth-child(2) {
-  animation-delay: 0.2s;
-}
-
-.search-dots span:nth-child(3) {
-  animation-delay: 0.4s;
-}
-
-@keyframes pulse {
-  0%,
-  100% {
-    opacity: 0.4;
-  }
-  50% {
-    opacity: 1;
-  }
-}
-
-.search-dots span {
-  animation: pulse 1.5s infinite;
-}
-</style>
+<style scoped></style>

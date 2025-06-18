@@ -13,7 +13,7 @@
           <h3 class="title-text">
             {{ t('conversations') }}
           </h3>
-          <span class="conversation-count">{{ filteredConversations.length }}</span>
+          <span class="conversation-count">{{ conversations.length }}</span>
         </div>
 
         <div class="header-actions">
@@ -35,26 +35,17 @@
         </div>
       </div>
 
-      <!-- 搜索区域 -->
-      <div class="search-section">
-        <ConversationSearch
-          :conversations="conversations"
-          @search-results="handleSearchResults"
-          @filter-change="handleFilterChange"
-        />
-      </div>
-
       <!-- 对话列表 -->
       <div class="conversations-list">
-        <div v-if="filteredConversations.length === 0" class="empty-state">
+        <div v-if="conversations.length === 0" class="empty-state">
           <div class="empty-icon">💬</div>
           <p class="empty-text">
-            {{ searchActive ? t('noMatchingConversations') : t('noConversationRecords') }}
+            {{ t('noConversationRecords') }}
           </p>
         </div>
 
         <div
-          v-for="conversation in filteredConversations"
+          v-for="conversation in conversations"
           :key="conversation.id"
           class="conversation-item"
           :class="{ 'conversation-active': currentConversationId === conversation.id }"
@@ -115,12 +106,12 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue'
+import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
-import type { Conversation } from '../../services/types'
-import type { ConversationFilter } from '../../services/conversationHistoryService'
+
 import { ConversationHistoryService } from '../../services/conversationHistoryService'
-import ConversationSearch from './ConversationSearch.vue'
+import type { Conversation } from '../../services/types'
+
 import DownloadIcon from '../common/icons/DownloadIcon.vue'
 import TrashIcon from '../common/icons/TrashIcon.vue'
 import XIcon from '../common/icons/XIcon.vue'
@@ -154,24 +145,12 @@ const emit = defineEmits<Emits>()
 
 const { t } = useI18n()
 
-// 状态管理
-const filteredConversations = ref<Conversation[]>(props.conversations)
-const searchActive = ref(false)
-
 // 计算属性
 const totalMessages = computed(() =>
   props.conversations.reduce((sum, conv) => sum + conv.messages.length, 0)
 )
 
 // 方法
-const handleSearchResults = (results: Conversation[]) => {
-  filteredConversations.value = results
-  searchActive.value = results.length !== props.conversations.length
-}
-
-const handleFilterChange = (_filter: ConversationFilter) => {
-  // 过滤器变化处理
-}
 
 const handleExport = async () => {
   try {
@@ -225,17 +204,6 @@ const formatDate = (dateString: string) => {
   })
 }
 
-// 监听 conversations 变化
-watch(
-  () => props.conversations,
-  (newConversations) => {
-    if (!searchActive.value) {
-      filteredConversations.value = newConversations
-    }
-  },
-  { immediate: true }
-)
-
 defineOptions({
   name: 'ConversationDrawer',
 })
@@ -270,10 +238,6 @@ defineOptions({
 
 .action-icon {
   @apply w-4 h-4;
-}
-
-.search-section {
-  @apply p-3 border-b border-input-border;
 }
 
 .conversations-list {
@@ -398,10 +362,6 @@ defineOptions({
 
   .conversation-date {
     @apply text-xs;
-  }
-
-  .search-section {
-    @apply p-2;
   }
 
   .drawer-header {

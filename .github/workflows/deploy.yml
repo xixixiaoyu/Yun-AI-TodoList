@@ -60,6 +60,15 @@ jobs:
       - name: Build
         run: pnpm build
 
+      - name: 🔍 Verify build output
+        run: |
+          if [ ! -d "dist" ]; then
+            echo "❌ Build failed: dist directory not found"
+            exit 1
+          fi
+          echo "✅ Build successful: dist directory exists"
+          ls -la dist/
+
       - name: Setup Pages
         uses: actions/configure-pages@v4
 

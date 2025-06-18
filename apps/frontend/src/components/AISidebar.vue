@@ -45,9 +45,7 @@
         :user-message="userMessage"
         :is-generating="isGenerating"
         :is-optimizing="isOptimizing"
-        :is-searching="isSearching"
         @toggle-drawer="isDrawerOpen = !isDrawerOpen"
-        @toggle-search="isSearchSettingsOpen = !isSearchSettingsOpen"
         @update:is-drawer-open="isDrawerOpen = $event"
         @switch-conversation="switchConversation"
         @delete-conversation="deleteConversation"
@@ -60,16 +58,6 @@
         @scroll="handleScroll"
         @update:user-message="userMessage = $event"
       />
-
-      <!-- 搜索设置 -->
-      <SearchSettings
-        v-if="isSearchSettingsOpen"
-        :config="searchConfig"
-        :last-search-context="lastSearchContext"
-        @update:config="handleSearchConfigUpdate"
-        @close="isSearchSettingsOpen = false"
-        @manual-search="handleManualSearch"
-      />
     </div>
   </Transition>
 </template>
@@ -79,7 +67,6 @@ import { onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useChat } from '../composables/useChat'
 import AIChatContent from './chat/AIChatContent.vue'
-import SearchSettings from './chat/SearchSettings.vue'
 import CloseIcon from './common/icons/CloseIcon.vue'
 import Overlay from './common/Overlay.vue'
 
@@ -115,17 +102,7 @@ const {
   // 重试相关
   retryLastMessage,
   isRetrying: _isRetrying,
-  // 搜索相关
-  isSearching,
-  lastSearchContext,
-  performManualSearch,
-  getSearchConfig,
-  updateSearchConfig,
 } = useChat()
-
-// 搜索设置状态
-const isSearchSettingsOpen = ref(false)
-const searchConfig = ref(getSearchConfig())
 
 const isDrawerOpen = ref(false)
 const messageListRef = ref<InstanceType<typeof AIChatContent> | null>(null)
@@ -155,15 +132,6 @@ const handleSendMessage = async () => {
 const handleRetry = async () => {
   shouldAutoScroll.value = true
   await retryLastMessage()
-}
-
-const handleSearchConfigUpdate = (config: Record<string, unknown>) => {
-  updateSearchConfig(config)
-  searchConfig.value = getSearchConfig()
-}
-
-const handleManualSearch = async (query: string) => {
-  await performManualSearch(query)
 }
 
 const closeSidebar = () => {

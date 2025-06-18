@@ -9,7 +9,6 @@ import { AuthModule } from './auth/auth.module'
 import { JwtAuthGuard } from './auth/guards/jwt-auth.guard'
 import { CommonModule } from './common/common.module'
 import { DatabaseModule } from './database/database.module'
-import { SearchModule } from './search/search.module'
 import { SettingsModule } from './settings/settings.module'
 import { TodosModule } from './todos/todos.module'
 import { UsersModule } from './users/users.module'
@@ -66,7 +65,6 @@ import { configValidationSchema } from './config/config.validation'
     AuthModule,
     UsersModule,
     TodosModule,
-    SearchModule,
     SettingsModule,
   ],
   controllers: [AppController],
