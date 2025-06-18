@@ -11,7 +11,7 @@ on:
 
 env:
   NODE_VERSION: '18'
-  PNPM_VERSION: '8'
+  PNPM_VERSION: '9.0.0'
 
 jobs:
   # 单元测试和集成测试
