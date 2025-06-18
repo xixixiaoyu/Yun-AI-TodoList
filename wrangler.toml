@@ -10,6 +10,7 @@ ENVIRONMENT = "production"
 # Workers Assets 配置
 [assets]
 directory = "./apps/frontend/dist"
+serve_single_page_app = true
 
 # 开发环境配置
 [env.development]
