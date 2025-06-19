@@ -148,7 +148,7 @@ ${todoList}
   ]
 }`
 
-    const response = await getAIResponse(prompt, undefined, 0.3)
+    const response = await getAIResponse(prompt, 0.3)
     console.warn('批量分析 AI 响应:', response)
 
     try {
