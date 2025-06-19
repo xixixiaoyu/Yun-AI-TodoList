@@ -97,34 +97,55 @@ export function useTodoManagement() {
     isGenerating.value = true
     showDomainSelection.value = false // 立即关闭领域选择对话框
     try {
+      // 获取已完成的历史 todo 项
+      const completedTodos = todos.value.filter((todo) => todo.completed)
+
       // 根据选择的领域构建不同的提示词
       let prompt = ''
+      let domainName = cleanDomain
+
       // 检查是否是预设领域
       if (['work', 'study', 'life'].includes(cleanDomain)) {
-        const domainName = t(`domain.${cleanDomain}`)
+        domainName = t(`domain.${cleanDomain}`)
+      }
+
+      // 如果有已完成的历史记录，使用增强的提示词
+      if (completedTodos.length > 0) {
+        // 格式化已完成的 todo 项列表
+        const completedTodosList = completedTodos
+          .slice(-20) // 只取最近的20个已完成项
+          .map((todo, index) => `${index + 1}. ${todo.text}`)
+          .join('\n')
+
+        const template = t('generateDomainSuggestionsWithHistoryPrompt')
+
+        // 使用正则表达式进行全局替换
+        prompt = template
+          .replace(/{domain}/g, domainName)
+          .replace(/{completedTodos}/g, completedTodosList)
+
+        // 验证替换结果
+        const replacementSuccessful =
+          prompt.includes(domainName) &&
+          prompt.includes(completedTodosList) &&
+          !prompt.includes('{domain}') &&
+          !prompt.includes('{completedTodos}')
+
+        if (!replacementSuccessful) {
+          prompt = `请为我生成5个关于${domainName}领域的待办事项建议。\n\n我已完成的相关任务：\n${completedTodosList}\n\n请按以下要求生成：\n1. 从我的历史记录中选择2个与${domainName}领域最相关的任务\n2. 基于${domainName}领域生成3个全新的待办事项\n\n每个建议应该简洁明了，不超过50个字符。请直接返回建议列表，每行一个建议，总共5个建议。`
+        }
+      } else {
+        // 没有历史记录时，使用原有的提示词
         const template = t('generateDomainSuggestionsPrompt')
 
-        // 使用正则表达式进行替换，与自定义领域保持一致
+        // 使用正则表达式进行全局替换
         prompt = template.replace(/{domain}/g, domainName)
 
-        // 验证预设领域的替换结果
+        // 验证替换结果
         const replacementSuccessful = prompt.includes(domainName) && !prompt.includes('{domain}')
 
         if (!replacementSuccessful) {
           prompt = `请为我生成5个关于${domainName}领域的实用待办事项建议。每个建议应该简洁明了，不超过50个字符。请直接返回建议列表，每行一个建议。`
-        }
-      } else {
-        // 自定义领域
-        const template = t('generateDomainSuggestionsPrompt')
-
-        // 使用正则表达式进行全局替换，确保替换成功
-        prompt = template.replace(/{domain}/g, cleanDomain)
-
-        // 验证替换结果
-        const replacementSuccessful = prompt.includes(cleanDomain) && !prompt.includes('{domain}')
-
-        if (!replacementSuccessful) {
-          prompt = `请为我生成5个关于${cleanDomain}领域的实用待办事项建议。每个建议应该简洁明了，不超过50个字符。请直接返回建议列表，每行一个建议。`
         }
       }
 
@@ -150,6 +171,8 @@ export function useTodoManagement() {
       if (parsedTodos.length === 0) {
         parsedTodos = [response.trim()]
       }
+
+      // 统一生成 5 个建议
 
       suggestedTodos.value = parsedTodos
         .filter((todo) => todo.length > 0 && todo.length <= MAX_TODO_LENGTH)
@@ -182,6 +205,11 @@ export function useTodoManagement() {
     showDomainSelection.value = false
     selectedDomain.value = ''
   }
+
+  // 计算是否有已完成的历史记录
+  const hasCompletedHistory = computed(() => {
+    return todos.value.some((todo) => todo.completed)
+  })
 
   const confirmSuggestedTodos = async () => {
     const originalSuggestedCount = suggestedTodos.value.length
@@ -438,6 +466,7 @@ ${todoTexts}
     searchQuery,
     filteredTodos,
     hasActiveTodos,
+    hasCompletedHistory,
     isGenerating,
     isSorting,
     isLoading,

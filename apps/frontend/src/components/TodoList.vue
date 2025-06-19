@@ -112,6 +112,7 @@
       <SuggestedTodosDialog
         :show="showSuggestedTodos"
         :suggested-todos="suggestedTodos"
+        :has-completed-history="hasCompletedHistory"
         @update-todo="updateSuggestedTodo"
         @confirm="confirmSuggestedTodos"
         @cancel="cancelSuggestedTodos"
@@ -158,6 +159,7 @@ const {
   searchQuery,
   filteredTodos,
   hasActiveTodos,
+  hasCompletedHistory,
   isGenerating,
   isSorting,
   suggestedTodos,

@@ -18,7 +18,7 @@
             </div>
             <div class="header-content">
               <h3 class="dialog-title">{{ t('suggestedTodos') }}</h3>
-              <p class="dialog-subtitle">{{ t('confirmOrModify') }}</p>
+              <p class="dialog-subtitle">{{ getSubtitleText() }}</p>
             </div>
             <button class="close-btn" @click="$emit('cancel')">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" class="w-4 h-4">
@@ -76,6 +76,7 @@ import { useI18n } from 'vue-i18n'
 interface Props {
   show: boolean
   suggestedTodos: string[]
+  hasCompletedHistory?: boolean
 }
 
 interface Emits {
@@ -84,7 +85,7 @@ interface Emits {
   (e: 'cancel'): void
 }
 
-defineProps<Props>()
+const props = defineProps<Props>()
 const emit = defineEmits<Emits>()
 
 const { t } = useI18n()
@@ -92,6 +93,13 @@ const { t } = useI18n()
 const handleTodoUpdate = (index: number, event: Event) => {
   const target = event.target as HTMLInputElement
   emit('updateTodo', index, target.value)
+}
+
+const getSubtitleText = () => {
+  if (props.hasCompletedHistory) {
+    return t('confirmOrModifyWithHistory')
+  }
+  return t('confirmOrModify')
 }
 
 defineOptions({
