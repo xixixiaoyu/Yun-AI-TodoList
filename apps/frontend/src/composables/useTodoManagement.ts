@@ -113,7 +113,7 @@ export function useTodoManagement() {
       if (completedTodos.length > 0) {
         // 格式化已完成的 todo 项列表
         const completedTodosList = completedTodos
-          .slice(-20) // 只取最近的20个已完成项
+          .slice(-50) // 只取最近的50个已完成项
           .map((todo, index) => `${index + 1}. ${todo.text}`)
           .join('\n')
 
