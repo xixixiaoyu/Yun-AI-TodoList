@@ -1,0 +1,131 @@
+name: Deploy to Cloudflare
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Deployment environment'
+        required: true
+        default: 'production'
+        type: choice
+        options:
+          - production
+          - development
+
+env:
+  NODE_VERSION: '18'
+  PNPM_VERSION: '9.0.0'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    name: Deploy to Cloudflare Workers
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+          run_install: false
+
+      - name: Get pnpm store directory
+        shell: bash
+        run: |
+          echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
+
+      - name: Setup pnpm cache
+        uses: actions/cache@v4
+        with:
+          path: ${{ env.STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
+
+      - name: Install dependencies
+        run: |
+          pnpm install --frozen-lockfile || {
+            echo "⚠️ Frozen lockfile failed, trying regular install..."
+            pnpm install --no-frozen-lockfile
+          }
+
+      - name: Build frontend
+        run: |
+          echo "🏗️ Building shared packages..."
+          pnpm --filter shared build
+          echo "🏗️ Building frontend..."
+          pnpm --filter frontend build
+          echo "✅ Build completed successfully"
+
+      - name: Verify build output
+        run: |
+          if [ ! -d "./apps/frontend/dist" ]; then
+            echo "❌ Frontend build output not found"
+            exit 1
+          fi
+          echo "✅ Build verification passed"
+          ls -la ./apps/frontend/dist/
+
+      - name: Determine deployment environment
+        id: env
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "environment=${{ github.event.inputs.environment }}" >> $GITHUB_OUTPUT
+          elif [ "${{ github.ref }}" = "refs/heads/main" ]; then
+            echo "environment=production" >> $GITHUB_OUTPUT
+          elif [ "${{ github.ref }}" = "refs/heads/develop" ]; then
+            echo "environment=development" >> $GITHUB_OUTPUT
+          else
+            echo "environment=development" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Deploy to Cloudflare Workers
+        run: |
+          echo "🚀 Deploying to Cloudflare Workers (${{ steps.env.outputs.environment }})..."
+          if [ "${{ steps.env.outputs.environment }}" = "production" ]; then
+            pnpm wrangler deploy --env production
+          else
+            pnpm wrangler deploy --env development
+          fi
+          echo "✅ Cloudflare deployment completed"
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+
+      - name: Get deployment URL
+        id: deployment-url
+        run: |
+          if [ "${{ steps.env.outputs.environment }}" = "production" ]; then
+            echo "url=https://yun-ai-todolist-prod.your-subdomain.workers.dev" >> $GITHUB_OUTPUT
+          else
+            echo "url=https://yun-ai-todolist-dev.your-subdomain.workers.dev" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Deployment summary
+        run: |
+          echo "## 🎉 Cloudflare Deployment Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "✅ **Environment**: ${{ steps.env.outputs.environment }}" >> $GITHUB_STEP_SUMMARY
+          echo "✅ **Status**: Deployed successfully" >> $GITHUB_STEP_SUMMARY
+          echo "✅ **Branch**: ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "✅ **Commit**: ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "🔗 **Access URL**: ${{ steps.deployment-url.outputs.url }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "📝 **Note**: Update the deployment URL in the workflow file with your actual Cloudflare Workers domain." >> $GITHUB_STEP_SUMMARY
