@@ -212,9 +212,17 @@ export function useTodoManagement() {
   })
 
   const confirmSuggestedTodos = async () => {
-    const originalSuggestedCount = suggestedTodos.value.length
+    // 过滤掉空的建议项
+    const validSuggestions = suggestedTodos.value.filter((todo) => todo.trim() !== '')
+
+    if (validSuggestions.length === 0) {
+      showError('请至少添加一个有效的建议')
+      return
+    }
+
+    const originalSuggestedCount = validSuggestions.length
     const duplicates = addMultipleTodos(
-      suggestedTodos.value.map((todo) => ({
+      validSuggestions.map((todo) => ({
         text: todo,
       }))
     )
@@ -254,6 +262,14 @@ export function useTodoManagement() {
 
   const updateSuggestedTodo = (index: number, newText: string) => {
     suggestedTodos.value[index] = newText
+  }
+
+  const deleteSuggestedTodo = (index: number) => {
+    suggestedTodos.value.splice(index, 1)
+  }
+
+  const addSuggestedTodo = () => {
+    suggestedTodos.value.push('')
   }
 
   const sortActiveTodosWithAI = async () => {
@@ -483,6 +499,8 @@ ${todoTexts}
     confirmSuggestedTodos,
     cancelSuggestedTodos,
     updateSuggestedTodo,
+    deleteSuggestedTodo,
+    addSuggestedTodo,
     sortActiveTodosWithAI,
     handleAddTodo,
     toggleTodo,

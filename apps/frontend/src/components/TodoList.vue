@@ -114,6 +114,8 @@
         :suggested-todos="suggestedTodos"
         :has-completed-history="hasCompletedHistory"
         @update-todo="updateSuggestedTodo"
+        @delete-todo="deleteSuggestedTodo"
+        @add-todo="addSuggestedTodo"
         @confirm="confirmSuggestedTodos"
         @cancel="cancelSuggestedTodos"
       />
@@ -172,6 +174,8 @@ const {
   confirmSuggestedTodos,
   cancelSuggestedTodos,
   updateSuggestedTodo,
+  deleteSuggestedTodo,
+  addSuggestedTodo,
   sortActiveTodosWithAI,
   handleAddTodo,
   toggleTodo,

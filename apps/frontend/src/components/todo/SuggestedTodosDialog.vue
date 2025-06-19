@@ -43,8 +43,25 @@
                   :placeholder="t('addTodo')"
                   @input="handleTodoUpdate(index, $event)"
                 />
+                <button class="delete-btn" @click="handleDeleteTodo(index)" :title="t('delete')">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" class="w-4 h-4">
+                    <path d="M18 6L6 18" stroke-width="2" stroke-linecap="round" />
+                    <path d="M6 6l12 12" stroke-width="2" stroke-linecap="round" />
+                  </svg>
+                </button>
               </div>
             </TransitionGroup>
+
+            <!-- 添加新建议按钮 -->
+            <div class="add-suggestion-container">
+              <button class="add-suggestion-btn" @click="handleAddTodo">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" class="w-4 h-4">
+                  <path d="M12 5v14" stroke-width="2" stroke-linecap="round" />
+                  <path d="M5 12h14" stroke-width="2" stroke-linecap="round" />
+                </svg>
+                {{ t('addNewSuggestion', '添加新建议') }}
+              </button>
+            </div>
           </div>
 
           <!-- 简化的操作按钮 -->
@@ -81,6 +98,8 @@ interface Props {
 
 interface Emits {
   (e: 'updateTodo', index: number, value: string): void
+  (e: 'deleteTodo', index: number): void
+  (e: 'addTodo'): void
   (e: 'confirm'): void
   (e: 'cancel'): void
 }
@@ -93,6 +112,14 @@ const { t } = useI18n()
 const handleTodoUpdate = (index: number, event: Event) => {
   const target = event.target as HTMLInputElement
   emit('updateTodo', index, target.value)
+}
+
+const handleDeleteTodo = (index: number) => {
+  emit('deleteTodo', index)
+}
+
+const handleAddTodo = () => {
+  emit('addTodo')
 }
 
 const getSubtitleText = () => {
@@ -185,6 +212,25 @@ defineOptions({
   @apply focus:border-blue-300 focus:bg-white focus:shadow-sm;
   @apply hover:border-gray-300/80 hover:bg-gray-50;
   @apply placeholder:text-gray-400;
+}
+
+.delete-btn {
+  @apply flex-shrink-0 w-8 h-8 rounded-lg;
+  @apply flex items-center justify-center text-gray-400;
+  @apply hover:bg-red-50 hover:text-red-500 transition-all duration-200;
+  @apply border border-transparent hover:border-red-200;
+}
+
+.add-suggestion-container {
+  @apply mt-3 pt-3 border-t border-gray-100/80;
+}
+
+.add-suggestion-btn {
+  @apply w-full flex items-center justify-center gap-2 px-3 py-2.5;
+  @apply rounded-xl text-sm font-medium text-gray-600;
+  @apply bg-gray-50/80 border border-gray-200/60 border-dashed;
+  @apply transition-all duration-200 hover:bg-gray-100;
+  @apply hover:border-gray-300 hover:text-gray-700;
 }
 
 /* 操作按钮 - 简洁设计 */
@@ -416,6 +462,20 @@ defineOptions({
 
   .suggestions-list::-webkit-scrollbar-thumb:hover {
     @apply bg-gray-500/60;
+  }
+
+  .delete-btn {
+    @apply text-gray-500 hover:bg-red-900/30 hover:text-red-400;
+    @apply hover:border-red-700/50;
+  }
+
+  .add-suggestion-container {
+    @apply border-gray-700/80;
+  }
+
+  .add-suggestion-btn {
+    @apply bg-gray-700/50 border-gray-600/60 text-gray-300;
+    @apply hover:bg-gray-600/60 hover:border-gray-500/80 hover:text-gray-200;
   }
 }
 </style>

@@ -20,6 +20,7 @@
   "confirmOrModify": "Please confirm or modify the following suggested todos:",
   "confirmOrModifyWithHistory": "Personalized suggestions based on your history",
   "confirmAdd": "Confirm Add",
+  "addNewSuggestion": "Add New Suggestion",
   "generating": "Generating...",
   "sorting": "AI is sorting, please wait...",
   "duplicateError": "This todo already exists, please do not add it again.",

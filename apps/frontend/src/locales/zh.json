@@ -19,6 +19,7 @@
   "confirmOrModify": "请确认或修改以下建议的待办事项：",
   "confirmOrModifyWithHistory": "基于您的历史记录生成的个性化建议",
   "confirmAdd": "确认添加",
+  "addNewSuggestion": "添加新建议",
   "generating": "正在生成...",
   "sorting": "AI 正在排序中，请稍候...",
   "duplicateError": "该待办事项已存在，请勿重复添加",
