@@ -141,29 +141,36 @@ defineOptions({
   @apply flex items-center justify-center p-6;
 }
 
-/* 主对话框 - 清爽简洁 */
+/* 主对话框 - 更大尺寸，契合主题 */
 .suggested-todos-dialog {
-  @apply relative w-full max-w-md max-h-85vh;
-  @apply bg-white/95 rounded-2xl shadow-xl border border-gray-200/50;
-  @apply backdrop-blur-20 overflow-hidden;
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.98) 0%, rgba(255, 255, 255, 0.95) 100%);
+  @apply relative w-full max-w-2xl max-h-90vh;
+  @apply rounded-2xl shadow-xl border overflow-hidden;
+  @apply backdrop-blur-20;
+  background: var(--card-bg-color);
+  border-color: var(--input-border-color);
   box-shadow:
-    0 20px 40px rgba(0, 0, 0, 0.08),
-    0 8px 16px rgba(0, 0, 0, 0.04),
-    inset 0 1px 0 rgba(255, 255, 255, 0.8);
+    var(--card-shadow),
+    0 20px 40px rgba(var(--primary-color-rgb), 0.08),
+    0 8px 16px rgba(var(--primary-color-rgb), 0.04);
 }
 
-/* 头部 - 简化设计 */
+/* 头部 - 契合主题设计 */
 .dialog-header {
-  @apply flex items-center gap-3 p-5 pb-4;
-  @apply border-b border-gray-100/80;
+  @apply flex items-center gap-4 p-6 pb-5;
+  border-bottom: 1px solid var(--input-border-color);
+  background: linear-gradient(
+    135deg,
+    var(--card-bg-color) 0%,
+    rgba(var(--primary-color-rgb), 0.02) 100%
+  );
 }
 
 .header-icon {
-  @apply flex-shrink-0 w-9 h-9 rounded-xl;
-  @apply bg-gradient-to-br from-blue-50 to-blue-100;
-  @apply flex items-center justify-center text-blue-600;
-  @apply border border-blue-200/50;
+  @apply flex-shrink-0 w-10 h-10 rounded-xl;
+  @apply flex items-center justify-center;
+  background: linear-gradient(135deg, var(--primary-color) 0%, var(--button-hover-bg-color) 100%);
+  color: var(--button-text-color);
+  box-shadow: 0 4px 12px rgba(var(--primary-color-rgb), 0.2);
 }
 
 .header-content {
@@ -171,94 +178,149 @@ defineOptions({
 }
 
 .dialog-title {
-  @apply text-lg font-semibold text-gray-800 mb-0.5;
+  @apply text-xl font-semibold mb-1;
   @apply leading-tight;
 }
 
 .dialog-subtitle {
-  @apply text-sm text-gray-500;
+  @apply text-sm;
+  color: var(--text-secondary-color);
+  color: var(--text-color);
 }
 
 .close-btn {
-  @apply flex-shrink-0 w-7 h-7 rounded-lg;
-  @apply flex items-center justify-center text-gray-400;
-  @apply hover:bg-gray-100 hover:text-gray-600 transition-all duration-200;
+  @apply flex-shrink-0 w-8 h-8 rounded-lg;
+  @apply flex items-center justify-center transition-all duration-200;
+  color: var(--text-secondary-color);
+  background: transparent;
 }
 
-/* 建议列表 - 更清爽 */
+.close-btn:hover {
+  background: var(--hover-bg-color);
+  color: var(--text-color);
+}
+
+/* 建议列表 - 更大空间 */
 .suggestions-list {
-  @apply p-5 pt-3 max-h-60 overflow-y-auto;
+  @apply p-6 pt-4 max-h-80 overflow-y-auto;
 }
 
 .suggestions-container {
-  @apply space-y-3;
+  @apply space-y-4;
 }
 
 .suggestion-item {
-  @apply flex items-center gap-3;
+  @apply flex items-center gap-4;
 }
 
 .suggestion-number {
-  @apply flex-shrink-0 w-7 h-7 rounded-full;
-  @apply bg-gradient-to-br from-gray-100 to-gray-200;
-  @apply flex items-center justify-center text-sm font-medium text-gray-600;
-  @apply border border-gray-200/80 transition-all duration-200;
+  @apply flex-shrink-0 w-8 h-8 rounded-full;
+  @apply flex items-center justify-center text-sm font-medium;
+  @apply transition-all duration-200;
+  background: linear-gradient(135deg, var(--primary-color) 0%, var(--button-hover-bg-color) 100%);
+  color: var(--button-text-color);
+  box-shadow: 0 2px 8px rgba(var(--primary-color-rgb), 0.15);
 }
 
 .suggestion-input {
-  @apply flex-1 px-3 py-2.5 rounded-xl text-sm;
-  @apply bg-gray-50/80 border border-gray-200/60 text-gray-700;
+  @apply flex-1 px-4 py-3 rounded-xl text-base;
   @apply transition-all duration-200 focus:outline-none;
-  @apply focus:border-blue-300 focus:bg-white focus:shadow-sm;
-  @apply hover:border-gray-300/80 hover:bg-gray-50;
-  @apply placeholder:text-gray-400;
+  background: var(--input-bg-color);
+  border: 1px solid var(--input-border-color);
+  color: var(--text-color);
+}
+
+.suggestion-input:focus {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(var(--primary-color-rgb), 0.1);
+}
+
+.suggestion-input:hover {
+  border-color: var(--primary-color);
+}
+
+.suggestion-input::placeholder {
+  color: var(--text-secondary-color);
 }
 
 .delete-btn {
-  @apply flex-shrink-0 w-8 h-8 rounded-lg;
-  @apply flex items-center justify-center text-gray-400;
-  @apply hover:bg-red-50 hover:text-red-500 transition-all duration-200;
-  @apply border border-transparent hover:border-red-200;
+  @apply flex-shrink-0 w-9 h-9 rounded-lg;
+  @apply flex items-center justify-center transition-all duration-200;
+  color: var(--text-secondary-color);
+  background: transparent;
+}
+
+.delete-btn:hover {
+  background: var(--error-color);
+  color: white;
+  transform: scale(1.05);
 }
 
 .add-suggestion-container {
-  @apply mt-3 pt-3 border-t border-gray-100/80;
+  @apply mt-4 pt-4;
+  border-top: 1px solid var(--input-border-color);
 }
 
 .add-suggestion-btn {
-  @apply w-full flex items-center justify-center gap-2 px-3 py-2.5;
-  @apply rounded-xl text-sm font-medium text-gray-600;
-  @apply bg-gray-50/80 border border-gray-200/60 border-dashed;
-  @apply transition-all duration-200 hover:bg-gray-100;
-  @apply hover:border-gray-300 hover:text-gray-700;
+  @apply w-full flex items-center justify-center gap-2 px-4 py-3;
+  @apply rounded-xl text-base font-medium transition-all duration-200;
+  @apply border-2 border-dashed hover:transform hover:scale-105;
+  background: var(--input-bg-color);
+  border-color: var(--primary-color);
+  color: var(--primary-color);
 }
 
-/* 操作按钮 - 简洁设计 */
+.add-suggestion-btn:hover {
+  background: rgba(var(--primary-color-rgb), 0.05);
+  border-color: var(--button-hover-bg-color);
+  color: var(--button-hover-bg-color);
+}
+
+/* 操作按钮 - 契合主题设计 */
 .dialog-actions {
-  @apply flex gap-3 p-5 pt-4;
-  @apply border-t border-gray-100/80;
-  @apply bg-gray-50/30;
+  @apply flex gap-4 p-6 pt-5;
+  border-top: 1px solid var(--input-border-color);
+  background: linear-gradient(
+    135deg,
+    var(--card-bg-color) 0%,
+    rgba(var(--primary-color-rgb), 0.01) 100%
+  );
 }
 
 .action-btn {
-  @apply flex items-center justify-center gap-2 px-4 py-2.5;
-  @apply rounded-xl font-medium text-sm transition-all duration-200;
+  @apply flex items-center justify-center gap-2 px-6 py-3;
+  @apply rounded-xl font-medium text-base transition-all duration-200;
   @apply hover:transform hover:scale-105 active:scale-95;
 }
 
 .btn-icon {
-  @apply w-4 h-4;
+  @apply w-5 h-5;
 }
 
 .cancel-btn {
-  @apply flex-1 bg-white text-gray-600 border border-gray-200;
-  @apply hover:bg-gray-50 hover:text-gray-700 hover:border-gray-300;
+  @apply flex-1 border transition-all duration-200;
+  background: var(--card-bg-color);
+  border-color: var(--input-border-color);
+  color: var(--text-secondary-color);
+}
+
+.cancel-btn:hover {
+  background: var(--hover-bg-color);
+  border-color: var(--primary-color);
+  color: var(--text-color);
 }
 
 .confirm-btn {
-  @apply flex-1 bg-gradient-to-r from-blue-500 to-blue-600 text-white;
-  @apply border border-blue-500/20 shadow-sm;
-  @apply hover:from-blue-600 hover:to-blue-700 hover:shadow-md;
+  @apply flex-1 shadow-sm;
+  background: linear-gradient(135deg, var(--primary-color) 0%, var(--button-hover-bg-color) 100%);
+  color: var(--button-text-color);
+  border: 1px solid var(--primary-color);
+}
+
+.confirm-btn:hover {
+  background: linear-gradient(135deg, var(--button-hover-bg-color) 0%, var(--primary-color) 100%);
+  box-shadow: 0 4px 16px rgba(var(--primary-color-rgb), 0.3);
+  transform: translateY(-1px) scale(1.02);
 }
 
 /* 动画效果 */
@@ -401,81 +463,129 @@ defineOptions({
 /* 暗色模式适配 */
 @media (prefers-color-scheme: dark) {
   .suggested-todos-dialog {
-    @apply bg-gray-800/95 border-gray-700/50;
-    background: linear-gradient(135deg, rgba(31, 41, 55, 0.98) 0%, rgba(31, 41, 55, 0.95) 100%);
+    background: var(--card-bg-color);
+    border-color: var(--input-border-color);
     box-shadow:
+      var(--card-shadow),
       0 20px 40px rgba(0, 0, 0, 0.3),
-      0 8px 16px rgba(0, 0, 0, 0.2),
-      inset 0 1px 0 rgba(255, 255, 255, 0.1);
+      0 8px 16px rgba(0, 0, 0, 0.2);
   }
 
   .dialog-header {
-    @apply border-gray-700/80;
+    border-bottom-color: var(--input-border-color);
+    background: linear-gradient(
+      135deg,
+      var(--card-bg-color) 0%,
+      rgba(var(--primary-color-rgb), 0.02) 100%
+    );
   }
 
   .header-icon {
-    @apply bg-gradient-to-br from-blue-900/50 to-blue-800/50;
-    @apply text-blue-400 border-blue-700/50;
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--button-hover-bg-color) 100%);
+    color: var(--button-text-color);
   }
 
   .dialog-title {
-    @apply text-gray-100;
+    color: var(--text-color);
   }
 
   .dialog-subtitle {
-    @apply text-gray-400;
+    color: var(--text-secondary-color);
   }
 
   .close-btn {
-    @apply text-gray-400 hover:bg-gray-700 hover:text-gray-200;
+    color: var(--text-secondary-color);
+  }
+
+  .close-btn:hover {
+    background: var(--hover-bg-color);
+    color: var(--text-color);
   }
 
   .suggestion-number {
-    @apply bg-gradient-to-br from-gray-700 to-gray-800;
-    @apply text-gray-300 border-gray-600/80;
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--button-hover-bg-color) 100%);
+    color: var(--button-text-color);
   }
 
   .suggestion-input {
-    @apply bg-gray-700/50 border-gray-600/60 text-gray-200;
-    @apply focus:border-blue-500 focus:bg-gray-700;
-    @apply hover:border-gray-500/80 hover:bg-gray-700/60;
-    @apply placeholder:text-gray-500;
+    background: var(--input-bg-color);
+    border-color: var(--input-border-color);
+    color: var(--text-color);
+  }
+
+  .suggestion-input:focus {
+    border-color: var(--primary-color);
+  }
+
+  .suggestion-input:hover {
+    border-color: var(--primary-color);
+  }
+
+  .suggestion-input::placeholder {
+    color: var(--text-secondary-color);
   }
 
   .dialog-actions {
-    @apply border-gray-700/80 bg-gray-800/30;
+    border-top-color: var(--input-border-color);
+    background: linear-gradient(
+      135deg,
+      var(--card-bg-color) 0%,
+      rgba(var(--primary-color-rgb), 0.01) 100%
+    );
   }
 
   .cancel-btn {
-    @apply bg-gray-700 text-gray-200 border-gray-600;
-    @apply hover:bg-gray-600 hover:text-gray-100 hover:border-gray-500;
+    background: var(--card-bg-color);
+    color: var(--text-secondary-color);
+    border-color: var(--input-border-color);
+  }
+
+  .cancel-btn:hover {
+    background: var(--hover-bg-color);
+    color: var(--text-color);
+    border-color: var(--primary-color);
   }
 
   .confirm-btn {
-    @apply from-blue-600 to-blue-700 border-blue-600/20;
-    @apply hover:from-blue-700 hover:to-blue-800;
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--button-hover-bg-color) 100%);
+    border-color: var(--primary-color);
+  }
+
+  .confirm-btn:hover {
+    background: linear-gradient(135deg, var(--button-hover-bg-color) 0%, var(--primary-color) 100%);
   }
 
   .suggestions-list::-webkit-scrollbar-thumb {
-    @apply bg-gray-600/50;
+    background: rgba(var(--text-secondary-color-rgb), 0.3);
   }
 
   .suggestions-list::-webkit-scrollbar-thumb:hover {
-    @apply bg-gray-500/60;
+    background: rgba(var(--text-secondary-color-rgb), 0.5);
   }
 
   .delete-btn {
-    @apply text-gray-500 hover:bg-red-900/30 hover:text-red-400;
-    @apply hover:border-red-700/50;
+    color: var(--text-secondary-color);
+  }
+
+  .delete-btn:hover {
+    background: var(--error-color);
+    color: white;
   }
 
   .add-suggestion-container {
-    @apply border-gray-700/80;
+    border-top-color: var(--input-border-color);
   }
 
   .add-suggestion-btn {
-    @apply bg-gray-700/50 border-gray-600/60 text-gray-300;
-    @apply hover:bg-gray-600/60 hover:border-gray-500/80 hover:text-gray-200;
+    background: var(--input-bg-color);
+    border-color: var(--primary-color);
+    color: var(--primary-color);
+  }
+
+  .add-suggestion-btn:hover {
+    background: rgba(var(--primary-color-rgb), 0.05);
+    border-color: var(--button-hover-bg-color);
+    color: var(--button-hover-bg-color);
   }
 }
 </style>
