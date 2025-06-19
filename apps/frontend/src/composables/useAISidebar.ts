@@ -36,13 +36,14 @@ export function useAISidebar() {
     if (isAnimating.value) return
 
     isAnimating.value = true
+    // 立即开始关闭动画
+    isOpen.value = false
 
     // 恢复背景滚动
     document.body.style.overflow = ''
 
-    // 延迟关闭以显示动画
+    // 动画完成后重置状态
     setTimeout(() => {
-      isOpen.value = false
       isAnimating.value = false
     }, 300)
   }
