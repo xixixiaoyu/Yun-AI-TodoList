@@ -117,14 +117,6 @@
                 </div>
                 <p v-if="prompt.description" class="prompt-description">{{ prompt.description }}</p>
                 <div class="prompt-content-preview">{{ getContentPreview(prompt.content) }}</div>
-                <div class="prompt-meta">
-                  <span class="meta-item"
-                    >{{ t('created') }}: {{ formatDate(prompt.createdAt) }}</span
-                  >
-                  <span v-if="prompt.updatedAt !== prompt.createdAt" class="meta-item">
-                    {{ t('updated') }}: {{ formatDate(prompt.updatedAt) }}
-                  </span>
-                </div>
               </div>
               <div class="prompt-actions">
                 <button
@@ -322,11 +314,6 @@ const getContentPreview = (content: string): string => {
   return content.length > 100 ? content.substring(0, 100) + '...' : content
 }
 
-// 格式化日期
-const formatDate = (dateString: string): string => {
-  return new Date(dateString).toLocaleDateString()
-}
-
 defineOptions({
   name: 'SystemPromptsSection',
 })
@@ -458,7 +445,7 @@ defineOptions({
 }
 
 .prompt-item {
-  @apply flex items-start gap-4 p-4 rounded-xl border transition-all duration-200;
+  @apply block p-4 rounded-xl border transition-all duration-200;
   background-color: var(--card-bg-color);
   border-color: var(--input-border-color);
 }
@@ -475,7 +462,7 @@ defineOptions({
 }
 
 .prompt-info {
-  @apply flex-1 min-w-0;
+  @apply w-full mb-3;
 }
 
 .prompt-header {
@@ -508,20 +495,15 @@ defineOptions({
 }
 
 .prompt-content-preview {
-  @apply text-xs text-text-secondary/80 bg-bg/50 p-2 rounded border mb-2 font-mono;
+  @apply text-xs text-text-secondary/80 bg-bg/50 p-3 rounded border font-mono;
   border-color: var(--input-border-color);
-}
-
-.prompt-meta {
-  @apply flex gap-4 text-xs text-text-secondary/70;
-}
-
-.meta-item {
-  @apply flex items-center gap-1;
+  width: 100%;
+  word-wrap: break-word;
+  line-height: 1.4;
 }
 
 .prompt-actions {
-  @apply flex gap-1;
+  @apply flex gap-1 justify-end;
 }
 
 .btn-ghost {
