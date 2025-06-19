@@ -271,12 +271,12 @@ const enhanceContent = async () => {
   try {
     isEnhancing.value = true
 
-    const enhancePrompt = `请优化以下系统提示词，使其更加专业、清晰、符合AI助手的规范。要求：
+    const enhancePrompt = `请优化以下系统提示词，使其更加专业、清晰、符合提示词规范。要求：
 1. 保持原有的核心意图和功能
 2. 使用更专业和准确的表达
 3. 结构更加清晰，逻辑更加严谨
 4. 符合AI系统提示词的最佳实践
-5. 直接返回优化后的提示词内容，不要添加任何解释
+5. 最终直接返回优化后的提示词内容，不要返回任何多余内容
 
 原始提示词：
 ${formData.value.content}`
