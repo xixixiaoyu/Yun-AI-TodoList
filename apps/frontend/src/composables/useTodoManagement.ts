@@ -379,8 +379,14 @@ ${todoTexts}
             todo.order = orderCounter++
           })
 
+        // 重新排序 todos 数组以触发响应式更新
+        todos.value = todos.value.sort((a, b) => a.order - b.order)
+
         saveTodos()
 
+        // 使用 nextTick 确保 DOM 更新后再显示成功消息
+        await nextTick()
+        
         // AI 排序成功完成
         showSuccess(t('aiSortSuccess', 'AI 优先级排序完成！'))
       } else {

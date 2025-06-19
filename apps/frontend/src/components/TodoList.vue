@@ -89,7 +89,7 @@
         :is-sorting="isSorting"
         :is-batch-analyzing="isBatchAnalyzing"
         @generate-suggestions="generateSuggestedTodos"
-        @sort-with-ai="sortActiveTodosWithAI"
+        @sortWithAI="sortActiveTodosWithAI"
         @batch-analyze="handleBatchAnalyze"
       />
 
@@ -135,10 +135,10 @@ import type { Todo } from '@/types/todo'
 import { useTodoDragSort } from '../composables/useTodoDragSort'
 import { useTodoListState } from '../composables/useTodoListState'
 import ConfirmDialog from './ConfirmDialog.vue'
+import DomainSelectionDialog from './DomainSelectionDialog.vue'
 import PomodoroTimer from './PomodoroTimer.vue'
 import LoadingOverlay from './common/LoadingOverlay.vue'
 import { ChartsDialog, SuggestedTodosDialog, TodoActions, TodoListHeader } from './todo'
-import DomainSelectionDialog from './DomainSelectionDialog.vue'
 
 const { t } = useI18n()
 

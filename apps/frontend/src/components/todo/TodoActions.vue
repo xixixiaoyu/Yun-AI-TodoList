@@ -26,6 +26,7 @@
       :class="{ 'is-loading': isSorting }"
       :disabled="isSorting"
       @click="handleSortClick"
+      :title="isSorting ? '正在排序...' : 'AI 优先级排序'"
     >
       <div class="btn-content">
         <div v-if="isSorting" class="loading-spinner" />
