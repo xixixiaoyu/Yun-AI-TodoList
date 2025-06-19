@@ -1,4 +1,5 @@
 import { computed, ref } from 'vue'
+import { nextTick } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { getAIResponse } from '../services/deepseekService'
 import type { Todo } from '../types/todo'
@@ -380,13 +381,21 @@ ${todoTexts}
           })
 
         // 重新排序 todos 数组以触发响应式更新
-        todos.value = todos.value.sort((a, b) => a.order - b.order)
+        const sortedTodosArray = todos.value.sort((a, b) => a.order - b.order)
+
+        // 强制触发响应式更新：创建新的数组引用
+        todos.value = [...sortedTodosArray]
 
         saveTodos()
 
         // 使用 nextTick 确保 DOM 更新后再显示成功消息
         await nextTick()
-        
+
+        console.warn(
+          '🎉 AI 排序完成，todos 数组已更新:',
+          todos.value.map((t) => ({ id: t.id, text: t.text, order: t.order }))
+        )
+
         // AI 排序成功完成
         showSuccess(t('aiSortSuccess', 'AI 优先级排序完成！'))
       } else {
