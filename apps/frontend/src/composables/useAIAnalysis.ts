@@ -98,6 +98,7 @@ export function useAIAnalysis() {
     } catch (error) {
       console.error('AI 分析失败:', error)
       showError(t('aiAnalysisError', 'AI 分析失败，请重试'))
+      // AI 分析失败时不更新任何字段，保持原有状态
     } finally {
       isAnalyzing.value = false
     }

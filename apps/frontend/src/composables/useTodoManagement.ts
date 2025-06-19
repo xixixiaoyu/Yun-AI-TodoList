@@ -341,9 +341,10 @@ ${todoTexts}
             console.warn('自动分析完成，更新任务:', id, updates)
             updateTodo(id, updates)
           }).catch((error) => {
-            // 分析失败时静默处理，不影响任务添加
+            // 分析失败时静默处理，不影响任务添加，也不设置任何默认值
             console.warn('Auto AI analysis failed for new todo:', error)
             logger.warn('Auto AI analysis failed for new todo', error, 'TodoManagement')
+            // 不更新任何字段，保持 Todo 的原始状态
           })
         } else {
           console.warn('未找到需要分析的新任务')

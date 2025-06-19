@@ -92,12 +92,8 @@ export async function analyzeTodo(todoText: string): Promise<AIAnalysisResult> {
   } catch (error) {
     handleError(error, i18n.global.t('aiAnalysisError'), 'AIAnalysisService')
 
-    // 返回默认值
-    return {
-      priority: 3,
-      estimatedTime: '1小时',
-      reasoning: '分析失败，使用默认值',
-    }
+    // AI 分析失败时抛出错误，不返回默认值
+    throw error
   }
 }
 
