@@ -174,7 +174,7 @@
   "reconfigure": "重新配置",
   "aiResponseError": "获取 AI 响应时出错: {error}",
   "aiSortError": "AI 排序失败，请稍后再试。",
-  "startListening": "开始语音输入",
+  "listening": "语音输入",
   "stopListening": "停止语音输入",
 
   "todoCharts": "统计图表",

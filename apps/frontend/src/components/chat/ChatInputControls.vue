@@ -26,11 +26,11 @@
         'bg-button-hover text-white border-button-hover': recognitionStatus === 'processing',
       }"
       :disabled="!isRecognitionSupported"
-      :title="lastError || t(isListening ? 'stopListening' : 'startListening')"
+      :title="lastError || t(isListening ? 'stopListening' : 'listening')"
       @click="isListening ? $emit('stopListening') : $emit('startListening')"
     >
       <MicrophoneIcon class="w-4 h-4" />
-      <span class="font-medium">{{ isListening ? t('stopListening') : t('startListening') }}</span>
+      <span class="font-medium">{{ isListening ? t('stopListening') : t('listening') }}</span>
       <span
         v-if="lastError"
         class="absolute -bottom-8 left-1/2 transform -translate-x-1/2 whitespace-nowrap text-xs text-red-400 bg-bg px-3 py-1.5 rounded-lg shadow-lg border border-red-100"
