@@ -78,7 +78,8 @@ const getHeaders = () => {
 export async function getAIStreamResponse(
   messages: Message[],
   onChunk: (chunk: string) => void,
-  onThinking?: (thinking: string) => void
+  onThinking?: (thinking: string) => void,
+  temperature = 0.3
 ): Promise<void> {
   let buffer = ''
   let isReading = true
@@ -105,6 +106,7 @@ export async function getAIStreamResponse(
       body: JSON.stringify({
         model: getAIModel(),
         messages: messagesWithSystemPrompt,
+        temperature,
         stream: true,
       }),
       signal,
