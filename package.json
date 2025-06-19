@@ -42,11 +42,7 @@
     "migration:run": "pnpm --filter backend migration:run",
     "migration:revert": "pnpm --filter backend migration:revert",
     "seed": "pnpm --filter backend seed",
-    "deploy": "pnpm wrangler deploy",
-    "deploy:local": "./scripts/deploy-local.sh",
-    "deploy:cf": "./scripts/deploy-cloudflare.sh",
-    "deploy:cf:dev": "./scripts/deploy-cloudflare.sh dev",
-    "deploy:cf:prod": "./scripts/deploy-cloudflare.sh prod"
+    "deploy:local": "./scripts/deploy-local.sh"
   },
   "lint-staged": {
     "*.{vue,js,jsx,cjs,mjs,ts,tsx,cts,mts}": [
