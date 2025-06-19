@@ -36,7 +36,11 @@
             <input
               type="checkbox"
               :checked="analysisConfig.enablePriorityAnalysis"
-              @change="updateConfig({ enablePriorityAnalysis: $event.target.checked })"
+              @change="
+                updateConfig({
+                  enablePriorityAnalysis: ($event.target as HTMLInputElement).checked,
+                })
+              "
             />
             <span class="toggle-slider"></span>
           </label>
@@ -54,7 +58,9 @@
             <input
               type="checkbox"
               :checked="analysisConfig.enableTimeEstimation"
-              @change="updateConfig({ enableTimeEstimation: $event.target.checked })"
+              @change="
+                updateConfig({ enableTimeEstimation: ($event.target as HTMLInputElement).checked })
+              "
             />
             <span class="toggle-slider"></span>
           </label>
@@ -72,32 +78,12 @@
             <input
               type="checkbox"
               :checked="analysisConfig.autoAnalyzeNewTodos"
-              @change="updateConfig({ autoAnalyzeNewTodos: $event.target.checked })"
+              @change="
+                updateConfig({ autoAnalyzeNewTodos: ($event.target as HTMLInputElement).checked })
+              "
             />
             <span class="toggle-slider"></span>
           </label>
-        </div>
-      </div>
-
-      <!-- 分析状态显示 -->
-      <div v-if="isAnalysisEnabled" class="analysis-status">
-        <div class="status-item">
-          <span class="status-label">{{ t('priorityLevel') }}:</span>
-          <span
-            class="status-value"
-            :class="{ 'status-enabled': analysisConfig.enablePriorityAnalysis }"
-          >
-            {{ analysisConfig.enablePriorityAnalysis ? t('enabled') : t('disabled') }}
-          </span>
-        </div>
-        <div class="status-item">
-          <span class="status-label">{{ t('estimatedTime') }}:</span>
-          <span
-            class="status-value"
-            :class="{ 'status-enabled': analysisConfig.enableTimeEstimation }"
-          >
-            {{ analysisConfig.enableTimeEstimation ? t('enabled') : t('disabled') }}
-          </span>
         </div>
       </div>
     </div>
@@ -105,11 +91,11 @@
 </template>
 
 <script setup lang="ts">
-import { useI18n } from 'vue-i18n'
 import { useAIAnalysis } from '@/composables/useAIAnalysis'
+import { useI18n } from 'vue-i18n'
 
 const { t } = useI18n()
-const { analysisConfig, updateAnalysisConfig, isAnalysisEnabled } = useAIAnalysis()
+const { analysisConfig, updateAnalysisConfig } = useAIAnalysis()
 
 const updateConfig = (config: Record<string, unknown>) => {
   updateAnalysisConfig(config)
@@ -122,15 +108,17 @@ defineOptions({
 
 <style scoped>
 .settings-section {
-  @apply space-y-6;
+  @apply space-y-4;
 }
 
 .section-header {
-  @apply flex items-start gap-4;
+  @apply flex items-start gap-3;
 }
 
 .section-icon {
-  @apply flex items-center justify-center w-10 h-10 rounded-xl bg-purple-100 bg-opacity-20 text-purple-600 flex-shrink-0;
+  @apply flex-shrink-0 w-8 h-8 rounded-lg flex items-center justify-center;
+  background: rgba(121, 180, 166, 0.12);
+  color: var(--primary-color);
 }
 
 .section-title-group {
@@ -138,19 +126,31 @@ defineOptions({
 }
 
 .section-title {
-  @apply text-lg font-semibold text-text mb-1;
+  @apply text-base font-semibold text-text mb-0.5;
 }
 
 .section-description {
-  @apply text-sm text-text-secondary leading-relaxed;
+  @apply text-xs text-text-secondary leading-relaxed;
 }
 
 .settings-content {
-  @apply space-y-4 ml-14;
+  @apply ml-11;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
 }
 
 .setting-item {
-  @apply flex items-center justify-between gap-4 p-4 rounded-xl bg-white bg-opacity-5 border border-white/10 transition-all duration-200 hover:bg-opacity-10;
+  @apply flex items-center justify-between gap-3 p-3 rounded-lg border transition-all duration-200;
+  background: var(--ai-accent-color);
+  border-color: var(--ai-message-border);
+}
+
+.setting-item:hover {
+  background: var(--ai-accent-hover);
+  border-color: rgba(121, 180, 166, 0.2);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px var(--ai-message-shadow);
 }
 
 .setting-info {
@@ -158,11 +158,11 @@ defineOptions({
 }
 
 .setting-label {
-  @apply block text-sm font-medium text-text mb-1;
+  @apply block text-sm font-medium text-text mb-0.5;
 }
 
 .setting-description {
-  @apply text-xs text-text-secondary leading-relaxed;
+  @apply text-xs text-text-secondary leading-snug;
 }
 
 .setting-control {
@@ -178,7 +178,12 @@ defineOptions({
 }
 
 .toggle-slider {
-  @apply absolute inset-0 bg-gray-300 rounded-full transition-all duration-300 ease-in-out;
+  @apply absolute inset-0 rounded-full transition-all duration-300 ease-in-out;
+  background: rgba(156, 163, 175, 0.4);
+}
+
+[data-theme='dark'] .toggle-slider {
+  background: rgba(107, 114, 128, 0.6);
 }
 
 .toggle-slider:before {
@@ -186,7 +191,7 @@ defineOptions({
 }
 
 .toggle-switch input:checked + .toggle-slider {
-  @apply bg-purple-500;
+  background: var(--primary-color);
 }
 
 .toggle-switch input:checked + .toggle-slider:before {
@@ -194,7 +199,10 @@ defineOptions({
 }
 
 .analysis-status {
-  @apply mt-6 p-4 rounded-xl bg-purple-50 bg-opacity-10 border border-purple-200/20;
+  @apply mt-4 p-3 rounded-lg border;
+  background: var(--ai-accent-color);
+  border-color: var(--ai-message-border);
+  grid-column: 1 / -1;
 }
 
 .status-item {
@@ -210,7 +218,7 @@ defineOptions({
 }
 
 .status-enabled {
-  @apply text-purple-600;
+  color: var(--primary-color);
 }
 
 @media (max-width: 768px) {
@@ -219,11 +227,11 @@ defineOptions({
   }
 
   .section-header {
-    @apply flex-col gap-2;
+    @apply flex-col gap-1.5;
   }
 
   .setting-item {
-    @apply flex-col items-start gap-3 p-3;
+    @apply flex-col items-start gap-2 p-2.5;
   }
 
   .setting-control {

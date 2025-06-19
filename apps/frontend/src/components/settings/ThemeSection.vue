@@ -1,26 +1,26 @@
 <template>
   <div class="flex flex-col h-full">
-    <div class="mb-6">
-      <div class="flex items-center gap-3 mb-2">
+    <div class="mb-4">
+      <div class="flex items-center gap-3 mb-1">
         <div
-          class="w-8 h-8 bg-gradient-to-br from-orange-500 to-orange-600 rounded-lg flex items-center justify-center shadow-lg"
+          class="w-7 h-7 bg-gradient-to-br from-orange-500 to-orange-600 rounded-lg flex items-center justify-center shadow-lg"
         >
-          <svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 24 24">
+          <svg class="w-3.5 h-3.5 text-white" fill="currentColor" viewBox="0 0 24 24">
             <path
               d="M12 18.5A6.5 6.5 0 1 1 18.5 12A6.51 6.51 0 0 1 12 18.5zM12 2a1 1 0 0 0-1 1v3a1 1 0 0 0 2 0V3A1 1 0 0 0 12 2zM21 11H18a1 1 0 0 0 0 2h3a1 1 0 0 0 0-2zM6 11H3a1 1 0 0 0 0 2h3a1 1 0 0 0 0-2zM6.22 5a1 1 0 0 0-1.39 1.47l1.44 1.39a1 1 0 0 0 .73.28 1 1 0 0 0 .72-.31 1 1 0 0 0 0-1.41zM17 8.14a1 1 0 0 0 .69-.28l1.44-1.39A1 1 0 0 0 17.78 5l-1.44 1.42a1 1 0 0 0 0 1.41A1 1 0 0 0 17 8.14zM12 22a1 1 0 0 0 1-1V18a1 1 0 0 0-2 0v3A1 1 0 0 0 12 22zM5.64 17.36a1 1 0 0 0 .7.3 1 1 0 0 0 .71-.3 1 1 0 0 0 0-1.41L5.64 14.5a1 1 0 0 0-1.41 1.41zM18.36 17.36l1.41-1.41a1 1 0 0 0-1.41-1.41l-1.41 1.41a1 1 0 0 0 0 1.41 1 1 0 0 0 .7.3A1 1 0 0 0 18.36 17.36z"
             />
           </svg>
         </div>
-        <h3 class="text-lg font-semibold text-text">
+        <h3 class="text-base font-semibold text-text">
           {{ t('themeConfiguration') }}
         </h3>
       </div>
-      <p class="text-sm text-text-secondary leading-relaxed">
+      <p class="text-xs text-text-secondary leading-snug">
         {{ t('themeConfigurationDescription') }}
       </p>
     </div>
 
-    <div class="flex-1 space-y-3">
+    <div class="flex-1 space-y-2">
       <div
         v-for="option in themeOptions"
         :key="option.value"
@@ -28,9 +28,9 @@
         :class="{ active: selectedTheme === option.value }"
         @click="selectTheme(option.value)"
       >
-        <div class="flex items-center gap-4">
+        <div class="flex items-center gap-3">
           <div class="theme-icon">
-            <component :is="option.icon" class="w-6 h-6" />
+            <component :is="option.icon" class="w-5 h-5" />
           </div>
           <div class="flex-1">
             <div class="theme-title">{{ option.label }}</div>
@@ -152,7 +152,7 @@ defineOptions({
 
 <style scoped>
 .theme-option {
-  @apply p-4 border border-input-border rounded-lg cursor-pointer transition-all duration-200 hover:border-primary hover:bg-primary/5;
+  @apply p-3 border border-input-border rounded-lg cursor-pointer transition-all duration-200 hover:border-primary hover:bg-primary/5;
 }
 
 .theme-option.active {
@@ -160,19 +160,19 @@ defineOptions({
 }
 
 .theme-icon {
-  @apply w-12 h-12 bg-primary text-white rounded-lg flex items-center justify-center flex-shrink-0;
+  @apply w-10 h-10 bg-primary text-white rounded-lg flex items-center justify-center flex-shrink-0;
 }
 
 .theme-title {
-  @apply text-base font-medium text-text;
+  @apply text-sm font-medium text-text;
 }
 
 .theme-description {
-  @apply text-sm text-text-secondary mt-1;
+  @apply text-xs text-text-secondary mt-0.5;
 }
 
 .current-theme-info {
-  @apply text-xs text-text-secondary mt-1 italic;
+  @apply text-xs text-text-secondary mt-0.5 italic;
 }
 
 .radio-button {
