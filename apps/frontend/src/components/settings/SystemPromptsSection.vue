@@ -108,7 +108,7 @@
                   <h5 class="prompt-name">{{ prompt.name }}</h5>
                   <div class="prompt-badges">
                     <span v-if="config.activePromptId === prompt.id" class="badge badge-primary">
-                      {{ t('active') }}
+                      {{ t('enabled') }}
                     </span>
                     <span v-if="!prompt.isActive" class="badge badge-secondary">
                       {{ t('disabled') }}
