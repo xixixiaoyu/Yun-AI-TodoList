@@ -33,16 +33,19 @@ const getSystemPromptConfig = () => {
 }
 
 // 获取激活的系统提示词内容
-const getActiveSystemPromptContent = (language = 'zh') => {
+const getActiveSystemPromptContent = (language?: string) => {
   const config = getSystemPromptConfig()
   const includeLanguageInstruction = config.includeLanguageInstruction !== false // 默认为true
+
+  // 如果没有传入语言参数，从当前界面语言获取
+  const currentLanguage = language || i18n.global.locale.value || 'zh'
 
   if (!config.enabled || !config.activePromptId) {
     // 使用默认系统提示词
     const languageInstruction = includeLanguageInstruction
-      ? language === 'zh'
-        ? '请用中文回复。'
-        : '请用英文回复。'
+      ? currentLanguage === 'zh'
+        ? ' 默认使用中文回复。'
+        : ' 默认使用英文回复。'
       : ''
     return `${config.defaultPromptContent}${languageInstruction}`
   }
@@ -54,7 +57,7 @@ const getActiveSystemPromptContent = (language = 'zh') => {
       const activePrompt = promptList.find((p: any) => p.id === config.activePromptId && p.isActive)
       if (activePrompt) {
         const languageInstruction = includeLanguageInstruction
-          ? language === 'zh'
+          ? currentLanguage === 'zh'
             ? ' 默认使用中文回复。'
             : ' 默认使用英文回复。'
           : ''
@@ -67,9 +70,9 @@ const getActiveSystemPromptContent = (language = 'zh') => {
 
   // 回退到默认提示词
   const languageInstruction = includeLanguageInstruction
-    ? language === 'zh'
-      ? '默认使用中文回复'
-      : '默认使用英文回复。'
+    ? currentLanguage === 'zh'
+      ? ' 默认使用中文回复。'
+      : ' 默认使用英文回复。'
     : ''
   return `${config.defaultPromptContent}${languageInstruction}`
 }
@@ -190,7 +193,7 @@ export async function getAIStreamResponse(
 
 export async function getAIResponse(
   userMessage: string,
-  language = 'zh',
+  language?: string,
   temperature = 0.3
 ): Promise<string> {
   try {
