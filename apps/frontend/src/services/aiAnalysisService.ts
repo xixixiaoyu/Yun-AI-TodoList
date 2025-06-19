@@ -40,7 +40,7 @@ export async function analyzeTodo(todoText: string): Promise<AIAnalysisResult> {
   "reasoning": "简短的分析理由"
 }`
 
-    const response = await getAIResponse(prompt, 'zh', 0.3)
+    const response = await getAIResponse(prompt, undefined, 0.3)
 
     // 尝试解析 JSON 响应
     try {
@@ -148,7 +148,7 @@ ${todoList}
   ]
 }`
 
-    const response = await getAIResponse(prompt, 'zh', 0.3)
+    const response = await getAIResponse(prompt, undefined, 0.3)
     console.warn('批量分析 AI 响应:', response)
 
     try {

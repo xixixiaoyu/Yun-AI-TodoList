@@ -79,7 +79,7 @@ export function useTodoManagement() {
   const generateSuggestedTodos = async () => {
     isGenerating.value = true
     try {
-      const response = await getAIResponse(`${t('generateSuggestionsPrompt')}`, 'zh', 1.5)
+      const response = await getAIResponse(`${t('generateSuggestionsPrompt')}`, undefined, 1.5)
 
       let parsedTodos: string[] = []
 
