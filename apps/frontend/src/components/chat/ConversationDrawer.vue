@@ -179,7 +179,7 @@ const handleExport = async () => {
     emit('export', { format: 'json', success: true })
   } catch (error) {
     console.error(t('exportFailed'), error)
-    emit('export', { format: 'json', success: false, error })
+    emit('export', { format: 'json', success: false, error: error as Error })
   }
 }
 
