@@ -71,22 +71,6 @@
             <p class="form-help">{{ t('promptContentHelp') }}</p>
           </div>
 
-          <!-- 标签 -->
-          <div class="form-group">
-            <label class="form-label" for="prompt-tags">
-              {{ t('promptTags') }}
-            </label>
-            <input
-              id="prompt-tags"
-              v-model="tagsInput"
-              type="text"
-              class="form-input"
-              :placeholder="t('promptTagsPlaceholder')"
-              :disabled="isLoading"
-            />
-            <p class="form-help">{{ t('promptTagsHelp') }}</p>
-          </div>
-
           <!-- 按钮 -->
           <div class="dialog-actions">
             <button
@@ -161,8 +145,6 @@ const formData = ref({
   description: '',
   content: '',
 })
-
-const tagsInput = ref('')
 const errors = ref<Record<string, string>>({})
 
 // 计算属性
@@ -180,7 +162,6 @@ watch(
         description: newPrompt.description || '',
         content: newPrompt.content,
       }
-      tagsInput.value = newPrompt.tags?.join(', ') || ''
     } else {
       resetForm()
     }
@@ -208,7 +189,6 @@ const resetForm = () => {
     description: '',
     content: '',
   }
-  tagsInput.value = ''
   errors.value = {}
 }
 
@@ -233,16 +213,10 @@ const handleSubmit = () => {
     return
   }
 
-  const tags = tagsInput.value
-    .split(',')
-    .map((tag) => tag.trim())
-    .filter((tag) => tag.length > 0)
-
   const data = {
     name: formData.value.name.trim(),
     description: formData.value.description.trim() || undefined,
     content: formData.value.content.trim(),
-    tags: tags.length > 0 ? tags : undefined,
   }
 
   emit('save', data)
