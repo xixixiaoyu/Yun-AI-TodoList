@@ -30,36 +30,32 @@
         </div>
       </div>
 
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-8 items-start">
-        <!-- 左侧列 -->
-        <div class="space-y-6">
-          <div class="settings-card group">
-            <ApiKeySection
-              v-model:local-api-key="localApiKey"
-              v-model:show-api-key="showApiKey"
-              v-model:show-api-key-popover="showApiKeyPopover"
-              @show-success-toast="showSuccessToast"
-            />
-          </div>
-
-          <div class="settings-card group">
-            <ModelSelectionSection />
-          </div>
+      <div class="settings-grid">
+        <!-- 第一行：核心配置 -->
+        <div class="settings-card group">
+          <ApiKeySection
+            v-model:local-api-key="localApiKey"
+            v-model:show-api-key="showApiKey"
+            v-model:show-api-key-popover="showApiKeyPopover"
+            @show-success-toast="showSuccessToast"
+          />
         </div>
 
-        <!-- 右侧列 -->
-        <div class="space-y-6">
-          <div class="settings-card group">
-            <ThemeSection />
-          </div>
+        <div class="settings-card group">
+          <ModelSelectionSection />
+        </div>
 
-          <div class="settings-card group">
-            <AIAnalysisSection />
-          </div>
+        <div class="settings-card group">
+          <ThemeSection />
+        </div>
 
-          <div class="settings-card group">
-            <SystemPromptsSection />
-          </div>
+        <!-- 第二行：高级配置 -->
+        <div class="settings-card group settings-card-large">
+          <AIAnalysisSection />
+        </div>
+
+        <div class="settings-card group settings-card-large">
+          <SystemPromptsSection />
         </div>
       </div>
     </div>
@@ -89,12 +85,35 @@ defineOptions({
 </script>
 
 <style scoped>
+/* 设置页面网格布局 */
+.settings-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+  align-items: start;
+}
+
+/* 大卡片样式 - AI分析和系统提示词各占第二行的一半 */
+.settings-card-large {
+  min-height: 320px;
+}
+
+/* 第二行布局：AI分析占左侧1.5列，系统提示词占右侧1.5列 */
+.settings-card:nth-child(4) {
+  grid-column: 1 / 3;
+}
+
+.settings-card:nth-child(5) {
+  grid-column: 3 / 4;
+}
+
 .settings-card {
   @apply bg-card rounded-2xl p-6 shadow-lg border border-white/5 backdrop-blur-sm;
   background: linear-gradient(135deg, var(--card-bg-color) 0%, rgba(255, 255, 255, 0.02) 100%);
   position: relative;
   overflow: hidden;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  min-height: 200px;
 }
 
 .settings-card::before {
@@ -145,20 +164,51 @@ defineOptions({
 }
 
 /* 响应式优化 */
-@media (max-width: 1024px) {
-  .grid {
-    grid-template-columns: 1fr;
+@media (min-width: 1024px) {
+  .settings-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2rem;
+  }
+
+  .settings-card {
+    min-height: 220px;
+  }
+
+  .settings-card-large {
+    min-height: 350px;
   }
 }
 
-@media (max-width: 768px) {
+@media (min-width: 768px) and (max-width: 1023px) {
+  .settings-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
+  }
+
+  .settings-card:nth-child(4),
+  .settings-card:nth-child(5) {
+    grid-column: span 1;
+  }
+}
+
+@media (max-width: 767px) {
+  .settings-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
   .settings-card {
     @apply p-4 rounded-xl;
     min-height: auto;
   }
 
-  .space-y-6 > * + * {
-    margin-top: 1rem;
+  .settings-card:nth-child(4),
+  .settings-card:nth-child(5) {
+    grid-column: span 1;
+  }
+
+  .settings-card-large {
+    min-height: auto;
   }
 }
 </style>
