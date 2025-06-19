@@ -169,7 +169,7 @@ ${todoList}
             const todoId = typeof analysis.id === 'string' ? parseInt(analysis.id) : analysis.id
             console.warn(`设置结果 - 原始ID: ${analysis.id}, 转换后ID: ${todoId}`)
             results.set(todoId, {
-              priority: Math.max(1, Math.min(5, Math.round(analysis.priority))),
+              priority: Math.max(1, Math.min(5, Math.round(Number(analysis.priority)))),
               estimatedTime: analysis.estimatedTime,
               reasoning: analysis.reasoning || '批量分析结果',
             })

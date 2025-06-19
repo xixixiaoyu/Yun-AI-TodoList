@@ -167,7 +167,7 @@ export function useAIAnalysis() {
           console.warn(`任务 ${todo.id} 未找到分析结果`)
           // 检查是否存在字符串形式的 ID
           const stringId = todo.id.toString()
-          const stringResult = results.get(stringId)
+          const stringResult = results.get(parseInt(stringId))
           if (stringResult) {
             console.warn(`找到字符串形式的结果 ${stringId}:`, stringResult)
             const todoUpdates: Partial<Todo> = {
