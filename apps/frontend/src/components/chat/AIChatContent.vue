@@ -22,7 +22,7 @@
       @optimize="$emit('optimize')"
     />
 
-    <div class="sticky bottom-0 bg-bg z-10 flex flex-col gap-3 py-3 sm:py-2">
+    <div class="sticky bottom-0 bg-bg z-10 flex flex-col gap-1 py-3 sm:py-2">
       <ChatToolbar @new="$emit('newConversation')" @toggle-drawer="$emit('toggleDrawer')" />
 
       <ChatInput
@@ -51,6 +51,11 @@ interface Conversation {
   title: string
   messages: ChatMessage[]
   createdAt: number
+  lastUpdated: string
+  tags?: string[]
+  summary?: string
+  messageCount?: number
+  wordCount?: number
 }
 
 interface Props {
