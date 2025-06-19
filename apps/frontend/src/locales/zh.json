@@ -38,7 +38,7 @@
   "close": "关闭",
   "generateSuggestionsPrompt": "请为我生成5个实用的待办事项建议，涵盖工作、学习、生活等不同方面。每个建议应该简洁明了，不超过50个字符。请直接返回建议列表，每行一个建议。",
   "generateDomainSuggestionsPrompt": "请为我生成5个关于{domain}领域的实用待办事项建议。每个建议应该简洁明了，不超过50个字符。请直接返回建议列表，每行一个建议。",
-  "generateDomainSuggestionsWithHistoryPrompt": "请为我生成5个关于{domain}领域的待办事项建议。\n\n我已完成的相关任务：\n{completedTodos}\n\n请按以下要求生成：\n1. 从我的历史记录中选择2个与{domain}领域最相关的任务\n2. 基于{domain}领域生成3个全新的待办事项\n\n每个建议应该简洁明了，不超过50个字符。请直接返回建议列表，每行一个建议，总共5个建议。",
+  "generateDomainSuggestionsWithHistoryPrompt": "请为我生成5个关于{domain}领域的待办事项建议。\n\n我已完成的相关任务：\n{completedTodos}\n\n请按以下要求生成：\n1. 从我的历史记录中选择2个与{domain}领域最相关的任务（如果有）\n2. 基于{domain}领域生成3个全新的待办事项\n\n每个建议应该简洁明了，不超过50个字符。请直接返回建议列表，每行一个建议，总共5个建议。",
   "selectDomain": "选择建议领域",
   "selectDomainDescription": "请选择您希望生成建议的领域：",
   "confirmSelection": "确认选择",

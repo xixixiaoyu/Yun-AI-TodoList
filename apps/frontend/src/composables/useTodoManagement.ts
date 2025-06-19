@@ -1,5 +1,4 @@
-import { computed, ref } from 'vue'
-import { nextTick } from 'vue'
+import { computed, nextTick, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { getAIResponse } from '../services/deepseekService'
 import type { Todo } from '../types/todo'
@@ -133,7 +132,7 @@ export function useTodoManagement() {
           !prompt.includes('{completedTodos}')
 
         if (!replacementSuccessful) {
-          prompt = `请为我生成5个关于${domainName}领域的待办事项建议。\n\n我已完成的相关任务：\n${completedTodosList}\n\n请按以下要求生成：\n1. 从我的历史记录中选择2个与${domainName}领域最相关的任务\n2. 基于${domainName}领域生成3个全新的待办事项\n\n每个建议应该简洁明了，不超过50个字符。请直接返回建议列表，每行一个建议，总共5个建议。`
+          prompt = `请为我生成5个关于${domainName}领域的待办事项建议。\n\n我已完成的相关任务：\n${completedTodosList}\n\n请按以下要求生成：\n1. 从我的历史记录中选择2个与${domainName}领域最相关的任务（如果有）\n2. 基于${domainName}领域生成3个全新的待办事项\n\n每个建议应该简洁明了，不超过50个字符。请直接返回建议列表，每行一个建议，总共5个建议。`
         }
       } else {
         // 没有历史记录时，使用原有的提示词

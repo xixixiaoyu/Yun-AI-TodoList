@@ -9,12 +9,9 @@ const getSystemPromptConfig = () => {
     const config = localStorage.getItem('system_prompt_config')
     if (config) {
       const parsedConfig = JSON.parse(config)
-      // 为旧配置添加默认值
       return {
         enabled: parsedConfig.enabled || false,
         activePromptId: parsedConfig.activePromptId || null,
-        defaultPromptContent:
-          parsedConfig.defaultPromptContent || '你是一个智能助手，可以回答各种问题并提供帮助。',
       }
     }
   } catch (error) {
@@ -23,7 +20,6 @@ const getSystemPromptConfig = () => {
   return {
     enabled: false,
     activePromptId: null,
-    defaultPromptContent: '你是一个智能助手，可以回答各种问题并提供帮助。',
   }
 }
 
@@ -32,8 +28,7 @@ const getActiveSystemPromptContent = () => {
   const config = getSystemPromptConfig()
 
   if (!config.enabled || !config.activePromptId) {
-    // 使用默认系统提示词
-    return config.defaultPromptContent
+    return ''
   }
 
   try {
@@ -46,11 +41,10 @@ const getActiveSystemPromptContent = () => {
       }
     }
   } catch (error) {
-    logger.warn('获取激活系统提示词失败，使用默认提示词', error, 'DeepSeekService')
+    logger.warn('获取激活系统提示词失败', error, 'DeepSeekService')
   }
 
-  // 回退到默认提示词
-  return config.defaultPromptContent
+  return ''
 }
 
 // 错误处理函数

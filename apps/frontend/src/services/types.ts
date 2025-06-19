@@ -53,7 +53,6 @@ export interface SystemPrompt {
 export interface SystemPromptConfig {
   enabled: boolean
   activePromptId: string | null
-  defaultPromptContent: string
 }
 
 export interface SystemPromptCreateInput {

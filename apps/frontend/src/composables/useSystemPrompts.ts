@@ -24,7 +24,6 @@ export function useSystemPrompts() {
   const config = ref<SystemPromptConfig>({
     enabled: false, // 默认不启用系统提示词
     activePromptId: null,
-    defaultPromptContent: '你是一个智能助手，可以回答各种问题并提供帮助。',
   })
 
   const isLoading = ref(false)
@@ -50,7 +49,7 @@ export function useSystemPrompts() {
     if (hasActivePrompt.value && activePrompt.value) {
       return activePrompt.value.content
     }
-    return config.value.defaultPromptContent
+    return ''
   })
 
   // 生成唯一 ID
@@ -188,7 +187,7 @@ export function useSystemPrompts() {
       // 如果更新名称，检查是否重复
       if (input.name && input.name.trim() !== existingPrompt.name) {
         const duplicatePrompt = systemPrompts.value.find(
-          (p) => p.id !== id && p.name === input.name.trim()
+          (p) => p.id !== id && p.name === input.name?.trim()
         )
         if (duplicatePrompt) {
           throw new Error('系统提示词名称已存在')
@@ -308,7 +307,6 @@ export function useSystemPrompts() {
       config.value = {
         enabled: false,
         activePromptId: null,
-        defaultPromptContent: '你是一个智能助手，可以回答各种问题并提供帮助。',
       }
       saveConfig()
 
