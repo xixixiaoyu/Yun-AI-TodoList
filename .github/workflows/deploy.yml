@@ -97,18 +97,7 @@ jobs:
         id: pages-deployment
         uses: actions/deploy-pages@v4
 
-      - name: Install Wrangler
-        run: pnpm add -g wrangler
 
-      - name: Deploy to Cloudflare Workers
-        if: github.ref == 'refs/heads/main'
-        run: |
-          echo "🚀 Deploying to Cloudflare Workers..."
-          pnpm wrangler deploy
-          echo "✅ Cloudflare deployment completed"
-        env:
-          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
 
       - name: Deployment summary
         if: github.ref == 'refs/heads/main'
@@ -117,8 +106,6 @@ jobs:
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "✅ **Frontend Build**: Completed successfully" >> $GITHUB_STEP_SUMMARY
           echo "✅ **GitHub Pages**: Deployed" >> $GITHUB_STEP_SUMMARY
-          echo "✅ **Cloudflare Workers**: Deployed" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "🔗 **Access your application:**" >> $GITHUB_STEP_SUMMARY
           echo "- GitHub Pages: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}" >> $GITHUB_STEP_SUMMARY
-          echo "- Cloudflare Workers: Check your Cloudflare dashboard for the URL" >> $GITHUB_STEP_SUMMARY
