@@ -14,8 +14,11 @@
       ref="messageListRef"
       :messages="chatHistory"
       :current-response="currentAiResponse"
+      :is-retrying="isRetrying"
+      :retry-count="retryCount"
+      :has-error="hasError"
       @scroll="$emit('scroll', $event)"
-      @retry="$emit('retry')"
+      @retry="(messageIndex: number) => $emit('retry', messageIndex)"
       @optimize="$emit('optimize')"
     />
 
@@ -59,6 +62,9 @@ interface Props {
   userMessage: string
   isGenerating: boolean
   isOptimizing: boolean
+  isRetrying?: boolean
+  retryCount?: number
+  hasError?: boolean
 }
 
 interface ScrollInfo {
@@ -77,7 +83,7 @@ interface Emits {
   (e: 'clearConversations'): void
   (e: 'newConversation'): void
   (e: 'optimize'): void
-  (e: 'retry'): void
+  (e: 'retry', messageIndex: number): void
   (e: 'send'): void
   (e: 'stop'): void
   (e: 'scroll', scrollInfo: ScrollInfo): void

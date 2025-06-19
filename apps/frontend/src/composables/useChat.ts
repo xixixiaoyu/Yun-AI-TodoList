@@ -253,32 +253,67 @@ export function useChat() {
     isGenerating.value = false
   }
 
-  // 重试最后一条消息
-  const retryLastMessage = async () => {
+  // 重试指定索引的消息
+  const retryLastMessage = async (messageIndex?: number) => {
     if (isGenerating.value || isRetrying.value) {
       return
     }
 
-    // 获取最后一条用户消息
-    const lastUserMessage = [...chatHistory.value].reverse().find((msg) => msg.role === 'user')
-    if (!lastUserMessage) {
+    let targetMessage: ChatMessage | undefined
+    let targetIndex: number = -1
+
+    if (messageIndex !== undefined) {
+      // 按索引重试：删除指定索引及之后的所有消息
+      if (messageIndex < 0 || messageIndex >= chatHistory.value.length) {
+        return
+      }
+
+      const clickedMessage = chatHistory.value[messageIndex]
+
+      if (clickedMessage.role === 'user') {
+        // 如果点击的是用户消息，直接重试该消息
+        targetMessage = clickedMessage
+        targetIndex = messageIndex
+      } else if (clickedMessage.role === 'assistant') {
+        // 如果点击的是助手消息，找到它对应的用户消息
+        // 向前查找最近的用户消息
+        for (let i = messageIndex - 1; i >= 0; i--) {
+          if (chatHistory.value[i].role === 'user') {
+            targetMessage = chatHistory.value[i]
+            targetIndex = i
+            break
+          }
+        }
+      }
+    } else {
+      // 原有逻辑：重试最后一条用户消息
+      const lastUserMessage = [...chatHistory.value].reverse().find((msg) => msg.role === 'user')
+      if (!lastUserMessage) {
+        return
+      }
+      targetMessage = lastUserMessage
+      // 找到最后一条用户消息的索引
+      for (let i = chatHistory.value.length - 1; i >= 0; i--) {
+        if (chatHistory.value[i].role === 'user') {
+          targetIndex = i
+          break
+        }
+      }
+    }
+
+    if (!targetMessage || targetMessage.role !== 'user' || targetIndex === -1) {
       return
     }
 
     isRetrying.value = true
-    lastFailedMessage.value = lastUserMessage.content
+    lastFailedMessage.value = targetMessage.content
 
     try {
-      // 移除最后一条 AI 回答（如果存在）
-      if (
-        chatHistory.value.length > 0 &&
-        chatHistory.value[chatHistory.value.length - 1].role === 'assistant'
-      ) {
-        chatHistory.value.pop()
-      }
+      // 删除目标消息及之后的所有消息
+      chatHistory.value.splice(targetIndex)
 
       // 重新设置用户消息并发送
-      userMessage.value = lastUserMessage.content
+      userMessage.value = targetMessage.content
       await sendMessage()
 
       retryCount.value++

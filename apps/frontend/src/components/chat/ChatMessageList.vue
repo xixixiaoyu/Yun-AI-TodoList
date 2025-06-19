@@ -8,6 +8,22 @@
       v-for="(message, index) in sanitizedMessages"
       :key="index"
       :message="message"
+      :message-index="index"
+      :is-retrying="
+        message.role === 'assistant' && index === sanitizedMessages.length - 1
+          ? props.isRetrying
+          : false
+      "
+      :retry-count="
+        message.role === 'assistant' && index === sanitizedMessages.length - 1
+          ? props.retryCount
+          : 0
+      "
+      :has-error="
+        message.role === 'assistant' && index === sanitizedMessages.length - 1
+          ? props.hasError
+          : false
+      "
       @copy="copyToClipboard"
       @copy-success="handleCopySuccess"
       @copy-error="handleCopyError"
@@ -38,6 +54,9 @@ import ChatMessage from './ChatMessage.vue'
 const props = defineProps<{
   messages: ChatMessageType[]
   currentResponse: string
+  isRetrying?: boolean
+  retryCount?: number
+  hasError?: boolean
 }>()
 
 const emit = defineEmits<{
@@ -50,7 +69,7 @@ const emit = defineEmits<{
       clientHeight: number
     }
   ): void
-  (e: 'retry'): void
+  (e: 'retry', messageIndex: number): void
   (e: 'optimize'): void
 }>()
 
@@ -83,8 +102,8 @@ const handleCopyError = (error: Error) => {
   // 可以在这里添加全局错误通知
 }
 
-const handleRetry = () => {
-  emit('retry')
+const handleRetry = (messageIndex: number) => {
+  emit('retry', messageIndex)
 }
 
 const handleOptimize = () => {

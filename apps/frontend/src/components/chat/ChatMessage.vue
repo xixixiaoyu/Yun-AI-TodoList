@@ -23,25 +23,43 @@
           class="ai-message-prose ai-message-headings ai-message-paragraphs ai-message-lists ai-message-code-inline ai-message-code-block ai-message-blockquote ai-message-table ai-message-links break-words"
           v-html="message.sanitizedContent"
         />
-        <MessageActionBar
+        <!-- 悬浮操作按钮 -->
+        <div
           v-if="!isStreaming"
-          :message-content="message.content"
-          :message-role="message.role"
-          :is-visible="true"
-          :can-retry="message.role === 'assistant'"
-          :can-optimize="message.role === 'user'"
-          @copy-success="handleCopySuccess"
-          @copy-error="handleCopyError"
-          @retry="handleRetry"
-          @optimize="handleOptimize"
-        />
+          class="floating-action-buttons absolute -bottom-2 -right-2 opacity-0 group-hover:opacity-100 transition-all duration-300"
+        >
+          <div
+            class="flex items-center gap-1 backdrop-blur-sm border border-gray-200/50 dark:border-gray-700/50 rounded-lg shadow-lg p-1"
+          >
+            <!-- 复制按钮 -->
+            <EnhancedCopyButton
+              :text="message.content"
+              size="sm"
+              variant="minimal"
+              @copy-success="handleCopySuccess"
+              @copy-error="handleCopyError"
+            />
+            <!-- 重试按钮 -->
+            <RetryButton
+              v-if="message.role === 'assistant'"
+              :is-retrying="props.isRetrying"
+              :retry-count="props.retryCount"
+              :has-error="props.hasError"
+              size="sm"
+              variant="minimal"
+              @retry="handleRetry"
+              @retry-start="handleRetry"
+            />
+          </div>
+        </div>
       </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import MessageActionBar from './MessageActionBar.vue'
+import EnhancedCopyButton from './EnhancedCopyButton.vue'
+import RetryButton from './RetryButton.vue'
 
 interface Message {
   role: 'user' | 'assistant'
@@ -52,17 +70,25 @@ interface Message {
 interface Props {
   message: Message
   isStreaming?: boolean
+  isRetrying?: boolean
+  retryCount?: number
+  hasError?: boolean
+  messageIndex?: number
 }
 
 interface Emits {
   (e: 'copy', text: string): void
   (e: 'copy-success', text: string): void
   (e: 'copy-error', error: Error): void
-  (e: 'retry'): void
-  (e: 'optimize'): void
+  (e: 'retry', messageIndex: number): void
 }
 
-const _props = defineProps<Props>()
+const props = withDefaults(defineProps<Props>(), {
+  isStreaming: false,
+  isRetrying: false,
+  retryCount: 0,
+  hasError: false,
+})
 const emit = defineEmits<Emits>()
 
 // 注入 Toast 实例
@@ -88,11 +114,9 @@ const handleCopyError = (error: Error) => {
 }
 
 const handleRetry = () => {
-  emit('retry')
-}
-
-const handleOptimize = () => {
-  emit('optimize')
+  if (props.messageIndex !== undefined) {
+    emit('retry', props.messageIndex)
+  }
 }
 
 defineOptions({

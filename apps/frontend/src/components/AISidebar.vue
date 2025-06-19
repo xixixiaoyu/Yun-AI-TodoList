@@ -45,6 +45,9 @@
         :user-message="userMessage"
         :is-generating="isGenerating"
         :is-optimizing="isOptimizing"
+        :is-retrying="isRetrying"
+        :retry-count="retryCount"
+        :has-error="false"
         @toggle-drawer="isDrawerOpen = !isDrawerOpen"
         @update:is-drawer-open="isDrawerOpen = $event"
         @switch-conversation="(id: string) => switchConversation(id)"
@@ -101,7 +104,8 @@ const {
   optimizeMessage,
   // 重试相关
   retryLastMessage,
-  isRetrying: _isRetrying,
+  isRetrying,
+  retryCount,
 } = useChat()
 
 const isDrawerOpen = ref(false)
@@ -129,9 +133,9 @@ const handleSendMessage = async () => {
   await sendMessage()
 }
 
-const handleRetry = async () => {
+const handleRetry = async (messageIndex: number) => {
   shouldAutoScroll.value = true
-  await retryLastMessage()
+  await retryLastMessage(messageIndex)
 }
 
 const closeSidebar = () => {
