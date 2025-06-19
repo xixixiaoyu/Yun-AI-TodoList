@@ -36,6 +36,17 @@ export function useChat() {
       const savedCurrentId = localStorage.getItem('currentConversationId')
       if (savedCurrentId) {
         currentConversationId.value = savedCurrentId
+        // 自动恢复最近的对话内容
+        const currentConversation = conversationHistory.value.find((c) => c.id === savedCurrentId)
+        if (currentConversation) {
+          chatHistory.value = [...currentConversation.messages]
+        }
+      } else if (conversationHistory.value.length > 0) {
+        // 如果没有保存的当前对话ID，但有对话历史，则恢复最近的对话
+        const mostRecentConversation = conversationHistory.value[0]
+        currentConversationId.value = mostRecentConversation.id
+        chatHistory.value = [...mostRecentConversation.messages]
+        saveCurrentConversationId(mostRecentConversation.id)
       }
     } catch (error) {
       handleError(error, 'loadConversationHistory')
@@ -52,10 +63,12 @@ export function useChat() {
   }
 
   const createNewConversation = (title: string = t('newConversation')) => {
+    const now = Date.now()
     const newConversation: Conversation = {
-      id: Date.now().toString(),
+      id: now.toString(),
       title,
       messages: [],
+      createdAt: now,
       lastUpdated: new Date().toISOString(),
     }
     conversationHistory.value.unshift(newConversation)
@@ -65,10 +78,18 @@ export function useChat() {
   }
 
   const switchConversation = (id: string) => {
-    const conversation = conversationHistory.value.find((c) => c.id === id)
-    if (conversation) {
+    const conversationIndex = conversationHistory.value.findIndex((c) => c.id === id)
+    if (conversationIndex !== -1) {
+      const conversation = conversationHistory.value[conversationIndex]
       chatHistory.value = [...conversation.messages]
       saveCurrentConversationId(id)
+
+      // 将切换到的对话移动到最前面（如果不在第一位的话）
+      if (conversationIndex !== 0) {
+        conversationHistory.value.splice(conversationIndex, 1)
+        conversationHistory.value.unshift(conversation)
+        localStorage.setItem('conversationHistory', JSON.stringify(conversationHistory.value))
+      }
     }
   }
 
@@ -196,12 +217,20 @@ export function useChat() {
   const saveConversationHistory = () => {
     try {
       if (currentConversationId.value) {
-        const currentConversation = conversationHistory.value.find(
+        const currentIndex = conversationHistory.value.findIndex(
           (conv) => conv.id === currentConversationId.value
         )
-        if (currentConversation) {
+        if (currentIndex !== -1) {
+          const currentConversation = conversationHistory.value[currentIndex]
           currentConversation.messages = [...chatHistory.value]
           currentConversation.lastUpdated = new Date().toISOString()
+
+          // 将当前对话移动到最前面（如果不在第一位的话）
+          if (currentIndex !== 0) {
+            conversationHistory.value.splice(currentIndex, 1)
+            conversationHistory.value.unshift(currentConversation)
+          }
+
           localStorage.setItem('conversationHistory', JSON.stringify(conversationHistory.value))
         }
       }
