@@ -3,6 +3,52 @@ import { logger } from '../utils/logger'
 import { getAIModel, getApiKey } from './configService'
 import { AIStreamResponse, Message } from './types'
 
+// 获取系统提示词配置
+const getSystemPromptConfig = () => {
+  try {
+    const config = localStorage.getItem('system_prompt_config')
+    if (config) {
+      return JSON.parse(config)
+    }
+  } catch (error) {
+    logger.warn('获取系统提示词配置失败', error, 'DeepSeekService')
+  }
+  return {
+    enabled: false,
+    activePromptId: null,
+    defaultPromptContent: '你是一个智能助手，可以回答各种问题并提供帮助。',
+  }
+}
+
+// 获取激活的系统提示词内容
+const getActiveSystemPromptContent = (language = 'zh') => {
+  const config = getSystemPromptConfig()
+
+  if (!config.enabled || !config.activePromptId) {
+    // 使用默认系统提示词
+    const languageInstruction = language === 'zh' ? '请用中文回复。' : '请用英文回复。'
+    return `${config.defaultPromptContent}${languageInstruction}`
+  }
+
+  try {
+    const prompts = localStorage.getItem('system_prompts')
+    if (prompts) {
+      const promptList = JSON.parse(prompts)
+      const activePrompt = promptList.find((p: any) => p.id === config.activePromptId && p.isActive)
+      if (activePrompt) {
+        const languageInstruction = language === 'zh' ? '请用中文回复。' : '请用英文回复。'
+        return `${activePrompt.content} ${languageInstruction}`
+      }
+    }
+  } catch (error) {
+    logger.warn('获取激活系统提示词失败，使用默认提示词', error, 'DeepSeekService')
+  }
+
+  // 回退到默认提示词
+  const languageInstruction = language === 'zh' ? '请用中文回复。' : '请用英文回复。'
+  return `${config.defaultPromptContent}${languageInstruction}`
+}
+
 // 错误处理函数
 function handleError(error: unknown, context: string, source: string) {
   const errorMessage = error instanceof Error ? error.message : String(error)
@@ -33,7 +79,8 @@ const getHeaders = () => {
 
 export async function getAIStreamResponse(
   messages: Message[],
-  onChunk: (chunk: string) => void
+  onChunk: (chunk: string) => void,
+  language = 'zh'
 ): Promise<void> {
   let buffer = ''
   let isReading = true
@@ -42,12 +89,22 @@ export async function getAIStreamResponse(
     abortController = new AbortController()
     const signal = abortController.signal
 
+    // 构建包含系统提示词的消息列表
+    const systemPromptContent = getActiveSystemPromptContent(language)
+    const messagesWithSystemPrompt: Message[] = [
+      {
+        role: 'system',
+        content: systemPromptContent,
+      },
+      ...messages,
+    ]
+
     const response = await fetch(API_URL, {
       method: 'POST',
       headers: getHeaders(),
       body: JSON.stringify({
         model: getAIModel(),
-        messages: [...messages],
+        messages: messagesWithSystemPrompt,
         stream: true,
       }),
       signal,
@@ -112,7 +169,7 @@ export async function getAIResponse(
   temperature = 0.5
 ): Promise<string> {
   try {
-    const languageInstruction = language === 'zh' ? '请用中文回复。' : '请用英文回复。'
+    const systemPromptContent = getActiveSystemPromptContent(language)
 
     const response = await fetch(API_URL, {
       method: 'POST',
@@ -122,7 +179,7 @@ export async function getAIResponse(
         messages: [
           {
             role: 'system',
-            content: `你是一个智能助手，可以回答各种问题并提供帮助。${languageInstruction}`,
+            content: systemPromptContent,
           },
           {
             role: 'user',
@@ -164,6 +221,7 @@ export async function getAIResponse(
 
 export async function optimizeText(text: string): Promise<string> {
   try {
+    // 文本优化使用专门的系统提示词，不受用户自定义系统提示词影响
     const response = await fetch(API_URL, {
       method: 'POST',
       headers: getHeaders(),

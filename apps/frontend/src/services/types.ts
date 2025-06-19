@@ -35,3 +35,37 @@ export interface ModelOption {
   label: string
   description: string
 }
+
+// 系统提示词相关类型定义
+export interface SystemPrompt {
+  id: string
+  name: string
+  content: string
+  description?: string
+  isActive: boolean
+  isDefault?: boolean
+  createdAt: string
+  updatedAt: string
+  tags?: string[]
+}
+
+export interface SystemPromptConfig {
+  enabled: boolean
+  activePromptId: string | null
+  defaultPromptContent: string
+}
+
+export interface SystemPromptCreateInput {
+  name: string
+  content: string
+  description?: string
+  tags?: string[]
+}
+
+export interface SystemPromptUpdateInput {
+  name?: string
+  content?: string
+  description?: string
+  isActive?: boolean
+  tags?: string[]
+}

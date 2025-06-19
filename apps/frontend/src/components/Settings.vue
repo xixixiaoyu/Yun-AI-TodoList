@@ -56,6 +56,10 @@
           <div class="settings-card group">
             <AIAnalysisSection />
           </div>
+
+          <div class="settings-card group">
+            <SystemPromptsSection />
+          </div>
         </div>
       </div>
     </div>
@@ -67,11 +71,12 @@
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n'
 import { useSettingsState } from '../composables/useSettingsState'
+import AIAnalysisSection from './settings/AIAnalysisSection.vue'
 import ApiKeySection from './settings/ApiKeySection.vue'
 import ModelSelectionSection from './settings/ModelSelectionSection.vue'
 import SettingsToast from './settings/SettingsToast.vue'
+import SystemPromptsSection from './settings/SystemPromptsSection.vue'
 import ThemeSection from './settings/ThemeSection.vue'
-import AIAnalysisSection from './settings/AIAnalysisSection.vue'
 
 const { t } = useI18n()
 

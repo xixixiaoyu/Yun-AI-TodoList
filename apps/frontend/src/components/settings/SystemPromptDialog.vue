@@ -1,0 +1,439 @@
+<template>
+  <Teleport to="body">
+    <div v-if="show" class="dialog-overlay" @click="handleOverlayClick">
+      <div class="dialog-container" @click.stop>
+        <div class="dialog-header">
+          <h3 class="dialog-title">
+            {{ isEditing ? t('editPrompt') : t('createPrompt') }}
+          </h3>
+          <button @click="$emit('close')" class="dialog-close-btn">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M6 18L18 6M6 6l12 12"
+              />
+            </svg>
+          </button>
+        </div>
+
+        <form @submit.prevent="handleSubmit" class="dialog-content">
+          <!-- 名称 -->
+          <div class="form-group">
+            <label class="form-label" for="prompt-name">
+              {{ t('promptName') }}
+              <span class="text-red-500">*</span>
+            </label>
+            <input
+              id="prompt-name"
+              v-model="formData.name"
+              type="text"
+              class="form-input"
+              :placeholder="t('promptNamePlaceholder')"
+              :disabled="isLoading"
+              required
+            />
+            <p v-if="errors.name" class="form-error">{{ errors.name }}</p>
+          </div>
+
+          <!-- 描述 -->
+          <div class="form-group">
+            <label class="form-label" for="prompt-description">
+              {{ t('promptDescription') }}
+            </label>
+            <input
+              id="prompt-description"
+              v-model="formData.description"
+              type="text"
+              class="form-input"
+              :placeholder="t('promptDescriptionPlaceholder')"
+              :disabled="isLoading"
+            />
+          </div>
+
+          <!-- 内容 -->
+          <div class="form-group">
+            <label class="form-label" for="prompt-content">
+              {{ t('promptContent') }}
+              <span class="text-red-500">*</span>
+            </label>
+            <textarea
+              id="prompt-content"
+              v-model="formData.content"
+              class="form-textarea"
+              rows="8"
+              :placeholder="t('promptContentPlaceholder')"
+              :disabled="isLoading"
+              required
+            ></textarea>
+            <p v-if="errors.content" class="form-error">{{ errors.content }}</p>
+            <p class="form-help">{{ t('promptContentHelp') }}</p>
+          </div>
+
+          <!-- 标签 -->
+          <div class="form-group">
+            <label class="form-label" for="prompt-tags">
+              {{ t('promptTags') }}
+            </label>
+            <input
+              id="prompt-tags"
+              v-model="tagsInput"
+              type="text"
+              class="form-input"
+              :placeholder="t('promptTagsPlaceholder')"
+              :disabled="isLoading"
+            />
+            <p class="form-help">{{ t('promptTagsHelp') }}</p>
+          </div>
+
+          <!-- 按钮 -->
+          <div class="dialog-actions">
+            <button
+              type="button"
+              @click="$emit('close')"
+              class="btn-secondary"
+              :disabled="isLoading"
+            >
+              {{ t('cancel') }}
+            </button>
+            <button type="submit" class="btn-primary" :disabled="isLoading || !isFormValid">
+              <svg
+                v-if="isLoading"
+                class="w-4 h-4 mr-2 animate-spin"
+                fill="none"
+                viewBox="0 0 24 24"
+              >
+                <circle
+                  class="opacity-25"
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  stroke-width="4"
+                ></circle>
+                <path
+                  class="opacity-75"
+                  fill="currentColor"
+                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                ></path>
+              </svg>
+              {{ isEditing ? t('save') : t('create') }}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </Teleport>
+</template>
+
+<script setup lang="ts">
+import { ref, computed, watch, nextTick } from 'vue'
+import { useI18n } from 'vue-i18n'
+import type {
+  SystemPrompt,
+  SystemPromptCreateInput,
+  SystemPromptUpdateInput,
+} from '@/services/types'
+
+interface Props {
+  show: boolean
+  prompt?: SystemPrompt | null
+  isEditing: boolean
+  isLoading: boolean
+}
+
+interface Emits {
+  (e: 'close'): void
+  (e: 'save', data: SystemPromptCreateInput | SystemPromptUpdateInput): void
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  prompt: null,
+})
+
+const emit = defineEmits<Emits>()
+const { t } = useI18n()
+
+// 表单数据
+const formData = ref({
+  name: '',
+  description: '',
+  content: '',
+})
+
+const tagsInput = ref('')
+const errors = ref<Record<string, string>>({})
+
+// 计算属性
+const isFormValid = computed(() => {
+  return formData.value.name.trim() && formData.value.content.trim()
+})
+
+// 监听 prompt 变化，初始化表单数据
+watch(
+  () => props.prompt,
+  (newPrompt) => {
+    if (newPrompt && props.isEditing) {
+      formData.value = {
+        name: newPrompt.name,
+        description: newPrompt.description || '',
+        content: newPrompt.content,
+      }
+      tagsInput.value = newPrompt.tags?.join(', ') || ''
+    } else {
+      resetForm()
+    }
+  },
+  { immediate: true }
+)
+
+// 监听显示状态
+watch(
+  () => props.show,
+  (show) => {
+    if (show) {
+      nextTick(() => {
+        const nameInput = document.getElementById('prompt-name') as HTMLInputElement
+        nameInput?.focus()
+      })
+    }
+  }
+)
+
+// 重置表单
+const resetForm = () => {
+  formData.value = {
+    name: '',
+    description: '',
+    content: '',
+  }
+  tagsInput.value = ''
+  errors.value = {}
+}
+
+// 验证表单
+const validateForm = (): boolean => {
+  errors.value = {}
+
+  if (!formData.value.name.trim()) {
+    errors.value.name = t('promptNameRequired')
+  }
+
+  if (!formData.value.content.trim()) {
+    errors.value.content = t('promptContentRequired')
+  }
+
+  return Object.keys(errors.value).length === 0
+}
+
+// 处理提交
+const handleSubmit = () => {
+  if (!validateForm()) {
+    return
+  }
+
+  const tags = tagsInput.value
+    .split(',')
+    .map((tag) => tag.trim())
+    .filter((tag) => tag.length > 0)
+
+  const data = {
+    name: formData.value.name.trim(),
+    description: formData.value.description.trim() || undefined,
+    content: formData.value.content.trim(),
+    tags: tags.length > 0 ? tags : undefined,
+  }
+
+  emit('save', data)
+}
+
+// 处理遮罩点击
+const handleOverlayClick = () => {
+  emit('close')
+}
+
+defineOptions({
+  name: 'SystemPromptDialog',
+})
+</script>
+
+<style scoped>
+.dialog-overlay {
+  @apply fixed inset-0 flex items-center justify-center p-4;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(12px);
+  z-index: 9999;
+  animation: fadeIn 0.3s ease-out;
+}
+
+.dialog-container {
+  @apply rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-hidden;
+  background-color: var(--card-bg-color);
+  border: 1px solid var(--input-border-color);
+  box-shadow:
+    0 20px 60px rgba(0, 0, 0, 0.15),
+    0 8px 24px rgba(0, 0, 0, 0.1),
+    0 2px 8px rgba(0, 0, 0, 0.05);
+  animation: slideIn 0.3s ease-out;
+}
+
+.dialog-header {
+  @apply flex items-center justify-between p-6 border-b;
+  border-color: var(--input-border-color);
+  background: linear-gradient(135deg, var(--card-bg-color) 0%, rgba(121, 180, 166, 0.02) 100%);
+}
+
+.dialog-title {
+  @apply text-lg font-semibold text-text;
+}
+
+.dialog-close-btn {
+  @apply p-2 rounded-lg text-text-secondary hover:text-text hover:bg-input-bg transition-all duration-200;
+}
+
+.dialog-content {
+  @apply p-6 space-y-6 max-h-[calc(90vh-120px)] overflow-y-auto;
+  background-color: var(--card-bg-color);
+}
+
+.form-group {
+  @apply space-y-2;
+}
+
+.form-label {
+  @apply block text-sm font-medium text-text;
+}
+
+.form-input {
+  @apply w-full px-3 py-2 text-sm rounded-lg border transition-all duration-200;
+  background-color: var(--input-bg-color);
+  border-color: var(--input-border-color);
+  color: var(--text-color);
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05);
+  border-width: 1.5px;
+}
+
+[data-theme='light'] .form-input {
+  background-color: #fafafa;
+  border-color: #d1d5db;
+}
+
+[data-theme='dark'] .form-input {
+  background-color: #374151;
+  border-color: #4b5563;
+}
+
+.form-input:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow:
+    0 0 0 3px rgba(121, 180, 166, 0.15),
+    inset 0 1px 3px rgba(0, 0, 0, 0.05);
+  transform: translateY(-1px);
+}
+
+.form-input:disabled {
+  @apply opacity-50 cursor-not-allowed;
+}
+
+.form-textarea {
+  @apply w-full px-3 py-2 text-sm rounded-lg border transition-all duration-200 resize-none;
+  background-color: var(--input-bg-color);
+  border-color: var(--input-border-color);
+  color: var(--text-color);
+  font-family:
+    ui-monospace, SFMono-Regular, 'SF Mono', Consolas, 'Liberation Mono', Menlo, monospace;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05);
+  border-width: 1.5px;
+}
+
+[data-theme='light'] .form-textarea {
+  background-color: #fafafa;
+  border-color: #d1d5db;
+}
+
+[data-theme='dark'] .form-textarea {
+  background-color: #374151;
+  border-color: #4b5563;
+}
+
+.form-textarea:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow:
+    0 0 0 3px rgba(121, 180, 166, 0.15),
+    inset 0 1px 3px rgba(0, 0, 0, 0.05);
+  transform: translateY(-1px);
+}
+
+.form-textarea:disabled {
+  @apply opacity-50 cursor-not-allowed;
+}
+
+.form-error {
+  @apply text-xs text-red-500;
+}
+
+.form-help {
+  @apply text-xs text-text-secondary;
+}
+
+.dialog-actions {
+  @apply flex gap-3 justify-end pt-4 border-t;
+  border-color: var(--input-border-color);
+  background-color: var(--card-bg-color);
+  background: linear-gradient(180deg, var(--card-bg-color) 0%, rgba(121, 180, 166, 0.01) 100%);
+}
+
+.btn-primary {
+  @apply px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200 flex items-center;
+  background-color: var(--primary-color);
+  color: white;
+}
+
+.btn-primary:hover:not(:disabled) {
+  background-color: var(--primary-hover-color);
+  transform: translateY(-1px);
+}
+
+.btn-primary:disabled {
+  @apply opacity-50 cursor-not-allowed;
+}
+
+.btn-secondary {
+  @apply px-4 py-2 text-sm font-medium rounded-lg border transition-all duration-200;
+  background-color: var(--input-bg-color);
+  border-color: var(--input-border-color);
+  color: var(--text-color);
+}
+
+.btn-secondary:hover:not(:disabled) {
+  border-color: var(--primary-color);
+  transform: translateY(-1px);
+}
+
+.btn-secondary:disabled {
+  @apply opacity-50 cursor-not-allowed;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+</style>
