@@ -136,10 +136,15 @@ const handleCustomSelection = () => {
 }
 
 const handleConfirm = () => {
-  if (showCustomInput.value && customDomain.value.trim()) {
-    emit('confirm', customDomain.value.trim())
+  // 检查是否选择了自定义领域
+  if (selectedDomain.value === 'custom' || showCustomInput.value) {
+    const trimmedCustomDomain = customDomain.value.trim()
+    if (!trimmedCustomDomain) {
+      return
+    }
+    emit('confirm', trimmedCustomDomain)
     resetForm()
-  } else if (selectedDomain.value) {
+  } else if (selectedDomain.value && selectedDomain.value !== 'custom') {
     emit('confirm', selectedDomain.value)
     resetForm()
   }

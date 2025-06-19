@@ -85,21 +85,50 @@ export function useTodoManagement() {
   }
 
   const generateSuggestedTodosWithDomain = async (domain: string) => {
+    // 增强的输入验证
+    if (!domain || typeof domain !== 'string' || domain.trim() === '') {
+      showError('请选择或输入一个有效的领域')
+      return
+    }
+
+    // 清理和标准化 domain 参数
+    const cleanDomain = domain.trim()
+
     isGenerating.value = true
     showDomainSelection.value = false // 立即关闭领域选择对话框
     try {
       // 根据选择的领域构建不同的提示词
       let prompt = ''
       // 检查是否是预设领域
-      if (['work', 'study', 'life'].includes(domain)) {
-        const domainName = t(`domain.${domain}`)
-        prompt = t('generateDomainSuggestionsPrompt').replace('{domain}', domainName)
+      if (['work', 'study', 'life'].includes(cleanDomain)) {
+        const domainName = t(`domain.${cleanDomain}`)
+        const template = t('generateDomainSuggestionsPrompt')
+
+        // 使用正则表达式进行替换，与自定义领域保持一致
+        prompt = template.replace(/{domain}/g, domainName)
+
+        // 验证预设领域的替换结果
+        const replacementSuccessful = prompt.includes(domainName) && !prompt.includes('{domain}')
+
+        if (!replacementSuccessful) {
+          prompt = `请为我生成5个关于${domainName}领域的实用待办事项建议。每个建议应该简洁明了，不超过50个字符。请直接返回建议列表，每行一个建议。`
+        }
       } else {
         // 自定义领域
-        prompt = t('generateDomainSuggestionsPrompt').replace('{domain}', domain)
+        const template = t('generateDomainSuggestionsPrompt')
+
+        // 使用正则表达式进行全局替换，确保替换成功
+        prompt = template.replace(/{domain}/g, cleanDomain)
+
+        // 验证替换结果
+        const replacementSuccessful = prompt.includes(cleanDomain) && !prompt.includes('{domain}')
+
+        if (!replacementSuccessful) {
+          prompt = `请为我生成5个关于${cleanDomain}领域的实用待办事项建议。每个建议应该简洁明了，不超过50个字符。请直接返回建议列表，每行一个建议。`
+        }
       }
 
-      const response = await getAIResponse(prompt, 1.5)
+      const response = await getAIResponse(prompt, 1)
 
       let parsedTodos: string[] = []
 
@@ -131,7 +160,11 @@ export function useTodoManagement() {
         showDomainSelection.value = false
         logger.info(
           'AI suggestions generated successfully',
-          { count: suggestedTodos.value.length, suggestions: suggestedTodos.value, domain },
+          {
+            count: suggestedTodos.value.length,
+            suggestions: suggestedTodos.value,
+            domain: cleanDomain,
+          },
           'TodoManagement'
         )
       } else {
@@ -196,25 +229,19 @@ export function useTodoManagement() {
   }
 
   const sortActiveTodosWithAI = async () => {
-    console.warn('🎯 AI 排序功能被触发')
-
     if (isSorting.value) {
-      console.warn('⚠️ AI 排序正在进行中，忽略重复请求')
       return
     }
 
     const activeTodos = todos.value.filter((todo) => !todo.completed)
-    console.warn('📋 活跃待办事项数量:', activeTodos.length)
 
     if (activeTodos.length === 0) {
-      console.error('❌ 没有活跃的待办事项')
-      showError(t('noActiveTodos', '没有活跃的待办事项'))
+      showError('没有待办事项需要排序')
       return
     }
 
     if (activeTodos.length < 2) {
-      console.error('❌ 待办事项数量不足，需要至少2个')
-      showError(t('needMoreTodos', '至少需要2个待办事项才能进行排序'))
+      showError('至少需要2个待办事项才能进行排序')
       return
     }
 
@@ -228,11 +255,9 @@ export function useTodoManagement() {
       // 检查 API Key 配置
       const apiKey = localStorage.getItem('deepseek_api_key')
       if (!apiKey || apiKey.trim() === '') {
-        console.error('❌ DeepSeek API Key 未配置')
         showError(t('configureApiKey', '请先在设置中配置 DeepSeek API Key'))
         return
       }
-      console.warn('✅ API Key 已配置')
 
       // 构建更详细的提示词，包含任务内容和上下文
       const todoTexts = activeTodos.map((todo, index) => `${index + 1}. ${todo.text}`).join('\n')
@@ -286,7 +311,7 @@ ${todoTexts}
         sortedIndices.every((index) => index >= 0 && index < activeTodos.length)
       ) {
         // 应用排序
-        console.warn('🔄 应用新的排序顺序:', sortedIndices)
+        // 应用新的排序顺序
         const sortedTodos = sortedIndices.map((index) => activeTodos[index])
         console.warn(
           '📝 排序后的待办事项:',
@@ -312,7 +337,7 @@ ${todoTexts}
 
         saveTodos()
 
-        console.warn('✅ AI 排序成功完成')
+        // AI 排序成功完成
         showSuccess(t('aiSortSuccess', 'AI 优先级排序完成！'))
       } else {
         console.warn('AI 排序解析失败:', {
@@ -324,7 +349,7 @@ ${todoTexts}
         showError(t('aiSortParseFailed', 'AI 排序解析失败，请重试'))
       }
     } catch (error) {
-      console.error('❌ AI 排序失败:', error)
+      // AI 排序失败
 
       if (error instanceof Error) {
         console.error('错误详情:', {
@@ -350,7 +375,7 @@ ${todoTexts}
           showError(t('aiSortFailed', 'AI 排序失败，请检查网络连接和 API 配置'))
         }
       } else {
-        console.error('🔍 未知错误类型:', typeof error, error)
+        // 处理未知错误类型
         showError(t('aiSortFailed', 'AI 排序失败，请重试'))
       }
     } finally {
