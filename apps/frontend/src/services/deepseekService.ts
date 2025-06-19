@@ -83,7 +83,8 @@ const getHeaders = () => {
 
 export async function getAIStreamResponse(
   messages: Message[],
-  onChunk: (chunk: string) => void
+  onChunk: (chunk: string) => void,
+  onThinking?: (thinking: string) => void
 ): Promise<void> {
   let buffer = ''
   let isReading = true
@@ -144,8 +145,14 @@ export async function getAIStreamResponse(
           try {
             const parsedData: AIStreamResponse = JSON.parse(jsonData)
             const content = parsedData.choices[0]?.delta?.content
+            const reasoningContent = parsedData.choices[0]?.delta?.reasoning_content
+
             if (content) {
               onChunk(content)
+            }
+
+            if (reasoningContent && onThinking) {
+              onThinking(reasoningContent)
             }
           } catch (error) {
             handleError(error, i18n.global.t('jsonParseError'), 'DeepSeekService')

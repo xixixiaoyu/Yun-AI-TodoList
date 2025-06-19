@@ -51,6 +51,11 @@
     "life": "Life",
     "custom": "Custom"
   },
+  "thinking": {
+    "title": "Thinking Process",
+    "expand": "Expand thinking process",
+    "collapse": "Collapse thinking process"
+  },
   "customDomainPlaceholder": "Enter your desired domain (e.g., Health, Finance, Hobby, etc.)",
   "sortPrompt": "Please sort the following todos by priority based on importance and urgency. Consider: 1. Task importance and urgency 2. Task complexity and time required 3. Dependencies between tasks. Please return the sorted numbers in the following format, separated by commas (e.g. 3,1,4,2)",
   "aiEmptyResponseError": "AI returned an empty response",

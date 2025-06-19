@@ -42,6 +42,7 @@
         :current-conversation-id="currentConversationId"
         :chat-history="chatHistory"
         :current-ai-response="currentAIResponse"
+        :current-thinking-content="currentThinkingContent"
         :user-message="userMessage"
         :is-generating="isGenerating"
         :is-optimizing="isOptimizing"
@@ -50,15 +51,15 @@
         :has-error="false"
         @toggle-drawer="isDrawerOpen = !isDrawerOpen"
         @update:is-drawer-open="isDrawerOpen = $event"
-        @switch-conversation="(id: string) => switchConversation(id)"
-        @delete-conversation="(id: string) => deleteConversation(id)"
-        @clear-conversations="() => clearAllConversations()"
-        @new-conversation="(title?: string) => createNewConversation(title)"
-        @optimize="() => optimizeMessage()"
+        @switch-conversation="switchConversation"
+        @delete-conversation="deleteConversation"
+        @clear-conversations="clearAllConversations"
+        @new-conversation="createNewConversation"
+        @optimize="optimizeMessage"
         @retry="handleRetry"
         @send="handleSendMessage"
-        @stop="() => stopGenerating()"
-        @scroll="(scrollInfo: any) => handleScroll(scrollInfo)"
+        @stop="stopGenerating"
+        @scroll="handleScroll"
         @update:user-message="userMessage = $event"
       />
     </div>
@@ -94,6 +95,7 @@ const {
   conversationHistory,
   currentConversationId,
   currentAIResponse,
+  currentThinkingContent,
   loadConversationHistory,
   createNewConversation,
   switchConversation,

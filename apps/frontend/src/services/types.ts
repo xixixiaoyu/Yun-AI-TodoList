@@ -2,6 +2,7 @@ export interface AIStreamResponse {
   choices: {
     delta: {
       content?: string
+      reasoning_content?: string
     }
   }[]
 }

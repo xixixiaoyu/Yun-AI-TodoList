@@ -7,6 +7,7 @@ export function useChat() {
   const { t } = useI18n()
   const chatHistory = ref<ChatMessage[]>([])
   const currentAIResponse = ref('')
+  const currentThinkingContent = ref('')
   const isGenerating = ref(false)
   const userMessage = ref('')
   const isOptimizing = ref(false)
@@ -142,39 +143,54 @@ export function useChat() {
       chatHistory.value.push(userMsg)
 
       currentAIResponse.value = ''
+      currentThinkingContent.value = ''
 
       const messages: Message[] = chatHistory.value.map((msg) => ({
         role: msg.role === 'user' ? 'user' : 'assistant',
         content: msg.content,
       }))
 
-      await getAIStreamResponse(messages, async (chunk: string) => {
-        if (chunk === '[DONE]') {
-          if (currentAIResponse.value) {
-            const aiMsg: ChatMessage = {
-              role: 'assistant',
-              content: currentAIResponse.value,
+      await getAIStreamResponse(
+        messages,
+        async (chunk: string) => {
+          if (chunk === '[DONE]') {
+            if (currentAIResponse.value) {
+              // 如果有思考内容，将其包装在 <think> 标签中
+              let finalContent = currentAIResponse.value
+              if (currentThinkingContent.value) {
+                finalContent = `<think>${currentThinkingContent.value}</think>\n\n${currentAIResponse.value}`
+              }
+
+              const aiMsg: ChatMessage = {
+                role: 'assistant',
+                content: finalContent,
+              }
+
+              chatHistory.value.push(aiMsg)
+              saveConversationHistory()
+
+              nextTick(() => {
+                currentAIResponse.value = ''
+                currentThinkingContent.value = ''
+                isGenerating.value = false
+              })
+            } else {
+              isGenerating.value = false
             }
-
-            chatHistory.value.push(aiMsg)
-            saveConversationHistory()
-
+          } else if (chunk === '[ABORTED]') {
             nextTick(() => {
               currentAIResponse.value = ''
+              currentThinkingContent.value = ''
               isGenerating.value = false
             })
           } else {
-            isGenerating.value = false
+            currentAIResponse.value += chunk
           }
-        } else if (chunk === '[ABORTED]') {
-          nextTick(() => {
-            currentAIResponse.value = ''
-            isGenerating.value = false
-          })
-        } else {
-          currentAIResponse.value += chunk
+        },
+        async (thinking: string) => {
+          currentThinkingContent.value += thinking
         }
-      })
+      )
     } catch (error) {
       handleError(error, 'sendMessage')
 
@@ -327,6 +343,7 @@ export function useChat() {
   return {
     chatHistory,
     currentAIResponse,
+    currentThinkingContent,
     isGenerating,
     userMessage,
     isOptimizing,

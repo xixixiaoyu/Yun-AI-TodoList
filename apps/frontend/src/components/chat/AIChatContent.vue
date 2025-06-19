@@ -14,6 +14,7 @@
       ref="messageListRef"
       :messages="chatHistory"
       :current-response="currentAiResponse"
+      :current-thinking="currentThinkingContent"
       :is-retrying="isRetrying"
       :retry-count="retryCount"
       :has-error="hasError"
@@ -64,6 +65,7 @@ interface Props {
   currentConversationId: string | null
   chatHistory: ChatMessage[]
   currentAiResponse: string
+  currentThinkingContent: string
   userMessage: string
   isGenerating: boolean
   isOptimizing: boolean
