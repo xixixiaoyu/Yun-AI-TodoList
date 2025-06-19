@@ -222,11 +222,11 @@ describe('useChat', () => {
       // 发送消息，期望失败但不抛出异常
       await sendMessage()
 
-      // 等待多个事件循环以确保所有异步操作完成
-      await new Promise((resolve) => setTimeout(resolve, 200))
-      await new Promise((resolve) => setTimeout(resolve, 0))
+      // 等待所有异步操作完成
+      await vi.runAllTimersAsync()
       await new Promise((resolve) => setTimeout(resolve, 0))
 
+      // 最终应该是false
       expect(isGenerating.value).toBe(false)
     })
 

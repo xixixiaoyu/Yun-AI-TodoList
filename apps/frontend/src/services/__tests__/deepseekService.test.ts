@@ -55,6 +55,29 @@ describe('deepseekService', () => {
     testEnv = setupTestEnvironment()
     mockFetchFn = mockFetch()
     vi.clearAllMocks()
+
+    // 设置系统提示词配置
+    testEnv.localStorage.setItem(
+      'system_prompt_config',
+      JSON.stringify({
+        enabled: true,
+        activePromptId: 'test-prompt-1',
+      })
+    )
+
+    testEnv.localStorage.setItem(
+      'system_prompts',
+      JSON.stringify([
+        {
+          id: 'test-prompt-1',
+          name: '英文回复助手',
+          content: '请用英文回复用户的问题。',
+          isActive: true,
+          createdAt: '2024-01-01T00:00:00.000Z',
+          updatedAt: '2024-01-01T00:00:00.000Z',
+        },
+      ])
+    )
   })
 
   afterEach(() => {
