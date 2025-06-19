@@ -8,7 +8,18 @@ const getSystemPromptConfig = () => {
   try {
     const config = localStorage.getItem('system_prompt_config')
     if (config) {
-      return JSON.parse(config)
+      const parsedConfig = JSON.parse(config)
+      // 为旧配置添加默认值
+      return {
+        enabled: parsedConfig.enabled || false,
+        activePromptId: parsedConfig.activePromptId || null,
+        defaultPromptContent:
+          parsedConfig.defaultPromptContent || '你是一个智能助手，可以回答各种问题并提供帮助。',
+        includeLanguageInstruction:
+          parsedConfig.includeLanguageInstruction !== undefined
+            ? parsedConfig.includeLanguageInstruction
+            : true,
+      }
     }
   } catch (error) {
     logger.warn('获取系统提示词配置失败', error, 'DeepSeekService')
@@ -17,16 +28,22 @@ const getSystemPromptConfig = () => {
     enabled: false,
     activePromptId: null,
     defaultPromptContent: '你是一个智能助手，可以回答各种问题并提供帮助。',
+    includeLanguageInstruction: true, // 默认启用语言指令
   }
 }
 
 // 获取激活的系统提示词内容
 const getActiveSystemPromptContent = (language = 'zh') => {
   const config = getSystemPromptConfig()
+  const includeLanguageInstruction = config.includeLanguageInstruction !== false // 默认为true
 
   if (!config.enabled || !config.activePromptId) {
     // 使用默认系统提示词
-    const languageInstruction = language === 'zh' ? '请用中文回复。' : '请用英文回复。'
+    const languageInstruction = includeLanguageInstruction
+      ? language === 'zh'
+        ? '请用中文回复。'
+        : '请用英文回复。'
+      : ''
     return `${config.defaultPromptContent}${languageInstruction}`
   }
 
@@ -36,8 +53,12 @@ const getActiveSystemPromptContent = (language = 'zh') => {
       const promptList = JSON.parse(prompts)
       const activePrompt = promptList.find((p: any) => p.id === config.activePromptId && p.isActive)
       if (activePrompt) {
-        const languageInstruction = language === 'zh' ? '请用中文回复。' : '请用英文回复。'
-        return `${activePrompt.content} ${languageInstruction}`
+        const languageInstruction = includeLanguageInstruction
+          ? language === 'zh'
+            ? ' 默认使用中文回复。'
+            : ' 默认使用英文回复。'
+          : ''
+        return `${activePrompt.content}${languageInstruction}`
       }
     }
   } catch (error) {
@@ -45,7 +66,11 @@ const getActiveSystemPromptContent = (language = 'zh') => {
   }
 
   // 回退到默认提示词
-  const languageInstruction = language === 'zh' ? '请用中文回复。' : '请用英文回复。'
+  const languageInstruction = includeLanguageInstruction
+    ? language === 'zh'
+      ? '默认使用中文回复'
+      : '默认使用英文回复。'
+    : ''
   return `${config.defaultPromptContent}${languageInstruction}`
 }
 

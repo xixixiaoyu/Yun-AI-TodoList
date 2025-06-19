@@ -53,6 +53,7 @@ export interface SystemPromptConfig {
   enabled: boolean
   activePromptId: string | null
   defaultPromptContent: string
+  includeLanguageInstruction?: boolean // 是否自动添加语言指令
 }
 
 export interface SystemPromptCreateInput {
