@@ -19,10 +19,10 @@
       </div>
 
       <div class="dialog-actions">
-        <button type="button" @click="$emit('close')" class="btn-secondary" :disabled="isLoading">
+        <button type="button" class="btn-secondary" :disabled="isLoading" @click="$emit('close')">
           {{ t('cancel') }}
         </button>
-        <button type="button" @click="handleConfirm" class="btn-danger" :disabled="isLoading">
+        <button type="button" class="btn-danger" :disabled="isLoading" @click="handleConfirm">
           <svg v-if="isLoading" class="w-4 h-4 mr-2 animate-spin" fill="none" viewBox="0 0 24 24">
             <circle
               class="opacity-25"

@@ -10,8 +10,8 @@
           {{ t('selectDomain') }}
         </h3>
         <button
-          @click="$emit('cancel')"
           class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+          @click="$emit('cancel')"
         >
           <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path
@@ -43,11 +43,11 @@
           }"
         >
           <input
+            v-model="selectedDomain"
             type="radio"
             :value="domain"
-            v-model="selectedDomain"
-            @change="showCustomInput = false"
             class="mr-3 text-blue-600"
+            @change="showCustomInput = false"
           />
           <span class="text-gray-900 dark:text-white">
             {{ t(`domain.${domain}`) }}
@@ -65,9 +65,9 @@
           <input
             type="radio"
             value="custom"
-            @change="handleCustomSelection"
             :checked="showCustomInput"
             class="mr-3 text-blue-600"
+            @change="handleCustomSelection"
           />
           <span class="text-gray-900 dark:text-white">
             {{ t('domain.custom') }}
@@ -89,15 +89,15 @@
       <!-- 操作按钮 -->
       <div class="flex justify-end space-x-3">
         <button
-          @click="$emit('cancel')"
           class="px-4 py-2 text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:hover:text-white transition-colors"
+          @click="$emit('cancel')"
         >
           {{ t('cancelSelection') }}
         </button>
         <button
-          @click="handleConfirm"
           :disabled="!selectedDomain && (!showCustomInput || !customDomain.trim())"
           class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          @click="handleConfirm"
         >
           {{ t('confirmSelection') }}
         </button>

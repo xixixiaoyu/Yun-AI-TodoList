@@ -89,7 +89,7 @@
         :is-sorting="isSorting"
         :is-batch-analyzing="isBatchAnalyzing"
         @generate-suggestions="generateSuggestedTodos"
-        @sortWithAI="sortActiveTodosWithAI"
+        @sort-with-a-i="sortActiveTodosWithAI"
         @batch-analyze="handleBatchAnalyze"
       />
 

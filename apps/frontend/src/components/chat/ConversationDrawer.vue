@@ -144,7 +144,7 @@ interface Emits {
   (e: 'switch', id: string): void
   (e: 'delete', id: string): void
   (e: 'clear'): void
-  (e: 'export', result: { format: string; success: boolean; error?: any }): void
+  (e: 'export', result: { format: string; success: boolean; error?: Error }): void
 }
 
 const props = defineProps<Props>()

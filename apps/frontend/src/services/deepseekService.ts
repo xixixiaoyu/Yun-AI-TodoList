@@ -1,7 +1,7 @@
 import i18n from '../i18n'
 import { logger } from '../utils/logger'
 import { getAIModel, getApiKey } from './configService'
-import { AIStreamResponse, Message } from './types'
+import { AIStreamResponse, Message, SystemPrompt } from './types'
 
 // 获取系统提示词配置
 const getSystemPromptConfig = () => {
@@ -35,7 +35,9 @@ const getActiveSystemPromptContent = () => {
     const prompts = localStorage.getItem('system_prompts')
     if (prompts) {
       const promptList = JSON.parse(prompts)
-      const activePrompt = promptList.find((p: any) => p.id === config.activePromptId && p.isActive)
+      const activePrompt = promptList.find(
+        (p: SystemPrompt) => p.id === config.activePromptId && p.isActive
+      )
       if (activePrompt) {
         return activePrompt.content
       }

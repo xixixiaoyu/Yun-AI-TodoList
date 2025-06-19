@@ -29,9 +29,9 @@
           <div class="relative">
             <select
               :value="config.enabled ? config.activePromptId || '' : ''"
-              @change="handlePromptChange"
               class="px-3 py-1.5 pr-8 text-sm bg-white/10 text-white border border-white/20 rounded-lg cursor-pointer transition-all duration-200 hover:bg-white/15 focus:bg-white/15 focus:border-white/40 focus:outline-none backdrop-blur-sm min-w-[140px] md:min-w-[120px] md:text-xs appearance-none"
               :disabled="!config.enabled"
+              @change="handlePromptChange"
             >
               <option value="" class="text-gray-800">{{ t('noSystemPrompt') }}</option>
               <option

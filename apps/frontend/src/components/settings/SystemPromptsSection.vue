@@ -44,8 +44,8 @@
           <div class="setting-control">
             <select
               :value="config.activePromptId || ''"
-              @change="handleActivePromptChange"
               class="select-input"
+              @change="handleActivePromptChange"
             >
               <option value="">{{ t('noSystemPrompt') }}</option>
               <option v-for="prompt in enabledPrompts" :key="prompt.id" :value="prompt.id">
@@ -60,9 +60,9 @@
           <div class="list-header">
             <h4 class="list-title">{{ t('systemPromptsList') }}</h4>
             <button
-              @click="showCreateDialog = true"
               class="btn-primary btn-sm"
               :disabled="isLoading"
+              @click="showCreateDialog = true"
             >
               <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path
@@ -120,10 +120,10 @@
               </div>
               <div class="prompt-actions">
                 <button
-                  @click="editPrompt(prompt)"
                   class="btn-ghost btn-sm"
                   :disabled="isLoading"
                   :title="t('edit')"
+                  @click="editPrompt(prompt)"
                 >
                   <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path
@@ -135,10 +135,10 @@
                   </svg>
                 </button>
                 <button
-                  @click="togglePromptActive(prompt.id)"
                   class="btn-ghost btn-sm"
                   :disabled="isLoading"
                   :title="prompt.isActive ? t('disable') : t('enable')"
+                  @click="togglePromptActive(prompt.id)"
                 >
                   <svg
                     v-if="prompt.isActive"
@@ -170,10 +170,10 @@
                   </svg>
                 </button>
                 <button
-                  @click="confirmDelete(prompt)"
                   class="btn-ghost btn-sm text-red-500 hover:text-red-600"
                   :disabled="isLoading"
                   :title="t('delete')"
+                  @click="confirmDelete(prompt)"
                 >
                   <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path

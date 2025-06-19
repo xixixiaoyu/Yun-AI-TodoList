@@ -62,18 +62,6 @@
   </div>
 </template>
 
-<style scoped>
-.message-group {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-.message-group + .message-group {
-  margin-top: 1.5rem;
-}
-</style>
-
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useMarkdown } from '../../composables/useMarkdown'
@@ -236,5 +224,17 @@ defineExpose({
   scrollToBottomInstantly,
 })
 </script>
+
+<style scoped>
+.message-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.message-group + .message-group {
+  margin-top: 1.5rem;
+}
+</style>
 
 <style scoped></style>

@@ -5,10 +5,10 @@
         {{ t('thinking.title') }}
       </h4>
       <button
-        @click="toggleExpanded"
         class="transition-colors duration-200 p-1 rounded"
         :class="thinkingButtonClasses"
         :aria-label="isExpanded ? t('thinking.collapse') : t('thinking.expand')"
+        @click="toggleExpanded"
       >
         <svg
           class="w-4 h-4 transform transition-transform duration-200"

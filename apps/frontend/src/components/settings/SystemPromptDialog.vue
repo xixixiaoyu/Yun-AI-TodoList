@@ -6,7 +6,7 @@
           <h3 class="dialog-title">
             {{ isEditing ? t('editPrompt') : t('createPrompt') }}
           </h3>
-          <button @click="$emit('close')" class="dialog-close-btn">
+          <button class="dialog-close-btn" @click="$emit('close')">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path
                 stroke-linecap="round"
@@ -18,7 +18,7 @@
           </button>
         </div>
 
-        <form @submit.prevent="handleSubmit" class="dialog-content">
+        <form class="dialog-content" @submit.prevent="handleSubmit">
           <!-- 名称 -->
           <div class="form-group">
             <label class="form-label" for="prompt-name">
@@ -70,10 +70,10 @@
               ></textarea>
               <button
                 type="button"
-                @click="enhanceContent"
                 class="enhance-btn"
                 :disabled="isLoading || isEnhancing || !formData.content.trim()"
                 :title="t('enhancePromptContent')"
+                @click="enhanceContent"
               >
                 <svg
                   v-if="isEnhancing"
@@ -113,9 +113,9 @@
           <div class="dialog-actions">
             <button
               type="button"
-              @click="$emit('close')"
               class="btn-secondary"
               :disabled="isLoading"
+              @click="$emit('close')"
             >
               {{ t('cancel') }}
             </button>

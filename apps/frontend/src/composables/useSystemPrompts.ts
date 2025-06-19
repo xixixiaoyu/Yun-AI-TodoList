@@ -6,15 +6,12 @@ import type {
 } from '@/services/types'
 import { logger } from '@/utils/logger'
 import { computed, onMounted, ref } from 'vue'
-import { useI18n } from 'vue-i18n'
 
 /**
  * 系统提示词管理 Composable
  * 提供系统提示词的 CRUD 操作、配置管理和持久化存储
  */
 export function useSystemPrompts() {
-  const { t } = useI18n()
-
   // 存储键名
   const SYSTEM_PROMPTS_KEY = 'system_prompts'
   const SYSTEM_PROMPT_CONFIG_KEY = 'system_prompt_config'

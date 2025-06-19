@@ -88,6 +88,7 @@ const props = withDefaults(defineProps<Props>(), {
   isRetrying: false,
   retryCount: 0,
   hasError: false,
+  messageIndex: 0,
 })
 const emit = defineEmits<Emits>()
 
