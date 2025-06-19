@@ -22,13 +22,16 @@ export function useTodoManagement() {
   const { showError, showSuccess, error: duplicateError } = useErrorHandler()
 
   // AI 分析功能
-  const { analyzeSingleTodo, analysisConfig, isAnalyzing } = useAIAnalysis()
+  const { analyzeSingleTodo, analysisConfig, isAnalyzing, batchAnalyzeTodosAction } =
+    useAIAnalysis()
 
   const filter = ref('active')
   const searchQuery = ref('')
   const isGenerating = ref(false)
   const suggestedTodos = ref<string[]>([])
   const showSuggestedTodos = ref(false)
+  const showDomainSelection = ref(false)
+  const selectedDomain = ref('')
   const isSorting = ref(false)
   const MAX_TODO_LENGTH = 50
 
@@ -77,9 +80,26 @@ export function useTodoManagement() {
   })
 
   const generateSuggestedTodos = async () => {
+    // 显示领域选择对话框
+    showDomainSelection.value = true
+  }
+
+  const generateSuggestedTodosWithDomain = async (domain: string) => {
     isGenerating.value = true
+    showDomainSelection.value = false // 立即关闭领域选择对话框
     try {
-      const response = await getAIResponse(`${t('generateSuggestionsPrompt')}`, undefined, 1.5)
+      // 根据选择的领域构建不同的提示词
+      let prompt = ''
+      // 检查是否是预设领域
+      if (['work', 'study', 'life'].includes(domain)) {
+        const domainName = t(`domain.${domain}`)
+        prompt = t('generateDomainSuggestionsPrompt').replace('{domain}', domainName)
+      } else {
+        // 自定义领域
+        prompt = t('generateDomainSuggestionsPrompt').replace('{domain}', domain)
+      }
+
+      const response = await getAIResponse(prompt, 1.5)
 
       let parsedTodos: string[] = []
 
@@ -108,9 +128,10 @@ export function useTodoManagement() {
 
       if (suggestedTodos.value.length > 0) {
         showSuggestedTodos.value = true
+        showDomainSelection.value = false
         logger.info(
           'AI suggestions generated successfully',
-          { count: suggestedTodos.value.length, suggestions: suggestedTodos.value },
+          { count: suggestedTodos.value.length, suggestions: suggestedTodos.value, domain },
           'TodoManagement'
         )
       } else {
@@ -124,7 +145,13 @@ export function useTodoManagement() {
     }
   }
 
-  const confirmSuggestedTodos = () => {
+  const cancelDomainSelection = () => {
+    showDomainSelection.value = false
+    selectedDomain.value = ''
+  }
+
+  const confirmSuggestedTodos = async () => {
+    const originalSuggestedCount = suggestedTodos.value.length
     const duplicates = addMultipleTodos(
       suggestedTodos.value.map((todo) => ({
         text: todo,
@@ -133,8 +160,30 @@ export function useTodoManagement() {
     if (duplicates.length > 0) {
       showError(`${t('duplicateError')}：${duplicates.join(', ')}`)
     }
+
+    // 计算成功添加的待办事项数量
+    const successfullyAdded = originalSuggestedCount - duplicates.length
+
+    // 关闭建议对话框
     showSuggestedTodos.value = false
     suggestedTodos.value = []
+
+    // 如果成功添加了待办事项，进行批量 AI 分析
+    if (successfullyAdded > 0) {
+      try {
+        // 获取最新添加的待办事项（未分析的）
+        const newTodos = todos.value.filter((todo) => !todo.aiAnalyzed && !todo.completed)
+        if (newTodos.length > 0) {
+          await batchAnalyzeTodosAction(newTodos, (updates) => {
+            // 批量更新待办事项
+            batchUpdateTodos(updates)
+          })
+        }
+      } catch (error) {
+        console.warn('批量 AI 分析失败:', error)
+        // 不显示错误，因为添加待办事项已经成功了
+      }
+    }
   }
 
   const cancelSuggestedTodos = () => {
@@ -370,9 +419,13 @@ ${todoTexts}
     isAnalyzing,
     suggestedTodos,
     showSuggestedTodos,
+    showDomainSelection,
+    selectedDomain,
     MAX_TODO_LENGTH,
     duplicateError,
     generateSuggestedTodos,
+    generateSuggestedTodosWithDomain,
+    cancelDomainSelection,
     confirmSuggestedTodos,
     cancelSuggestedTodos,
     updateSuggestedTodo,

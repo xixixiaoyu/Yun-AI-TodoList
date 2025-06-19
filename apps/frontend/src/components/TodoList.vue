@@ -103,6 +103,12 @@
         @cancel="handleCancel"
       />
 
+      <DomainSelectionDialog
+        :show="showDomainSelection"
+        @confirm="generateSuggestedTodosWithDomain"
+        @cancel="cancelDomainSelection"
+      />
+
       <SuggestedTodosDialog
         :show="showSuggestedTodos"
         :suggested-todos="suggestedTodos"
@@ -129,6 +135,7 @@ import ConfirmDialog from './ConfirmDialog.vue'
 import PomodoroTimer from './PomodoroTimer.vue'
 import LoadingOverlay from './common/LoadingOverlay.vue'
 import { ChartsDialog, SuggestedTodosDialog, TodoActions, TodoListHeader } from './todo'
+import DomainSelectionDialog from './DomainSelectionDialog.vue'
 
 const { t } = useI18n()
 
@@ -155,8 +162,11 @@ const {
   isSorting,
   suggestedTodos,
   showSuggestedTodos,
+  showDomainSelection,
   MAX_TODO_LENGTH,
   generateSuggestedTodos,
+  generateSuggestedTodosWithDomain,
+  cancelDomainSelection,
   confirmSuggestedTodos,
   cancelSuggestedTodos,
   updateSuggestedTodo,
