@@ -24,14 +24,57 @@
           {{ t('aiAssistant') }}
         </h2>
 
-        <!-- 关闭按钮 -->
-        <button
-          class="flex items-center justify-center p-2 text-white/80 hover:text-white hover:bg-white/10 rounded-lg transition-all duration-200 group"
-          :title="t('close')"
-          @click="closeSidebar"
-        >
-          <CloseIcon class="w-4 h-4 group-hover:scale-110 transition-transform duration-200" />
-        </button>
+        <!-- 系统提示词选择器 -->
+        <div class="flex items-center gap-2">
+          <div class="relative">
+            <select
+              :value="config.enabled ? config.activePromptId || '' : ''"
+              @change="handlePromptChange"
+              class="px-3 py-1.5 pr-8 text-sm bg-white/10 text-white border border-white/20 rounded-lg cursor-pointer transition-all duration-200 hover:bg-white/15 focus:bg-white/15 focus:border-white/40 focus:outline-none backdrop-blur-sm min-w-[140px] md:min-w-[120px] md:text-xs appearance-none"
+              :disabled="!config.enabled"
+            >
+              <option value="" class="text-gray-800">{{ t('noSystemPrompt') }}</option>
+              <option
+                v-for="prompt in enabledPrompts"
+                :key="prompt.id"
+                :value="prompt.id"
+                class="text-gray-800"
+              >
+                {{ prompt.name }}
+              </option>
+            </select>
+
+            <!-- 系统提示词状态指示器和下拉箭头 -->
+            <div
+              class="absolute right-2 top-1/2 transform -translate-y-1/2 flex items-center gap-1 pointer-events-none"
+            >
+              <div
+                v-if="hasActivePrompt"
+                class="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse"
+                :title="t('enabled')"
+              ></div>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                width="12"
+                height="12"
+                fill="currentColor"
+                class="text-white/60 md:w-2.5 md:h-2.5"
+              >
+                <path d="M7 10l5 5 5-5z" />
+              </svg>
+            </div>
+          </div>
+
+          <!-- 关闭按钮 -->
+          <button
+            class="flex items-center justify-center p-2 text-white/80 hover:text-white hover:bg-white/10 rounded-lg transition-all duration-200 group"
+            :title="t('close')"
+            @click="closeSidebar"
+          >
+            <CloseIcon class="w-4 h-4 group-hover:scale-110 transition-transform duration-200" />
+          </button>
+        </div>
       </div>
 
       <!-- AI 聊天内容 -->
@@ -67,9 +110,10 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
+import { onMounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useChat } from '../composables/useChat'
+import { useSystemPrompts } from '../composables/useSystemPrompts'
 import AIChatContent from './chat/AIChatContent.vue'
 import Overlay from './common/Overlay.vue'
 import CloseIcon from './common/icons/CloseIcon.vue'
@@ -84,7 +128,7 @@ interface Emits {
   (e: 'close'): void
 }
 
-defineProps<Props>()
+const props = defineProps<Props>()
 const emit = defineEmits<Emits>()
 
 const {
@@ -109,6 +153,31 @@ const {
   isRetrying,
   retryCount,
 } = useChat()
+
+// 系统提示词管理
+const {
+  config,
+  enabledPrompts,
+  hasActivePrompt,
+  setActivePrompt,
+  initialize: initializeSystemPrompts,
+} = useSystemPrompts()
+
+// 处理系统提示词切换
+const handlePromptChange = async (event: Event) => {
+  const target = event.target as HTMLSelectElement
+  const promptId = target.value || null
+  try {
+    await setActivePrompt(promptId)
+  } catch (error) {
+    console.error('切换系统提示词失败:', error)
+  }
+}
+
+// 刷新系统提示词列表
+const refreshSystemPrompts = () => {
+  initializeSystemPrompts()
+}
 
 const isDrawerOpen = ref(false)
 const messageListRef = ref<InstanceType<typeof AIChatContent> | null>(null)
@@ -151,8 +220,19 @@ const handleOverlayClick = (event: Event) => {
   }
 }
 
+// 监听侧边栏打开状态，打开时刷新系统提示词列表
+watch(
+  () => props.isOpen,
+  (newValue) => {
+    if (newValue) {
+      refreshSystemPrompts()
+    }
+  }
+)
+
 onMounted(() => {
   loadConversationHistory()
+  refreshSystemPrompts()
 })
 
 defineOptions({
