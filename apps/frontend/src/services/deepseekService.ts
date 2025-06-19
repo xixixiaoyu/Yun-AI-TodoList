@@ -89,13 +89,15 @@ export async function getAIStreamResponse(
 
     // 构建包含系统提示词的消息列表
     const systemPromptContent = getActiveSystemPromptContent()
-    const messagesWithSystemPrompt: Message[] = [
-      {
+    const messagesWithSystemPrompt: Message[] = [...messages]
+
+    // 只有当系统提示词不为空时才添加 system role
+    if (systemPromptContent.trim()) {
+      messagesWithSystemPrompt.unshift({
         role: 'system',
         content: systemPromptContent,
-      },
-      ...messages,
-    ]
+      })
+    }
 
     const response = await fetch(API_URL, {
       method: 'POST',
@@ -171,21 +173,27 @@ export async function getAIResponse(userMessage: string, temperature = 0.3): Pro
   try {
     const systemPromptContent = getActiveSystemPromptContent()
 
+    const messages = [
+      {
+        role: 'user',
+        content: userMessage,
+      },
+    ]
+
+    // 只有当系统提示词不为空时才添加 system role
+    if (systemPromptContent.trim()) {
+      messages.unshift({
+        role: 'system',
+        content: systemPromptContent,
+      })
+    }
+
     const response = await fetch(API_URL, {
       method: 'POST',
       headers: getHeaders(),
       body: JSON.stringify({
         model: getAIModel(),
-        messages: [
-          {
-            role: 'system',
-            content: systemPromptContent,
-          },
-          {
-            role: 'user',
-            content: userMessage,
-          },
-        ],
+        messages,
         temperature,
         stream: false,
       }),
