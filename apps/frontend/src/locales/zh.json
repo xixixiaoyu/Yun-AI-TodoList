@@ -208,7 +208,7 @@
   "lightThemeDescription": "明亮清爽的界面风格",
   "darkThemeDescription": "护眼的深色界面风格",
   "autoThemeDescription": "根据系统设置自动切换主题",
-  "currentTheme": "当前主题",
+  "currentTheme": "当前系统主题",
 
   "searching": "搜索中...",
   "searchLocale": "搜索语言",

@@ -167,7 +167,7 @@
   "lightThemeDescription": "Bright and clean interface style",
   "darkThemeDescription": "Eye-friendly dark interface style",
   "autoThemeDescription": "Automatically switch theme based on system settings",
-  "currentTheme": "Current Theme",
+  "currentTheme": "Current System Theme",
 
   "searching": "Searching...",
   "searchLocale": "Search Language",
