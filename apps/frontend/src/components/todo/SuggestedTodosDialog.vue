@@ -141,36 +141,36 @@ defineOptions({
   @apply flex items-center justify-center p-6;
 }
 
-/* 主对话框 - 更大尺寸，契合主题 */
+/* 弹窗容器 - 小巧设计 */
 .suggested-todos-dialog {
-  @apply relative w-full max-w-2xl max-h-90vh;
-  @apply rounded-2xl shadow-xl border overflow-hidden;
-  @apply backdrop-blur-20;
+  @apply relative bg-white rounded-xl shadow-xl;
+  @apply max-w-lg w-full max-h-[75vh] overflow-hidden;
+  @apply transform transition-all duration-300;
   background: var(--card-bg-color);
-  border-color: var(--input-border-color);
+  border: 1px solid var(--input-border-color);
   box-shadow:
     var(--card-shadow),
-    0 20px 40px rgba(var(--primary-color-rgb), 0.08),
-    0 8px 16px rgba(var(--primary-color-rgb), 0.04);
+    0 12px 24px rgba(var(--primary-color-rgb), 0.06),
+    0 4px 8px rgba(var(--primary-color-rgb), 0.03);
 }
 
-/* 头部 - 契合主题设计 */
+/* 头部 - 紧凑设计 */
 .dialog-header {
-  @apply flex items-center gap-4 p-6 pb-5;
+  @apply flex items-center gap-3 p-4 pb-3;
   border-bottom: 1px solid var(--input-border-color);
   background: linear-gradient(
     135deg,
     var(--card-bg-color) 0%,
-    rgba(var(--primary-color-rgb), 0.02) 100%
+    rgba(var(--primary-color-rgb), 0.01) 100%
   );
 }
 
 .header-icon {
-  @apply flex-shrink-0 w-10 h-10 rounded-xl;
+  @apply flex-shrink-0 w-8 h-8 rounded-lg;
   @apply flex items-center justify-center;
-  background: linear-gradient(135deg, var(--primary-color) 0%, var(--button-hover-bg-color) 100%);
+  background: var(--primary-color);
   color: var(--button-text-color);
-  box-shadow: 0 4px 12px rgba(var(--primary-color-rgb), 0.2);
+  box-shadow: 0 2px 6px rgba(var(--primary-color-rgb), 0.15);
 }
 
 .header-content {
@@ -178,18 +178,18 @@ defineOptions({
 }
 
 .dialog-title {
-  @apply text-xl font-semibold mb-1;
+  @apply text-lg font-medium mb-0.5;
   @apply leading-tight;
-}
-
-.dialog-subtitle {
-  @apply text-sm;
-  color: var(--text-secondary-color);
   color: var(--text-color);
 }
 
+.dialog-subtitle {
+  @apply text-xs;
+  color: var(--text-secondary-color);
+}
+
 .close-btn {
-  @apply flex-shrink-0 w-8 h-8 rounded-lg;
+  @apply flex-shrink-0 w-7 h-7 rounded-md;
   @apply flex items-center justify-center transition-all duration-200;
   color: var(--text-secondary-color);
   background: transparent;
@@ -200,30 +200,30 @@ defineOptions({
   color: var(--text-color);
 }
 
-/* 建议列表 - 更大空间 */
+/* 建议列表 - 紧凑空间 */
 .suggestions-list {
-  @apply p-6 pt-4 max-h-80 overflow-y-auto;
+  @apply p-4 pt-3 max-h-64 overflow-y-auto;
 }
 
 .suggestions-container {
-  @apply space-y-4;
+  @apply space-y-3;
 }
 
 .suggestion-item {
-  @apply flex items-center gap-4;
+  @apply flex items-center gap-3;
 }
 
 .suggestion-number {
-  @apply flex-shrink-0 w-8 h-8 rounded-full;
-  @apply flex items-center justify-center text-sm font-medium;
+  @apply flex-shrink-0 w-6 h-6 rounded-full;
+  @apply flex items-center justify-center text-xs font-medium;
   @apply transition-all duration-200;
-  background: linear-gradient(135deg, var(--primary-color) 0%, var(--button-hover-bg-color) 100%);
+  background: var(--primary-color);
   color: var(--button-text-color);
-  box-shadow: 0 2px 8px rgba(var(--primary-color-rgb), 0.15);
+  box-shadow: 0 1px 4px rgba(var(--primary-color-rgb), 0.12);
 }
 
 .suggestion-input {
-  @apply flex-1 px-4 py-3 rounded-xl text-base;
+  @apply flex-1 px-3 py-2 rounded-lg text-sm;
   @apply transition-all duration-200 focus:outline-none;
   background: var(--input-bg-color);
   border: 1px solid var(--input-border-color);
@@ -244,7 +244,7 @@ defineOptions({
 }
 
 .delete-btn {
-  @apply flex-shrink-0 w-9 h-9 rounded-lg;
+  @apply flex-shrink-0 w-7 h-7 rounded-md;
   @apply flex items-center justify-center transition-all duration-200;
   color: var(--text-secondary-color);
   background: transparent;
@@ -257,14 +257,14 @@ defineOptions({
 }
 
 .add-suggestion-container {
-  @apply mt-4 pt-4;
+  @apply mt-3 pt-3;
   border-top: 1px solid var(--input-border-color);
 }
 
 .add-suggestion-btn {
-  @apply w-full flex items-center justify-center gap-2 px-4 py-3;
-  @apply rounded-xl text-base font-medium transition-all duration-200;
-  @apply border-2 border-dashed hover:transform hover:scale-105;
+  @apply w-full flex items-center justify-center gap-2 px-3 py-2;
+  @apply rounded-lg text-sm font-medium transition-all duration-200;
+  @apply border border-dashed hover:transform hover:scale-105;
   background: var(--input-bg-color);
   border-color: var(--primary-color);
   color: var(--primary-color);
@@ -276,25 +276,25 @@ defineOptions({
   color: var(--button-hover-bg-color);
 }
 
-/* 操作按钮 - 契合主题设计 */
+/* 操作按钮 - 紧凑设计 */
 .dialog-actions {
-  @apply flex gap-4 p-6 pt-5;
+  @apply flex gap-3 p-4 pt-3;
   border-top: 1px solid var(--input-border-color);
   background: linear-gradient(
     135deg,
     var(--card-bg-color) 0%,
-    rgba(var(--primary-color-rgb), 0.01) 100%
+    rgba(var(--primary-color-rgb), 0.005) 100%
   );
 }
 
 .action-btn {
-  @apply flex items-center justify-center gap-2 px-6 py-3;
-  @apply rounded-xl font-medium text-base transition-all duration-200;
+  @apply flex items-center justify-center gap-1.5 px-4 py-2;
+  @apply rounded-lg font-medium text-sm transition-all duration-200;
   @apply hover:transform hover:scale-105 active:scale-95;
 }
 
 .btn-icon {
-  @apply w-5 h-5;
+  @apply w-4 h-4;
 }
 
 .cancel-btn {
@@ -312,14 +312,14 @@ defineOptions({
 
 .confirm-btn {
   @apply flex-1 shadow-sm;
-  background: linear-gradient(135deg, var(--primary-color) 0%, var(--button-hover-bg-color) 100%);
+  background: var(--primary-color);
   color: var(--button-text-color);
   border: 1px solid var(--primary-color);
 }
 
 .confirm-btn:hover {
-  background: linear-gradient(135deg, var(--button-hover-bg-color) 0%, var(--primary-color) 100%);
-  box-shadow: 0 4px 16px rgba(var(--primary-color-rgb), 0.3);
+  background: var(--button-hover-bg-color);
+  box-shadow: 0 2px 8px rgba(var(--primary-color-rgb), 0.2);
   transform: translateY(-1px) scale(1.02);
 }
 
@@ -481,7 +481,7 @@ defineOptions({
   }
 
   .header-icon {
-    background: linear-gradient(135deg, var(--primary-color) 0%, var(--button-hover-bg-color) 100%);
+    background: var(--primary-color);
     color: var(--button-text-color);
   }
 
@@ -503,7 +503,7 @@ defineOptions({
   }
 
   .suggestion-number {
-    background: linear-gradient(135deg, var(--primary-color) 0%, var(--button-hover-bg-color) 100%);
+    background: var(--primary-color);
     color: var(--button-text-color);
   }
 
@@ -547,12 +547,12 @@ defineOptions({
   }
 
   .confirm-btn {
-    background: linear-gradient(135deg, var(--primary-color) 0%, var(--button-hover-bg-color) 100%);
+    background: var(--primary-color);
     border-color: var(--primary-color);
   }
 
   .confirm-btn:hover {
-    background: linear-gradient(135deg, var(--button-hover-bg-color) 0%, var(--primary-color) 100%);
+    background: var(--button-hover-bg-color);
   }
 
   .suggestions-list::-webkit-scrollbar-thumb {
