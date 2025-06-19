@@ -129,7 +129,7 @@ defineOptions({
   @apply relative inline-flex items-center justify-center p-2 rounded-lg cursor-pointer;
   @apply bg-primary/10 hover:bg-primary/20 border border-primary/20 hover:border-primary/40;
   @apply text-primary text-sm font-medium transition-all duration-300;
-  @apply opacity-0 invisible group-hover:opacity-90 group-hover:visible;
+  @apply opacity-90;
   @apply hover:!opacity-100 hover:scale-105 active:scale-95;
   @apply backdrop-blur-sm shadow-sm hover:shadow-md;
 }
