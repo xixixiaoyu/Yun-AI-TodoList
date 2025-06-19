@@ -58,15 +58,53 @@
               {{ t('promptContent') }}
               <span class="text-red-500">*</span>
             </label>
-            <textarea
-              id="prompt-content"
-              v-model="formData.content"
-              class="form-textarea"
-              rows="8"
-              :placeholder="t('promptContentPlaceholder')"
-              :disabled="isLoading"
-              required
-            ></textarea>
+            <div class="content-input-container">
+              <textarea
+                id="prompt-content"
+                v-model="formData.content"
+                class="form-textarea"
+                rows="8"
+                :placeholder="t('promptContentPlaceholder')"
+                :disabled="isLoading || isEnhancing"
+                required
+              ></textarea>
+              <button
+                type="button"
+                @click="enhanceContent"
+                class="enhance-btn"
+                :disabled="isLoading || isEnhancing || !formData.content.trim()"
+                :title="t('enhancePromptContent')"
+              >
+                <svg
+                  v-if="isEnhancing"
+                  class="w-4 h-4 animate-spin"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <circle
+                    class="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    stroke-width="4"
+                  ></circle>
+                  <path
+                    class="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                  ></path>
+                </svg>
+                <svg v-else class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M13 10V3L4 14h7v7l9-11h-7z"
+                  />
+                </svg>
+              </button>
+            </div>
             <p v-if="errors.content" class="form-error">{{ errors.content }}</p>
             <p class="form-help">{{ t('promptContentHelp') }}</p>
           </div>
@@ -112,13 +150,14 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, nextTick } from 'vue'
-import { useI18n } from 'vue-i18n'
+import { getAIResponse } from '@/services/deepseekService'
 import type {
   SystemPrompt,
   SystemPromptCreateInput,
   SystemPromptUpdateInput,
 } from '@/services/types'
+import { computed, nextTick, ref, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
 
 interface Props {
   show: boolean
@@ -146,6 +185,7 @@ const formData = ref({
   content: '',
 })
 const errors = ref<Record<string, string>>({})
+const isEnhancing = ref(false)
 
 // 计算属性
 const isFormValid = computed(() => {
@@ -220,6 +260,38 @@ const handleSubmit = () => {
   }
 
   emit('save', data)
+}
+
+// AI增强内容
+const enhanceContent = async () => {
+  if (!formData.value.content.trim()) {
+    return
+  }
+
+  try {
+    isEnhancing.value = true
+
+    const enhancePrompt = `请优化以下系统提示词，使其更加专业、清晰、符合AI助手的规范。要求：
+1. 保持原有的核心意图和功能
+2. 使用更专业和准确的表达
+3. 结构更加清晰，逻辑更加严谨
+4. 符合AI系统提示词的最佳实践
+5. 直接返回优化后的提示词内容，不要添加任何解释
+
+原始提示词：
+${formData.value.content}`
+
+    const enhancedContent = await getAIResponse(enhancePrompt, 0.3)
+
+    if (enhancedContent && enhancedContent.trim()) {
+      formData.value.content = enhancedContent.trim()
+    }
+  } catch (error) {
+    console.error('AI增强失败:', error)
+    // 这里可以添加错误提示
+  } finally {
+    isEnhancing.value = false
+  }
 }
 
 // 处理遮罩点击
@@ -351,6 +423,96 @@ defineOptions({
 
 .form-help {
   @apply text-xs text-text-secondary;
+}
+
+.enhance-help {
+  @apply text-xs text-text-secondary/80 mt-1;
+}
+
+.content-input-container {
+  position: relative;
+}
+
+.enhance-btn {
+  position: absolute;
+  bottom: 8px;
+  right: 8px;
+  padding: 8px;
+  background: linear-gradient(135deg, var(--primary-color) 0%, #68a295 100%);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  z-index: 10;
+  box-shadow: 0 2px 8px rgba(var(--primary-color-rgb), 0.2);
+}
+
+.enhance-btn:hover:not(:disabled) {
+  transform: translateY(-2px) scale(1.05);
+  background: linear-gradient(135deg, var(--button-hover-bg-color) 0%, var(--primary-color) 100%);
+  box-shadow: 0 6px 20px rgba(var(--primary-color-rgb), 0.35);
+}
+
+.enhance-btn:active:not(:disabled) {
+  transform: translateY(-1px) scale(1.02);
+  transition: all 0.1s ease;
+}
+
+.enhance-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+  background: linear-gradient(135deg, #9ca3af 0%, #6b7280 100%);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+/* 悬浮提示样式优化 */
+.enhance-btn[title]:hover::after {
+  content: attr(title);
+  position: absolute;
+  bottom: 100%;
+  right: 0;
+  margin-bottom: 8px;
+  padding: 8px 12px;
+  background: rgba(0, 0, 0, 0.9);
+  color: white;
+  font-size: 12px;
+  border-radius: 6px;
+  white-space: nowrap;
+  z-index: 1000;
+  opacity: 0;
+  animation: tooltipFadeIn 0.2s ease-out 0.5s forwards;
+  pointer-events: none;
+}
+
+.enhance-btn[title]:hover::before {
+  content: '';
+  position: absolute;
+  bottom: 100%;
+  right: 12px;
+  margin-bottom: 2px;
+  border: 4px solid transparent;
+  border-top-color: rgba(0, 0, 0, 0.9);
+  z-index: 1000;
+  opacity: 0;
+  animation: tooltipFadeIn 0.2s ease-out 0.5s forwards;
+}
+
+@keyframes tooltipFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .dialog-actions {
