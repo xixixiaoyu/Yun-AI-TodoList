@@ -121,7 +121,7 @@ describe('deepseekService', () => {
       }
       mockFetchFn.mockResolvedValue(createMockResponse(mockResponseData))
 
-      await getAIResponse('Test message', 'en', 0.8)
+      await getAIResponse('Test message', 0.8)
 
       const callArgs = mockFetchFn.mock.calls[0][1]
       const requestBody = JSON.parse(callArgs.body)
@@ -287,7 +287,7 @@ describe('deepseekService', () => {
       }
       mockFetchFn.mockResolvedValue(createMockResponse(mockResponseData))
 
-      await getAIResponse('Test message', 'zh', 0.7)
+      await getAIResponse('Test message', 0.7)
 
       const callArgs = mockFetchFn.mock.calls[0][1]
       const requestBody = JSON.parse(callArgs.body)

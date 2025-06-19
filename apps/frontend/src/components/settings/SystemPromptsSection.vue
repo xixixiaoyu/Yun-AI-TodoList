@@ -55,24 +55,6 @@
           </div>
         </div>
 
-        <!-- 自动添加语言指令 -->
-        <div class="setting-item">
-          <div class="setting-info">
-            <label class="setting-label">{{ t('includeLanguageInstruction') }}</label>
-            <p class="setting-description">{{ t('includeLanguageInstructionDesc') }}</p>
-          </div>
-          <div class="setting-control">
-            <label class="toggle-switch">
-              <input
-                type="checkbox"
-                :checked="config.includeLanguageInstruction !== false"
-                @change="handleToggleLanguageInstruction"
-              />
-              <span class="toggle-slider"></span>
-            </label>
-          </div>
-        </div>
-
         <!-- 提示词列表 -->
         <div class="prompts-list">
           <div class="list-header">
@@ -288,10 +270,6 @@ const handleActivePromptChange = async (event: Event) => {
 }
 
 // 处理语言指令开关
-const handleToggleLanguageInstruction = async (event: Event) => {
-  const target = event.target as HTMLInputElement
-  await updateConfig({ includeLanguageInstruction: target.checked })
-}
 
 // 编辑提示词
 const editPrompt = (prompt: SystemPrompt) => {

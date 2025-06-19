@@ -15,10 +15,6 @@ const getSystemPromptConfig = () => {
         activePromptId: parsedConfig.activePromptId || null,
         defaultPromptContent:
           parsedConfig.defaultPromptContent || '你是一个智能助手，可以回答各种问题并提供帮助。',
-        includeLanguageInstruction:
-          parsedConfig.includeLanguageInstruction !== undefined
-            ? parsedConfig.includeLanguageInstruction
-            : true,
       }
     }
   } catch (error) {
@@ -28,26 +24,16 @@ const getSystemPromptConfig = () => {
     enabled: false,
     activePromptId: null,
     defaultPromptContent: '你是一个智能助手，可以回答各种问题并提供帮助。',
-    includeLanguageInstruction: true, // 默认启用语言指令
   }
 }
 
 // 获取激活的系统提示词内容
-const getActiveSystemPromptContent = (language?: string) => {
+const getActiveSystemPromptContent = () => {
   const config = getSystemPromptConfig()
-  const includeLanguageInstruction = config.includeLanguageInstruction !== false // 默认为true
-
-  // 如果没有传入语言参数，从当前界面语言获取
-  const currentLanguage = language || i18n.global.locale.value || 'zh'
 
   if (!config.enabled || !config.activePromptId) {
     // 使用默认系统提示词
-    const languageInstruction = includeLanguageInstruction
-      ? currentLanguage === 'zh'
-        ? ' 默认使用中文回复。'
-        : ' 默认使用英文回复。'
-      : ''
-    return `${config.defaultPromptContent}${languageInstruction}`
+    return config.defaultPromptContent
   }
 
   try {
@@ -56,12 +42,7 @@ const getActiveSystemPromptContent = (language?: string) => {
       const promptList = JSON.parse(prompts)
       const activePrompt = promptList.find((p: any) => p.id === config.activePromptId && p.isActive)
       if (activePrompt) {
-        const languageInstruction = includeLanguageInstruction
-          ? currentLanguage === 'zh'
-            ? ' 默认使用中文回复。'
-            : ' 默认使用英文回复。'
-          : ''
-        return `${activePrompt.content}${languageInstruction}`
+        return activePrompt.content
       }
     }
   } catch (error) {
@@ -69,12 +50,7 @@ const getActiveSystemPromptContent = (language?: string) => {
   }
 
   // 回退到默认提示词
-  const languageInstruction = includeLanguageInstruction
-    ? currentLanguage === 'zh'
-      ? ' 默认使用中文回复。'
-      : ' 默认使用英文回复。'
-    : ''
-  return `${config.defaultPromptContent}${languageInstruction}`
+  return config.defaultPromptContent
 }
 
 // 错误处理函数
@@ -107,8 +83,7 @@ const getHeaders = () => {
 
 export async function getAIStreamResponse(
   messages: Message[],
-  onChunk: (chunk: string) => void,
-  language = 'zh'
+  onChunk: (chunk: string) => void
 ): Promise<void> {
   let buffer = ''
   let isReading = true
@@ -118,7 +93,7 @@ export async function getAIStreamResponse(
     const signal = abortController.signal
 
     // 构建包含系统提示词的消息列表
-    const systemPromptContent = getActiveSystemPromptContent(language)
+    const systemPromptContent = getActiveSystemPromptContent()
     const messagesWithSystemPrompt: Message[] = [
       {
         role: 'system',
@@ -191,13 +166,9 @@ export async function getAIStreamResponse(
   }
 }
 
-export async function getAIResponse(
-  userMessage: string,
-  language?: string,
-  temperature = 0.3
-): Promise<string> {
+export async function getAIResponse(userMessage: string, temperature = 0.3): Promise<string> {
   try {
-    const systemPromptContent = getActiveSystemPromptContent(language)
+    const systemPromptContent = getActiveSystemPromptContent()
 
     const response = await fetch(API_URL, {
       method: 'POST',

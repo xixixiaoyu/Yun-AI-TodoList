@@ -339,7 +339,5 @@
   "edit": "Edit",
   "enable": "Enable",
   "disable": "Disable",
-  "create": "Create",
-  "includeLanguageInstruction": "Auto-add Language Instruction",
-  "includeLanguageInstructionDesc": "Automatically append 'Default use Chinese reply' or 'Default use English reply' instruction after system prompt"
+  "create": "Create"
 }

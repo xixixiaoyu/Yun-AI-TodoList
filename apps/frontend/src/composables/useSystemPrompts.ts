@@ -25,7 +25,6 @@ export function useSystemPrompts() {
     enabled: false, // 默认不启用系统提示词
     activePromptId: null,
     defaultPromptContent: '你是一个智能助手，可以回答各种问题并提供帮助。',
-    includeLanguageInstruction: true, // 默认启用语言指令
   })
 
   const isLoading = ref(false)

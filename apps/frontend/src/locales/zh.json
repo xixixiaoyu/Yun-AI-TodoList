@@ -373,7 +373,5 @@
   "promptContentRequired": "提示词内容不能为空",
   "promptContentHelp": "系统提示词将告诉 AI 如何回复您的问题，例如：角色设定、回复风格、专业领域等",
   "promptTags": "标签",
-  "promptTagsPlaceholder": "请输入标签，用逗号分隔",
-  "includeLanguageInstruction": "自动添加语言指令",
-  "includeLanguageInstructionDesc": "在系统提示词后自动添加'默认使用中文回复'或'默认使用英文回复'指令"
+  "promptTagsPlaceholder": "请输入标签，用逗号分隔"
 }
