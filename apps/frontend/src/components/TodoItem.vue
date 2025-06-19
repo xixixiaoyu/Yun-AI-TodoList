@@ -304,6 +304,7 @@ onErrorCaptured(handleError)
 
 .checkbox-wrapper {
   @apply flex items-center;
+  align-self: flex-start;
 }
 
 .card-todo:hover {
@@ -381,6 +382,17 @@ onErrorCaptured(handleError)
 
 /* 移动端优化 */
 @media (max-width: 768px) {
+  .todo-main-content {
+    @apply flex items-center justify-between gap-3 min-w-0;
+  }
+
+  .ai-analysis-info {
+    @apply flex items-center gap-2 text-xs opacity-80 flex-shrink-0;
+  }
+}
+
+/* 小屏幕优化 */
+@media (max-width: 480px) {
   .todo-main-content {
     @apply flex-col items-start gap-2;
   }
@@ -493,14 +505,27 @@ onErrorCaptured(handleError)
 @media (max-width: 768px) {
   .card-todo {
     @apply flex-row items-center;
+    padding: 0.8rem 0.7rem;
   }
 
   .todo-content {
-    @apply flex-1 min-w-0;
+    @apply flex-1 min-w-0 items-center;
+  }
+
+  .checkbox-wrapper {
+    @apply flex items-center;
+    align-self: center;
+    margin-right: 0.5rem;
+  }
+
+  .todo-text-wrapper {
+    @apply flex flex-col flex-grow min-w-0;
+    align-self: center;
   }
 
   .delete-btn {
     @apply opacity-80 transform translate-x-0 ml-3 relative;
+    align-self: center;
   }
 
   .delete-btn:active {
@@ -512,6 +537,44 @@ onErrorCaptured(handleError)
     min-width: 20px;
     height: 20px;
     margin-right: 6px;
+    align-self: center;
+  }
+}
+
+/* 小屏幕优化 */
+@media (max-width: 480px) {
+  .card-todo {
+    @apply flex-row items-center;
+    padding: 0.7rem 0.5rem;
+  }
+
+  .todo-content {
+    @apply flex-1 min-w-0 items-center;
+  }
+
+  .checkbox-wrapper {
+    @apply flex items-center;
+    align-self: center;
+    margin-right: 0.4rem;
+  }
+
+  .todo-text-wrapper {
+    @apply flex flex-col flex-grow min-w-0;
+    align-self: center;
+    justify-content: center;
+  }
+
+  .delete-btn {
+    @apply opacity-80 transform translate-x-0 ml-2 relative;
+    align-self: center;
+  }
+
+  .todo-drag-handle {
+    @apply opacity-60;
+    min-width: 18px;
+    height: 18px;
+    margin-right: 4px;
+    align-self: center;
   }
 }
 </style>
