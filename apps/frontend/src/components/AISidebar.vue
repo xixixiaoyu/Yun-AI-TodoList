@@ -47,15 +47,15 @@
         :is-optimizing="isOptimizing"
         @toggle-drawer="isDrawerOpen = !isDrawerOpen"
         @update:is-drawer-open="isDrawerOpen = $event"
-        @switch-conversation="switchConversation"
-        @delete-conversation="deleteConversation"
-        @clear-conversations="clearAllConversations"
-        @new-conversation="createNewConversation"
-        @optimize="optimizeMessage"
+        @switch-conversation="(id: string) => switchConversation(id)"
+        @delete-conversation="(id: string) => deleteConversation(id)"
+        @clear-conversations="() => clearAllConversations()"
+        @new-conversation="(title?: string) => createNewConversation(title)"
+        @optimize="() => optimizeMessage()"
         @retry="handleRetry"
         @send="handleSendMessage"
-        @stop="stopGenerating"
-        @scroll="handleScroll"
+        @stop="() => stopGenerating()"
+        @scroll="(scrollInfo: any) => handleScroll(scrollInfo)"
         @update:user-message="userMessage = $event"
       />
     </div>
@@ -67,8 +67,8 @@ import { onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useChat } from '../composables/useChat'
 import AIChatContent from './chat/AIChatContent.vue'
-import CloseIcon from './common/icons/CloseIcon.vue'
 import Overlay from './common/Overlay.vue'
+import CloseIcon from './common/icons/CloseIcon.vue'
 
 const { t } = useI18n()
 
@@ -156,15 +156,15 @@ defineOptions({
 
 <style scoped>
 .sidebar-width {
-  width: 50vw;
-  max-width: 600px;
+  width: 80vw;
+  max-width: 900px;
   min-width: 400px;
 }
 
 /* 响应式宽度设计 */
 @media (max-width: 640px) {
   .sidebar-width {
-    width: 90vw;
+    width: 95vw;
     min-width: 320px;
     max-width: none;
   }
@@ -172,34 +172,34 @@ defineOptions({
 
 @media (min-width: 641px) and (max-width: 768px) {
   .sidebar-width {
-    width: 80vw;
+    width: 90vw;
     min-width: 350px;
-    max-width: 500px;
+    max-width: 700px;
   }
 }
 
 @media (min-width: 769px) and (max-width: 1024px) {
   .sidebar-width {
-    width: 55vw;
+    width: 85vw;
     min-width: 400px;
-    max-width: 550px;
+    max-width: 800px;
   }
 }
 
 @media (min-width: 1025px) and (max-width: 1440px) {
   .sidebar-width {
-    width: 50vw;
+    width: 80vw;
     min-width: 450px;
-    max-width: 600px;
+    max-width: 900px;
   }
 }
 
 /* 超大屏幕优化 */
 @media (min-width: 1441px) {
   .sidebar-width {
-    width: 45vw;
+    width: 80vw;
     min-width: 500px;
-    max-width: 700px;
+    max-width: 1000px;
   }
 }
 
