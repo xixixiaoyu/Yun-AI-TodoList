@@ -87,21 +87,35 @@ defineOptions({
 
 <style scoped>
 .dialog-overlay {
-  @apply fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4;
-  animation: fadeIn 0.2s ease-out;
+  @apply fixed inset-0 z-50 flex items-center justify-center p-4;
+  background: linear-gradient(135deg, rgba(0, 0, 0, 0.4) 0%, rgba(0, 0, 0, 0.6) 100%);
+  backdrop-filter: blur(8px);
+  animation: fadeIn 0.3s ease-out;
 }
 
 .dialog-container {
-  @apply bg-card rounded-2xl shadow-2xl max-w-md w-full overflow-hidden;
-  animation: slideIn 0.3s ease-out;
+  @apply rounded-3xl shadow-2xl max-w-md w-full overflow-hidden;
+  background: linear-gradient(145deg, var(--card-bg-color) 0%, rgba(255, 255, 255, 0.95) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  animation: slideIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 .dialog-header {
   @apply flex items-start gap-4 p-6;
+  background: linear-gradient(135deg, rgba(255, 248, 248, 0.8) 0%, rgba(254, 242, 242, 0.6) 100%);
 }
 
 .dialog-icon {
-  @apply flex-shrink-0 w-10 h-10 rounded-full bg-red-100 flex items-center justify-center;
+  @apply flex-shrink-0 w-12 h-12 rounded-full flex items-center justify-center;
+  background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 50%, #fecaca 100%);
+  border: 2px solid rgba(239, 68, 68, 0.1);
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.15);
+}
+
+.dialog-icon svg {
+  @apply w-6 h-6;
+  color: #dc2626;
+  filter: drop-shadow(0 1px 2px rgba(220, 38, 38, 0.2));
 }
 
 .dialog-title-group {
@@ -109,27 +123,39 @@ defineOptions({
 }
 
 .dialog-title {
-  @apply text-lg font-semibold text-text mb-1;
+  @apply text-lg font-semibold mb-1;
+  color: #1f2937;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
 }
 
 .dialog-message {
-  @apply text-sm text-text-secondary leading-relaxed;
+  @apply text-sm leading-relaxed;
+  color: #6b7280;
 }
 
 .dialog-actions {
-  @apply flex gap-3 justify-end p-6 pt-0;
+  @apply flex gap-3 justify-end p-6 pt-4;
+  background: linear-gradient(180deg, transparent 0%, rgba(249, 250, 251, 0.5) 100%);
 }
 
 .btn-secondary {
-  @apply px-4 py-2 text-sm font-medium rounded-lg border transition-all duration-200;
-  background-color: var(--input-bg-color);
-  border-color: var(--input-border-color);
-  color: var(--text-color);
+  @apply px-5 py-2.5 text-sm font-medium rounded-xl border transition-all duration-300;
+  background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%);
+  border-color: #e5e7eb;
+  color: #374151;
+  box-shadow:
+    0 2px 4px rgba(0, 0, 0, 0.05),
+    inset 0 1px 0 rgba(255, 255, 255, 0.7);
 }
 
 .btn-secondary:hover:not(:disabled) {
-  border-color: var(--primary-color);
+  background: linear-gradient(135deg, #ffffff 0%, #f9fafb 100%);
+  border-color: #d1d5db;
+  color: #1f2937;
   transform: translateY(-1px);
+  box-shadow:
+    0 4px 12px rgba(0, 0, 0, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.8);
 }
 
 .btn-secondary:disabled {
@@ -137,14 +163,23 @@ defineOptions({
 }
 
 .btn-danger {
-  @apply px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200 flex items-center;
-  background-color: #ef4444;
+  @apply px-5 py-2.5 text-sm font-medium rounded-xl transition-all duration-300 flex items-center;
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 50%, #b91c1c 100%);
   color: white;
+  border: 1px solid rgba(185, 28, 28, 0.3);
+  box-shadow:
+    0 2px 8px rgba(239, 68, 68, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
 }
 
 .btn-danger:hover:not(:disabled) {
-  background-color: #dc2626;
+  background: linear-gradient(135deg, #dc2626 0%, #b91c1c 50%, #991b1b 100%);
+  border-color: rgba(153, 27, 27, 0.4);
   transform: translateY(-1px);
+  box-shadow:
+    0 4px 16px rgba(239, 68, 68, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.25);
 }
 
 .btn-danger:disabled {
@@ -163,7 +198,7 @@ defineOptions({
 @keyframes slideIn {
   from {
     opacity: 0;
-    transform: translateY(-20px) scale(0.95);
+    transform: translateY(-30px) scale(0.9);
   }
   to {
     opacity: 1;
