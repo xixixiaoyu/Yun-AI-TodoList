@@ -304,7 +304,7 @@ onErrorCaptured(handleError)
 
 .checkbox-wrapper {
   @apply flex items-center;
-  align-self: flex-start;
+  align-self: center;
 }
 
 .card-todo:hover {
