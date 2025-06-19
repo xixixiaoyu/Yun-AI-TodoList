@@ -17,11 +17,6 @@
       />
       <LoadingIcon v-else class="retry-icon loading-spin" />
     </div>
-
-    <!-- 重试计数器 -->
-    <span v-if="retryCount > 0" class="retry-count">
-      {{ retryCount }}
-    </span>
   </button>
 </template>
 
@@ -111,11 +106,6 @@ defineOptions({
 
 .loading-spin {
   animation: spin 1s linear infinite;
-}
-
-.retry-count {
-  @apply ml-1 px-1.5 py-0.5 bg-current/20 text-xs rounded-full;
-  @apply min-w-[1.25rem] text-center;
 }
 
 /* 尺寸变体 */

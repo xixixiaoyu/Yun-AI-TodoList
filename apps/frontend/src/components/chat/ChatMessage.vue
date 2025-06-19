@@ -91,26 +91,13 @@ const props = withDefaults(defineProps<Props>(), {
 })
 const emit = defineEmits<Emits>()
 
-// 注入 Toast 实例
-const toast = inject('toast') as ReturnType<typeof import('../../composables/useToast').useToast>
-
 const handleCopySuccess = (text: string) => {
   emit('copy', text)
   emit('copy-success', text)
-
-  // 显示 Toast 通知
-  if (toast) {
-    toast.copySuccess()
-  }
 }
 
 const handleCopyError = (error: Error) => {
   emit('copy-error', error)
-
-  // 显示 Toast 通知
-  if (toast) {
-    toast.copyError(error)
-  }
 }
 
 const handleRetry = () => {

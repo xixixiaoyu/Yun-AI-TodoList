@@ -27,7 +27,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onUnmounted } from 'vue'
+import { onUnmounted, ref } from 'vue'
 import CheckIcon from './icons/CheckIcon.vue'
 import ExclamationIcon from './icons/ExclamationIcon.vue'
 import InfoIcon from './icons/InfoIcon.vue'
@@ -121,7 +121,7 @@ defineOptions({
   position: fixed;
   top: 1rem;
   right: 1rem;
-  z-index: 9999;
+  z-index: 10001;
   pointer-events: none;
 }
 
