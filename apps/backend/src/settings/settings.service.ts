@@ -148,7 +148,7 @@ export class SettingsService {
         timeEstimation: true,
         modelConfig: {
           model: 'deepseek-chat',
-          temperature: 0.7,
+          temperature: 0.3,
           maxTokens: 1000,
         },
       },

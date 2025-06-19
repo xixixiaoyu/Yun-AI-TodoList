@@ -52,7 +52,7 @@ export class AIConfigDto {
 
   @ApiProperty({
     description: 'AI 模型配置',
-    example: { model: 'deepseek-chat', temperature: 0.7 },
+    example: { model: 'deepseek-chat', temperature: 0.3 },
     required: false,
   })
   @IsOptional()

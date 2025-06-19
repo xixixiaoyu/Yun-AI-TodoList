@@ -191,7 +191,7 @@ export async function getAIStreamResponse(
 export async function getAIResponse(
   userMessage: string,
   language = 'zh',
-  temperature = 0.5
+  temperature = 0.3
 ): Promise<string> {
   try {
     const systemPromptContent = getActiveSystemPromptContent(language)
@@ -263,7 +263,7 @@ export async function optimizeText(text: string): Promise<string> {
             content: `请优化文本：\n"${text}"`,
           },
         ],
-        temperature: 0.5,
+        temperature: 0.3,
         stream: false,
       }),
     })

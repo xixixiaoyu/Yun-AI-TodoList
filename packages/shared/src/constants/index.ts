@@ -86,7 +86,7 @@ export const AI_CONSTANTS = {
   DEFAULT_PROVIDER: 'deepseek',
   DEFAULT_MODEL: 'deepseek-chat',
   MAX_TOKENS: 4000,
-  DEFAULT_TEMPERATURE: 0.7,
+  DEFAULT_TEMPERATURE: 0.3,
   ANALYSIS_TIMEOUT: 30000, // 30 seconds
 } as const
 

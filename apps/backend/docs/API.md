@@ -150,7 +150,7 @@ curl -X GET http://localhost:3000/api/v1/todos \
     "timeEstimation": true,
     "modelConfig": {
       "model": "deepseek-chat",
-      "temperature": 0.7,
+      "temperature": 0.3,
       "maxTokens": 1000
     }
   },
