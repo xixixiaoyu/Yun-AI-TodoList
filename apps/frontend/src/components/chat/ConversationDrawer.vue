@@ -1,6 +1,23 @@
 <template>
+  <!-- 对话列表遮罩 -->
+  <Transition
+    name="drawer-overlay"
+    enter-active-class="transition-opacity duration-300 ease-in-out"
+    leave-active-class="transition-opacity duration-300 ease-in-out"
+    enter-from-class="opacity-0"
+    enter-to-class="opacity-100"
+    leave-from-class="opacity-100"
+    leave-to-class="opacity-0"
+  >
+    <div
+      v-if="isOpen"
+      class="fixed inset-0 bg-black/40 backdrop-blur-sm z-[1000]"
+      @click="$emit('update:isOpen', false)"
+    />
+  </Transition>
+
   <div
-    class="absolute top-0 left-0 h-full bg-bg/95 backdrop-blur-sm transition-transform duration-300 shadow-lg z-[1001] drawer-responsive w-80 md:w-72 sm:w-64"
+    class="absolute top-0 left-0 h-full bg-bg/95 backdrop-blur-md transition-transform duration-300 shadow-2xl z-[1001] drawer-responsive"
     :class="{
       'translate-x-0': isOpen,
       '-translate-x-full': !isOpen,
@@ -122,22 +139,12 @@ interface Props {
   currentConversationId: string | null
 }
 
-interface ExportOptions {
-  format: 'json' | 'markdown' | 'txt'
-  includeMetadata: boolean
-  dateRange?: {
-    start: Date
-    end: Date
-  }
-  conversations?: string[] // conversation IDs
-}
-
 interface Emits {
   (e: 'update:isOpen', value: boolean): void
   (e: 'switch', id: string): void
   (e: 'delete', id: string): void
   (e: 'clear'): void
-  (e: 'export', options: ExportOptions): void
+  (e: 'export', result: { format: string; success: boolean; error?: any }): void
 }
 
 const props = defineProps<Props>()
@@ -183,9 +190,7 @@ const handleClearAll = () => {
 }
 
 const handleDeleteConversation = (id: string) => {
-  if (confirm(t('confirmDeleteConversation'))) {
-    emit('delete', id)
-  }
+  emit('delete', id)
 }
 
 const formatDate = (dateString: string) => {
@@ -342,14 +347,20 @@ defineOptions({
   animation: overlayIn 0.3s ease-out;
 }
 
-/* 响应式调整 */
+/* 响应式调整 - 增加宽度 */
 .drawer-responsive {
-  width: 320px;
+  width: 400px;
+}
+
+@media (max-width: 1024px) {
+  .drawer-responsive {
+    width: 360px;
+  }
 }
 
 @media (max-width: 768px) {
   .drawer-responsive {
-    width: 280px;
+    width: 320px;
   }
 
   .conversation-item {
@@ -375,7 +386,7 @@ defineOptions({
 
 @media (max-width: 640px) {
   .drawer-responsive {
-    width: 260px;
+    width: 280px;
   }
 
   .conversation-item {
@@ -393,5 +404,16 @@ defineOptions({
   .action-button {
     @apply p-1.5;
   }
+}
+
+/* 遮罩动画 */
+.drawer-overlay-enter-active,
+.drawer-overlay-leave-active {
+  transition: opacity 0.3s ease-in-out;
+}
+
+.drawer-overlay-enter-from,
+.drawer-overlay-leave-to {
+  opacity: 0;
 }
 </style>

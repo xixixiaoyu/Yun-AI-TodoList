@@ -10,7 +10,7 @@
   >
     <div
       v-if="visible"
-      class="fixed inset-0 bg-black/50 backdrop-blur-sm z-[9999]"
+      class="fixed inset-0 bg-black/60 backdrop-blur-md z-[9999]"
       @click="$emit('click', $event)"
     />
   </Transition>
