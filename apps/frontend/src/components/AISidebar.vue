@@ -93,22 +93,15 @@
         :has-error="false"
         @toggle-drawer="isDrawerOpen = !isDrawerOpen"
         @update:is-drawer-open="isDrawerOpen = $event"
-        @switch-conversation="(id: string) => switchConversation(id)"
-        @delete-conversation="(id: string) => deleteConversation(id)"
-        @clear-conversations="() => clearAllConversations()"
-        @new-conversation="() => createNewConversation()"
-        @optimize="() => optimizeMessage()"
-        @retry="(messageIndex: number) => handleRetry(messageIndex)"
-        @send="() => handleSendMessage()"
-        @stop="() => stopGenerating()"
-        @scroll="
-          (scrollInfo: {
-            isAtBottom: boolean
-            scrollTop: number
-            scrollHeight: number
-            clientHeight: number
-          }) => handleScroll(scrollInfo)
-        "
+        @switch-conversation="switchConversation"
+        @delete-conversation="deleteConversation"
+        @clear-conversations="clearAllConversations"
+        @new-conversation="createNewConversation"
+        @optimize="optimizeMessage"
+        @retry="handleRetry"
+        @send="handleSendMessage"
+        @stop="stopGenerating"
+        @scroll="handleScroll"
         @update:user-message="userMessage = $event"
       />
     </div>
