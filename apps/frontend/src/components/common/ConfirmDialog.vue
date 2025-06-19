@@ -3,7 +3,7 @@
     <div class="dialog-container" @click.stop>
       <div class="dialog-header">
         <div class="dialog-icon">
-          <svg class="w-6 h-6 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg class="w-6 h-6 text-rose-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path
               stroke-linecap="round"
               stroke-linejoin="round"
@@ -102,20 +102,20 @@ defineOptions({
 
 .dialog-header {
   @apply flex items-start gap-4 p-6;
-  background: linear-gradient(135deg, rgba(255, 248, 248, 0.8) 0%, rgba(254, 242, 242, 0.6) 100%);
+  background: linear-gradient(135deg, rgba(254, 250, 250, 0.8) 0%, rgba(253, 246, 246, 0.6) 100%);
 }
 
 .dialog-icon {
   @apply flex-shrink-0 w-12 h-12 rounded-full flex items-center justify-center;
-  background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 50%, #fecaca 100%);
-  border: 2px solid rgba(239, 68, 68, 0.1);
-  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.15);
+  background: linear-gradient(135deg, #fef7f7 0%, #fed7d7 50%, #feb2b2 100%);
+  border: 2px solid rgba(251, 113, 133, 0.15);
+  box-shadow: 0 4px 12px rgba(251, 113, 133, 0.12);
 }
 
 .dialog-icon svg {
   @apply w-6 h-6;
-  color: #dc2626;
-  filter: drop-shadow(0 1px 2px rgba(220, 38, 38, 0.2));
+  color: #f87171;
+  filter: drop-shadow(0 1px 2px rgba(248, 113, 113, 0.15));
 }
 
 .dialog-title-group {
@@ -164,21 +164,21 @@ defineOptions({
 
 .btn-danger {
   @apply px-5 py-2.5 text-sm font-medium rounded-xl transition-all duration-300 flex items-center;
-  background: linear-gradient(135deg, #ef4444 0%, #dc2626 50%, #b91c1c 100%);
+  background: linear-gradient(135deg, #f87171 0%, #ef4444 50%, #dc2626 100%);
   color: white;
-  border: 1px solid rgba(185, 28, 28, 0.3);
+  border: 1px solid rgba(220, 38, 38, 0.25);
   box-shadow:
-    0 2px 8px rgba(239, 68, 68, 0.3),
+    0 2px 8px rgba(248, 113, 113, 0.25),
     inset 0 1px 0 rgba(255, 255, 255, 0.2);
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
 }
 
 .btn-danger:hover:not(:disabled) {
-  background: linear-gradient(135deg, #dc2626 0%, #b91c1c 50%, #991b1b 100%);
-  border-color: rgba(153, 27, 27, 0.4);
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 50%, #b91c1c 100%);
+  border-color: rgba(185, 28, 28, 0.3);
   transform: translateY(-1px);
   box-shadow:
-    0 4px 16px rgba(239, 68, 68, 0.4),
+    0 4px 16px rgba(248, 113, 113, 0.3),
     inset 0 1px 0 rgba(255, 255, 255, 0.25);
 }
 
