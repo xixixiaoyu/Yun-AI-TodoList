@@ -44,24 +44,23 @@
               </option>
             </select>
 
-            <!-- 系统提示词状态指示器和下拉箭头 -->
+            <!-- 自定义下拉箭头 -->
             <div
-              class="absolute right-2 top-1/2 transform -translate-y-1/2 flex items-center gap-1 pointer-events-none"
+              class="absolute right-2 top-0 bottom-0 flex items-center justify-center pointer-events-none"
             >
-              <div
-                v-if="hasActivePrompt"
-                class="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse"
-                :title="t('enabled')"
-              ></div>
               <svg
                 xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 24 24"
-                width="12"
-                height="12"
-                fill="currentColor"
-                class="text-white/60 md:w-2.5 md:h-2.5"
+                viewBox="0 0 20 20"
+                width="16"
+                height="16"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                class="text-white/70 transition-colors duration-200"
               >
-                <path d="M7 10l5 5 5-5z" />
+                <polyline points="6,8 10,12 14,8"></polyline>
               </svg>
             </div>
           </div>
@@ -94,15 +93,22 @@
         :has-error="false"
         @toggle-drawer="isDrawerOpen = !isDrawerOpen"
         @update:is-drawer-open="isDrawerOpen = $event"
-        @switch-conversation="switchConversation"
-        @delete-conversation="deleteConversation"
-        @clear-conversations="clearAllConversations"
-        @new-conversation="createNewConversation"
-        @optimize="optimizeMessage"
-        @retry="handleRetry"
-        @send="handleSendMessage"
-        @stop="stopGenerating"
-        @scroll="handleScroll"
+        @switch-conversation="(id: string) => switchConversation(id)"
+        @delete-conversation="(id: string) => deleteConversation(id)"
+        @clear-conversations="() => clearAllConversations()"
+        @new-conversation="() => createNewConversation()"
+        @optimize="() => optimizeMessage()"
+        @retry="(messageIndex: number) => handleRetry(messageIndex)"
+        @send="() => handleSendMessage()"
+        @stop="() => stopGenerating()"
+        @scroll="
+          (scrollInfo: {
+            isAtBottom: boolean
+            scrollTop: number
+            scrollHeight: number
+            clientHeight: number
+          }) => handleScroll(scrollInfo)
+        "
         @update:user-message="userMessage = $event"
       />
     </div>
@@ -158,7 +164,6 @@ const {
 const {
   config,
   enabledPrompts,
-  hasActivePrompt,
   setActivePrompt,
   initialize: initializeSystemPrompts,
 } = useSystemPrompts()
