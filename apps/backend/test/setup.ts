@@ -1,7 +1,14 @@
-import { INestApplication, ValidationPipe } from '@nestjs/common'
 import { Test, TestingModule } from '@nestjs/testing'
+import { INestApplication, ValidationPipe } from '@nestjs/common'
 import { AppModule } from '../src/app.module'
 import { PrismaService } from '../src/database/prisma.service'
+
+// Jest globals
+declare global {
+  var beforeAll: (fn: () => Promise<void>) => void
+  var afterAll: (fn: () => Promise<void>) => void
+  var beforeEach: (fn: () => Promise<void>) => void
+}
 
 export let app: INestApplication
 export let prisma: PrismaService
@@ -45,18 +52,14 @@ beforeEach(async () => {
 })
 
 async function cleanupDatabase() {
-  // 按照外键依赖顺序删除数据
-  const tablenames = await prisma.$queryRaw<Array<{ tablename: string }>>`
-    SELECT tablename FROM pg_tables WHERE schemaname='public'
-  `
-
-  const tables = tablenames
-    .map(({ tablename }) => tablename)
-    .filter((name) => name !== '_prisma_migrations')
-    .map((name) => `"public"."${name}"`)
-
+  // For SQLite, we need to delete from tables individually
   try {
-    await prisma.$executeRawUnsafe(`TRUNCATE TABLE ${tables.join(', ')} CASCADE;`)
+    // Delete in order to respect foreign key constraints
+    await prisma.todoHistory.deleteMany()
+    await prisma.searchHistory.deleteMany()
+    await prisma.userSetting.deleteMany()
+    await prisma.todo.deleteMany()
+    await prisma.user.deleteMany()
   } catch (error) {
     console.log({ error })
   }

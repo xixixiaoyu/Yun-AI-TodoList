@@ -6,7 +6,7 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "sqlite"
   url      = env("DATABASE_URL")
 }
 
@@ -20,9 +20,9 @@ model User {
   // User preferences stored as JSON
   theme         String  @default("light")
   language      String  @default("zh-CN")
-  aiConfig      Json    @default("{}")
-  searchConfig  Json    @default("{}")
-  notifications Json    @default("{}")
+  aiConfig      String  @default("{}")
+  searchConfig  String  @default("{}")
+  notifications String  @default("{}")
 
   // Timestamps
   createdAt DateTime @default(now())
@@ -69,7 +69,7 @@ model Todo {
 model SearchHistory {
   id          String   @id @default(cuid())
   query       String
-  results     Json     @default("[]")
+  results     String   @default("[]")
   resultCount Int      @default(0)
   searchTime  Int      @default(0) // milliseconds
 
@@ -85,7 +85,7 @@ model SearchHistory {
 model UserSetting {
   id    String @id @default(cuid())
   key   String
-  value Json
+  value String
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -101,7 +101,7 @@ model UserSetting {
 model TodoHistory {
   id       String @id @default(cuid())
   action   String // created, updated, completed, deleted, analyzed
-  changes  Json?  // Store the changes made
+  changes  String?  // Store the changes made
 
   createdAt DateTime @default(now())
 
