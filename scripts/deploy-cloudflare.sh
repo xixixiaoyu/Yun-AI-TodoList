@@ -175,37 +175,37 @@ log_success "项目结构检查完成"
 log_step "构建前端项目..."
 if [[ "$DRY_RUN" != "true" ]]; then
     cd apps/frontend
-    
+
     # 清理旧的构建文件
     if [ -d "dist" ]; then
         log_info "清理旧的构建文件..."
         rm -rf dist
     fi
-    
+
     # 安装依赖（如果需要）
     if [ ! -d "node_modules" ]; then
         log_info "安装前端依赖..."
         pnpm install
     fi
-    
+
     # 构建项目
     log_info "开始构建..."
     pnpm run build
-    
+
     cd ../..
-    
+
     # 检查构建结果
     if [ ! -d "apps/frontend/dist" ]; then
         log_error "前端构建失败，dist 目录不存在"
         exit 1
     fi
-    
+
     # 检查关键文件
     if [ ! -f "apps/frontend/dist/index.html" ]; then
         log_error "构建失败，index.html 不存在"
         exit 1
     fi
-    
+
     log_success "前端构建完成"
 else
     log_info "[DRY RUN] 跳过前端构建"
@@ -215,33 +215,28 @@ fi
 log_step "准备 Workers 环境..."
 if [[ "$DRY_RUN" != "true" ]]; then
     cd workers-site
-    
+
     if [ ! -f "package.json" ]; then
         log_error "workers-site/package.json 不存在"
         exit 1
     fi
-    
+
     # 安装依赖
     if [ ! -d "node_modules" ] || [[ "$FORCE" == "true" ]]; then
         log_info "安装 Workers 依赖..."
         pnpm install
     fi
-    
+
     cd ..
     log_success "Workers 环境准备完成"
 else
     log_info "[DRY RUN] 跳过 Workers 依赖安装"
 fi
 
-# 部署确认
+# 部署确认（已禁用，默认直接部署）
 if [[ "$FORCE" != "true" && "$DRY_RUN" != "true" ]]; then
     log_warning "即将部署到 $ENVIRONMENT 环境"
-    read -p "确认继续？(y/N): " -n 1 -r
-    echo
-    if [[ ! $REPLY =~ ^[Yy]$ ]]; then
-        log_info "部署已取消"
-        exit 0
-    fi
+    log_info "自动继续部署..."
 fi
 
 # 部署到 Cloudflare Workers
@@ -252,7 +247,7 @@ if [[ "$DRY_RUN" == "true" ]]; then
     log_info "[DRY RUN] 命令: wrangler deploy --env $ENVIRONMENT"
 else
     cd workers-site
-    
+
     if [ "$ENVIRONMENT" = "prod" ]; then
         wrangler deploy --env production
         DEPLOY_URL="https://yun-ai-todolist-prod.your-subdomain.workers.dev"
@@ -260,28 +255,14 @@ else
         wrangler deploy --env development
         DEPLOY_URL="https://yun-ai-todolist-dev.your-subdomain.workers.dev"
     fi
-    
+
     cd ..
-    
+
     log_success "成功部署到 $ENVIRONMENT 环境！"
     log_info "访问地址: $DEPLOY_URL"
 fi
 
-# 部署后验证
-if [[ "$DRY_RUN" != "true" ]]; then
-    log_step "部署后验证..."
-    sleep 3
-    
-    # 检查健康状态
-    if command -v curl &> /dev/null; then
-        log_info "检查应用健康状态..."
-        if curl -s "$DEPLOY_URL/health" | grep -q "ok"; then
-            log_success "应用健康检查通过"
-        else
-            log_warning "应用健康检查失败，请手动验证"
-        fi
-    fi
-fi
+
 
 # 显示部署信息
 log_success "部署完成！"
