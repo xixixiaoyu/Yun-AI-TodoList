@@ -50,6 +50,7 @@ interface Props {
   content: string
   defaultExpanded?: boolean
   autoCollapse?: boolean
+  aiResponseStarted?: boolean
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -117,6 +118,17 @@ watch(
     }
   },
   { immediate: true }
+)
+
+// 监听 AI 回复开始状态
+watch(
+  () => props.aiResponseStarted,
+  (started) => {
+    // 当 AI 回复开始时，立即折叠思考内容
+    if (started && props.autoCollapse) {
+      isExpanded.value = false
+    }
+  }
 )
 
 // 组件挂载后计算高度

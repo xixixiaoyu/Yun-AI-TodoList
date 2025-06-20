@@ -44,6 +44,7 @@
         :content="props.currentThinking"
         :default-expanded="true"
         :auto-collapse="true"
+        :ai-response-started="!!props.currentResponse"
       />
       <!-- 响应内容 -->
       <ChatMessage
