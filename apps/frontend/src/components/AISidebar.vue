@@ -130,12 +130,12 @@
         :has-error="false"
         @toggle-drawer="isDrawerOpen = !isDrawerOpen"
         @update:is-drawer-open="isDrawerOpen = $event"
-        @switch-conversation="(id) => switchConversation(id)"
-        @delete-conversation="(id) => deleteConversation(id)"
-        @clear-conversations="() => clearAllConversations()"
-        @new-conversation="(title) => createNewConversation(title)"
-        @optimize="(messageIndex) => optimizeMessage(messageIndex)"
-        @retry="(messageIndex) => handleRetry(messageIndex)"
+        @switch-conversation="switchConversation"
+        @delete-conversation="deleteConversation"
+        @clear-conversations="clearAllConversations"
+        @new-conversation="createNewConversation"
+        @optimize="optimizeMessage"
+        @retry="handleRetry"
         @send="handleSendMessage"
         @stop="stopGenerating"
         @scroll="handleScroll"
@@ -263,61 +263,167 @@ defineOptions({
 </script>
 
 <style scoped>
-/* 拖拽调整手柄样式 */
+/* 拖拽调整手柄样式 - 优化版 */
 .resize-handle {
   position: absolute;
   top: 0;
-  right: -4px;
-  width: 8px;
+  right: -3px;
+  width: 6px;
   height: 100%;
   cursor: ew-resize;
   z-index: 10001;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.2s ease;
-  background: rgba(0, 0, 0, 0.02);
-  border-radius: 0 4px 4px 0;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  background: linear-gradient(
+    90deg,
+    rgba(148, 163, 184, 0.1) 0%,
+    rgba(148, 163, 184, 0.2) 50%,
+    rgba(148, 163, 184, 0.1) 100%
+  );
+  border-radius: 0 6px 6px 0;
+  backdrop-filter: blur(4px);
 }
 
 .resize-handle:hover {
-  right: -6px;
-  width: 12px;
-  background: rgba(0, 0, 0, 0.05);
-  box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
+  right: -8px;
+  width: 16px;
+  background: linear-gradient(
+    90deg,
+    rgba(59, 130, 246, 0.08) 0%,
+    rgba(59, 130, 246, 0.15) 50%,
+    rgba(59, 130, 246, 0.08) 100%
+  );
+  box-shadow:
+    0 0 20px rgba(59, 130, 246, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(8px);
 }
 
 .resize-handle-line {
-  width: 3px;
-  height: 40px;
-  background: #d1d5db;
-  border-radius: 2px;
-  opacity: 0.7;
-  transition: all 0.2s ease;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  width: 2px;
+  height: 32px;
+  background: linear-gradient(
+    180deg,
+    rgba(148, 163, 184, 0.4) 0%,
+    rgba(148, 163, 184, 0.8) 50%,
+    rgba(148, 163, 184, 0.4) 100%
+  );
+  border-radius: 1px;
+  opacity: 0.6;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow:
+    0 1px 3px rgba(0, 0, 0, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  position: relative;
+}
+
+.resize-handle-line::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 1px;
+  height: 16px;
+  background: linear-gradient(
+    180deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.3) 50%,
+    transparent 100%
+  );
+  border-radius: 0.5px;
 }
 
 .resize-handle:hover .resize-handle-line {
-  background: var(--primary-color, #3b82f6);
-  opacity: 0.9;
-  width: 4px;
-  height: 60px;
-  box-shadow: 0 2px 6px rgba(59, 130, 246, 0.3);
+  background: linear-gradient(
+    180deg,
+    rgba(59, 130, 246, 0.5) 0%,
+    rgba(59, 130, 246, 0.9) 50%,
+    rgba(59, 130, 246, 0.5) 100%
+  );
+  opacity: 1;
+  width: 3px;
+  height: 48px;
+  box-shadow:
+    0 2px 8px rgba(59, 130, 246, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3),
+    0 0 12px rgba(59, 130, 246, 0.2);
+  transform: scale(1.1);
+}
+
+.resize-handle:hover .resize-handle-line::before {
+  background: linear-gradient(
+    180deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.6) 50%,
+    transparent 100%
+  );
+  height: 24px;
 }
 
 .resize-handle-dragging {
-  right: -6px;
-  width: 12px;
-  background: rgba(59, 130, 246, 0.1);
-  box-shadow: 0 0 12px rgba(59, 130, 246, 0.2);
+  right: -10px;
+  width: 20px;
+  background: linear-gradient(
+    90deg,
+    rgba(59, 130, 246, 0.1) 0%,
+    rgba(59, 130, 246, 0.2) 50%,
+    rgba(59, 130, 246, 0.1) 100%
+  );
+  box-shadow:
+    0 0 24px rgba(59, 130, 246, 0.25),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15),
+    0 4px 16px rgba(59, 130, 246, 0.1);
+  backdrop-filter: blur(12px);
 }
 
 .resize-handle-dragging .resize-handle-line {
-  background: var(--primary-color, #3b82f6);
+  background: linear-gradient(
+    180deg,
+    rgba(59, 130, 246, 0.7) 0%,
+    rgba(59, 130, 246, 1) 50%,
+    rgba(59, 130, 246, 0.7) 100%
+  );
   opacity: 1;
   width: 4px;
-  height: 80px;
-  box-shadow: 0 3px 8px rgba(59, 130, 246, 0.4);
+  height: 64px;
+  box-shadow:
+    0 4px 12px rgba(59, 130, 246, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.4),
+    0 0 16px rgba(59, 130, 246, 0.3),
+    0 8px 24px rgba(59, 130, 246, 0.15);
+  transform: scale(1.2);
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+.resize-handle-dragging .resize-handle-line::before {
+  background: linear-gradient(
+    180deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.8) 50%,
+    transparent 100%
+  );
+  height: 32px;
+}
+
+@keyframes pulse-glow {
+  0%,
+  100% {
+    box-shadow:
+      0 4px 12px rgba(59, 130, 246, 0.4),
+      inset 0 1px 0 rgba(255, 255, 255, 0.4),
+      0 0 16px rgba(59, 130, 246, 0.3),
+      0 8px 24px rgba(59, 130, 246, 0.15);
+  }
+  50% {
+    box-shadow:
+      0 4px 16px rgba(59, 130, 246, 0.5),
+      inset 0 1px 0 rgba(255, 255, 255, 0.5),
+      0 0 20px rgba(59, 130, 246, 0.4),
+      0 8px 32px rgba(59, 130, 246, 0.2);
+  }
 }
 
 /* 拖拽时的全局样式 */
@@ -488,11 +594,55 @@ defineOptions({
 /* 深色模式适配 */
 @media (prefers-color-scheme: dark) {
   .resize-handle {
-    background: rgba(255, 255, 255, 0.05);
+    background: linear-gradient(
+      90deg,
+      rgba(255, 255, 255, 0.03) 0%,
+      rgba(255, 255, 255, 0.08) 50%,
+      rgba(255, 255, 255, 0.03) 100%
+    );
   }
 
   .resize-handle:hover {
-    background: rgba(255, 255, 255, 0.1);
+    background: linear-gradient(
+      90deg,
+      rgba(59, 130, 246, 0.1) 0%,
+      rgba(59, 130, 246, 0.2) 50%,
+      rgba(59, 130, 246, 0.1) 100%
+    );
+    box-shadow:
+      0 0 20px rgba(59, 130, 246, 0.2),
+      inset 0 1px 0 rgba(255, 255, 255, 0.15);
+  }
+
+  .resize-handle-line {
+    background: linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.2) 0%,
+      rgba(255, 255, 255, 0.4) 50%,
+      rgba(255, 255, 255, 0.2) 100%
+    );
+  }
+
+  .resize-handle-line::before {
+    background: linear-gradient(
+      180deg,
+      transparent 0%,
+      rgba(255, 255, 255, 0.4) 50%,
+      transparent 100%
+    );
+  }
+
+  .resize-handle-dragging {
+    background: linear-gradient(
+      90deg,
+      rgba(59, 130, 246, 0.15) 0%,
+      rgba(59, 130, 246, 0.25) 50%,
+      rgba(59, 130, 246, 0.15) 100%
+    );
+    box-shadow:
+      0 0 24px rgba(59, 130, 246, 0.3),
+      inset 0 1px 0 rgba(255, 255, 255, 0.2),
+      0 4px 16px rgba(59, 130, 246, 0.15);
   }
 }
 
@@ -508,16 +658,35 @@ defineOptions({
 @media (hover: none) and (pointer: coarse) {
   /* 触摸设备上增大可触摸区域 */
   .resize-handle {
-    width: 12px;
-    right: -6px;
+    width: 16px;
+    right: -8px;
+    background: linear-gradient(
+      90deg,
+      rgba(148, 163, 184, 0.15) 0%,
+      rgba(148, 163, 184, 0.25) 50%,
+      rgba(148, 163, 184, 0.15) 100%
+    );
   }
 
   .resize-handle:hover {
-    /* 移除 hover 效果 */
-    right: -6px;
-    width: 12px;
-    background: rgba(0, 0, 0, 0.05);
-    box-shadow: none;
+    width: 16px;
+    right: -8px;
+  }
+
+  .resize-handle-line {
+    width: 3px;
+    height: 40px;
+    opacity: 0.8;
+  }
+
+  .resize-handle-dragging {
+    width: 20px;
+    right: -10px;
+  }
+
+  .resize-handle-dragging .resize-handle-line {
+    width: 4px;
+    height: 56px;
   }
 
   /* 增大按钮触摸区域 */
