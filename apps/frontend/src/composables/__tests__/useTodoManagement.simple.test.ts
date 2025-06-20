@@ -27,6 +27,11 @@ vi.mock('vue-i18n', () => ({
   useI18n: () => ({
     t: (key: string, _params?: Record<string, any>) => key,
   }),
+  createI18n: vi.fn(() => ({
+    global: {
+      t: (key: string) => key,
+    },
+  })),
 }))
 
 describe('useTodoManagement - 简化测试', () => {
@@ -44,7 +49,7 @@ describe('useTodoManagement - 简化测试', () => {
   it('应该初始化基本状态', () => {
     const result = useTodoManagement()
 
-    expect(result.filter.value).toBe('all')
+    expect(result.filter.value).toBe('active')
     expect(result.searchQuery.value).toBe('')
     expect(result.isGenerating.value).toBe(false)
     expect(result.suggestedTodos.value).toEqual([])

@@ -17,6 +17,11 @@ vi.mock('vue-i18n', () => ({
   useI18n: () => ({
     t: (key: string) => key,
   }),
+  createI18n: vi.fn(() => ({
+    global: {
+      t: (key: string) => key,
+    },
+  })),
 }))
 
 import { useTodoManagement } from '../useTodoManagement'
@@ -133,9 +138,9 @@ describe('useTodoManagement', () => {
         '1. 学习 Vue 3\n2. 编写单元测试\n3. 部署应用\n4. 代码重构\n5. 文档更新'
       )
 
-      const { generateSuggestedTodos, suggestedTodos, isGenerating } = useTodoManagement()
+      const { generateSuggestedTodosWithDomain, suggestedTodos, isGenerating } = useTodoManagement()
 
-      const promise = generateSuggestedTodos()
+      const promise = generateSuggestedTodosWithDomain('work')
       expect(isGenerating.value).toBe(true)
 
       await promise
@@ -149,9 +154,9 @@ describe('useTodoManagement', () => {
     it('应该处理逗号分隔的建议格式', async () => {
       mockGetAIResponse.mockResolvedValue('学习 Vue,写测试,部署应用')
 
-      const { generateSuggestedTodos, suggestedTodos } = useTodoManagement()
+      const { generateSuggestedTodosWithDomain, suggestedTodos } = useTodoManagement()
 
-      await generateSuggestedTodos()
+      await generateSuggestedTodosWithDomain('study')
 
       expect(suggestedTodos.value.length).toBe(3)
       expect(suggestedTodos.value[0]).toBe('学习 Vue')
@@ -160,24 +165,35 @@ describe('useTodoManagement', () => {
 
     it('应该处理 AI 生成失败', async () => {
       mockGetAIResponse.mockRejectedValue(new Error('API 错误'))
+      const mockShowError = vi.fn()
       mockUseErrorHandler.mockReturnValue({
-        showError: vi.fn(),
+        showError: mockShowError,
       })
 
-      const { generateSuggestedTodos, isGenerating } = useTodoManagement()
+      const { generateSuggestedTodosWithDomain, isGenerating } = useTodoManagement()
 
-      await generateSuggestedTodos()
+      await generateSuggestedTodosWithDomain('work')
 
       expect(isGenerating.value).toBe(false)
-      expect(mockUseErrorHandler().showError).toHaveBeenCalled()
+      expect(mockShowError).toHaveBeenCalled()
     })
 
     it('应该排序活跃的待办事项', async () => {
+      // Mock localStorage to have API key
+      Object.defineProperty(window, 'localStorage', {
+        value: {
+          getItem: vi.fn().mockReturnValue('test-api-key'),
+          setItem: vi.fn(),
+          removeItem: vi.fn(),
+        },
+        writable: true,
+      })
+
       mockUseTodos.mockReturnValue({
         todos: {
           value: [
-            { id: 1, text: '任务1', completed: false },
-            { id: 2, text: '任务2', completed: false },
+            { id: 1, text: '任务1', completed: false, order: 0 },
+            { id: 2, text: '任务2', completed: false, order: 1 },
           ],
         },
         addTodo: vi.fn(),

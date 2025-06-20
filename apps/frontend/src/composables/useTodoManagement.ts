@@ -300,6 +300,7 @@ export function useTodoManagement() {
       const apiKey = localStorage.getItem('deepseek_api_key')
       if (!apiKey || apiKey.trim() === '') {
         showError(t('configureApiKey', '请先在设置中配置 DeepSeek API Key'))
+        isSorting.value = false
         return
       }
 
