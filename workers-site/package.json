@@ -4,16 +4,31 @@
   "version": "1.0.0",
   "description": "Cloudflare Workers site for Yun AI TodoList",
   "main": "index.js",
+  "type": "module",
   "scripts": {
-    "dev": "wrangler dev",
+    "dev": "wrangler dev --port 8787",
+    "dev:remote": "wrangler dev --remote",
     "deploy": "wrangler deploy",
     "deploy:dev": "wrangler deploy --env development",
-    "deploy:prod": "wrangler deploy --env production"
+    "deploy:prod": "wrangler deploy --env production",
+    "preview": "wrangler dev --local",
+    "tail": "wrangler tail",
+    "tail:dev": "wrangler tail --env development",
+    "tail:prod": "wrangler tail --env production",
+    "whoami": "wrangler whoami",
+    "login": "wrangler login",
+    "logout": "wrangler logout",
+    "validate": "wrangler validate",
+    "types": "wrangler types"
   },
   "dependencies": {
     "@cloudflare/kv-asset-handler": "^0.3.4"
   },
   "devDependencies": {
-    "wrangler": "^3.78.12"
+    "wrangler": "^3.78.12",
+    "@cloudflare/workers-types": "^4.20241127.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
   }
 }

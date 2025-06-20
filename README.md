@@ -111,6 +111,22 @@ pnpm dev:all
 
 ### 构建部署
 
+#### Cloudflare Workers 部署（推荐）
+
+```bash
+# 初始化 Cloudflare 环境
+./scripts/init-cloudflare.sh
+
+# 部署到开发环境
+./scripts/deploy-cloudflare.sh dev
+
+# 部署到生产环境
+./scripts/deploy-cloudflare.sh prod
+
+# 查看部署状态
+wrangler tail --env production
+```
+
 #### 桌面应用构建
 
 ```bash
@@ -280,6 +296,21 @@ yun-ai-todolist/
 - **📊 数据可视化**：丰富的图表和统计功能
 - **🔒 安全可靠**：完整的认证授权体系
 - **⚡ 高性能**：优化的前后端性能
+
+## 📚 学习文档目录
+
+每个技术亮点都有对应的详细学习文档：
+
+1. [Vue 3 + Composition API 现代化前端开发](./docs/frontend-architecture.md)
+2. [NestJS 企业级后端架构设计](./docs/backend-architecture.md)
+3. [AI 功能集成与实现](./docs/ai-integration.md)
+4. [跨平台应用开发实践](./docs/cross-platform-solution.md)
+5. [Cloudflare Workers 部署指南](./docs/cloudflare-deployment.md)
+6. [Docker 容器化部署](./docs/devops-deployment.md)
+7. [性能优化策略](./docs/performance-optimization.md)
+8. [数据库设计与实现](./docs/database-design.md)
+9. [安全性设计与实现](./docs/security-implementation.md)
+10. [DevOps 与自动化部署](./docs/devops-deployment.md)
 
 ## 📮 联系方式
 
