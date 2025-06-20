@@ -14,22 +14,59 @@
   >
     <div
       v-if="isOpen"
-      class="fixed top-0 left-0 h-full bg-bg/95 backdrop-blur-xl border-r border-input-border shadow-2xl z-[10000] flex flex-col sidebar-width"
+      ref="sidebarRef"
+      class="fixed top-0 left-0 h-full bg-bg/95 backdrop-blur-xl border-r border-input-border shadow-2xl z-[10000] flex flex-col"
+      :style="sidebarStyle"
     >
+      <!-- 拖拽调整手柄 -->
+      <div
+        class="resize-handle"
+        :class="{ 'resize-handle-dragging': isDragging }"
+        @mousedown="startDrag"
+        @dblclick="resetWidth"
+        :title="t('dragToResize', '拖拽调整宽度，双击重置')"
+      >
+        <div class="resize-handle-line"></div>
+      </div>
       <!-- 侧边栏头部 -->
       <div
-        class="flex items-center justify-between px-4 py-3.5 md:px-3 md:py-3 bg-gradient-to-r from-button-bg to-button-hover text-white shadow-lg border-b border-white/10"
+        class="sidebar-header flex items-center justify-between px-4 py-3.5 md:px-3 md:py-3 bg-gradient-to-r from-button-bg to-button-hover text-white shadow-lg border-b border-white/10"
       >
-        <h2 class="m-0 text-lg md:text-base font-semibold text-white leading-tight">
-          {{ t('aiAssistant') }}
-        </h2>
+        <!-- 标题和关闭按钮容器 -->
+        <div class="header-title-row flex items-center justify-between w-full">
+          <h2 class="m-0 text-lg md:text-base font-semibold text-white leading-tight">
+            {{ t('aiAssistant') }}
+          </h2>
 
-        <!-- 系统提示词选择器 -->
-        <div class="flex items-center gap-2">
-          <div class="relative">
+          <!-- 关闭按钮 - 移动端时显示在标题旁 -->
+          <button
+            class="close-btn-mobile md:hidden p-2 text-white/80 hover:text-white hover:bg-white/10 rounded-lg transition-all duration-200"
+            @click="closeSidebar"
+            :title="t('close')"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              width="20"
+              height="20"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+          </button>
+        </div>
+
+        <!-- 系统提示词选择器和桌面端关闭按钮 -->
+        <div class="header-controls flex items-center gap-2 w-full md:w-auto mt-3 md:mt-0">
+          <div class="relative flex-1 md:flex-none">
             <select
               :value="config.enabled ? config.activePromptId || '' : ''"
-              class="px-3 py-1.5 pr-8 text-sm bg-white/10 text-white border border-white/20 rounded-lg cursor-pointer transition-all duration-200 hover:bg-white/15 focus:bg-white/15 focus:border-white/40 focus:outline-none backdrop-blur-sm min-w-[140px] md:min-w-[120px] md:text-xs appearance-none"
+              class="w-full md:w-auto px-3 py-1.5 pr-8 text-sm bg-white/10 text-white border border-white/20 rounded-lg cursor-pointer transition-all duration-200 hover:bg-white/15 focus:bg-white/15 focus:border-white/40 focus:outline-none backdrop-blur-sm min-w-[140px] md:min-w-[120px] md:text-xs appearance-none"
               :disabled="!config.enabled"
               @change="handlePromptChange"
             >
@@ -65,9 +102,9 @@
             </div>
           </div>
 
-          <!-- 关闭按钮 -->
+          <!-- 桌面端关闭按钮 -->
           <button
-            class="flex items-center justify-center p-2 text-white/80 hover:text-white hover:bg-white/10 rounded-lg transition-all duration-200 group"
+            class="close-btn-desktop hidden md:flex items-center justify-center p-2 text-white/80 hover:text-white hover:bg-white/10 rounded-lg transition-all duration-200 group"
             :title="t('close')"
             @click="closeSidebar"
           >
@@ -93,12 +130,12 @@
         :has-error="false"
         @toggle-drawer="isDrawerOpen = !isDrawerOpen"
         @update:is-drawer-open="isDrawerOpen = $event"
-        @switch-conversation="switchConversation"
-        @delete-conversation="deleteConversation"
-        @clear-conversations="clearAllConversations"
-        @new-conversation="createNewConversation"
-        @optimize="optimizeMessage"
-        @retry="handleRetry"
+        @switch-conversation="(id) => switchConversation(id)"
+        @delete-conversation="(id) => deleteConversation(id)"
+        @clear-conversations="() => clearAllConversations()"
+        @new-conversation="(title) => createNewConversation(title)"
+        @optimize="(messageIndex) => optimizeMessage(messageIndex)"
+        @retry="(messageIndex) => handleRetry(messageIndex)"
         @send="handleSendMessage"
         @stop="stopGenerating"
         @scroll="handleScroll"
@@ -113,6 +150,7 @@ import { onMounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useChat } from '../composables/useChat'
 import { useSystemPrompts } from '../composables/useSystemPrompts'
+import { useAISidebar } from '../composables/useAISidebar'
 import AIChatContent from './chat/AIChatContent.vue'
 import Overlay from './common/Overlay.vue'
 import CloseIcon from './common/icons/CloseIcon.vue'
@@ -129,6 +167,10 @@ interface Emits {
 
 const props = defineProps<Props>()
 const emit = defineEmits<Emits>()
+
+// 使用 AI 侧边栏状态管理（包含宽度调整功能）
+const { sidebarStyle, isDragging, startDrag, resetWidth, createOverlayClickHandler } =
+  useAISidebar()
 
 const {
   chatHistory,
@@ -197,12 +239,8 @@ const closeSidebar = () => {
   emit('close')
 }
 
-const handleOverlayClick = (event: Event) => {
-  // 确保点击的是遮罩层本身
-  if (event.target === event.currentTarget) {
-    closeSidebar()
-  }
-}
+// 创建遮罩层点击处理函数
+const handleOverlayClick = createOverlayClickHandler(closeSidebar)
 
 // 监听侧边栏打开状态，打开时刷新系统提示词列表
 watch(
@@ -225,62 +263,274 @@ defineOptions({
 </script>
 
 <style scoped>
-.sidebar-width {
-  width: 80vw;
-  max-width: 900px;
-  min-width: 400px;
+/* 拖拽调整手柄样式 */
+.resize-handle {
+  position: absolute;
+  top: 0;
+  right: -4px;
+  width: 8px;
+  height: 100%;
+  cursor: ew-resize;
+  z-index: 10001;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  background: rgba(0, 0, 0, 0.02);
+  border-radius: 0 4px 4px 0;
 }
 
-/* 响应式宽度设计 */
-@media (max-width: 640px) {
-  .sidebar-width {
-    width: 95vw;
-    min-width: 320px;
-    max-width: none;
+.resize-handle:hover {
+  right: -6px;
+  width: 12px;
+  background: rgba(0, 0, 0, 0.05);
+  box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
+}
+
+.resize-handle-line {
+  width: 3px;
+  height: 40px;
+  background: #d1d5db;
+  border-radius: 2px;
+  opacity: 0.7;
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.resize-handle:hover .resize-handle-line {
+  background: var(--primary-color, #3b82f6);
+  opacity: 0.9;
+  width: 4px;
+  height: 60px;
+  box-shadow: 0 2px 6px rgba(59, 130, 246, 0.3);
+}
+
+.resize-handle-dragging {
+  right: -6px;
+  width: 12px;
+  background: rgba(59, 130, 246, 0.1);
+  box-shadow: 0 0 12px rgba(59, 130, 246, 0.2);
+}
+
+.resize-handle-dragging .resize-handle-line {
+  background: var(--primary-color, #3b82f6);
+  opacity: 1;
+  width: 4px;
+  height: 80px;
+  box-shadow: 0 3px 8px rgba(59, 130, 246, 0.4);
+}
+
+/* 拖拽时的全局样式 */
+:global(body.dragging-sidebar) {
+  cursor: ew-resize !important;
+  user-select: none !important;
+}
+
+/* ===== 响应式设计 ===== */
+
+/* 超大屏幕 (1536px+) */
+@media (min-width: 1536px) {
+  /* 在超大屏幕上允许更大的最大宽度 */
+  .resize-handle {
+    /* 可以考虑调整手柄大小 */
   }
 }
 
-@media (min-width: 641px) and (max-width: 768px) {
-  .sidebar-width {
-    width: 90vw;
-    min-width: 350px;
-    max-width: 700px;
-  }
+/* 大屏幕 (1024px - 1535px) */
+@media (min-width: 1024px) and (max-width: 1535px) {
+  /* 大屏幕优化 */
 }
 
-@media (min-width: 769px) and (max-width: 1024px) {
-  .sidebar-width {
-    width: 85vw;
-    min-width: 400px;
-    max-width: 800px;
+/* 中等屏幕 (768px - 1023px) - 平板横屏 */
+@media (min-width: 768px) and (max-width: 1023px) {
+  /* 平板横屏时减少默认宽度 */
+  .resize-handle {
+    /* 保持拖拽功能 */
   }
-}
 
-@media (min-width: 1025px) and (max-width: 1440px) {
-  .sidebar-width {
-    width: 80vw;
-    min-width: 450px;
-    max-width: 900px;
-  }
-}
-
-/* 超大屏幕优化 */
-@media (min-width: 1441px) {
-  .sidebar-width {
-    width: 80vw;
-    min-width: 500px;
-    max-width: 1000px;
-  }
-}
-
-/* 优化移动端的头部按钮 */
-@media (max-width: 640px) {
-  .sidebar-width .flex.items-center.justify-between {
+  /* 调整头部间距 */
+  .flex.items-center.justify-between {
     padding: 0.75rem 1rem;
   }
 
-  .sidebar-width h2 {
+  /* 调整系统提示词选择器 */
+  select {
+    min-width: 120px !important;
+    font-size: 0.875rem;
+  }
+}
+
+/* 小屏幕 (640px - 767px) - 平板竖屏 */
+@media (min-width: 640px) and (max-width: 767px) {
+  /* 隐藏拖拽手柄，使用固定宽度 */
+  .resize-handle {
+    display: none;
+  }
+
+  /* 调整头部布局 */
+  .flex.items-center.justify-between {
+    padding: 0.75rem 1rem;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  h2 {
     font-size: 1rem;
+    flex: 1;
+  }
+
+  /* 系统提示词选择器优化 */
+  select {
+    min-width: 100px !important;
+    font-size: 0.75rem;
+    padding: 0.375rem 0.75rem;
+  }
+}
+
+/* 移动端 (639px 及以下) */
+@media (max-width: 639px) {
+  /* 隐藏拖拽手柄 */
+  .resize-handle {
+    display: none;
+  }
+
+  /* 移动端头部优化 */
+  .sidebar-header {
+    padding: 0.75rem 1rem;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.75rem;
+  }
+
+  /* 标题行 */
+  .header-title-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+  }
+
+  /* 控制区域 */
+  .header-controls {
+    width: 100%;
+    margin-top: 0.75rem;
+  }
+
+  h2 {
+    font-size: 1rem;
+    margin: 0;
+  }
+
+  /* 系统提示词选择器移动端优化 */
+  .header-controls .relative {
+    width: 100%;
+    flex: 1;
+  }
+
+  .header-controls select {
+    width: 100% !important;
+    min-width: unset !important;
+    font-size: 0.875rem;
+    padding: 0.5rem 2rem 0.5rem 0.75rem;
+  }
+
+  /* 移动端按钮优化 */
+  .close-btn-mobile,
+  .close-btn-desktop {
+    min-height: 44px; /* 符合移动端触摸标准 */
+    min-width: 44px;
+    padding: 0.5rem;
+  }
+}
+
+/* 超小屏幕 (480px 及以下) */
+@media (max-width: 480px) {
+  /* 进一步优化小屏幕体验 */
+  .flex.items-center.justify-between {
+    padding: 0.5rem 0.75rem;
+  }
+
+  h2 {
+    font-size: 0.875rem;
+  }
+
+  select {
+    font-size: 0.75rem;
+    padding: 0.375rem 1.5rem 0.375rem 0.5rem;
+  }
+}
+
+/* 横屏模式优化 */
+@media (max-height: 500px) and (orientation: landscape) {
+  /* 横屏时优化头部高度 */
+  .flex.items-center.justify-between {
+    padding: 0.5rem 1rem;
+  }
+
+  h2 {
+    font-size: 0.875rem;
+  }
+
+  select {
+    padding: 0.25rem 1.5rem 0.25rem 0.5rem;
+    font-size: 0.75rem;
+  }
+}
+
+/* 高分辨率屏幕优化 */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+  .resize-handle-line {
+    /* 在高分辨率屏幕上优化线条显示 */
+    transform: translateZ(0);
+  }
+}
+
+/* 深色模式适配 */
+@media (prefers-color-scheme: dark) {
+  .resize-handle {
+    background: rgba(255, 255, 255, 0.05);
+  }
+
+  .resize-handle:hover {
+    background: rgba(255, 255, 255, 0.1);
+  }
+}
+
+/* 减少动画偏好设置 */
+@media (prefers-reduced-motion: reduce) {
+  .resize-handle,
+  .resize-handle-line {
+    transition: none;
+  }
+}
+
+/* 触摸设备优化 */
+@media (hover: none) and (pointer: coarse) {
+  /* 触摸设备上增大可触摸区域 */
+  .resize-handle {
+    width: 12px;
+    right: -6px;
+  }
+
+  .resize-handle:hover {
+    /* 移除 hover 效果 */
+    right: -6px;
+    width: 12px;
+    background: rgba(0, 0, 0, 0.05);
+    box-shadow: none;
+  }
+
+  /* 增大按钮触摸区域 */
+  button {
+    min-height: 44px;
+    min-width: 44px;
+  }
+}
+
+/* 打印样式 */
+@media print {
+  .resize-handle {
+    display: none;
   }
 }
 </style>

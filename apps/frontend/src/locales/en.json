@@ -38,6 +38,7 @@
   "send": "Send",
   "stop": "Stop",
   "close": "Close",
+  "dragToResize": "Drag to resize, double-click to reset",
   "generateSuggestionsPrompt": "Please generate 5 practical todo suggestions covering work, study, life and other aspects. Each suggestion should be concise and clear, no more than 50 characters. Please return the suggestion list directly, one suggestion per line.",
   "generateDomainSuggestionsPrompt": "Please generate 5 practical todo suggestions about {domain}. Each suggestion should be concise and clear, no more than 50 characters. Please return the suggestion list directly, one suggestion per line.",
   "generateDomainSuggestionsWithHistoryPrompt": "Please generate 5 todo suggestions about {domain}.\n\nMy completed related tasks:\n{completedTodos}\n\nPlease generate according to the following requirements:\n1. Select 2 tasks most relevant to {domain} from my history\n2. Generate 3 new todos based on {domain}\n\nEach suggestion should be concise and clear, no more than 50 characters. Please return the suggestion list directly, one suggestion per line, total 5 suggestions.",
