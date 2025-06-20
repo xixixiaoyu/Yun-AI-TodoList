@@ -43,7 +43,7 @@
     "migration:run": "pnpm --filter backend migration:run",
     "migration:revert": "pnpm --filter backend migration:revert",
     "seed": "pnpm --filter backend seed",
-    "deploy:local": "./scripts/deploy-local.sh"
+    "deploy": "./scripts/deploy-local.sh"
   },
   "lint-staged": {
     "*.{vue,js,jsx,cjs,mjs,ts,tsx,cts,mts}": [
