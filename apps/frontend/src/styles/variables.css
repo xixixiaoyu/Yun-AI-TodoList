@@ -252,3 +252,56 @@ select {
     backdrop-filter: blur(8px);
   }
 }
+
+/* Mermaid 图表样式 */
+.mermaid-container {
+  margin: 16px 0;
+  padding: 16px;
+  background: var(--card-bg-color);
+  border-radius: var(--border-radius);
+  border: 1px solid var(--input-border-color);
+  text-align: center;
+  min-height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.mermaid-diagram {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+.mermaid-diagram svg {
+  max-width: 100%;
+  height: auto;
+  background: transparent;
+}
+
+.mermaid-error {
+  color: var(--error-color, #e53e3e);
+  background: var(--error-bg, rgba(229, 62, 62, 0.1));
+  border: 1px solid var(--error-color, #e53e3e);
+  border-radius: 8px;
+  padding: 12px;
+  margin: 8px 0;
+  font-family: 'Courier New', monospace;
+  font-size: 14px;
+}
+
+/* 深色主题下的 Mermaid 样式 */
+[data-theme='dark'] .mermaid-container {
+  background: var(--card-bg-color-dark);
+  border-color: var(--input-border-color-dark);
+}
+
+[data-theme='dark'] .mermaid-diagram svg {
+  filter: invert(0.9) hue-rotate(180deg);
+}
+
+[data-theme='dark'] .mermaid-error {
+  background: rgba(229, 62, 62, 0.2);
+  color: #ff6b6b;
+  border-color: #ff6b6b;
+}

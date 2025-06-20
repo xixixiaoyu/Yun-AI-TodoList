@@ -1,10 +1,62 @@
 import { marked } from 'marked'
 import DOMPurify from 'dompurify'
 import hljs from 'highlight.js'
+import mermaid from 'mermaid'
 import type { MarkedOptions } from 'marked'
 
 export function useMarkdown() {
+  // 初始化 Mermaid
+  mermaid.initialize({
+    startOnLoad: false,
+    theme: 'default',
+    securityLevel: 'loose',
+    fontFamily: 'inherit',
+  })
+
+  // 自定义渲染器
+  const renderer = new marked.Renderer()
+  const originalCode = renderer.code
+
+  renderer.code = function ({
+    text,
+    lang,
+    escaped,
+  }: {
+    text: string
+    lang?: string
+    escaped?: boolean
+  }) {
+    if (lang === 'mermaid') {
+      try {
+        const id = `mermaid-${Math.random().toString(36).substr(2, 9)}`
+        // 使用 mermaid.render 生成 SVG
+        mermaid
+          .render(id, text)
+          .then(({ svg }) => {
+            const element = document.getElementById(`temp-${id}`)
+            if (element) {
+              element.innerHTML = svg
+              element.classList.add('mermaid-diagram')
+            }
+          })
+          .catch((error) => {
+            console.error('Mermaid rendering error:', error)
+            const element = document.getElementById(`temp-${id}`)
+            if (element) {
+              element.innerHTML = `<pre class="mermaid-error">图表渲染失败: ${error.message}</pre>`
+            }
+          })
+        return `<div id="temp-${id}" class="mermaid-container">正在渲染图表...</div>`
+      } catch (error) {
+        console.error('Mermaid setup error:', error)
+        return `<pre class="mermaid-error">图表渲染失败: ${error}</pre>`
+      }
+    }
+    return originalCode.call(this, { text, lang, escaped })
+  }
+
   marked.setOptions({
+    renderer,
     highlight: function (code: string, lang: string) {
       try {
         return hljs.highlight(code, { language: lang }).value
