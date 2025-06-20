@@ -306,118 +306,110 @@ select {
   border-color: #ff6b6b;
 }
 
-/* 代码块样式增强 */
+/* 代码块样式 - 优化版本 */
 .code-block-container {
   position: relative;
-  margin: 1rem 0;
-  border-radius: 12px;
+  margin: 1.5rem 0;
+  border-radius: 8px;
   overflow: hidden;
   background: var(--card-bg-color);
   border: 1px solid var(--input-border-color);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
   transition: all 0.2s ease;
 }
 
 .code-block-container:hover {
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
-  border-color: var(--primary-color);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  border-color: rgba(var(--primary-color-rgb), 0.3);
 }
 
 .code-block-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0.75rem 1rem;
-  background: linear-gradient(
-    135deg,
-    var(--hover-bg-color) 0%,
-    rgba(var(--primary-color-rgb), 0.05) 100%
-  );
+  padding: 0.5rem 1rem;
+  background: var(--hover-bg-color);
   border-bottom: 1px solid var(--input-border-color);
-  font-size: 0.875rem;
-  backdrop-filter: blur(8px);
+  font-size: 0.8rem;
+  min-height: 2.5rem;
 }
 
 .code-language {
-  font-weight: 600;
-  color: var(--primary-color);
-  font-size: 0.8rem;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  padding: 0.25rem 0.5rem;
-  background: rgba(var(--primary-color-rgb), 0.1);
-  border-radius: 6px;
-  border: 1px solid rgba(var(--primary-color-rgb), 0.2);
+  font-weight: 500;
+  color: var(--text-color-secondary);
+  font-size: 0.75rem;
+  letter-spacing: 0.025em;
+  opacity: 0.8;
 }
 
 .copy-button {
   display: flex;
   align-items: center;
-  gap: 0.375rem;
-  padding: 0.375rem 0.75rem;
-  background: rgba(var(--primary-color-rgb), 0.05);
-  border: 1px solid rgba(var(--primary-color-rgb), 0.2);
-  border-radius: 6px;
-  color: var(--primary-color);
+  gap: 0.25rem;
+  padding: 0.25rem 0.5rem;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  color: var(--text-color-secondary);
   cursor: pointer;
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-  font-size: 0.75rem;
-  font-weight: 500;
+  transition: all 0.15s ease;
+  font-size: 0.7rem;
+  font-weight: 400;
+  opacity: 0.7;
 }
 
 .copy-button:hover {
-  background: var(--primary-color);
-  color: white;
-  border-color: var(--primary-color);
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(var(--primary-color-rgb), 0.3);
+  background: rgba(var(--primary-color-rgb), 0.08);
+  color: var(--primary-color);
+  border-color: rgba(var(--primary-color-rgb), 0.2);
+  opacity: 1;
 }
 
 .copy-button.copied {
-  background: #10b981;
-  color: white;
-  border-color: #10b981;
-  transform: scale(0.95);
+  background: rgba(16, 185, 129, 0.1);
+  color: #10b981;
+  border-color: rgba(16, 185, 129, 0.2);
+  opacity: 1;
+}
+
+.copy-button.error {
+  background: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+  border-color: rgba(239, 68, 68, 0.2);
+  opacity: 1;
 }
 
 .copy-icon {
-  width: 14px;
-  height: 14px;
-  transition: transform 0.2s ease;
+  width: 12px;
+  height: 12px;
+  transition: transform 0.15s ease;
 }
 
 .copy-button:hover .copy-icon {
-  transform: scale(1.1);
+  transform: scale(1.05);
 }
 
 .copy-text {
-  font-size: 0.75rem;
-  font-weight: 500;
+  font-size: 0.7rem;
+  font-weight: 400;
 }
 
 .code-content {
   margin: 0;
-  padding: 1.25rem;
+  padding: 1rem;
   background: var(--bg-color);
   overflow-x: auto;
   position: relative;
-}
-
-.code-content::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(var(--primary-color-rgb), 0.3), transparent);
+  border-radius: 0 0 8px 8px;
 }
 
 .code-content code {
-  font-family: 'Fira Code', 'JetBrains Mono', 'Monaco', 'Consolas', monospace;
-  font-size: 0.875rem;
-  line-height: 1.6;
+  font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', 'Consolas', monospace;
+  font-size: 0.8rem;
+  line-height: 1.5;
   font-weight: 400;
+  display: block;
+  white-space: pre;
 }
 
 /* 语法高亮增强 */
@@ -459,23 +451,23 @@ select {
 
 /* 深色主题适配 */
 [data-theme='dark'] .code-block-container {
-  background: #1e293b;
-  border-color: #334155;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  background: rgba(30, 41, 59, 0.6);
+  border-color: rgba(51, 65, 85, 0.8);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
 }
 
 [data-theme='dark'] .code-block-container:hover {
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  border-color: rgba(var(--primary-color-rgb), 0.4);
 }
 
 [data-theme='dark'] .code-block-header {
-  background: linear-gradient(135deg, #0f172a 0%, rgba(var(--primary-color-rgb), 0.1) 100%);
-  border-color: #334155;
+  background: rgba(15, 23, 42, 0.8);
+  border-color: rgba(51, 65, 85, 0.6);
 }
 
-[data-theme='dark'] .code-language {
-  background: rgba(var(--primary-color-rgb), 0.15);
-  border-color: rgba(var(--primary-color-rgb), 0.3);
+[data-theme='dark'] .code-content {
+  background: rgba(15, 23, 42, 0.4);
 }
 
 [data-theme='dark'] .copy-button {
