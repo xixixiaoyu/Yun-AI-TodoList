@@ -97,7 +97,7 @@ describe('useChat', () => {
     it('应该创建新对话', () => {
       const { createNewConversation, conversationHistory, currentConversationId } = useChat()
 
-      createNewConversation('Test Conversation')
+      createNewConversation('Test Conversation', true)
 
       expect(conversationHistory.value).toHaveLength(1)
       expect(conversationHistory.value[0].title).toBe('Test Conversation')
@@ -156,8 +156,8 @@ describe('useChat', () => {
         currentConversationId,
       } = useChat()
 
-      createNewConversation('Test 1')
-      createNewConversation('Test 2')
+      createNewConversation('Test 1', true)
+      createNewConversation('Test 2', true)
 
       expect(conversationHistory.value).toHaveLength(2)
 
@@ -187,7 +187,7 @@ describe('useChat', () => {
         useChat()
 
       // 创建新对话以确保有当前对话 ID
-      createNewConversation('Test Conversation')
+      createNewConversation('Test Conversation', true)
 
       userMessage.value = '测试消息'
 
@@ -212,7 +212,7 @@ describe('useChat', () => {
       const { sendMessage, userMessage, isGenerating, createNewConversation } = useChat()
 
       // 创建新对话以确保有当前对话 ID
-      createNewConversation('Test Conversation')
+      createNewConversation('Test Conversation', true)
 
       userMessage.value = 'Test message'
 
@@ -222,8 +222,7 @@ describe('useChat', () => {
       // 发送消息，期望失败但不抛出异常
       await sendMessage()
 
-      // 等待所有异步操作完成
-      await vi.runAllTimersAsync()
+      // 等待异步操作完成
       await new Promise((resolve) => setTimeout(resolve, 0))
 
       // 最终应该是false
@@ -294,7 +293,7 @@ describe('useChat', () => {
     it('应该保存对话历史', () => {
       const { createNewConversation, conversationHistory } = useChat()
 
-      createNewConversation('Test Conversation')
+      createNewConversation('Test Conversation', true)
 
       expect(testEnv.localStorage.setItem).toHaveBeenCalledWith(
         'conversationHistory',

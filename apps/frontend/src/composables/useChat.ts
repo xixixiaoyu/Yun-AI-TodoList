@@ -197,14 +197,13 @@ export function useChat() {
         }
       )
     } catch (error) {
+      // 立即重置生成状态
+      isGenerating.value = false
       handleError(error, 'sendMessage')
 
       if (retryCount.value < MAX_RETRIES) {
         retryCount.value++
         await sendMessage()
-      } else {
-        // 只有在达到最大重试次数时才重置状态
-        isGenerating.value = false
       }
     }
   }
