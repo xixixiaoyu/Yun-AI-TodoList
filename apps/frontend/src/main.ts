@@ -9,16 +9,27 @@ import router from './router/index.ts'
 import './styles/enhancements.css'
 import './styles/variables.css'
 import { logger } from './utils/logger.ts'
+import { initPWA } from './utils/pwa'
 
 const updateSW = registerSW({
   onNeedRefresh() {
-    if (confirm('新版本已经准备就绪，是否更新？')) {
-      updateSW()
+    // 显示更新提示
+    const shouldUpdate = confirm('发现新版本！\n\n新版本包含功能改进和错误修复。\n是否立即更新？')
+    if (shouldUpdate) {
+      updateSW(true)
     }
   },
   onOfflineReady() {
     logger.info('应用已准备好离线使用', undefined, 'PWA')
+    // 可以在这里显示离线就绪的通知
+    logger.info('应用已支持离线使用', undefined, 'PWA')
+  },
+  onRegisterError(error: Error) {
+    logger.error('Service Worker 注册失败', error, 'PWA')
   },
 })
+
+// 初始化 PWA 功能
+initPWA()
 
 createApp(App).use(router).use(i18n).mount('#app')

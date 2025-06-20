@@ -19,6 +19,7 @@
     "dev:backend": "pnpm --filter backend dev",
     "dev:all": "concurrently \"pnpm dev:backend\" \"pnpm dev\"",
     "build": "pnpm --filter shared build && pnpm --filter frontend build && pnpm --filter backend build",
+    "build:shared": "pnpm --filter shared build",
     "build:frontend": "pnpm --filter frontend build",
     "build:backend": "pnpm --filter backend build",
     "build:verify": "./scripts/build-and-verify.sh",

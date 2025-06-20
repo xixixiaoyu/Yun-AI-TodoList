@@ -22,9 +22,9 @@
       <div
         class="resize-handle"
         :class="{ 'resize-handle-dragging': isDragging }"
+        :title="t('dragToResize', '拖拽调整宽度，双击重置')"
         @mousedown="startDrag"
         @dblclick="resetWidth"
-        :title="t('dragToResize', '拖拽调整宽度，双击重置')"
       >
         <div class="resize-handle-line"></div>
       </div>
@@ -41,8 +41,8 @@
           <!-- 关闭按钮 - 移动端时显示在标题旁 -->
           <button
             class="close-btn-mobile md:hidden p-2 text-white/80 hover:text-white hover:bg-white/10 rounded-lg transition-all duration-200"
-            @click="closeSidebar"
             :title="t('close')"
+            @click="closeSidebar"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"

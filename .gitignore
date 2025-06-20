@@ -52,3 +52,5 @@ coverage
 # Cloudflare Workers
 .wrangler
 wrangler.toml.bak
+
+dev-dist/

@@ -9,6 +9,7 @@ export default [
   {
     ignores: [
       'dist/**',
+      'dev-dist/**',
       'node_modules/**',
       'coverage/**',
       'coverage/**/*.js',
@@ -21,6 +22,12 @@ export default [
       '**/prettify.js',
       '**/sorter.js',
       '**/block-navigation.js',
+      'auto-imports.d.ts',
+      'src/types/pwa.d.ts',
+      'vite.config.ts',
+      '**/workbox-*.js',
+      '**/sw.js',
+      'eslint.config.js',
     ],
   },
 
@@ -42,6 +49,7 @@ export default [
         window: 'readonly',
         document: 'readonly',
         navigator: 'readonly',
+        Navigator: 'readonly',
         localStorage: 'readonly',
         sessionStorage: 'readonly',
         console: 'readonly',
@@ -69,6 +77,7 @@ export default [
 
         Event: 'readonly',
         KeyboardEvent: 'readonly',
+        MouseEvent: 'readonly',
         MessageEvent: 'readonly',
         MediaQueryListEvent: 'readonly',
         HTMLElement: 'readonly',
@@ -197,6 +206,10 @@ export default [
       'no-console': ['warn', { allow: ['error', 'warn'] }],
       'no-debugger': 'warn',
       'no-unused-vars': 'off',
+      'no-empty': ['error', { allowEmptyCatch: true }],
+      'no-func-assign': 'error',
+      'no-constant-condition': 'error',
+      'no-cond-assign': 'error',
 
       '@typescript-eslint/no-unused-vars': [
         'error',
@@ -210,6 +223,10 @@ export default [
       '@typescript-eslint/explicit-function-return-type': 'off',
       '@typescript-eslint/explicit-module-boundary-types': 'off',
       '@typescript-eslint/no-non-null-assertion': 'warn',
+      '@typescript-eslint/ban-types': 'off',
+      '@typescript-eslint/no-unsafe-member-access': 'off',
+      '@typescript-eslint/no-unsafe-assignment': 'off',
+      '@typescript-eslint/no-unsafe-return': 'off',
 
       'prefer-const': 'error',
       'no-var': 'error',
@@ -267,6 +284,7 @@ export default [
 
         Event: 'readonly',
         KeyboardEvent: 'readonly',
+        MouseEvent: 'readonly',
         MessageEvent: 'readonly',
         MediaQueryListEvent: 'readonly',
         HTMLElement: 'readonly',

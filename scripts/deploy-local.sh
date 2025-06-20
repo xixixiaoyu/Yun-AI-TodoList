@@ -26,8 +26,8 @@ echo -e "${BLUE}📍 当前分支: $CURRENT_BRANCH${NC}"
 
 # 构建项目
 echo -e "${BLUE}🏗️  构建项目...${NC}"
-pnpm --filter shared build
-pnpm --filter frontend build
+pnpm build:shared
+pnpm build:frontend
 
 # 根据分支选择部署环境
 if [ "$CURRENT_BRANCH" = "main" ]; then
