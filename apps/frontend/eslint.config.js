@@ -77,6 +77,7 @@ export default [
         HTMLSelectElement: 'readonly',
         HTMLCanvasElement: 'readonly',
         HTMLDivElement: 'readonly',
+        HTMLButtonElement: 'readonly',
         EventTarget: 'readonly',
 
         Notification: 'readonly',

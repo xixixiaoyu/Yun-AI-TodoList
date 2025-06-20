@@ -1,6 +1,6 @@
-import { marked } from 'marked'
 import DOMPurify from 'dompurify'
 import hljs from 'highlight.js'
+import { marked } from 'marked'
 import mermaid from 'mermaid'
 import type { MarkedOptions } from 'marked'
 
@@ -61,7 +61,7 @@ const getLanguageDisplayName = (lang: string): string => {
     if (langInfo?.name) {
       return langInfo.name
     }
-  } catch (error) {
+  } catch (_error) {
     // 静默处理错误，使用降级方案
   }
 
@@ -80,16 +80,15 @@ export function useMarkdown() {
 
   // 自定义渲染器
   const renderer = new marked.Renderer()
-  const originalCode = renderer.code
 
   renderer.code = function ({
     text,
     lang,
-    escaped,
+    _escaped,
   }: {
     text: string
     lang?: string
-    escaped?: boolean
+    _escaped?: boolean
   }) {
     if (lang === 'mermaid') {
       try {
@@ -198,7 +197,7 @@ export function useMarkdown() {
     const target = event.target as HTMLElement
 
     // 检查是否点击了复制按钮或其子元素
-    const copyButton = target.closest('.copy-button') as HTMLButtonElement
+    const copyButton = target.closest('.copy-button') as HTMLButtonElement | null
     if (!copyButton || !copyButton.dataset.code) {
       return
     }
@@ -245,7 +244,8 @@ export function useMarkdown() {
   }
 
   // 更新按钮状态的辅助函数
-  const updateButtonState = (button: HTMLButtonElement, state: 'success' | 'error') => {
+  const updateButtonState = (button: HTMLButtonElement | null, state: 'success' | 'error') => {
+    if (!button) return
     const copyText = button.querySelector('.copy-text')
     if (!copyText) return
 
