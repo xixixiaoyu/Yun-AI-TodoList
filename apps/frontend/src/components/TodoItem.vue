@@ -342,7 +342,12 @@ onErrorCaptured(handleError)
 }
 
 .todo-main-content {
-  @apply flex items-center justify-between gap-3 min-w-0;
+  @apply flex items-center gap-3 min-w-0;
+  justify-content: space-between;
+}
+
+.todo-main-content .todo-text {
+  @apply flex-1 min-w-0;
 }
 
 /* AI 分析信息样式 - 水平布局 */
@@ -383,7 +388,8 @@ onErrorCaptured(handleError)
 /* 移动端优化 */
 @media (max-width: 768px) {
   .todo-main-content {
-    @apply flex items-center justify-between gap-3 min-w-0;
+    @apply flex items-center gap-3 min-w-0;
+    justify-content: space-between;
   }
 
   .ai-analysis-info {
@@ -393,23 +399,42 @@ onErrorCaptured(handleError)
 
 /* 小屏幕优化 */
 @media (max-width: 480px) {
+  /* 默认垂直布局 */
   .todo-main-content {
-    @apply flex-col items-start gap-2;
+    @apply flex-col items-start gap-2 min-w-0;
+  }
+
+  .todo-text {
+    @apply w-full;
   }
 
   .ai-analysis-info {
     @apply self-end;
   }
+
+  /* 当存在 AI 分析按钮时，保持水平布局 */
+  .todo-main-content:has(.ai-analyze-btn) {
+    @apply flex-row items-center justify-between;
+  }
+
+  .todo-main-content:has(.ai-analyze-btn) .todo-text {
+    @apply w-auto flex-1 min-w-0;
+  }
+
+  .todo-main-content:has(.ai-analyze-btn) .ai-analysis-info {
+    @apply self-center;
+  }
 }
 
 .todo-text {
-  @apply flex items-center cursor-pointer gap-2;
+  @apply flex items-center cursor-pointer gap-2 min-w-0;
   color: var(--todo-text-color);
   font-family: 'LXGW WenKai Lite Medium', sans-serif;
 }
 
 .text-content {
-  @apply text-left whitespace-nowrap overflow-hidden text-ellipsis transition-all-300 flex-1;
+  @apply text-left whitespace-nowrap overflow-hidden text-ellipsis transition-all-300 min-w-0;
+  flex: 1;
 }
 
 .checkbox {

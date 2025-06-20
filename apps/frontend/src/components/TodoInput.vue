@@ -68,6 +68,13 @@ const addTodo = async () => {
   min-width: 250px;
 }
 
+@media (max-width: 480px) {
+  .input-wrapper {
+    min-width: unset;
+    width: 100%;
+  }
+}
+
 .todo-input {
   @apply flex-grow text-base outline-none transition-all-300;
   padding: 0.875rem 1rem;
@@ -116,6 +123,7 @@ const addTodo = async () => {
 
   .input-wrapper {
     @apply mb-2 w-full;
+    min-width: unset;
   }
 
   .add-btn {
