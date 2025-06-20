@@ -1,5 +1,5 @@
-import vue from '@vitejs/plugin-vue'
 import { fileURLToPath, URL } from 'node:url'
+import vue from '@vitejs/plugin-vue'
 import UnoCSS from 'unocss/vite'
 import { defineConfig } from 'vite'
 import { VitePWA } from 'vite-plugin-pwa'
@@ -20,7 +20,7 @@ export default defineConfig({
     }),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'mask-icon.svg'],
+      includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'pwa-192x192.png', 'pwa-512x512.png'],
       manifest: {
         name: 'Yun AI TodoList',
         short_name: 'TodoList',
@@ -34,17 +34,17 @@ export default defineConfig({
         lang: 'zh-CN',
         icons: [
           {
-            src: 'pwa-192x192.png',
+            src: '/pwa-192x192.png',
             sizes: '192x192',
             type: 'image/png',
           },
           {
-            src: 'pwa-512x512.png',
+            src: '/pwa-512x512.png',
             sizes: '512x512',
             type: 'image/png',
           },
           {
-            src: 'pwa-512x512.png',
+            src: '/pwa-512x512.png',
             sizes: '512x512',
             type: 'image/png',
             purpose: 'any maskable',
@@ -52,7 +52,12 @@ export default defineConfig({
         ],
       },
       workbox: {
-        globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
+        globDirectory: process.env.NODE_ENV === 'production' ? 'dist' : 'dev-dist',
+        globPatterns:
+          process.env.NODE_ENV === 'production'
+            ? ['**/*.{js,css,html,ico,png,svg,woff2}']
+            : ['**/*.{js,css,html}'],
+        globIgnores: ['**/node_modules/**/*'],
         runtimeCaching: [
           {
             urlPattern: /^https:\/\/api\./,
@@ -93,6 +98,8 @@ export default defineConfig({
       devOptions: {
         enabled: true,
         type: 'module',
+        navigateFallback: 'index.html',
+        suppressWarnings: true,
       },
     }),
   ],
