@@ -22,9 +22,10 @@
           stroke-linejoin="round"
           class="button-icon"
         >
-          <circle cx="12" cy="12" r="3" />
-          <path d="M12 1v6m0 6v6" />
-          <path d="m21 12-6-3-6 3-6-3" />
+          <circle cx="12" cy="12" r="10" />
+          <path d="M8 12h8" />
+          <path d="M12 8v8" />
+          <path d="M16.5 7.5l-9 9" />
         </svg>
       </button>
 
