@@ -1,8 +1,14 @@
 <template>
   <div class="flex gap-3 px-6 md:px-4 md:gap-2">
     <button
-      class="px-4 py-2.5 text-sm bg-input-bg text-text border border-input-border rounded-lg cursor-pointer flex items-center gap-2 transition-all duration-200 h-10 hover:bg-button-hover hover:text-white hover:border-button-bg hover:shadow-[0_2px_8px_rgba(121,180,166,0.2)] md:px-3 md:py-2 md:text-[13px] md:h-9"
-      @click="$emit('new')"
+      :disabled="isGenerating"
+      :class="[
+        'px-4 py-2.5 text-sm border rounded-lg flex items-center gap-2 transition-all duration-200 h-10 md:px-3 md:py-2 md:text-[13px] md:h-9',
+        isGenerating
+          ? 'bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed opacity-60'
+          : 'bg-input-bg text-text border-input-border cursor-pointer hover:bg-button-hover hover:text-white hover:border-button-bg hover:shadow-[0_2px_8px_rgba(121,180,166,0.2)]',
+      ]"
+      @click="!isGenerating && $emit('new')"
     >
       <svg
         xmlns="http://www.w3.org/2000/svg"
@@ -38,7 +44,9 @@
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n'
 
-defineProps<{}>()
+defineProps<{
+  isGenerating?: boolean
+}>()
 
 defineEmits<{
   (e: 'new'): void

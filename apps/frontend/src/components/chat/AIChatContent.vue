@@ -24,7 +24,11 @@
     />
 
     <div class="sticky bottom-0 bg-bg z-10 flex flex-col gap-1 py-3 sm:py-2">
-      <ChatToolbar @new="$emit('newConversation')" @toggle-drawer="$emit('toggleDrawer')" />
+      <ChatToolbar
+        :is-generating="isGenerating"
+        @new="$emit('newConversation')"
+        @toggle-drawer="$emit('toggleDrawer')"
+      />
 
       <ChatInput
         ref="inputRef"
