@@ -63,7 +63,12 @@ export function useChat() {
     }
   }
 
-  const createNewConversation = (title: string = t('newConversation')) => {
+  const createNewConversation = (title: string = t('newConversation'), force: boolean = false) => {
+    // 如果当前对话没有消息且不是强制创建，则不创建新对话
+    if (!force && chatHistory.value.length === 0) {
+      return
+    }
+
     const now = Date.now()
     const newConversation: Conversation = {
       id: now.toString(),
@@ -100,7 +105,7 @@ export function useChat() {
       if (conversationHistory.value.length > 0) {
         switchConversation(conversationHistory.value[0].id)
       } else {
-        createNewConversation()
+        createNewConversation(t('newConversation'), true)
       }
     }
     localStorage.setItem('conversationHistory', JSON.stringify(conversationHistory.value))
@@ -112,7 +117,7 @@ export function useChat() {
     currentConversationId.value = null
     localStorage.removeItem('conversationHistory')
     localStorage.removeItem('currentConversationId')
-    createNewConversation()
+    createNewConversation(t('newConversation'), true)
   }
 
   const sendMessage = async () => {
