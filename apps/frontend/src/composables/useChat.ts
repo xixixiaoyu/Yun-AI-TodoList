@@ -140,7 +140,7 @@ export function useChat() {
         role: 'user',
         content: message,
       }
-      chatHistory.value.push(userMsg)
+      chatHistory.value = [...chatHistory.value, userMsg]
 
       currentAIResponse.value = ''
       currentThinkingContent.value = ''
@@ -166,7 +166,7 @@ export function useChat() {
                 content: finalContent,
               }
 
-              chatHistory.value.push(aiMsg)
+              chatHistory.value = [...chatHistory.value, aiMsg]
               saveConversationHistory()
 
               nextTick(() => {

@@ -151,7 +151,14 @@ const scrollToBottomInstantly = () => {
   if (chatHistoryRef.value) {
     const element = chatHistoryRef.value
     element.style.scrollBehavior = 'auto'
-    element.scrollTop = element.scrollHeight
+    // 强制滚动到底部，使用 requestAnimationFrame 确保渲染完成
+    requestAnimationFrame(() => {
+      element.scrollTop = element.scrollHeight
+      // 双重保险，再次确保滚动到底部
+      requestAnimationFrame(() => {
+        element.scrollTop = element.scrollHeight
+      })
+    })
   }
 }
 
@@ -168,8 +175,13 @@ const handleScroll = () => {
     const element = chatHistoryRef.value
     const isAtBottom = element.scrollHeight - element.scrollTop <= element.clientHeight + 30
 
+    // 检测用户滚动方向
     if (element.scrollTop < lastScrollTop.value) {
+      // 向上滚动，禁用自动滚动
       isUserScrolling.value = true
+    } else if (isAtBottom) {
+      // 用户滚动到底部，重新启用自动滚动
+      isUserScrolling.value = false
     }
 
     lastScrollTop.value = element.scrollTop
@@ -199,17 +211,45 @@ onMounted(() => {
 
 watch(
   () => props.messages,
-  () => {
-    isUserScrolling.value = false
-    nextTick(() => {
-      smartScrollToBottom()
-    })
+  (newMessages, oldMessages) => {
+    // 只有在消息数量增加时才可能需要自动滚动
+    if (newMessages.length > (oldMessages?.length || 0)) {
+      // 检查最新添加的消息是否是用户消息
+      const lastMessage = newMessages[newMessages.length - 1]
+      if (lastMessage && lastMessage.role === 'user') {
+        // 用户发送消息时，重置滚动状态并强制滚动到底部
+        isUserScrolling.value = false
+        nextTick(() => {
+          // 使用 setTimeout 确保 DOM 完全更新后再滚动
+          setTimeout(() => {
+            scrollToBottomInstantly()
+          }, 0)
+        })
+      } else {
+        // AI 消息或其他情况，使用智能滚动
+        nextTick(() => {
+          smartScrollToBottom()
+        })
+      }
+    }
   },
   { immediate: true }
 )
 
 watch(
   () => props.currentResponse,
+  (newVal, oldVal) => {
+    if (newVal !== oldVal) {
+      nextTick(() => {
+        smartScrollToBottom()
+      })
+    }
+  }
+)
+
+// 监听思考内容变化
+watch(
+  () => props.currentThinking,
   (newVal, oldVal) => {
     if (newVal !== oldVal) {
       nextTick(() => {

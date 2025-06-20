@@ -179,31 +179,17 @@ const refreshSystemPrompts = () => {
 
 const isDrawerOpen = ref(false)
 const messageListRef = ref<InstanceType<typeof AIChatContent> | null>(null)
-const shouldAutoScroll = ref(true)
 
-const handleScroll = (scrollInfo: {
-  isAtBottom: boolean
-  scrollTop: number
-  scrollHeight: number
-  clientHeight: number
-}) => {
-  if (
-    !scrollInfo.isAtBottom &&
-    scrollInfo.scrollTop < scrollInfo.scrollHeight - scrollInfo.clientHeight - 100
-  ) {
-    shouldAutoScroll.value = false
-  } else {
-    shouldAutoScroll.value = true
-  }
+const handleScroll = () => {
+  // 滚动信息传递给父组件或用于其他用途
+  // 自动滚动逻辑现在由 ChatMessageList 内部处理
 }
 
 const handleSendMessage = async () => {
-  shouldAutoScroll.value = true
   await sendMessage()
 }
 
 const handleRetry = async (messageIndex: number) => {
-  shouldAutoScroll.value = true
   await retryLastMessage(messageIndex)
 }
 
