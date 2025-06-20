@@ -63,7 +63,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, onMounted } from 'vue'
 import { useMarkdown } from '../../composables/useMarkdown'
 import type { ChatMessage as ChatMessageType } from '../../services/types'
 import ChatMessage from './ChatMessage.vue'
@@ -91,7 +91,7 @@ const emit = defineEmits<{
   (e: 'retry', messageIndex: number): void
 }>()
 
-const { sanitizeContent, extractThinkingContent } = useMarkdown()
+const { sanitizeContent, extractThinkingContent, setupCodeCopyFunction } = useMarkdown()
 const chatHistoryRef = ref<HTMLDivElement | null>(null)
 
 // 扩展消息类型以包含思考内容
@@ -207,6 +207,8 @@ const smartScrollToBottom = () => {
 
 onMounted(() => {
   scrollToBottomInstantly()
+  // 设置代码复制功能
+  setupCodeCopyFunction()
 })
 
 watch(
