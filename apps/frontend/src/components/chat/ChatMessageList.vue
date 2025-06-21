@@ -52,7 +52,7 @@
         :message="{
           role: 'assistant',
           content: props.currentResponse,
-          sanitizedContent: sanitizeContent(props.currentResponse),
+          sanitizedContent: currentResponseSanitized,
         }"
         :is-streaming="true"
         @copy="copyToClipboard"
@@ -64,7 +64,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted } from 'vue'
+import { onMounted, ref, watch } from 'vue'
 import { useMarkdown } from '../../composables/useMarkdown'
 import type { ChatMessage as ChatMessageType } from '../../services/types'
 import ChatMessage from './ChatMessage.vue'
@@ -101,25 +101,49 @@ type ExtendedMessage = ChatMessageType & {
   thinkingContent?: string
 }
 
-// 处理消息，提取思考内容
-const sanitizedMessages = computed((): ExtendedMessage[] => {
-  return props.messages.map((message) => {
+// 处理消息，提取思考内容（异步版本）
+const sanitizedMessages = ref<ExtendedMessage[]>([])
+const currentResponseSanitized = ref('')
+
+// 异步处理消息内容
+const processSanitizedMessages = async () => {
+  const processed: ExtendedMessage[] = []
+
+  for (const message of props.messages) {
     if (message.role === 'assistant') {
       const { thinking, response } = extractThinkingContent(message.content)
-      return {
+      const sanitizedContent = await sanitizeContent(response)
+      processed.push({
         ...message,
         content: response,
-        sanitizedContent: sanitizeContent(response),
+        sanitizedContent,
         thinkingContent: thinking || undefined,
-      }
+      })
+    } else {
+      const sanitizedContent = await sanitizeContent(message.content)
+      processed.push({
+        ...message,
+        sanitizedContent,
+        thinkingContent: undefined,
+      })
     }
-    return {
-      ...message,
-      sanitizedContent: sanitizeContent(message.content),
-      thinkingContent: undefined,
-    }
-  })
-})
+  }
+
+  sanitizedMessages.value = processed
+}
+
+// 异步处理当前响应
+const processCurrentResponse = async () => {
+  if (props.currentResponse) {
+    currentResponseSanitized.value = await sanitizeContent(props.currentResponse)
+  } else {
+    currentResponseSanitized.value = ''
+  }
+}
+
+// 监听消息变化
+watch(() => props.messages, processSanitizedMessages, { immediate: true, deep: true })
+watch(() => props.currentResponse, processCurrentResponse, { immediate: true })
 
 // 移除 getCurrentStreamingContent 函数，现在分别处理思考内容和响应内容
 

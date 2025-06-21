@@ -147,6 +147,88 @@ button {
   cursor: pointer;
 }
 
+/* Mermaid 图表字体设置 - 确保中文显示 */
+.mermaid {
+  font-family:
+    'LXGW WenKai Lite Medium',
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    'PingFang SC',
+    'Hiragino Sans GB',
+    'Microsoft YaHei',
+    'Helvetica Neue',
+    Helvetica,
+    Arial,
+    sans-serif !important;
+}
+
+.mermaid svg {
+  font-family:
+    'LXGW WenKai Lite Medium',
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    'PingFang SC',
+    'Hiragino Sans GB',
+    'Microsoft YaHei',
+    'Helvetica Neue',
+    Helvetica,
+    Arial,
+    sans-serif !important;
+}
+
+.mermaid text {
+  font-family:
+    'LXGW WenKai Lite Medium',
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    'PingFang SC',
+    'Hiragino Sans GB',
+    'Microsoft YaHei',
+    'Helvetica Neue',
+    Helvetica,
+    Arial,
+    sans-serif !important;
+  font-size: 14px !important;
+}
+
+/* 浅色主题下的 Mermaid 文字颜色 */
+:root .mermaid text,
+:root .mermaid .node text,
+:root .mermaid .edgeLabel text,
+:root .mermaid .label text {
+  fill: #000000 !important;
+}
+
+/* 深色主题下的 Mermaid 文字颜色 */
+[data-theme='dark'] .mermaid text,
+[data-theme='dark'] .mermaid .node text,
+[data-theme='dark'] .mermaid .edgeLabel text,
+[data-theme='dark'] .mermaid .label text {
+  fill: #ffffff !important;
+}
+
+.mermaid .node text,
+.mermaid .edgeLabel text,
+.mermaid .label text {
+  font-family:
+    'LXGW WenKai Lite Medium',
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    'PingFang SC',
+    'Hiragino Sans GB',
+    'Microsoft YaHei',
+    'Helvetica Neue',
+    Helvetica,
+    Arial,
+    sans-serif !important;
+  font-size: 14px !important;
+  font-weight: normal !important;
+}
+
 /* 全局输入框样式重置 */
 input,
 textarea,
@@ -324,8 +406,10 @@ select {
   border-color: var(--input-border-color-dark);
 }
 
+/* 移除滤镜效果，让 Mermaid 自身的主题系统处理颜色 */
 [data-theme='dark'] .mermaid-diagram svg {
-  filter: invert(0.9) hue-rotate(180deg);
+  /* filter: invert(0.9) hue-rotate(180deg); */
+  background: transparent;
 }
 
 [data-theme='dark'] .mermaid-error {

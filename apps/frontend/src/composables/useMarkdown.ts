@@ -70,13 +70,146 @@ const getLanguageDisplayName = (lang: string): string => {
 }
 
 export function useMarkdown() {
-  // 初始化 Mermaid
-  mermaid.initialize({
-    startOnLoad: false,
-    theme: 'default',
-    securityLevel: 'loose',
-    fontFamily: 'inherit',
-  })
+  // 获取当前主题
+  const getCurrentTheme = (): 'default' | 'dark' => {
+    if (typeof document !== 'undefined') {
+      const theme = document.documentElement.getAttribute('data-theme')
+      return theme === 'dark' ? 'dark' : 'default'
+    }
+    return 'default'
+  }
+
+  // 初始化 Mermaid 配置
+  const initializeMermaid = (theme: 'default' | 'dark' = 'default') => {
+    const isDark = theme === 'dark'
+    const textColor = isDark ? '#ffffff' : '#000000'
+    const backgroundColor = isDark ? '#1a1a1a' : '#ffffff'
+    const fontStack =
+      '-apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Helvetica Neue", Helvetica, Arial, sans-serif'
+
+    mermaid.initialize({
+      startOnLoad: false,
+      theme: theme,
+      securityLevel: 'loose',
+      // 支持中文字体
+      fontFamily: fontStack,
+      themeVariables: {
+        // 基础颜色
+        primaryColor: '#79b4a6',
+        primaryBorderColor: '#79b4a6',
+        primaryTextColor: textColor,
+
+        // 文字颜色设置 - 更全面的配置
+        textColor: textColor,
+        nodeTextColor: textColor,
+        edgeLabelBackground: backgroundColor,
+
+        // 线条和边框
+        lineColor: textColor,
+        edgeColor: textColor,
+
+        // 背景色
+        background: backgroundColor,
+        mainBkg: backgroundColor,
+        secondBkg: isDark ? '#2a2a2a' : '#f9f9f9',
+
+        // 节点样式
+        nodeBkg: isDark ? '#2a2a2a' : '#ffffff',
+        nodeBorder: '#79b4a6',
+
+        // 确保标签文字可见
+        labelColor: textColor,
+
+        // 流程图特定设置
+        clusterBkg: isDark ? '#2a2a2a' : '#f9f9f9',
+        clusterBorder: '#79b4a6',
+
+        // 字体设置 - 支持中文
+        fontFamily: fontStack,
+        fontSize: '14px',
+        fontWeight: 'normal',
+
+        // 确保所有文字元素都使用正确的字体和颜色
+        nodeFontFamily: fontStack,
+        edgeLabelFontFamily: fontStack,
+        labelFontFamily: fontStack,
+
+        // 添加更多文字颜色配置确保兼容性
+        cScale0: textColor,
+        cScale1: textColor,
+        cScale2: textColor,
+        cScale3: textColor,
+        cScale4: textColor,
+        cScale5: textColor,
+        cScale6: textColor,
+        cScale7: textColor,
+        cScale8: textColor,
+        cScale9: textColor,
+        cScale10: textColor,
+        cScale11: textColor,
+
+        // 序列图文字颜色
+        actorTextColor: textColor,
+        noteTextColor: textColor,
+        loopTextColor: textColor,
+
+        // 甘特图文字颜色
+        taskTextColor: textColor,
+        taskTextOutsideColor: textColor,
+        activeTaskTextColor: textColor,
+
+        // 类图文字颜色
+        classText: textColor,
+
+        // 状态图文字颜色
+        labelBoxBkgColor: backgroundColor,
+        labelBoxBorderColor: '#79b4a6',
+        labelTextColor: textColor,
+      },
+      // 确保 SVG 渲染正确
+      htmlLabels: false, // 改为 false 避免 HTML 标签冲突
+      wrap: true,
+      maxTextSize: 90000,
+    })
+  }
+
+  // 预处理 Mermaid 图表
+  const preprocessMermaidDiagrams = async (markdown: string): Promise<string> => {
+    const mermaidRegex = /```mermaid\n([\s\S]*?)\n```/g
+    const matches = [...markdown.matchAll(mermaidRegex)]
+
+    if (matches.length === 0) {
+      return markdown
+    }
+
+    // 根据当前主题重新初始化 Mermaid
+    const currentTheme = getCurrentTheme()
+    initializeMermaid(currentTheme)
+
+    let processedMarkdown = markdown
+
+    for (const match of matches) {
+      try {
+        const diagramCode = match[1]
+        const id = `mermaid-${Math.random().toString(36).substr(2, 9)}`
+
+        // 同步等待 Mermaid 渲染完成
+        const { svg } = await mermaid.render(id, diagramCode)
+
+        // 将渲染好的 SVG 包装在容器中
+        const wrappedSvg = `<div class="mermaid-container"><div class="mermaid-diagram">${svg}</div></div>`
+
+        // 替换原始的 mermaid 代码块
+        processedMarkdown = processedMarkdown.replace(match[0], wrappedSvg)
+      } catch (error) {
+        console.error('Mermaid rendering error:', error)
+        const errorHtml = `<div class="mermaid-container"><pre class="mermaid-error">图表渲染失败: ${error instanceof Error ? error.message : String(error)}</pre></div>`
+        processedMarkdown = processedMarkdown.replace(match[0], errorHtml)
+      }
+    }
+
+    return processedMarkdown
+  }
 
   // 自定义渲染器
   const renderer = new marked.Renderer()
@@ -90,32 +223,7 @@ export function useMarkdown() {
     lang?: string
     _escaped?: boolean
   }) {
-    if (lang === 'mermaid') {
-      try {
-        const id = `mermaid-${Math.random().toString(36).substr(2, 9)}`
-        // 使用 mermaid.render 生成 SVG
-        mermaid
-          .render(id, text)
-          .then(({ svg }) => {
-            const element = document.getElementById(`temp-${id}`)
-            if (element) {
-              element.innerHTML = svg
-              element.classList.add('mermaid-diagram')
-            }
-          })
-          .catch((error) => {
-            console.error('Mermaid rendering error:', error)
-            const element = document.getElementById(`temp-${id}`)
-            if (element) {
-              element.innerHTML = `<pre class="mermaid-error">图表渲染失败: ${error.message}</pre>`
-            }
-          })
-        return `<div id="temp-${id}" class="mermaid-container">正在渲染图表...</div>`
-      } catch (error) {
-        console.error('Mermaid setup error:', error)
-        return `<pre class="mermaid-error">图表渲染失败: ${error}</pre>`
-      }
-    }
+    // Mermaid 图表已在预处理阶段处理，这里不再特殊处理
 
     // 处理普通代码块
     const language = lang || 'text'
@@ -157,9 +265,11 @@ export function useMarkdown() {
     },
   } as MarkedOptions)
 
-  const sanitizeContent = (content: string): string => {
-    const rawHtml = marked.parse(content) as string
-    return DOMPurify.sanitize(rawHtml)
+  const sanitizeContent = async (content: string): Promise<string> => {
+    // 首先预处理 Mermaid 图表
+    const processedContent = await preprocessMermaidDiagrams(content)
+    const rawHtml = await marked.parse(processedContent)
+    return DOMPurify.sanitize(rawHtml as string)
   }
 
   // 提取思考内容并返回处理后的内容
@@ -266,9 +376,123 @@ export function useMarkdown() {
     }, 2000)
   }
 
+  // 渲染 Markdown（现在是异步函数）
+  const renderMarkdown = async (markdown: string): Promise<string> => {
+    if (!markdown) return ''
+
+    try {
+      // 首先预处理 Mermaid 图表
+      const processedMarkdown = await preprocessMermaidDiagrams(markdown)
+
+      // 使用 marked 解析 markdown
+      const html = await marked.parse(processedMarkdown, {
+        renderer,
+        gfm: true,
+        breaks: true,
+        sanitize: false,
+      } as MarkedOptions)
+
+      // 使用 DOMPurify 清理 HTML
+      const cleanHtml = DOMPurify.sanitize(html, {
+        ALLOWED_TAGS: [
+          'h1',
+          'h2',
+          'h3',
+          'h4',
+          'h5',
+          'h6',
+          'p',
+          'br',
+          'strong',
+          'em',
+          'u',
+          'del',
+          'code',
+          'pre',
+          'blockquote',
+          'ul',
+          'ol',
+          'li',
+          'a',
+          'img',
+          'table',
+          'thead',
+          'tbody',
+          'tr',
+          'th',
+          'td',
+          'div',
+          'span',
+          'svg',
+          'g',
+          'path',
+          'rect',
+          'circle',
+          'ellipse',
+          'line',
+          'polyline',
+          'polygon',
+          'text',
+          'tspan',
+          'defs',
+          'marker',
+          'button',
+        ],
+        ALLOWED_ATTR: [
+          'href',
+          'src',
+          'alt',
+          'title',
+          'class',
+          'id',
+          'style',
+          'data-*',
+          'viewBox',
+          'width',
+          'height',
+          'fill',
+          'stroke',
+          'stroke-width',
+          'd',
+          'x',
+          'y',
+          'x1',
+          'y1',
+          'x2',
+          'y2',
+          'cx',
+          'cy',
+          'r',
+          'rx',
+          'ry',
+          'points',
+          'transform',
+          'text-anchor',
+          'font-size',
+          'font-family',
+          'font-weight',
+          'dx',
+          'dy',
+          'markerWidth',
+          'markerHeight',
+          'orient',
+          'refX',
+          'refY',
+        ],
+        ALLOW_DATA_ATTR: true,
+      })
+
+      return cleanHtml
+    } catch (error) {
+      console.error('Markdown rendering error:', error)
+      return `<p>渲染失败: ${error}</p>`
+    }
+  }
+
   return {
     sanitizeContent,
     extractThinkingContent,
     setupCodeCopyFunction,
+    renderMarkdown,
   }
 }
