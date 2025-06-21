@@ -263,8 +263,6 @@ export function useMarkdown() {
       securityLevel: 'loose',
       // 支持中文字体
       fontFamily: fontStack,
-      // 高质量渲染配置
-      scale: 2, // 内部渲染缩放，提升图像质量
       // 图表尺寸配置
       flowchart: {
         useMaxWidth: true,
@@ -322,6 +320,7 @@ export function useMarkdown() {
         background: backgroundColor,
         mainBkg: backgroundColor,
         secondBkg: isDark ? '#2a2a2a' : '#f9f9f9',
+        tertiaryColor: backgroundColor,
 
         // 节点样式
         nodeBkg: isDark ? '#2a2a2a' : '#ffffff',
@@ -329,10 +328,22 @@ export function useMarkdown() {
 
         // 确保标签文字可见
         labelColor: textColor,
+        labelBoxBkgColor: backgroundColor,
+        labelBoxBorderColor: '#79b4a6',
 
         // 流程图特定设置
         clusterBkg: isDark ? '#2a2a2a' : '#f9f9f9',
         clusterBorder: '#79b4a6',
+
+        // 修复可能的黄色背景问题
+        c0: backgroundColor,
+        c1: backgroundColor,
+        c2: backgroundColor,
+        c3: backgroundColor,
+        c4: backgroundColor,
+        c5: backgroundColor,
+        c6: backgroundColor,
+        c7: backgroundColor,
 
         // 字体设置 - 支持中文
         fontFamily: fontStack,
@@ -372,8 +383,6 @@ export function useMarkdown() {
         classText: textColor,
 
         // 状态图文字颜色
-        labelBoxBkgColor: backgroundColor,
-        labelBoxBorderColor: '#79b4a6',
         labelTextColor: textColor,
       },
       // 确保 SVG 渲染正确
@@ -406,14 +415,21 @@ export function useMarkdown() {
         // 同步等待 Mermaid 渲染完成
         const { svg } = await mermaid.render(id, diagramCode)
 
-        // 优化 SVG 质量：添加高分辨率渲染属性
+        // 优化 SVG 质量：添加高分辨率渲染属性和透明背景
         const optimizedSvg = svg
           .replace(
             '<svg',
-            '<svg preserveAspectRatio="xMidYMid meet" shape-rendering="geometricPrecision" text-rendering="geometricPrecision"'
+            '<svg preserveAspectRatio="xMidYMid meet" shape-rendering="geometricPrecision" text-rendering="geometricPrecision" style="background: transparent;"'
           )
           .replace(/width="[^"]*"/, 'width="100%"')
           .replace(/height="[^"]*"/, 'height="100%"')
+          .replace(/<rect[^>]*fill="[^"]*"[^>]*>/g, (match) => {
+            // 移除可能的默认背景矩形
+            if (match.includes('fill="#') && !match.includes('stroke')) {
+              return match.replace(/fill="[^"]*"/, 'fill="transparent"')
+            }
+            return match
+          })
 
         // 将渲染好的 SVG 包装在容器中，添加缩放控制
         const wrappedSvg = `<div class="mermaid-container">
