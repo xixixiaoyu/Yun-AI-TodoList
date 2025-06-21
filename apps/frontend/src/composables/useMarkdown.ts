@@ -4,6 +4,176 @@ import { marked } from 'marked'
 import mermaid from 'mermaid'
 import type { MarkedOptions } from 'marked'
 
+// 全局缩放函数 - 确保在全局作用域中可访问
+declare global {
+  interface Window {
+    zoomMermaid: (button: HTMLElement, action: 'in' | 'out' | 'reset') => void
+  }
+}
+
+// 事件委托处理 Mermaid 缩放和拖拽功能
+;(() => {
+  if (typeof window !== 'undefined') {
+    let isDragging = false
+    let dragStartX = 0
+    let dragStartY = 0
+    let currentTranslateX = 0
+    let currentTranslateY = 0
+    let dragTarget: HTMLElement | null = null
+    let animationFrameId: number | null = null
+    let pendingTransform = { x: 0, y: 0 }
+
+    // 优化的拖拽更新函数，使用 requestAnimationFrame 节流
+    const updateDragTransform = () => {
+      if (dragTarget && isDragging) {
+        dragTarget.style.setProperty('--mermaid-translate-x', `${pendingTransform.x}px`)
+        dragTarget.style.setProperty('--mermaid-translate-y', `${pendingTransform.y}px`)
+      }
+      animationFrameId = null
+    }
+
+    // 缩放按钮点击事件
+    document.addEventListener('click', (event) => {
+      const target = event.target as HTMLElement
+      if (target.classList.contains('mermaid-zoom-btn')) {
+        const action = target.getAttribute('data-action') as 'in' | 'out' | 'reset'
+        const container = target.closest('.mermaid-container') as HTMLElement
+
+        if (!container || !action) {
+          console.warn('Mermaid container or action not found')
+          return
+        }
+
+        const currentScale = parseFloat(
+          container.style.getPropertyValue('--mermaid-scale') || '1.8'
+        )
+        let newScale = currentScale
+
+        switch (action) {
+          case 'in':
+            newScale = Math.min(currentScale * 1.2, 3.0) // 最大3倍
+            break
+          case 'out':
+            newScale = Math.max(currentScale / 1.2, 0.5) // 最小0.5倍
+            break
+          case 'reset':
+            newScale = 1.8 // 默认缩放提升到1.8倍
+            // 重置时也重置位移
+            container.style.setProperty('--mermaid-translate-x', '0px')
+            container.style.setProperty('--mermaid-translate-y', '0px')
+            break
+        }
+
+        container.style.setProperty('--mermaid-scale', newScale.toString())
+        console.log(`Mermaid zoom: ${action}, scale: ${currentScale} -> ${newScale}`)
+      }
+    })
+
+    // 拖拽开始事件
+    document.addEventListener('mousedown', (event) => {
+      const target = event.target as HTMLElement
+      const svgElement = target.closest('svg')
+      const container = target.closest('.mermaid-container') as HTMLElement
+
+      if (svgElement && container && !target.classList.contains('mermaid-zoom-btn')) {
+        isDragging = true
+        dragTarget = container
+        dragStartX = event.clientX
+        dragStartY = event.clientY
+
+        // 获取当前的位移值
+        currentTranslateX = parseFloat(
+          container.style.getPropertyValue('--mermaid-translate-x') || '0'
+        )
+        currentTranslateY = parseFloat(
+          container.style.getPropertyValue('--mermaid-translate-y') || '0'
+        )
+
+        // 添加拖拽状态类，优化CSS过渡效果
+        container.classList.add('dragging')
+
+        // 改变鼠标样式
+        document.body.style.cursor = 'grabbing'
+        svgElement.style.cursor = 'grabbing'
+        event.preventDefault()
+      }
+    })
+
+    // 优化的拖拽移动事件，使用节流和更平滑的计算
+    document.addEventListener('mousemove', (event) => {
+      if (isDragging && dragTarget) {
+        // 计算移动距离，添加轻微的阻尼效果提升手感
+        const deltaX = (event.clientX - dragStartX) * 1.0 // 可调整阻尼系数
+        const deltaY = (event.clientY - dragStartY) * 1.0
+
+        pendingTransform.x = currentTranslateX + deltaX
+        pendingTransform.y = currentTranslateY + deltaY
+
+        // 使用 requestAnimationFrame 节流更新，提升性能和流畅度
+        if (!animationFrameId) {
+          animationFrameId = requestAnimationFrame(updateDragTransform)
+        }
+
+        event.preventDefault()
+      }
+    })
+
+    // 拖拽结束事件
+    document.addEventListener('mouseup', () => {
+      if (isDragging) {
+        isDragging = false
+
+        // 移除拖拽状态类
+        if (dragTarget) {
+          dragTarget.classList.remove('dragging')
+        }
+
+        dragTarget = null
+        document.body.style.cursor = ''
+
+        // 清理动画帧
+        if (animationFrameId) {
+          cancelAnimationFrame(animationFrameId)
+          animationFrameId = null
+        }
+
+        // 恢复 SVG 鼠标样式
+        const svgElements = document.querySelectorAll('.mermaid-diagram svg')
+        svgElements.forEach((svg) => {
+          ;(svg as HTMLElement).style.cursor = 'grab'
+        })
+      }
+    })
+
+    // 防止拖拽时选中文本
+    document.addEventListener('selectstart', (event) => {
+      if (isDragging) {
+        event.preventDefault()
+      }
+    })
+
+    // 处理鼠标离开窗口的情况
+    document.addEventListener('mouseleave', () => {
+      if (isDragging) {
+        isDragging = false
+
+        // 移除拖拽状态类
+        if (dragTarget) {
+          dragTarget.classList.remove('dragging')
+        }
+
+        dragTarget = null
+        document.body.style.cursor = ''
+
+        if (animationFrameId) {
+          cancelAnimationFrame(animationFrameId)
+          animationFrameId = null
+        }
+      }
+    })
+  }
+})()
+
 // 语言显示名称映射 - 优化版本，支持动态降级
 const getLanguageDisplayName = (lang: string): string => {
   // 核心语言映射，保持用户友好的显示
@@ -93,6 +263,46 @@ export function useMarkdown() {
       securityLevel: 'loose',
       // 支持中文字体
       fontFamily: fontStack,
+      // 高质量渲染配置
+      scale: 2, // 内部渲染缩放，提升图像质量
+      // 图表尺寸配置
+      flowchart: {
+        useMaxWidth: true,
+        htmlLabels: false,
+        curve: 'basis',
+        nodeSpacing: 50,
+        rankSpacing: 60,
+        padding: 20,
+      },
+      sequence: {
+        useMaxWidth: true,
+        width: 150,
+        height: 65,
+        boxMargin: 10,
+        boxTextMargin: 5,
+        noteMargin: 10,
+        messageMargin: 35,
+      },
+      gantt: {
+        useMaxWidth: true,
+        leftPadding: 75,
+        gridLineStartPadding: 35,
+        fontSize: 11,
+        sectionFontSize: 11,
+        numberSectionStyles: 4,
+      },
+      journey: {
+        useMaxWidth: true,
+      },
+      timeline: {
+        useMaxWidth: true,
+      },
+      mindmap: {
+        useMaxWidth: true,
+      },
+      gitGraph: {
+        useMaxWidth: true,
+      },
       themeVariables: {
         // 基础颜色
         primaryColor: '#79b4a6',
@@ -196,8 +406,24 @@ export function useMarkdown() {
         // 同步等待 Mermaid 渲染完成
         const { svg } = await mermaid.render(id, diagramCode)
 
-        // 将渲染好的 SVG 包装在容器中
-        const wrappedSvg = `<div class="mermaid-container"><div class="mermaid-diagram">${svg}</div></div>`
+        // 优化 SVG 质量：添加高分辨率渲染属性
+        const optimizedSvg = svg
+          .replace(
+            '<svg',
+            '<svg preserveAspectRatio="xMidYMid meet" shape-rendering="geometricPrecision" text-rendering="geometricPrecision"'
+          )
+          .replace(/width="[^"]*"/, 'width="100%"')
+          .replace(/height="[^"]*"/, 'height="100%"')
+
+        // 将渲染好的 SVG 包装在容器中，添加缩放控制
+        const wrappedSvg = `<div class="mermaid-container">
+          <div class="mermaid-zoom-controls">
+            <button class="mermaid-zoom-btn" data-action="in" title="放大">+</button>
+            <button class="mermaid-zoom-btn" data-action="out" title="缩小">−</button>
+            <button class="mermaid-zoom-btn" data-action="reset" title="重置">⌂</button>
+          </div>
+          <div class="mermaid-diagram">${optimizedSvg}</div>
+        </div>`
 
         // 替换原始的 mermaid 代码块
         processedMarkdown = processedMarkdown.replace(match[0], wrappedSvg)

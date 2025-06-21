@@ -338,16 +338,20 @@ select {
 /* Mermaid 图表样式 */
 .mermaid-container {
   margin: 16px 0;
-  padding: 16px;
+  padding: 20px;
   background: var(--card-bg-color);
   border-radius: var(--border-radius);
   border: 1px solid var(--input-border-color);
   text-align: center;
-  min-height: 100px;
+  min-height: 250px;
+  min-width: 100%;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
   transition: all 0.3s ease;
+  overflow: visible;
+  position: relative;
 }
 
 .mermaid-loading {
@@ -380,13 +384,51 @@ select {
 .mermaid-diagram {
   width: 100%;
   max-width: 100%;
+  min-width: 500px;
   overflow-x: auto;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex: 1;
 }
 
 .mermaid-diagram svg {
   max-width: 100%;
+  min-width: 500px;
+  min-height: 250px;
   height: auto;
   background: transparent;
+  transform: scale(var(--mermaid-scale, 1))
+    translate(var(--mermaid-translate-x, 0px), var(--mermaid-translate-y, 0px));
+  transform-origin: center;
+  transition: transform 0.1s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  cursor: grab;
+  user-select: none;
+  will-change: transform;
+  /* 优化图像渲染质量 */
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: crisp-edges;
+  shape-rendering: geometricPrecision;
+  text-rendering: geometricPrecision;
+  /* 确保高 DPI 显示清晰 */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.mermaid-diagram svg:active {
+  cursor: grabbing;
+  transition: none; /* 拖拽时禁用过渡效果 */
+}
+
+/* 拖拽状态下的容器样式 */
+.mermaid-container.dragging .mermaid-diagram svg {
+  transition: none;
+  cursor: grabbing;
+}
+
+/* 优化拖拽性能 */
+.mermaid-container {
+  contain: layout style paint;
 }
 
 .mermaid-error {
@@ -416,6 +458,57 @@ select {
   background: rgba(229, 62, 62, 0.2);
   color: #ff6b6b;
   border-color: #ff6b6b;
+}
+
+/* Mermaid 缩放控制按钮样式 */
+.mermaid-zoom-controls {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  display: flex;
+  gap: 4px;
+  z-index: 10;
+}
+
+.mermaid-zoom-btn {
+  width: 28px;
+  height: 28px;
+  border: 1px solid var(--input-border-color);
+  background: var(--card-bg-color);
+  color: var(--text-color);
+  border-radius: 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: bold;
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.mermaid-zoom-btn:hover {
+  background: var(--hover-bg-color);
+  border-color: var(--primary-color);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+
+.mermaid-zoom-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+/* 深色主题下的缩放按钮样式 */
+[data-theme='dark'] .mermaid-zoom-btn {
+  background: var(--card-bg-color-dark);
+  border-color: var(--input-border-color-dark);
+  color: var(--text-color-dark);
+}
+
+[data-theme='dark'] .mermaid-zoom-btn:hover {
+  background: var(--hover-bg-color-dark);
+  border-color: var(--primary-color);
 }
 
 /* 代码块样式 - 优化版本 */

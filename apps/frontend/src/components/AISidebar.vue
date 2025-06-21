@@ -140,6 +140,7 @@
         @stop="stopGenerating"
         @scroll="handleScroll"
         @update:user-message="userMessage = $event"
+        @generate-chart="handleGenerateChart"
       />
     </div>
   </Transition>
@@ -148,9 +149,9 @@
 <script setup lang="ts">
 import { onMounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { useAISidebar } from '../composables/useAISidebar'
 import { useChat } from '../composables/useChat'
 import { useSystemPrompts } from '../composables/useSystemPrompts'
-import { useAISidebar } from '../composables/useAISidebar'
 import AIChatContent from './chat/AIChatContent.vue'
 import Overlay from './common/Overlay.vue'
 import CloseIcon from './common/icons/CloseIcon.vue'
@@ -233,6 +234,34 @@ const handleSendMessage = async () => {
 
 const handleRetry = async (messageIndex: number) => {
   await retryLastMessage(messageIndex)
+}
+
+const handleGenerateChart = async (content: string) => {
+  // 构造生成图表的提示词
+  const chartPrompt = `请根据以下内容生成 mermaid 格式的图表，要求：
+1. 使用标准的 mermaid 语法
+2. 选择合适的图表类型（flowchart、sequenceDiagram、pie 等）
+3. 使用简洁的节点标签，避免特殊字符
+4. 如需颜色，使用标准的 style 语法，并使用 # 开头的十六进制柔和颜色代码
+5. 确保语法完全正确
+
+内容：${content}
+
+请只返回 mermaid 代码块，不要包含其他解释文字。`
+
+  // 临时保存当前用户消息
+  const originalMessage = userMessage.value
+
+  // 设置图表生成提示词作为用户消息
+  userMessage.value = chartPrompt
+
+  try {
+    // 发送消息
+    await sendMessage()
+  } finally {
+    // 恢复原始用户消息（如果有的话）
+    userMessage.value = originalMessage
+  }
 }
 
 const closeSidebar = () => {

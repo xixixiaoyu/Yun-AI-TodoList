@@ -34,6 +34,7 @@
         @copy-success="handleCopySuccess"
         @copy-error="handleCopyError"
         @retry="handleRetry"
+        @generate-chart="handleGenerateChart"
       />
     </div>
     <!-- 当前流式响应 -->
@@ -58,6 +59,7 @@
         @copy="copyToClipboard"
         @copy-success="handleCopySuccess"
         @copy-error="handleCopyError"
+        @generate-chart="handleGenerateChart"
       />
     </div>
   </div>
@@ -90,6 +92,7 @@ const emit = defineEmits<{
     }
   ): void
   (e: 'retry', messageIndex: number): void
+  (e: 'generate-chart', content: string): void
 }>()
 
 const { sanitizeContent, extractThinkingContent, setupCodeCopyFunction } = useMarkdown()
@@ -167,6 +170,10 @@ const handleCopyError = (error: Error) => {
 
 const handleRetry = (messageIndex: number) => {
   emit('retry', messageIndex)
+}
+
+const handleGenerateChart = (content: string) => {
+  emit('generate-chart', content)
 }
 
 const isUserScrolling = ref(false)

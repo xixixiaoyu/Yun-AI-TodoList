@@ -39,6 +39,29 @@
               @copy-success="handleCopySuccess"
               @copy-error="handleCopyError"
             />
+            <!-- 生成图表按钮 -->
+            <button
+              v-if="message.role === 'assistant'"
+              class="flex items-center justify-center w-8 h-8 rounded-md bg-white/80 dark:bg-gray-800/80 hover:bg-white dark:hover:bg-gray-700 border border-gray-200/50 dark:border-gray-600/50 transition-all duration-200 group/chart"
+              :title="'生成图表'"
+              @click="handleGenerateChart"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                width="16"
+                height="16"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                class="text-gray-600 dark:text-gray-400 group-hover/chart:text-blue-600 dark:group-hover/chart:text-blue-400 transition-colors duration-200"
+              >
+                <path d="M3 3v18h18" />
+                <path d="m19 9-5 5-4-4-3 3" />
+              </svg>
+            </button>
             <!-- 重试按钮 -->
             <RetryButton
               v-if="message.role === 'assistant'"
@@ -81,6 +104,7 @@ interface Emits {
   (e: 'copy-success', text: string): void
   (e: 'copy-error', error: Error): void
   (e: 'retry', messageIndex: number): void
+  (e: 'generate-chart', content: string): void
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -105,6 +129,10 @@ const handleRetry = () => {
   if (props.messageIndex !== undefined) {
     emit('retry', props.messageIndex)
   }
+}
+
+const handleGenerateChart = () => {
+  emit('generate-chart', props.message.content)
 }
 
 defineOptions({

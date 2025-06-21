@@ -21,6 +21,7 @@
       @scroll="$emit('scroll', $event)"
       @retry="(messageIndex: number) => $emit('retry', messageIndex)"
       @optimize="$emit('optimize')"
+      @generate-chart="$emit('generateChart', $event)"
     />
 
     <div class="sticky bottom-0 bg-bg z-10 flex flex-col gap-1 py-3 sm:py-2">
@@ -45,6 +46,7 @@
 </template>
 
 <script setup lang="ts">
+import { onMounted, ref } from 'vue'
 import type { ChatMessage } from '../../services/types'
 import ChatInput from './ChatInput.vue'
 import ChatMessageList from './ChatMessageList.vue'
@@ -87,7 +89,6 @@ interface ScrollInfo {
 
 interface Emits {
   (e: 'toggleDrawer'): void
-
   (e: 'update:isDrawerOpen', value: boolean): void
   (e: 'switchConversation', id: string): void
   (e: 'deleteConversation', id: string): void
@@ -99,6 +100,7 @@ interface Emits {
   (e: 'stop'): void
   (e: 'scroll', scrollInfo: ScrollInfo): void
   (e: 'update:userMessage', value: string): void
+  (e: 'generateChart', content: string): void
 }
 
 defineProps<Props>()
