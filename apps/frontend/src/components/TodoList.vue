@@ -216,13 +216,14 @@ const {
 // 从 useTodoManagement 获取任务拆分相关功能
 const { handleAddSubtasks } = useTodoManagement()
 
-// 拖拽排序功能 - 在 AI 排序过程中禁用拖拽
+// 拖拽排序功能 - 在 AI 排序过程中和批量分析期间禁用拖拽
 const isDragEnabled = computed(
   () =>
     filter.value === 'active' &&
     filteredTodos.value.length > 1 &&
     !isSorting.value &&
-    !isGenerating.value
+    !isGenerating.value &&
+    !isBatchAnalyzing.value
 )
 
 // 处理任务添加，包含拆分逻辑

@@ -5,6 +5,7 @@
       completed: isCompleted,
       'todo-draggable': isDraggable,
       'todo-dragging': isDragging,
+      'is-disabled': isBatchAnalyzing,
     }"
     :data-todo-id="todo.id"
     @click="toggleTodo"
@@ -56,8 +57,8 @@
             <div
               v-if="todo.priority"
               class="priority-stars"
-              :class="getPriorityColorClass(todo.priority)"
-              :title="getPriorityTitle(todo.priority)"
+              :class="[getPriorityColorClass(todo.priority), { 'is-disabled': isBatchAnalyzing }]"
+              :title="isBatchAnalyzing ? t('batchAnalyzing') : getPriorityTitle(todo.priority)"
               @click.stop="handlePriorityClick"
             >
               {{ getPriorityStars(todo.priority) }}
@@ -67,7 +68,8 @@
             <div
               v-if="todo.estimatedTime"
               class="estimated-time"
-              :title="t('estimatedTime')"
+              :class="{ 'is-disabled': isBatchAnalyzing }"
+              :title="isBatchAnalyzing ? t('batchAnalyzing') : t('estimatedTime')"
               @click.stop="handleTimeClick"
             >
               <svg
@@ -91,7 +93,9 @@
             <button
               v-if="!todo.aiAnalyzed && !isCompleted"
               class="ai-analyze-btn"
-              :title="t('aiAnalysis')"
+              :class="{ 'is-disabled': isBatchAnalyzing }"
+              :disabled="isBatchAnalyzing"
+              :title="isBatchAnalyzing ? t('batchAnalyzing') : t('aiAnalysis')"
               @click.stop="handleAnalyzeClick"
             >
               <svg
@@ -138,7 +142,9 @@
     </div>
     <button
       class="delete-btn"
-      :title="t('delete')"
+      :class="{ 'is-disabled': isBatchAnalyzing }"
+      :disabled="isBatchAnalyzing"
+      :title="isBatchAnalyzing ? t('batchAnalyzing') : t('delete')"
       :aria-label="t('delete')"
       @click.stop="removeTodo"
     >
@@ -185,7 +191,7 @@ const props = withDefaults(
 
 const { showError } = useErrorHandler()
 const { t } = useI18n()
-const { getPriorityStars, getPriorityColorClass, isAnalyzing } = useAIAnalysis()
+const { getPriorityStars, getPriorityColorClass, isAnalyzing, isBatchAnalyzing } = useAIAnalysis()
 
 const emit = defineEmits(['toggle', 'remove', 'updateTodo', 'analyze'])
 const isCompleted = ref(false)
@@ -195,6 +201,11 @@ watchEffect(() => {
 })
 
 const toggleTodo = () => {
+  // 在批量分析期间禁止切换完成状态
+  if (isBatchAnalyzing.value) {
+    return
+  }
+
   try {
     emit('toggle', props.todo.id)
     if (!isCompleted.value) {
@@ -215,6 +226,11 @@ const toggleTodo = () => {
 }
 
 const removeTodo = () => {
+  // 在批量分析期间禁止删除任务
+  if (isBatchAnalyzing.value) {
+    return
+  }
+
   try {
     emit('remove', props.todo.id)
   } catch (error) {
@@ -249,6 +265,11 @@ const getPriorityTitle = (priority: number): string => {
 }
 
 const handlePriorityClick = () => {
+  // 在批量分析期间禁止编辑优先级
+  if (isBatchAnalyzing.value) {
+    return
+  }
+
   // 触发优先级编辑
   const newPriority = window.prompt(t('clickToSetPriority'), props.todo.priority?.toString() || '3')
   if (newPriority !== null) {
@@ -258,6 +279,11 @@ const handlePriorityClick = () => {
 }
 
 const handleTimeClick = () => {
+  // 在批量分析期间禁止编辑时间估算
+  if (isBatchAnalyzing.value) {
+    return
+  }
+
   // 触发时间估算编辑
   const newTime = window.prompt(t('enterEstimatedTime'), props.todo.estimatedTime || '')
   if (newTime !== null && newTime.trim()) {
@@ -300,6 +326,15 @@ onErrorCaptured(handleError)
   border-radius: 12px;
   transition: all 0.3s ease;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.card-todo.is-disabled {
+  @apply opacity-60 cursor-not-allowed;
+  pointer-events: none;
+}
+
+.card-todo.is-disabled:hover {
+  @apply shadow-sm;
 }
 
 .checkbox-wrapper {
@@ -361,8 +396,26 @@ onErrorCaptured(handleError)
   line-height: 1;
 }
 
+.priority-stars.is-disabled {
+  @apply opacity-50 cursor-not-allowed;
+  pointer-events: none;
+}
+
+.priority-stars.is-disabled:hover {
+  @apply transform-none opacity-50;
+}
+
 .estimated-time {
   @apply flex items-center gap-1 cursor-pointer transition-all duration-200 hover:opacity-100 text-gray-500;
+}
+
+.estimated-time.is-disabled {
+  @apply opacity-50 cursor-not-allowed;
+  pointer-events: none;
+}
+
+.estimated-time.is-disabled:hover {
+  @apply opacity-50;
 }
 
 .time-text {
@@ -375,6 +428,15 @@ onErrorCaptured(handleError)
 
 .ai-analyze-btn:hover {
   @apply transform scale-110;
+}
+
+.ai-analyze-btn.is-disabled {
+  @apply opacity-50 cursor-not-allowed;
+  pointer-events: none;
+}
+
+.ai-analyze-btn.is-disabled:hover {
+  @apply transform-none;
 }
 
 .analyzing-indicator {
@@ -468,6 +530,15 @@ onErrorCaptured(handleError)
 
 .delete-btn {
   @apply bg-transparent text-completed border border-input-border rounded-md p-1.5 text-sm cursor-pointer transition-all duration-200 opacity-60 transform translate-x-1.25 ml-2 flex items-center justify-center min-w-8 h-8;
+}
+
+.delete-btn.is-disabled {
+  @apply opacity-50 cursor-not-allowed;
+  pointer-events: none;
+}
+
+.delete-btn.is-disabled:hover {
+  @apply text-red-500 bg-transparent;
 }
 
 .card-todo:hover .delete-btn {
