@@ -1,109 +1,78 @@
 <template>
-  <div v-if="config.showDialog" class="fixed inset-0 z-[9999] flex items-center justify-center">
-    <!-- 背景遮罩 -->
-    <div
-      class="absolute inset-0 bg-black bg-opacity-60 backdrop-blur-sm transition-opacity"
-      @click="handleCancel"
-    ></div>
+  <Transition name="dialog-fade">
+    <div v-if="config.showDialog" class="dialog-overlay">
+      <!-- 背景遮罩 -->
+      <div class="dialog-backdrop" @click="handleCancel"></div>
 
-    <!-- 对话框内容 -->
-    <div
-      class="relative bg-white rounded-xl shadow-2xl max-w-4xl w-full mx-6 max-h-[90vh] overflow-hidden"
-    >
-      <!-- 头部 -->
-      <div class="px-8 py-6 border-b border-gray-200">
-        <div class="flex items-center justify-between">
-          <h3 class="text-lg font-semibold text-gray-900">AI 任务拆分建议</h3>
-          <button @click="handleCancel" class="text-gray-400 hover:text-gray-600 transition-colors">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M6 18L18 6M6 6l12 12"
-              ></path>
-            </svg>
-          </button>
-        </div>
-      </div>
-
-      <!-- 内容区域 -->
-      <div class="px-8 py-6 max-h-[60vh] overflow-y-auto">
-        <!-- 原始任务 -->
-        <div class="mb-4">
-          <h4 class="text-sm font-medium text-gray-700 mb-2">原始任务：</h4>
-          <div class="bg-gray-50 rounded-lg p-3 text-gray-800">
-            {{ config.originalTask }}
+      <!-- 对话框内容 -->
+      <div class="dialog-container">
+        <!-- 头部 -->
+        <header class="dialog-header">
+          <div class="header-content">
+            <h3 class="dialog-title">AI 任务拆分建议</h3>
+            <p class="dialog-subtitle">智能分析您的任务，提供最佳拆分方案</p>
           </div>
-        </div>
+          <button @click="handleCancel" class="close-button">×</button>
+        </header>
 
-        <!-- AI 分析理由 -->
-        <div class="mb-4">
-          <h4 class="text-sm font-medium text-gray-700 mb-2">AI 分析：</h4>
-          <div class="bg-blue-50 rounded-lg p-3 text-blue-800 text-sm">
-            {{ config.reasoning }}
-          </div>
-        </div>
+        <!-- 内容区域 -->
+        <main class="dialog-content">
+          <!-- 原始任务 -->
+          <section class="content-section">
+            <h4 class="section-title">原始任务</h4>
+            <div class="task-content">
+              {{ config.originalTask }}
+            </div>
+          </section>
 
-        <!-- 建议的子任务 -->
-        <div class="mb-4">
-          <h4 class="text-sm font-medium text-gray-700 mb-2">建议拆分为以下子任务：</h4>
-          <div class="space-y-2">
-            <div
-              v-for="(subtask, index) in selectedSubtasks"
-              :key="index"
-              class="flex items-start space-x-3 p-3 bg-gray-50 rounded-lg"
-            >
-              <input
-                :id="`subtask-${index}`"
-                v-model="subtask.selected"
-                type="checkbox"
-                class="mt-1 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-              />
-              <label :for="`subtask-${index}`" class="flex-1 text-sm text-gray-800 cursor-pointer">
-                {{ subtask.text }}
+          <!-- AI 分析 -->
+          <section class="content-section">
+            <h4 class="section-title">AI 分析</h4>
+            <div class="analysis-content">
+              {{ config.reasoning }}
+            </div>
+          </section>
+
+          <!-- 子任务列表 -->
+          <section class="content-section">
+            <div class="section-header">
+              <h4 class="section-title">建议子任务</h4>
+              <span class="subtask-count"
+                >已选择 {{ selectedCount }}/{{ selectedSubtasks.length }}</span
+              >
+            </div>
+            <div class="subtasks-list">
+              <label
+                v-for="(subtask, index) in selectedSubtasks"
+                :key="index"
+                class="subtask-item"
+                :class="{ selected: subtask.selected }"
+              >
+                <input v-model="subtask.selected" type="checkbox" class="subtask-checkbox" />
+                <div class="subtask-content">
+                  <span class="subtask-number">{{ index + 1 }}</span>
+                  <span class="subtask-text">{{ subtask.text }}</span>
+                </div>
               </label>
             </div>
-          </div>
-        </div>
+          </section>
 
-        <!-- 操作提示 -->
-        <div class="bg-yellow-50 rounded-lg p-3 text-yellow-800 text-sm">
-          <div class="flex items-start space-x-2">
-            <svg class="w-4 h-4 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-              <path
-                fill-rule="evenodd"
-                d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
-                clip-rule="evenodd"
-              ></path>
-            </svg>
-            <div>
-              <p class="font-medium">选择操作：</p>
-              <p>• 选择「使用拆分」：将添加选中的子任务到列表</p>
-              <p>• 选择「保持原样」：添加原始任务到列表</p>
-            </div>
+          <!-- 操作提示 -->
+          <div class="help-text">
+            💡 选择需要的子任务，点击「使用拆分」添加到待办列表，或点击「保持原样」使用原始任务
           </div>
-        </div>
-      </div>
+        </main>
 
-      <!-- 底部按钮 -->
-      <div class="px-8 py-6 border-t border-gray-200 flex justify-end space-x-4">
-        <button
-          @click="handleCancel"
-          class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-md transition-colors"
-        >
-          保持原样
-        </button>
-        <button
-          @click="handleConfirm"
-          :disabled="!hasSelectedSubtasks"
-          class="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed rounded-md transition-colors"
-        >
-          使用拆分 ({{ selectedCount }}个)
-        </button>
+        <!-- 底部操作 -->
+        <footer class="dialog-footer">
+          <button @click="handleCancel" class="btn btn-secondary">保持原样</button>
+          <button @click="handleConfirm" :disabled="!hasSelectedSubtasks" class="btn btn-primary">
+            使用拆分 ({{ selectedCount }})
+          </button>
+        </footer>
       </div>
     </div>
-  </div>
+  </Transition>
 </template>
 
 <script setup lang="ts">
@@ -164,3 +133,315 @@ function handleCancel() {
   emit('cancel')
 }
 </script>
+
+<style scoped>
+/* 对话框动画 */
+.dialog-fade-enter-active,
+.dialog-fade-leave-active {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.dialog-fade-enter-from,
+.dialog-fade-leave-to {
+  opacity: 0;
+  transform: scale(0.95);
+}
+
+/* 对话框布局 */
+.dialog-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+.dialog-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(4px);
+}
+
+.dialog-container {
+  position: relative;
+  background: var(--card-bg-color);
+  border-radius: 12px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+  width: 100%;
+  max-width: 36rem;
+  max-height: 90vh;
+  overflow: hidden;
+  border: 1px solid var(--input-border-color);
+  font-family: 'LXGW WenKai Lite Medium', sans-serif;
+}
+
+/* 头部样式 */
+.dialog-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: 1.5rem 1.5rem 1rem;
+  border-bottom: 1px solid var(--input-border-color);
+}
+
+.header-content {
+  flex: 1;
+}
+
+.dialog-title {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--text-color);
+  line-height: 1.4;
+}
+
+.dialog-subtitle {
+  margin: 0.25rem 0 0 0;
+  font-size: 0.875rem;
+  color: var(--text-secondary-color);
+}
+
+.close-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  color: var(--text-secondary-color);
+  border-radius: 6px;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  font-size: 1.25rem;
+  line-height: 1;
+}
+
+.close-button:hover {
+  background: var(--hover-bg-color);
+  color: var(--text-color);
+}
+
+/* 内容区域 */
+.dialog-content {
+  padding: 0 1.5rem 1rem;
+  max-height: 60vh;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+/* 内容区块 */
+.content-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.section-title {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-color);
+}
+
+.subtask-count {
+  background: var(--primary-color);
+  color: white;
+  padding: 0.25rem 0.75rem;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+/* 任务内容 */
+.task-content {
+  padding: 1rem;
+  background: var(--bg-color);
+  border: 1px solid var(--input-border-color);
+  border-radius: 8px;
+  color: var(--text-color);
+  line-height: 1.6;
+  font-size: 0.9rem;
+}
+
+.analysis-content {
+  padding: 1rem;
+  background: var(--ai-message-bg);
+  border: 1px solid var(--ai-message-border);
+  border-radius: 8px;
+  color: var(--text-color);
+  line-height: 1.6;
+  font-size: 0.875rem;
+}
+
+/* 子任务列表 */
+.subtasks-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.subtask-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 1rem;
+  border: 1px solid var(--input-border-color);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background: var(--bg-color);
+}
+
+.subtask-item:hover {
+  border-color: var(--primary-color);
+  background: var(--card-bg-color);
+}
+
+.subtask-item.selected {
+  border-color: var(--primary-color);
+  background: var(--ai-accent-color);
+}
+
+.subtask-checkbox {
+  width: 1rem;
+  height: 1rem;
+  margin-top: 0.125rem;
+  accent-color: var(--primary-color);
+  cursor: pointer;
+}
+
+.subtask-content {
+  flex: 1;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+}
+
+.subtask-number {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.25rem;
+  height: 1.25rem;
+  background: var(--text-secondary-color);
+  color: white;
+  border-radius: 50%;
+  font-size: 0.75rem;
+  font-weight: 600;
+  margin-top: 0.125rem;
+  flex-shrink: 0;
+}
+
+.subtask-item.selected .subtask-number {
+  background: var(--primary-color);
+}
+
+.subtask-text {
+  color: var(--text-color);
+  line-height: 1.5;
+  font-size: 0.875rem;
+}
+
+/* 帮助文本 */
+.help-text {
+  padding: 0.875rem 1rem;
+  background: var(--ai-message-bg-secondary);
+  border: 1px solid var(--ai-message-border);
+  border-radius: 8px;
+  font-size: 0.875rem;
+  color: var(--text-secondary-color);
+  line-height: 1.5;
+}
+
+/* 底部操作 */
+.dialog-footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  padding: 1rem 1.5rem 1.5rem;
+  border-top: 1px solid var(--input-border-color);
+}
+
+.btn {
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  font-weight: 500;
+  font-size: 0.875rem;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  border: 1px solid transparent;
+}
+
+.btn-secondary {
+  background: var(--bg-color);
+  color: var(--text-secondary-color);
+  border-color: var(--input-border-color);
+}
+
+.btn-secondary:hover {
+  background: var(--hover-bg-color);
+  color: var(--text-color);
+  border-color: var(--primary-color);
+}
+
+.btn-primary {
+  background: var(--primary-color);
+  color: white;
+}
+
+.btn-primary:hover:not(:disabled) {
+  background: var(--button-hover-bg-color);
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .dialog-container {
+    margin: 1rem;
+    max-height: 85vh;
+  }
+
+  .dialog-header {
+    padding: 1rem 1rem 0.75rem;
+  }
+
+  .dialog-content {
+    padding: 0 1rem 0.75rem;
+  }
+
+  .dialog-footer {
+    padding: 0.75rem 1rem 1rem;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .dialog-title {
+    font-size: 1.125rem;
+  }
+
+  .dialog-subtitle {
+    font-size: 0.8rem;
+  }
+}
+</style>
