@@ -381,23 +381,36 @@ select {
   }
 }
 
+.mermaid-container {
+  position: relative;
+  width: 100%;
+  min-height: 300px;
+  margin: 16px 0;
+  border: 1px solid var(--input-border-color);
+  border-radius: 8px;
+  background: var(--card-bg-color);
+  overflow: hidden;
+}
+
 .mermaid-diagram {
   width: 100%;
   max-width: 100%;
-  min-width: 500px;
-  overflow-x: auto;
+  min-height: 300px;
+  overflow: auto;
   display: flex;
   justify-content: center;
   align-items: center;
-  flex: 1;
+  padding: 20px;
 }
 
 .mermaid-diagram svg {
-  max-width: 100%;
-  min-width: 500px;
-  min-height: 250px;
+  max-width: none;
+  width: auto;
   height: auto;
+  min-width: 200px;
+  min-height: 150px;
   background: transparent;
+  color: var(--text-color);
   transform: scale(var(--mermaid-scale, 1))
     translate(var(--mermaid-translate-x, 0px), var(--mermaid-translate-y, 0px));
   transform-origin: center;
@@ -406,8 +419,41 @@ select {
   user-select: none;
   will-change: transform;
   /* 优化图像渲染质量 */
-  image-rendering: -webkit-optimize-contrast;
-  image-rendering: crisp-edges;
+}
+
+/* 确保 Mermaid 图表中的文字可见 */
+.mermaid-diagram svg text {
+  fill: #2d3748 !important;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+  font-size: 14px !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+.mermaid-diagram svg .label {
+  color: #2d3748 !important;
+  fill: #2d3748 !important;
+}
+
+.mermaid-diagram svg .nodeLabel,
+.mermaid-diagram svg .edgeLabel {
+  color: #2d3748 !important;
+  fill: #2d3748 !important;
+}
+
+/* 暗色主题下的文字颜色 */
+[data-theme='dark'] .mermaid-diagram svg text {
+  fill: #f7fafc !important;
+}
+
+[data-theme='dark'] .mermaid-diagram svg .label,
+[data-theme='dark'] .mermaid-diagram svg .nodeLabel,
+[data-theme='dark'] .mermaid-diagram svg .edgeLabel {
+  color: #f7fafc !important;
+  fill: #f7fafc !important;
+}
+
+.mermaid-diagram svg {
   shape-rendering: geometricPrecision;
   text-rendering: geometricPrecision;
   /* 确保高 DPI 显示清晰 */

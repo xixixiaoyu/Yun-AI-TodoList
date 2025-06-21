@@ -1,8 +1,8 @@
 import DOMPurify from 'dompurify'
 import hljs from 'highlight.js'
+import type { MarkedOptions } from 'marked'
 import { marked } from 'marked'
 import mermaid from 'mermaid'
-import type { MarkedOptions } from 'marked'
 
 // 全局缩放函数 - 确保在全局作用域中可访问
 declare global {
@@ -65,7 +65,6 @@ declare global {
         }
 
         container.style.setProperty('--mermaid-scale', newScale.toString())
-        console.log(`Mermaid zoom: ${action}, scale: ${currentScale} -> ${newScale}`)
       }
     })
 
@@ -231,8 +230,9 @@ const getLanguageDisplayName = (lang: string): string => {
     if (langInfo?.name) {
       return langInfo.name
     }
-  } catch (_error) {
+  } catch (error) {
     // 静默处理错误，使用降级方案
+    console.warn(`无法获取语言 ${normalizedLang} 的详细信息`, error)
   }
 
   // 降级方案：首字母大写
@@ -265,15 +265,11 @@ export function useMarkdown() {
       fontFamily: fontStack,
       // 图表尺寸配置
       flowchart: {
-        useMaxWidth: true,
-        htmlLabels: false,
-        curve: 'basis',
         nodeSpacing: 50,
         rankSpacing: 60,
         padding: 20,
       },
       sequence: {
-        useMaxWidth: true,
         width: 150,
         height: 65,
         boxMargin: 10,
@@ -282,24 +278,21 @@ export function useMarkdown() {
         messageMargin: 35,
       },
       gantt: {
-        useMaxWidth: true,
-        leftPadding: 75,
-        gridLineStartPadding: 35,
-        fontSize: 11,
-        sectionFontSize: 11,
         numberSectionStyles: 4,
       },
       journey: {
-        useMaxWidth: true,
+        diagramMarginX: 50,
+        diagramMarginY: 10,
       },
       timeline: {
-        useMaxWidth: true,
+        diagramMarginX: 50,
+        diagramMarginY: 10,
       },
       mindmap: {
-        useMaxWidth: true,
+        padding: 10,
       },
       gitGraph: {
-        useMaxWidth: true,
+        mainBranchName: 'main',
       },
       themeVariables: {
         // 基础颜色
@@ -386,7 +379,7 @@ export function useMarkdown() {
         labelTextColor: textColor,
       },
       // 确保 SVG 渲染正确
-      htmlLabels: false, // 改为 false 避免 HTML 标签冲突
+      htmlLabels: false, // 使用 SVG 文本而不是 HTML
       wrap: true,
       maxTextSize: 90000,
     })
@@ -419,17 +412,18 @@ export function useMarkdown() {
         const optimizedSvg = svg
           .replace(
             '<svg',
-            '<svg preserveAspectRatio="xMidYMid meet" shape-rendering="geometricPrecision" text-rendering="geometricPrecision" style="background: transparent;"'
+            '<svg preserveAspectRatio="xMidYMid meet" style="background: transparent; font-family: -apple-system, BlinkMacSystemFont, \'Segoe UI\', Roboto, sans-serif;"'
           )
           .replace(/width="[^"]*"/, 'width="100%"')
-          .replace(/height="[^"]*"/, 'height="100%"')
-          .replace(/<rect[^>]*fill="[^"]*"[^>]*>/g, (match) => {
-            // 移除可能的默认背景矩形
-            if (match.includes('fill="#') && !match.includes('stroke')) {
-              return match.replace(/fill="[^"]*"/, 'fill="transparent"')
-            }
-            return match
+          .replace(/height="[^"]*"/, 'height="auto"')
+          .replace(/<rect[^>]*width="100%"[^>]*height="100%"[^>]*fill="[^"]*"[^>]*>/g, (match) => {
+            // 只移除全尺寸的画布背景矩形
+            return match.replace(/fill="[^"]*"/, 'fill="transparent"')
           })
+          // 确保所有文本元素可见
+          .replace(/<text([^>]*)>/g, '<text$1 fill="#2d3748" stroke="none">')
+          .replace(/fill="none"/g, 'fill="#2d3748"')
+          .replace(/fill="transparent"/g, 'fill="#2d3748"')
 
         // 将渲染好的 SVG 包装在容器中，添加缩放控制
         const wrappedSvg = `<div class="mermaid-container">
