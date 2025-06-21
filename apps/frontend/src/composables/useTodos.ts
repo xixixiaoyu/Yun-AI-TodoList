@@ -4,8 +4,11 @@ import { IdGenerator } from '../utils/idGenerator'
 import { logger } from '../utils/logger'
 import { TodoValidator } from '../utils/todoValidator'
 
+// 全局单例状态
+const globalTodos = ref<Todo[]>([])
+
 export function useTodos() {
-  const todos = ref<Todo[]>([])
+  const todos = globalTodos
 
   const loadTodos = () => {
     try {
@@ -92,6 +95,7 @@ export function useTodos() {
     }
 
     const sanitizedText = TodoValidator.sanitizeText(text)
+
     if (!TodoValidator.isTextSafe(sanitizedText)) {
       logger.warn('Attempted to add unsafe todo text', { text }, 'useTodos')
       return false
@@ -128,11 +132,13 @@ export function useTodos() {
 
     todos.value.push(newTodo)
     saveTodos()
+
     logger.debug(
       'Todo added to pending list',
       { id: newTodo.id, text: newTodo.text, completed: newTodo.completed },
       'useTodos'
     )
+
     return true
   }
 

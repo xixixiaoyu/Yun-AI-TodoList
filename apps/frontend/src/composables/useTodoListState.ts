@@ -22,12 +22,13 @@ export function useTodoListState() {
 
   const { showConfirmDialog, confirmDialogConfig, handleConfirm, handleCancel } = confirmDialog
 
-  const { todos, loadTodos, updateTodosOrder, updateTodosOrderByArray } = useTodos()
+  const { loadTodos, updateTodosOrder, updateTodosOrderByArray } = useTodos()
 
   // AI 分析功能
   const { analyzeSingleTodo, batchAnalyzeTodosAction, isBatchAnalyzing } = useAIAnalysis()
 
   const {
+    todos,
     filter,
     searchQuery,
     filteredTodos,
@@ -131,7 +132,7 @@ export function useTodoListState() {
 
   const handleAnalyzeTodo = async (id: number) => {
     try {
-      const todo = todos.value.find((t) => t.id === id)
+      const todo = todos.value.find((t: any) => t.id === id)
       if (todo) {
         await analyzeSingleTodo(todo, handleUpdateTodo)
       }

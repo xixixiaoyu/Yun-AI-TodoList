@@ -38,78 +38,27 @@ export function useTodoManagement() {
   const isLoading = computed(() => isSorting.value)
 
   const filteredTodos = computed(() => {
-    try {
-      const filtered = todos.value
-      if (!Array.isArray(filtered)) {
-        logger.error('Invalid todos data structure', filtered, 'TodoManagement')
-        return []
-      }
+    let result = todos.value
 
-      const statusFilterFn =
-        filter.value === 'active'
-          ? (todo: Todo) => {
-              // 确保只显示未完成的任务
-              const isActive = todo && todo.completed === false
-              if (todo && todo.completed === true && filter.value === 'active') {
-                logger.warn('发现已完成任务出现在待完成列表过滤中', { todo }, 'TodoManagement')
-              }
-              return isActive
-            }
-          : filter.value === 'completed'
-            ? (todo: Todo) => {
-                // 确保只显示已完成的任务
-                const isCompleted = todo && todo.completed === true
-                if (todo && todo.completed === false && filter.value === 'completed') {
-                  logger.warn('发现未完成任务出现在已完成列表过滤中', { todo }, 'TodoManagement')
-                }
-                return isCompleted
-              }
-            : (todo: Todo) => todo !== null && todo !== undefined
-
-      let result = filtered.filter(statusFilterFn)
-
-      if (searchQuery.value.trim()) {
-        const query = searchQuery.value.toLowerCase().trim()
-        result = result.filter((todo) => {
-          if (!todo) {
-            return false
-          }
-
-          const titleMatch = todo.text.toLowerCase().includes(query)
-
-          const tagsMatch = todo.tags?.some((tag) => tag.toLowerCase().includes(query)) || false
-          return titleMatch || tagsMatch
-        })
-      }
-
-      // 最终验证：确保过滤结果符合预期
-      if (filter.value === 'active') {
-        const wronglyFiltered = result.filter((todo) => todo.completed === true)
-        if (wronglyFiltered.length > 0) {
-          logger.error(
-            '过滤结果中发现已完成任务出现在待完成列表',
-            { wronglyFiltered },
-            'TodoManagement'
-          )
-          result = result.filter((todo) => todo.completed === false)
-        }
-      } else if (filter.value === 'completed') {
-        const wronglyFiltered = result.filter((todo) => todo.completed === false)
-        if (wronglyFiltered.length > 0) {
-          logger.error(
-            '过滤结果中发现未完成任务出现在已完成列表',
-            { wronglyFiltered },
-            'TodoManagement'
-          )
-          result = result.filter((todo) => todo.completed === true)
-        }
-      }
-
-      return result
-    } catch (error) {
-      handleError(error, 'Error in filteredTodos computed', 'TodoManagement')
-      return []
+    // 根据完成状态过滤
+    if (filter.value === 'active') {
+      result = result.filter((todo) => !todo.completed)
+    } else if (filter.value === 'completed') {
+      result = result.filter((todo) => todo.completed)
     }
+
+    // 根据搜索查询过滤
+    if (searchQuery.value.trim()) {
+      const query = searchQuery.value.trim().toLowerCase()
+      result = result.filter((todo) => {
+        return (
+          todo.text.toLowerCase().includes(query) ||
+          (todo.tags && todo.tags.some((tag) => tag.toLowerCase().includes(query)))
+        )
+      })
+    }
+
+    return result
   })
 
   const hasActiveTodos = computed(() => {
@@ -562,16 +511,9 @@ ${todoTexts}
     let duplicateCount = 0
     let failedCount = 0
 
-    console.log('开始添加子任务:', subtasks)
-    console.log(
-      '当前任务列表:',
-      todos.value.map((t) => t.text)
-    )
-
     for (const subtask of subtasks) {
       if (subtask && subtask.trim() !== '') {
         const trimmedSubtask = subtask.trim()
-        console.log(`尝试添加子任务: "${trimmedSubtask}"`)
 
         // 检查是否重复
         const isDuplicate = todos.value.some(
@@ -583,37 +525,28 @@ ${todoTexts}
         )
 
         if (isDuplicate) {
-          console.warn(`子任务重复，跳过: "${trimmedSubtask}"`)
           duplicateCount++
           continue
         }
 
         const success = addTodo(trimmedSubtask, tags)
+
         if (success) {
           successCount++
-          console.log(`成功添加子任务: "${trimmedSubtask}"`)
         } else {
           failedCount++
-          console.error(`添加子任务失败: "${trimmedSubtask}"`)
         }
       }
     }
 
-    console.log(`子任务添加结果: 成功 ${successCount}, 重复 ${duplicateCount}, 失败 ${failedCount}`)
-    console.log(
-      '添加后任务列表:',
-      todos.value.map((t) => t.text)
-    )
-
     if (successCount > 0) {
-      console.warn(`成功添加 ${successCount} 个子任务到待完成列表`)
-
       // 确保数据保存和响应式更新
       saveTodos()
       await nextTick()
 
       // 验证新添加的任务都是未完成状态
       const recentTodos = todos.value.slice(-successCount)
+
       const hasCompletedTodos = recentTodos.some((todo) => todo.completed)
       if (hasCompletedTodos) {
         logger.error('发现新添加的任务中有已完成状态的任务', { recentTodos }, 'useTodoManagement')
@@ -627,7 +560,7 @@ ${todoTexts}
         saveTodos()
       }
 
-      // 如果启用了自动分析，为新添加的子任务进行分析
+      // 如果启用了自动分析，为新添加的子任务进行批量分析
       if (analysisConfig.value.autoAnalyzeNewTodos) {
         try {
           // 找到最新添加的子任务
@@ -636,24 +569,32 @@ ${todoTexts}
             .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
             .slice(0, successCount)
 
-          // 为每个新子任务进行 AI 分析
-          for (const newTodo of newTodos) {
-            analyzeSingleTodo(newTodo, (id: number, updates: Partial<Todo>) => {
-              updateTodo(id, updates)
-            }).catch((error) => {
-              console.warn('Auto AI analysis failed for subtask:', error)
+          if (newTodos.length > 0) {
+            console.warn(`开始批量分析 ${newTodos.length} 个新添加的子任务`)
+
+            // 使用批量分析功能统一处理所有新添加的子任务
+            batchAnalyzeTodosAction(
+              newTodos,
+              (updates: Array<{ id: number; updates: Partial<Todo> }>) => {
+                // 批量更新所有分析结果
+                updates.forEach(({ id, updates: todoUpdates }) => {
+                  updateTodo(id, todoUpdates)
+                })
+              }
+            ).catch((error) => {
+              console.warn('Batch AI analysis failed for subtasks:', error)
             })
           }
         } catch (error) {
-          console.warn('Error in auto AI analysis for subtasks:', error)
+          console.warn('Error in batch AI analysis for subtasks:', error)
         }
       }
     }
-
     return successCount
   }
 
   return {
+    todos,
     filter,
     searchQuery,
     filteredTodos,

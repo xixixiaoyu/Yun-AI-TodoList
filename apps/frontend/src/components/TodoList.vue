@@ -248,20 +248,11 @@ const handleSubtaskConfirm = async (selectedSubtasks: string[]) => {
       const successCount = await handleAddSubtasks(selectedSubtasks, [])
 
       if (successCount > 0) {
-        // 简单的响应式更新
+        // 强制触发响应式更新
         await nextTick()
-
-        console.log(
-          '子任务添加完成，当前任务列表:',
-          todos.value.map((t) => t.text)
-        )
-        console.log(
-          '过滤后的任务列表:',
-          filteredTodos.value.map((t) => t.text)
-        )
+        await nextTick()
       }
     } catch (err) {
-      console.error('添加子任务失败:', err)
       error.value = '添加子任务失败，请重试'
     }
   }
