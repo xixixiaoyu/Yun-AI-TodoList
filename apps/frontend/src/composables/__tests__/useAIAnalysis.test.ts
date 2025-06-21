@@ -38,6 +38,7 @@ describe('useAIAnalysis', () => {
       expect(analysisConfig.value.autoAnalyzeNewTodos).toBe(true)
       expect(analysisConfig.value.enablePriorityAnalysis).toBe(true)
       expect(analysisConfig.value.enableTimeEstimation).toBe(true)
+      expect(analysisConfig.value.enableSubtaskSplitting).toBe(false)
     })
 
     it('应该提供分析功能开关', () => {

@@ -23,6 +23,7 @@ export function useAIAnalysis() {
     autoAnalyzeNewTodos: true, // 默认启用自动分析
     enablePriorityAnalysis: true,
     enableTimeEstimation: true,
+    enableSubtaskSplitting: false, // 默认关闭子任务拆分
   })
 
   // 从 localStorage 加载配置

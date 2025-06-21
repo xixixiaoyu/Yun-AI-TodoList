@@ -435,8 +435,8 @@ ${todoTexts}
       return
     }
 
-    // 如果不跳过拆分分析，先进行 AI 拆分分析
-    if (!skipSplitAnalysis) {
+    // 如果不跳过拆分分析且启用了 AI 拆分子任务功能，先进行 AI 拆分分析
+    if (!skipSplitAnalysis && analysisConfig.value.enableSubtaskSplitting) {
       try {
         const { analyzeTaskSplitting } = await import('@/services/aiAnalysisService')
         const splitResult = await analyzeTaskSplitting(text)

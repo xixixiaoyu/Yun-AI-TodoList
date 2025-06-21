@@ -73,6 +73,7 @@ export interface UserAIAnalysisConfig {
   autoAnalyze: boolean
   priorityAnalysis: boolean
   timeEstimation: boolean
+  subtaskSplitting: boolean
   modelConfig: {
     model: string
     temperature: number

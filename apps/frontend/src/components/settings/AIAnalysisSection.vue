@@ -86,6 +86,28 @@
           </label>
         </div>
       </div>
+
+      <!-- 启用 AI 拆分子任务 -->
+      <div class="setting-item">
+        <div class="setting-info">
+          <label class="setting-label">{{ t('enableSubtaskSplitting') }}</label>
+          <p class="setting-description">{{ t('enableSubtaskSplittingDesc') }}</p>
+        </div>
+        <div class="setting-control">
+          <label class="toggle-switch">
+            <input
+              type="checkbox"
+              :checked="analysisConfig.enableSubtaskSplitting"
+              @change="
+                updateConfig({
+                  enableSubtaskSplitting: ($event.target as HTMLInputElement).checked,
+                })
+              "
+            />
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+      </div>
     </div>
   </div>
 </template>

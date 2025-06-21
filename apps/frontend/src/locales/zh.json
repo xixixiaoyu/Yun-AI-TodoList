@@ -360,6 +360,8 @@
   "enablePriorityAnalysisDesc": "使用 AI 分析待办事项的重要等级",
   "enableTimeEstimation": "启用时间估算",
   "enableTimeEstimationDesc": "使用 AI 估算待办事项的完成时间",
+  "enableSubtaskSplitting": "启用 AI 拆分子任务",
+  "enableSubtaskSplittingDesc": "添加待办事项时使用 AI 智能拆分为子任务",
 
   "aiAnalysisSettings": "AI 分析设置",
   "aiAnalysisConfiguration": "AI 分析配置",

@@ -319,6 +319,8 @@
   "enablePriorityAnalysisDesc": "Use AI to analyze the priority level of todos",
   "enableTimeEstimation": "Enable time estimation",
   "enableTimeEstimationDesc": "Use AI to estimate the completion time of todos",
+  "enableSubtaskSplitting": "Enable AI subtask splitting",
+  "enableSubtaskSplittingDesc": "Use AI to intelligently split todos into subtasks when adding",
 
   "aiAnalysisSettings": "AI Analysis Settings",
   "aiAnalysisConfiguration": "AI Analysis Configuration",

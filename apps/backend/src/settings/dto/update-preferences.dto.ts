@@ -51,6 +51,15 @@ export class AIConfigDto {
   timeEstimation?: boolean
 
   @ApiProperty({
+    description: '是否启用子任务拆分',
+    example: false,
+    required: false,
+  })
+  @IsOptional()
+  @IsBoolean({ message: '子任务拆分开关必须是布尔值' })
+  subtaskSplitting?: boolean
+
+  @ApiProperty({
     description: 'AI 模型配置',
     example: { model: 'deepseek-chat', temperature: 0.3 },
     required: false,
