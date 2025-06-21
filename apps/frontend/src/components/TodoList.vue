@@ -119,6 +119,12 @@
         @confirm="confirmSuggestedTodos"
         @cancel="cancelSuggestedTodos"
       />
+
+      <SubtaskSelectionDialog
+        :config="subtaskConfig"
+        @confirm="handleSubtaskConfirm"
+        @cancel="handleSubtaskCancel"
+      />
     </div>
 
     <ChartsDialog :show="showCharts" @close="closeCharts" />
@@ -126,14 +132,18 @@
 </template>
 
 <script setup lang="ts">
+import { nextTick } from 'vue'
 import TodoFilters from './TodoFilters.vue'
 import TodoInput from './TodoInput.vue'
 import TodoItem from './TodoItem.vue'
 import TodoSearch from './TodoSearch.vue'
+import SubtaskSelectionDialog from './SubtaskSelectionDialog.vue'
 
 import type { Todo } from '@/types/todo'
 import { useTodoDragSort } from '../composables/useTodoDragSort'
 import { useTodoListState } from '../composables/useTodoListState'
+import { useTodoManagement } from '../composables/useTodoManagement'
+import { useTaskSplitting } from '../composables/useTaskSplitting'
 import ConfirmDialog from './ConfirmDialog.vue'
 import DomainSelectionDialog from './DomainSelectionDialog.vue'
 import PomodoroTimer from './PomodoroTimer.vue'
@@ -147,16 +157,17 @@ defineEmits<{
   openAiSidebar: []
 }>()
 
+// 任务拆分功能
+const { subtaskConfig, hideSubtaskDialog } = useTaskSplitting()
+
 const {
   todoListRef,
   showConfirmDialog,
   confirmDialogConfig,
   handleConfirm,
   handleCancel,
-
   todos,
   handleDragOrderChange,
-
   filter,
   searchQuery,
   filteredTodos,
@@ -177,19 +188,16 @@ const {
   deleteSuggestedTodo,
   addSuggestedTodo,
   sortActiveTodosWithAI,
-  handleAddTodo,
+  handleAddTodo: originalHandleAddTodo,
   toggleTodo,
   removeTodo,
   duplicateError,
   isLoading,
   isAnalyzing,
-
-  // AI 分析功能
   handleUpdateTodo,
   handleAnalyzeTodo,
   handleBatchAnalyze,
   isBatchAnalyzing,
-
   showCharts,
   showSearch,
   isSmallScreen,
@@ -205,6 +213,9 @@ const {
   success,
 } = useTodoListState()
 
+// 从 useTodoManagement 获取任务拆分相关功能
+const { handleAddSubtasks } = useTodoManagement()
+
 // 拖拽排序功能 - 在 AI 排序过程中禁用拖拽
 const isDragEnabled = computed(
   () =>
@@ -213,6 +224,58 @@ const isDragEnabled = computed(
     !isSorting.value &&
     !isGenerating.value
 )
+
+// 处理任务添加，包含拆分逻辑
+const handleAddTodo = async (text: string, tags: string[]) => {
+  const result = await originalHandleAddTodo(text, tags)
+
+  // 如果需要拆分，显示拆分对话框
+  if (result && result.needsSplitting && result.splitResult) {
+    subtaskConfig.showDialog = true
+    subtaskConfig.originalTask = result.splitResult.originalTask
+    subtaskConfig.subtasks = [...result.splitResult.subtasks]
+    subtaskConfig.reasoning = result.splitResult.reasoning
+  }
+}
+
+// 处理子任务选择确认
+const handleSubtaskConfirm = async (selectedSubtasks: string[]) => {
+  hideSubtaskDialog()
+
+  if (selectedSubtasks.length > 0) {
+    try {
+      // 添加选中的子任务
+      const successCount = await handleAddSubtasks(selectedSubtasks, [])
+
+      if (successCount > 0) {
+        // 简单的响应式更新
+        await nextTick()
+
+        console.log(
+          '子任务添加完成，当前任务列表:',
+          todos.value.map((t) => t.text)
+        )
+        console.log(
+          '过滤后的任务列表:',
+          filteredTodos.value.map((t) => t.text)
+        )
+      }
+    } catch (err) {
+      console.error('添加子任务失败:', err)
+      error.value = '添加子任务失败，请重试'
+    }
+  }
+}
+
+// 处理子任务选择取消
+const handleSubtaskCancel = () => {
+  hideSubtaskDialog()
+
+  // 添加原始任务
+  if (subtaskConfig.originalTask) {
+    originalHandleAddTodo(subtaskConfig.originalTask, [], true) // 跳过拆分分析
+  }
+}
 
 // 创建专门的拖拽顺序更新函数
 const handleDragReorder = (reorderedTodos: Todo[]) => {

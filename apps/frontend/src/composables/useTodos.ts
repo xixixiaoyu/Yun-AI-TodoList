@@ -113,16 +113,26 @@ export function useTodos() {
     const newTodo: Todo = {
       id: IdGenerator.generateId(),
       text: sanitizedText,
-      completed: false,
+      completed: false, // 确保新添加的 todo 始终为未完成状态
       tags: tags.filter((tag) => tag.trim() !== '').map((tag) => tag.trim()),
       createdAt: now,
       updatedAt: now,
       order: todos.value.length,
     }
 
+    // 防御性检查：确保 completed 状态正确
+    if (newTodo.completed !== false) {
+      logger.error('New todo completed state is incorrect', { todo: newTodo }, 'useTodos')
+      newTodo.completed = false
+    }
+
     todos.value.push(newTodo)
     saveTodos()
-    logger.debug('Todo added', { id: newTodo.id, text: newTodo.text }, 'useTodos')
+    logger.debug(
+      'Todo added to pending list',
+      { id: newTodo.id, text: newTodo.text, completed: newTodo.completed },
+      'useTodos'
+    )
     return true
   }
 
@@ -142,15 +152,23 @@ export function useTodos() {
       if (todos.value.some((todo) => todo.text.toLowerCase() === sanitizedText.toLowerCase())) {
         duplicates.push(text)
       } else {
-        validTodos.push({
+        const newTodo: Todo = {
           id: IdGenerator.generateId(),
           text: sanitizedText,
-          completed: false,
+          completed: false, // 确保批量添加的 todo 始终为未完成状态
           tags: [],
           createdAt: now,
           updatedAt: now,
           order: todos.value.length + validTodos.length,
-        })
+        }
+
+        // 防御性检查：确保 completed 状态正确
+        if (newTodo.completed !== false) {
+          logger.error('Batch todo completed state is incorrect', { todo: newTodo }, 'useTodos')
+          newTodo.completed = false
+        }
+
+        validTodos.push(newTodo)
       }
     })
 

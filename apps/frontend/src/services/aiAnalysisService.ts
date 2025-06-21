@@ -1,5 +1,5 @@
 import i18n from '@/i18n'
-import type { AIAnalysisResult, Todo } from '@/types/todo'
+import type { AIAnalysisResult, AISubtaskResult, Todo } from '@/types/todo'
 import { handleError } from '@/utils/logger'
 import { getAIResponse } from './deepseekService'
 
@@ -262,4 +262,92 @@ export function estimateTimeByKeywords(todoText: string): string {
   }
 
   return '30分钟' // 默认时间
+}
+
+/**
+ * AI 任务拆分分析
+ * 分析待办事项是否可以拆分成多个子任务
+ * @param todoText 待办事项文本
+ * @returns AI 拆分分析结果
+ */
+export async function analyzeTaskSplitting(todoText: string): Promise<AISubtaskResult> {
+  try {
+    const prompt = `作为一个专业的任务管理助手，请分析以下待办事项是否可以拆分成多个更小的子任务：
+
+任务：${todoText}
+
+请根据以下标准进行分析：
+
+拆分标准：
+- 如果任务包含多个独立的步骤或阶段，建议拆分
+- 如果任务过于复杂或耗时较长，建议拆分
+- 如果任务涉及多个不同的技能或工具，建议拆分
+- 简单的单一动作任务不需要拆分
+
+拆分原则：
+- 每个子任务应该是独立可执行的
+- 子任务应该有明确的完成标准
+- 子任务的粒度适中，不要过于细碎
+- 保持子任务之间的逻辑顺序
+
+请严格按照以下JSON格式返回结果，不要包含任何其他文字：
+{
+  "canSplit": true/false,
+  "subtasks": ["子任务1", "子任务2", "子任务3"],
+  "reasoning": "拆分理由或不拆分的原因",
+  "originalTask": "${todoText}"
+}`
+
+    const response = await getAIResponse(prompt, 0.3)
+
+    // 尝试解析 JSON 响应
+    try {
+      // 提取 JSON 部分
+      const jsonMatch = response.match(/\{[\s\S]*\}/)
+      if (!jsonMatch) {
+        throw new Error('未找到有效的JSON格式')
+      }
+
+      const result = JSON.parse(jsonMatch[0]) as AISubtaskResult
+
+      // 验证结果格式
+      if (
+        typeof result.canSplit !== 'boolean' ||
+        !Array.isArray(result.subtasks) ||
+        typeof result.reasoning !== 'string' ||
+        typeof result.originalTask !== 'string'
+      ) {
+        throw new Error('AI返回的数据格式不正确')
+      }
+
+      // 如果不能拆分，确保子任务数组为空
+      if (!result.canSplit) {
+        result.subtasks = []
+      }
+
+      return result
+    } catch (parseError) {
+      console.warn('解析AI拆分分析响应失败:', parseError)
+      console.warn('原始响应:', response)
+
+      // 返回默认结果
+      return {
+        canSplit: false,
+        subtasks: [],
+        reasoning: '无法解析AI分析结果，建议手动拆分',
+        originalTask: todoText,
+      }
+    }
+  } catch (error) {
+    console.error('AI任务拆分分析失败:', error)
+    handleError(error, 'AI任务拆分分析失败')
+
+    // 返回默认结果
+    return {
+      canSplit: false,
+      subtasks: [],
+      reasoning: 'AI分析服务暂时不可用',
+      originalTask: todoText,
+    }
+  }
 }

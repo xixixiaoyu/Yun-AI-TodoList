@@ -50,3 +50,18 @@ export interface AIAnalysisConfig {
   enablePriorityAnalysis: boolean // 是否启用重要等级分析
   enableTimeEstimation: boolean // 是否启用时间估算
 }
+
+// AI 拆分相关类型
+export interface AISubtaskResult {
+  canSplit: boolean // 是否可以拆分
+  subtasks: string[] // 拆分后的子任务列表
+  reasoning: string // 拆分理由
+  originalTask: string // 原始任务
+}
+
+export interface SubtaskSelectionConfig {
+  showDialog: boolean // 是否显示选择对话框
+  originalTask: string // 原始任务
+  subtasks: string[] // 建议的子任务
+  reasoning: string // AI 分析理由
+}
