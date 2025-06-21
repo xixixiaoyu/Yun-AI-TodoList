@@ -127,20 +127,25 @@
         :is-optimizing="isOptimizing"
         :is-retrying="isRetrying"
         :retry-count="retryCount"
-        :has-error="false"
+        :error="error"
+        :has-uploaded-file="hasUploadedFile"
+        :uploaded-file-name="uploadedFileName"
+        :uploaded-file-size="uploadedFileSize"
         @toggle-drawer="isDrawerOpen = !isDrawerOpen"
         @update:is-drawer-open="isDrawerOpen = $event"
-        @switch-conversation="switchConversation"
-        @delete-conversation="deleteConversation"
-        @clear-conversations="clearAllConversations"
-        @new-conversation="createNewConversation"
+        @switch-conversation="(id: string) => switchConversation(id)"
+        @delete-conversation="(id: string) => deleteConversation(id)"
+        @clear-conversations="clearConversations"
+        @new-conversation="newConversation"
         @optimize="optimizeMessage"
-        @retry="handleRetry"
-        @send="handleSendMessage"
+        @retry="retry"
+        @send="sendMessage"
         @stop="stopGenerating"
         @scroll="handleScroll"
         @update:user-message="userMessage = $event"
-        @generate-chart="handleGenerateChart"
+        @generate-chart="(content: string) => handleGenerateChart(content)"
+        @file-upload="(payload: { file: File; content: string }) => handleFileUpload(payload)"
+        @clear-file="clearFileUpload"
       />
     </div>
   </Transition>
@@ -178,10 +183,14 @@ const {
   userMessage,
   isGenerating,
   isOptimizing,
+  error,
   conversationHistory,
   currentConversationId,
   currentAIResponse,
   currentThinkingContent,
+  hasUploadedFile,
+  uploadedFileName,
+  uploadedFileSize,
   loadConversationHistory,
   createNewConversation,
   switchConversation,
@@ -194,6 +203,9 @@ const {
   retryLastMessage,
   isRetrying,
   retryCount,
+  // 文件上传相关
+  handleFileUpload,
+  clearFileUpload,
 } = useChat()
 
 // 系统提示词管理
@@ -228,14 +240,6 @@ const handleScroll = () => {
   // 自动滚动逻辑现在由 ChatMessageList 内部处理
 }
 
-const handleSendMessage = async () => {
-  await sendMessage()
-}
-
-const handleRetry = async (messageIndex: number) => {
-  await retryLastMessage(messageIndex)
-}
-
 const handleGenerateChart = async (content: string) => {
   // 构造生成图表的提示词
   const chartPrompt = `请根据以下内容生成 mermaid 格式的图表，要求：
@@ -262,6 +266,21 @@ const handleGenerateChart = async (content: string) => {
     // 恢复原始用户消息（如果有的话）
     userMessage.value = originalMessage
   }
+}
+
+// 重试函数
+const retry = () => {
+  retryLastMessage()
+}
+
+// 新建对话函数
+const newConversation = () => {
+  createNewConversation()
+}
+
+// 清空所有对话函数
+const clearConversations = () => {
+  clearAllConversations()
 }
 
 const closeSidebar = () => {

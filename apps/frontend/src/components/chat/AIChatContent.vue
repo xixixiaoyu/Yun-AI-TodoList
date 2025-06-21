@@ -36,10 +36,15 @@
         :model-value="userMessage"
         :is-generating="isGenerating"
         :is-optimizing="isOptimizing"
+        :has-uploaded-file="hasUploadedFile"
+        :uploaded-file-name="uploadedFileName"
+        :uploaded-file-size="uploadedFileSize"
         @update:model-value="$emit('update:userMessage', $event)"
         @send="$emit('send')"
         @stop="$emit('stop')"
         @optimize="$emit('optimize')"
+        @file-upload="$emit('file-upload', $event)"
+        @clear-file="$emit('clear-file')"
       />
     </div>
   </div>
@@ -78,6 +83,9 @@ interface Props {
   isRetrying?: boolean
   retryCount?: number
   hasError?: boolean
+  hasUploadedFile?: boolean
+  uploadedFileName?: string
+  uploadedFileSize?: number
 }
 
 interface ScrollInfo {
@@ -101,6 +109,8 @@ interface Emits {
   (e: 'scroll', scrollInfo: ScrollInfo): void
   (e: 'update:userMessage', value: string): void
   (e: 'generateChart', content: string): void
+  (e: 'file-upload', payload: { file: File; content: string }): void
+  (e: 'clear-file'): void
 }
 
 defineProps<Props>()

@@ -15,6 +15,10 @@ export interface Message {
 export interface ChatMessage {
   role: 'user' | 'assistant'
   content: string
+  fileInfo?: {
+    fileName: string
+    fileContent: string
+  }
 }
 
 export interface Conversation {

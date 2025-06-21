@@ -5,11 +5,29 @@
       :value="modelValue"
       :placeholder="t('askAiAssistant')"
       class="w-full px-4 py-3 text-sm border border-input-border rounded-xl outline-none bg-input-bg text-text resize-none min-h-[80px] max-h-48 font-inherit leading-[1.6] overflow-y-auto focus:border-button-bg focus:shadow-[0_0_0_3px_rgba(121,180,166,0.1)] transition-all duration-200 placeholder:text-text-secondary md:text-[13px] md:min-h-[72px]"
-      :style="{ paddingRight: '56px' }"
+      :style="{ paddingRight: '96px' }"
       @input="$emit('update:modelValue', ($event.target as HTMLTextAreaElement).value)"
       @keydown.enter.exact.prevent="$emit('send')"
       @keydown.enter.shift.exact="$emit('newline', $event)"
     />
+
+    <!-- 文件上传按钮 -->
+    <button
+      :disabled="isGenerating || isOptimizing"
+      class="file-upload-btn"
+      :title="t('uploadFile')"
+      @click="triggerFileUpload"
+    >
+      <div class="file-upload-btn-tooltip">{{ t('uploadFile') }}</div>
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"
+        />
+      </svg>
+    </button>
 
     <!-- AI增强按钮 -->
     <button
@@ -43,11 +61,20 @@
         />
       </svg>
     </button>
+
+    <!-- 隐藏的文件输入框 -->
+    <input
+      ref="fileInputRef"
+      type="file"
+      class="hidden"
+      :accept="acceptedFileTypes"
+      @change="handleFileUpload"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
-import { nextTick, onMounted, ref, watch } from 'vue'
+import { computed, nextTick, onMounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 interface Props {
@@ -61,13 +88,114 @@ interface Emits {
   (e: 'send'): void
   (e: 'newline', event: KeyboardEvent): void
   (e: 'optimize'): void
+  (e: 'file-upload', file: File, content: string): void
 }
 
 const props = defineProps<Props>()
-defineEmits<Emits>()
+const emit = defineEmits<Emits>()
 
 const { t } = useI18n()
 const textareaRef = ref<HTMLTextAreaElement | null>(null)
+const fileInputRef = ref<HTMLInputElement | null>(null)
+
+// 支持的文件类型 - 限制为前端可读取内容的文件类型
+const acceptedFileTypes = computed(() => {
+  return [
+    '.txt',
+    '.md',
+    '.json',
+    '.js',
+    '.ts',
+    '.jsx',
+    '.tsx',
+    '.vue',
+    '.html',
+    '.css',
+    '.scss',
+    '.sass',
+    '.less',
+    '.xml',
+    '.yaml',
+    '.yml',
+    '.csv',
+    '.log',
+    '.py',
+    '.java',
+    '.cpp',
+    '.c',
+    '.h',
+    '.php',
+    '.rb',
+    '.go',
+    '.rs',
+    '.swift',
+    '.kt',
+    '.sql',
+    '.sh',
+    '.bat',
+    '.ps1',
+    'text/*',
+  ].join(',')
+})
+
+// 触发文件上传
+const triggerFileUpload = () => {
+  if (fileInputRef.value) {
+    fileInputRef.value.click()
+  }
+}
+
+// 处理文件上传
+const handleFileUpload = async (event: Event) => {
+  const target = event.target as HTMLInputElement
+  const file = target.files?.[0]
+
+  if (!file) return
+
+  try {
+    // 检查文件大小（限制为 1MB）
+    const maxSize = 1 * 1024 * 1024 // 1MB
+    if (file.size > maxSize) {
+      alert(t('fileSizeExceeded', { size: '1MB' }))
+      return
+    }
+
+    // 读取文件内容
+    const content = await readFileContent(file)
+
+    // 发送文件上传事件
+    emit('file-upload', file, content)
+
+    // 清空文件输入框
+    target.value = ''
+  } catch (error) {
+    console.error('文件读取失败:', error)
+    alert(t('fileReadError'))
+  }
+}
+
+// 读取文件内容
+const readFileContent = (file: File): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader()
+
+    reader.onload = (e) => {
+      const result = e.target?.result
+      if (typeof result === 'string') {
+        resolve(result)
+      } else {
+        reject(new Error('无法读取文件内容'))
+      }
+    }
+
+    reader.onerror = () => {
+      reject(new Error('文件读取失败'))
+    }
+
+    // 以文本形式读取文件
+    reader.readAsText(file, 'UTF-8')
+  })
+}
 
 const adjustTextareaHeight = () => {
   if (textareaRef.value) {
@@ -138,6 +266,84 @@ defineOptions({
 </script>
 
 <style scoped>
+/* 文件上传按钮样式 */
+.file-upload-btn {
+  position: absolute;
+  bottom: 12px;
+  right: 52px;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  background: linear-gradient(135deg, #6366f1 0%, rgba(99, 102, 241, 0.8) 100%);
+  color: white;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 1px 4px rgba(99, 102, 241, 0.15);
+  z-index: 10;
+  transform: scale(1);
+  opacity: 0.8;
+}
+
+.file-upload-btn:hover:not(:disabled) {
+  transform: scale(1.1);
+  box-shadow: 0 2px 8px rgba(99, 102, 241, 0.25);
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.9) 0%, #6366f1 100%);
+  opacity: 1;
+}
+
+.file-upload-btn:active:not(:disabled) {
+  transform: scale(0.95);
+  box-shadow: 0 1px 2px rgba(99, 102, 241, 0.3);
+}
+
+.file-upload-btn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+  transform: scale(1);
+  box-shadow: 0 1px 2px rgba(99, 102, 241, 0.05);
+}
+
+/* 文件上传按钮悬浮提示样式 */
+.file-upload-btn-tooltip {
+  position: absolute;
+  bottom: 100%;
+  right: 0;
+  margin-bottom: 6px;
+  padding: 4px 8px;
+  background: rgba(0, 0, 0, 0.75);
+  color: white;
+  font-size: 11px;
+  border-radius: 4px;
+  white-space: nowrap;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(2px);
+  transition: all 0.15s ease;
+  pointer-events: none;
+  z-index: 1000;
+  backdrop-filter: blur(4px);
+}
+
+.file-upload-btn-tooltip::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  right: 8px;
+  border: 3px solid transparent;
+  border-top-color: rgba(0, 0, 0, 0.75);
+}
+
+.file-upload-btn:hover .file-upload-btn-tooltip {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+  animation: fadeInUp 0.2s ease;
+}
+
 /* AI增强按钮样式 */
 .enhance-btn {
   position: absolute;
@@ -237,6 +443,30 @@ defineOptions({
 
 /* 响应式调整 */
 @media (max-width: 768px) {
+  .file-upload-btn {
+    bottom: 10px;
+    right: 44px;
+    width: 24px;
+    height: 24px;
+    border-radius: 4px;
+  }
+
+  .file-upload-btn svg {
+    width: 12px;
+    height: 12px;
+  }
+
+  .file-upload-btn-tooltip {
+    font-size: 10px;
+    padding: 3px 6px;
+    margin-bottom: 4px;
+  }
+
+  .file-upload-btn-tooltip::after {
+    border-width: 2px;
+    right: 6px;
+  }
+
   .enhance-btn {
     bottom: 10px;
     right: 10px;

@@ -21,10 +21,35 @@ export function useChat() {
   const isRetrying = ref(false)
   const lastFailedMessage = ref<string>('')
 
+  // 文件上传相关状态
+  const uploadedFileContent = ref<string>('')
+  const uploadedFileName = ref<string>('')
+  const uploadedFileSize = ref<number>(0)
+  const hasUploadedFile = ref(false)
+
   const handleError = (error: unknown, context: string) => {
     console.error(`Error in ${context}:`, error)
     const errorMessage = error instanceof Error ? error.message : String(error)
     showError(errorMessage)
+  }
+
+  // 处理文件上传
+  const handleFileUpload = (payload: { file: File; content: string }) => {
+    uploadedFileContent.value = payload.content
+    uploadedFileName.value = payload.file.name
+    uploadedFileSize.value = payload.file.size
+    hasUploadedFile.value = true
+
+    // 文件上传成功，不修改输入框内容
+    // 可以通过其他方式显示上传状态，比如在界面上显示文件标签
+  }
+
+  // 清理文件上传状态
+  const clearFileUpload = () => {
+    uploadedFileContent.value = ''
+    uploadedFileName.value = ''
+    uploadedFileSize.value = 0
+    hasUploadedFile.value = false
   }
 
   const loadConversationHistory = () => {
@@ -80,6 +105,8 @@ export function useChat() {
     conversationHistory.value.unshift(newConversation)
     saveCurrentConversationId(newConversation.id)
     chatHistory.value = []
+    // 清理文件上传状态
+    clearFileUpload()
     localStorage.setItem('conversationHistory', JSON.stringify(conversationHistory.value))
   }
 
@@ -89,6 +116,8 @@ export function useChat() {
       const conversation = conversationHistory.value[conversationIndex]
       chatHistory.value = [...conversation.messages]
       saveCurrentConversationId(id)
+      // 清理文件上传状态
+      clearFileUpload()
 
       // 将切换到的对话移动到最前面（如果不在第一位的话）
       if (conversationIndex !== 0) {
@@ -144,6 +173,13 @@ export function useChat() {
       const userMsg: ChatMessage = {
         role: 'user',
         content: message,
+        fileInfo:
+          hasUploadedFile.value && uploadedFileContent.value
+            ? {
+                fileName: uploadedFileName.value,
+                fileContent: uploadedFileContent.value,
+              }
+            : undefined,
       }
       chatHistory.value = [...chatHistory.value, userMsg]
 
@@ -154,6 +190,30 @@ export function useChat() {
         role: msg.role === 'user' ? 'user' : 'assistant',
         content: msg.content,
       }))
+
+      // 检查是否有文件信息需要包含（优先使用当前上传状态，其次使用消息中保存的文件信息）
+      let fileInfo: { fileName: string; fileContent: string } | null = null
+
+      if (hasUploadedFile.value && uploadedFileContent.value) {
+        fileInfo = {
+          fileName: uploadedFileName.value,
+          fileContent: uploadedFileContent.value,
+        }
+      } else {
+        // 检查最后一条用户消息是否包含文件信息
+        const lastUserMessage = [...chatHistory.value].reverse().find((msg) => msg.role === 'user')
+        if (lastUserMessage?.fileInfo) {
+          fileInfo = lastUserMessage.fileInfo
+        }
+      }
+
+      // 如果有文件信息，将文件内容作为系统消息添加到消息列表开头
+      if (fileInfo) {
+        messages.unshift({
+          role: 'system',
+          content: `用户上传了一个文件 "${fileInfo.fileName}"，请基于这个文件内容来回答用户的问题。文件内容如下：\n\n${fileInfo.fileContent}\n\n`,
+        })
+      }
 
       await getAIStreamResponse(
         messages,
@@ -178,6 +238,8 @@ export function useChat() {
                 currentAIResponse.value = ''
                 currentThinkingContent.value = ''
                 isGenerating.value = false
+                // 不自动清理文件上传状态，让用户手动清理或上传新文件时清理
+                // clearFileUpload()
               })
             } else {
               isGenerating.value = false
@@ -333,6 +395,13 @@ export function useChat() {
       // 删除目标消息及之后的所有消息
       chatHistory.value.splice(targetIndex)
 
+      // 如果目标消息包含文件信息，恢复文件上传状态
+      if (targetMessage.fileInfo) {
+        uploadedFileContent.value = targetMessage.fileInfo.fileContent
+        uploadedFileName.value = targetMessage.fileInfo.fileName
+        hasUploadedFile.value = true
+      }
+
       // 重新设置用户消息并发送
       userMessage.value = targetMessage.content
       await sendMessage()
@@ -356,6 +425,10 @@ export function useChat() {
     error,
     conversationHistory,
     currentConversationId,
+    uploadedFileContent,
+    uploadedFileName,
+    uploadedFileSize,
+    hasUploadedFile,
     loadConversationHistory,
     saveConversationHistory,
     saveCurrentConversationId,
@@ -367,6 +440,8 @@ export function useChat() {
     stopGenerating,
     optimizeMessage,
     showError,
+    handleFileUpload,
+    clearFileUpload,
     // 重试相关功能
     retryLastMessage,
     isRetrying,
