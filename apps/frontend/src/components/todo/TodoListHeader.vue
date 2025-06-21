@@ -17,15 +17,32 @@
           height="22"
           fill="none"
           stroke="currentColor"
-          stroke-width="2"
+          stroke-width="1.5"
           stroke-linecap="round"
           stroke-linejoin="round"
           class="button-icon"
         >
-          <circle cx="12" cy="12" r="10" />
-          <path d="M8 12h8" />
-          <path d="M12 8v8" />
-          <path d="M16.5 7.5l-9 9" />
+          <!-- AI 神经网络风格图标 -->
+          <!-- 中心节点 -->
+          <circle cx="12" cy="12" r="2" fill="currentColor" />
+
+          <!-- 外围节点 -->
+          <circle cx="6" cy="6" r="1.5" fill="currentColor" />
+          <circle cx="18" cy="6" r="1.5" fill="currentColor" />
+          <circle cx="6" cy="18" r="1.5" fill="currentColor" />
+          <circle cx="18" cy="18" r="1.5" fill="currentColor" />
+
+          <!-- 连接线 -->
+          <path d="M7.5 7.5L10 10" stroke="currentColor" opacity="0.6" />
+          <path d="M16.5 7.5L14 10" stroke="currentColor" opacity="0.6" />
+          <path d="M7.5 16.5L10 14" stroke="currentColor" opacity="0.6" />
+          <path d="M16.5 16.5L14 14" stroke="currentColor" opacity="0.6" />
+
+          <!-- 脉冲效果线条 -->
+          <path d="M12 8V6" stroke="currentColor" opacity="0.4" />
+          <path d="M12 18V16" stroke="currentColor" opacity="0.4" />
+          <path d="M8 12H6" stroke="currentColor" opacity="0.4" />
+          <path d="M18 12H16" stroke="currentColor" opacity="0.4" />
         </svg>
       </button>
 
@@ -335,15 +352,19 @@ h1 {
   opacity: 0;
   visibility: hidden;
   transition:
-    opacity 0.05s ease,
-    visibility 0.05s ease,
-    transform 0.05s ease;
+    opacity 0.15s ease,
+    visibility 0.15s ease,
+    transform 0.15s ease;
 }
 
 .icon-button:hover::after {
   opacity: 1;
   visibility: visible;
   transform: translateX(-50%) translateY(0);
+  transition:
+    opacity 0.15s ease,
+    visibility 0.15s ease,
+    transform 0.15s ease;
 }
 
 @media (max-width: 768px) {

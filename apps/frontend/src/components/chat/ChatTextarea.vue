@@ -4,7 +4,6 @@
       ref="textareaRef"
       :value="modelValue"
       :placeholder="t('askAiAssistant')"
-      :disabled="isGenerating"
       class="w-full px-4 py-3 text-sm border border-input-border rounded-xl outline-none bg-input-bg text-text resize-none min-h-[80px] max-h-48 font-inherit leading-[1.6] overflow-y-auto focus:border-button-bg focus:shadow-[0_0_0_3px_rgba(121,180,166,0.1)] transition-all duration-200 placeholder:text-text-secondary md:text-[13px] md:min-h-[72px]"
       :style="{ paddingRight: '56px' }"
       @input="$emit('update:modelValue', ($event.target as HTMLTextAreaElement).value)"
