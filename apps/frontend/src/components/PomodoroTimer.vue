@@ -212,9 +212,7 @@ const pauseTimer = () => {
 
 const resumeTimer = () => {
   if (isPaused.value) {
-    isPaused.value = false
-    startTime = performance.now() - (initialTime - timeLeft.value) * 1000
-    animationFrameId = requestAnimationFrame(updateTimer)
+    startTimer() // 直接调用 startTimer 来恢复计时
   }
 }
 
@@ -239,16 +237,131 @@ const startBreak = () => {
 }
 
 const notifyUser = (isWorkTime: boolean) => {
+  // 浏览器通知
   if ('Notification' in window) {
-    Notification.requestPermission().then((permission) => {
-      if (permission === 'granted') {
-        new Notification(t('pomodoroComplete'), {
-          body: isWorkTime ? t('workTimeStarted') : t('breakTimeStarted'),
-        })
-      }
-    })
+    if (Notification.permission === 'granted') {
+      // 已有权限，直接发送通知
+      const notification = new Notification(t('pomodoroComplete'), {
+        body: isWorkTime ? t('workTimeStarted') : t('breakTimeStarted'),
+        icon: '/favicon.ico', // 添加图标
+        tag: 'pomodoro-timer', // 防止重复通知
+        requireInteraction: true, // 需要用户交互才能关闭
+        silent: true, // 静音，不播放系统通知声音
+      })
+
+      // 3秒后自动关闭通知
+      setTimeout(() => {
+        notification.close()
+      }, 3000)
+    } else if (Notification.permission === 'default') {
+      // 请求权限
+      Notification.requestPermission().then((permission) => {
+        if (permission === 'granted') {
+          const notification = new Notification(t('pomodoroComplete'), {
+            body: isWorkTime ? t('workTimeStarted') : t('breakTimeStarted'),
+            icon: '/favicon.ico',
+            tag: 'pomodoro-timer',
+            requireInteraction: true,
+            silent: true, // 静音，不播放系统通知声音
+          })
+
+          setTimeout(() => {
+            notification.close()
+          }, 3000)
+        }
+      })
+    }
+    // 如果权限被拒绝，不显示通知但继续其他逻辑
   }
+
+  // 页面内视觉提醒（即使没有通知权限也会显示）
+  showVisualAlert(isWorkTime)
+
+  // 发出事件
   emit('pomodoroComplete', !isWorkTime)
+}
+
+// 页面内视觉提醒
+const showVisualAlert = (isWorkTime: boolean) => {
+  // 显示页面内弹窗提醒
+  showInPageAlert(isWorkTime)
+
+  // 控制台日志（开发调试用）
+  console.log(
+    `🍅 ${t('pomodoroComplete')} - ${isWorkTime ? t('workTimeStarted') : t('breakTimeStarted')}`
+  )
+}
+
+// 页面内弹窗提醒
+const showInPageAlert = (isWorkTime: boolean) => {
+  // 创建临时的页面内提醒元素
+  const alertDiv = document.createElement('div')
+  alertDiv.style.cssText = `
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 16px 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    z-index: 10000;
+    font-family: 'LXGW WenKai Lite Medium', sans-serif;
+    font-size: 14px;
+    max-width: 300px;
+    animation: slideInRight 0.3s ease-out;
+  `
+
+  alertDiv.innerHTML = `
+    <div style="display: flex; align-items: center; gap: 8px;">
+      <span style="font-size: 20px;">🍅</span>
+      <div>
+        <div style="font-weight: bold; margin-bottom: 4px;">${t('pomodoroComplete')}</div>
+        <div style="font-size: 12px; opacity: 0.9;">${isWorkTime ? t('workTimeStarted') : t('breakTimeStarted')}</div>
+      </div>
+    </div>
+  `
+
+  // 添加动画样式
+  const style = document.createElement('style')
+  style.textContent = `
+    @keyframes slideInRight {
+      from {
+        transform: translateX(100%);
+        opacity: 0;
+      }
+      to {
+        transform: translateX(0);
+        opacity: 1;
+      }
+    }
+    @keyframes slideOutRight {
+      from {
+        transform: translateX(0);
+        opacity: 1;
+      }
+      to {
+        transform: translateX(100%);
+        opacity: 0;
+      }
+    }
+  `
+  document.head.appendChild(style)
+
+  document.body.appendChild(alertDiv)
+
+  // 3秒后移除提醒
+  setTimeout(() => {
+    alertDiv.style.animation = 'slideOutRight 0.3s ease-in'
+    setTimeout(() => {
+      if (alertDiv.parentNode) {
+        alertDiv.parentNode.removeChild(alertDiv)
+      }
+      if (style.parentNode) {
+        style.parentNode.removeChild(style)
+      }
+    }, 300)
+  }, 3000)
 }
 
 // 组件挂载时加载设置
@@ -257,8 +370,9 @@ onMounted(() => {
 })
 
 onUnmounted(() => {
-  if (interval) {
-    clearInterval(interval)
+  if (timerInterval) {
+    clearInterval(timerInterval)
+    timerInterval = null
   }
 })
 
