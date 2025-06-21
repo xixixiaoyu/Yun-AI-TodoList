@@ -13,7 +13,25 @@
         <button @click="startTimer">
           {{ t('start') }}
         </button>
-        <button @click="toggleSettings" class="settings-btn">⚙️</button>
+        <button @click="toggleSettings" class="settings-btn">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            width="16"
+            height="16"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            class="settings-icon"
+          >
+            <circle cx="12" cy="12" r="3" />
+            <path
+              d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"
+            />
+          </svg>
+        </button>
       </template>
       <template v-else-if="isActive">
         <button v-if="!isPaused" @click="pauseTimer">
@@ -444,8 +462,67 @@ button:disabled {
 }
 
 .settings-btn {
-  font-size: 1rem;
-  padding: 0.25rem 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.4rem;
+  min-width: 32px;
+  min-height: 32px;
+  background: linear-gradient(135deg, var(--card-bg-color) 0%, rgba(255, 255, 255, 0.05) 100%);
+  border: 1px solid rgba(255, 126, 103, 0.1);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  opacity: 0.85;
+  position: relative;
+  overflow: hidden;
+  backdrop-filter: blur(10px);
+  box-shadow:
+    0 2px 8px rgba(0, 0, 0, 0.05),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+.settings-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 126, 103, 0.1), transparent);
+  transition: left 0.5s ease;
+  z-index: 0;
+}
+
+.settings-btn:hover::before {
+  left: 100%;
+}
+
+.settings-btn:hover {
+  color: #ff7e67;
+  opacity: 1;
+  transform: translateY(-1px);
+  border-color: rgba(255, 126, 103, 0.3);
+  box-shadow:
+    0 4px 16px rgba(255, 126, 103, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+.settings-btn:hover .settings-icon {
+  transform: rotate(90deg) scale(1.1);
+}
+
+.settings-btn:active {
+  transform: translateY(0);
+  box-shadow:
+    0 1px 4px rgba(255, 126, 103, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+.settings-icon {
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  z-index: 1;
 }
 
 .settings-panel {
