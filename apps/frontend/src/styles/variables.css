@@ -261,10 +261,38 @@ select {
   border-radius: var(--border-radius);
   border: 1px solid var(--input-border-color);
   text-align: center;
-  min-height: 60px;
+  min-height: 100px;
   display: flex;
   align-items: center;
   justify-content: center;
+  transition: all 0.3s ease;
+}
+
+.mermaid-loading {
+  color: var(--text-color-secondary);
+  font-style: italic;
+  position: relative;
+}
+
+.mermaid-loading::after {
+  content: '';
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  margin-left: 8px;
+  border: 2px solid var(--text-color-secondary);
+  border-top: 2px solid transparent;
+  border-radius: 50%;
+  animation: mermaid-spin 1s linear infinite;
+}
+
+@keyframes mermaid-spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 .mermaid-diagram {
