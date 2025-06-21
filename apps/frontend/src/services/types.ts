@@ -42,7 +42,6 @@ export interface SystemPrompt {
   id: string
   name: string
   content: string
-  description?: string
   isActive: boolean
   isDefault?: boolean
   createdAt: string
@@ -58,14 +57,12 @@ export interface SystemPromptConfig {
 export interface SystemPromptCreateInput {
   name: string
   content: string
-  description?: string
   tags?: string[]
 }
 
 export interface SystemPromptUpdateInput {
   name?: string
   content?: string
-  description?: string
   isActive?: boolean
   tags?: string[]
 }

@@ -138,10 +138,9 @@ export function useSystemPrompts() {
 
       const now = new Date().toISOString()
       const newPrompt: SystemPrompt = {
-        id: generateId(),
+        id: crypto.randomUUID(),
         name: input.name.trim(),
         content: input.content.trim(),
-        description: input.description?.trim() || '',
         isActive: true,
         createdAt: now,
         updatedAt: now,
@@ -196,7 +195,6 @@ export function useSystemPrompts() {
         ...input,
         name: input.name?.trim() || existingPrompt.name,
         content: input.content?.trim() || existingPrompt.content,
-        description: input.description?.trim() ?? existingPrompt.description,
         updatedAt: new Date().toISOString(),
       }
 

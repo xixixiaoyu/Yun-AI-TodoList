@@ -355,8 +355,7 @@
   "promptName": "Prompt Name",
   "promptNamePlaceholder": "Enter prompt name",
   "promptNameRequired": "Prompt name cannot be empty",
-  "promptDescription": "Prompt Description",
-  "promptDescriptionPlaceholder": "Enter prompt description (optional)",
+
   "promptContent": "Prompt Content",
   "promptContentPlaceholder": "Enter system prompt content, this will define the AI assistant's behavior and response style...",
   "promptContentRequired": "Prompt content cannot be empty",

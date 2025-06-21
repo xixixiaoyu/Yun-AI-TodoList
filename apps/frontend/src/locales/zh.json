@@ -396,8 +396,7 @@
   "promptName": "提示词名称",
   "promptNamePlaceholder": "请输入提示词名称",
   "promptNameRequired": "提示词名称不能为空",
-  "promptDescription": "提示词描述",
-  "promptDescriptionPlaceholder": "请输入提示词描述（可选）",
+
   "promptContent": "提示词内容",
   "promptContentPlaceholder": "请输入系统提示词内容，这将定义 AI 助手的行为和回复风格...",
   "promptContentRequired": "提示词内容不能为空",

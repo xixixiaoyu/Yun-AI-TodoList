@@ -19,22 +19,8 @@
     </div>
 
     <div class="settings-content">
-      <!-- 启用系统提示词 -->
-      <div class="setting-item">
-        <div class="setting-info">
-          <label class="setting-label">{{ t('enableSystemPrompts') }}</label>
-          <p class="setting-description">{{ t('enableSystemPromptsDesc') }}</p>
-        </div>
-        <div class="setting-control">
-          <label class="toggle-switch">
-            <input type="checkbox" :checked="config.enabled" @change="handleToggleEnabled" />
-            <span class="toggle-slider"></span>
-          </label>
-        </div>
-      </div>
-
       <!-- 系统提示词管理 -->
-      <div v-if="config.enabled" class="mt-6 space-y-4">
+      <div class="mt-6 space-y-4">
         <!-- 当前激活的提示词 -->
         <div class="setting-item">
           <div class="setting-info">
@@ -48,7 +34,7 @@
               @change="handleActivePromptChange"
             >
               <option value="">{{ t('noSystemPrompt') }}</option>
-              <option v-for="prompt in enabledPrompts" :key="prompt.id" :value="prompt.id">
+              <option v-for="prompt in systemPrompts" :key="prompt.id" :value="prompt.id">
                 {{ prompt.name }}
               </option>
             </select>
@@ -100,8 +86,11 @@
             <div
               v-for="prompt in systemPrompts"
               :key="prompt.id"
-              class="prompt-item"
-              :class="{ 'prompt-active': config.activePromptId === prompt.id }"
+              class="prompt-item prompt-clickable"
+              :class="{
+                'prompt-active': config.activePromptId === prompt.id,
+              }"
+              @click="handlePromptClick(prompt)"
             >
               <div class="prompt-info">
                 <div class="prompt-header">
@@ -110,15 +99,12 @@
                     <span v-if="config.activePromptId === prompt.id" class="badge badge-primary">
                       {{ t('enabled') }}
                     </span>
-                    <span v-if="!prompt.isActive" class="badge badge-secondary">
-                      {{ t('disabled') }}
-                    </span>
                   </div>
                 </div>
-                <p v-if="prompt.description" class="prompt-description">{{ prompt.description }}</p>
+
                 <div class="prompt-content-preview">{{ getContentPreview(prompt.content) }}</div>
               </div>
-              <div class="prompt-actions">
+              <div class="prompt-actions" @click.stop>
                 <button
                   class="btn-ghost btn-sm"
                   :disabled="isLoading"
@@ -134,41 +120,7 @@
                     />
                   </svg>
                 </button>
-                <button
-                  class="btn-ghost btn-sm"
-                  :disabled="isLoading"
-                  :title="prompt.isActive ? t('disable') : t('enable')"
-                  @click="togglePromptActive(prompt.id)"
-                >
-                  <svg
-                    v-if="prompt.isActive"
-                    class="w-4 h-4"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                    />
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
-                    />
-                  </svg>
-                  <svg v-else class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L3 3m6.878 6.878L21 21"
-                    />
-                  </svg>
-                </button>
+
                 <button
                   class="btn-ghost btn-sm text-red-500 hover:text-red-600"
                   :disabled="isLoading"
@@ -232,12 +184,9 @@ const {
   systemPrompts,
   config,
   isLoading,
-  enabledPrompts,
-  updateConfig,
   createSystemPrompt,
   updateSystemPrompt,
   deleteSystemPrompt,
-  togglePromptActive,
   setActivePrompt,
 } = useSystemPrompts()
 
@@ -248,17 +197,26 @@ const showDeleteDialog = ref(false)
 const editingPrompt = ref<SystemPrompt | null>(null)
 const deletingPrompt = ref<SystemPrompt | null>(null)
 
-// 处理启用/禁用系统提示词
-const handleToggleEnabled = async (event: Event) => {
-  const target = event.target as HTMLInputElement
-  await updateConfig({ enabled: target.checked })
-}
-
 // 处理激活提示词变更
 const handleActivePromptChange = async (event: Event) => {
   const target = event.target as HTMLSelectElement
   const promptId = target.value || null
   await setActivePrompt(promptId)
+}
+
+// 处理提示词点击切换
+const handlePromptClick = async (prompt: SystemPrompt) => {
+  try {
+    // 如果点击的是当前激活的提示词，则取消激活
+    if (config.value.activePromptId === prompt.id) {
+      await setActivePrompt(null)
+    } else {
+      // 否则激活该提示词
+      await setActivePrompt(prompt.id)
+    }
+  } catch (error) {
+    console.error('切换系统提示词失败:', error)
+  }
 }
 
 // 处理语言指令开关
@@ -456,6 +414,21 @@ defineOptions({
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
+.prompt-clickable {
+  cursor: pointer;
+}
+
+.prompt-clickable:hover {
+  border-color: var(--primary-color);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(121, 180, 166, 0.15);
+}
+
+.prompt-clickable:active {
+  transform: translateY(-1px);
+  transition: all 0.1s ease;
+}
+
 .prompt-active {
   border-color: var(--primary-color);
   background: linear-gradient(135deg, var(--card-bg-color) 0%, rgba(121, 180, 166, 0.05) 100%);
@@ -488,10 +461,6 @@ defineOptions({
 
 .badge-secondary {
   @apply bg-gray-100 text-gray-600;
-}
-
-.prompt-description {
-  @apply text-xs text-text-secondary mb-2;
 }
 
 .prompt-content-preview {

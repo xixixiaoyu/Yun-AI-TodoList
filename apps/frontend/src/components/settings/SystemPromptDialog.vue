@@ -37,21 +37,6 @@
             <p v-if="errors.name" class="form-error">{{ errors.name }}</p>
           </div>
 
-          <!-- 描述 -->
-          <div class="form-group">
-            <label class="form-label" for="prompt-description">
-              {{ t('promptDescription') }}
-            </label>
-            <input
-              id="prompt-description"
-              v-model="formData.description"
-              type="text"
-              class="form-input"
-              :placeholder="t('promptDescriptionPlaceholder')"
-              :disabled="isLoading"
-            />
-          </div>
-
           <!-- 内容 -->
           <div class="form-group">
             <label class="form-label" for="prompt-content">
@@ -181,7 +166,6 @@ const { t } = useI18n()
 // 表单数据
 const formData = ref({
   name: '',
-  description: '',
   content: '',
 })
 const errors = ref<Record<string, string>>({})
@@ -199,7 +183,6 @@ watch(
     if (newPrompt && props.isEditing) {
       formData.value = {
         name: newPrompt.name,
-        description: newPrompt.description || '',
         content: newPrompt.content,
       }
     } else {
@@ -226,7 +209,6 @@ watch(
 const resetForm = () => {
   formData.value = {
     name: '',
-    description: '',
     content: '',
   }
   errors.value = {}
@@ -255,7 +237,6 @@ const handleSubmit = () => {
 
   const data = {
     name: formData.value.name.trim(),
-    description: formData.value.description.trim() || undefined,
     content: formData.value.content.trim(),
   }
 
