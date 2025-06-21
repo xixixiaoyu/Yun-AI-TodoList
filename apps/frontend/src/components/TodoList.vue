@@ -25,6 +25,7 @@
         :max-length="MAX_TODO_LENGTH"
         :duplicate-error="duplicateError"
         :placeholder="t('addTodo')"
+        :is-loading="isSplittingTask"
         @add="handleAddTodo"
       />
 
@@ -174,6 +175,7 @@ const {
   hasActiveTodos,
   hasCompletedHistory,
   isGenerating,
+  isSplittingTask,
   isSorting,
   suggestedTodos,
   showSuggestedTodos,

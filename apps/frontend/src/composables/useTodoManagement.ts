@@ -28,6 +28,7 @@ export function useTodoManagement() {
   const filter = ref('active')
   const searchQuery = ref('')
   const isGenerating = ref(false)
+  const isSplittingTask = ref(false) // AI 拆分分析加载状态
   const suggestedTodos = ref<string[]>([])
   const showSuggestedTodos = ref(false)
   const showDomainSelection = ref(false)
@@ -438,6 +439,7 @@ ${todoTexts}
     // 如果不跳过拆分分析且启用了 AI 拆分子任务功能，先进行 AI 拆分分析
     if (!skipSplitAnalysis && analysisConfig.value.enableSubtaskSplitting) {
       try {
+        isSplittingTask.value = true // 开始 AI 拆分分析
         const { analyzeTaskSplitting } = await import('@/services/aiAnalysisService')
         const splitResult = await analyzeTaskSplitting(text)
 
@@ -453,6 +455,8 @@ ${todoTexts}
       } catch (error) {
         console.warn('AI 拆分分析失败，继续添加原始任务:', error)
         // 分析失败时继续添加原始任务
+      } finally {
+        isSplittingTask.value = false // 结束 AI 拆分分析
       }
     }
 
@@ -601,6 +605,7 @@ ${todoTexts}
     hasActiveTodos,
     hasCompletedHistory,
     isGenerating,
+    isSplittingTask,
     isSorting,
     isLoading,
     isAnalyzing,

@@ -336,6 +336,7 @@
   "batchAiAnalysis": "批量 AI 分析",
   "reanalyze": "重新分析",
   "analyzing": "分析中...",
+  "aiAnalyzing": "AI 分析中...",
   "batchAnalyzing": "批量分析中...",
   "aiAnalysisSuccess": "AI 分析完成",
   "aiAnalysisError": "AI 分析失败，请重试",

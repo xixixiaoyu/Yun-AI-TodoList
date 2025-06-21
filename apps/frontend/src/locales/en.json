@@ -295,6 +295,7 @@
   "batchAiAnalysis": "Batch AI Analysis",
   "reanalyze": "Re-analyze",
   "analyzing": "Analyzing...",
+  "aiAnalyzing": "AI Analyzing...",
   "batchAnalyzing": "Batch analyzing...",
   "aiAnalysisSuccess": "AI analysis completed",
   "aiAnalysisError": "AI analysis failed, please try again",

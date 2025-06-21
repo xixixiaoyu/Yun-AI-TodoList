@@ -8,8 +8,12 @@
         :maxlength="maxLength"
       />
     </div>
-    <button type="submit" class="add-btn">
-      {{ t('add') }}
+    <button type="submit" class="add-btn" :disabled="props.isLoading">
+      <template v-if="props.isLoading">
+        <span class="loading-spinner"></span>
+        <span class="ml-2">{{ t('aiAnalyzing') }}</span>
+      </template>
+      <span v-else>{{ t('add') }}</span>
     </button>
   </form>
   <p v-if="errorMessage || duplicateError" class="text-error text-sm mt-2 w-full font-weight">
@@ -18,11 +22,20 @@
 </template>
 
 <script setup lang="ts">
-const props = defineProps<{
-  maxLength: number
-  duplicateError: string
-  placeholder: string
-}>()
+const props = withDefaults(
+  defineProps<{
+    maxLength: number
+    duplicateError: string
+    placeholder: string
+    isLoading?: boolean
+  }>(),
+  {
+    maxLength: 50,
+    duplicateError: '',
+    placeholder: '添加新的待办事项...',
+    isLoading: false,
+  }
+)
 
 const emit = defineEmits(['add'])
 
@@ -45,6 +58,9 @@ const addTodo = async () => {
     setTimeout(() => {
       errorMessage.value = ''
     }, 3000)
+    return
+  }
+  if (props.isLoading) {
     return
   }
 
@@ -110,10 +126,35 @@ const addTodo = async () => {
   justify-content: center;
 }
 
-.add-btn:hover {
+.add-btn:hover:not(:disabled) {
   background-color: var(--button-hover-bg-color);
   transform: translateY(-1px);
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.add-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.loading-spinner {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border: 2px solid transparent;
+  border-top: 2px solid currentColor;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 @media (max-width: 768px) {
