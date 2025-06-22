@@ -18,6 +18,7 @@ export default [
       'release/**',
       '*.min.js',
       'public/**',
+      'public/pdf.worker.min.mjs',
       '.husky/**',
       '**/prettify.js',
       '**/sorter.js',

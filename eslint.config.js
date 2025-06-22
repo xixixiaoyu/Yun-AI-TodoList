@@ -12,6 +12,7 @@ export default [
       'coverage/**',
       'release/**',
       '*.min.js',
+      'apps/frontend/public/pdf.worker.min.mjs',
       'build/**',
       '.cache/**',
       'android/**',

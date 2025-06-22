@@ -76,6 +76,7 @@
 <script setup lang="ts">
 import { computed, nextTick, onMounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { parseFile } from '@/utils/fileParser'
 
 interface Props {
   modelValue: string
@@ -98,9 +99,26 @@ const { t } = useI18n()
 const textareaRef = ref<HTMLTextAreaElement | null>(null)
 const fileInputRef = ref<HTMLInputElement | null>(null)
 
-// 支持的文件类型 - 限制为前端可读取内容的文件类型
+// 支持的文件类型 - 包括 PDF、DOC、DOCX、Excel 和文本文件
 const acceptedFileTypes = computed(() => {
   return [
+    // PDF 文件
+    '.pdf',
+    'application/pdf',
+    // DOC 文件
+    '.doc',
+    'application/msword',
+    // DOCX 文件
+    '.docx',
+    'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+    // Excel 文件
+    '.xlsx',
+    '.xls',
+    '.csv',
+    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    'application/vnd.ms-excel',
+    'text/csv',
+    // 文本文件
     '.txt',
     '.md',
     '.json',
@@ -117,7 +135,6 @@ const acceptedFileTypes = computed(() => {
     '.xml',
     '.yaml',
     '.yml',
-    '.csv',
     '.log',
     '.py',
     '.java',
@@ -153,15 +170,8 @@ const handleFileUpload = async (event: Event) => {
   if (!file) return
 
   try {
-    // 检查文件大小（限制为 1MB）
-    const maxSize = 1 * 1024 * 1024 // 1MB
-    if (file.size > maxSize) {
-      alert(t('fileSizeExceeded', { size: '1MB' }))
-      return
-    }
-
-    // 读取文件内容
-    const content = await readFileContent(file)
+    // 使用新的文件解析工具解析文件内容
+    const content = await parseFile(file)
 
     // 发送文件上传事件
     emit('file-upload', file, content)
@@ -170,32 +180,11 @@ const handleFileUpload = async (event: Event) => {
     target.value = ''
   } catch (error) {
     console.error('文件读取失败:', error)
-    alert(t('fileReadError'))
+    alert(error instanceof Error ? error.message : t('fileReadError'))
   }
 }
 
-// 读取文件内容
-const readFileContent = (file: File): Promise<string> => {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader()
-
-    reader.onload = (e) => {
-      const result = e.target?.result
-      if (typeof result === 'string') {
-        resolve(result)
-      } else {
-        reject(new Error('无法读取文件内容'))
-      }
-    }
-
-    reader.onerror = () => {
-      reject(new Error('文件读取失败'))
-    }
-
-    // 以文本形式读取文件
-    reader.readAsText(file, 'UTF-8')
-  })
-}
+// 注意：readFileContent 函数已被 parseFile 工具替代，支持更多文件类型
 
 const adjustTextareaHeight = () => {
   if (textareaRef.value) {

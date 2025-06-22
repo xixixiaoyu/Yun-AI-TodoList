@@ -53,12 +53,15 @@
     "dompurify": "3.2.6",
     "highlight.js": "11.11.1",
     "lodash-es": "4.17.21",
+    "mammoth": "^1.9.1",
     "marked": "15.0.12",
     "mermaid": "^11.6.0",
+    "pdfjs-dist": "^5.3.31",
     "sortablejs": "^1.15.6",
     "vue": "3.5.16",
     "vue-i18n": "11.1.5",
-    "vue-router": "4.5.1"
+    "vue-router": "4.5.1",
+    "xlsx": "^0.18.5"
   },
   "devDependencies": {
     "@capacitor/android": "6.1.2",
