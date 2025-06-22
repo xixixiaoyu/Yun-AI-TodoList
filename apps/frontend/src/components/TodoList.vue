@@ -134,17 +134,17 @@
 
 <script setup lang="ts">
 import { nextTick } from 'vue'
+import SubtaskSelectionDialog from './SubtaskSelectionDialog.vue'
 import TodoFilters from './TodoFilters.vue'
 import TodoInput from './TodoInput.vue'
 import TodoItem from './TodoItem.vue'
 import TodoSearch from './TodoSearch.vue'
-import SubtaskSelectionDialog from './SubtaskSelectionDialog.vue'
 
 import type { Todo } from '@/types/todo'
+import { useTaskSplitting } from '../composables/useTaskSplitting'
 import { useTodoDragSort } from '../composables/useTodoDragSort'
 import { useTodoListState } from '../composables/useTodoListState'
 import { useTodoManagement } from '../composables/useTodoManagement'
-import { useTaskSplitting } from '../composables/useTaskSplitting'
 import ConfirmDialog from './ConfirmDialog.vue'
 import DomainSelectionDialog from './DomainSelectionDialog.vue'
 import PomodoroTimer from './PomodoroTimer.vue'

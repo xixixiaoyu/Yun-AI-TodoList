@@ -1,4 +1,4 @@
-import { computed, ref, nextTick } from 'vue'
+import { computed, nextTick, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { getAIResponse } from '../services/deepseekService'
 import type { Todo } from '../types/todo'
@@ -276,9 +276,10 @@ export function useTodoManagement() {
       return
     }
 
-    console.warn(
-      '✅ 开始 AI 排序，待办事项:',
-      activeTodos.map((t) => t.text)
+    logger.info(
+      'Starting AI sorting for todos',
+      { todos: activeTodos.map((t) => t.text) },
+      'TodoManagement'
     )
     isSorting.value = true
 
@@ -304,7 +305,7 @@ ${todoTexts}
 
 请返回排序后的序号列表，格式为：1,3,2,4（用逗号分隔，不要包含其他文字）`
 
-      console.warn('🤖 发送 AI 请求...')
+      logger.info('Sending AI request for sorting', {}, 'TodoManagement')
       const aiResponse = await getAIResponse(prompt)
       console.warn('📥 AI 响应:', aiResponse)
 
@@ -345,9 +346,10 @@ ${todoTexts}
         // 应用排序
         // 应用新的排序顺序
         const sortedTodos = sortedIndices.map((index) => activeTodos[index])
-        console.warn(
-          '📝 排序后的待办事项:',
-          sortedTodos.map((t) => t.text)
+        logger.info(
+          'Todos sorted successfully',
+          { sortedTodos: sortedTodos.map((t) => t.text) },
+          'TodoManagement'
         )
         const todoMap = new Map(todos.value.map((todo) => [todo.id, todo]))
 
@@ -378,20 +380,25 @@ ${todoTexts}
         // 使用 nextTick 确保 DOM 更新后再显示成功消息
         await nextTick()
 
-        console.warn(
-          '🎉 AI 排序完成，todos 数组已更新:',
-          todos.value.map((t) => ({ id: t.id, text: t.text, order: t.order }))
+        logger.info(
+          'AI sorting completed, todos array updated',
+          { todos: todos.value.map((t) => ({ id: t.id, text: t.text, order: t.order })) },
+          'TodoManagement'
         )
 
         // AI 排序成功完成
         showSuccess(t('aiSortSuccess', 'AI 优先级排序完成！'))
       } else {
-        console.warn('AI 排序解析失败:', {
-          response: aiResponse,
-          cleanResponse,
-          sortedIndices,
-          expectedLength: activeTodos.length,
-        })
+        logger.warn(
+          'AI sorting parse failed',
+          {
+            response: aiResponse,
+            cleanResponse,
+            sortedIndices,
+            expectedLength: activeTodos.length,
+          },
+          'TodoManagement'
+        )
         showError(t('aiSortParseFailed', 'AI 排序解析失败，请重试'))
       }
     } catch (error) {
@@ -425,7 +432,7 @@ ${todoTexts}
         showError(t('aiSortFailed', 'AI 排序失败，请重试'))
       }
     } finally {
-      console.warn('🏁 AI 排序流程结束，重置状态')
+      logger.info('AI sorting process completed, resetting state', {}, 'TodoManagement')
       isSorting.value = false
     }
   }
@@ -466,7 +473,11 @@ ${todoTexts}
       return { needsSplitting: false }
     }
 
-    console.warn('任务添加成功，检查自动分析配置:', analysisConfig.value.autoAnalyzeNewTodos)
+    logger.info(
+      'Todo added successfully, checking auto analysis config',
+      { autoAnalyze: analysisConfig.value.autoAnalyzeNewTodos },
+      'TodoManagement'
+    )
 
     // 如果启用了自动分析新待办事项，则自动触发 AI 分析
     if (analysisConfig.value.autoAnalyzeNewTodos) {
@@ -476,30 +487,28 @@ ${todoTexts}
           .filter((todo) => !todo.completed && !todo.aiAnalyzed)
           .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())[0]
 
-        console.warn('找到新添加的任务:', newTodo)
+        logger.info('Found new todo for analysis', { todoId: newTodo?.id }, 'TodoManagement')
 
         if (newTodo) {
-          console.warn('开始自动 AI 分析...')
+          logger.info('Starting auto AI analysis', {}, 'TodoManagement')
           // 异步执行 AI 分析，不阻塞用户操作
           analyzeSingleTodo(newTodo, (id: number, updates: Partial<Todo>) => {
-            console.warn('自动分析完成，更新任务:', id, updates)
+            logger.info('Auto analysis completed, updating todo', { id, updates }, 'TodoManagement')
             updateTodo(id, updates)
           }).catch((error) => {
             // 分析失败时静默处理，不影响任务添加，也不设置任何默认值
-            console.warn('Auto AI analysis failed for new todo:', error)
             logger.warn('Auto AI analysis failed for new todo', error, 'TodoManagement')
             // 不更新任何字段，保持 Todo 的原始状态
           })
         } else {
-          console.warn('未找到需要分析的新任务')
+          logger.info('No new todo found for analysis', {}, 'TodoManagement')
         }
       } catch (error) {
         // 分析失败时静默处理，不影响任务添加
-        console.warn('Error in auto AI analysis:', error)
         logger.warn('Error in auto AI analysis', error, 'TodoManagement')
       }
     } else {
-      console.warn('自动分析功能未启用')
+      logger.info('Auto analysis feature is disabled', {}, 'TodoManagement')
     }
 
     return { needsSplitting: false }
@@ -574,7 +583,11 @@ ${todoTexts}
             .slice(0, successCount)
 
           if (newTodos.length > 0) {
-            console.warn(`开始批量分析 ${newTodos.length} 个新添加的子任务`)
+            logger.info(
+              'Starting batch analysis for new subtasks',
+              { count: newTodos.length },
+              'TodoManagement'
+            )
 
             // 使用批量分析功能统一处理所有新添加的子任务
             batchAnalyzeTodosAction(
@@ -586,11 +599,11 @@ ${todoTexts}
                 })
               }
             ).catch((error) => {
-              console.warn('Batch AI analysis failed for subtasks:', error)
+              logger.warn('Batch AI analysis failed for subtasks', error, 'TodoManagement')
             })
           }
         } catch (error) {
-          console.warn('Error in batch AI analysis for subtasks:', error)
+          logger.warn('Error in batch AI analysis for subtasks', error, 'TodoManagement')
         }
       }
     }

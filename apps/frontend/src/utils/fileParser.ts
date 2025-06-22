@@ -1,6 +1,7 @@
+import * as mammoth from 'mammoth'
 import * as pdfjsLib from 'pdfjs-dist'
 import * as XLSX from 'xlsx'
-import * as mammoth from 'mammoth'
+import { logger } from './logger'
 
 // 设置 PDF.js worker - 使用本地文件
 pdfjsLib.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.mjs'
@@ -13,7 +14,11 @@ const MAX_FILE_SIZE = 10 * 1024 * 1024
  */
 export async function parsePDFFile(file: File): Promise<string> {
   try {
-    console.log('开始解析 PDF 文件:', file.name, '大小:', file.size, 'bytes')
+    logger.info(
+      'Starting PDF file parsing',
+      { fileName: file.name, fileSize: file.size },
+      'FileParser'
+    )
 
     // 基本文件验证
     if (!file.type.includes('pdf') && !file.name.toLowerCase().endsWith('.pdf')) {
@@ -30,7 +35,7 @@ export async function parsePDFFile(file: File): Promise<string> {
     }
 
     const arrayBuffer = await file.arrayBuffer()
-    console.log('文件读取完成，开始 PDF 解析...')
+    logger.info('File read completed, starting PDF parsing', {}, 'FileParser')
 
     const pdf = await pdfjsLib.getDocument({
       data: arrayBuffer,
@@ -40,7 +45,7 @@ export async function parsePDFFile(file: File): Promise<string> {
       disableFontFace: true, // 提高性能
     }).promise
 
-    console.log('PDF 加载成功，总页数:', pdf.numPages)
+    logger.info('PDF loaded successfully', { numPages: pdf.numPages }, 'FileParser')
 
     if (pdf.numPages === 0) {
       throw new Error('PDF 文件没有页面内容')
@@ -50,13 +55,17 @@ export async function parsePDFFile(file: File): Promise<string> {
 
     for (let i = 1; i <= pdf.numPages; i++) {
       try {
-        console.log(`正在处理第 ${i}/${pdf.numPages} 页...`)
+        logger.info(
+          `Processing page ${i}/${pdf.numPages}`,
+          { page: i, total: pdf.numPages },
+          'FileParser'
+        )
         const page = await pdf.getPage(i)
         const textContent = await page.getTextContent()
         const pageText = textContent.items.map((item: any) => item.str).join(' ')
         fullText += pageText + '\n'
       } catch (pageError) {
-        console.warn(`第 ${i} 页解析失败:`, pageError)
+        logger.warn(`Page ${i} parsing failed`, pageError, 'FileParser')
         // 继续处理其他页面
       }
     }
@@ -65,10 +74,10 @@ export async function parsePDFFile(file: File): Promise<string> {
       throw new Error('PDF 文件中没有找到可提取的文本内容')
     }
 
-    console.log('PDF 解析完成，提取文本长度:', fullText.length)
+    logger.info('PDF parsing completed', { textLength: fullText.length }, 'FileParser')
     return fullText.trim()
   } catch (error) {
-    console.error('PDF 解析失败:', error)
+    logger.error('PDF parsing failed', error, 'FileParser')
 
     // 提供更详细的错误信息
     if (error instanceof Error) {
@@ -108,7 +117,7 @@ export async function parseExcelFile(file: File): Promise<string> {
     let fullText = ''
 
     // 遍历所有工作表
-    workbook.SheetNames.forEach((sheetName, index) => {
+    workbook.SheetNames.forEach((sheetName) => {
       const worksheet = workbook.Sheets[sheetName]
 
       // 转换为 CSV 格式
@@ -121,7 +130,7 @@ export async function parseExcelFile(file: File): Promise<string> {
 
     return fullText.trim()
   } catch (error) {
-    console.error('Excel 解析错误:', error)
+    logger.error('Excel parsing error', error, 'FileParser')
     throw new Error('无法解析 Excel 文件内容')
   }
 }
@@ -131,7 +140,11 @@ export async function parseExcelFile(file: File): Promise<string> {
  */
 export async function parseDocxFile(file: File): Promise<string> {
   try {
-    console.log('开始解析 DOCX 文件:', file.name, '大小:', file.size, 'bytes')
+    logger.info(
+      'Starting DOCX file parsing',
+      { fileName: file.name, fileSize: file.size },
+      'FileParser'
+    )
 
     // 基本文件验证
     if (
@@ -152,12 +165,12 @@ export async function parseDocxFile(file: File): Promise<string> {
     }
 
     const arrayBuffer = await file.arrayBuffer()
-    console.log('文件读取完成，开始 DOCX 解析...')
+    logger.info('File read completed, starting DOCX parsing', {}, 'FileParser')
 
     const result = await mammoth.extractRawText({ arrayBuffer })
 
     if (result.messages && result.messages.length > 0) {
-      console.warn('DOCX 解析警告:', result.messages)
+      logger.warn('DOCX parsing warnings', { messages: result.messages }, 'FileParser')
     }
 
     const text = result.value
@@ -166,10 +179,10 @@ export async function parseDocxFile(file: File): Promise<string> {
       throw new Error('DOCX 文件中没有找到可提取的文本内容')
     }
 
-    console.log('DOCX 解析完成，提取文本长度:', text.length)
+    logger.info('DOCX parsing completed', { textLength: text.length }, 'FileParser')
     return text.trim()
   } catch (error) {
-    console.error('DOCX 解析失败:', error)
+    logger.error('DOCX parsing failed', error, 'FileParser')
 
     // 提供更详细的错误信息
     if (error instanceof Error) {
@@ -199,7 +212,11 @@ export async function parseDocxFile(file: File): Promise<string> {
  */
 export async function parseCSVFile(file: File): Promise<string> {
   try {
-    console.log('开始解析 CSV 文件:', file.name, '大小:', file.size, 'bytes')
+    logger.info(
+      'Starting CSV file parsing',
+      { fileName: file.name, fileSize: file.size },
+      'FileParser'
+    )
 
     // 基本文件验证
     if (!file.name.toLowerCase().endsWith('.csv') && !file.type.includes('csv')) {
@@ -238,10 +255,10 @@ export async function parseCSVFile(file: File): Promise<string> {
       }
     })
 
-    console.log('CSV 解析完成，提取文本长度:', formattedText.length)
+    logger.info('CSV parsing completed', { textLength: formattedText.length }, 'FileParser')
     return formattedText.trim()
   } catch (error) {
-    console.error('CSV 解析失败:', error)
+    logger.error('CSV parsing failed', error, 'FileParser')
 
     if (error instanceof Error) {
       // 如果是我们自定义的错误，直接抛出
@@ -264,7 +281,11 @@ export async function parseCSVFile(file: File): Promise<string> {
  */
 export async function parseDocFile(file: File): Promise<string> {
   try {
-    console.log('开始解析 DOC 文件:', file.name, '大小:', file.size, 'bytes')
+    logger.info(
+      'Starting DOC file parsing',
+      { fileName: file.name, fileSize: file.size },
+      'FileParser'
+    )
 
     // 基本文件验证
     if (!file.type.includes('msword') && !file.name.toLowerCase().endsWith('.doc')) {
@@ -287,7 +308,7 @@ export async function parseDocFile(file: File): Promise<string> {
       const result = await mammoth.extractRawText({ arrayBuffer })
 
       if (result.messages && result.messages.length > 0) {
-        console.warn('DOC 解析警告:', result.messages)
+        logger.warn('DOC parsing warnings', { messages: result.messages }, 'FileParser')
       }
 
       const text = result.value
@@ -296,10 +317,10 @@ export async function parseDocFile(file: File): Promise<string> {
         throw new Error('DOC 文件解析结果为空，建议转换为 DOCX 格式后重试')
       }
 
-      console.log('DOC 解析完成，提取文本长度:', text.length)
+      logger.info('DOC parsing completed', { textLength: text.length }, 'FileParser')
       return text.trim()
     } catch (mammothError) {
-      console.warn('mammoth 解析 DOC 失败，尝试文本提取:', mammothError)
+      logger.warn('mammoth DOC parsing failed, trying text extraction', mammothError, 'FileParser')
 
       // 如果 mammoth 失败，提供友好的错误信息
       throw new Error(
@@ -307,7 +328,7 @@ export async function parseDocFile(file: File): Promise<string> {
       )
     }
   } catch (error) {
-    console.error('DOC 解析失败:', error)
+    logger.error('DOC parsing failed', error, 'FileParser')
 
     if (error instanceof Error) {
       // 如果是我们自定义的错误，直接抛出
@@ -335,7 +356,7 @@ export async function parseTextFile(file: File): Promise<string> {
   try {
     return await file.text()
   } catch (error) {
-    console.error('文本文件解析错误:', error)
+    logger.error('Text file parsing error', error, 'FileParser')
     throw new Error('无法解析文本文件内容')
   }
 }
@@ -392,7 +413,7 @@ export async function parseFile(file: File): Promise<string> {
 
     return `=== 文件信息 ===\n${metadata}\n\n=== 文件内容 ===\n${content}`
   } catch (error) {
-    console.error('文件解析失败:', error)
+    logger.error('File parsing failed', error, 'FileParser')
     throw error instanceof Error ? error : new Error('文件解析失败')
   }
 }

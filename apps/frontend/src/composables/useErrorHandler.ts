@@ -6,7 +6,7 @@ export function useErrorHandler() {
   const { t, te } = useI18n()
   const error = ref('')
   const success = ref('')
-  const errorHistory = ref<Array<{ message: string; timestamp: Date }>>([])
+  const errorHistory = ref<Array<{ message: string; timestamp: string }>>([])
 
   const showError = (message: string) => {
     const translatedMessage = typeof message === 'string' ? message : String(message)
@@ -34,7 +34,7 @@ export function useErrorHandler() {
         success.value = ''
       }, duration)
     } catch (err) {
-      console.error('Error in success handler:', err)
+      logger.error('Error in success handler', err, 'ErrorHandler')
     }
   }
 

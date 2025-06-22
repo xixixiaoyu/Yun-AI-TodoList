@@ -305,11 +305,6 @@ const notifyUser = (isWorkTime: boolean) => {
 const showVisualAlert = (isWorkTime: boolean) => {
   // 显示页面内弹窗提醒
   showInPageAlert(isWorkTime)
-
-  // 控制台日志（开发调试用）
-  console.log(
-    `🍅 ${t('pomodoroComplete')} - ${isWorkTime ? t('workTimeStarted') : t('breakTimeStarted')}`
-  )
 }
 
 // 页面内弹窗提醒
