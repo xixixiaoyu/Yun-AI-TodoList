@@ -20,6 +20,7 @@ export function useChat() {
   const MAX_RETRIES = 3
   const isRetrying = ref(false)
   const lastFailedMessage = ref<string>('')
+  const isRegenerating = ref(false)
 
   // 文件上传相关状态
   const uploadedFileContent = ref<string>('')
@@ -336,6 +337,48 @@ export function useChat() {
     isGenerating.value = false
   }
 
+  // 编辑消息并重新生成
+  const editMessage = async (messageIndex: number, newContent: string) => {
+    if (
+      isGenerating.value ||
+      isRegenerating.value ||
+      messageIndex < 0 ||
+      messageIndex >= chatHistory.value.length
+    ) {
+      return
+    }
+
+    const targetMessage = chatHistory.value[messageIndex]
+    if (targetMessage.role !== 'user') {
+      return
+    }
+
+    isRegenerating.value = true
+
+    try {
+      // 删除该消息及之后的所有消息
+      chatHistory.value.splice(messageIndex)
+
+      // 如果目标消息包含文件信息，恢复文件上传状态
+      if (targetMessage.fileInfo) {
+        uploadedFileContent.value = targetMessage.fileInfo.fileContent
+        uploadedFileName.value = targetMessage.fileInfo.fileName
+        hasUploadedFile.value = true
+      } else {
+        // 清理文件上传状态
+        clearFileUpload()
+      }
+
+      // 重新设置用户消息并发送
+      userMessage.value = newContent
+      await sendMessage()
+    } catch (error) {
+      handleError(error, 'editMessage')
+    } finally {
+      isRegenerating.value = false
+    }
+  }
+
   // 重试指定索引的消息
   const retryLastMessage = async (messageIndex?: number) => {
     if (isGenerating.value || isRetrying.value) {
@@ -447,5 +490,8 @@ export function useChat() {
     isRetrying,
     retryCount,
     lastFailedMessage,
+    // 编辑相关功能
+    editMessage,
+    isRegenerating,
   }
 }

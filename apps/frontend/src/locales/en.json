@@ -374,5 +374,9 @@
   "edit": "Edit",
   "enable": "Enable",
   "disable": "Disable",
-  "create": "Create"
+  "create": "Create",
+
+  "editMessage": "Edit Message",
+  "saveAndRegenerate": "Save and Regenerate",
+  "regenerating": "Regenerating..."
 }

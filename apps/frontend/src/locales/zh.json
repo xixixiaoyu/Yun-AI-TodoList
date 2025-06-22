@@ -415,5 +415,9 @@
   "edit": "编辑",
   "enable": "启用",
   "disable": "禁用",
-  "create": "创建"
+  "create": "创建",
+
+  "editMessage": "编辑消息",
+  "saveAndRegenerate": "保存并重新生成",
+  "regenerating": "重新生成中..."
 }

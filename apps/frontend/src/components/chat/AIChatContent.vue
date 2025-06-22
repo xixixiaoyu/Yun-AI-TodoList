@@ -18,10 +18,14 @@
       :is-retrying="isRetrying"
       :retry-count="retryCount"
       :has-error="hasError"
+      :is-regenerating="isRegenerating"
       @scroll="$emit('scroll', $event)"
       @retry="(messageIndex: number) => $emit('retry', messageIndex)"
       @optimize="$emit('optimize')"
       @generate-chart="$emit('generateChart', $event)"
+      @edit-message="
+        (messageIndex: number, newContent: string) => $emit('editMessage', messageIndex, newContent)
+      "
     />
 
     <div class="sticky bottom-0 bg-bg z-10 flex flex-col gap-1 py-3 sm:py-2">
@@ -83,6 +87,7 @@ interface Props {
   isRetrying?: boolean
   retryCount?: number
   hasError?: boolean
+  isRegenerating?: boolean
   hasUploadedFile?: boolean
   uploadedFileName?: string
   uploadedFileSize?: number
@@ -109,6 +114,7 @@ interface Emits {
   (e: 'scroll', scrollInfo: ScrollInfo): void
   (e: 'update:userMessage', value: string): void
   (e: 'generateChart', content: string): void
+  (e: 'editMessage', messageIndex: number, newContent: string): void
   (e: 'file-upload', payload: { file: File; content: string }): void
   (e: 'clear-file'): void
 }

@@ -128,6 +128,7 @@
         :is-retrying="isRetrying"
         :retry-count="retryCount"
         :error="error"
+        :is-regenerating="isRegenerating"
         :has-uploaded-file="hasUploadedFile"
         :uploaded-file-name="uploadedFileName"
         :uploaded-file-size="uploadedFileSize"
@@ -144,6 +145,9 @@
         @scroll="handleScroll"
         @update:user-message="userMessage = $event"
         @generate-chart="(content: string) => handleGenerateChart(content)"
+        @edit-message="
+          (messageIndex: number, newContent: string) => handleEditMessage(messageIndex, newContent)
+        "
         @file-upload="(payload: { file: File; content: string }) => handleFileUpload(payload)"
         @clear-file="clearFileUpload"
       />
@@ -203,6 +207,9 @@ const {
   retryLastMessage,
   isRetrying,
   retryCount,
+  // 编辑相关
+  editMessage,
+  isRegenerating,
   // 文件上传相关
   handleFileUpload,
   clearFileUpload,
@@ -271,6 +278,11 @@ const handleGenerateChart = async (content: string) => {
 // 重试函数
 const retry = () => {
   retryLastMessage()
+}
+
+// 编辑消息函数
+const handleEditMessage = (messageIndex: number, newContent: string) => {
+  editMessage(messageIndex, newContent)
 }
 
 // 新建对话函数

@@ -127,11 +127,13 @@ defineOptions({
 <style scoped>
 .enhanced-copy-button {
   @apply relative inline-flex items-center justify-center p-2 rounded-lg cursor-pointer;
-  @apply bg-primary/10 hover:bg-primary/20 border border-primary/20 hover:border-primary/40;
-  @apply text-primary text-sm font-medium transition-all duration-300;
-  @apply opacity-90;
-  @apply hover:!opacity-100 hover:scale-105 active:scale-95;
+  @apply bg-gray-100/80 hover:bg-gray-200/90 dark:bg-gray-700/80 dark:hover:bg-gray-600/90;
+  @apply border border-gray-300/50 hover:border-gray-400/70 dark:border-gray-600/50 dark:hover:border-gray-500/70;
+  @apply text-gray-700 hover:text-gray-900 dark:text-gray-300 dark:hover:text-gray-100;
+  @apply text-sm font-medium transition-all duration-300;
+  @apply hover:scale-105 active:scale-95;
   @apply backdrop-blur-sm shadow-sm hover:shadow-md;
+  @apply opacity-100;
 }
 
 .enhanced-copy-button.copy-success {
