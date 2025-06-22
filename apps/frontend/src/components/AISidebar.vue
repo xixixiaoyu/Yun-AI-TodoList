@@ -242,7 +242,7 @@ const handleScroll = () => {
 
 const handleGenerateChart = async (content: string) => {
   // 构造生成图表的提示词
-  const chartPrompt = `请根据以下内容生成 mermaid 格式的图表，要求：
+  const chartPrompt = `请根据以下内容生成一个或多个 mermaid 格式的图表，要求：
 1. 使用标准的 mermaid 语法
 2. 选择合适的图表类型（flowchart、sequenceDiagram、pie 等）
 3. 使用简洁的节点标签，避免特殊字符
