@@ -273,19 +273,19 @@ importers:
         specifier: 4.17.21
         version: 4.17.21
       mammoth:
-        specifier: ^1.9.1
+        specifier: 1.9.1
         version: 1.9.1
       marked:
         specifier: 15.0.12
         version: 15.0.12
       mermaid:
-        specifier: ^11.6.0
+        specifier: 11.6.0
         version: 11.6.0
       pdfjs-dist:
-        specifier: ^5.3.31
+        specifier: 5.3.31
         version: 5.3.31
       sortablejs:
-        specifier: ^1.15.6
+        specifier: 1.15.6
         version: 1.15.6
       vue:
         specifier: 3.5.16
@@ -297,7 +297,7 @@ importers:
         specifier: 4.5.1
         version: 4.5.1(vue@3.5.16(typescript@5.8.3))
       xlsx:
-        specifier: ^0.18.5
+        specifier: 0.18.5
         version: 0.18.5
     devDependencies:
       '@capacitor/android':
@@ -313,10 +313,10 @@ importers:
         specifier: 9.28.0
         version: 9.28.0
       '@iconify-json/carbon':
-        specifier: ^1.2.9
+        specifier: 1.2.9
         version: 1.2.9
       '@types/sortablejs':
-        specifier: ^1.15.8
+        specifier: 1.15.8
         version: 1.15.8
       '@typescript-eslint/eslint-plugin':
         specifier: 8.34.0
@@ -397,7 +397,7 @@ importers:
         specifier: 26.1.0
         version: 26.1.0(canvas@3.1.0)
       playwright:
-        specifier: ^1.53.0
+        specifier: 1.53.0
         version: 1.53.0
       prettier:
         specifier: 3.5.3
