@@ -236,7 +236,7 @@ defineOptions({
 }
 
 .chart-container {
-  height: 300px;
+  height: 800px;
   padding: 1rem;
   background: var(--card-bg-color);
   border-radius: 12px;
@@ -260,7 +260,7 @@ defineOptions({
   }
 
   .chart-container {
-    height: 250px;
+    height: 600px;
     padding: 0.75rem;
   }
 }
@@ -285,7 +285,7 @@ defineOptions({
   }
 
   .chart-container {
-    height: 200px;
+    height: 450px;
     padding: 0.5rem;
   }
 }

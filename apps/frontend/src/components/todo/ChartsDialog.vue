@@ -64,7 +64,7 @@ defineOptions({
 }
 
 .charts-dialog-content {
-  @apply relative w-full max-w-[800px] max-h-[90vh] overflow-y-auto;
+  @apply relative w-full max-w-[1200px] max-h-[98vh] overflow-y-auto;
   @apply rounded-3xl p-8;
   @apply md:p-6 sm:p-4 sm:rounded-2xl sm:max-h-full;
   background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(248, 250, 252, 0.9) 100%);
