@@ -2,22 +2,22 @@
   <div class="flex flex-col gap-2 md:gap-2">
     <button
       v-if="!isGenerating"
-      class="px-4 py-3 text-sm bg-button-bg text-white border-none rounded-xl cursor-pointer h-[44px] min-w-[80px] flex items-center justify-center gap-2 hover:bg-button-hover hover:shadow-[0_4px_12px_rgba(121,180,166,0.3)] disabled:bg-input-border disabled:cursor-not-allowed disabled:opacity-70 transition-all duration-200 font-medium md:h-[40px] md:min-w-[75px] md:text-[13px] md:px-3 md:py-2"
+      class="w-11 h-11 bg-button-bg text-white border-none rounded-xl cursor-pointer flex items-center justify-center hover:bg-button-hover hover:shadow-[0_4px_12px_rgba(121,180,166,0.3)] disabled:bg-input-border disabled:cursor-not-allowed disabled:opacity-70 transition-all duration-200 md:w-10 md:h-10"
+      :title="t('send')"
       @click="$emit('send')"
     >
-      <SendIcon class="w-4 h-4" />
-      {{ t('send') }}
+      <SendIcon class="w-5 h-5 md:w-4 md:h-4" />
     </button>
     <button
       v-else
-      class="px-4 py-3 text-sm bg-red-300 text-white border-none rounded-xl cursor-pointer h-[44px] min-w-[80px] flex items-center justify-center gap-2 hover:bg-red-400 hover:shadow-[0_4px_12px_rgba(252,165,165,0.3)] disabled:bg-input-border disabled:cursor-not-allowed disabled:opacity-70 transition-all duration-200 font-medium md:h-[40px] md:min-w-[75px] md:text-[13px] md:px-3 md:py-2"
+      class="w-11 h-11 bg-red-300 text-white border-none rounded-xl cursor-pointer flex items-center justify-center hover:bg-red-400 hover:shadow-[0_4px_12px_rgba(252,165,165,0.3)] disabled:bg-input-border disabled:cursor-not-allowed disabled:opacity-70 transition-all duration-200 md:w-10 md:h-10"
+      :title="t('stop')"
       @click="$emit('stop')"
     >
-      <StopIcon class="w-4 h-4" />
-      {{ t('stop') }}
+      <StopIcon class="w-5 h-5 md:w-4 md:h-4" />
     </button>
     <button
-      class="relative px-4 py-3 text-sm bg-input-bg text-text border border-input-border rounded-xl cursor-pointer h-[44px] min-w-[100px] flex items-center justify-center gap-2 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-button-hover hover:text-white hover:border-button-bg md:px-3.5 md:text-[13px] md:h-[40px] md:min-w-[85px] md:py-2"
+      class="relative w-11 h-11 bg-input-bg text-text border border-input-border rounded-xl cursor-pointer flex items-center justify-center transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-button-hover hover:text-white hover:border-button-bg md:w-10 md:h-10"
       :class="{
         'bg-button-bg text-white border-button-bg animate-pulse shadow-[0_4px_12px_rgba(121,180,166,0.3)]':
           isListening,
@@ -29,8 +29,7 @@
       :title="lastError || t(isListening ? 'stopListening' : 'listening')"
       @click="isListening ? $emit('stopListening') : $emit('startListening')"
     >
-      <MicrophoneIcon class="w-4 h-4" />
-      <span class="font-medium">{{ isListening ? t('stopListening') : t('listening') }}</span>
+      <MicrophoneIcon class="w-5 h-5 md:w-4 md:h-4" />
       <span
         v-if="lastError"
         class="absolute -bottom-8 left-1/2 transform -translate-x-1/2 whitespace-nowrap text-xs text-red-400 bg-bg px-3 py-1.5 rounded-lg shadow-lg border border-red-100"
