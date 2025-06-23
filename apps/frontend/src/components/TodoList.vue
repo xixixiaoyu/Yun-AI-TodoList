@@ -90,6 +90,7 @@
         :is-generating="isGenerating"
         :is-sorting="isSorting"
         :is-batch-analyzing="isBatchAnalyzing"
+        :is-analyzing="isAnalyzing"
         @generate-suggestions="generateSuggestedTodos"
         @sort-with-a-i="sortActiveTodosWithAI"
         @batch-analyze="handleBatchAnalyze"

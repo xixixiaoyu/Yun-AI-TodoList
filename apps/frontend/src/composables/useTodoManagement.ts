@@ -22,8 +22,13 @@ export function useTodoManagement() {
   const { showError, showSuccess, error: duplicateError } = useErrorHandler()
 
   // AI 分析功能
-  const { analyzeSingleTodo, analysisConfig, isAnalyzing, batchAnalyzeTodosAction } =
-    useAIAnalysis()
+  const {
+    analyzeSingleTodo,
+    analysisConfig,
+    isAnalyzing,
+    isBatchAnalyzing,
+    batchAnalyzeTodosAction,
+  } = useAIAnalysis()
 
   const filter = ref('active')
   const searchQuery = ref('')
@@ -260,7 +265,8 @@ export function useTodoManagement() {
   }
 
   const sortActiveTodosWithAI = async () => {
-    if (isSorting.value) {
+    // 如果正在进行单个分析或批量分析，则禁止 AI 排序
+    if (isSorting.value || isAnalyzing.value || isBatchAnalyzing.value) {
       return
     }
 

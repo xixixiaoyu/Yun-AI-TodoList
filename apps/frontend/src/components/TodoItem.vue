@@ -94,9 +94,15 @@
             <button
               v-if="!todo.aiAnalyzed && !isCompleted"
               class="ai-analyze-btn"
-              :class="{ 'is-disabled': isBatchAnalyzing }"
-              :disabled="isBatchAnalyzing"
-              :title="isBatchAnalyzing ? t('batchAnalyzing') : t('aiAnalysis')"
+              :class="{ 'is-disabled': isBatchAnalyzing || isAnalyzing }"
+              :disabled="isBatchAnalyzing || isAnalyzing"
+              :title="
+                isBatchAnalyzing
+                  ? t('batchAnalyzing')
+                  : isAnalyzing
+                    ? t('analyzing')
+                    : t('aiAnalysis')
+              "
               @click.stop="handleAnalyzeClick"
             >
               <svg
@@ -202,7 +208,7 @@ watchEffect(() => {
   isCompleted.value = props.todo.completed
 })
 
-const toggleTodo = (event?: Event) => {
+const toggleTodo = () => {
   // 在批量分析期间禁止切换完成状态
   if (isBatchAnalyzing.value) {
     return

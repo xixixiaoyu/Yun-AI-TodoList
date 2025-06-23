@@ -72,7 +72,8 @@ export function useAIAnalysis() {
     todo: Todo,
     updateCallback: (id: number, updates: Partial<Todo>) => void
   ) => {
-    if (!isAnalysisEnabled.value || isAnalyzing.value) {
+    // 如果正在进行批量分析，则禁止单个分析
+    if (!isAnalysisEnabled.value || isAnalyzing.value || isBatchAnalyzing.value) {
       return
     }
 
@@ -117,9 +118,11 @@ export function useAIAnalysis() {
     console.warn('开始批量分析，分析配置:', analysisConfig.value)
     console.warn('分析功能是否启用:', isAnalysisEnabled.value)
     console.warn('是否正在批量分析:', isBatchAnalyzing.value)
+    console.warn('是否正在单个分析:', isAnalyzing.value)
 
-    if (!isAnalysisEnabled.value || isBatchAnalyzing.value) {
-      console.warn('批量分析被跳过 - 分析功能未启用或正在分析中')
+    // 如果正在进行单个分析，则禁止批量分析
+    if (!isAnalysisEnabled.value || isBatchAnalyzing.value || isAnalyzing.value) {
+      console.warn('批量分析被跳过 - 分析功能未启用、正在批量分析中或正在单个分析中')
       return
     }
 

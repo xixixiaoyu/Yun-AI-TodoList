@@ -23,9 +23,15 @@
     <button
       v-if="filter === 'active' && hasActiveTodos"
       class="ai-action-btn ai-sort-btn"
-      :class="{ 'is-loading': isSorting }"
-      :disabled="isSorting"
-      :title="isSorting ? '正在排序...' : 'AI 优先级排序'"
+      :class="{ 'is-loading': isSorting, 'is-disabled': isAnalyzing || isBatchAnalyzing }"
+      :disabled="isSorting || isAnalyzing || isBatchAnalyzing"
+      :title="
+        isSorting
+          ? '正在排序...'
+          : isAnalyzing || isBatchAnalyzing
+            ? '正在进行 AI 分析，请稍候...'
+            : 'AI 优先级排序'
+      "
       @click="handleSortClick"
     >
       <div class="btn-content">
@@ -45,8 +51,15 @@
     <button
       v-if="filter === 'active' && hasActiveTodos"
       class="ai-action-btn ai-analysis-btn"
-      :class="{ 'is-loading': isBatchAnalyzing }"
-      :disabled="isBatchAnalyzing"
+      :class="{ 'is-loading': isBatchAnalyzing, 'is-disabled': isAnalyzing }"
+      :disabled="isBatchAnalyzing || isAnalyzing"
+      :title="
+        isBatchAnalyzing
+          ? '正在批量分析...'
+          : isAnalyzing
+            ? '正在进行单个分析，请稍候...'
+            : '批量 AI 分析'
+      "
       @click="handleAnalysisClick"
     >
       <div class="btn-content">
@@ -74,6 +87,7 @@ interface Props {
   isGenerating: boolean
   isSorting: boolean
   isBatchAnalyzing?: boolean
+  isAnalyzing?: boolean
 }
 
 interface Emits {
