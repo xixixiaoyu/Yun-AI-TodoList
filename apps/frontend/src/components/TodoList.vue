@@ -79,6 +79,7 @@
           @toggle="toggleTodo"
           @remove="removeTodo"
           @update-todo="handleUpdateTodo"
+          @update-text="handleUpdateTodoText"
           @analyze="handleAnalyzeTodo"
         />
       </div>
@@ -216,7 +217,7 @@ const {
 } = useTodoListState()
 
 // 从 useTodoManagement 获取任务拆分相关功能
-const { handleAddSubtasks } = useTodoManagement()
+const { handleAddSubtasks, updateTodoText } = useTodoManagement()
 
 // 拖拽排序功能 - 在 AI 排序过程中和批量分析期间禁用拖拽
 const isDragEnabled = computed(
@@ -269,6 +270,11 @@ const handleSubtaskCancel = () => {
   if (subtaskConfig.originalTask) {
     originalHandleAddTodo(subtaskConfig.originalTask, [], true) // 跳过拆分分析
   }
+}
+
+// 处理 Todo 文本更新
+const handleUpdateTodoText = async (id: number, newText: string) => {
+  await updateTodoText(id, newText)
 }
 
 // 创建专门的拖拽顺序更新函数

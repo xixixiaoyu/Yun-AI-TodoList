@@ -378,5 +378,12 @@
 
   "editMessage": "Edit Message",
   "saveAndRegenerate": "Save and Regenerate",
-  "regenerating": "Regenerating..."
+  "regenerating": "Regenerating...",
+
+  "editTodo": "Edit Todo",
+  "editTodoPlaceholder": "Edit todo...",
+  "todoTextRequired": "Todo text cannot be empty",
+  "todoTextTooLong": "Todo text cannot exceed {maxLength} characters",
+  "todoUpdated": "Todo updated successfully",
+  "updateError": "Update failed, please try again"
 }

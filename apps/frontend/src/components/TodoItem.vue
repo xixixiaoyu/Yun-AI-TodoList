@@ -8,7 +8,6 @@
       'is-disabled': isBatchAnalyzing,
     }"
     :data-todo-id="todo.id"
-    @click="toggleTodo"
   >
     <!-- 拖拽手柄 -->
     <div
@@ -38,18 +37,20 @@
     </div>
 
     <div class="todo-content">
-      <span class="checkbox-wrapper">
+      <span class="checkbox-wrapper" @click="toggleTodo">
         <transition name="fade">
           <i v-show="true" class="checkbox" :class="{ checked: isCompleted }" />
         </transition>
       </span>
       <div class="todo-text-wrapper">
         <div class="todo-main-content">
-          <span class="todo-text" :title="formattedTitle">
-            <transition>
-              <span v-show="true" class="text-content">{{ formattedTitle }}</span>
-            </transition>
-          </span>
+          <!-- 可编辑的 Todo 文本 -->
+          <EditableTodoItem
+            :todo="todo"
+            :max-length="500"
+            @update="handleTextUpdate"
+            @cancel="handleEditCancel"
+          />
 
           <!-- AI 分析信息 - 水平布局 -->
           <div v-if="showAIAnalysis" class="ai-analysis-info">
@@ -171,9 +172,10 @@
 
 <script setup lang="ts">
 import confetti from 'canvas-confetti'
-import { useErrorHandler } from '../composables/useErrorHandler'
 import { useAIAnalysis } from '../composables/useAIAnalysis'
+import { useErrorHandler } from '../composables/useErrorHandler'
 import type { Todo } from '../types/todo'
+import EditableTodoItem from './EditableTodoItem.vue'
 
 const props = withDefaults(
   defineProps<{
@@ -193,18 +195,21 @@ const { showError } = useErrorHandler()
 const { t } = useI18n()
 const { getPriorityStars, getPriorityColorClass, isAnalyzing, isBatchAnalyzing } = useAIAnalysis()
 
-const emit = defineEmits(['toggle', 'remove', 'updateTodo', 'analyze'])
+const emit = defineEmits(['toggle', 'remove', 'updateTodo', 'analyze', 'updateText'])
 const isCompleted = ref(false)
 
 watchEffect(() => {
   isCompleted.value = props.todo.completed
 })
 
-const toggleTodo = () => {
+const toggleTodo = (event?: Event) => {
   // 在批量分析期间禁止切换完成状态
   if (isBatchAnalyzing.value) {
     return
   }
+
+  // 添加调试信息
+  console.log('Toggle todo clicked:', props.todo.id, props.todo.text)
 
   try {
     emit('toggle', props.todo.id)
@@ -238,25 +243,6 @@ const removeTodo = () => {
     showError(t('removeError'))
   }
 }
-
-const formattedTitle = computed(() => {
-  try {
-    if (!props.todo?.text) {
-      return ''
-    }
-
-    const text = props.todo.text.trim()
-    const MAX_LENGTH = 50
-
-    if (text.length <= MAX_LENGTH) {
-      return text
-    }
-    return `${text.slice(0, MAX_LENGTH)}...`
-  } catch (error) {
-    console.error('Error formatting title:', error)
-    return ''
-  }
-})
 
 // AI 分析相关方法
 const getPriorityTitle = (priority: number): string => {
@@ -294,6 +280,19 @@ const handleTimeClick = () => {
 const handleAnalyzeClick = () => {
   // 触发单个 Todo 的 AI 分析
   emit('analyze', props.todo.id)
+}
+
+// 处理文本更新
+const handleTextUpdate = (newText: string) => {
+  if (newText.trim() !== props.todo.text.trim()) {
+    // 触发文本更新事件，让父组件处理
+    emit('updateText', props.todo.id, newText.trim())
+  }
+}
+
+// 处理编辑取消
+const handleEditCancel = () => {
+  // 编辑取消时不需要特殊处理
 }
 
 let renderStartTime = 0
@@ -338,8 +337,15 @@ onErrorCaptured(handleError)
 }
 
 .checkbox-wrapper {
-  @apply flex items-center;
+  @apply flex items-center cursor-pointer;
   align-self: center;
+  padding: 0.25rem;
+  border-radius: 0.375rem;
+  transition: background-color 0.2s ease;
+}
+
+.checkbox-wrapper:hover {
+  @apply bg-gray-100 bg-opacity-30;
 }
 
 .card-todo:hover {
@@ -609,9 +615,11 @@ onErrorCaptured(handleError)
   }
 
   .checkbox-wrapper {
-    @apply flex items-center;
+    @apply flex items-center cursor-pointer;
     align-self: center;
     margin-right: 0.5rem;
+    padding: 0.25rem;
+    border-radius: 0.375rem;
   }
 
   .todo-text-wrapper {
@@ -649,9 +657,11 @@ onErrorCaptured(handleError)
   }
 
   .checkbox-wrapper {
-    @apply flex items-center;
+    @apply flex items-center cursor-pointer;
     align-self: center;
     margin-right: 0.4rem;
+    padding: 0.25rem;
+    border-radius: 0.375rem;
   }
 
   .todo-text-wrapper {

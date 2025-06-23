@@ -610,6 +610,73 @@ ${todoTexts}
     return successCount
   }
 
+  /**
+   * 更新 Todo 文本并触发 AI 重新分析
+   * @param id Todo ID
+   * @param newText 新的文本内容
+   */
+  const updateTodoText = async (id: number, newText: string) => {
+    try {
+      // 验证文本内容
+      if (!newText || newText.trim().length === 0) {
+        showError(t('todoTextRequired', '待办事项内容不能为空'))
+        return false
+      }
+
+      const trimmedText = newText.trim()
+      if (trimmedText.length > MAX_TODO_LENGTH) {
+        showError(t('todoTextTooLong', `待办事项内容不能超过 ${MAX_TODO_LENGTH} 个字符`))
+        return false
+      }
+
+      // 检查是否与现有 todo 重复
+      const isDuplicate = todos.value.some(
+        (todo) =>
+          todo &&
+          todo.id !== id &&
+          todo.text.toLowerCase() === trimmedText.toLowerCase() &&
+          !todo.completed
+      )
+
+      if (isDuplicate) {
+        showError(t('duplicateError', '该待办事项已存在'))
+        return false
+      }
+
+      // 更新 todo 文本，重置 AI 分析状态
+      const updates: Partial<Todo> = {
+        text: trimmedText,
+        aiAnalyzed: false,
+        priority: undefined,
+        estimatedTime: undefined,
+        updatedAt: new Date().toISOString(),
+      }
+
+      const success = updateTodo(id, updates)
+      if (success) {
+        showSuccess(t('todoUpdated', '待办事项已更新'))
+
+        // 如果启用了自动分析，触发 AI 分析
+        if (analysisConfig.value.autoAnalyzeNewTodos) {
+          const updatedTodo = todos.value.find((todo) => todo.id === id)
+          if (updatedTodo && !updatedTodo.completed) {
+            try {
+              await analyzeSingleTodo(updatedTodo, updateTodo)
+            } catch (error) {
+              logger.warn('Auto AI analysis failed after text update', error, 'TodoManagement')
+            }
+          }
+        }
+      }
+
+      return success
+    } catch (error) {
+      logger.error('Error updating todo text', error, 'TodoManagement')
+      showError(t('updateError', '更新失败，请重试'))
+      return false
+    }
+  }
+
   return {
     todos,
     filter,
@@ -642,6 +709,7 @@ ${todoTexts}
     toggleTodo,
     removeTodo,
     updateTodo,
+    updateTodoText,
     batchUpdateTodos,
   }
 }

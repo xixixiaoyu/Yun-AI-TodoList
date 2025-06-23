@@ -419,5 +419,12 @@
 
   "editMessage": "编辑消息",
   "saveAndRegenerate": "保存并重新生成",
-  "regenerating": "重新生成中..."
+  "regenerating": "重新生成中...",
+
+  "editTodo": "编辑待办事项",
+  "editTodoPlaceholder": "编辑待办事项...",
+  "todoTextRequired": "待办事项内容不能为空",
+  "todoTextTooLong": "待办事项内容不能超过 {maxLength} 个字符",
+  "todoUpdated": "待办事项已更新",
+  "updateError": "更新失败，请重试"
 }
