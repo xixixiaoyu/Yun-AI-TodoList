@@ -303,11 +303,11 @@ defineExpose({
 
 .todo-text-display {
   @apply flex-1 cursor-pointer text-sm leading-relaxed;
-  @apply hover:bg-gray-50 hover:bg-opacity-30 rounded px-2 py-1;
   @apply transition-all duration-200;
   font-family: 'LXGW WenKai Lite Medium', sans-serif;
   word-break: break-word;
   white-space: pre-wrap;
+  padding: 0;
 }
 
 .edit-btn {
@@ -360,10 +360,6 @@ defineExpose({
 @media (prefers-color-scheme: dark) {
   .cancel-btn {
     @apply bg-gray-700 text-gray-300 hover:bg-gray-600;
-  }
-
-  .todo-text-display:hover {
-    @apply bg-gray-800 bg-opacity-30;
   }
 
   .edit-btn:hover {
