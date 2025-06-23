@@ -30,6 +30,8 @@ const updateSW = registerSW({
 })
 
 // 初始化 PWA 功能
-initPWA()
+initPWA().catch((error) => {
+  logger.error('PWA 初始化失败', error, 'PWA')
+})
 
 createApp(App).use(router).use(i18n).mount('#app')

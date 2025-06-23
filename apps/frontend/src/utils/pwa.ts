@@ -1,5 +1,6 @@
 import { ref } from 'vue'
 import { logger } from './logger'
+import { configurePWALogging, configurePWAThemeColor, validatePWAIcons } from './pwa-config'
 
 // PWA 安装相关状态
 export const canInstall = ref(false)
@@ -183,15 +184,26 @@ export async function precacheResources(urls: string[]): Promise<void> {
 }
 
 // 初始化 PWA 功能
-export function initPWA(): void {
+export async function initPWA(): Promise<void> {
+  // 配置 PWA 日志
+  configurePWALogging()
+
+  // 配置 PWA 主题色
+  configurePWAThemeColor()
+
   // 检查安装状态
   checkIfInstalled()
 
   // 设置初始网络状态
   isOnline.value = navigator.onLine
 
-  // 预缓存重要资源
+  // 验证图标文件并预缓存重要资源
   if (isOnline.value) {
+    const iconsValid = await validatePWAIcons()
+    if (!iconsValid) {
+      logger.warn('部分 PWA 图标文件无法访问', undefined, 'PWA')
+    }
+
     precacheResources(['/', '/manifest.webmanifest', '/pwa-192x192.png', '/pwa-512x512.png'])
   }
 

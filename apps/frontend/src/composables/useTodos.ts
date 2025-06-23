@@ -54,6 +54,7 @@ export function useTodos() {
 
   const validateDataConsistency = () => {
     const seenIds = new Set<number>()
+    const originalLength = todos.value.length
     todos.value = todos.value.filter((todo) => {
       if (seenIds.has(todo.id)) {
         return false
@@ -62,7 +63,18 @@ export function useTodos() {
       return true
     })
 
-    saveTodos()
+    // 只有在发现重复数据时才保存和记录日志
+    if (todos.value.length !== originalLength) {
+      logger.warn(
+        'Removed duplicate todos',
+        {
+          removed: originalLength - todos.value.length,
+          remaining: todos.value.length,
+        },
+        'useTodos'
+      )
+      saveTodos()
+    }
   }
 
   const saveTodos = () => {
@@ -75,7 +87,15 @@ export function useTodos() {
       }
 
       localStorage.setItem('todos', todosJson)
-      logger.debug('Todos saved successfully', { count: todos.value.length }, 'useTodos')
+      // 减少频繁的保存日志，只在开发环境且数量变化时记录
+      if (import.meta.env.DEV) {
+        const currentCount = todos.value.length
+        const lastCount = parseInt(localStorage.getItem('todos_last_count') || '0')
+        if (currentCount !== lastCount) {
+          localStorage.setItem('todos_last_count', currentCount.toString())
+          logger.info('Todos saved successfully', { count: currentCount }, 'useTodos')
+        }
+      }
     } catch (error) {
       logger.error('Error saving todos', error, 'useTodos')
 

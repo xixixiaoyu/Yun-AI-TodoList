@@ -25,8 +25,8 @@ export default defineConfig({
         name: 'Yun AI TodoList',
         short_name: 'TodoList',
         description: 'AI-powered todo application with Pomodoro timer and smart features',
-        theme_color: '#3b82f6',
-        background_color: '#ffffff',
+        theme_color: '#79b4a6',
+        background_color: '#f8f7f6',
         display: 'standalone',
         orientation: 'portrait',
         scope: './',
@@ -54,23 +54,25 @@ export default defineConfig({
             src: './pwa-192x192.png',
             sizes: '192x192',
             type: 'image/png',
+            purpose: 'any',
           },
           {
             src: './pwa-512x512.png',
             sizes: '512x512',
             type: 'image/png',
+            purpose: 'any',
           },
           {
             src: './pwa-512x512.png',
             sizes: '512x512',
             type: 'image/png',
-            purpose: 'any maskable',
+            purpose: 'maskable',
           },
           {
             src: './apple-touch-icon.png',
             sizes: '180x180',
             type: 'image/png',
-            purpose: 'apple touch icon',
+            purpose: 'any',
           },
         ],
         shortcuts: [
@@ -208,6 +210,8 @@ export default defineConfig({
         navigateFallback: 'index.html',
         suppressWarnings: true,
       },
+      // 减少 workbox 日志输出
+      mode: process.env.NODE_ENV === 'production' ? 'production' : 'development',
       // 生产环境优化
       injectRegister: 'auto',
       strategies: 'generateSW',

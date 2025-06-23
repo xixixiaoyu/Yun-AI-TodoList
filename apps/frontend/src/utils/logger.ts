@@ -20,9 +20,17 @@ interface LogEntry {
 
 class Logger {
   private isDevelopment = import.meta.env.DEV
-  private minLevel = this.isDevelopment ? LogLevel.DEBUG : LogLevel.WARN
+  private minLevel = this.isDevelopment ? LogLevel.INFO : LogLevel.WARN
+
+  // 频繁操作的日志限制
+  private logThrottle = new Map<string, number>()
+  private readonly THROTTLE_INTERVAL = 1000 // 1秒内相同日志只记录一次
 
   debug(message: string, data?: unknown, source?: string) {
+    // 对频繁的调试日志进行节流
+    if (this.shouldThrottle(message, source)) {
+      return
+    }
     this.log(LogLevel.DEBUG, message, data, source)
   }
 
@@ -36,6 +44,19 @@ class Logger {
 
   error(message: string, error?: unknown, source?: string) {
     this.log(LogLevel.ERROR, message, error, source)
+  }
+
+  private shouldThrottle(message: string, source?: string): boolean {
+    const key = `${source || 'default'}:${message}`
+    const now = Date.now()
+    const lastLog = this.logThrottle.get(key)
+
+    if (lastLog && now - lastLog < this.THROTTLE_INTERVAL) {
+      return true
+    }
+
+    this.logThrottle.set(key, now)
+    return false
   }
 
   private log(level: LogLevel, message: string, data?: unknown, source?: string) {

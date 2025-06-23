@@ -1,4 +1,5 @@
 import type { ThemeValue } from '../types/theme'
+import { configurePWAThemeColor } from '../utils/pwa-config'
 
 export function useTheme() {
   const theme = ref<ThemeValue>((localStorage.getItem('theme') as ThemeValue) || 'auto')
@@ -21,6 +22,13 @@ export function useTheme() {
   const updateTheme = () => {
     const currentTheme = theme.value === 'auto' ? systemTheme.value : theme.value
     document.documentElement.setAttribute('data-theme', currentTheme)
+
+    // 更新 PWA 状态栏主题色
+    try {
+      configurePWAThemeColor()
+    } catch (error) {
+      console.warn('Failed to update PWA theme color:', error)
+    }
   }
 
   const initTheme = () => {
