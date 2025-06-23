@@ -1,7 +1,7 @@
 <template>
   <div class="pomodoro-timer">
     <!-- 设置按钮移至右上角 -->
-    <button @click="toggleSettings" class="settings-btn settings-btn-corner">
+    <button ref="settingsButton" @click="toggleSettings" class="settings-btn settings-btn-corner">
       <svg
         xmlns="http://www.w3.org/2000/svg"
         viewBox="0 0 24 24"
@@ -54,7 +54,7 @@
     </div>
 
     <!-- 设置面板 -->
-    <div v-if="showSettings" class="settings-panel">
+    <div v-if="showSettings" ref="settingsPanel" class="settings-panel">
       <div class="settings-header">
         <h4>{{ t('pomodoroSettings') }}</h4>
         <button @click="toggleSettings" class="close-btn">×</button>
@@ -379,9 +379,31 @@ const showInPageAlert = (isWorkTime: boolean) => {
   }, 3000)
 }
 
+// 处理点击外部区域关闭设置面板
+const settingsPanel = ref<HTMLElement | null>(null)
+const settingsButton = ref<HTMLElement | null>(null)
+
+const handleClickOutside = (event: Event) => {
+  if (!showSettings.value) return
+
+  const target = event.target as HTMLElement
+  const panel = settingsPanel.value
+  const button = settingsButton.value
+
+  // 如果点击的是设置面板内部或设置按钮，不关闭
+  if ((panel && panel.contains(target)) || (button && button.contains(target))) {
+    return
+  }
+
+  // 点击外部区域，关闭设置面板
+  showSettings.value = false
+}
+
 // 组件挂载时加载设置
 onMounted(() => {
   loadSettings()
+  // 添加全局点击事件监听器
+  document.addEventListener('click', handleClickOutside)
 })
 
 onUnmounted(() => {
@@ -389,6 +411,8 @@ onUnmounted(() => {
     clearInterval(timerInterval)
     timerInterval = null
   }
+  // 清理全局点击事件监听器
+  document.removeEventListener('click', handleClickOutside)
 })
 
 const emit = defineEmits(['pomodoroComplete'])
