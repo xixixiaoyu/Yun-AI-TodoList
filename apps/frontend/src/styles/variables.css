@@ -1,11 +1,4 @@
-/* 字体定义 */
-@font-face {
-  font-family: 'LXGW WenKai Lite Medium';
-  src: url('../assets/fonts/LXGWWenKaiLite-Medium.ttf') format('truetype');
-  font-weight: normal;
-  font-style: normal;
-  font-display: swap;
-}
+/* 字体定义 - 使用 Web 字体，由 UnoCSS presetWebFonts 自动加载 */
 
 /* CSS 变量定义 - 保留用于 UnoCSS 主题配置 */
 :root {
@@ -102,7 +95,17 @@
 
 /* 基础样式重置 */
 html {
-  font-family: 'LXGW WenKai Lite Medium', sans-serif;
+  font-family:
+    'Noto Sans SC',
+    'Inter',
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    'PingFang SC',
+    'Hiragino Sans GB',
+    'Microsoft YaHei',
+    'Helvetica Neue',
+    sans-serif;
   line-height: 1.6;
   font-weight: 400;
   color-scheme: light;

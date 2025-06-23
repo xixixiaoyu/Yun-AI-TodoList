@@ -75,16 +75,71 @@ function clean() {
 
 function buildRenderer() {
   console.log('🏗️  构建渲染进程...')
-  execSync('vite build', { cwd: rootDir, stdio: 'inherit' })
+
+  // 检查前端目录是否存在
+  const frontendDir = path.join(rootDir, 'apps/frontend')
+  if (!existsSync(frontendDir)) {
+    throw new Error('前端目录不存在: apps/frontend')
+  }
+
+  // 构建前端应用
+  execSync('pnpm --filter frontend build', {
+    cwd: rootDir,
+    stdio: 'inherit',
+    env: {
+      ...process.env,
+      NODE_ENV: 'production',
+      ELECTRON: 'true',
+    },
+  })
+
+  // 验证构建产物
+  const distDir = path.join(frontendDir, 'dist')
+  if (!existsSync(distDir)) {
+    throw new Error('前端构建失败：dist 目录不存在')
+  }
+
+  const indexHtml = path.join(distDir, 'index.html')
+  if (!existsSync(indexHtml)) {
+    throw new Error('前端构建失败：index.html 不存在')
+  }
+
+  console.log('✅ 渲染进程构建完成')
 }
 
 function buildElectron(platform = 'all') {
   console.log(`📦 构建 Electron 应用 (${platform})...`)
 
+  // 确保前端构建产物存在
+  const frontendDist = path.join(rootDir, 'apps/frontend/dist')
+  if (!existsSync(frontendDist)) {
+    throw new Error('前端构建产物不存在，请先运行前端构建')
+  }
+
+  // 复制前端构建产物到根目录
+  const rootDist = path.join(rootDir, 'dist')
+  if (existsSync(rootDist)) {
+    execSync(`rm -rf ${rootDist}`, { cwd: rootDir })
+  }
+  execSync(`cp -r ${frontendDist} ${rootDist}`, { cwd: rootDir })
+
   const platformArgs = buildConfig.platforms[platform] || buildConfig.platforms.all
   const command = `electron-builder --config electron-builder.config.js ${platformArgs.join(' ')}`
 
-  execSync(command, { cwd: rootDir, stdio: 'inherit' })
+  try {
+    execSync(command, {
+      cwd: rootDir,
+      stdio: 'inherit',
+      env: {
+        ...process.env,
+        NODE_ENV: 'production',
+      },
+    })
+    console.log('✅ Electron 应用构建完成')
+  } catch (error) {
+    console.error('❌ Electron 构建失败:', error.message)
+    throw error
+  }
 }
 
 const buildConfig = {

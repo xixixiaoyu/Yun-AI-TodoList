@@ -1,9 +1,9 @@
-import { fileURLToPath, URL } from 'node:url'
 import vue from '@vitejs/plugin-vue'
+import { fileURLToPath, URL } from 'node:url'
 import UnoCSS from 'unocss/vite'
+import AutoImport from 'unplugin-auto-import/vite'
 import { defineConfig } from 'vite'
 import { VitePWA } from 'vite-plugin-pwa'
-import AutoImport from 'unplugin-auto-import/vite'
 
 export default defineConfig({
   plugins: [
@@ -32,6 +32,23 @@ export default defineConfig({
         scope: './',
         start_url: './',
         lang: 'zh-CN',
+        categories: ['productivity', 'utilities', 'lifestyle'],
+        screenshots: [
+          {
+            src: './screenshot-wide.png',
+            sizes: '1280x720',
+            type: 'image/png',
+            form_factor: 'wide',
+            label: 'Desktop view of Yun AI TodoList',
+          },
+          {
+            src: './screenshot-narrow.png',
+            sizes: '750x1334',
+            type: 'image/png',
+            form_factor: 'narrow',
+            label: 'Mobile view of Yun AI TodoList',
+          },
+        ],
         icons: [
           {
             src: './pwa-192x192.png',
@@ -49,7 +66,33 @@ export default defineConfig({
             type: 'image/png',
             purpose: 'any maskable',
           },
+          {
+            src: './apple-touch-icon.png',
+            sizes: '180x180',
+            type: 'image/png',
+            purpose: 'apple touch icon',
+          },
         ],
+        shortcuts: [
+          {
+            name: '新建待办',
+            short_name: '新建',
+            description: '快速创建新的待办事项',
+            url: '/?action=new',
+            icons: [{ src: './pwa-192x192.png', sizes: '192x192' }],
+          },
+          {
+            name: 'AI 助手',
+            short_name: 'AI',
+            description: '打开 AI 助手',
+            url: '/?action=ai',
+            icons: [{ src: './pwa-192x192.png', sizes: '192x192' }],
+          },
+        ],
+        prefer_related_applications: false,
+        edge_side_panel: {
+          preferred_width: 400,
+        },
       },
       workbox: {
         globDirectory: process.env.NODE_ENV === 'production' ? 'dist' : 'dev-dist',
@@ -58,7 +101,9 @@ export default defineConfig({
             ? ['**/*.{js,css,html,ico,png,svg,woff2}']
             : ['**/*.{js,css,html}'],
         globIgnores: ['**/node_modules/**/*'],
+        maximumFileSizeToCacheInBytes: 5 * 1024 * 1024, // 5MB
         runtimeCaching: [
+          // API 缓存策略 - 网络优先，支持离线回退
           {
             urlPattern: /^https:\/\/api\./,
             handler: 'NetworkFirst',
@@ -71,22 +116,84 @@ export default defineConfig({
               networkTimeoutSeconds: 10,
             },
           },
+          // 图片资源缓存 - 缓存优先
           {
-            urlPattern: /\.(?:png|jpg|jpeg|svg|gif|webp)$/,
+            urlPattern: /\.(?:png|jpg|jpeg|svg|gif|webp|avif)$/,
             handler: 'CacheFirst',
             options: {
               cacheName: 'images-cache',
               expiration: {
-                maxEntries: 50,
+                maxEntries: 100,
                 maxAgeSeconds: 60 * 60 * 24 * 30, // 30 days
               },
             },
           },
+          // 字体文件缓存 - 缓存优先，长期缓存
           {
-            urlPattern: /\.(?:woff|woff2|ttf|eot)$/,
+            urlPattern: /\.(?:woff|woff2|ttf|eot|otf)$/,
             handler: 'CacheFirst',
             options: {
               cacheName: 'fonts-cache',
+              expiration: {
+                maxEntries: 20,
+                maxAgeSeconds: 60 * 60 * 24 * 365, // 1 year
+              },
+            },
+          },
+          // CSS 和 JS 文件缓存 - 过期重新验证
+          {
+            urlPattern: /\.(?:css|js)$/,
+            handler: 'StaleWhileRevalidate',
+            options: {
+              cacheName: 'static-resources',
+              expiration: {
+                maxEntries: 50,
+                maxAgeSeconds: 60 * 60 * 24 * 7, // 7 days
+              },
+            },
+          },
+          // HTML 文件缓存 - 网络优先
+          {
+            urlPattern: /\.html$/,
+            handler: 'NetworkFirst',
+            options: {
+              cacheName: 'html-cache',
+              expiration: {
+                maxEntries: 10,
+                maxAgeSeconds: 60 * 60 * 24, // 24 hours
+              },
+              networkTimeoutSeconds: 3,
+            },
+          },
+          // CDN 资源缓存
+          {
+            urlPattern: /^https:\/\/cdn\./,
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'cdn-cache',
+              expiration: {
+                maxEntries: 30,
+                maxAgeSeconds: 60 * 60 * 24 * 30, // 30 days
+              },
+            },
+          },
+          // Google Fonts 缓存
+          {
+            urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'google-fonts-cache',
+              expiration: {
+                maxEntries: 10,
+                maxAgeSeconds: 60 * 60 * 24 * 365, // 1 year
+              },
+            },
+          },
+          {
+            urlPattern: /^https:\/\/fonts\.gstatic\.com\/.*/i,
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'google-fonts-static-cache',
               expiration: {
                 maxEntries: 10,
                 maxAgeSeconds: 60 * 60 * 24 * 365, // 1 year
@@ -101,6 +208,14 @@ export default defineConfig({
         navigateFallback: 'index.html',
         suppressWarnings: true,
       },
+      // 生产环境优化
+      injectRegister: 'auto',
+      strategies: 'generateSW',
+      selfDestroying: false,
+      // 更新提示配置
+      useCredentials: false,
+      // 文件包含配置
+      includeManifestIcons: true,
     }),
   ],
   base: './',

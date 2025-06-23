@@ -8,6 +8,7 @@
     "name": "yunmu"
   },
   "type": "module",
+  "main": "electron/main.js",
   "packageManager": "pnpm@9.0.0",
   "workspaces": [
     "apps/*",
@@ -33,6 +34,19 @@
     "format:check": "prettier --check \"**/*.{js,ts,json,css,scss,vue,html,md}\" --ignore-unknown",
     "type-check": "pnpm --recursive type-check",
     "quality:check": "node scripts/quality-check.js",
+    "deps:check": "node scripts/dependency-check.js",
+    "deps:update": "pnpm update --latest",
+    "deps:audit": "pnpm audit --audit-level moderate",
+    "icons:generate": "node scripts/icon-generator.js",
+    "icons:verify": "node scripts/icon-generator.js --verify-only",
+    "assets:optimize": "node scripts/asset-optimizer.js",
+    "assets:check": "node scripts/asset-optimizer.js --check-only",
+    "security:audit": "node scripts/security-audit.js",
+    "security:check": "pnpm security:audit && pnpm deps:audit",
+    "perf:analyze": "node scripts/performance-optimizer.js",
+    "perf:build-analyze": "pnpm --filter frontend build && pnpm perf:analyze",
+    "test:integration": "node scripts/integration-test.js",
+    "test:all": "pnpm test:integration && pnpm security:check && pnpm perf:analyze",
     "test:coverage": "pnpm --recursive test:coverage",
     "clean": "pnpm --recursive clean && rimraf dist release node_modules/.cache",
     "prepare": "husky",
@@ -43,7 +57,13 @@
     "migration:run": "pnpm --filter backend migration:run",
     "migration:revert": "pnpm --filter backend migration:revert",
     "seed": "pnpm --filter backend seed",
-    "deploy": "./scripts/deploy-cloudflare.sh prod"
+    "deploy": "./scripts/deploy-cloudflare.sh prod",
+    "electron:serve": "pnpm --filter frontend electron:serve",
+    "electron:dev": "pnpm --filter frontend electron:dev",
+    "electron:build": "node scripts/build-electron.js",
+    "electron:build:mac": "node scripts/build-electron.js mac",
+    "electron:build:win": "node scripts/build-electron.js win",
+    "electron:build:linux": "node scripts/build-electron.js linux"
   },
   "lint-staged": {
     "*.{vue,js,jsx,cjs,mjs,ts,tsx,cts,mts}": [
@@ -59,15 +79,18 @@
   },
   "dependencies": {},
   "devDependencies": {
-    "concurrently": "9.1.2",
+    "concurrently": "9.2.0",
     "cross-env": "7.0.3",
-    "eslint": "9.28.0",
+    "electron": "36.4.0",
+    "electron-builder": "26.0.12",
+    "eslint": "9.29.0",
     "eslint-config-prettier": "10.1.5",
     "husky": "9.1.7",
-    "lint-staged": "16.1.0",
-    "prettier": "3.5.3",
+    "lint-staged": "16.1.2",
+    "prettier": "3.6.0",
     "rimraf": "6.0.1",
-    "typescript": "5.8.3"
+    "typescript": "5.8.3",
+    "wait-on": "8.0.3"
   },
   "engines": {
     "node": ">=18.0.0",

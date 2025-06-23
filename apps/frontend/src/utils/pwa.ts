@@ -101,6 +101,87 @@ export function isPWASupported(): boolean {
   return isServiceWorkerSupported() && 'PushManager' in window && 'Notification' in window
 }
 
+// 检查更新
+export async function checkForUpdates(): Promise<boolean> {
+  if (!isServiceWorkerSupported()) {
+    return false
+  }
+
+  try {
+    const registration = await navigator.serviceWorker.getRegistration()
+    if (registration) {
+      await registration.update()
+      return true
+    }
+    return false
+  } catch (error) {
+    logger.error('检查更新失败', error, 'PWA')
+    return false
+  }
+}
+
+// 获取缓存大小
+export async function getCacheSize(): Promise<number> {
+  if (!('caches' in window)) {
+    return 0
+  }
+
+  try {
+    const cacheNames = await caches.keys()
+    let totalSize = 0
+
+    for (const cacheName of cacheNames) {
+      const cache = await caches.open(cacheName)
+      const requests = await cache.keys()
+
+      for (const request of requests) {
+        const response = await cache.match(request)
+        if (response) {
+          const blob = await response.blob()
+          totalSize += blob.size
+        }
+      }
+    }
+
+    return totalSize
+  } catch (error) {
+    logger.error('获取缓存大小失败', error, 'PWA')
+    return 0
+  }
+}
+
+// 清理缓存
+export async function clearCache(): Promise<boolean> {
+  if (!('caches' in window)) {
+    return false
+  }
+
+  try {
+    const cacheNames = await caches.keys()
+    await Promise.all(cacheNames.map((cacheName) => caches.delete(cacheName)))
+    logger.info('缓存已清理', undefined, 'PWA')
+    return true
+  } catch (error) {
+    logger.error('清理缓存失败', error, 'PWA')
+    return false
+  }
+}
+
+// 预缓存重要资源
+export async function precacheResources(urls: string[]): Promise<void> {
+  if (!isServiceWorkerSupported()) {
+    return
+  }
+
+  try {
+    const cache = await caches.open('precache-v1')
+    await cache.addAll(urls)
+    logger.info(`预缓存 ${urls.length} 个资源`, undefined, 'PWA')
+  } catch (error) {
+    logger.error('预缓存资源失败', error, 'PWA')
+  }
+}
+
 // 初始化 PWA 功能
 export function initPWA(): void {
   // 检查安装状态
@@ -108,6 +189,11 @@ export function initPWA(): void {
 
   // 设置初始网络状态
   isOnline.value = navigator.onLine
+
+  // 预缓存重要资源
+  if (isOnline.value) {
+    precacheResources(['/', '/manifest.webmanifest', '/pwa-192x192.png', '/pwa-512x512.png'])
+  }
 
   logger.info(
     `PWA 功能初始化完成`,

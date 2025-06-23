@@ -1,4 +1,6 @@
-import { app, BrowserWindow, dialog, shell } from 'electron'
+import { app, BrowserWindow, dialog, ipcMain, Notification, shell } from 'electron'
+import { promises as fs } from 'fs'
+import os from 'os'
 import path from 'path'
 import { fileURLToPath } from 'url'
 
@@ -9,6 +11,98 @@ let mainWindow = null
 
 // 安全配置
 const isDevelopment = process.env.NODE_ENV === 'development'
+
+// 设置 IPC 处理器
+function setupIPC() {
+  // 应用程序控制
+  ipcMain.handle('app-quit', () => {
+    app.quit()
+  })
+
+  ipcMain.handle('app-minimize', () => {
+    if (mainWindow) {
+      mainWindow.minimize()
+    }
+  })
+
+  ipcMain.handle('app-maximize', () => {
+    if (mainWindow) {
+      if (mainWindow.isMaximized()) {
+        mainWindow.unmaximize()
+      } else {
+        mainWindow.maximize()
+      }
+    }
+  })
+
+  ipcMain.handle('app-unmaximize', () => {
+    if (mainWindow) {
+      mainWindow.unmaximize()
+    }
+  })
+
+  ipcMain.handle('app-is-maximized', () => {
+    return mainWindow ? mainWindow.isMaximized() : false
+  })
+
+  ipcMain.handle('app-close', () => {
+    if (mainWindow) {
+      mainWindow.close()
+    }
+  })
+
+  // 文件系统操作（受限）
+  ipcMain.handle('fs-read-app-data', async (_, filename) => {
+    try {
+      const userDataPath = app.getPath('userData')
+      const filePath = path.join(userDataPath, filename)
+      const data = await fs.readFile(filePath, 'utf8')
+      return { success: true, data }
+    } catch (error) {
+      return { success: false, error: error.message }
+    }
+  })
+
+  ipcMain.handle('fs-write-app-data', async (_, filename, data) => {
+    try {
+      const userDataPath = app.getPath('userData')
+      const filePath = path.join(userDataPath, filename)
+      await fs.writeFile(filePath, data, 'utf8')
+      return { success: true }
+    } catch (error) {
+      return { success: false, error: error.message }
+    }
+  })
+
+  // 通知
+  ipcMain.handle('notification-show', (_, { title, body, ...options }) => {
+    if (Notification.isSupported()) {
+      const notification = new Notification({
+        title,
+        body,
+        icon: path.join(__dirname, '../build/icon.png'),
+        ...options,
+      })
+      notification.show()
+      return { success: true }
+    }
+    return { success: false, error: 'Notifications not supported' }
+  })
+
+  // 系统信息
+  ipcMain.handle('system-info', () => {
+    return {
+      platform: process.platform,
+      arch: process.arch,
+      version: process.getSystemVersion(),
+      memory: {
+        total: os.totalmem(),
+        free: os.freemem(),
+      },
+      cpu: os.cpus()[0]?.model || 'Unknown',
+    }
+  })
+}
 
 function createWindow() {
   mainWindow = new BrowserWindow({
@@ -96,6 +190,9 @@ function createWindow() {
 app.whenReady().then(async () => {
   // 设置应用程序安全策略
   app.setAsDefaultProtocolClient('yun-ai-todo')
+
+  // 设置 IPC 处理器
+  setupIPC()
 
   createWindow()
 

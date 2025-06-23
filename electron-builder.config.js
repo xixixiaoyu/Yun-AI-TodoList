@@ -85,8 +85,14 @@ export default {
         target: 'portable',
         arch: ['x64'],
       },
+      {
+        target: 'zip',
+        arch: ['x64'],
+      },
     ],
     verifyUpdateCodeSignature: false,
+    requestedExecutionLevel: 'asInvoker',
+    artifactName: '${productName}-${version}-${arch}.${ext}',
   },
   nsis: {
     oneClick: false,
@@ -139,4 +145,21 @@ export default {
   compression: 'maximum',
   asar: true,
   asarUnpack: ['**/*.{node,dll}', '**/node_modules/sharp/**/*'],
+
+  // 安全配置
+  protocols: [
+    {
+      name: 'Yun AI Todo',
+      schemes: ['yun-ai-todo'],
+    },
+  ],
+
+  // 性能优化
+  removePackageScripts: true,
+  removePackageKeywords: true,
+
+  // 额外的文件排除
+  extraMetadata: {
+    main: 'electron/main.js',
+  },
 }

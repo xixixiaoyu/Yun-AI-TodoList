@@ -24,11 +24,15 @@ export default defineConfig({
     }),
     presetTypography(), // 排版预设
     presetWebFonts({
-      // Web 字体预设
+      // Web 字体预设 - 使用 Google Fonts 提供的字体
       fonts: {
-        sans: 'LXGW WenKai Lite Medium',
-        mono: ['Fira Code', 'Consolas', 'monospace'],
+        sans: ['Noto Sans SC:400,500,600', 'Inter:400,500,600'],
+        mono: ['Fira Code:400,500', 'JetBrains Mono:400,500'],
       },
+      // 字体提供商配置
+      provider: 'google',
+      // 添加错误处理
+      inlineImports: false,
     }),
   ],
 
@@ -101,8 +105,19 @@ export default defineConfig({
       hover: 'var(--hover-bg-color)',
     },
     fontFamily: {
-      sans: ['LXGW WenKai Lite Medium', 'sans-serif'],
-      mono: ['Fira Code', 'Consolas', 'monospace'],
+      sans: [
+        'Noto Sans SC',
+        'Inter',
+        '-apple-system',
+        'BlinkMacSystemFont',
+        'Segoe UI',
+        'PingFang SC',
+        'Hiragino Sans GB',
+        'Microsoft YaHei',
+        'Helvetica Neue',
+        'sans-serif',
+      ],
+      mono: ['Fira Code', 'JetBrains Mono', 'Consolas', 'monospace'],
     },
     borderRadius: {
       DEFAULT: 'var(--border-radius)',
