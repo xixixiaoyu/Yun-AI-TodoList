@@ -231,7 +231,7 @@ export default defineConfig({
   },
   server: {
     port: 3001,
-    open: true,
+    open: false,
     cors: true,
     host: true,
   },
