@@ -1,4 +1,11 @@
-/* 字体定义 - 使用 Web 字体，由 UnoCSS presetWebFonts 自动加载 */
+/* 字体定义 - 使用本地字体文件 */
+@font-face {
+  font-family: 'LXGW WenKai Medium';
+  src: url('/LXGWWenKai-Medium.ttf') format('truetype');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
 
 /* CSS 变量定义 - 保留用于 UnoCSS 主题配置 */
 :root {
@@ -96,6 +103,7 @@
 /* 基础样式重置 */
 html {
   font-family:
+    'LXGW WenKai Medium',
     'Noto Sans SC',
     'Inter',
     -apple-system,
@@ -123,6 +131,7 @@ body {
   background: var(--bg-color);
   color: var(--text-color);
   font-family:
+    'LXGW WenKai Medium',
     'LXGW WenKai Lite Medium',
     -apple-system,
     BlinkMacSystemFont,

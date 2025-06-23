@@ -23,30 +23,84 @@ const getSystemPromptConfig = () => {
   }
 }
 
-// 获取激活的系统提示词内容
-const getActiveSystemPromptContent = () => {
-  const config = getSystemPromptConfig()
+// 获取所有激活的系统提示词消息
+const getSystemMessages = async (): Promise<Message[]> => {
+  const systemMessages: Message[] = []
 
-  if (!config.enabled || !config.activePromptId) {
-    return ''
+  // 1. 获取用户自定义的系统提示词
+  const config = getSystemPromptConfig()
+  if (config.enabled && config.activePromptId) {
+    try {
+      const prompts = localStorage.getItem('system_prompts')
+      if (prompts) {
+        const promptList = JSON.parse(prompts)
+        const activePrompt = promptList.find(
+          (p: SystemPrompt) => p.id === config.activePromptId && p.isActive
+        )
+        if (activePrompt && activePrompt.content.trim()) {
+          systemMessages.push({
+            role: 'system',
+            content: activePrompt.content.trim(),
+          })
+          logger.debug(
+            '添加用户自定义系统提示词',
+            {
+              name: activePrompt.name,
+              contentLength: activePrompt.content.length,
+            },
+            'DeepSeekService'
+          )
+        }
+      }
+    } catch (error) {
+      logger.warn('获取用户系统提示词失败', error, 'DeepSeekService')
+    }
   }
 
+  // 2. 获取 Todo 助手的系统提示词（动态生成最新内容）
   try {
-    const prompts = localStorage.getItem('system_prompts')
-    if (prompts) {
-      const promptList = JSON.parse(prompts)
-      const activePrompt = promptList.find(
-        (p: SystemPrompt) => p.id === config.activePromptId && p.isActive
-      )
-      if (activePrompt) {
-        return activePrompt.content
+    const todoAssistantData = localStorage.getItem('todo_assistant_prompt')
+    if (todoAssistantData) {
+      const parsed = JSON.parse(todoAssistantData)
+      if (parsed.isActive) {
+        // 动态生成最新的 Todo 助手系统提示词
+        const todos = JSON.parse(localStorage.getItem('todos') || '[]')
+
+        // 动态导入生成函数
+        const { generateTodoSystemPrompt } = await import('../services/aiAnalysisService')
+        const freshContent = generateTodoSystemPrompt(todos)
+
+        systemMessages.push({
+          role: 'system',
+          content: freshContent.trim(),
+        })
+        logger.debug(
+          '添加动态生成的 Todo 助手系统提示词',
+          {
+            todosCount: todos.length,
+            contentLength: freshContent.length,
+          },
+          'DeepSeekService'
+        )
       }
     }
   } catch (error) {
-    logger.warn('获取激活系统提示词失败', error, 'DeepSeekService')
+    logger.warn('获取/生成 Todo 助手提示词失败', error, 'DeepSeekService')
   }
 
-  return ''
+  logger.debug(
+    '系统消息构建完成',
+    {
+      totalSystemMessages: systemMessages.length,
+      messages: systemMessages.map((msg) => ({
+        role: msg.role,
+        contentLength: msg.content.length,
+      })),
+    },
+    'DeepSeekService'
+  )
+
+  return systemMessages
 }
 
 // 错误处理函数
@@ -90,24 +144,26 @@ export async function getAIStreamResponse(
     abortController = new AbortController()
     const signal = abortController.signal
 
-    // 构建包含系统提示词的消息列表
-    const systemPromptContent = getActiveSystemPromptContent()
-    const messagesWithSystemPrompt: Message[] = [...messages]
+    // 构建包含所有系统提示词的消息列表
+    const systemMessages = await getSystemMessages()
+    const messagesWithSystemPrompts: Message[] = [...systemMessages, ...messages]
 
-    // 只有当系统提示词不为空时才添加 system role
-    if (systemPromptContent.trim()) {
-      messagesWithSystemPrompt.unshift({
-        role: 'system',
-        content: systemPromptContent,
-      })
-    }
+    logger.debug(
+      '构建完整消息列表',
+      {
+        systemMessagesCount: systemMessages.length,
+        userMessagesCount: messages.length,
+        totalMessages: messagesWithSystemPrompts.length,
+      },
+      'DeepSeekService'
+    )
 
     const response = await fetch(API_URL, {
       method: 'POST',
       headers: getHeaders(),
       body: JSON.stringify({
         model: getAIModel(),
-        messages: messagesWithSystemPrompt,
+        messages: messagesWithSystemPrompts,
         temperature,
         stream: true,
       }),
@@ -175,22 +231,26 @@ export async function getAIStreamResponse(
 
 export async function getAIResponse(userMessage: string, temperature = 0.3): Promise<string> {
   try {
-    const systemPromptContent = getActiveSystemPromptContent()
-
-    const messages = [
+    // 构建包含所有系统提示词的消息列表
+    const systemMessages = await getSystemMessages()
+    const userMessages = [
       {
-        role: 'user',
+        role: 'user' as const,
         content: userMessage,
       },
     ]
 
-    // 只有当系统提示词不为空时才添加 system role
-    if (systemPromptContent.trim()) {
-      messages.unshift({
-        role: 'system',
-        content: systemPromptContent,
-      })
-    }
+    const messages = [...systemMessages, ...userMessages]
+
+    logger.debug(
+      '构建 AI 响应消息列表',
+      {
+        systemMessagesCount: systemMessages.length,
+        userMessagesCount: userMessages.length,
+        totalMessages: messages.length,
+      },
+      'DeepSeekService'
+    )
 
     const response = await fetch(API_URL, {
       method: 'POST',

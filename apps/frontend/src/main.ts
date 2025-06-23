@@ -10,6 +10,7 @@ import './styles/enhancements.css'
 import './styles/variables.css'
 import { logger } from './utils/logger.ts'
 import { initPWA } from './utils/pwa'
+import './utils/todoAssistantDebug'
 
 const updateSW = registerSW({
   onNeedRefresh() {

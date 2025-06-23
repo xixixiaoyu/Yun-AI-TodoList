@@ -4,6 +4,15 @@ import { handleError } from '@/utils/logger'
 import { getAIResponse } from './deepseekService'
 
 /**
+ * 智能提问结果接口
+ */
+export interface SmartQuestionResult {
+  question: string
+  category: 'priority' | 'planning' | 'analysis' | 'improvement' | 'summary'
+  reasoning: string
+}
+
+/**
  * AI 分析服务
  * 提供 Todo 项目的智能分析功能，包括重要等级评估和时间估算
  */
@@ -349,5 +358,305 @@ export async function analyzeTaskSplitting(todoText: string): Promise<AISubtaskR
       reasoning: 'AI分析服务暂时不可用',
       originalTask: todoText,
     }
+  }
+}
+
+/**
+ * 生成包含待办事项信息的系统提示词
+ * @param todos 待办事项列表
+ * @returns 系统提示词内容
+ */
+export function generateTodoSystemPrompt(todos: Todo[]): string {
+  // 分析待办事项数据
+  const activeTodos = todos.filter((todo) => !todo.completed)
+  const completedTodos = todos.filter((todo) => todo.completed)
+  const highPriorityTodos = activeTodos.filter((todo) => todo.priority && todo.priority >= 4)
+  const mediumPriorityTodos = activeTodos.filter(
+    (todo) => todo.priority && todo.priority >= 2 && todo.priority < 4
+  )
+  const lowPriorityTodos = activeTodos.filter((todo) => !todo.priority || todo.priority < 2)
+  const unanalyzedTodos = activeTodos.filter((todo) => !todo.aiAnalyzed)
+  const todosWithEstimation = activeTodos.filter((todo) => todo.estimatedTime)
+  // 分析任务创建时间分布
+  const recentTodos = activeTodos.filter((todo) => {
+    const createdDate = new Date(todo.createdAt)
+    const threeDaysAgo = new Date(Date.now() - 3 * 24 * 60 * 60 * 1000)
+    return createdDate > threeDaysAgo
+  })
+  const oldTodos = activeTodos.filter((todo) => {
+    const createdDate = new Date(todo.createdAt)
+    const weekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
+    return createdDate < weekAgo
+  })
+
+  // 分析标签使用情况
+  const allTags = activeTodos.flatMap((todo) => todo.tags)
+  const tagStats = allTags.reduce(
+    (acc, tag) => {
+      acc[tag] = (acc[tag] || 0) + 1
+      return acc
+    },
+    {} as Record<string, number>
+  )
+  const topTags = Object.entries(tagStats)
+    .sort(([, a], [, b]) => b - a)
+    .slice(0, 5)
+    .map(([tag, count]) => `${tag}(${count}个)`)
+
+  // 构建数据摘要
+  const dataSummary = {
+    totalActive: activeTodos.length,
+    totalCompleted: completedTodos.length,
+    highPriority: highPriorityTodos.length,
+    mediumPriority: mediumPriorityTodos.length,
+    lowPriority: lowPriorityTodos.length,
+    unanalyzed: unanalyzedTodos.length,
+    withEstimation: todosWithEstimation.length,
+    recentCreated: recentTodos.length,
+    oldTasks: oldTodos.length,
+    topTags: topTags.join(', ') || '暂无标签',
+    recentCompleted: completedTodos.filter((todo) => {
+      const completedDate = new Date(todo.completedAt || todo.updatedAt)
+      const weekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
+      return completedDate > weekAgo
+    }).length,
+  }
+
+  // 获取详细的任务列表（按优先级排序）
+  const sortedActiveTodos = [...activeTodos].sort((a, b) => {
+    const priorityA = a.priority || 0
+    const priorityB = b.priority || 0
+    return priorityB - priorityA // 高优先级在前
+  })
+
+  const activeTasksDetail = sortedActiveTodos
+    .map((todo, index) => {
+      const priority = todo.priority ? `${todo.priority}星` : '无'
+      const estimation = todo.estimatedTime || '未估算'
+      const tags = todo.tags.length > 0 ? todo.tags.join(',') : '无'
+
+      return `${index + 1}. ${todo.text} [优先级:${priority}] [时间:${estimation}] [标签:${tags}]`
+    })
+    .join('\n')
+
+  // 获取最近完成的任务详情（按完成时间倒序）
+  const sortedCompletedTodos = [...completedTodos]
+    .sort((a, b) => {
+      const dateA = new Date(a.completedAt || a.updatedAt).getTime()
+      const dateB = new Date(b.completedAt || b.updatedAt).getTime()
+      return dateB - dateA // 最近完成的在前
+    })
+    .slice(0, 10) // 只取最近10个
+
+  const completedTasksDetail = sortedCompletedTodos
+    .slice(0, 5) // 只显示最近5个
+    .map((todo, index) => {
+      const priority = todo.priority ? `${todo.priority}星` : '无'
+      const estimation = todo.estimatedTime || '未估算'
+
+      // 计算完成用时
+      const createdTime = new Date(todo.createdAt).getTime()
+      const completedTime = new Date(todo.completedAt || todo.updatedAt).getTime()
+      const daysToComplete = Math.floor((completedTime - createdTime) / (1000 * 60 * 60 * 24))
+      const completionSpeed = daysToComplete === 0 ? '当天' : `${daysToComplete}天`
+
+      return `${index + 1}. ${todo.text} [优先级:${priority}] [用时:${completionSpeed}] [预估:${estimation}]`
+    })
+    .join('\n')
+
+  // 生成精简的系统提示词
+  const systemPrompt = `你是专业的任务管理助手。用户当前有 ${dataSummary.totalActive} 个待完成任务和 ${dataSummary.totalCompleted} 个已完成任务。请基于以下具体任务信息提供个性化建议。
+
+## 待完成任务 (${dataSummary.totalActive}个)
+${activeTodos.length > 0 ? activeTasksDetail : '暂无待完成任务'}
+
+## 最近完成任务 (最新5个)
+${completedTodos.length > 0 ? completedTasksDetail : '暂无已完成任务'}
+
+请基于以上具体任务信息回答用户问题，提供针对性的任务管理建议。可以直接引用任务内容、优先级和时间信息。`
+
+  return systemPrompt
+}
+
+/**
+ * 生成基于待办事项数据的智能提问
+ * @param todos 待办事项列表
+ * @returns 智能提问结果
+ */
+export async function generateSmartQuestion(todos: Todo[]): Promise<SmartQuestionResult> {
+  try {
+    // 分析待办事项数据
+    const activeTodos = todos.filter((todo) => !todo.completed)
+    const completedTodos = todos.filter((todo) => todo.completed)
+    const highPriorityTodos = activeTodos.filter((todo) => todo.priority && todo.priority >= 4)
+    const unanalyzedTodos = activeTodos.filter((todo) => !todo.aiAnalyzed)
+    const todosWithEstimation = activeTodos.filter((todo) => todo.estimatedTime)
+
+    // 构建数据摘要
+    const dataSummary = {
+      totalActive: activeTodos.length,
+      totalCompleted: completedTodos.length,
+      highPriority: highPriorityTodos.length,
+      unanalyzed: unanalyzedTodos.length,
+      withEstimation: todosWithEstimation.length,
+      recentCompleted: completedTodos.filter((todo) => {
+        const completedDate = new Date(todo.completedAt || todo.updatedAt)
+        const weekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
+        return completedDate > weekAgo
+      }).length,
+    }
+
+    // 获取任务样本
+    const activeSamples = activeTodos.slice(0, 3).map((todo) => ({
+      text: todo.text,
+      priority: todo.priority || 0,
+      estimatedTime: todo.estimatedTime || '未估算',
+      tags: todo.tags.join(', ') || '无标签',
+    }))
+
+    const completedSamples = completedTodos.slice(-3).map((todo) => ({
+      text: todo.text,
+      completedAt: todo.completedAt || todo.updatedAt,
+    }))
+
+    const prompt = `作为一个专业的任务管理顾问，请基于以下待办事项数据生成一个有价值的智能提问：
+
+数据概览：
+- 待完成任务：${dataSummary.totalActive} 个
+- 已完成任务：${dataSummary.totalCompleted} 个
+- 高优先级任务：${dataSummary.highPriority} 个
+- 未分析任务：${dataSummary.unanalyzed} 个
+- 有时间估算的任务：${dataSummary.withEstimation} 个
+- 近一周完成任务：${dataSummary.recentCompleted} 个
+
+待完成任务样本：
+${activeSamples
+  .map(
+    (todo, index) =>
+      `${index + 1}. ${todo.text} (优先级: ${todo.priority}/5, 预估: ${todo.estimatedTime}, 标签: ${todo.tags})`
+  )
+  .join('\n')}
+
+最近完成任务样本：
+${completedSamples
+  .map(
+    (todo, index) =>
+      `${index + 1}. ${todo.text} (完成时间: ${new Date(todo.completedAt).toLocaleDateString()})`
+  )
+  .join('\n')}
+
+请根据以上数据生成一个智能提问，帮助用户：
+1. 优化任务优先级和时间安排
+2. 分析工作效率和完成模式
+3. 发现任务管理中的问题和改进机会
+4. 提供个性化的生产力建议
+5. 总结工作成果和进展
+
+提问类型：
+- priority: 关于优先级和重要性的问题
+- planning: 关于时间规划和安排的问题
+- analysis: 关于效率分析和模式识别的问题
+- improvement: 关于改进建议和优化的问题
+- summary: 关于总结和回顾的问题
+
+请严格按照以下JSON格式返回结果，不要包含任何其他文字：
+{
+  "question": "具体的智能提问内容",
+  "category": "问题类型(priority/planning/analysis/improvement/summary)",
+  "reasoning": "为什么提出这个问题的理由"
+}`
+
+    const response = await getAIResponse(prompt, 0.7)
+
+    // 尝试解析 JSON 响应
+    try {
+      const jsonMatch = response.match(/\{[\s\S]*\}/)
+      if (!jsonMatch) {
+        throw new Error('未找到有效的JSON格式')
+      }
+
+      const result = JSON.parse(jsonMatch[0]) as SmartQuestionResult
+
+      // 验证结果格式
+      if (
+        typeof result.question !== 'string' ||
+        typeof result.category !== 'string' ||
+        typeof result.reasoning !== 'string' ||
+        !['priority', 'planning', 'analysis', 'improvement', 'summary'].includes(result.category)
+      ) {
+        throw new Error('AI返回的数据格式不正确')
+      }
+
+      return result
+    } catch (parseError) {
+      console.warn('解析AI智能提问响应失败:', parseError)
+      console.warn('原始响应:', response)
+
+      // 返回默认问题
+      return generateFallbackQuestion(todos)
+    }
+  } catch (error) {
+    console.error('生成智能提问失败:', error)
+    handleError(error, '生成智能提问失败')
+
+    // 返回默认问题
+    return generateFallbackQuestion(todos)
+  }
+}
+
+/**
+ * 生成备用问题（当AI服务不可用时）
+ * @param todos 待办事项列表
+ * @returns 备用智能提问结果
+ */
+export function generateFallbackQuestion(todos: Todo[]): SmartQuestionResult {
+  const activeTodos = todos.filter((todo) => !todo.completed)
+  const completedTodos = todos.filter((todo) => todo.completed)
+  const highPriorityTodos = activeTodos.filter((todo) => todo.priority && todo.priority >= 4)
+
+  // 根据数据特征选择合适的备用问题
+  const fallbackQuestions = [
+    {
+      condition: () => activeTodos.length > 10,
+      question: `你目前有 ${activeTodos.length} 个待完成任务，哪些是最重要且紧急的？建议如何优化任务优先级？`,
+      category: 'priority' as const,
+      reasoning: '任务数量较多，需要优化优先级管理',
+    },
+    {
+      condition: () => highPriorityTodos.length > 3,
+      question: `你有 ${highPriorityTodos.length} 个高优先级任务，如何合理安排时间来高效完成它们？`,
+      category: 'planning' as const,
+      reasoning: '高优先级任务较多，需要时间规划建议',
+    },
+    {
+      condition: () => completedTodos.length > activeTodos.length,
+      question: `你已经完成了 ${completedTodos.length} 个任务，表现很棒！从这些完成的任务中，你学到了什么提高效率的方法？`,
+      category: 'summary' as const,
+      reasoning: '完成任务较多，适合进行总结回顾',
+    },
+    {
+      condition: () => activeTodos.filter((todo) => !todo.aiAnalyzed).length > 5,
+      question: `你有多个任务还未进行AI分析，是否需要批量分析来获得优先级和时间估算建议？`,
+      category: 'improvement' as const,
+      reasoning: '未分析任务较多，建议使用AI分析功能',
+    },
+  ]
+
+  // 找到第一个符合条件的问题
+  const matchedQuestion = fallbackQuestions.find((q) => q.condition())
+
+  if (matchedQuestion) {
+    return {
+      question: matchedQuestion.question,
+      category: matchedQuestion.category,
+      reasoning: matchedQuestion.reasoning,
+    }
+  }
+
+  // 默认通用问题
+  return {
+    question: '基于你当前的任务情况，有什么需要我帮助分析或建议的吗？',
+    category: 'analysis',
+    reasoning: '提供通用的任务管理咨询',
   }
 }

@@ -15,6 +15,7 @@ export function useSystemPrompts() {
   // 存储键名
   const SYSTEM_PROMPTS_KEY = 'system_prompts'
   const SYSTEM_PROMPT_CONFIG_KEY = 'system_prompt_config'
+  const TODO_ASSISTANT_PROMPT_KEY = 'todo_assistant_prompt'
 
   // 响应式状态
   const systemPrompts = ref<SystemPrompt[]>([])
@@ -22,6 +23,10 @@ export function useSystemPrompts() {
     enabled: false, // 默认不启用系统提示词
     activePromptId: null,
   })
+
+  // Todo 助手独立状态
+  const todoAssistantPrompt = ref<SystemPrompt | null>(null)
+  const isTodoAssistantActive = ref(false)
 
   const isLoading = ref(false)
   const error = ref<string>('')
@@ -43,10 +48,41 @@ export function useSystemPrompts() {
   })
 
   const currentSystemPromptContent = computed(() => {
+    // 注意：这个计算属性现在主要用于显示目的
+    // 实际的系统提示词处理已经移到 deepseekService.ts 中的 getSystemMessages()
+
+    // 仅返回用户自定义的提示词内容（用于UI显示）
     if (hasActivePrompt.value && activePrompt.value) {
       return activePrompt.value.content
     }
     return ''
+  })
+
+  // 新增：获取所有激活的系统提示词信息（用于调试和显示）
+  const getAllActiveSystemPrompts = computed(() => {
+    const prompts = []
+
+    // 用户自定义提示词
+    if (hasActivePrompt.value && activePrompt.value) {
+      prompts.push({
+        type: 'user',
+        name: activePrompt.value.name,
+        content: activePrompt.value.content,
+        length: activePrompt.value.content.length,
+      })
+    }
+
+    // Todo 助手提示词
+    if (isTodoAssistantActive.value && todoAssistantPrompt.value) {
+      prompts.push({
+        type: 'todo_assistant',
+        name: 'Todo 任务助手',
+        content: todoAssistantPrompt.value.content,
+        length: todoAssistantPrompt.value.content.length,
+      })
+    }
+
+    return prompts
   })
 
   // 生成唯一 ID
@@ -93,6 +129,34 @@ export function useSystemPrompts() {
       }
     } catch (error) {
       handleError(error, '加载系统提示词配置')
+    }
+  }
+
+  // 加载 Todo 助手
+  const loadTodoAssistant = () => {
+    try {
+      const saved = localStorage.getItem(TODO_ASSISTANT_PROMPT_KEY)
+      if (saved) {
+        const parsed = JSON.parse(saved)
+        todoAssistantPrompt.value = parsed.prompt
+        isTodoAssistantActive.value = parsed.isActive || false
+      }
+    } catch (error) {
+      handleError(error, '加载 Todo 助手')
+    }
+  }
+
+  // 保存 Todo 助手
+  const saveTodoAssistant = () => {
+    try {
+      const data = {
+        prompt: todoAssistantPrompt.value,
+        isActive: isTodoAssistantActive.value,
+      }
+      localStorage.setItem(TODO_ASSISTANT_PROMPT_KEY, JSON.stringify(data))
+      logger.debug('Todo 助手保存成功', data, 'useSystemPrompts')
+    } catch (error) {
+      throw new Error(handleError(error, '保存 Todo 助手'))
     }
   }
 
@@ -314,10 +378,84 @@ export function useSystemPrompts() {
     }
   }
 
+  // Todo 助手管理方法
+  const createOrUpdateTodoAssistant = async (content: string): Promise<void> => {
+    try {
+      const now = new Date().toISOString()
+
+      if (todoAssistantPrompt.value) {
+        // 更新现有的 Todo 助手
+        todoAssistantPrompt.value = {
+          ...todoAssistantPrompt.value,
+          content: content.trim(),
+          updatedAt: now,
+        }
+      } else {
+        // 创建新的 Todo 助手
+        todoAssistantPrompt.value = {
+          id: `todo_assistant_${Date.now()}`,
+          name: 'Todo 任务助手',
+          content: content.trim(),
+          isActive: true,
+          createdAt: now,
+          updatedAt: now,
+          tags: ['todo', '任务管理', '内置'],
+        }
+      }
+
+      saveTodoAssistant()
+      logger.info(
+        'Todo 助手创建/更新成功',
+        { id: todoAssistantPrompt.value.id },
+        'useSystemPrompts'
+      )
+    } catch (error) {
+      const errorMessage = handleError(error, '创建/更新 Todo 助手')
+      throw new Error(errorMessage)
+    }
+  }
+
+  const activateTodoAssistant = async (): Promise<void> => {
+    try {
+      // 创建一个简单的 Todo 助手标记（不包含具体内容，内容将动态生成）
+      if (!todoAssistantPrompt.value) {
+        const now = new Date().toISOString()
+        todoAssistantPrompt.value = {
+          id: `todo_assistant_${Date.now()}`,
+          name: 'Todo 任务助手',
+          content: '', // 内容为空，将在发送消息时动态生成
+          isActive: true,
+          createdAt: now,
+          updatedAt: now,
+          tags: ['todo', '任务管理', '内置'],
+        }
+      }
+
+      isTodoAssistantActive.value = true
+      saveTodoAssistant()
+      logger.info('Todo 助手激活成功', undefined, 'useSystemPrompts')
+    } catch (error) {
+      const errorMessage = handleError(error, '激活 Todo 助手')
+      throw new Error(errorMessage)
+    }
+  }
+
+  const deactivateTodoAssistant = async (): Promise<void> => {
+    try {
+      isTodoAssistantActive.value = false
+      saveTodoAssistant()
+      logger.info('Todo 助手停用成功', undefined, 'useSystemPrompts')
+    } catch (error) {
+      const errorMessage = handleError(error, '停用 Todo 助手')
+      throw new Error(errorMessage)
+    }
+  }
+
   // 初始化
   const initialize = () => {
     loadConfig()
     loadSystemPrompts()
+    loadTodoAssistant()
   }
 
   // 组件挂载时初始化
@@ -332,11 +470,16 @@ export function useSystemPrompts() {
     isLoading,
     error,
 
+    // Todo 助手状态
+    todoAssistantPrompt,
+    isTodoAssistantActive,
+
     // 计算属性
     activePrompt,
     enabledPrompts,
     hasActivePrompt,
     currentSystemPromptContent,
+    getAllActiveSystemPrompts,
 
     // 方法
     createSystemPrompt,
@@ -347,5 +490,10 @@ export function useSystemPrompts() {
     updateConfig,
     resetToDefault,
     initialize,
+
+    // Todo 助手方法
+    createOrUpdateTodoAssistant,
+    activateTodoAssistant,
+    deactivateTodoAssistant,
   }
 }

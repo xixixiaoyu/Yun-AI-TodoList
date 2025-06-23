@@ -385,5 +385,14 @@
   "todoTextRequired": "Todo text cannot be empty",
   "todoTextTooLong": "Todo text cannot exceed {maxLength} characters",
   "todoUpdated": "Todo updated successfully",
-  "updateError": "Update failed, please try again"
+  "updateError": "Update failed, please try again",
+
+  "todoAssistant": "Todo Assistant",
+  "todoAssistantActive": "Todo Assistant Active",
+  "todoAssistantTitle": "Click to activate Todo Assistant, AI will understand all your task information",
+  "todoAssistantActiveTitle": "Click to deactivate Todo Assistant",
+  "todoPromptActivated": "Todo Assistant activated, you can now ask any questions about your tasks",
+  "todoPromptDeactivated": "Todo Assistant deactivated",
+  "todoPromptError": "Failed to activate Todo Assistant, please try again",
+  "todoPromptDeactivateError": "Failed to deactivate Todo Assistant, please try again"
 }

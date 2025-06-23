@@ -26,7 +26,7 @@ export default defineConfig({
     presetWebFonts({
       // Web 字体预设 - 使用 Google Fonts 提供的字体
       fonts: {
-        sans: ['Noto Sans SC:400,500,600', 'Inter:400,500,600'],
+        sans: ['LXGW WenKai Medium', 'Noto Sans SC:400,500,600', 'Inter:400,500,600'],
         mono: ['Fira Code:400,500', 'JetBrains Mono:400,500'],
       },
       // 字体提供商配置

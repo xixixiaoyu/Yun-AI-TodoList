@@ -426,5 +426,14 @@
   "todoTextRequired": "待办事项内容不能为空",
   "todoTextTooLong": "待办事项内容不能超过 {maxLength} 个字符",
   "todoUpdated": "待办事项已更新",
-  "updateError": "更新失败，请重试"
+  "updateError": "更新失败，请重试",
+
+  "todoAssistant": "Todo 助手",
+  "todoAssistantActive": "Todo 助手已激活",
+  "todoAssistantTitle": "点击激活 Todo 任务助手，AI 将了解您的所有任务信息",
+  "todoAssistantActiveTitle": "点击停用 Todo 任务助手",
+  "todoPromptActivated": "Todo 任务助手已激活，现在可以询问关于您任务的任何问题",
+  "todoPromptDeactivated": "Todo 任务助手已停用",
+  "todoPromptError": "激活 Todo 任务助手失败，请重试",
+  "todoPromptDeactivateError": "停用 Todo 任务助手失败，请重试"
 }
