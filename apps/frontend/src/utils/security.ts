@@ -257,11 +257,11 @@ export class InputValidator {
 export function initSecurity(): void {
   SecureStorage.cleanup()
 
-  window.addEventListener('error', (event) => {
+  window.addEventListener('error', (event: ErrorEvent) => {
     console.error('Global error:', event.error)
   })
 
-  window.addEventListener('unhandledrejection', (event) => {
+  window.addEventListener('unhandledrejection', (event: PromiseRejectionEvent) => {
     console.error('Unhandled promise rejection:', event.reason)
   })
 }

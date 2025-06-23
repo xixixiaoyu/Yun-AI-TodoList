@@ -57,7 +57,7 @@
             >
           </div>
         </div>
-        <button @click="$emit('clear-file')" class="clear-file-btn" :title="'移除文件'">
+        <button class="clear-file-btn" :title="'移除文件'" @click="$emit('clear-file')">
           <svg
             class="clear-icon"
             viewBox="0 0 24 24"

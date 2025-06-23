@@ -50,7 +50,7 @@ export function useSystemPrompts() {
   })
 
   // 生成唯一 ID
-  const generateId = (): string => {
+  const _generateId = (): string => {
     return `prompt_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
   }
 
@@ -138,7 +138,9 @@ export function useSystemPrompts() {
 
       const now = new Date().toISOString()
       const newPrompt: SystemPrompt = {
-        id: crypto.randomUUID(),
+        id:
+          globalThis.crypto?.randomUUID() ||
+          `prompt_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
         name: input.name.trim(),
         content: input.content.trim(),
         isActive: true,

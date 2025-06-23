@@ -1,4 +1,5 @@
-import { onMounted, onUnmounted, ref, computed } from 'vue'
+import { safeSetTimeout } from '@/utils/memoryLeakFixes'
+import { computed, onMounted, onUnmounted, ref } from 'vue'
 
 /**
  * AI 助手侧边栏状态管理
@@ -100,7 +101,7 @@ export function useAISidebar() {
     document.body.style.overflow = 'hidden'
 
     // 动画完成后重置状态
-    setTimeout(() => {
+    safeSetTimeout(() => {
       isAnimating.value = false
     }, 300)
   }
@@ -119,7 +120,7 @@ export function useAISidebar() {
     document.body.style.overflow = ''
 
     // 动画完成后重置状态
-    setTimeout(() => {
+    safeSetTimeout(() => {
       isAnimating.value = false
     }, 300)
   }

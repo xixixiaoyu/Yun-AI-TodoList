@@ -132,8 +132,6 @@ const startEdit = () => {
     return
   }
 
-  console.log('Start editing todo:', props.todo.id, props.todo.text)
-
   isEditing.value = true
   editText.value = props.todo.text
 

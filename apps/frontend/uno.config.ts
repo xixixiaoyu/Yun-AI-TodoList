@@ -425,19 +425,29 @@ export default defineConfig({
     ['spacing-responsive-lg', 'p-4 sm:p-6 md:p-8'],
   ],
 
-  // 内容检测配置
+  // 内容检测配置 - 优化性能
   content: {
     pipeline: {
       include: [
-        // 包含的文件类型
-        /\.(vue|html|jsx|tsx|ts|js|css)($|\?)/,
-        'src/**/*.{vue,html,jsx,tsx,ts,js,css}',
+        // 包含的文件类型 - 更精确的匹配
+        /\.(vue|html|jsx|tsx|ts|js)($|\?)/,
+        'src/**/*.{vue,html,jsx,tsx,ts,js}',
+        // 排除 CSS 文件以避免重复扫描
       ],
       exclude: [
-        // 排除的文件
+        // 排除的文件 - 更全面的排除列表
         'node_modules/**/*',
         'dist/**/*',
+        'dev-dist/**/*',
         '.git/**/*',
+        '**/*.d.ts',
+        '**/test/**/*',
+        '**/tests/**/*',
+        '**/*.test.*',
+        '**/*.spec.*',
+        'coverage/**/*',
+        '.vscode/**/*',
+        '.idea/**/*',
       ],
     },
   },

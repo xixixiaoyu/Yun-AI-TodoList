@@ -1,7 +1,7 @@
 <template>
   <div class="pomodoro-timer">
     <!-- 设置按钮移至右上角 -->
-    <button ref="settingsButton" @click="toggleSettings" class="settings-btn settings-btn-corner">
+    <button ref="settingsButton" class="settings-btn settings-btn-corner" @click="toggleSettings">
       <svg
         xmlns="http://www.w3.org/2000/svg"
         viewBox="0 0 24 24"
@@ -57,7 +57,7 @@
     <div v-if="showSettings" ref="settingsPanel" class="settings-panel">
       <div class="settings-header">
         <h4>{{ t('pomodoroSettings') }}</h4>
-        <button @click="toggleSettings" class="close-btn">×</button>
+        <button class="close-btn" @click="toggleSettings">×</button>
       </div>
       <div class="settings-content">
         <div class="setting-item">
@@ -87,10 +87,10 @@
           </div>
         </div>
         <div class="settings-actions">
-          <button @click="applySettings" :disabled="isActive" class="apply-btn">
+          <button :disabled="isActive" class="apply-btn" @click="applySettings">
             {{ t('apply') }}
           </button>
-          <button @click="resetToDefault" :disabled="isActive" class="reset-btn">
+          <button :disabled="isActive" class="reset-btn" @click="resetToDefault">
             {{ t('resetToDefault') }}
           </button>
         </div>
@@ -203,7 +203,9 @@ const startTimer = () => {
     if (timeLeft.value > 0) {
       timeLeft.value--
     } else {
-      clearInterval(timerInterval!)
+      if (timerInterval) {
+        clearInterval(timerInterval)
+      }
       timerInterval = null
 
       if (!isBreak.value) {

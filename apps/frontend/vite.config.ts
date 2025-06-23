@@ -241,6 +241,10 @@ export default defineConfig({
     emptyOutDir: true,
     sourcemap: process.env.NODE_ENV === 'development',
     chunkSizeWarningLimit: 1500,
+    // 启用 gzip 压缩
+    reportCompressedSize: true,
+    // 优化构建性能
+    target: 'es2020',
     rollupOptions: {
       external: [
         // 排除 MCP SDK 的 Node.js 特定模块
@@ -252,31 +256,99 @@ export default defineConfig({
         'cross-spawn',
       ],
       output: {
-        manualChunks: {
-          vendor: ['vue', 'vue-router', 'vue-i18n'],
-          chart: ['chart.js', 'chartjs-chart-matrix'],
-          utils: ['lodash-es', 'date-fns', '@vueuse/core'],
-          ui: ['canvas-confetti', 'dompurify'],
+        // 优化代码分割策略
+        manualChunks: (id) => {
+          // 第三方库分组
+          if (id.includes('node_modules')) {
+            // Vue 核心库
+            if (id.includes('vue') || id.includes('@vue')) {
+              return 'vue-vendor'
+            }
+            // 图表库
+            if (id.includes('chart.js') || id.includes('chartjs')) {
+              return 'chart-vendor'
+            }
+            // 工具库
+            if (id.includes('lodash') || id.includes('date-fns') || id.includes('@vueuse')) {
+              return 'utils-vendor'
+            }
+            // UI 库
+            if (
+              id.includes('canvas-confetti') ||
+              id.includes('dompurify') ||
+              id.includes('marked')
+            ) {
+              return 'ui-vendor'
+            }
+            // 图标库
+            if (id.includes('@iconify') || id.includes('iconify')) {
+              return 'icons-vendor'
+            }
+            // 其他第三方库
+            return 'vendor'
+          }
+          // 应用代码分组
+          if (id.includes('/src/components/')) {
+            return 'components'
+          }
+          if (id.includes('/src/composables/')) {
+            return 'composables'
+          }
+          if (id.includes('/src/services/')) {
+            return 'services'
+          }
+          if (id.includes('/src/utils/')) {
+            return 'utils'
+          }
         },
         entryFileNames: 'assets/[name]-[hash].js',
         chunkFileNames: 'assets/[name]-[hash].js',
-        assetFileNames: 'assets/[name]-[hash][extname]',
+        assetFileNames: (assetInfo) => {
+          // 根据文件类型分组资源
+          const name = assetInfo.name || 'asset'
+          const info = name.split('.')
+          const ext = info[info.length - 1]
+          if (/png|jpe?g|svg|gif|tiff|bmp|ico/i.test(ext)) {
+            return `assets/images/[name]-[hash][extname]`
+          }
+          if (/woff2?|eot|ttf|otf/i.test(ext)) {
+            return `assets/fonts/[name]-[hash][extname]`
+          }
+          return `assets/[name]-[hash][extname]`
+        },
       },
     },
 
-    minify: 'terser',
-    terserOptions: {
-      compress: {
-        drop_console: process.env.NODE_ENV === 'production',
-        drop_debugger: true,
-        pure_funcs: ['console.log', 'console.info'],
-      },
-    },
+    // 使用 esbuild 进行更快的压缩
+    minify: process.env.NODE_ENV === 'production' ? 'esbuild' : false,
+    // 如果需要更好的压缩率，可以使用 terser
+    // minify: 'terser',
+    // terserOptions: {
+    //   compress: {
+    //     drop_console: process.env.NODE_ENV === 'production',
+    //     drop_debugger: true,
+    //     pure_funcs: ['console.log', 'console.info', 'console.debug'],
+    //     passes: 2,
+    //   },
+    //   mangle: {
+    //     safari10: true,
+    //   },
+    // },
 
+    // 启用 CSS 代码分割
     cssCodeSplit: true,
+    // CSS 压缩
+    cssMinify: true,
 
+    // 模块预加载优化
     modulePreload: {
       polyfill: true,
+      resolveDependencies: (_filename, deps) => {
+        // 只预加载关键依赖
+        return deps.filter(
+          (dep) => dep.includes('vue-vendor') || dep.includes('components') || dep.includes('main')
+        )
+      },
     },
   },
   define: {

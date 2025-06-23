@@ -146,6 +146,7 @@ export class SettingsService {
         autoAnalyze: true,
         priorityAnalysis: true,
         timeEstimation: true,
+        subtaskSplitting: true,
         modelConfig: {
           model: 'deepseek-chat',
           temperature: 0.3,

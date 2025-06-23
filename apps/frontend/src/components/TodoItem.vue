@@ -214,9 +214,6 @@ const toggleTodo = () => {
     return
   }
 
-  // 添加调试信息
-  console.log('Toggle todo clicked:', props.todo.id, props.todo.text)
-
   try {
     emit('toggle', props.todo.id)
     if (!isCompleted.value) {

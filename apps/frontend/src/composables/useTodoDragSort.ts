@@ -139,6 +139,15 @@ export function useTodoDragSort(
     },
   })
 
+  // 组件卸载时确保清理拖拽功能
+  onUnmounted(() => {
+    stop()
+    // 清理拖拽状态
+    isDragging.value = false
+    draggedItem.value = null
+    document.body.classList.remove('dragging-todo')
+  })
+
   return {
     isDragging: isCurrentlyDragging,
     draggedItem: currentDraggedItem,

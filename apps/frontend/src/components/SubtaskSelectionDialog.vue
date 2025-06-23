@@ -12,7 +12,7 @@
             <h3 class="dialog-title">AI 任务拆分建议</h3>
             <p class="dialog-subtitle">智能分析您的任务，提供最佳拆分方案</p>
           </div>
-          <button @click="handleCancel" class="close-button">×</button>
+          <button class="close-button" @click="handleCancel">×</button>
         </header>
 
         <!-- 内容区域 -->
@@ -65,8 +65,8 @@
 
         <!-- 底部操作 -->
         <footer class="dialog-footer">
-          <button @click="handleCancel" class="btn btn-secondary">保持原样</button>
-          <button @click="handleConfirm" :disabled="!hasSelectedSubtasks" class="btn btn-primary">
+          <button class="btn btn-secondary" @click="handleCancel">保持原样</button>
+          <button :disabled="!hasSelectedSubtasks" class="btn btn-primary" @click="handleConfirm">
             使用拆分 ({{ selectedCount }})
           </button>
         </footer>

@@ -21,7 +21,7 @@ declare global {
     let currentTranslateY = 0
     let dragTarget: HTMLElement | null = null
     let animationFrameId: number | null = null
-    let pendingTransform = { x: 0, y: 0 }
+    const pendingTransform = { x: 0, y: 0 }
 
     // 优化的拖拽更新函数，使用 requestAnimationFrame 节流
     const updateDragTransform = () => {

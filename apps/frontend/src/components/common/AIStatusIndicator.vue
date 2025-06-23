@@ -42,7 +42,8 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { clearSafeTimeout, safeSetTimeout } from '@/utils/memoryLeakFixes'
+import { computed, onUnmounted } from 'vue'
 
 type StatusType = 'loading' | 'success' | 'error' | 'info'
 
@@ -78,11 +79,20 @@ const statusClass = computed(() => {
   }
 })
 
+// 自动关闭定时器管理
+let autoCloseTimer: number | null = null
+
 if (props.duration > 0) {
-  setTimeout(() => {
+  autoCloseTimer = safeSetTimeout(() => {
     emit('close')
   }, props.duration)
 }
+
+onUnmounted(() => {
+  if (autoCloseTimer) {
+    clearSafeTimeout(autoCloseTimer)
+  }
+})
 
 defineOptions({
   name: 'AIStatusIndicator',

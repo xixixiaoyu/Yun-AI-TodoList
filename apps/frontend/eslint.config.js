@@ -26,6 +26,7 @@ export default [
       'auto-imports.d.ts',
       'src/types/pwa.d.ts',
       'vite.config.ts',
+      'uno.config.ts',
       '**/workbox-*.js',
       '**/sw.js',
       'eslint.config.js',
@@ -46,6 +47,17 @@ export default [
         __VUE_I18N_LEGACY_API__: 'readonly',
         __VUE_I18N_FULL_INSTALL__: 'readonly',
         __INTLIFY_PROD_DEVTOOLS__: 'readonly',
+
+        // DOM types
+        Document: 'readonly',
+        Window: 'readonly',
+        DocumentEventMap: 'readonly',
+        WindowEventMap: 'readonly',
+        AddEventListenerOptions: 'readonly',
+        EventTarget: 'readonly',
+        EventListener: 'readonly',
+        ErrorEvent: 'readonly',
+        PromiseRejectionEvent: 'readonly',
 
         window: 'readonly',
         document: 'readonly',
@@ -88,7 +100,6 @@ export default [
         HTMLCanvasElement: 'readonly',
         HTMLDivElement: 'readonly',
         HTMLButtonElement: 'readonly',
-        EventTarget: 'readonly',
 
         Notification: 'readonly',
         SpeechRecognition: 'readonly',
@@ -116,6 +127,7 @@ export default [
         PerformanceObserver: 'readonly',
         FormData: 'readonly',
 
+        // Vue 3 Composition API
         ref: 'readonly',
         reactive: 'readonly',
         computed: 'readonly',
@@ -198,14 +210,17 @@ export default [
         useNetwork: 'readonly',
         useFetch: 'readonly',
         useAsyncState: 'readonly',
+
+        // PWA 相关全局变量
+        caches: 'readonly',
       },
     },
     plugins: {
       '@typescript-eslint': typescript,
     },
     rules: {
-      'no-console': ['warn', { allow: ['error', 'warn'] }],
-      'no-debugger': 'warn',
+      'no-console': ['error', { allow: ['warn', 'error', 'group', 'groupEnd'] }],
+      'no-debugger': 'error',
       'no-unused-vars': 'off',
       'no-empty': ['error', { allowEmptyCatch: true }],
       'no-func-assign': 'error',
@@ -403,6 +418,9 @@ export default [
         useNetwork: 'readonly',
         useFetch: 'readonly',
         useAsyncState: 'readonly',
+
+        // PWA 相关全局变量
+        caches: 'readonly',
       },
     },
     plugins: {
@@ -443,10 +461,17 @@ export default [
   },
 
   {
-    files: ['**/workers/**/*.ts', '**/worker*.ts', 'src/workers/**/*.ts'],
+    files: [
+      '**/workers/**/*.ts',
+      '**/worker*.ts',
+      'src/workers/**/*.ts',
+      '**/sw.js',
+      '**/service-worker.js',
+    ],
     languageOptions: {
       globals: {
         self: 'readonly',
+        caches: 'readonly',
         importScripts: 'readonly',
         postMessage: 'readonly',
         onmessage: 'readonly',
@@ -456,6 +481,14 @@ export default [
         clearTimeout: 'readonly',
         setInterval: 'readonly',
         clearInterval: 'readonly',
+        fetch: 'readonly',
+        Response: 'readonly',
+        Request: 'readonly',
+        Headers: 'readonly',
+        URL: 'readonly',
+        clients: 'readonly',
+        registration: 'readonly',
+        skipWaiting: 'readonly',
       },
     },
   },

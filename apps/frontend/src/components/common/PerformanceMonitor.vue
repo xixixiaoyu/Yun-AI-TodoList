@@ -256,19 +256,21 @@ const hide = () => {
   showMonitor.value = false
 }
 
-let metricsInterval: number
+import { clearSafeInterval, safeSetInterval } from '@/utils/memoryLeakFixes'
+
+let metricsInterval: number | null = null
 
 onMounted(() => {
   if (props.autoStart) {
     calculateFPS()
   }
 
-  metricsInterval = setInterval(updateMetrics, 1000)
+  metricsInterval = safeSetInterval(updateMetrics, 1000)
 })
 
 onUnmounted(() => {
   if (metricsInterval) {
-    clearInterval(metricsInterval)
+    clearSafeInterval(metricsInterval)
   }
 })
 

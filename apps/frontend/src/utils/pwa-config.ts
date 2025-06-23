@@ -83,12 +83,13 @@ export async function validatePWAIcons(): Promise<boolean> {
 /**
  * 减少 PWA 日志输出的配置
  */
+ 
 export function configurePWALogging() {
   // 在生产环境中减少 workbox 日志
-  if (import.meta.env.PROD) {
+  if ((import.meta as { env: { PROD?: boolean } }).env.PROD) {
     // 覆盖 console.log 以过滤 workbox 日志
     const originalLog = console.log
-    console.log = (...args: any[]) => {
+    console.log = (...args: unknown[]) => {
       const message = args.join(' ')
       if (
         message.includes('workbox') ||
@@ -101,6 +102,7 @@ export function configurePWALogging() {
     }
   }
 }
+ 
 
 /**
  * 配置 PWA 状态栏主题色

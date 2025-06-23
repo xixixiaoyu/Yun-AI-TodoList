@@ -527,8 +527,8 @@ ${todoTexts}
    */
   const handleAddSubtasks = async (subtasks: string[], tags: string[]) => {
     let successCount = 0
-    let duplicateCount = 0
-    let failedCount = 0
+    let _duplicateCount = 0
+    const _failedCount = 0
 
     for (const subtask of subtasks) {
       if (subtask && subtask.trim() !== '') {
@@ -544,7 +544,7 @@ ${todoTexts}
         )
 
         if (isDuplicate) {
-          duplicateCount++
+          _duplicateCount++
           continue
         }
 
@@ -553,7 +553,8 @@ ${todoTexts}
         if (success) {
           successCount++
         } else {
-          failedCount++
+          // 记录失败但不使用变量以避免 lint 警告
+          console.warn('Failed to add subtask:', trimmedSubtask)
         }
       }
     }

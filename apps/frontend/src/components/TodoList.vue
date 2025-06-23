@@ -257,7 +257,7 @@ const handleSubtaskConfirm = async (selectedSubtasks: string[]) => {
         await nextTick()
         await nextTick()
       }
-    } catch (err) {
+    } catch (_err) {
       error.value = '添加子任务失败，请重试'
     }
   }

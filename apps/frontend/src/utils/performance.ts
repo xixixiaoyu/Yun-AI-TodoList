@@ -163,6 +163,38 @@ class PerformanceMonitor {
     this.observers = []
     this.metrics = []
   }
+
+  // 内存泄露检测
+  detectMemoryLeaks(): {
+    potentialLeaks: string[]
+    recommendations: string[]
+  } {
+    const potentialLeaks: string[] = []
+    const recommendations: string[] = []
+
+    // 检查内存使用情况
+    const memoryUsage = this.getMemoryUsage()
+    if (memoryUsage && memoryUsage.percentage > 80) {
+      potentialLeaks.push(`内存使用率过高: ${memoryUsage.percentage.toFixed(1)}%`)
+      recommendations.push('检查是否有未清理的事件监听器或定时器')
+    }
+
+    // 检查长任务
+    const longTasks = this.metrics.filter((m) => m.category === 'user-interaction' && m.value > 50)
+    if (longTasks.length > 10) {
+      potentialLeaks.push(`检测到 ${longTasks.length} 个长任务`)
+      recommendations.push('优化计算密集型操作，考虑使用 Web Workers')
+    }
+
+    // 检查网络请求
+    const networkTasks = this.metrics.filter((m) => m.category === 'network' && m.value > 5000)
+    if (networkTasks.length > 5) {
+      potentialLeaks.push(`检测到 ${networkTasks.length} 个慢网络请求`)
+      recommendations.push('优化网络请求，添加请求缓存和超时处理')
+    }
+
+    return { potentialLeaks, recommendations }
+  }
 }
 
 export const performanceMonitor = new PerformanceMonitor()

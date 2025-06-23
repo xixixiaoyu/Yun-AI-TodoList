@@ -24,9 +24,9 @@
 <script setup lang="ts">
 const props = withDefaults(
   defineProps<{
-    maxLength: number
-    duplicateError: string
-    placeholder: string
+    maxLength?: number
+    duplicateError?: string
+    placeholder?: string
     isLoading?: boolean
   }>(),
   {

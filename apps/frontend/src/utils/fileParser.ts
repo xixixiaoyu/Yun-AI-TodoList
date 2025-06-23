@@ -62,7 +62,7 @@ export async function parsePDFFile(file: File): Promise<string> {
         )
         const page = await pdf.getPage(i)
         const textContent = await page.getTextContent()
-        const pageText = textContent.items.map((item: any) => item.str).join(' ')
+        const pageText = textContent.items.map((item: { str: string }) => item.str).join(' ')
         fullText += pageText + '\n'
       } catch (pageError) {
         logger.warn(`Page ${i} parsing failed`, pageError, 'FileParser')
