@@ -1,0 +1,127 @@
+# ===========================================
+# Yun AI TodoList - 开发环境 Docker 配置
+# 支持热重载和开发工具
+# ===========================================
+
+# ===========================================
+# 基础开发镜像
+# ===========================================
+FROM node:18-alpine AS dev-base
+
+# 设置工作目录
+WORKDIR /app
+
+# 安装系统依赖和开发工具
+RUN apk add --no-cache \
+    libc6-compat \
+    python3 \
+    make \
+    g++ \
+    curl \
+    git \
+    bash \
+    && npm install -g pnpm@9.0.0 nodemon
+
+# 设置 pnpm 存储目录
+ENV PNPM_HOME="/pnpm"
+ENV PATH="$PNPM_HOME:$PATH"
+
+# 创建非 root 用户（开发环境）
+RUN addgroup -g 1001 -S nodejs && \
+    adduser -S developer -u 1001 -G nodejs
+
+# ===========================================
+# 前端开发环境
+# ===========================================
+FROM dev-base AS frontend-dev
+
+# 设置环境变量
+ENV NODE_ENV=development
+ENV VITE_API_BASE_URL=http://localhost:3000/api/v1
+
+# 复制 workspace 配置
+COPY --chown=developer:nodejs package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+
+# 复制前端 package.json
+COPY --chown=developer:nodejs apps/frontend/package.json ./apps/frontend/
+COPY --chown=developer:nodejs packages/*/package.json ./packages/*/
+
+# 安装依赖
+RUN pnpm install --frozen-lockfile
+
+# 切换到非 root 用户
+USER developer
+
+# 暴露端口
+EXPOSE 5173
+
+# 健康检查
+HEALTHCHECK --interval=30s --timeout=10s --start-period=10s --retries=3 \
+  CMD curl -f http://localhost:5173 || exit 1
+
+# 启动开发服务器（源代码通过 volume 挂载）
+CMD ["pnpm", "--filter", "frontend", "dev", "--host", "0.0.0.0"]
+
+# ===========================================
+# 后端开发环境
+# ===========================================
+FROM dev-base AS backend-dev
+
+# 设置环境变量
+ENV NODE_ENV=development
+ENV PORT=3000
+
+# 复制 workspace 配置
+COPY --chown=developer:nodejs package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+
+# 复制后端 package.json
+COPY --chown=developer:nodejs apps/backend/package.json ./apps/backend/
+COPY --chown=developer:nodejs packages/*/package.json ./packages/*/
+
+# 安装依赖
+RUN pnpm install --frozen-lockfile
+
+# 切换到非 root 用户
+USER developer
+
+# 暴露端口
+EXPOSE 3000
+
+# 健康检查
+HEALTHCHECK --interval=30s --timeout=10s --start-period=20s --retries=3 \
+  CMD curl -f http://localhost:3000/health || exit 1
+
+# 启动开发服务器（源代码通过 volume 挂载）
+CMD ["pnpm", "--filter", "backend", "dev"]
+
+# ===========================================
+# 全栈开发环境（可选）
+# ===========================================
+FROM dev-base AS fullstack-dev
+
+# 设置环境变量
+ENV NODE_ENV=development
+ENV FRONTEND_PORT=5173
+ENV BACKEND_PORT=3000
+
+# 复制 workspace 配置
+COPY --chown=developer:nodejs package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+
+# 复制所有 package.json
+COPY --chown=developer:nodejs apps/*/package.json ./apps/*/
+COPY --chown=developer:nodejs packages/*/package.json ./packages/*/
+
+# 安装依赖
+RUN pnpm install --frozen-lockfile
+
+# 安装 concurrently 用于同时运行前后端
+RUN pnpm add -g concurrently
+
+# 切换到非 root 用户
+USER developer
+
+# 暴露端口
+EXPOSE 3000 5173
+
+# 启动全栈开发服务器
+CMD ["pnpm", "dev:all"]

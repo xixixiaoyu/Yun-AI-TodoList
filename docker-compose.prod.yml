@@ -84,9 +84,9 @@ services:
   # 后端 API 服务 - 生产优化
   backend:
     build:
-      context: ./apps/backend
+      context: .
       dockerfile: Dockerfile
-      target: runner
+      target: backend
     container_name: yun-todolist-backend-prod
     restart: unless-stopped
     environment:
@@ -133,9 +133,9 @@ services:
   # 前端应用 - 生产优化
   frontend:
     build:
-      context: ./apps/frontend
+      context: .
       dockerfile: Dockerfile
-      target: production
+      target: frontend
       args:
         VITE_API_BASE_URL: ${VITE_API_BASE_URL:-/api/v1}
     container_name: yun-todolist-frontend-prod

@@ -13,7 +13,7 @@ services:
       PGDATA: /var/lib/postgresql/data/pgdata
     volumes:
       - postgres_dev_data:/var/lib/postgresql/data
-      - ./scripts/init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
+      - ./scripts/init-db.sql:/docker-entrypoint-initdb.d/init-db.sql:ro
     ports:
       - '5433:5432'
     networks:
@@ -42,6 +42,86 @@ services:
       timeout: 3s
       retries: 5
 
+  # 后端开发服务 (支持热重载)
+  backend-dev:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+      target: backend-dev
+    container_name: yun-todolist-backend-dev
+    restart: unless-stopped
+    environment:
+      NODE_ENV: development
+      PORT: 3000
+      DATABASE_URL: postgresql://postgres:postgres123@postgres-dev:5432/yun_ai_todolist_dev
+      REDIS_HOST: redis-dev
+      REDIS_PORT: 6379
+      JWT_SECRET: dev-jwt-secret-key
+      JWT_EXPIRES_IN: 24h
+      JWT_REFRESH_SECRET: dev-refresh-secret-key
+      JWT_REFRESH_EXPIRES_IN: 7d
+      BCRYPT_ROUNDS: 10
+      FRONTEND_URL: http://localhost:5173
+      LOG_LEVEL: debug
+    volumes:
+      # 挂载源代码以支持热重载
+      - ./apps/backend/src:/app/apps/backend/src:ro
+      - ./apps/backend/prisma:/app/apps/backend/prisma:ro
+      - ./packages:/app/packages:ro
+      # 挂载 node_modules 以提高性能
+      - backend_dev_node_modules:/app/node_modules
+      - backend_dev_dist:/app/apps/backend/dist
+    ports:
+      - '3000:3000'
+      - '9229:9229'  # Node.js 调试端口
+    depends_on:
+      postgres-dev:
+        condition: service_healthy
+      redis-dev:
+        condition: service_healthy
+    networks:
+      - todolist-dev-network
+    healthcheck:
+      test: ['CMD', 'curl', '-f', 'http://localhost:3000/health']
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+  # 前端开发服务 (支持热重载)
+  frontend-dev:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+      target: frontend-dev
+    container_name: yun-todolist-frontend-dev
+    restart: unless-stopped
+    environment:
+      NODE_ENV: development
+      VITE_API_BASE_URL: http://localhost:3000/api/v1
+    volumes:
+      # 挂载源代码以支持热重载
+      - ./apps/frontend/src:/app/apps/frontend/src:ro
+      - ./apps/frontend/public:/app/apps/frontend/public:ro
+      - ./apps/frontend/index.html:/app/apps/frontend/index.html:ro
+      - ./apps/frontend/vite.config.ts:/app/apps/frontend/vite.config.ts:ro
+      - ./apps/frontend/uno.config.ts:/app/apps/frontend/uno.config.ts:ro
+      - ./packages:/app/packages:ro
+      # 挂载 node_modules 以提高性能
+      - frontend_dev_node_modules:/app/node_modules
+    ports:
+      - '5173:5173'
+    depends_on:
+      - backend-dev
+    networks:
+      - todolist-dev-network
+    healthcheck:
+      test: ['CMD', 'curl', '-f', 'http://localhost:5173']
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
   # 数据库管理工具
   adminer:
     image: adminer:4.8.1
@@ -64,3 +144,10 @@ volumes:
     name: yun-todolist-postgres-dev-data
   redis_dev_data:
     name: yun-todolist-redis-dev-data
+  # 开发环境 node_modules 卷，提高性能
+  backend_dev_node_modules:
+    name: yun-todolist-backend-dev-node-modules
+  frontend_dev_node_modules:
+    name: yun-todolist-frontend-dev-node-modules
+  backend_dev_dist:
+    name: yun-todolist-backend-dev-dist
