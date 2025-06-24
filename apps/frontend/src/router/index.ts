@@ -27,6 +27,15 @@ const router = createRouter({
         preload: false, // 按需加载
       },
     },
+    {
+      path: '/test-input',
+      name: 'test-input',
+      component: () => import('../components/TodoInputTest.vue'),
+      meta: {
+        title: 'TodoInput 测试',
+        preload: false,
+      },
+    },
   ],
 })
 

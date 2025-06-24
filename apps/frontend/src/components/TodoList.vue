@@ -27,6 +27,7 @@
         :placeholder="t('addTodo')"
         :is-loading="isSplittingTask"
         @add="handleAddTodo"
+        @clear-duplicate-error="clearDuplicateError"
       />
 
       <TodoFilters v-model:filter="filter" />
@@ -276,6 +277,12 @@ const handleSubtaskCancel = () => {
 // 处理 Todo 文本更新
 const handleUpdateTodoText = async (id: number, newText: string) => {
   await updateTodoText(id, newText)
+}
+
+// 清除重复错误
+const clearDuplicateError = () => {
+  // duplicateError 来自 useTodoManagement，它内部会自动清除
+  // 这里不需要额外的操作，因为 useErrorHandler 的 error 会在 5 秒后自动清除
 }
 
 // 创建专门的拖拽顺序更新函数
