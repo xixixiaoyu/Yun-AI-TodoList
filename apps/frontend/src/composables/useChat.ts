@@ -112,6 +112,12 @@ export function useChat() {
   }
 
   const switchConversation = (id: string) => {
+    // 如果正在生成回复，禁止切换对话
+    if (isGenerating.value) {
+      console.warn('AI 正在生成回复，无法切换对话')
+      return
+    }
+
     const conversationIndex = conversationHistory.value.findIndex((c) => c.id === id)
     if (conversationIndex !== -1) {
       const conversation = conversationHistory.value[conversationIndex]

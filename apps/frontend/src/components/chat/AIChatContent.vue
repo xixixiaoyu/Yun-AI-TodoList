@@ -4,6 +4,7 @@
       :is-open="isDrawerOpen"
       :conversations="conversationHistory"
       :current-conversation-id="currentConversationId"
+      :is-generating="isGenerating"
       @update:is-open="$emit('update:isDrawerOpen', $event)"
       @switch="$emit('switchConversation', $event)"
       @delete="$emit('deleteConversation', $event)"
@@ -13,8 +14,8 @@
     <ChatMessageList
       ref="messageListRef"
       :messages="chatHistory"
-      :current-response="currentAiResponse"
-      :current-thinking="currentThinkingContent"
+      :current-response="currentAiResponse || ''"
+      :current-thinking="currentThinkingContent || ''"
       :is-retrying="isRetrying"
       :retry-count="retryCount"
       :has-error="hasError"

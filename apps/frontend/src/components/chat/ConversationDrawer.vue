@@ -52,6 +52,17 @@
         </div>
       </div>
 
+      <!-- 生成状态提示 -->
+      <div v-if="isGenerating" class="generating-notice">
+        <div class="notice-content">
+          <div class="notice-icon">✨</div>
+          <div class="notice-text">
+            <p class="notice-title">AI 正在生成回复</p>
+            <p class="notice-subtitle">请等待回复完成后再切换对话</p>
+          </div>
+        </div>
+      </div>
+
       <!-- 对话列表 -->
       <div class="conversations-list">
         <div v-if="conversations.length === 0" class="empty-state">
@@ -65,8 +76,11 @@
           v-for="conversation in conversations"
           :key="conversation.id"
           class="conversation-item"
-          :class="{ 'conversation-active': currentConversationId === conversation.id }"
-          @click.stop="$emit('switch', conversation.id)"
+          :class="{
+            'conversation-active': currentConversationId === conversation.id,
+            'conversation-disabled': isGenerating && currentConversationId !== conversation.id,
+          }"
+          @click.stop="handleSwitchConversation(conversation.id)"
         >
           <div class="conversation-content">
             <div class="conversation-header">
@@ -137,6 +151,7 @@ interface Props {
   isOpen: boolean
   conversations: Conversation[]
   currentConversationId: string | null
+  isGenerating?: boolean
 }
 
 interface Emits {
@@ -187,6 +202,14 @@ const handleClearAll = () => {
   if (confirm(t('confirmClearAllConversations'))) {
     emit('clear')
   }
+}
+
+const handleSwitchConversation = (id: string) => {
+  // 如果正在生成回复且不是当前对话，则不允许切换
+  if (props.isGenerating && props.currentConversationId !== id) {
+    return
+  }
+  emit('switch', id)
 }
 
 const handleDeleteConversation = (id: string) => {
@@ -275,6 +298,14 @@ defineOptions({
   @apply bg-primary/10 border-primary/30 text-primary;
 }
 
+.conversation-disabled {
+  @apply opacity-50 cursor-not-allowed;
+}
+
+.conversation-disabled:hover {
+  @apply bg-input-bg border-transparent;
+}
+
 .conversation-content {
   @apply flex-1 min-w-0;
 }
@@ -340,6 +371,30 @@ defineOptions({
 
 .stats-text {
   @apply text-xs text-text-secondary;
+}
+
+.generating-notice {
+  @apply mx-2 mb-3 p-3 bg-primary/5 border border-primary/20 rounded-lg;
+}
+
+.notice-content {
+  @apply flex items-start gap-3;
+}
+
+.notice-icon {
+  @apply text-lg;
+}
+
+.notice-text {
+  @apply flex-1;
+}
+
+.notice-title {
+  @apply text-sm font-medium text-primary m-0 mb-1;
+}
+
+.notice-subtitle {
+  @apply text-xs text-text-secondary m-0;
 }
 
 .drawer-overlay {
