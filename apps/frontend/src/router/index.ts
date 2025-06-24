@@ -19,6 +19,15 @@ const router = createRouter({
       },
     },
     {
+      path: '/landing',
+      name: 'landing',
+      component: () => import('../views/Landing.vue'),
+      meta: {
+        title: 'Yun AI TodoList - 智能待办事项管理应用',
+        preload: false, // 按需加载
+      },
+    },
+    {
       path: '/settings',
       name: 'settings',
       component: () => import('../components/Settings.vue'),

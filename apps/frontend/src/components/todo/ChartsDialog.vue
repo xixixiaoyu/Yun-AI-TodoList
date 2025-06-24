@@ -64,9 +64,9 @@ defineOptions({
 }
 
 .charts-dialog-content {
-  @apply relative w-full max-w-[1200px] max-h-[98vh] overflow-y-auto;
+  @apply relative w-full max-w-[1000px] max-h-[95vh] overflow-y-auto;
   @apply rounded-3xl p-8;
-  @apply md:p-6 sm:p-4 sm:rounded-2xl sm:max-h-full;
+  @apply lg:p-6 md:p-5 sm:p-4 sm:rounded-2xl sm:max-h-full;
   background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(248, 250, 252, 0.9) 100%);
   backdrop-filter: blur(20px);
   border: 1px solid rgba(226, 232, 240, 0.6);
@@ -121,14 +121,16 @@ defineOptions({
 
 .charts-dialog-title {
   @apply m-0 mb-8 text-2xl font-bold text-center pr-12;
-  @apply md:text-xl md:mb-6 md:pr-10;
-  @apply sm:text-lg sm:mb-4 sm:pr-8;
+  @apply lg:text-xl lg:mb-6 lg:pr-10;
+  @apply md:text-lg md:mb-5 md:pr-9;
+  @apply sm:text-base sm:mb-4 sm:pr-8;
   color: var(--text-color, #1e293b);
   background: linear-gradient(135deg, var(--primary-color, #79b4a6), #68a295);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  line-height: 1.3;
 }
 
 [data-theme='dark'] .charts-dialog-title {
@@ -162,22 +164,57 @@ defineOptions({
 }
 
 /* 响应式优化 */
+@media (max-width: 1024px) {
+  .charts-dialog-content {
+    max-width: 900px;
+    margin: 1.5rem;
+    max-height: calc(100vh - 3rem);
+  }
+}
+
 @media (max-width: 768px) {
   .charts-dialog-content {
+    max-width: 95vw;
     margin: 1rem;
     max-height: calc(100vh - 2rem);
+    padding: 1.5rem;
+  }
+
+  .charts-dialog-title {
+    margin-bottom: 1.5rem;
   }
 }
 
 @media (max-width: 640px) {
   .charts-dialog-overlay {
-    padding: 0.5rem;
+    padding: 0.75rem;
   }
 
   .charts-dialog-content {
     margin: 0;
+    border-radius: 1.25rem;
+    max-height: calc(100vh - 1.5rem);
+    padding: 1.25rem;
+  }
+
+  .charts-dialog-title {
+    margin-bottom: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .charts-dialog-overlay {
+    padding: 0.5rem;
+  }
+
+  .charts-dialog-content {
     border-radius: 1rem;
-    max-height: 100vh;
+    max-height: calc(100vh - 1rem);
+    padding: 1rem;
+  }
+
+  .charts-dialog-title {
+    margin-bottom: 0.75rem;
   }
 }
 </style>

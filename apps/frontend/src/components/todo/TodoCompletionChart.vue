@@ -197,58 +197,143 @@ defineOptions({
 <style scoped>
 .todo-completion-chart {
   width: 100%;
-  max-width: 600px;
+  max-width: 700px;
   margin: 0 auto;
 }
 
 .stats-overview {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 1rem;
+  gap: 1.25rem;
   margin-bottom: 2rem;
-  padding: 1rem;
+  padding: 1.5rem;
   background: linear-gradient(135deg, var(--card-bg-color) 0%, rgba(255, 255, 255, 0.05) 100%);
-  border-radius: 12px;
+  border-radius: 16px;
   border: 1px solid rgba(255, 126, 103, 0.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 }
 
 .stat-item {
   text-align: center;
-  padding: 0.5rem;
+  padding: 0.75rem;
+  border-radius: 12px;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
+  backdrop-filter: blur(8px);
+  transition: all 0.3s ease;
+}
+
+.stat-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(255, 126, 103, 0.15);
 }
 
 .stat-value {
-  font-size: 1.5rem;
-  font-weight: bold;
+  font-size: 1.75rem;
+  font-weight: 700;
   color: var(--text-color);
-  margin-bottom: 0.25rem;
+  margin-bottom: 0.5rem;
+  line-height: 1.2;
 }
 
 .stat-label {
-  font-size: 0.8rem;
+  font-size: 0.85rem;
   color: var(--text-color);
-  opacity: 0.7;
-  font-weight: 500;
+  opacity: 0.75;
+  font-weight: 600;
+  letter-spacing: 0.025em;
 }
 
 .completion-rate .stat-value {
-  color: rgba(75, 192, 192, 1);
+  background: linear-gradient(135deg, #ff7e67, #68a295);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 .chart-container {
-  height: 800px;
-  padding: 1rem;
+  height: 420px;
+  padding: 1.5rem;
   background: var(--card-bg-color);
-  border-radius: 12px;
+  border-radius: 16px;
   border: 1px solid rgba(255, 126, 103, 0.1);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+  backdrop-filter: blur(8px);
 }
 
+/* 大屏幕优化 */
+@media (min-width: 1200px) {
+  .todo-completion-chart {
+    max-width: 800px;
+  }
+
+  .stats-overview {
+    gap: 1.5rem;
+    padding: 2rem;
+  }
+
+  .stat-value {
+    font-size: 2rem;
+  }
+
+  .chart-container {
+    height: 450px;
+    padding: 2rem;
+  }
+}
+
+/* 中等屏幕 */
+@media (max-width: 1024px) {
+  .stats-overview {
+    gap: 1rem;
+    padding: 1.25rem;
+  }
+
+  .stat-value {
+    font-size: 1.5rem;
+  }
+
+  .chart-container {
+    height: 380px;
+    padding: 1.25rem;
+  }
+}
+
+/* 平板设备 */
 @media (max-width: 768px) {
   .stats-overview {
     grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+    padding: 1rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .stat-item {
+    padding: 0.75rem;
+  }
+
+  .stat-value {
+    font-size: 1.4rem;
+  }
+
+  .stat-label {
+    font-size: 0.8rem;
+  }
+
+  .chart-container {
+    height: 320px;
+    padding: 1rem;
+  }
+}
+
+/* 大手机 */
+@media (max-width: 640px) {
+  .stats-overview {
     gap: 0.75rem;
     padding: 0.75rem;
+  }
+
+  .stat-item {
+    padding: 0.5rem;
   }
 
   .stat-value {
@@ -260,24 +345,31 @@ defineOptions({
   }
 
   .chart-container {
-    height: 600px;
+    height: 300px;
     padding: 0.75rem;
   }
 }
 
+/* 小手机 */
 @media (max-width: 480px) {
+  .todo-completion-chart {
+    max-width: 100%;
+  }
+
   .stats-overview {
     grid-template-columns: repeat(2, 1fr);
     gap: 0.5rem;
-    padding: 0.5rem;
+    padding: 0.75rem;
+    margin-bottom: 1rem;
   }
 
   .stat-item {
-    padding: 0.25rem;
+    padding: 0.5rem;
   }
 
   .stat-value {
     font-size: 1.1rem;
+    margin-bottom: 0.25rem;
   }
 
   .stat-label {
@@ -285,8 +377,8 @@ defineOptions({
   }
 
   .chart-container {
-    height: 450px;
-    padding: 0.5rem;
+    height: 280px;
+    padding: 0.75rem;
   }
 }
 </style>
