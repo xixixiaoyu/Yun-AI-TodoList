@@ -96,7 +96,7 @@ describe('useTodoManagement', () => {
       })
 
       const { handleAddTodo } = useTodoManagement()
-      handleAddTodo('新的待办事项', [])
+      handleAddTodo('新的待办事项')
 
       expect(mockAddTodo).toHaveBeenCalledWith({ title: '新的待办事项' })
     })

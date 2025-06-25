@@ -324,7 +324,7 @@ export function useDataSync() {
     try {
       switch (operation.type) {
         case 'create':
-          await syncService.uploadData([operation.data])
+          await syncService.uploadData([operation.data as Todo])
           break
         case 'update':
           // TODO: 实现单个更新 API
