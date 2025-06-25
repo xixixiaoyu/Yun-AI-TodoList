@@ -41,6 +41,7 @@ export class SettingsService {
         aiConfig: JSON.stringify(updatedPreferences.aiConfig),
         searchConfig: JSON.stringify(updatedPreferences.searchConfig),
         notifications: JSON.stringify(updatedPreferences.notifications),
+        storageConfig: JSON.stringify(updatedPreferences.storageConfig),
         updatedAt: new Date(),
       },
     })
@@ -65,6 +66,7 @@ export class SettingsService {
         aiConfig: JSON.stringify(defaultPreferences.aiConfig),
         searchConfig: JSON.stringify(defaultPreferences.searchConfig),
         notifications: JSON.stringify(defaultPreferences.notifications),
+        storageConfig: JSON.stringify(defaultPreferences.storageConfig),
         updatedAt: new Date(),
       },
     })
@@ -100,6 +102,7 @@ export class SettingsService {
         aiConfig: JSON.stringify(validatedPreferences.aiConfig),
         searchConfig: JSON.stringify(validatedPreferences.searchConfig),
         notifications: JSON.stringify(validatedPreferences.notifications),
+        storageConfig: JSON.stringify(validatedPreferences.storageConfig),
         updatedAt: new Date(),
       },
     })
@@ -134,6 +137,10 @@ export class SettingsService {
         ...current.notifications,
         ...updates.notifications,
       },
+      storageConfig: {
+        ...current.storageConfig,
+        ...(updates.storageConfig || {}),
+      },
     }
   }
 
@@ -157,7 +164,6 @@ export class SettingsService {
         defaultLanguage: 'zh-CN',
         safeSearch: true,
         defaultResultCount: 10,
-        saveHistory: true,
         engineConfig: {
           engine: 'google',
           region: 'CN',
@@ -168,6 +174,15 @@ export class SettingsService {
         email: false,
         dueReminder: true,
         reminderMinutes: 30,
+      },
+      storageConfig: {
+        mode: 'local',
+        autoSync: true,
+        syncInterval: 5, // 5分钟自动同步
+        offlineMode: true,
+        conflictResolution: 'ask-user',
+        backupEnabled: true,
+        maxBackupCount: 5,
       },
     }
   }
@@ -190,6 +205,10 @@ export class SettingsService {
       notifications: {
         ...defaultPreferences.notifications,
         ...(preferences.notifications || {}),
+      },
+      storageConfig: {
+        ...defaultPreferences.storageConfig,
+        ...(preferences.storageConfig || {}),
       },
     }
   }

@@ -57,10 +57,7 @@ export function useTodoManagement() {
     if (searchQuery.value.trim()) {
       const query = searchQuery.value.trim().toLowerCase()
       result = result.filter((todo) => {
-        return (
-          todo.title.toLowerCase().includes(query) ||
-          (todo.tags && todo.tags.some((tag) => tag.toLowerCase().includes(query)))
-        )
+        return todo.title.toLowerCase().includes(query)
       })
     }
 
@@ -213,7 +210,7 @@ export function useTodoManagement() {
     }
 
     const originalSuggestedCount = validSuggestions.length
-    const duplicates = addMultipleTodos(
+    const duplicates = await addMultipleTodos(
       validSuggestions.map((todo) => ({
         title: todo,
       }))
@@ -443,7 +440,7 @@ ${todoTexts}
     }
   }
 
-  const handleAddTodo = async (text: string, tags: string[], skipSplitAnalysis = false) => {
+  const handleAddTodo = async (text: string, skipSplitAnalysis = false) => {
     if (!text || text.trim() === '') {
       showError(t('emptyTodoError'))
       return
@@ -473,7 +470,7 @@ ${todoTexts}
       }
     }
 
-    const success = addTodo({ title: text, tags })
+    const success = addTodo({ title: text })
     if (!success) {
       showError(t('duplicateError'))
       return { needsSplitting: false }
@@ -523,9 +520,8 @@ ${todoTexts}
   /**
    * 批量添加子任务
    * @param subtasks 子任务文本数组
-   * @param tags 标签数组
    */
-  const handleAddSubtasks = async (subtasks: string[], tags: string[]) => {
+  const handleAddSubtasks = async (subtasks: string[]) => {
     let successCount = 0
     let duplicateCount = 0
 
@@ -547,7 +543,7 @@ ${todoTexts}
           continue
         }
 
-        const success = addTodo({ title: trimmedSubtask, tags })
+        const success = await addTodo({ title: trimmedSubtask })
 
         if (success) {
           successCount++
@@ -668,7 +664,7 @@ ${todoTexts}
         updatedAt: new Date().toISOString(),
       }
 
-      const success = updateTodo(id, updates)
+      const success = await updateTodo(id, updates)
       if (success) {
         showSuccess(t('todoUpdated', '待办事项已更新'))
 

@@ -33,12 +33,6 @@ export class TodoValidator {
       errors.push('Invalid completed status: must be boolean')
     }
 
-    if (!Array.isArray(todoObj.tags)) {
-      errors.push('Invalid tags: must be an array')
-    } else if (!todoObj.tags.every((tag: unknown) => typeof tag === 'string')) {
-      errors.push('Invalid tags: all tags must be strings')
-    }
-
     if (typeof todoObj.createdAt !== 'string' || !this.isValidISOString(todoObj.createdAt)) {
       errors.push('Invalid createdAt: must be a valid ISO string')
     }
@@ -76,6 +70,46 @@ export class TodoValidator {
       }
     }
 
+    // 验证同步相关字段（可选）
+    if (todoObj.synced !== undefined) {
+      if (typeof todoObj.synced !== 'boolean') {
+        errors.push('Invalid synced: must be boolean')
+      }
+    }
+
+    if (todoObj.lastSyncTime !== undefined) {
+      if (
+        typeof todoObj.lastSyncTime !== 'string' ||
+        !this.isValidISOString(todoObj.lastSyncTime)
+      ) {
+        errors.push('Invalid lastSyncTime: must be a valid ISO string')
+      }
+    }
+
+    if (todoObj.syncError !== undefined) {
+      if (typeof todoObj.syncError !== 'string') {
+        errors.push('Invalid syncError: must be a string')
+      }
+    }
+
+    if (todoObj.description !== undefined) {
+      if (typeof todoObj.description !== 'string') {
+        errors.push('Invalid description: must be a string')
+      }
+    }
+
+    if (todoObj.dueDate !== undefined) {
+      if (typeof todoObj.dueDate !== 'string' || !this.isValidISOString(todoObj.dueDate)) {
+        errors.push('Invalid dueDate: must be a valid ISO string')
+      }
+    }
+
+    if (todoObj.userId !== undefined) {
+      if (typeof todoObj.userId !== 'string' || todoObj.userId.trim() === '') {
+        errors.push('Invalid userId: must be a non-empty string')
+      }
+    }
+
     const isValid = errors.length === 0
 
     if (isValid) {
@@ -83,9 +117,6 @@ export class TodoValidator {
         id: todoObj.id as string,
         title: (todoObj.title as string).trim(),
         completed: todoObj.completed as boolean,
-        tags: (todoObj.tags as string[])
-          .filter((tag: string) => tag.trim() !== '')
-          .map((tag: string) => tag.trim()),
         createdAt: todoObj.createdAt as string,
         updatedAt: todoObj.updatedAt as string,
         order: todoObj.order as number,
@@ -106,6 +137,31 @@ export class TodoValidator {
 
       if (todoObj.aiAnalyzed !== undefined) {
         sanitizedData.aiAnalyzed = todoObj.aiAnalyzed as boolean
+      }
+
+      // 添加同步相关字段
+      if (todoObj.synced !== undefined) {
+        sanitizedData.synced = todoObj.synced as boolean
+      }
+
+      if (todoObj.lastSyncTime !== undefined) {
+        sanitizedData.lastSyncTime = todoObj.lastSyncTime as string
+      }
+
+      if (todoObj.syncError !== undefined) {
+        sanitizedData.syncError = todoObj.syncError as string
+      }
+
+      if (todoObj.description !== undefined) {
+        sanitizedData.description = (todoObj.description as string).trim()
+      }
+
+      if (todoObj.dueDate !== undefined) {
+        sanitizedData.dueDate = todoObj.dueDate as string
+      }
+
+      if (todoObj.userId !== undefined) {
+        sanitizedData.userId = (todoObj.userId as string).trim()
       }
 
       return { isValid: true, errors: [], sanitizedData }

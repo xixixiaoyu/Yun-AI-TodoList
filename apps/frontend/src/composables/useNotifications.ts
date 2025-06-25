@@ -182,7 +182,7 @@ export function useNotifications() {
   /**
    * 显示认证相关的错误
    */
-  const authError = (error: any): string => {
+  const authError = (error: { code?: string; message?: string }): string => {
     let title = '认证失败'
     let message = '请检查您的登录信息'
 
@@ -241,7 +241,11 @@ export function useNotifications() {
   /**
    * 显示同步相关的通知
    */
-  const syncSuccess = (stats: any): string => {
+  const syncSuccess = (stats: {
+    uploaded?: number
+    downloaded?: number
+    conflicts?: number
+  }): string => {
     const { uploaded, downloaded, conflicts } = stats
     let message = '数据同步完成'
 
@@ -259,7 +263,7 @@ export function useNotifications() {
     return success('同步成功', message)
   }
 
-  const syncError = (error: any): string => {
+  const syncError = (error: { message?: string }): string => {
     let message = '数据同步失败'
 
     if (error?.message) {

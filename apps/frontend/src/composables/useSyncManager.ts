@@ -1,0 +1,419 @@
+/**
+ * 同步状态管理 Composable
+ * 提供实时同步状态监控和控制功能
+ */
+
+import { ref, reactive, computed, watch, onUnmounted } from 'vue'
+import type {
+  SyncStatus,
+  StorageConfig,
+  StorageHealth,
+  ConflictResolutionStrategy,
+  DataMigrationOptions,
+} from '@shared/types'
+
+import { HybridStorageService } from '../services/storage/HybridStorageService'
+import {
+  DataMigrationService,
+  type MigrationProgress,
+  type MigrationResult,
+} from '../services/storage/DataMigrationService'
+import { useAuth } from './useAuth'
+
+// 全局同步状态
+const globalSyncState = reactive({
+  isInitialized: false,
+  hybridStorage: null as HybridStorageService | null,
+  migrationService: null as DataMigrationService | null,
+  syncStatus: {
+    syncInProgress: false,
+    pendingChanges: 0,
+    conflictsCount: 0,
+    failedOperations: 0,
+    pendingOperations: 0,
+  } as SyncStatus,
+  storageHealth: {
+    localStorage: true,
+    remoteStorage: false,
+    lastHealthCheck: new Date().toISOString(),
+  } as StorageHealth,
+  config: {
+    mode: 'local',
+    autoSync: true,
+    syncInterval: 5,
+    offlineMode: true,
+    conflictResolution: 'ask-user',
+    backupEnabled: true,
+    maxBackupCount: 5,
+  } as StorageConfig,
+})
+
+export function useSyncManager() {
+  const { user, isAuthenticated } = useAuth()
+
+  // 响应式状态
+  const isOnline = ref(navigator.onLine)
+  const migrationProgress = ref<MigrationProgress | null>(null)
+  const lastMigrationResult = ref<MigrationResult | null>(null)
+  const autoSyncTimer = ref<number | null>(null)
+
+  // 计算属性
+  const canUseCloudSync = computed(() => isAuthenticated.value && isOnline.value)
+  const syncStatusText = computed(() => {
+    if (globalSyncState.syncStatus.syncInProgress) {
+      return 'Syncing...'
+    }
+    if (globalSyncState.syncStatus.syncError) {
+      return `Sync Error: ${globalSyncState.syncStatus.syncError}`
+    }
+    if (globalSyncState.syncStatus.lastSyncTime) {
+      const lastSync = new Date(globalSyncState.syncStatus.lastSyncTime)
+      const now = new Date()
+      const diffMinutes = Math.floor((now.getTime() - lastSync.getTime()) / (1000 * 60))
+
+      if (diffMinutes < 1) {
+        return 'Just synced'
+      } else if (diffMinutes < 60) {
+        return `Synced ${diffMinutes}m ago`
+      } else {
+        const diffHours = Math.floor(diffMinutes / 60)
+        return `Synced ${diffHours}h ago`
+      }
+    }
+    return 'Not synced'
+  })
+
+  const pendingChangesText = computed(() => {
+    const count = globalSyncState.syncStatus.pendingChanges
+    if (count === 0) return 'All changes synced'
+    return `${count} change${count > 1 ? 's' : ''} pending`
+  })
+
+  /**
+   * 初始化同步管理器
+   */
+  const initialize = async (config?: Partial<StorageConfig>): Promise<void> => {
+    if (globalSyncState.isInitialized) return
+
+    try {
+      // 合并配置
+      if (config) {
+        globalSyncState.config = { ...globalSyncState.config, ...config }
+      }
+
+      // 初始化混合存储服务
+      globalSyncState.hybridStorage = new HybridStorageService(globalSyncState.config)
+
+      // 初始化迁移服务
+      globalSyncState.migrationService = new DataMigrationService()
+      globalSyncState.migrationService.setProgressCallback((progress) => {
+        migrationProgress.value = progress
+      })
+
+      // 如果用户已登录，设置用户ID
+      if (user.value?.id) {
+        await globalSyncState.hybridStorage.setUserId(user.value.id)
+        globalSyncState.migrationService.setUserId(user.value.id)
+      }
+
+      // 设置网络状态监听
+      setupNetworkListeners()
+
+      // 设置自动同步
+      setupAutoSync()
+
+      // 初始健康检查
+      await updateHealthStatus()
+
+      globalSyncState.isInitialized = true
+    } catch (error) {
+      console.error('Failed to initialize sync manager:', error)
+      throw error
+    }
+  }
+
+  /**
+   * 更新存储配置
+   */
+  const updateConfig = async (newConfig: Partial<StorageConfig>): Promise<void> => {
+    if (!globalSyncState.hybridStorage) {
+      throw new Error('Sync manager not initialized')
+    }
+
+    globalSyncState.config = { ...globalSyncState.config, ...newConfig }
+    await globalSyncState.hybridStorage.updateConfig(newConfig)
+
+    // 重新设置自动同步
+    setupAutoSync()
+  }
+
+  /**
+   * 手动同步所有数据
+   */
+  const syncAll = async (): Promise<void> => {
+    if (!globalSyncState.hybridStorage) {
+      throw new Error('Sync manager not initialized')
+    }
+
+    if (!canUseCloudSync.value) {
+      throw new Error('Cloud sync not available')
+    }
+
+    try {
+      globalSyncState.syncStatus.syncInProgress = true
+      globalSyncState.syncStatus.syncError = undefined
+
+      const result = await globalSyncState.hybridStorage.syncAll()
+
+      if (result.success) {
+        globalSyncState.syncStatus.lastSyncTime = new Date().toISOString()
+        globalSyncState.syncStatus.pendingChanges = 0
+        globalSyncState.syncStatus.conflictsCount = result.conflicts.length
+      } else {
+        globalSyncState.syncStatus.syncError = result.errors[0]?.error || 'Sync failed'
+      }
+    } catch (error) {
+      globalSyncState.syncStatus.syncError =
+        error instanceof Error ? error.message : 'Unknown sync error'
+      throw error
+    } finally {
+      globalSyncState.syncStatus.syncInProgress = false
+    }
+  }
+
+  /**
+   * 迁移到云端存储
+   */
+  const migrateToCloud = async (options?: DataMigrationOptions): Promise<MigrationResult> => {
+    if (!globalSyncState.migrationService) {
+      throw new Error('Migration service not initialized')
+    }
+
+    if (!canUseCloudSync.value) {
+      throw new Error('Cloud migration not available')
+    }
+
+    try {
+      const result = await globalSyncState.migrationService.migrateToCloud(options)
+      lastMigrationResult.value = result
+
+      if (result.success) {
+        // 更新配置为云端模式
+        await updateConfig({ mode: 'remote' })
+      }
+
+      return result
+    } catch (error) {
+      console.error('Migration to cloud failed:', error)
+      throw error
+    } finally {
+      migrationProgress.value = null
+    }
+  }
+
+  /**
+   * 迁移到本地存储
+   */
+  const migrateToLocal = async (options?: DataMigrationOptions): Promise<MigrationResult> => {
+    if (!globalSyncState.migrationService) {
+      throw new Error('Migration service not initialized')
+    }
+
+    try {
+      const result = await globalSyncState.migrationService.migrateToLocal(options)
+      lastMigrationResult.value = result
+
+      if (result.success) {
+        // 更新配置为本地模式
+        await updateConfig({ mode: 'local' })
+      }
+
+      return result
+    } catch (error) {
+      console.error('Migration to local failed:', error)
+      throw error
+    } finally {
+      migrationProgress.value = null
+    }
+  }
+
+  /**
+   * 双向同步
+   */
+  const syncBidirectional = async (
+    strategy?: ConflictResolutionStrategy
+  ): Promise<MigrationResult> => {
+    if (!globalSyncState.migrationService) {
+      throw new Error('Migration service not initialized')
+    }
+
+    if (!canUseCloudSync.value) {
+      throw new Error('Bidirectional sync not available')
+    }
+
+    try {
+      const result = await globalSyncState.migrationService.syncBidirectional(strategy)
+      lastMigrationResult.value = result
+
+      if (result.success) {
+        // 更新配置为混合模式
+        await updateConfig({ mode: 'hybrid' })
+      }
+
+      return result
+    } catch (error) {
+      console.error('Bidirectional sync failed:', error)
+      throw error
+    } finally {
+      migrationProgress.value = null
+    }
+  }
+
+  /**
+   * 导出所有数据
+   */
+  const exportAllData = async (
+    options = {
+      includeTodos: true,
+      includeSettings: true,
+      includeAIAnalysis: true,
+      format: 'json' as const,
+      compressed: false,
+    }
+  ) => {
+    if (!globalSyncState.hybridStorage) {
+      throw new Error('Sync manager not initialized')
+    }
+
+    return globalSyncState.hybridStorage.exportAllData(options)
+  }
+
+  /**
+   * 导入所有数据
+   */
+  const importAllData = async (data: unknown) => {
+    if (!globalSyncState.hybridStorage) {
+      throw new Error('Sync manager not initialized')
+    }
+
+    return globalSyncState.hybridStorage.importAllData(data)
+  }
+
+  /**
+   * 更新健康状态
+   */
+  const updateHealthStatus = async (): Promise<void> => {
+    if (!globalSyncState.hybridStorage) return
+
+    try {
+      const health = await globalSyncState.hybridStorage.getHealth()
+      globalSyncState.storageHealth = health
+    } catch (error) {
+      console.error('Failed to update health status:', error)
+    }
+  }
+
+  /**
+   * 获取存储服务
+   */
+  const getStorageServices = () => {
+    if (!globalSyncState.hybridStorage) {
+      throw new Error('Sync manager not initialized')
+    }
+    return globalSyncState.hybridStorage.getServices()
+  }
+
+  // 私有方法
+  const setupNetworkListeners = (): void => {
+    const updateOnlineStatus = () => {
+      isOnline.value = navigator.onLine
+      if (isOnline.value && globalSyncState.config.autoSync) {
+        // 网络恢复时自动同步
+        setTimeout(() => {
+          if (canUseCloudSync.value) {
+            syncAll().catch(console.error)
+          }
+        }, 1000)
+      }
+    }
+
+    window.addEventListener('online', updateOnlineStatus)
+    window.addEventListener('offline', updateOnlineStatus)
+
+    // 清理函数
+    onUnmounted(() => {
+      window.removeEventListener('online', updateOnlineStatus)
+      window.removeEventListener('offline', updateOnlineStatus)
+    })
+  }
+
+  const setupAutoSync = (): void => {
+    // 清除现有定时器
+    if (autoSyncTimer.value) {
+      clearInterval(autoSyncTimer.value)
+      autoSyncTimer.value = null
+    }
+
+    // 设置新的自动同步定时器
+    if (globalSyncState.config.autoSync && globalSyncState.config.syncInterval > 0) {
+      autoSyncTimer.value = setInterval(
+        () => {
+          if (canUseCloudSync.value && !globalSyncState.syncStatus.syncInProgress) {
+            syncAll().catch(console.error)
+          }
+        },
+        globalSyncState.config.syncInterval * 60 * 1000
+      )
+    }
+  }
+
+  // 监听用户登录状态变化
+  watch(user, async (newUser) => {
+    if (newUser?.id && globalSyncState.hybridStorage && globalSyncState.migrationService) {
+      await globalSyncState.hybridStorage.setUserId(newUser.id)
+      globalSyncState.migrationService.setUserId(newUser.id)
+    }
+  })
+
+  // 清理资源
+  onUnmounted(() => {
+    if (autoSyncTimer.value) {
+      clearInterval(autoSyncTimer.value)
+    }
+    if (globalSyncState.hybridStorage) {
+      globalSyncState.hybridStorage.destroy()
+    }
+  })
+
+  return {
+    // 状态
+    isOnline: readonly(isOnline),
+    syncStatus: readonly(globalSyncState.syncStatus),
+    storageHealth: readonly(globalSyncState.storageHealth),
+    config: readonly(globalSyncState.config),
+    migrationProgress: readonly(migrationProgress),
+    lastMigrationResult: readonly(lastMigrationResult),
+
+    // 计算属性
+    canUseCloudSync,
+    syncStatusText,
+    pendingChangesText,
+    isInProgress: computed(() => globalSyncState.syncStatus.syncInProgress),
+    isSyncEnabled: computed(() => globalSyncState.config.autoSync),
+
+    // 方法
+    initialize,
+    updateConfig,
+    syncAll,
+    migrateToCloud,
+    migrateToLocal,
+    syncBidirectional,
+    exportAllData,
+    importAllData,
+    updateHealthStatus,
+    getStorageServices,
+    performManualSync: syncAll,
+    enableAutoSync: () => updateConfig({ autoSync: true }),
+    disableAutoSync: () => updateConfig({ autoSync: false }),
+  }
+}

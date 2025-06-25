@@ -30,6 +30,7 @@ export interface UserPreferences {
   aiConfig: UserAIAnalysisConfig
   searchConfig: SearchConfig
   notifications: NotificationSettings
+  storageConfig: StorageConfig
 }
 
 export interface CreateUserDto {
@@ -87,7 +88,6 @@ export interface SearchConfig {
   defaultLanguage: string
   safeSearch: boolean
   defaultResultCount: number
-  saveHistory: boolean
   engineConfig: {
     engine: string
     region: string
@@ -101,4 +101,90 @@ export interface NotificationSettings {
   email: boolean
   dueReminder: boolean
   reminderMinutes: number
+}
+
+// 存储模式配置
+export type StorageMode = 'local' | 'remote' | 'hybrid'
+
+export interface StorageConfig {
+  mode: StorageMode
+  autoSync: boolean
+  syncInterval: number // 自动同步间隔（分钟）
+  offlineMode: boolean // 离线模式是否启用
+  conflictResolution: ConflictResolutionStrategy
+  backupEnabled: boolean // 是否启用本地备份
+  maxBackupCount: number // 最大备份数量
+}
+
+export type ConflictResolutionStrategy = 'local-wins' | 'remote-wins' | 'merge' | 'ask-user'
+
+// 数据迁移相关
+export interface DataMigrationOptions {
+  migrateFromLocal: boolean
+  migrateToLocal: boolean
+  preserveLocalData: boolean
+  mergeStrategy: ConflictResolutionStrategy
+}
+
+export interface SyncStatus {
+  lastSyncTime?: string
+  syncInProgress: boolean
+  syncError?: string
+  pendingChanges: number
+  conflictsCount: number
+  failedOperations?: number
+  pendingOperations?: number
+}
+
+// 双重存储相关类型
+export interface SyncableEntity {
+  synced?: boolean // 是否已同步到云端
+  lastSyncTime?: string // 最后同步时间
+  syncError?: string // 同步错误信息
+}
+
+export interface ConflictResolution<T = any> {
+  localData: T
+  remoteData: T
+  strategy: ConflictResolutionStrategy
+  resolvedData?: T
+}
+
+export interface SyncOperation {
+  id: string
+  type: 'create' | 'update' | 'delete'
+  entityType: 'todo' | 'user_setting' | 'ai_analysis'
+  entityId: string
+  data?: any
+  timestamp: string
+  retryCount: number
+  maxRetries: number
+}
+
+export interface SyncQueue {
+  operations: SyncOperation[]
+  isProcessing: boolean
+  lastProcessedTime?: string
+}
+
+export interface StorageHealth {
+  localStorage: boolean
+  remoteStorage: boolean
+  lastHealthCheck: string
+}
+
+export interface DataExportOptions {
+  includeTodos: boolean
+  includeSettings: boolean
+  includeAIAnalysis: boolean
+  format: 'json' | 'csv'
+  compressed: boolean
+}
+
+export interface DataImportResult {
+  success: boolean
+  importedCount: number
+  skippedCount: number
+  errorCount: number
+  errors: Array<{ type: string; message: string; data?: any }>
 }

@@ -232,8 +232,8 @@ const isDragEnabled = computed(
 )
 
 // 处理任务添加，包含拆分逻辑
-const handleAddTodo = async (text: string, tags: string[]) => {
-  const result = await originalHandleAddTodo(text, tags)
+const handleAddTodo = async (text: string) => {
+  const result = await originalHandleAddTodo(text)
 
   // 如果需要拆分，显示拆分对话框
   if (result && result.needsSplitting && result.splitResult) {

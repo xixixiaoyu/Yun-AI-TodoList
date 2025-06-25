@@ -1,14 +1,13 @@
 import { ApiProperty } from '@nestjs/swagger'
 import {
-  IsString,
-  IsOptional,
-  IsArray,
-  IsInt,
   IsDateString,
-  MinLength,
+  IsInt,
+  IsOptional,
+  IsString,
+  Max,
   MaxLength,
   Min,
-  Max,
+  MinLength,
 } from 'class-validator'
 
 export class CreateTodoDto {
@@ -33,17 +32,6 @@ export class CreateTodoDto {
   @IsString({ message: '描述必须是字符串' })
   @MaxLength(2000, { message: '描述长度不能超过2000字符' })
   description?: string
-
-  @ApiProperty({
-    description: '标签列表',
-    example: ['工作', '文档'],
-    required: false,
-    type: [String],
-  })
-  @IsOptional()
-  @IsArray({ message: '标签必须是数组' })
-  @IsString({ each: true, message: '每个标签必须是字符串' })
-  tags?: string[]
 
   @ApiProperty({
     description: '优先级 (1-5 星)',

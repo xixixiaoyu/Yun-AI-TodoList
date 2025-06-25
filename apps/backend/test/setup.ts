@@ -1,5 +1,5 @@
-import { Test, TestingModule } from '@nestjs/testing'
 import { INestApplication, ValidationPipe } from '@nestjs/common'
+import { Test, TestingModule } from '@nestjs/testing'
 import { AppModule } from '../src/app.module'
 import { PrismaService } from '../src/database/prisma.service'
 
@@ -55,8 +55,6 @@ async function cleanupDatabase() {
   // For SQLite, we need to delete from tables individually
   try {
     // Delete in order to respect foreign key constraints
-    await prisma.todoHistory.deleteMany()
-    await prisma.searchHistory.deleteMany()
     await prisma.userSetting.deleteMany()
     await prisma.todo.deleteMany()
     await prisma.user.deleteMany()

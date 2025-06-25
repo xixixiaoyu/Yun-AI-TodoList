@@ -1,59 +1,86 @@
 import { ref } from 'vue'
 import type { CreateTodoDto, Todo, UpdateTodoDto } from '../types/todo'
-import { IdGenerator } from '../utils/idGenerator'
 import { logger } from '../utils/logger'
 import { TodoValidator } from '../utils/todoValidator'
+import { useAuth } from './useAuth'
+import { useDataMigration } from './useDataMigration'
+import { useStorageMode } from './useStorageMode'
 
 // 全局单例状态
 const globalTodos = ref<Todo[]>([])
+const isInitialized = ref(false)
 
 export function useTodos() {
+  const {
+    getCurrentStorageService,
+    initializeStorageMode,
+    isInitialized: storageInitialized,
+  } = useStorageMode()
+  const { addSyncOperation } = useDataMigration()
+  const { isAuthenticated } = useAuth()
+  const todos = globalTodos
+
   const setTodos = (newTodos: Todo[]) => {
     todos.value = newTodos.sort((a, b) => a.order - b.order)
     saveTodos()
   }
-  const todos = globalTodos
 
-  const loadTodos = () => {
-    try {
-      const storedTodos = localStorage.getItem('todos')
-
-      if (storedTodos) {
-        const parsedTodos = JSON.parse(storedTodos)
-        if (Array.isArray(parsedTodos)) {
-          const { validTodos, invalidCount, errors } = TodoValidator.validateTodos(parsedTodos)
-
-          if (invalidCount > 0) {
-            logger.warn(`Found ${invalidCount} invalid todos`, { errors }, 'useTodos')
-          }
-
-          todos.value = validTodos.sort((a, b) => a.order - b.order)
-        }
-      }
-
-      validateDataConsistency()
-    } catch (error) {
-      logger.error('Error loading todos', error, 'useTodos')
-
-      loadFromBackup()
+  // 初始化方法
+  const initializeTodos = async () => {
+    if (!isInitialized.value) {
+      await loadTodos()
     }
   }
 
-  const loadFromBackup = () => {
+  const loadTodos = async () => {
     try {
+      // 确保存储模式已初始化
+      if (!storageInitialized.value) {
+        await initializeStorageMode()
+      }
+
+      const storageService = getCurrentStorageService()
+      const result = await storageService.getTodos()
+
+      if (result.success && result.data) {
+        const { validTodos, invalidCount, errors } = TodoValidator.validateTodos(result.data)
+
+        if (invalidCount > 0) {
+          logger.warn(`Found ${invalidCount} invalid todos`, { errors }, 'useTodos')
+        }
+
+        todos.value = validTodos.sort((a, b) => a.order - b.order)
+        validateDataConsistency()
+        isInitialized.value = true
+      } else {
+        logger.error('Failed to load todos from storage', result.error, 'useTodos')
+        await loadFromBackup()
+      }
+    } catch (error) {
+      logger.error('Error loading todos', error, 'useTodos')
+      await loadFromBackup()
+    }
+  }
+
+  const loadFromBackup = async () => {
+    try {
+      // 尝试从本地存储备份恢复
       const backup = localStorage.getItem('todos_backup')
       if (backup) {
         const parsedBackup = JSON.parse(backup)
         const { validTodos } = TodoValidator.validateTodos(parsedBackup)
         todos.value = validTodos
         logger.info('Restored todos from backup', undefined, 'useTodos')
+        isInitialized.value = true
         return
       }
     } catch (error) {
       logger.error('Error loading backup', error, 'useTodos')
     }
 
+    // 如果没有备份，初始化为空数组
     todos.value = []
+    isInitialized.value = true
   }
 
   const validateDataConsistency = () => {
@@ -81,39 +108,30 @@ export function useTodos() {
     }
   }
 
-  const saveTodos = () => {
+  const saveTodos = async () => {
+    // 对于本地存储模式，保持原有的 localStorage 逻辑作为备份
     try {
       const todosJson = JSON.stringify(todos.value)
-
       const currentData = localStorage.getItem('todos')
       if (currentData) {
         localStorage.setItem('todos_backup', currentData)
       }
-
       localStorage.setItem('todos', todosJson)
-      // 减少频繁的保存日志，只在开发环境且数量变化时记录
-      if (import.meta.env.DEV) {
+
+      if (process.env.NODE_ENV === 'development') {
         const currentCount = todos.value.length
         const lastCount = parseInt(localStorage.getItem('todos_last_count') || '0')
         if (currentCount !== lastCount) {
           localStorage.setItem('todos_last_count', currentCount.toString())
-          logger.info('Todos saved successfully', { count: currentCount }, 'useTodos')
+          logger.info('Todos saved to localStorage', { count: currentCount }, 'useTodos')
         }
       }
     } catch (error) {
-      logger.error('Error saving todos', error, 'useTodos')
-
-      try {
-        localStorage.removeItem('todos_backup')
-        localStorage.setItem('todos', JSON.stringify(todos.value))
-        logger.warn('Saved todos after cleanup', undefined, 'useTodos')
-      } catch (retryError) {
-        logger.error('Failed to save todos even after cleanup', retryError, 'useTodos')
-      }
+      logger.error('Error saving todos to localStorage', error, 'useTodos')
     }
   }
 
-  const addTodo = (todoData: CreateTodoDto): Todo | null => {
+  const addTodo = async (todoData: CreateTodoDto): Promise<Todo | null> => {
     const { title, ...rest } = todoData
     if (!title || title.trim() === '') {
       return null
@@ -138,35 +156,49 @@ export function useTodos() {
       return null
     }
 
-    const now = new Date().toISOString()
-    const newTodo: Todo = {
-      id: IdGenerator.generateStringId(), // Use string ID for new todos
-      title: sanitizedTitle,
-      completed: false,
-      tags: todoData.tags?.filter((tag) => tag.trim() !== '').map((tag) => tag.trim()) || [],
-      createdAt: now,
-      updatedAt: now,
-      order: todos.value.length,
-      ...rest,
+    try {
+      const storageService = getCurrentStorageService()
+      const createData: CreateTodoDto = {
+        title: sanitizedTitle,
+        ...rest,
+      }
+
+      const result = await storageService.createTodo(createData)
+
+      if (result.success && result.data) {
+        // 更新本地状态
+        todos.value.push(result.data)
+        todos.value.sort((a, b) => a.order - b.order)
+
+        // 保存到本地存储作为备份
+        await saveTodos()
+
+        // 如果是远程存储，添加同步操作
+        if (isAuthenticated.value) {
+          addSyncOperation('create', result.data.id, createData)
+        }
+
+        logger.info(
+          'Todo added successfully',
+          { id: result.data.id, title: sanitizedTitle },
+          'useTodos'
+        )
+        return result.data
+      } else {
+        logger.error('Failed to add todo', result.error, 'useTodos')
+        return null
+      }
+    } catch (error) {
+      logger.error('Error adding todo', error, 'useTodos')
+      return null
     }
-
-    todos.value.push(newTodo)
-    saveTodos()
-
-    logger.debug(
-      'Todo added to pending list',
-      { id: newTodo.id, title: newTodo.title, completed: newTodo.completed },
-      'useTodos'
-    )
-
-    return newTodo
   }
 
-  const addMultipleTodos = (newTodos: { title: string }[]) => {
+  const addMultipleTodos = async (newTodos: { title: string }[]): Promise<string[]> => {
     const duplicates: string[] = []
-    const now = new Date().toISOString()
-    const validTodos: Todo[] = []
+    const createDtos: CreateTodoDto[] = []
 
+    // 验证和准备数据
     newTodos.forEach(({ title }) => {
       const sanitizedText = TodoValidator.sanitizeTitle(title)
 
@@ -178,73 +210,125 @@ export function useTodos() {
       if (todos.value.some((todo) => todo.title.toLowerCase() === sanitizedText.toLowerCase())) {
         duplicates.push(title)
       } else {
-        const newTodo: Todo = {
-          id: IdGenerator.generateStringId(),
+        createDtos.push({
           title: sanitizedText,
-          completed: false, // 确保批量添加的 todo 始终为未完成状态
-          tags: [],
-          createdAt: now,
-          updatedAt: now,
-          order: todos.value.length + validTodos.length,
-        }
-
-        // 防御性检查：确保 completed 状态正确
-        if (newTodo.completed !== false) {
-          logger.error('Batch todo completed state is incorrect', { todo: newTodo }, 'useTodos')
-          newTodo.completed = false
-        }
-
-        validTodos.push(newTodo)
+        })
       }
     })
 
-    todos.value.push(...validTodos)
-    saveTodos()
-    logger.debug(
-      'Multiple todos added',
-      { count: validTodos.length, duplicates: duplicates.length },
-      'useTodos'
-    )
+    // 批量创建
+    try {
+      const storageService = getCurrentStorageService()
+      const result = await storageService.createTodos(createDtos)
+
+      if (result.success) {
+        // 重新加载数据以获取最新状态
+        await loadTodos()
+
+        logger.info(
+          'Batch todos added successfully',
+          {
+            added: result.successCount,
+            duplicates: duplicates.length,
+          },
+          'useTodos'
+        )
+      } else {
+        logger.error(
+          'Failed to add batch todos',
+          {
+            errors: result.errors,
+          },
+          'useTodos'
+        )
+      }
+    } catch (error) {
+      logger.error('Error adding batch todos', error, 'useTodos')
+    }
+
     return duplicates
   }
 
-  const toggleTodo = (id: string) => {
+  const toggleTodo = async (id: string): Promise<boolean> => {
     const todo = todos.value.find((todo) => todo && todo.id === id)
-    if (todo) {
-      todo.completed = !todo.completed
-      if (todo.completed) {
-        todo.completedAt = new Date().toISOString()
+    if (!todo) {
+      return false
+    }
+
+    const updates: UpdateTodoDto = {
+      completed: !todo.completed,
+      completedAt: !todo.completed ? new Date().toISOString() : undefined,
+    }
+
+    return await updateTodo(id, updates)
+  }
+
+  const removeTodo = async (id: string): Promise<boolean> => {
+    try {
+      const storageService = getCurrentStorageService()
+      const result = await storageService.deleteTodo(id)
+
+      if (result.success) {
+        // 更新本地状态
+        todos.value = todos.value.filter((todo) => todo && todo.id !== id)
+
+        // 保存到本地存储作为备份
+        await saveTodos()
+
+        // 如果是远程存储，添加同步操作
+        if (isAuthenticated.value) {
+          addSyncOperation('delete', id)
+        }
+
+        logger.info('Todo removed successfully', { id }, 'useTodos')
+        return true
       } else {
-        delete todo.completedAt
+        logger.error('Failed to remove todo', result.error, 'useTodos')
+        return false
       }
-      saveTodos()
+    } catch (error) {
+      logger.error('Error removing todo', error, 'useTodos')
+      return false
     }
   }
 
-  const removeTodo = (id: string) => {
-    todos.value = todos.value.filter((todo) => todo && todo.id !== id)
-    saveTodos()
-  }
+  const updateTodosOrder = async (newOrder: string[]): Promise<boolean> => {
+    try {
+      const storageService = getCurrentStorageService()
+      const reorders = newOrder.map((id, index) => ({ id, order: index }))
 
-  const updateTodosOrder = (newOrder: string[]) => {
-    const orderMap = new Map(newOrder.map((id, index) => [id, index]))
+      const result = await storageService.reorderTodos(reorders)
 
-    todos.value = todos.value
-      .map((todo) => ({
-        ...todo,
-        order: orderMap.get(todo.id) ?? todo.order,
-        updatedAt: new Date().toISOString(),
-      }))
-      .sort((a, b) => a.order - b.order)
+      if (result.success) {
+        // 更新本地状态
+        const orderMap = new Map(newOrder.map((id, index) => [id, index]))
+        todos.value = todos.value
+          .map((todo) => ({
+            ...todo,
+            order: orderMap.get(todo.id) ?? todo.order,
+            updatedAt: new Date().toISOString(),
+          }))
+          .sort((a, b) => a.order - b.order)
 
-    saveTodos()
+        await saveTodos()
+
+        logger.info('Todos reordered successfully', { count: newOrder.length }, 'useTodos')
+        return true
+      } else {
+        logger.error('Failed to reorder todos', result.error, 'useTodos')
+        return false
+      }
+    } catch (error) {
+      logger.error('Error reordering todos', error, 'useTodos')
+      return false
+    }
   }
 
   /**
    * 更新待办事项顺序（通过 Todo 数组）
    * 用于拖拽排序功能
    */
-  const updateTodosOrderByArray = (newTodos: Todo[]) => {
+  const updateTodosOrderByArray = async (newTodos: Todo[]): Promise<boolean> => {
     try {
       // 验证新的 todos 数组
       if (!Array.isArray(newTodos) || newTodos.length !== todos.value.length) {
@@ -275,29 +359,14 @@ export function useTodos() {
         return false
       }
 
-      // 更新顺序
-      todos.value = newTodos.map((todo, index) => ({
-        ...todo,
-        order: index,
-        updatedAt: new Date().toISOString(),
-      }))
-
-      saveTodos()
-      logger.debug(
-        'Todos order updated successfully',
-        {
-          count: newTodos.length,
-        },
-        'useTodos'
-      )
-      return true
+      // 使用存储服务更新顺序
+      const newOrder = newTodos.map((todo) => todo.id)
+      return await updateTodosOrder(newOrder)
     } catch (error) {
-      logger.error('Error updating todos order', error, 'useTodos')
+      logger.error('Error updating todos order by array', error, 'useTodos')
       return false
     }
   }
-
-  loadTodos()
 
   const getCompletedTodosByDate = () => {
     const completedByDate: { [key: string]: number } = {}
@@ -310,62 +379,110 @@ export function useTodos() {
     return completedByDate
   }
 
-  const updateTodoTags = (id: string, tags: string[]) => {
-    const todo = todos.value.find((todo) => todo && todo.id === id)
-    if (todo) {
-      todo.tags = tags
-      saveTodos()
-    }
-  }
+  const updateTodo = async (id: string, updates: UpdateTodoDto): Promise<boolean> => {
+    try {
+      const storageService = getCurrentStorageService()
+      const result = await storageService.updateTodo(id, updates)
 
-  const updateTodo = (id: string, updates: UpdateTodoDto) => {
-    const todo = todos.value.find((todo) => todo && todo.id === id)
-    if (todo) {
-      Object.assign(todo, {
-        ...updates,
-        updatedAt: new Date().toISOString(),
-      })
-      saveTodos()
-      return true
-    }
-    return false
-  }
+      if (result.success && result.data) {
+        // 更新本地状态
+        const todoIndex = todos.value.findIndex((todo) => todo && todo.id === id)
+        if (todoIndex !== -1) {
+          todos.value[todoIndex] = result.data
+        } else {
+          logger.error('Todo not found in local state after storage update', { id }, 'useTodos')
+        }
 
-  const batchUpdateTodos = (updates: Array<{ id: string; updates: UpdateTodoDto }>) => {
-    let updated = false
-    const now = new Date().toISOString()
+        // 保存到本地存储作为备份
+        await saveTodos()
 
-    updates.forEach(({ id, updates: todoUpdates }) => {
-      const todo = todos.value.find((todo) => todo && todo.id === id)
-      if (todo) {
-        Object.assign(todo, {
-          ...todoUpdates,
-          updatedAt: now,
-        })
-        updated = true
+        // 如果是远程存储，添加同步操作
+        if (isAuthenticated.value) {
+          addSyncOperation('update', id, updates)
+        }
+
+        logger.info('Todo updated successfully', { id, updates }, 'useTodos')
+        return true
+      } else {
+        logger.error('Failed to update todo', result.error, 'useTodos')
+        return false
       }
-    })
-
-    if (updated) {
-      saveTodos()
+    } catch (error) {
+      logger.error('Error updating todo', error, 'useTodos')
+      return false
     }
-    return updated
+  }
+
+  const batchUpdateTodos = async (
+    updates: Array<{ id: string; updates: UpdateTodoDto }>
+  ): Promise<boolean> => {
+    try {
+      const storageService = getCurrentStorageService()
+      const updateData = updates.map(({ id, updates: todoUpdates }) => ({
+        id,
+        data: todoUpdates,
+      }))
+
+      const result = await storageService.updateTodos(updateData)
+
+      if (result.success) {
+        // 重新加载数据以获取最新状态
+        await loadTodos()
+
+        logger.info(
+          'Batch todos updated successfully',
+          {
+            updated: result.successCount,
+            failed: result.failureCount,
+          },
+          'useTodos'
+        )
+
+        return result.successCount > 0
+      } else {
+        logger.error(
+          'Failed to batch update todos',
+          {
+            errors: result.errors,
+          },
+          'useTodos'
+        )
+        return false
+      }
+    } catch (error) {
+      logger.error('Error batch updating todos', error, 'useTodos')
+      return false
+    }
   }
 
   return {
-    setTodos,
+    // 状态
     todos,
+    isInitialized,
+
+    // 初始化
+    initializeTodos,
+    loadTodos,
+
+    // CRUD 操作
     addTodo,
     addMultipleTodos,
-    toggleTodo,
+    updateTodo,
     removeTodo,
+    toggleTodo,
+
+    // 批量操作
+    batchUpdateTodos,
+    setTodos,
+
+    // 排序
     updateTodosOrder,
     updateTodosOrderByArray,
+
+    // 查询
     getCompletedTodosByDate,
-    updateTodoTags,
-    updateTodo,
-    batchUpdateTodos,
+
+    // 存储
     saveTodos,
-    loadTodos,
   }
 }

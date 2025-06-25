@@ -389,20 +389,6 @@ export function generateTodoSystemPrompt(todos: Todo[]): string {
     return createdDate < weekAgo
   })
 
-  // 分析标签使用情况
-  const allTags = activeTodos.flatMap((todo) => todo.tags)
-  const tagStats = allTags.reduce(
-    (acc, tag) => {
-      acc[tag] = (acc[tag] || 0) + 1
-      return acc
-    },
-    {} as Record<string, number>
-  )
-  const topTags = Object.entries(tagStats)
-    .sort(([, a], [, b]) => b - a)
-    .slice(0, 5)
-    .map(([tag, count]) => `${tag}(${count}个)`)
-
   // 构建数据摘要
   const dataSummary = {
     totalActive: activeTodos.length,
@@ -414,7 +400,7 @@ export function generateTodoSystemPrompt(todos: Todo[]): string {
     withEstimation: todosWithEstimation.length,
     recentCreated: recentTodos.length,
     oldTasks: oldTodos.length,
-    topTags: topTags.join(', ') || '暂无标签',
+    topTags: '暂无标签',
     recentCompleted: completedTodos.filter((todo) => {
       const completedDate = new Date(todo.completedAt || todo.updatedAt)
       const weekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
@@ -433,9 +419,7 @@ export function generateTodoSystemPrompt(todos: Todo[]): string {
     .map((todo, index) => {
       const priority = todo.priority ? `${todo.priority}星` : '无'
       const estimation = todo.estimatedTime || '未估算'
-      const tags = todo.tags.length > 0 ? todo.tags.join(',') : '无'
-
-      return `${index + 1}. ${todo.title} [优先级:${priority}] [时间:${estimation}] [标签:${tags}]`
+      return `${index + 1}. ${todo.title} [优先级:${priority}] [时间:${estimation}]`
     })
     .join('\n')
 
@@ -511,7 +495,6 @@ export async function generateSmartQuestion(todos: Todo[]): Promise<SmartQuestio
       text: todo.title,
       priority: todo.priority || 0,
       estimatedTime: todo.estimatedTime || '未估算',
-      tags: todo.tags.join(', ') || '无标签',
     }))
 
     const completedSamples = completedTodos.slice(-3).map((todo) => ({
@@ -533,7 +516,7 @@ export async function generateSmartQuestion(todos: Todo[]): Promise<SmartQuestio
 ${activeSamples
   .map(
     (todo, index) =>
-      `${index + 1}. ${todo.text} (优先级: ${todo.priority}/5, 预估: ${todo.estimatedTime}, 标签: ${todo.tags})`
+      `${index + 1}. ${todo.text} (优先级: ${todo.priority}/5, 预估: ${todo.estimatedTime})`
   )
   .join('\n')}
 

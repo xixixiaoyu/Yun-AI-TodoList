@@ -1,6 +1,14 @@
 import { ApiProperty } from '@nestjs/swagger'
-import { IsOptional, IsString, IsBoolean, IsObject, IsEnum, ValidateNested } from 'class-validator'
 import { Type } from 'class-transformer'
+import {
+  IsBoolean,
+  IsEnum,
+  IsNumber,
+  IsObject,
+  IsOptional,
+  IsString,
+  ValidateNested,
+} from 'class-validator'
 
 export enum Theme {
   LIGHT = 'light',
@@ -11,6 +19,19 @@ export enum Theme {
 export enum Language {
   ZH_CN = 'zh-CN',
   EN_US = 'en-US',
+}
+
+export enum StorageMode {
+  LOCAL = 'local',
+  REMOTE = 'remote',
+  HYBRID = 'hybrid',
+}
+
+export enum ConflictResolutionStrategy {
+  LOCAL_WINS = 'local-wins',
+  REMOTE_WINS = 'remote-wins',
+  MERGE = 'merge',
+  ASK_USER = 'ask-user',
 }
 
 export class AIConfigDto {
@@ -152,6 +173,77 @@ export class NotificationConfigDto {
   reminderMinutes?: number
 }
 
+export class StorageConfigDto {
+  @ApiProperty({
+    description: '存储模式',
+    enum: StorageMode,
+    example: StorageMode.LOCAL,
+    required: false,
+  })
+  @IsOptional()
+  @IsEnum(StorageMode, { message: '存储模式无效' })
+  mode?: StorageMode
+
+  @ApiProperty({
+    description: '是否启用自动同步',
+    example: true,
+    required: false,
+  })
+  @IsOptional()
+  @IsBoolean({ message: '自动同步开关必须是布尔值' })
+  autoSync?: boolean
+
+  @ApiProperty({
+    description: '同步间隔（分钟）',
+    example: 5,
+    minimum: 1,
+    maximum: 60,
+    required: false,
+  })
+  @IsOptional()
+  @IsNumber({}, { message: '同步间隔必须是数字' })
+  syncInterval?: number
+
+  @ApiProperty({
+    description: '是否启用离线模式',
+    example: true,
+    required: false,
+  })
+  @IsOptional()
+  @IsBoolean({ message: '离线模式开关必须是布尔值' })
+  offlineMode?: boolean
+
+  @ApiProperty({
+    description: '冲突解决策略',
+    enum: ConflictResolutionStrategy,
+    example: ConflictResolutionStrategy.ASK_USER,
+    required: false,
+  })
+  @IsOptional()
+  @IsEnum(ConflictResolutionStrategy, { message: '冲突解决策略无效' })
+  conflictResolution?: ConflictResolutionStrategy
+
+  @ApiProperty({
+    description: '是否启用本地备份',
+    example: true,
+    required: false,
+  })
+  @IsOptional()
+  @IsBoolean({ message: '本地备份开关必须是布尔值' })
+  backupEnabled?: boolean
+
+  @ApiProperty({
+    description: '最大备份数量',
+    example: 5,
+    minimum: 1,
+    maximum: 20,
+    required: false,
+  })
+  @IsOptional()
+  @IsNumber({}, { message: '最大备份数量必须是数字' })
+  maxBackupCount?: number
+}
+
 export class UpdatePreferencesDto {
   @ApiProperty({
     description: '主题设置',
@@ -202,4 +294,14 @@ export class UpdatePreferencesDto {
   @ValidateNested()
   @Type(() => NotificationConfigDto)
   notifications?: NotificationConfigDto
+
+  @ApiProperty({
+    description: '存储配置',
+    type: StorageConfigDto,
+    required: false,
+  })
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => StorageConfigDto)
+  storageConfig?: StorageConfigDto
 }

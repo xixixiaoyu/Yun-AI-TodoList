@@ -22,6 +22,7 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useAuth } from '../../composables/useAuth'
 import { useDataSync } from '../../composables/useDataSync'
 
@@ -40,6 +41,7 @@ const props = withDefaults(defineProps<Props>(), {
   autoHideDelay: 3000,
 })
 
+const { t } = useI18n()
 const { syncState, syncStatusText, manualSync } = useDataSync()
 const { isAuthenticated } = useAuth()
 
@@ -79,7 +81,7 @@ const statusIcon = computed(() => {
 })
 
 const statusText = computed(() => {
-  if (syncState.syncError) return `同步失败: ${syncState.syncError}`
+  if (syncState.syncError) return `${t('storage.syncFailed')}: ${syncState.syncError}`
   return syncStatusText.value
 })
 

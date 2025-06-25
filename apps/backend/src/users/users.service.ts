@@ -85,12 +85,29 @@ export class UsersService {
       preferences: {
         theme: prismaUser.theme,
         language: prismaUser.language,
-        aiConfig: prismaUser.aiConfig,
-        searchConfig: prismaUser.searchConfig,
-        notifications: prismaUser.notifications,
+        aiConfig: this.parseJsonField(prismaUser.aiConfig, {}),
+        searchConfig: this.parseJsonField(prismaUser.searchConfig, {}),
+        notifications: this.parseJsonField(prismaUser.notifications, {}),
+        storageConfig: this.parseJsonField(prismaUser.storageConfig, {
+          mode: 'local',
+          autoSync: true,
+          syncInterval: 5,
+          offlineMode: true,
+          conflictResolution: 'ask-user',
+          backupEnabled: true,
+          maxBackupCount: 5,
+        }),
       },
       createdAt: prismaUser.createdAt.toISOString(),
       updatedAt: prismaUser.updatedAt.toISOString(),
+    }
+  }
+
+  private parseJsonField(jsonString: string, defaultValue: any): any {
+    try {
+      return jsonString ? JSON.parse(jsonString) : defaultValue
+    } catch {
+      return defaultValue
     }
   }
 }

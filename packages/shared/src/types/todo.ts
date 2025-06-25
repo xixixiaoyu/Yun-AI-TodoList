@@ -9,7 +9,6 @@ export interface Todo {
   description?: string // 新增描述字段
   completed: boolean
   completedAt?: string
-  tags: string[]
   createdAt: string
   updatedAt: string
   order: number
@@ -18,12 +17,15 @@ export interface Todo {
   aiAnalyzed?: boolean // 是否已进行 AI 分析
   userId?: string // 用户 ID (后端使用)
   dueDate?: string // 截止日期
+  // 双重存储支持
+  synced?: boolean // 是否已同步到云端
+  lastSyncTime?: string // 最后同步时间
+  syncError?: string // 同步错误信息
 }
 
 export interface CreateTodoDto {
   title: string
   description?: string
-  tags?: string[]
   priority?: number
   estimatedTime?: string
   dueDate?: string
@@ -33,7 +35,7 @@ export interface UpdateTodoDto {
   title?: string
   description?: string
   completed?: boolean
-  tags?: string[]
+  completedAt?: string
   priority?: number
   estimatedTime?: string
   dueDate?: string
@@ -52,7 +54,6 @@ export interface TodoStats {
 
 export interface TodoFilter {
   type: 'all' | 'active' | 'completed' | 'overdue' | 'today' | 'week'
-  tags?: string[]
   priority?: number[]
   search?: string
 }
@@ -80,6 +81,16 @@ export interface AIAnalysisResult {
   priority: number // 1-5 星级
   estimatedTime: string // 时间估算
   reasoning?: string // AI 分析理由
+  confidence?: number // 分析置信度 (0-1)
+}
+
+export interface AIAnalysis {
+  todoId: string // 作为主键，一个 Todo 只有一条分析记录
+  userId: string
+  priority?: number
+  estimatedTime?: string
+  reasoning?: string
+  analyzedAt: string
 }
 
 export interface AIAnalysisConfig {
@@ -109,4 +120,42 @@ export interface TodoListResponse {
   page?: number
   limit?: number
   stats: TodoStats
+}
+
+// 用户设置相关类型
+export interface UserSetting {
+  id: string
+  userId: string
+  key: string
+  value: string
+  createdAt: string
+  updatedAt: string
+  // 双重存储支持
+  synced?: boolean
+  lastSyncTime?: string
+  syncError?: string
+}
+
+export interface CreateUserSettingDto {
+  key: string
+  value: string
+}
+
+export interface UpdateUserSettingDto {
+  value: string
+}
+
+// AI 分析相关类型 - 使用上面已定义的 AIAnalysis 接口
+
+export interface CreateAIAnalysisDto {
+  todoId: string
+  priority?: number
+  estimatedTime?: string
+  reasoning?: string
+}
+
+export interface UpdateAIAnalysisDto {
+  priority?: number
+  estimatedTime?: string
+  reasoning?: string
 }

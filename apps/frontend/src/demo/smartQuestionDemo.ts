@@ -168,7 +168,9 @@ function getCategoryEmoji(category: string): string {
  */
 if (typeof window !== 'undefined') {
   // 将演示函数挂载到全局对象，方便在浏览器控制台调用
-  ;(window as any).runSmartQuestionDemo = runSmartQuestionDemo
+  ;(
+    window as unknown as { runSmartQuestionDemo?: typeof runSmartQuestionDemo }
+  ).runSmartQuestionDemo = runSmartQuestionDemo
   console.log('💡 智能提问演示已加载，在控制台运行 runSmartQuestionDemo() 查看效果')
 }
 

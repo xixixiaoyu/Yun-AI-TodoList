@@ -23,6 +23,7 @@ model User {
   aiConfig      String  @default("{}")
   searchConfig  String  @default("{}")
   notifications String  @default("{}")
+  storageConfig String  @default("{}")
 
   // Timestamps
   createdAt DateTime @default(now())
@@ -30,9 +31,8 @@ model User {
 
   // Relations
   todos         Todo[]
-  searchHistory SearchHistory[]
   settings      UserSetting[]
-  todoHistory   TodoHistory[]
+  aiAnalyses    AIAnalysis[]
 
   @@map("users")
 }
@@ -51,7 +51,6 @@ model Todo {
 
   // Organization
   order    Int      @default(0)
-  tags     String   @default("[]") // JSON array as string
   dueDate  DateTime?
 
   // Timestamps
@@ -61,26 +60,12 @@ model Todo {
   // Relations
   userId String
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-  history TodoHistory[]
+  aiAnalyses AIAnalysis[]
 
   @@map("todos")
 }
 
-model SearchHistory {
-  id          String   @id @default(cuid())
-  query       String
-  results     String   @default("[]")
-  resultCount Int      @default(0)
-  searchTime  Int      @default(0) // milliseconds
 
-  createdAt DateTime @default(now())
-
-  // Relations
-  userId String
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@map("search_history")
-}
 
 model UserSetting {
   id    String @id @default(cuid())
@@ -98,18 +83,24 @@ model UserSetting {
   @@map("user_settings")
 }
 
-model TodoHistory {
-  id       String @id @default(cuid())
-  action   String // created, updated, completed, deleted, analyzed
-  changes  String?  // Store the changes made
+model AIAnalysis {
+  // 使用 todoId 作为主键，确保一个 Todo 只有一条分析记录
+  todoId String @id
 
-  createdAt DateTime @default(now())
+  // AI 分析结果
+  priority      Int?    // 1-5 星级优先级
+  estimatedTime String? // 时间估算
+  reasoning     String? // AI 分析推理过程
+
+  // 时间戳
+  analyzedAt DateTime @default(now())
 
   // Relations
-  todoId String
   todo   Todo   @relation(fields: [todoId], references: [id], onDelete: Cascade)
   userId String
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@map("todo_history")
+  // 索引
+  @@index([userId])
+  @@map("ai_analyses")
 }

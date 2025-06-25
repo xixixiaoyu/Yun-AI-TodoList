@@ -106,7 +106,6 @@ export const UPLOAD_CONSTANTS = {
 export const CACHE_CONSTANTS = {
   KEYS: {
     USER_PREFERENCES: 'user_preferences',
-    SEARCH_HISTORY: 'search_history',
     TODO_STATS: 'todo_stats',
     AI_CONFIG: 'ai_config',
   },

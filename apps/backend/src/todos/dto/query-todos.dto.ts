@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger'
-import { IsOptional, IsString, IsArray, IsInt, IsEnum, IsBoolean, Min, Max } from 'class-validator'
 import { Transform, Type } from 'class-transformer'
+import { IsArray, IsBoolean, IsEnum, IsInt, IsOptional, IsString, Max, Min } from 'class-validator'
 
 export enum TodoSortField {
   CREATED_AT = 'createdAt',
@@ -70,26 +70,6 @@ export class QueryTodosDto {
   @IsOptional()
   @IsEnum(TodoFilterType, { message: '过滤类型无效' })
   type?: TodoFilterType = TodoFilterType.ALL
-
-  @ApiProperty({
-    description: '标签过滤',
-    example: ['工作', '重要'],
-    required: false,
-    type: [String],
-  })
-  @IsOptional()
-  @Transform(({ value }) => {
-    if (typeof value === 'string') {
-      return value
-        .split(',')
-        .map((tag) => tag.trim())
-        .filter((tag) => tag.length > 0)
-    }
-    return value
-  })
-  @IsArray({ message: '标签必须是数组' })
-  @IsString({ each: true, message: '每个标签必须是字符串' })
-  tags?: string[]
 
   @ApiProperty({
     description: '优先级过滤',

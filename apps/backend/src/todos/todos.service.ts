@@ -1,5 +1,6 @@
 import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common'
 import type { AIAnalysisResult, Todo, TodoListResponse, TodoStats } from '@shared/types'
+import { AIAnalysisService } from '../ai-analysis/ai-analysis.service'
 import { UtilsService } from '../common/services/utils.service'
 import { PrismaService } from '../database/prisma.service'
 import { BatchAnalyzeDto } from './dto/batch-analyze.dto'
@@ -12,7 +13,8 @@ import { UpdateTodoDto } from './dto/update-todo.dto'
 export class TodosService {
   constructor(
     private readonly prisma: PrismaService,
-    private readonly utilsService: UtilsService
+    private readonly utilsService: UtilsService,
+    private readonly aiAnalysisService: AIAnalysisService
   ) {}
 
   async create(userId: string, createTodoDto: CreateTodoDto): Promise<Todo> {
@@ -28,7 +30,6 @@ export class TodosService {
         userId,
         title: createTodoDto.title,
         description: createTodoDto.description,
-        tags: JSON.stringify(createTodoDto.tags || []),
         priority: createTodoDto.priority,
         estimatedTime: createTodoDto.estimatedTime,
         dueDate: createTodoDto.dueDate ? new Date(createTodoDto.dueDate) : null,
@@ -45,7 +46,6 @@ export class TodosService {
       limit = 20,
       search,
       type,
-      tags,
       priority,
       sortBy,
       sortOrder,
@@ -94,13 +94,6 @@ export class TodosService {
           where.dueDate = { gte: startOfWeek, lte: endOfWeek }
           break
         }
-      }
-    }
-
-    // 标签过滤
-    if (tags && tags.length > 0) {
-      where.tags = {
-        contains: JSON.stringify(tags),
       }
     }
 
@@ -177,11 +170,6 @@ export class TodosService {
       updatedAt: new Date(),
     }
 
-    // 处理标签
-    if (updateTodoDto.tags !== undefined) {
-      updateData.tags = JSON.stringify(updateTodoDto.tags)
-    }
-
     // 处理截止日期
     if (updateTodoDto.dueDate !== undefined) {
       updateData.dueDate = updateTodoDto.dueDate ? new Date(updateTodoDto.dueDate) : null
@@ -198,9 +186,6 @@ export class TodosService {
       data: updateData,
     })
 
-    // 记录历史
-    await this.createHistory(userId, id, 'updated', updateTodoDto)
-
     return this.mapPrismaTodoToTodo(todo)
   }
 
@@ -212,9 +197,6 @@ export class TodosService {
     if (!existingTodo) {
       throw new NotFoundException('Todo 不存在')
     }
-
-    // 记录历史
-    await this.createHistory(userId, id, 'deleted', existingTodo)
 
     await this.prisma.todo.delete({
       where: { id },
@@ -278,20 +260,18 @@ export class TodosService {
           continue
         }
 
-        // 模拟 AI 分析（实际项目中这里会调用 AI 服务）
+        // 执行 AI 分析
         const analysis = await this.performAIAnalysis(todo.title, todo.description || undefined, {
           enablePriorityAnalysis,
           enableTimeEstimation,
         })
 
-        // 更新 Todo
-        await this.prisma.todo.update({
-          where: { id: todo.id },
-          data: {
-            priority: enablePriorityAnalysis ? analysis.priority : todo.priority,
-            estimatedTime: enableTimeEstimation ? analysis.estimatedTime : todo.estimatedTime,
-            aiAnalyzed: true,
-          },
+        // 创建 AI 分析记录
+        await this.aiAnalysisService.createAnalysis(userId, {
+          todoId: todo.id,
+          priority: enablePriorityAnalysis ? analysis.priority : undefined,
+          estimatedTime: enableTimeEstimation ? analysis.estimatedTime : undefined,
+          reasoning: analysis.reasoning,
         })
 
         results.push({
@@ -419,32 +399,44 @@ export class TodosService {
       estimatedTime = '1.5小时'
     }
 
+    // 计算置信度（基于关键词匹配程度）
+    let confidence = 0.6 // 基础置信度
+    const keywords = [
+      '紧急',
+      'urgent',
+      '重要',
+      'important',
+      '高',
+      'high',
+      '低',
+      'low',
+      '简单',
+      'easy',
+      '项目',
+      'project',
+      '开发',
+      'develop',
+      '文档',
+      'document',
+      '写',
+      'write',
+      '会议',
+      'meeting',
+      '讨论',
+      'discuss',
+      '学习',
+      'learn',
+      '研究',
+      'research',
+    ]
+    const matchedKeywords = keywords.filter((keyword) => text.includes(keyword))
+    confidence = Math.min(0.9, 0.6 + matchedKeywords.length * 0.1)
+
     return {
       priority,
       estimatedTime,
-      reasoning: `基于关键词分析：优先级 ${priority}/5，预计耗时 ${estimatedTime}`,
-    }
-  }
-
-  private async createHistory(
-    userId: string,
-    todoId: string,
-    action: string,
-    changes?: any
-  ): Promise<void> {
-    try {
-      await this.prisma.todoHistory.create({
-        data: {
-          id: this.utilsService.generateId(),
-          todoId,
-          userId,
-          action,
-          changes: changes ? JSON.stringify(changes) : undefined,
-        },
-      })
-    } catch (error) {
-      // 历史记录失败不应该影响主要操作
-      console.error('Failed to create todo history:', error)
+      reasoning: `基于关键词分析：优先级 ${priority}/5，预计耗时 ${estimatedTime}。匹配关键词：${matchedKeywords.join(', ') || '无'}`,
+      confidence,
     }
   }
 
@@ -455,7 +447,6 @@ export class TodosService {
       description: prismaTodo.description,
       completed: prismaTodo.completed,
       completedAt: prismaTodo.completedAt?.toISOString(),
-      tags: prismaTodo.tags ? JSON.parse(prismaTodo.tags) : [],
       createdAt: prismaTodo.createdAt.toISOString(),
       updatedAt: prismaTodo.updatedAt.toISOString(),
       order: prismaTodo.order,

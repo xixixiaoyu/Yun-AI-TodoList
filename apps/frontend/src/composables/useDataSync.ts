@@ -316,7 +316,11 @@ export function useDataSync() {
   /**
    * 处理单个操作
    */
-  const processOperation = async (operation: any): Promise<void> => {
+  const processOperation = async (operation: {
+    type: string
+    data?: unknown
+    todoId?: string
+  }): Promise<void> => {
     try {
       switch (operation.type) {
         case 'create':

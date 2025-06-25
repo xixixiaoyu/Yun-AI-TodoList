@@ -49,7 +49,16 @@
           <ThemeSection />
         </div>
 
-        <!-- 第二行：高级配置 -->
+        <!-- 第二行：存储配置 -->
+        <div class="settings-card group settings-card-large">
+          <StorageModeSection />
+        </div>
+
+        <div class="settings-card group settings-card-large">
+          <StorageStatusSection />
+        </div>
+
+        <!-- 第三行：高级配置 -->
         <div class="settings-card group settings-card-large">
           <AIAnalysisSection />
         </div>
@@ -61,23 +70,38 @@
     </div>
 
     <SettingsToast :show="showSuccessMessage" />
+
+    <!-- Data Migration Wizard -->
+    <DataMigrationWizard :is-open="showMigrationWizard" @close="showMigrationWizard = false" />
   </div>
 </template>
 
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n'
 import { useSettingsState } from '../composables/useSettingsState'
+import { useStorageMode } from '../composables/useStorageMode'
 import AIAnalysisSection from './settings/AIAnalysisSection.vue'
 import ApiKeySection from './settings/ApiKeySection.vue'
+import DataMigrationWizard from './settings/DataMigrationWizard.vue'
 import ModelSelectionSection from './settings/ModelSelectionSection.vue'
 import SettingsToast from './settings/SettingsToast.vue'
+import StorageModeSection from './settings/StorageModeSection.vue'
+import StorageStatusSection from './settings/StorageStatusSection.vue'
 import SystemPromptsSection from './settings/SystemPromptsSection.vue'
 import ThemeSection from './settings/ThemeSection.vue'
 
 const { t } = useI18n()
+const { initializeStorageMode } = useStorageMode()
 
 const { showApiKey, showApiKeyPopover, localApiKey, showSuccessMessage, showSuccessToast } =
   useSettingsState()
+
+const showMigrationWizard = ref(false)
+
+// Initialize storage mode on component mount
+onMounted(async () => {
+  await initializeStorageMode()
+})
 
 defineOptions({
   name: 'AppSettings',

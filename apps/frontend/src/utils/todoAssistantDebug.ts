@@ -19,7 +19,9 @@ export function debugTodoAssistant() {
   console.log('🎯 Todo 助手独立数据:', todoAssistantData)
 
   // 检查用户系统提示词中是否还有 Todo 助手（应该没有）
-  const todoPromptInUserList = systemPrompts.find((p: any) => p.name === 'Todo 任务助手')
+  const todoPromptInUserList = systemPrompts.find(
+    (p: { name: string }) => p.name === 'Todo 任务助手'
+  )
   if (todoPromptInUserList) {
     console.warn('⚠️ 发现 Todo 助手在用户系统提示词列表中（这不应该发生）:', todoPromptInUserList)
   } else {
@@ -52,7 +54,7 @@ export function resetTodoAssistant() {
 
   // 清理用户系统提示词列表中的 Todo 助手（如果有）
   const systemPrompts = JSON.parse(localStorage.getItem('system_prompts') || '[]')
-  const filteredPrompts = systemPrompts.filter((p: any) => p.name !== 'Todo 任务助手')
+  const filteredPrompts = systemPrompts.filter((p: { name: string }) => p.name !== 'Todo 任务助手')
   localStorage.setItem('system_prompts', JSON.stringify(filteredPrompts))
 
   console.log('✅ Todo 助手状态已重置，请刷新页面')
@@ -87,9 +89,14 @@ export function debugTodosData() {
 
   console.group('📝 Todos 数据调试')
   console.log('总任务数:', todos.length)
-  console.log('待完成任务:', todos.filter((t: any) => !t.completed).length)
-  console.log('已完成任务:', todos.filter((t: any) => t.completed).length)
-  console.log('高优先级任务:', todos.filter((t: any) => !t.completed && t.priority >= 4).length)
+  console.log('待完成任务:', todos.filter((t: { completed: boolean }) => !t.completed).length)
+  console.log('已完成任务:', todos.filter((t: { completed: boolean }) => t.completed).length)
+  console.log(
+    '高优先级任务:',
+    todos.filter(
+      (t: { completed: boolean; priority?: number }) => !t.completed && (t.priority ?? 0) >= 4
+    ).length
+  )
 
   // 检查数据结构
   if (todos.length > 0) {
@@ -130,15 +137,15 @@ export function forceCreateTodoAssistant() {
   const promptContent = `你是一个专业的个人任务管理助手。用户有以下待办事项信息：
 
 ## 用户任务概览
-- 待完成任务：${todos.filter((t: any) => !t.completed).length} 个
-- 已完成任务：${todos.filter((t: any) => t.completed).length} 个
+- 待完成任务：${todos.filter((t: { completed: boolean }) => !t.completed).length} 个
+- 已完成任务：${todos.filter((t: { completed: boolean }) => t.completed).length} 个
 
 ## 待完成任务详情
 ${todos
-  .filter((t: any) => !t.completed)
+  .filter((t: { completed: boolean }) => !t.completed)
   .map(
-    (todo: any, index: number) =>
-      `${index + 1}. ${todo.title || todo.title} (优先级: ${todo.priority || '未设置'})`
+    (todo: { title: string; priority?: number }, index: number) =>
+      `${index + 1}. ${todo.title} (优先级: ${todo.priority || '未设置'})`
   )
   .join('\n')}
 
@@ -164,7 +171,7 @@ ${todos
 
   // 清理用户系统提示词列表中的 Todo 助手（如果有）
   const systemPrompts = JSON.parse(localStorage.getItem('system_prompts') || '[]')
-  const filteredPrompts = systemPrompts.filter((p: any) => p.name !== 'Todo 任务助手')
+  const filteredPrompts = systemPrompts.filter((p: { name: string }) => p.name !== 'Todo 任务助手')
   localStorage.setItem('system_prompts', JSON.stringify(filteredPrompts))
 
   console.log('✅ Todo 助手已强制创建并激活:', newPrompt.id)
@@ -213,7 +220,8 @@ export function testSystemPromptMessages() {
   // 1. 检查用户自定义提示词
   if (systemPromptConfig.enabled && systemPromptConfig.activePromptId) {
     const activePrompt = systemPrompts.find(
-      (p: any) => p.id === systemPromptConfig.activePromptId && p.isActive
+      (p: { id: string; isActive: boolean; name: string; content: string }) =>
+        p.id === systemPromptConfig.activePromptId && p.isActive
     )
     if (activePrompt) {
       systemMessages.push({
@@ -281,11 +289,19 @@ export function testTodoDetailGeneration() {
 
   console.group('📊 Todo 数据分析')
   console.log('总任务数:', todos.length)
-  console.log('待完成:', todos.filter((t: any) => !t.completed).length)
-  console.log('已完成:', todos.filter((t: any) => t.completed).length)
-  console.log('高优先级:', todos.filter((t: any) => !t.completed && t.priority >= 4).length)
-  console.log('有AI分析:', todos.filter((t: any) => t.aiAnalyzed).length)
-  console.log('有时间估算:', todos.filter((t: any) => t.estimatedTime).length)
+  console.log('待完成:', todos.filter((t: { completed: boolean }) => !t.completed).length)
+  console.log('已完成:', todos.filter((t: { completed: boolean }) => t.completed).length)
+  console.log(
+    '高优先级:',
+    todos.filter(
+      (t: { completed: boolean; priority?: number }) => !t.completed && (t.priority ?? 0) >= 4
+    ).length
+  )
+  console.log('有AI分析:', todos.filter((t: { aiAnalyzed?: boolean }) => t.aiAnalyzed).length)
+  console.log(
+    '有时间估算:',
+    todos.filter((t: { estimatedTime?: string }) => t.estimatedTime).length
+  )
 
   // 模拟生成系统提示词
   try {
@@ -343,7 +359,7 @@ export function testCompleteMessageFlow() {
   completeMessages.forEach((msg, index) => {
     console.log(`消息 ${index + 1}:`, {
       role: msg.role,
-      source: (msg as any).source || '用户',
+      source: (msg as { source?: string }).source || '用户',
       contentLength: msg.content.length,
       preview: msg.content.substring(0, 80) + '...',
     })
@@ -380,42 +396,69 @@ export function testTaskDetailLevel() {
   console.group('📊 任务信息详细程度分析')
 
   // 分析待完成任务
-  const activeTodos = todos.filter((t: any) => !t.completed)
-  const completedTodos = todos.filter((t: any) => t.completed)
+  const activeTodos = todos.filter((t: { completed: boolean }) => !t.completed)
+  const completedTodos = todos.filter((t: { completed: boolean }) => t.completed)
 
   console.log('📋 待完成任务详细信息:')
-  activeTodos.slice(0, 3).forEach((todo: any, index: number) => {
-    console.log(`任务 ${index + 1}:`, {
-      id: todo.id,
-      title: todo.title || todo.title,
-      priority: todo.priority || '未设置',
-      estimatedTime: todo.estimatedTime || '未估算',
-      tags: todo.tags || [],
-      aiAnalyzed: todo.aiAnalyzed || false,
-      createdAt: todo.createdAt,
-      daysSinceCreated: Math.floor(
-        (Date.now() - new Date(todo.createdAt).getTime()) / (1000 * 60 * 60 * 24)
-      ),
-    })
-  })
+  activeTodos.slice(0, 3).forEach(
+    (
+      todo: {
+        id: string
+        title: string
+        priority?: number
+        estimatedTime?: string
+        tags?: string[]
+        aiAnalyzed?: boolean
+        createdAt: string
+      },
+      index: number
+    ) => {
+      console.log(`任务 ${index + 1}:`, {
+        id: todo.id,
+        title: todo.title,
+        priority: todo.priority || '未设置',
+        estimatedTime: todo.estimatedTime || '未估算',
+        tags: todo.tags || [],
+        aiAnalyzed: todo.aiAnalyzed || false,
+        createdAt: todo.createdAt,
+        daysSinceCreated: Math.floor(
+          (Date.now() - new Date(todo.createdAt).getTime()) / (1000 * 60 * 60 * 24)
+        ),
+      })
+    }
+  )
 
   console.log('✅ 已完成任务详细信息:')
-  completedTodos.slice(0, 3).forEach((todo: any, index: number) => {
-    const createdTime = new Date(todo.createdAt).getTime()
-    const completedTime = new Date(todo.completedAt || todo.updatedAt).getTime()
-    const daysToComplete = Math.floor((completedTime - createdTime) / (1000 * 60 * 60 * 24))
+  completedTodos.slice(0, 3).forEach(
+    (
+      todo: {
+        id: string
+        title: string
+        priority?: number
+        estimatedTime?: string
+        tags?: string[]
+        createdAt: string
+        completedAt?: string
+        updatedAt?: string
+      },
+      index: number
+    ) => {
+      const createdTime = new Date(todo.createdAt).getTime()
+      const completedTime = new Date(todo.completedAt || todo.updatedAt || todo.createdAt).getTime()
+      const daysToComplete = Math.floor((completedTime - createdTime) / (1000 * 60 * 60 * 24))
 
-    console.log(`任务 ${index + 1}:`, {
-      id: todo.id,
-      title: todo.title || todo.title,
-      priority: todo.priority || '未设置',
-      estimatedTime: todo.estimatedTime || '未估算',
-      tags: todo.tags || [],
-      createdAt: todo.createdAt,
-      completedAt: todo.completedAt || todo.updatedAt,
-      daysToComplete: daysToComplete,
-    })
-  })
+      console.log(`任务 ${index + 1}:`, {
+        id: todo.id,
+        title: todo.title,
+        priority: todo.priority || '未设置',
+        estimatedTime: todo.estimatedTime || '未估算',
+        tags: todo.tags || [],
+        createdAt: todo.createdAt,
+        completedAt: todo.completedAt || todo.updatedAt,
+        daysToComplete: daysToComplete,
+      })
+    }
+  )
 
   // 测试生成的系统提示词
   import('../services/aiAnalysisService')
@@ -432,8 +475,8 @@ export function testTaskDetailLevel() {
       console.log('包含工作效率分析:', prompt.includes('工作效率分析'))
 
       // 检查是否包含具体的任务内容
-      const hasSpecificTasks = activeTodos.some((todo: any) =>
-        prompt.includes(todo.title || todo.title)
+      const hasSpecificTasks = activeTodos.some((todo: { title: string }) =>
+        prompt.includes(todo.title)
       )
       console.log('包含具体任务内容:', hasSpecificTasks)
 
@@ -458,19 +501,27 @@ export function testCurrentPromptContent() {
   console.group('📝 当前提示词内容测试')
 
   // 显示实际的任务数据
-  const activeTodos = todos.filter((t: any) => !t.completed)
-  const completedTodos = todos.filter((t: any) => t.completed)
+  const activeTodos = todos.filter((t: { completed: boolean }) => !t.completed)
+  const completedTodos = todos.filter((t: { completed: boolean }) => t.completed)
 
   console.log('📊 实际任务数据:')
   console.log(
     '待完成任务:',
-    activeTodos.map((t: any) => ({ id: t.id, title: t.title || t.text, priority: t.priority }))
+    activeTodos.map((t: { id: string; title?: string; text?: string; priority?: number }) => ({
+      id: t.id,
+      title: t.title || t.text,
+      priority: t.priority,
+    }))
   )
   console.log(
     '已完成任务:',
     completedTodos
       .slice(0, 5)
-      .map((t: any) => ({ id: t.id, title: t.title || t.text, priority: t.priority }))
+      .map((t: { id: string; title?: string; text?: string; priority?: number }) => ({
+        id: t.id,
+        title: t.title || t.text,
+        priority: t.priority,
+      }))
   )
 
   // 测试生成的系统提示词
@@ -485,12 +536,12 @@ export function testCurrentPromptContent() {
       console.log('总长度:', prompt.length)
 
       // 检查是否包含具体的任务文本
-      activeTodos.forEach((todo: any, index: number) => {
+      activeTodos.forEach((todo: { title: string }, index: number) => {
         const included = prompt.includes(todo.title)
         console.log(`待完成任务 ${index + 1} "${todo.title}":`, included ? '✅ 包含' : '❌ 缺失')
       })
 
-      completedTodos.slice(0, 5).forEach((todo: any, index: number) => {
+      completedTodos.slice(0, 5).forEach((todo: { title: string }, index: number) => {
         const included = prompt.includes(todo.title)
         console.log(`已完成任务 ${index + 1} "${todo.title}":`, included ? '✅ 包含' : '❌ 缺失')
       })
@@ -572,8 +623,8 @@ export function testDynamicGeneration() {
   // 获取当前 todos
   const todos = JSON.parse(localStorage.getItem('todos') || '[]')
   console.log('当前 todos 数量:', todos.length)
-  console.log('待完成任务:', todos.filter((t: any) => !t.completed).length)
-  console.log('已完成任务:', todos.filter((t: any) => t.completed).length)
+  console.log('待完成任务:', todos.filter((t: { completed: boolean }) => !t.completed).length)
+  console.log('已完成任务:', todos.filter((t: { completed: boolean }) => t.completed).length)
 
   // 模拟动态生成系统提示词
   import('../services/aiAnalysisService')
@@ -586,16 +637,16 @@ export function testDynamicGeneration() {
       console.log('包含已完成任务:', dynamicContent.includes('最近完成任务'))
 
       // 检查是否包含具体任务内容
-      const activeTodos = todos.filter((t: any) => !t.completed)
-      const completedTodos = todos.filter((t: any) => t.completed)
+      const activeTodos = todos.filter((t: { completed: boolean }) => !t.completed)
+      const completedTodos = todos.filter((t: { completed: boolean }) => t.completed)
 
       console.log('\n📋 任务内容检查:')
-      activeTodos.slice(0, 3).forEach((todo: any) => {
+      activeTodos.slice(0, 3).forEach((todo: { title: string }) => {
         const included = dynamicContent.includes(todo.title)
         console.log(`待完成任务 "${todo.title}":`, included ? '✅ 包含' : '❌ 缺失')
       })
 
-      completedTodos.slice(0, 3).forEach((todo: any) => {
+      completedTodos.slice(0, 3).forEach((todo: { title: string }) => {
         const included = dynamicContent.includes(todo.title)
         console.log(`已完成任务 "${todo.title}":`, included ? '✅ 包含' : '❌ 缺失')
       })

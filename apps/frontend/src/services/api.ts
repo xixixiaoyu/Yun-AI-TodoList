@@ -34,7 +34,11 @@ export class ApiError extends Error {
 }
 
 // 网络错误检测
-const isNetworkError = (error: any): boolean => {
+const isNetworkError = (error: {
+  response?: unknown
+  code?: string
+  message?: string
+}): boolean => {
   return (
     !error.response &&
     (error.code === 'NETWORK_ERROR' ||
@@ -94,11 +98,11 @@ class HttpClient {
     response: Response,
     originalUrl?: string,
     originalOptions?: RequestInit
-  ): Promise<any> {
+  ): Promise<unknown> {
     const contentType = response.headers.get('content-type')
     const isJson = contentType?.includes('application/json')
 
-    let data: any
+    let data: unknown
     try {
       data = isJson ? await response.json() : await response.text()
     } catch {
@@ -221,7 +225,11 @@ class HttpClient {
   /**
    * 执行请求（带重试机制）
    */
-  private async executeRequest(url: string, options: RequestInit, retryCount = 0): Promise<any> {
+  private async executeRequest(
+    url: string,
+    options: RequestInit,
+    retryCount = 0
+  ): Promise<unknown> {
     const controller = new AbortController()
     const timeoutId = setTimeout(() => controller.abort(), this.timeout)
 
@@ -233,7 +241,7 @@ class HttpClient {
 
       clearTimeout(timeoutId)
       return await this.handleResponse(response, url, options)
-    } catch (error: any) {
+    } catch (error: unknown) {
       clearTimeout(timeoutId)
 
       // 检查是否需要重试
@@ -264,7 +272,7 @@ class HttpClient {
   /**
    * GET 请求
    */
-  async get<T = any>(endpoint: string, params?: Record<string, any>): Promise<T> {
+  async get<T = unknown>(endpoint: string, params?: Record<string, unknown>): Promise<T> {
     const url = new URL(endpoint, this.baseURL)
 
     if (params) {
@@ -284,9 +292,9 @@ class HttpClient {
   /**
    * POST 请求
    */
-  async post<T = any>(
+  async post<T = unknown>(
     endpoint: string,
-    data?: any,
+    data?: unknown,
     customHeaders?: Record<string, string>
   ): Promise<T> {
     const url = new URL(endpoint, this.baseURL)
@@ -301,9 +309,9 @@ class HttpClient {
   /**
    * PUT 请求
    */
-  async put<T = any>(
+  async put<T = unknown>(
     endpoint: string,
-    data?: any,
+    data?: unknown,
     customHeaders?: Record<string, string>
   ): Promise<T> {
     const url = new URL(endpoint, this.baseURL)
@@ -318,9 +326,9 @@ class HttpClient {
   /**
    * PATCH 请求
    */
-  async patch<T = any>(
+  async patch<T = unknown>(
     endpoint: string,
-    data?: any,
+    data?: unknown,
     customHeaders?: Record<string, string>
   ): Promise<T> {
     const url = new URL(endpoint, this.baseURL)
@@ -335,7 +343,7 @@ class HttpClient {
   /**
    * DELETE 请求
    */
-  async delete<T = any>(endpoint: string): Promise<T> {
+  async delete<T = unknown>(endpoint: string): Promise<T> {
     const url = new URL(endpoint, this.baseURL)
 
     return this.executeRequest(url.toString(), {

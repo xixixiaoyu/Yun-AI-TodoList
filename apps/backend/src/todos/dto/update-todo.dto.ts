@@ -1,15 +1,14 @@
 import { ApiProperty } from '@nestjs/swagger'
 import {
-  IsString,
-  IsOptional,
-  IsArray,
-  IsInt,
-  IsDateString,
   IsBoolean,
-  MinLength,
+  IsDateString,
+  IsInt,
+  IsOptional,
+  IsString,
+  Max,
   MaxLength,
   Min,
-  Max,
+  MinLength,
 } from 'class-validator'
 
 export class UpdateTodoDto {
@@ -45,17 +44,6 @@ export class UpdateTodoDto {
   @IsOptional()
   @IsBoolean({ message: '完成状态必须是布尔值' })
   completed?: boolean
-
-  @ApiProperty({
-    description: '标签列表',
-    example: ['工作', '文档'],
-    required: false,
-    type: [String],
-  })
-  @IsOptional()
-  @IsArray({ message: '标签必须是数组' })
-  @IsString({ each: true, message: '每个标签必须是字符串' })
-  tags?: string[]
 
   @ApiProperty({
     description: '优先级 (1-5 星)',

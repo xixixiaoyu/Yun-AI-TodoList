@@ -1,3 +1,12 @@
+import { computed, readonly, toRef, onMounted, onUnmounted, reactive } from 'vue'
+
+interface NetworkConnection {
+  effectiveType?: string
+  type?: string
+  addEventListener?: (event: string, handler: () => void) => void
+  removeEventListener?: (event: string, handler: () => void) => void
+}
+
 /**
  * 网络状态管理 Composable
  * 检测网络连接状态，处理离线/在线模式切换
@@ -37,9 +46,9 @@ export function useNetworkStatus() {
   const detectConnectionInfo = () => {
     // 使用 Network Information API（如果可用）
     const connection =
-      (navigator as any).connection ||
-      (navigator as any).mozConnection ||
-      (navigator as any).webkitConnection
+      (navigator as unknown as { connection?: NetworkConnection }).connection ||
+      (navigator as unknown as { mozConnection?: NetworkConnection }).mozConnection ||
+      (navigator as unknown as { webkitConnection?: NetworkConnection }).webkitConnection
 
     if (connection) {
       networkState.connectionType = connection.effectiveType || connection.type || 'unknown'
@@ -47,7 +56,7 @@ export function useNetworkStatus() {
       // 判断是否为慢速连接
       const slowTypes = ['slow-2g', '2g', '3g']
       networkState.isSlowConnection =
-        slowTypes.includes(connection.effectiveType) ||
+        slowTypes.includes(connection.effectiveType || '') ||
         (connection.downlink && connection.downlink < 1.5)
     }
   }
@@ -228,7 +237,7 @@ export function useNetworkStatus() {
     window.addEventListener('offline', handleOffline)
 
     // 监听连接信息变化
-    const connection = (navigator as any).connection
+    const connection = (navigator as unknown as { connection?: NetworkConnection }).connection
     if (connection) {
       connection.addEventListener('change', detectConnectionInfo)
     }
