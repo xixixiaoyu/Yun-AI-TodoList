@@ -4,7 +4,7 @@ import { setupTestEnvironment } from '@/test/helpers'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 vi.mock('@/services/deepseekService', () => ({
-  getAIResponse: vi.fn(),
+  getAIResponse: vi.fn(() => Promise.resolve('1. 学习新技能\n2. 锻炼身体\n3. 阅读书籍')),
   streamAIResponse: vi.fn(),
 }))
 
@@ -79,7 +79,10 @@ describe('待办事项工作流集成测试', () => {
     })
 
     it('应该防止重复的待办事项', () => {
+      // 清理状态
+      localStorage.clear()
       const { todos, addTodo } = useTodos()
+      todos.value = []
 
       const success1 = addTodo({ title: '重复任务' })
       expect(success1).toBeTruthy()
@@ -179,8 +182,12 @@ describe('待办事项工作流集成测试', () => {
       mockGetAIResponse.mockResolvedValue('1. 学习 TypeScript\n2. 编写单元测试\n3. 优化性能')
 
       const { todos } = useTodos()
-      const { generateSuggestedTodos, confirmSuggestedTodos, suggestedTodos, showSuggestedTodos } =
-        useTodoManagement()
+      const {
+        generateSuggestedTodosWithDomain,
+        confirmSuggestedTodos,
+        suggestedTodos,
+        showSuggestedTodos,
+      } = useTodoManagement()
 
       // 清空现有的 todos
       todos.value = []
@@ -190,7 +197,7 @@ describe('待办事项工作流集成测试', () => {
 
       const initialTodoCount = todos.value.length
 
-      await generateSuggestedTodos()
+      await generateSuggestedTodosWithDomain('work')
 
       // 等待异步操作完成
       await new Promise((resolve) => setTimeout(resolve, 50))
@@ -215,14 +222,23 @@ describe('待办事项工作流集成测试', () => {
       mockGetAIResponse.mockResolvedValue('1. 任务 1\n2. 任务 2')
 
       const { todos } = useTodos()
-      const { generateSuggestedTodos, cancelSuggestedTodos, suggestedTodos, showSuggestedTodos } =
-        useTodoManagement()
+      const {
+        generateSuggestedTodosWithDomain,
+        cancelSuggestedTodos,
+        suggestedTodos,
+        showSuggestedTodos,
+      } = useTodoManagement()
 
-      await generateSuggestedTodos()
+      // 清空现有的 todos
+      todos.value = []
+
+      const initialTodoCount = todos.value.length
+
+      await generateSuggestedTodosWithDomain('work')
       expect(suggestedTodos.value.length).toBeGreaterThan(0)
 
       cancelSuggestedTodos()
-      expect(todos.value).toHaveLength(0)
+      expect(todos.value).toHaveLength(initialTodoCount)
       expect(showSuggestedTodos.value).toBe(false)
       expect(suggestedTodos.value).toHaveLength(0)
     })
@@ -231,6 +247,9 @@ describe('待办事项工作流集成测试', () => {
   describe('数据持久化', () => {
     it('应该保存和加载待办事项', () => {
       const { todos, addTodo, loadTodos, saveTodos } = useTodos()
+
+      // 清空现有的 todos
+      todos.value = []
 
       addTodo({ title: '持久化测试' })
       expect(todos.value).toHaveLength(1)

@@ -17,6 +17,14 @@ vi.mock('../../../composables/useTodos', () => ({
   }),
 }))
 
+// Mock TodoCompletionChart 组件
+vi.mock('../TodoCompletionChart.vue', () => ({
+  default: {
+    name: 'TodoCompletionChart',
+    template: '<div class="mock-todo-completion-chart">Chart</div>',
+  },
+}))
+
 const i18n = createTestI18n()
 
 describe('ChartsDialog', () => {
@@ -32,8 +40,8 @@ describe('ChartsDialog', () => {
       },
     })
 
-    expect(wrapper.find('div[class*="fixed"]').exists()).toBe(true)
-    expect(wrapper.find('div[class*="bg-white"]').exists()).toBe(true)
+    expect(wrapper.find('.charts-dialog-overlay').exists()).toBe(true)
+    expect(wrapper.find('.charts-dialog-content').exists()).toBe(true)
   })
 
   it('应该在 show 为 false 时不渲染对话框', () => {
@@ -102,7 +110,7 @@ describe('ChartsDialog', () => {
       },
     })
 
-    await wrapper.find('div[class*="fixed"]').trigger('click')
+    await wrapper.find('.charts-dialog-overlay').trigger('click')
     expect(wrapper.emitted('close')).toHaveLength(1)
   })
 
@@ -114,7 +122,7 @@ describe('ChartsDialog', () => {
       },
     })
 
-    await wrapper.find('div[class*="bg-white"]').trigger('click')
+    await wrapper.find('.charts-dialog-content').trigger('click')
     expect(wrapper.emitted('close')).toBeFalsy()
   })
 
@@ -138,8 +146,8 @@ describe('ChartsDialog', () => {
       },
     })
 
-    expect(wrapper.find('div[class*="fixed"]').exists()).toBe(true)
-    expect(wrapper.find('div[class*="bg-white"]').exists()).toBe(true)
-    expect(wrapper.find('button[aria-label="关闭"]').exists()).toBe(true)
+    expect(wrapper.find('.charts-dialog-overlay').exists()).toBe(true)
+    expect(wrapper.find('.charts-dialog-content').exists()).toBe(true)
+    expect(wrapper.find('.charts-dialog-close').exists()).toBe(true)
   })
 })

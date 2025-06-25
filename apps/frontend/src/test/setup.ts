@@ -148,19 +148,23 @@ const messages: Record<string, string> = {
   appTitle: '待办事项',
 }
 
-vi.mock('vue-i18n', () => ({
-  useI18n: () => ({
-    t: (key: string) => messages[key] || key,
-    locale: { value: 'zh' },
-  }),
-  createI18n: vi.fn(() => ({
-    global: {
+vi.mock('vue-i18n', async (importOriginal) => {
+  const actual = await importOriginal()
+  return {
+    ...(actual as any),
+    createI18n: vi.fn(() => ({
+      global: {
+        t: (key: string) => messages[key] || key,
+        locale: { value: 'zh' },
+      },
+      install: vi.fn(),
+    })),
+    useI18n: () => ({
       t: (key: string) => messages[key] || key,
       locale: { value: 'zh' },
-    },
-    install: vi.fn(),
-  })),
-}))
+    }),
+  }
+})
 
 Object.defineProperty(HTMLCanvasElement.prototype, 'getContext', {
   value: vi.fn(() => ({
