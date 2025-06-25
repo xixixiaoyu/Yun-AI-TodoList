@@ -24,7 +24,6 @@ import type { CreateTodoDto, Todo as LocalTodo, UpdateTodoDto } from '../types/t
 export function localToServerTodo(localTodo: LocalTodo): CreateTodoDto | UpdateTodoDto {
   const serverTodo: CreateTodoDto = {
     title: localTodo.title,
-    tags: localTodo.tags || [],
     priority: localTodo.priority,
     estimatedTime: localTodo.estimatedTime || undefined,
     dueDate: localTodo.dueDate,
@@ -42,7 +41,6 @@ export function serverToLocalTodo(serverTodo: ServerTodo): LocalTodo {
     id: serverTodo.id, // ID is now a string
     title: serverTodo.title,
     completed: serverTodo.completed,
-    tags: serverTodo.tags || [],
     createdAt: serverTodo.createdAt,
     updatedAt: serverTodo.updatedAt,
     order: serverTodo.order || 0,
@@ -78,7 +76,6 @@ export function createUpdateTodoDto(localTodo: LocalTodo): UpdateTodoDto {
   return {
     title: localTodo.title,
     completed: localTodo.completed,
-    tags: localTodo.tags || [],
     priority: localTodo.priority,
     estimatedTime: localTodo.estimatedTime,
     order: localTodo.order,
@@ -212,8 +209,7 @@ function resolveTodoConflict(
   const hasConflict =
     localTodo.completed !== serverTodo.completed ||
     localTodo.priority !== serverTodo.priority ||
-    localTodo.estimatedTime !== serverTodo.estimatedTime ||
-    JSON.stringify(localTodo.tags) !== JSON.stringify(serverTodo.tags)
+    localTodo.estimatedTime !== serverTodo.estimatedTime
 
   if (!hasConflict) {
     // 没有冲突，合并非冲突字段

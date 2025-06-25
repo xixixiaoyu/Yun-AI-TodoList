@@ -115,7 +115,6 @@ export class DataMigrationService {
           const createResult = await this.remoteService.createTodo({
             title: todo.title,
             description: todo.description,
-            tags: todo.tags,
             priority: todo.priority,
             estimatedTime: todo.estimatedTime,
             dueDate: todo.dueDate,
@@ -147,7 +146,6 @@ export class DataMigrationService {
             title: local.title,
             description: local.description,
             completed: local.completed,
-            tags: local.tags,
             priority: local.priority,
             estimatedTime: local.estimatedTime,
             dueDate: local.dueDate,
@@ -250,7 +248,6 @@ export class DataMigrationService {
           const createResult = await this.localService.createTodo({
             title: todo.title,
             description: todo.description,
-            tags: todo.tags,
             priority: todo.priority,
             estimatedTime: todo.estimatedTime,
             dueDate: todo.dueDate,
@@ -282,7 +279,6 @@ export class DataMigrationService {
             title: remote.title,
             description: remote.description,
             completed: remote.completed,
-            tags: remote.tags,
             priority: remote.priority,
             estimatedTime: remote.estimatedTime,
             dueDate: remote.dueDate,
@@ -378,7 +374,6 @@ export class DataMigrationService {
       todo1.completed !== todo2.completed ||
       todo1.priority !== todo2.priority ||
       todo1.estimatedTime !== todo2.estimatedTime ||
-      JSON.stringify(todo1.tags) !== JSON.stringify(todo2.tags) ||
       todo1.description !== todo2.description
     )
   }
@@ -419,7 +414,6 @@ export class DataMigrationService {
               title: conflict.local.title,
               description: conflict.local.description,
               completed: conflict.local.completed,
-              tags: conflict.local.tags,
               priority: conflict.local.priority,
               estimatedTime: conflict.local.estimatedTime,
               dueDate: conflict.local.dueDate,
@@ -433,7 +427,6 @@ export class DataMigrationService {
               title: conflict.remote.title,
               description: conflict.remote.description,
               completed: conflict.remote.completed,
-              tags: conflict.remote.tags,
               priority: conflict.remote.priority,
               estimatedTime: conflict.remote.estimatedTime,
               dueDate: conflict.remote.dueDate,

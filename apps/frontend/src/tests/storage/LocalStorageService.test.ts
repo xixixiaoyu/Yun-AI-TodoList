@@ -46,7 +46,6 @@ describe('LocalStorageService', () => {
           id: '1',
           title: 'Test Todo',
           completed: false,
-          tags: [],
           createdAt: '2023-01-01T00:00:00.000Z',
           updatedAt: '2023-01-01T00:00:00.000Z',
           order: 0,
@@ -76,14 +75,12 @@ describe('LocalStorageService', () => {
 
       const createDto: CreateTodoDto = {
         title: 'New Todo',
-        tags: ['test'],
       }
 
       const result = await service.createTodo(createDto)
 
       expect(result.success).toBe(true)
       expect(result.data?.title).toBe('New Todo')
-      expect(result.data?.tags).toEqual(['test'])
       expect(result.data?.completed).toBe(false)
       expect(localStorageMock.setItem).toHaveBeenCalled()
     })
@@ -105,7 +102,6 @@ describe('LocalStorageService', () => {
           id: '1',
           title: 'Existing Todo',
           completed: false,
-          tags: [],
           createdAt: '2023-01-01T00:00:00.000Z',
           updatedAt: '2023-01-01T00:00:00.000Z',
           order: 0,
@@ -131,7 +127,6 @@ describe('LocalStorageService', () => {
           id: '1',
           title: 'Original Title',
           completed: false,
-          tags: [],
           createdAt: '2023-01-01T00:00:00.000Z',
           updatedAt: '2023-01-01T00:00:00.000Z',
           order: 0,
@@ -169,7 +164,6 @@ describe('LocalStorageService', () => {
           id: '1',
           title: 'Todo to Delete',
           completed: false,
-          tags: [],
           createdAt: '2023-01-01T00:00:00.000Z',
           updatedAt: '2023-01-01T00:00:00.000Z',
           order: 0,
@@ -200,7 +194,6 @@ describe('LocalStorageService', () => {
           id: '1',
           title: 'Completed Todo',
           completed: true,
-          tags: [],
           createdAt: '2023-01-01T00:00:00.000Z',
           updatedAt: '2023-01-01T00:00:00.000Z',
           order: 0,
@@ -209,7 +202,6 @@ describe('LocalStorageService', () => {
           id: '2',
           title: 'Active Todo',
           completed: false,
-          tags: [],
           createdAt: '2023-01-01T00:00:00.000Z',
           updatedAt: '2023-01-01T00:00:00.000Z',
           order: 1,

@@ -286,7 +286,6 @@ export class RemoteStorageService extends TodoStorageService {
     const createDtos: CreateTodoDto[] = todos.map((todo) => ({
       title: todo.title,
       description: todo.description,
-      tags: todo.tags,
       priority: todo.priority,
       estimatedTime: todo.estimatedTime,
       dueDate: todo.dueDate,

@@ -67,11 +67,7 @@ describe('待办事项工作流集成测试', () => {
       addTodo({ title: '任务 1' })
       expect(todos.value).toHaveLength(1)
 
-      const newTodos = [
-        { title: '任务 2', tags: [] },
-        { title: '任务 3', tags: [] },
-        { title: '任务 4', tags: [] },
-      ]
+      const newTodos = [{ title: '任务 2' }, { title: '任务 3' }, { title: '任务 4' }]
       const duplicates = addMultipleTodos(newTodos)
 
       expect(duplicates).toHaveLength(0)

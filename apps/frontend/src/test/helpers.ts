@@ -26,7 +26,6 @@ export function createTestTodo(overrides: Partial<Todo> = {}): Todo {
     id: `test-${Date.now()}-${Math.random().toString(36).substring(2, 11)}`,
     title: 'Test Todo',
     completed: false,
-    tags: [],
     createdAt: now,
     updatedAt: now,
     order: 0,

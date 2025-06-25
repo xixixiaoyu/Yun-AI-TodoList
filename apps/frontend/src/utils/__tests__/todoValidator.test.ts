@@ -6,7 +6,6 @@ describe('TodoValidator', () => {
     id: 'test-todo-1',
     title: 'Test todo',
     completed: false,
-    tags: ['work'],
     createdAt: '2023-01-01T00:00:00.000Z',
     updatedAt: '2023-01-01T00:00:00.000Z',
     order: 0,
@@ -41,12 +40,7 @@ describe('TodoValidator', () => {
       expect(result.errors).toContain('Invalid completed status: must be boolean')
     })
 
-    it('should reject invalid tags', () => {
-      const invalidTodo = { ...validTodo, tags: 'not-array' }
-      const result = TodoValidator.validateTodo(invalidTodo)
-      expect(result.isValid).toBe(false)
-      expect(result.errors).toContain('Invalid tags: must be an array')
-    })
+    // Tags validation test removed as tags field is no longer used
 
     it('should reject invalid date strings', () => {
       const invalidTodo = { ...validTodo, createdAt: 'invalid-date' }
@@ -62,12 +56,7 @@ describe('TodoValidator', () => {
       expect(result.sanitizedData?.title).toBe('Test todo')
     })
 
-    it('should filter empty tags', () => {
-      const todoWithEmptyTags = { ...validTodo, tags: ['work', '', 'personal', '  '] }
-      const result = TodoValidator.validateTodo(todoWithEmptyTags)
-      expect(result.isValid).toBe(true)
-      expect(result.sanitizedData?.tags).toEqual(['work', 'personal'])
-    })
+    // Empty tags filtering test removed as tags field is no longer used
   })
 
   describe('validateTodos', () => {

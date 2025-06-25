@@ -98,7 +98,7 @@ describe('useTodoManagement', () => {
       const { handleAddTodo } = useTodoManagement()
       handleAddTodo('新的待办事项', [])
 
-      expect(mockAddTodo).toHaveBeenCalledWith({ title: '新的待办事项', tags: [] })
+      expect(mockAddTodo).toHaveBeenCalledWith({ title: '新的待办事项' })
     })
 
     it('应该正确处理切换待办事项状态', () => {

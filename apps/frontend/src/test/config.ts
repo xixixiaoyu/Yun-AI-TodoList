@@ -13,11 +13,11 @@ export const TEST_CONFIG = {
   TEST_DATA: {
     MAX_TODOS: 1000,
     SAMPLE_TODOS: [
-      { text: '学习 Vue 3', tags: ['learning', 'frontend'] },
-      { text: '写单元测试', tags: ['testing', 'development'] },
-      { text: '部署应用', tags: ['deployment', 'devops'] },
-      { text: '代码审查', tags: ['review', 'quality'] },
-      { text: '文档更新', tags: ['documentation'] },
+      { text: '学习 Vue 3' },
+      { text: '写单元测试' },
+      { text: '部署应用' },
+      { text: '代码审查' },
+      { text: '文档更新' },
     ],
     SAMPLE_CONVERSATIONS: [
       {
@@ -148,21 +148,6 @@ export const TestDataGenerator = {
    */
   randomDate: (start = new Date(2020, 0, 1), end = new Date()) => {
     return new Date(start.getTime() + Math.random() * (end.getTime() - start.getTime()))
-  },
-
-  randomTags: (count = 3) => {
-    const availableTags = [
-      'work',
-      'personal',
-      'urgent',
-      'learning',
-      'health',
-      'shopping',
-      'travel',
-      'hobby',
-    ]
-    const shuffled = availableTags.sort(() => 0.5 - Math.random())
-    return shuffled.slice(0, count)
   },
 }
 

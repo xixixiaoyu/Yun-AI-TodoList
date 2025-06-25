@@ -108,7 +108,6 @@ describe('Storage Integration Tests', () => {
       // Create a todo
       const createDto: CreateTodoDto = {
         title: 'Test Todo',
-        tags: ['test'],
       }
 
       const newTodo = await addTodo(createDto)

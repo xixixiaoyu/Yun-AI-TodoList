@@ -212,7 +212,6 @@ export class DataSyncService {
             await this.localService.createTodo({
               title: remoteTodo.title,
               description: remoteTodo.description,
-              tags: remoteTodo.tags,
               priority: remoteTodo.priority,
               estimatedTime: remoteTodo.estimatedTime,
               dueDate: remoteTodo.dueDate,
@@ -330,7 +329,6 @@ export class DataSyncService {
       todo1.completed !== todo2.completed ||
       todo1.priority !== todo2.priority ||
       todo1.estimatedTime !== todo2.estimatedTime ||
-      JSON.stringify(todo1.tags) !== JSON.stringify(todo2.tags) ||
       todo1.description !== todo2.description
     )
   }

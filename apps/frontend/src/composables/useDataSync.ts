@@ -381,8 +381,7 @@ export function useDataSync() {
             oldTodo &&
             (oldTodo.title !== newTodo.title ||
               oldTodo.completed !== newTodo.completed ||
-              oldTodo.priority !== newTodo.priority ||
-              JSON.stringify(oldTodo.tags) !== JSON.stringify(newTodo.tags))
+              oldTodo.priority !== newTodo.priority)
           )
         })
 
