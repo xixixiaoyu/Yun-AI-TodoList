@@ -94,8 +94,6 @@ export class UsersService {
           syncInterval: 5,
           offlineMode: true,
           conflictResolution: 'ask-user',
-          backupEnabled: true,
-          maxBackupCount: 5,
         }),
       },
       createdAt: prismaUser.createdAt.toISOString(),

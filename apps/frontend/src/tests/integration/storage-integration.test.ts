@@ -34,8 +34,6 @@ vi.mock('../../composables/useAuth', () => ({
           syncInterval: 5,
           offlineMode: true,
           conflictResolution: 'ask-user',
-          backupEnabled: true,
-          maxBackupCount: 5,
         },
       },
     }),

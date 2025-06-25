@@ -181,8 +181,6 @@ export class SettingsService {
         syncInterval: 5, // 5分钟自动同步
         offlineMode: true,
         conflictResolution: 'ask-user',
-        backupEnabled: true,
-        maxBackupCount: 5,
       },
     }
   }

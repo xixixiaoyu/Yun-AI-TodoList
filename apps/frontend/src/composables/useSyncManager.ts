@@ -12,7 +12,7 @@ import type {
   DataMigrationOptions,
 } from '@shared/types'
 
-import { HybridStorageService } from '../services/storage/HybridStorageService'
+import { HybridStorageService, type ExportedData } from '../services/storage/HybridStorageService'
 import {
   DataMigrationService,
   type MigrationProgress,
@@ -43,8 +43,6 @@ const globalSyncState = reactive({
     syncInterval: 5,
     offlineMode: true,
     conflictResolution: 'ask-user',
-    backupEnabled: true,
-    maxBackupCount: 5,
   } as StorageConfig,
 })
 
@@ -55,7 +53,7 @@ export function useSyncManager() {
   const isOnline = ref(navigator.onLine)
   const migrationProgress = ref<MigrationProgress | null>(null)
   const lastMigrationResult = ref<MigrationResult | null>(null)
-  const autoSyncTimer = ref<number | null>(null)
+  const autoSyncTimer = ref<ReturnType<typeof setInterval> | null>(null)
 
   // 计算属性
   const canUseCloudSync = computed(() => isAuthenticated.value && isOnline.value)
@@ -296,7 +294,7 @@ export function useSyncManager() {
       throw new Error('Sync manager not initialized')
     }
 
-    return globalSyncState.hybridStorage.importAllData(data)
+    return globalSyncState.hybridStorage.importAllData(data as ExportedData)
   }
 
   /**

@@ -38,7 +38,7 @@ export interface ExportOptions {
  */
 export class ConversationHistoryService {
   private static readonly STORAGE_KEY = 'conversationHistory'
-  private static readonly BACKUP_KEY = 'conversationHistory_backup'
+
   private static readonly METADATA_KEY = 'conversationMetadata'
   private static readonly MAX_STORAGE_SIZE = 50 * 1024 * 1024 // 50MB
 
@@ -51,7 +51,7 @@ export class ConversationHistoryService {
       return data ? JSON.parse(data) : []
     } catch (error) {
       console.error('获取对话历史失败:', error)
-      return this.restoreFromBackup()
+      return []
     }
   }
 
@@ -65,12 +65,6 @@ export class ConversationHistoryService {
       if (dataSize > this.MAX_STORAGE_SIZE) {
         console.warn('对话历史数据过大，开始清理旧数据')
         conversations = this.cleanupOldData(conversations)
-      }
-
-      // 创建备份
-      const currentData = localStorage.getItem(this.STORAGE_KEY)
-      if (currentData) {
-        localStorage.setItem(this.BACKUP_KEY, currentData)
       }
 
       // 保存新数据
@@ -217,22 +211,6 @@ export class ConversationHistoryService {
   }
 
   /**
-   * 从备份恢复数据
-   */
-  private static restoreFromBackup(): Conversation[] {
-    try {
-      const backupData = localStorage.getItem(this.BACKUP_KEY)
-      if (backupData) {
-        console.warn('从备份恢复对话历史')
-        return JSON.parse(backupData)
-      }
-    } catch (error) {
-      console.error('从备份恢复失败:', error)
-    }
-    return []
-  }
-
-  /**
    * 更新元数据
    */
   private static updateMetadata(conversations: Conversation[]): void {
@@ -268,6 +246,7 @@ export class ConversationHistoryService {
         exportDate: new Date().toISOString(),
         totalConversations: conversations.length,
         totalMessages: conversations.reduce((sum, conv) => sum + conv.messages.length, 0),
+        version: '1.0.0',
       }
     }
 

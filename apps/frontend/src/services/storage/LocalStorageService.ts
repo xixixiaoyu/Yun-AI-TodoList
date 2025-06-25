@@ -14,7 +14,6 @@ import {
 
 const STORAGE_KEYS = {
   TODOS: 'todos',
-  BACKUP: 'todos_backup',
   LAST_COUNT: 'todos_last_count',
 } as const
 
@@ -367,7 +366,6 @@ export class LocalStorageService extends TodoStorageService {
   async clearAll(): Promise<StorageOperationResult<void>> {
     try {
       localStorage.removeItem(STORAGE_KEYS.TODOS)
-      localStorage.removeItem(STORAGE_KEYS.BACKUP)
       localStorage.removeItem(STORAGE_KEYS.LAST_COUNT)
       return this.createSuccessResult(undefined)
     } catch (error) {
@@ -528,12 +526,6 @@ export class LocalStorageService extends TodoStorageService {
    */
   private async saveTodos(todos: Todo[]): Promise<void> {
     try {
-      // 创建备份
-      const currentData = localStorage.getItem(STORAGE_KEYS.TODOS)
-      if (currentData) {
-        localStorage.setItem(STORAGE_KEYS.BACKUP, currentData)
-      }
-
       // 保存新数据
       localStorage.setItem(STORAGE_KEYS.TODOS, JSON.stringify(todos))
       localStorage.setItem(STORAGE_KEYS.LAST_COUNT, todos.length.toString())

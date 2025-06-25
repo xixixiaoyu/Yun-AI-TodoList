@@ -54,33 +54,16 @@ export function useTodos() {
         isInitialized.value = true
       } else {
         logger.error('Failed to load todos from storage', result.error, 'useTodos')
-        await loadFromBackup()
+        // 初始化为空数组
+        todos.value = []
+        isInitialized.value = true
       }
     } catch (error) {
       logger.error('Error loading todos', error, 'useTodos')
-      await loadFromBackup()
+      // 初始化为空数组
+      todos.value = []
+      isInitialized.value = true
     }
-  }
-
-  const loadFromBackup = async () => {
-    try {
-      // 尝试从本地存储备份恢复
-      const backup = localStorage.getItem('todos_backup')
-      if (backup) {
-        const parsedBackup = JSON.parse(backup)
-        const { validTodos } = TodoValidator.validateTodos(parsedBackup)
-        todos.value = validTodos
-        logger.info('Restored todos from backup', undefined, 'useTodos')
-        isInitialized.value = true
-        return
-      }
-    } catch (error) {
-      logger.error('Error loading backup', error, 'useTodos')
-    }
-
-    // 如果没有备份，初始化为空数组
-    todos.value = []
-    isInitialized.value = true
   }
 
   const validateDataConsistency = () => {
@@ -109,25 +92,14 @@ export function useTodos() {
   }
 
   const saveTodos = async () => {
-    // 对于本地存储模式，保持原有的 localStorage 逻辑作为备份
-    try {
-      const todosJson = JSON.stringify(todos.value)
-      const currentData = localStorage.getItem('todos')
-      if (currentData) {
-        localStorage.setItem('todos_backup', currentData)
-      }
-      localStorage.setItem('todos', todosJson)
+    if (!isInitialized.value) return
 
-      if (process.env.NODE_ENV === 'development') {
-        const currentCount = todos.value.length
-        const lastCount = parseInt(localStorage.getItem('todos_last_count') || '0')
-        if (currentCount !== lastCount) {
-          localStorage.setItem('todos_last_count', currentCount.toString())
-          logger.info('Todos saved to localStorage', { count: currentCount }, 'useTodos')
-        }
-      }
+    try {
+      await storageService.value.saveTodos(todos.value)
+      logger.info('Todos saved successfully', undefined, 'useTodos')
     } catch (error) {
-      logger.error('Error saving todos to localStorage', error, 'useTodos')
+      logger.error('Error saving todos', error, 'useTodos')
+      throw error
     }
   }
 

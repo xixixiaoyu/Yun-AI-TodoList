@@ -15,11 +15,9 @@ const storageState = reactive({
   config: {
     mode: 'local' as StorageMode,
     autoSync: true,
-    syncInterval: 5,
-    offlineMode: true,
-    conflictResolution: 'ask-user' as const,
-    backupEnabled: true,
-    maxBackupCount: 5,
+    syncInterval: 15, // 15分钟
+    offlineMode: false,
+    conflictResolution: 'ask-user',
   } as StorageConfig,
   syncStatus: {
     syncInProgress: false,

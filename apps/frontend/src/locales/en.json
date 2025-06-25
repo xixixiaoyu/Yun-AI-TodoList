@@ -501,10 +501,7 @@
   "storageModeDescription": "Choose your data storage method",
   "selectStorageMode": "Select Storage Mode",
   "selectStorageModeDesc": "Choose the storage method that suits your needs",
-  "localBackup": "Local Backup",
-  "localBackupDesc": "Enable local data backup functionality",
-  "maxBackupCount": "Max Backup Count",
-  "maxBackupCountDesc": "Set the maximum number of backup files to retain",
+
   "online": "Online",
   "healthy": "Healthy",
   "checking": "Checking",

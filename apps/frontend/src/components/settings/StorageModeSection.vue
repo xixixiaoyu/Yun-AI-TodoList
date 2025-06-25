@@ -148,44 +148,6 @@
           </select>
         </div>
       </div>
-
-      <!-- 本地备份设置 -->
-      <div class="setting-item">
-        <div class="setting-info">
-          <label class="setting-label">{{ t('localBackup') }}</label>
-          <p class="setting-description">{{ t('localBackupDesc') }}</p>
-        </div>
-        <div class="setting-control">
-          <label class="toggle-switch">
-            <input
-              type="checkbox"
-              :checked="config.backupEnabled"
-              @change="updateConfig({ backupEnabled: ($event.target as HTMLInputElement).checked })"
-            />
-            <span class="toggle-slider"></span>
-          </label>
-        </div>
-      </div>
-
-      <!-- 最大备份数量 -->
-      <div v-if="config.backupEnabled" class="setting-item">
-        <div class="setting-info">
-          <label class="setting-label">{{ t('maxBackupCount') }}</label>
-          <p class="setting-description">{{ t('maxBackupCountDesc') }}</p>
-        </div>
-        <div class="setting-control">
-          <input
-            type="number"
-            :value="config.maxBackupCount"
-            min="1"
-            max="20"
-            class="number-input"
-            @input="
-              updateConfig({ maxBackupCount: parseInt(($event.target as HTMLInputElement).value) })
-            "
-          />
-        </div>
-      </div>
     </div>
   </div>
 </template>

@@ -222,26 +222,6 @@ export class StorageConfigDto {
   @IsOptional()
   @IsEnum(ConflictResolutionStrategy, { message: '冲突解决策略无效' })
   conflictResolution?: ConflictResolutionStrategy
-
-  @ApiProperty({
-    description: '是否启用本地备份',
-    example: true,
-    required: false,
-  })
-  @IsOptional()
-  @IsBoolean({ message: '本地备份开关必须是布尔值' })
-  backupEnabled?: boolean
-
-  @ApiProperty({
-    description: '最大备份数量',
-    example: 5,
-    minimum: 1,
-    maximum: 20,
-    required: false,
-  })
-  @IsOptional()
-  @IsNumber({}, { message: '最大备份数量必须是数字' })
-  maxBackupCount?: number
 }
 
 export class UpdatePreferencesDto {

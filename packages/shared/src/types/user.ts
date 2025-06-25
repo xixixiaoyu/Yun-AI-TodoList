@@ -112,8 +112,6 @@ export interface StorageConfig {
   syncInterval: number // 自动同步间隔（分钟）
   offlineMode: boolean // 离线模式是否启用
   conflictResolution: ConflictResolutionStrategy
-  backupEnabled: boolean // 是否启用本地备份
-  maxBackupCount: number // 最大备份数量
 }
 
 export type ConflictResolutionStrategy = 'local-wins' | 'remote-wins' | 'merge' | 'ask-user'
