@@ -152,8 +152,9 @@ quality-report.json
 scripts/
 !scripts/init-db.sql
 
-# Tools
+# Tools (exclude all except package.json)
 tools/
+!tools/*/package.json
 
 # Workers
 workers-site/

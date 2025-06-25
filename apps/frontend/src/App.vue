@@ -26,6 +26,12 @@
     <!-- Toast 通知组件 -->
     <SimpleToast ref="toastRef" />
 
+    <!-- 全局通知系统 -->
+    <NotificationContainer />
+
+    <!-- 同步状态指示器 -->
+    <SyncStatusIndicator />
+
     <!-- AI 助手侧边栏 -->
     <AISidebar :is-open="isAISidebarOpen" @close="closeAISidebar" />
   </div>
@@ -33,7 +39,9 @@
 
 <script setup lang="ts">
 import AISidebar from './components/AISidebar.vue'
+import NotificationContainer from './components/common/NotificationContainer.vue'
 import SimpleToast from './components/common/SimpleToast.vue'
+import SyncStatusIndicator from './components/common/SyncStatusIndicator.vue'
 import ApiKeyReminder from './components/layout/ApiKeyReminder.vue'
 import NavigationBar from './components/layout/NavigationBar.vue'
 import { useAISidebar } from './composables/useAISidebar'

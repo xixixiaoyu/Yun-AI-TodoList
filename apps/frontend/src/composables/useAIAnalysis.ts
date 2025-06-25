@@ -70,7 +70,7 @@ export function useAIAnalysis() {
    */
   const analyzeSingleTodo = async (
     todo: Todo,
-    updateCallback: (id: number, updates: Partial<Todo>) => void
+    updateCallback: (id: string, updates: Partial<Todo>) => void
   ) => {
     // 如果正在进行批量分析，则禁止单个分析
     if (!isAnalysisEnabled.value || isAnalyzing.value || isBatchAnalyzing.value) {
@@ -79,7 +79,7 @@ export function useAIAnalysis() {
 
     isAnalyzing.value = true
     try {
-      const result = await analyzeTodo(todo.text)
+      const result = await analyzeTodo(todo.title)
 
       const updates: Partial<Todo> = {
         aiAnalyzed: true,
@@ -113,7 +113,7 @@ export function useAIAnalysis() {
    */
   const batchAnalyzeTodosAction = async (
     todos: Todo[],
-    updateCallback: (updates: Array<{ id: number; updates: Partial<Todo> }>) => void
+    updateCallback: (updates: Array<{ id: string; updates: Partial<Todo> }>) => void
   ) => {
     console.warn('开始批量分析，分析配置:', analysisConfig.value)
     console.warn('分析功能是否启用:', isAnalysisEnabled.value)
@@ -144,7 +144,7 @@ export function useAIAnalysis() {
       const results = await batchAnalyzeTodos(todosToAnalyze)
       console.warn('批量分析结果:', results)
 
-      const updates: Array<{ id: number; updates: Partial<Todo> }> = []
+      const updates: Array<{ id: string; updates: Partial<Todo> }> = []
 
       todosToAnalyze.forEach((todo) => {
         console.warn(`检查任务 ${todo.id} 的分析结果...`)
@@ -169,27 +169,6 @@ export function useAIAnalysis() {
           console.warn(`任务 ${todo.id} 添加到更新列表:`, todoUpdates)
         } else {
           console.warn(`任务 ${todo.id} 未找到分析结果`)
-          // 检查是否存在字符串形式的 ID
-          const stringId = todo.id.toString()
-          const stringResult = results.get(parseInt(stringId))
-          if (stringResult) {
-            console.warn(`找到字符串形式的结果 ${stringId}:`, stringResult)
-            const todoUpdates: Partial<Todo> = {
-              aiAnalyzed: true,
-              updatedAt: new Date().toISOString(),
-            }
-
-            if (analysisConfig.value.enablePriorityAnalysis) {
-              todoUpdates.priority = stringResult.priority
-            }
-
-            if (analysisConfig.value.enableTimeEstimation) {
-              todoUpdates.estimatedTime = stringResult.estimatedTime
-            }
-
-            updates.push({ id: todo.id, updates: todoUpdates })
-            console.warn(`任务 ${todo.id} 使用字符串结果添加到更新列表:`, todoUpdates)
-          }
         }
 
         analysisProgress.value++
@@ -220,7 +199,7 @@ export function useAIAnalysis() {
    */
   const reanalyzeTodoAction = async (
     todo: Todo,
-    updateCallback: (id: number, updates: Partial<Todo>) => void
+    updateCallback: (id: string, updates: Partial<Todo>) => void
   ) => {
     if (!isAnalysisEnabled.value || isAnalyzing.value) {
       return

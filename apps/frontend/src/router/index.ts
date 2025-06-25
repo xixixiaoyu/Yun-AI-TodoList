@@ -36,13 +36,60 @@ const router = createRouter({
         preload: false, // 按需加载
       },
     },
+    {
+      path: '/login',
+      name: 'login',
+      component: () => import('../components/auth/Login.vue'),
+      meta: {
+        title: '登录 - Yun AI TodoList',
+        preload: false,
+        requiresGuest: true, // 只有未登录用户可以访问
+      },
+    },
+    {
+      path: '/register',
+      name: 'register',
+      component: () => import('../components/auth/Register.vue'),
+      meta: {
+        title: '注册 - Yun AI TodoList',
+        preload: false,
+        requiresGuest: true, // 只有未登录用户可以访问
+      },
+    },
   ],
 })
 
 router.beforeEach(
-  (to: RouteLocationNormalized, _from: RouteLocationNormalized, next: NavigationGuardNext) => {
+  async (to: RouteLocationNormalized, from: RouteLocationNormalized, next: NavigationGuardNext) => {
     // 设置页面标题
     document.title = to.meta.title as string
+
+    // 延迟导入认证模块以避免循环依赖
+    let isAuthenticated = false
+    try {
+      const { useAuth } = await import('../composables/useAuth')
+      const auth = useAuth()
+      isAuthenticated = auth.isAuthenticated.value
+    } catch (error) {
+      console.warn('Failed to load auth module:', error)
+    }
+
+    // 检查需要访客权限的路由（登录、注册页面）
+    if (to.meta.requiresGuest && isAuthenticated) {
+      // 已登录用户访问登录/注册页面，重定向到首页
+      next({ name: 'home' })
+      return
+    }
+
+    // 检查需要认证的路由（暂时没有，但为将来扩展预留）
+    if (to.meta.requiresAuth && !isAuthenticated) {
+      // 未登录用户访问需要认证的页面，重定向到登录页
+      next({
+        name: 'login',
+        query: { redirect: to.fullPath }, // 保存原始目标路径
+      })
+      return
+    }
 
     // 性能优化：预加载下一个可能访问的路由
     if (to.meta.preload && to.name === 'home') {

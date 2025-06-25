@@ -1,5 +1,5 @@
 import { ref } from 'vue'
-import type { Todo } from '../types/todo'
+import type { CreateTodoDto, Todo, UpdateTodoDto } from '../types/todo'
 import { IdGenerator } from '../utils/idGenerator'
 import { logger } from '../utils/logger'
 import { TodoValidator } from '../utils/todoValidator'
@@ -8,6 +8,10 @@ import { TodoValidator } from '../utils/todoValidator'
 const globalTodos = ref<Todo[]>([])
 
 export function useTodos() {
+  const setTodos = (newTodos: Todo[]) => {
+    todos.value = newTodos.sort((a, b) => a.order - b.order)
+    saveTodos()
+  }
   const todos = globalTodos
 
   const loadTodos = () => {
@@ -53,7 +57,7 @@ export function useTodos() {
   }
 
   const validateDataConsistency = () => {
-    const seenIds = new Set<number>()
+    const seenIds = new Set<string>()
     const originalLength = todos.value.length
     todos.value = todos.value.filter((todo) => {
       if (seenIds.has(todo.id)) {
@@ -109,45 +113,41 @@ export function useTodos() {
     }
   }
 
-  const addTodo = (text: string, tags: string[] = []): boolean => {
-    if (!text || text.trim() === '') {
-      return false
+  const addTodo = (todoData: CreateTodoDto): Todo | null => {
+    const { title, ...rest } = todoData
+    if (!title || title.trim() === '') {
+      return null
     }
 
-    const sanitizedText = TodoValidator.sanitizeText(text)
+    const sanitizedTitle = TodoValidator.sanitizeTitle(title)
 
-    if (!TodoValidator.isTextSafe(sanitizedText)) {
-      logger.warn('Attempted to add unsafe todo text', { text }, 'useTodos')
-      return false
+    if (!TodoValidator.isTitleSafe(sanitizedTitle)) {
+      logger.warn('Attempted to add unsafe todo title', { title }, 'useTodos')
+      return null
     }
 
     const isDuplicate = todos.value.some(
       (todo) =>
         todo &&
-        todo.text &&
-        todo.text.toLowerCase() === sanitizedText.toLowerCase() &&
+        todo.title &&
+        todo.title.toLowerCase() === sanitizedTitle.toLowerCase() &&
         !todo.completed
     )
 
     if (isDuplicate) {
-      return false
+      return null
     }
 
     const now = new Date().toISOString()
     const newTodo: Todo = {
-      id: IdGenerator.generateId(),
-      text: sanitizedText,
-      completed: false, // 确保新添加的 todo 始终为未完成状态
-      tags: tags.filter((tag) => tag.trim() !== '').map((tag) => tag.trim()),
+      id: IdGenerator.generateStringId(), // Use string ID for new todos
+      title: sanitizedTitle,
+      completed: false,
+      tags: todoData.tags?.filter((tag) => tag.trim() !== '').map((tag) => tag.trim()) || [],
       createdAt: now,
       updatedAt: now,
       order: todos.value.length,
-    }
-
-    // 防御性检查：确保 completed 状态正确
-    if (newTodo.completed !== false) {
-      logger.error('New todo completed state is incorrect', { todo: newTodo }, 'useTodos')
-      newTodo.completed = false
+      ...rest,
     }
 
     todos.value.push(newTodo)
@@ -155,32 +155,32 @@ export function useTodos() {
 
     logger.debug(
       'Todo added to pending list',
-      { id: newTodo.id, text: newTodo.text, completed: newTodo.completed },
+      { id: newTodo.id, title: newTodo.title, completed: newTodo.completed },
       'useTodos'
     )
 
-    return true
+    return newTodo
   }
 
-  const addMultipleTodos = (newTodos: { text: string }[]) => {
+  const addMultipleTodos = (newTodos: { title: string }[]) => {
     const duplicates: string[] = []
     const now = new Date().toISOString()
     const validTodos: Todo[] = []
 
-    newTodos.forEach(({ text }) => {
-      const sanitizedText = TodoValidator.sanitizeText(text)
+    newTodos.forEach(({ title }) => {
+      const sanitizedText = TodoValidator.sanitizeTitle(title)
 
-      if (!TodoValidator.isTextSafe(sanitizedText)) {
-        logger.warn('Skipped unsafe todo text in batch add', { text }, 'useTodos')
+      if (!TodoValidator.isTitleSafe(sanitizedText)) {
+        logger.warn('Skipped unsafe todo text in batch add', { title }, 'useTodos')
         return
       }
 
-      if (todos.value.some((todo) => todo.text.toLowerCase() === sanitizedText.toLowerCase())) {
-        duplicates.push(text)
+      if (todos.value.some((todo) => todo.title.toLowerCase() === sanitizedText.toLowerCase())) {
+        duplicates.push(title)
       } else {
         const newTodo: Todo = {
-          id: IdGenerator.generateId(),
-          text: sanitizedText,
+          id: IdGenerator.generateStringId(),
+          title: sanitizedText,
           completed: false, // 确保批量添加的 todo 始终为未完成状态
           tags: [],
           createdAt: now,
@@ -208,7 +208,7 @@ export function useTodos() {
     return duplicates
   }
 
-  const toggleTodo = (id: number) => {
+  const toggleTodo = (id: string) => {
     const todo = todos.value.find((todo) => todo && todo.id === id)
     if (todo) {
       todo.completed = !todo.completed
@@ -221,12 +221,12 @@ export function useTodos() {
     }
   }
 
-  const removeTodo = (id: number) => {
+  const removeTodo = (id: string) => {
     todos.value = todos.value.filter((todo) => todo && todo.id !== id)
     saveTodos()
   }
 
-  const updateTodosOrder = (newOrder: number[]) => {
+  const updateTodosOrder = (newOrder: string[]) => {
     const orderMap = new Map(newOrder.map((id, index) => [id, index]))
 
     todos.value = todos.value
@@ -310,7 +310,7 @@ export function useTodos() {
     return completedByDate
   }
 
-  const updateTodoTags = (id: number, tags: string[]) => {
+  const updateTodoTags = (id: string, tags: string[]) => {
     const todo = todos.value.find((todo) => todo && todo.id === id)
     if (todo) {
       todo.tags = tags
@@ -318,7 +318,7 @@ export function useTodos() {
     }
   }
 
-  const updateTodo = (id: number, updates: Partial<Todo>) => {
+  const updateTodo = (id: string, updates: UpdateTodoDto) => {
     const todo = todos.value.find((todo) => todo && todo.id === id)
     if (todo) {
       Object.assign(todo, {
@@ -331,7 +331,7 @@ export function useTodos() {
     return false
   }
 
-  const batchUpdateTodos = (updates: Array<{ id: number; updates: Partial<Todo> }>) => {
+  const batchUpdateTodos = (updates: Array<{ id: string; updates: UpdateTodoDto }>) => {
     let updated = false
     const now = new Date().toISOString()
 
@@ -353,6 +353,7 @@ export function useTodos() {
   }
 
   return {
+    setTodos,
     todos,
     addTodo,
     addMultipleTodos,

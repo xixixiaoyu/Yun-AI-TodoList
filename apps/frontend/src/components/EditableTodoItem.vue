@@ -65,8 +65,8 @@
 
     <!-- 显示模式 -->
     <div v-else class="display-mode" @click.stop>
-      <div class="todo-text-display" :title="todo.text" @dblclick.stop="startEdit">
-        {{ todo.text }}
+      <div class="todo-text-display" :title="todo.title" @dblclick.stop="startEdit">
+        {{ todo.title }}
       </div>
 
       <!-- 编辑按钮 -->
@@ -123,7 +123,7 @@ const textareaRef = ref<HTMLTextAreaElement>()
 // 计算属性
 const canSave = computed(() => {
   const trimmed = editText.value.trim()
-  return trimmed.length > 0 && trimmed !== props.todo.text.trim()
+  return trimmed.length > 0 && trimmed !== props.todo.title.trim()
 })
 
 // 开始编辑
@@ -133,7 +133,7 @@ const startEdit = () => {
   }
 
   isEditing.value = true
-  editText.value = props.todo.text
+  editText.value = props.todo.title
 
   nextTick(() => {
     if (textareaRef.value) {
@@ -214,7 +214,7 @@ const handleSave = () => {
 // 取消编辑
 const handleCancel = () => {
   isEditing.value = false
-  editText.value = props.todo.text
+  editText.value = props.todo.title
   emit('cancel')
 }
 

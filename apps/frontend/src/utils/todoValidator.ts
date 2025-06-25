@@ -21,12 +21,12 @@ export class TodoValidator {
 
     const todoObj = todo as Record<string, unknown>
 
-    if (typeof todoObj.id !== 'number' || todoObj.id <= 0) {
-      errors.push('Invalid ID: must be a positive number')
+    if (typeof todoObj.id !== 'string' || todoObj.id.trim() === '') {
+      errors.push('Invalid ID: must be a non-empty string')
     }
 
-    if (typeof todoObj.text !== 'string' || todoObj.text.trim() === '') {
-      errors.push('Invalid text: must be a non-empty string')
+    if (typeof todoObj.title !== 'string' || todoObj.title.trim() === '') {
+      errors.push('Invalid title: must be a non-empty string')
     }
 
     if (typeof todoObj.completed !== 'boolean') {
@@ -80,8 +80,8 @@ export class TodoValidator {
 
     if (isValid) {
       const sanitizedData: Todo = {
-        id: todoObj.id as number,
-        text: (todoObj.text as string).trim(),
+        id: todoObj.id as string,
+        title: (todoObj.title as string).trim(),
         completed: todoObj.completed as boolean,
         tags: (todoObj.tags as string[])
           .filter((tag: string) => tag.trim() !== '')
@@ -150,13 +150,13 @@ export class TodoValidator {
   }
 
   /**
-   * 清理和标准化 Todo 文本
+   * 清理和标准化 Todo 标题
    */
-  static sanitizeText(text: string): string {
-    return text.trim().replace(/\s+/g, ' ').substring(0, 500)
+  static sanitizeTitle(title: string): string {
+    return title.trim().replace(/\s+/g, ' ').substring(0, 500)
   }
 
-  static isTextSafe(text: string): boolean {
+  static isTitleSafe(title: string): boolean {
     const dangerousPatterns = [
       /<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi,
       /javascript:/gi,
@@ -165,6 +165,6 @@ export class TodoValidator {
       /expression\s*\(/gi,
     ]
 
-    return !dangerousPatterns.some((pattern) => pattern.test(text))
+    return !dangerousPatterns.some((pattern) => pattern.test(title))
   }
 }

@@ -46,17 +46,40 @@ check_env() {
             cp .env.example .env
             log_success "已创建 .env 文件，请根据需要修改配置"
         else
-            log_error ".env.example 文件不存在"
-            exit 1
+            log_warning ".env.example 文件不存在，使用默认开发环境配置"
+            create_default_env
         fi
     fi
+}
+
+# 创建默认开发环境配置
+create_default_env() {
+    cat > .env << 'EOF'
+# 开发环境配置
+NODE_ENV=development
+POSTGRES_DB=yun_ai_todolist_dev
+POSTGRES_USER=postgres
+POSTGRES_PASSWORD=postgres123
+REDIS_PASSWORD=
+JWT_SECRET=dev-jwt-secret-key-for-development-only
+JWT_EXPIRES_IN=24h
+JWT_REFRESH_SECRET=dev-refresh-secret-key-for-development-only
+JWT_REFRESH_EXPIRES_IN=7d
+BCRYPT_ROUNDS=10
+FRONTEND_URL=http://localhost:5173
+VITE_API_BASE_URL=http://localhost:3000/api/v1
+LOG_LEVEL=debug
+ENABLE_SWAGGER=true
+DEBUG_MODE=true
+EOF
+    log_success "已创建默认开发环境 .env 文件"
 }
 
 # 清理旧容器和镜像
 cleanup() {
     log_info "清理旧的开发环境容器..."
     docker-compose -f docker-compose.dev.yml down --remove-orphans
-    
+
     if [ "$1" = "--clean" ]; then
         log_info "清理开发环境镜像和卷..."
         docker-compose -f docker-compose.dev.yml down --volumes --rmi local
@@ -64,30 +87,93 @@ cleanup() {
     fi
 }
 
-# 构建镜像
+# 检查系统资源
+check_resources() {
+    log_info "检查系统资源..."
+
+    # 检查可用内存
+    if command -v free >/dev/null 2>&1; then
+        available_mem=$(free -m | awk 'NR==2{printf "%.0f", $7}')
+        if [ "$available_mem" -lt 2048 ]; then
+            log_warning "可用内存较少 (${available_mem}MB)，构建可能较慢"
+        fi
+    fi
+
+    # 检查磁盘空间
+    available_space=$(df . | awk 'NR==2 {print $4}')
+    if [ "$available_space" -lt 5242880 ]; then  # 5GB in KB
+        log_warning "可用磁盘空间较少，请确保有足够空间"
+    fi
+}
+
+# 优化构建镜像
 build() {
     log_info "构建开发环境镜像..."
-    docker-compose -f docker-compose.dev.yml build --no-cache
+
+    # 检查是否启用 BuildKit
+    export DOCKER_BUILDKIT=1
+    export COMPOSE_DOCKER_CLI_BUILD=1
+
+    # 使用并行构建和缓存
+    log_info "使用优化构建策略..."
+    docker-compose -f docker-compose.dev.yml build \
+        --parallel \
+        --build-arg BUILDKIT_INLINE_CACHE=1
 }
 
 # 启动服务
 start() {
     log_info "启动开发环境服务..."
-    docker-compose -f docker-compose.dev.yml up -d
-    
-    log_info "等待服务启动..."
-    sleep 10
-    
+
+    # 分阶段启动服务
+    log_info "启动基础服务（数据库和缓存）..."
+    docker-compose -f docker-compose.dev.yml up -d postgres-dev redis-dev
+
+    log_info "等待基础服务就绪..."
+    wait_for_service "postgres-dev" "PostgreSQL"
+    wait_for_service "redis-dev" "Redis"
+
+    log_info "启动应用服务..."
+    docker-compose -f docker-compose.dev.yml up -d backend-dev frontend-dev adminer
+
+    log_info "等待应用服务启动..."
+    wait_for_service "backend-dev" "后端服务"
+    wait_for_service "frontend-dev" "前端服务"
+
     # 检查服务状态
     check_services
+}
+
+# 等待服务就绪
+wait_for_service() {
+    local service_name=$1
+    local display_name=$2
+    local max_attempts=30
+    local attempt=1
+
+    log_info "等待 $display_name 启动..."
+
+    while [ $attempt -le $max_attempts ]; do
+        if docker-compose -f docker-compose.dev.yml ps | grep -q "$service_name.*Up"; then
+            log_success "$display_name 已启动"
+            return 0
+        fi
+
+        echo -n "."
+        sleep 2
+        attempt=$((attempt + 1))
+    done
+
+    log_error "$display_name 启动超时"
+    return 1
 }
 
 # 检查服务状态
 check_services() {
     log_info "检查服务状态..."
-    
+
     services=("postgres-dev" "redis-dev" "backend-dev" "frontend-dev")
-    
+
     for service in "${services[@]}"; do
         if docker-compose -f docker-compose.dev.yml ps | grep -q "$service.*Up"; then
             log_success "$service 服务运行正常"
@@ -139,6 +225,7 @@ main() {
     case "$1" in
         start)
             check_docker
+            check_resources
             check_env
             cleanup
             build
@@ -146,7 +233,11 @@ main() {
             log_success "开发环境启动完成！"
             log_info "前端地址: http://localhost:5173"
             log_info "后端地址: http://localhost:3000"
+            log_info "后端 API 文档: http://localhost:3000/api/docs"
             log_info "数据库管理: http://localhost:8080"
+            log_info ""
+            log_info "使用以下命令查看日志："
+            log_info "  $0 logs [服务名]"
             ;;
         stop)
             log_info "停止开发环境..."

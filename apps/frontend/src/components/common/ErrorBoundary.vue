@@ -42,6 +42,8 @@
 
 <script setup lang="ts">
 import { useErrorHandler } from '@/composables/useErrorHandler'
+import { onErrorCaptured, onMounted, ref } from 'vue'
+import { useI18n } from 'vue-i18n'
 
 interface ErrorInfo {
   componentStack: string

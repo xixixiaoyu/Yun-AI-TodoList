@@ -1,6 +1,6 @@
-import { generateFallbackQuestion, generateTodoSystemPrompt } from '@/services/aiAnalysisService'
-import type { Todo } from '@/types/todo'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { generateFallbackQuestion, generateTodoSystemPrompt } from '../services/aiAnalysisService'
+import type { Todo } from '../types/todo'
 
 // Mock the deepseekService
 vi.mock('@/services/deepseekService', () => ({
@@ -13,46 +13,6 @@ vi.mock('@/utils/logger', () => ({
 }))
 
 describe('Smart Question Generation', () => {
-  const mockTodos: Todo[] = [
-    {
-      id: 1,
-      text: '完成项目报告',
-      completed: false,
-      tags: ['工作', '重要'],
-      createdAt: '2024-01-01T10:00:00Z',
-      updatedAt: '2024-01-01T10:00:00Z',
-      order: 1,
-      priority: 4,
-      estimatedTime: '2小时',
-      aiAnalyzed: true,
-    },
-    {
-      id: 2,
-      text: '学习 Vue 3',
-      completed: false,
-      tags: ['学习'],
-      createdAt: '2024-01-01T11:00:00Z',
-      updatedAt: '2024-01-01T11:00:00Z',
-      order: 2,
-      priority: 3,
-      estimatedTime: '1小时',
-      aiAnalyzed: true,
-    },
-    {
-      id: 3,
-      text: '买菜做饭',
-      completed: true,
-      completedAt: '2024-01-01T18:00:00Z',
-      tags: ['生活'],
-      createdAt: '2024-01-01T09:00:00Z',
-      updatedAt: '2024-01-01T18:00:00Z',
-      order: 3,
-      priority: 2,
-      estimatedTime: '30分钟',
-      aiAnalyzed: true,
-    },
-  ]
-
   beforeEach(() => {
     vi.clearAllMocks()
   })
@@ -170,8 +130,8 @@ describe('Smart Question Generation', () => {
 describe('Todo System Prompt Generation', () => {
   const mockTodos: Todo[] = [
     {
-      id: 1,
-      text: '完成项目报告',
+      id: 'test-todo-1',
+      title: '完成项目报告',
       completed: false,
       tags: ['工作', '重要'],
       createdAt: '2024-01-01T10:00:00Z',
@@ -182,8 +142,8 @@ describe('Todo System Prompt Generation', () => {
       aiAnalyzed: true,
     },
     {
-      id: 2,
-      text: '买菜做饭',
+      id: 'test-todo-2',
+      title: '买菜做饭',
       completed: true,
       completedAt: '2024-01-01T18:00:00Z',
       tags: ['生活'],
@@ -199,34 +159,33 @@ describe('Todo System Prompt Generation', () => {
   it('should generate system prompt with task overview', () => {
     const systemPrompt = generateTodoSystemPrompt(mockTodos)
 
-    expect(systemPrompt).toContain('你是一个专业的个人任务管理助手')
-    expect(systemPrompt).toContain('待完成任务：1 个')
-    expect(systemPrompt).toContain('已完成任务：1 个')
-    expect(systemPrompt).toContain('高优先级任务（4-5星）：1 个')
+    expect(systemPrompt).toContain('你是专业的任务管理助手')
+    expect(systemPrompt).toContain('1 个待完成任务')
+    expect(systemPrompt).toContain('1 个已完成任务')
+    expect(systemPrompt).toContain('## 待完成任务 (1个)')
   })
 
   it('should include detailed task information', () => {
     const systemPrompt = generateTodoSystemPrompt(mockTodos)
 
     expect(systemPrompt).toContain('完成项目报告')
-    expect(systemPrompt).toContain('优先级: 4星')
-    expect(systemPrompt).toContain('预估时间: 2小时')
-    expect(systemPrompt).toContain('标签: 工作, 重要')
-    expect(systemPrompt).toContain('AI分析状态: 已分析')
+    expect(systemPrompt).toContain('[优先级:4星]')
+    expect(systemPrompt).toContain('[时间:2小时]')
+    expect(systemPrompt).toContain('[标签:工作,重要]')
   })
 
   it('should include completed tasks information', () => {
     const systemPrompt = generateTodoSystemPrompt(mockTodos)
 
     expect(systemPrompt).toContain('买菜做饭')
-    expect(systemPrompt).toContain('完成时间:')
+    expect(systemPrompt).toContain('[用时:')
   })
 
   it('should handle empty todo list', () => {
     const systemPrompt = generateTodoSystemPrompt([])
 
-    expect(systemPrompt).toContain('待完成任务：0 个')
-    expect(systemPrompt).toContain('已完成任务：0 个')
+    expect(systemPrompt).toContain('0 个待完成任务')
+    expect(systemPrompt).toContain('0 个已完成任务')
     expect(systemPrompt).toContain('暂无待完成任务')
     expect(systemPrompt).toContain('暂无已完成任务')
   })
@@ -234,9 +193,8 @@ describe('Todo System Prompt Generation', () => {
   it('should include AI assistant responsibilities', () => {
     const systemPrompt = generateTodoSystemPrompt(mockTodos)
 
-    expect(systemPrompt).toContain('你的职责')
-    expect(systemPrompt).toContain('基于用户的具体任务信息回答问题')
-    expect(systemPrompt).toContain('提供个性化的任务管理建议')
-    expect(systemPrompt).toContain('回答原则')
+    expect(systemPrompt).toContain('请基于以下具体任务信息提供个性化建议')
+    expect(systemPrompt).toContain('提供针对性的任务管理建议')
+    expect(systemPrompt).toContain('可以直接引用任务内容、优先级和时间信息')
   })
 })

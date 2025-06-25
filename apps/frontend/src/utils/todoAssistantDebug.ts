@@ -96,8 +96,8 @@ export function debugTodosData() {
     console.log('\n📊 数据结构分析:')
     console.log('第一个 todo 的字段:', Object.keys(todos[0]))
     console.log('第一个 todo 的完整数据:', todos[0])
-    console.log('text 字段值:', todos[0].text)
     console.log('title 字段值:', todos[0].title)
+    console.log('text 字段值 (旧字段):', todos[0].text)
   }
 
   // 检查 todoHistory
@@ -138,7 +138,7 @@ ${todos
   .filter((t: any) => !t.completed)
   .map(
     (todo: any, index: number) =>
-      `${index + 1}. ${todo.text} (优先级: ${todo.priority || '未设置'})`
+      `${index + 1}. ${todo.title || todo.title} (优先级: ${todo.priority || '未设置'})`
   )
   .join('\n')}
 
@@ -387,7 +387,7 @@ export function testTaskDetailLevel() {
   activeTodos.slice(0, 3).forEach((todo: any, index: number) => {
     console.log(`任务 ${index + 1}:`, {
       id: todo.id,
-      text: todo.text,
+      title: todo.title || todo.title,
       priority: todo.priority || '未设置',
       estimatedTime: todo.estimatedTime || '未估算',
       tags: todo.tags || [],
@@ -407,7 +407,7 @@ export function testTaskDetailLevel() {
 
     console.log(`任务 ${index + 1}:`, {
       id: todo.id,
-      text: todo.text,
+      title: todo.title || todo.title,
       priority: todo.priority || '未设置',
       estimatedTime: todo.estimatedTime || '未估算',
       tags: todo.tags || [],
@@ -432,7 +432,9 @@ export function testTaskDetailLevel() {
       console.log('包含工作效率分析:', prompt.includes('工作效率分析'))
 
       // 检查是否包含具体的任务内容
-      const hasSpecificTasks = activeTodos.some((todo: any) => prompt.includes(todo.text))
+      const hasSpecificTasks = activeTodos.some((todo: any) =>
+        prompt.includes(todo.title || todo.title)
+      )
       console.log('包含具体任务内容:', hasSpecificTasks)
 
       console.log('\n📋 系统提示词预览 (前500字符):')
@@ -462,11 +464,13 @@ export function testCurrentPromptContent() {
   console.log('📊 实际任务数据:')
   console.log(
     '待完成任务:',
-    activeTodos.map((t: any) => ({ id: t.id, text: t.text, priority: t.priority }))
+    activeTodos.map((t: any) => ({ id: t.id, title: t.title || t.text, priority: t.priority }))
   )
   console.log(
     '已完成任务:',
-    completedTodos.slice(0, 5).map((t: any) => ({ id: t.id, text: t.text, priority: t.priority }))
+    completedTodos
+      .slice(0, 5)
+      .map((t: any) => ({ id: t.id, title: t.title || t.text, priority: t.priority }))
   )
 
   // 测试生成的系统提示词
@@ -482,13 +486,13 @@ export function testCurrentPromptContent() {
 
       // 检查是否包含具体的任务文本
       activeTodos.forEach((todo: any, index: number) => {
-        const included = prompt.includes(todo.text)
-        console.log(`待完成任务 ${index + 1} "${todo.text}":`, included ? '✅ 包含' : '❌ 缺失')
+        const included = prompt.includes(todo.title)
+        console.log(`待完成任务 ${index + 1} "${todo.title}":`, included ? '✅ 包含' : '❌ 缺失')
       })
 
       completedTodos.slice(0, 5).forEach((todo: any, index: number) => {
-        const included = prompt.includes(todo.text)
-        console.log(`已完成任务 ${index + 1} "${todo.text}":`, included ? '✅ 包含' : '❌ 缺失')
+        const included = prompt.includes(todo.title)
+        console.log(`已完成任务 ${index + 1} "${todo.title}":`, included ? '✅ 包含' : '❌ 缺失')
       })
     })
     .catch((error) => {
@@ -587,13 +591,13 @@ export function testDynamicGeneration() {
 
       console.log('\n📋 任务内容检查:')
       activeTodos.slice(0, 3).forEach((todo: any) => {
-        const included = dynamicContent.includes(todo.text)
-        console.log(`待完成任务 "${todo.text}":`, included ? '✅ 包含' : '❌ 缺失')
+        const included = dynamicContent.includes(todo.title)
+        console.log(`待完成任务 "${todo.title}":`, included ? '✅ 包含' : '❌ 缺失')
       })
 
       completedTodos.slice(0, 3).forEach((todo: any) => {
-        const included = dynamicContent.includes(todo.text)
-        console.log(`已完成任务 "${todo.text}":`, included ? '✅ 包含' : '❌ 缺失')
+        const included = dynamicContent.includes(todo.title)
+        console.log(`已完成任务 "${todo.title}":`, included ? '✅ 包含' : '❌ 缺失')
       })
 
       console.log('\n📝 完整内容:')

@@ -2,8 +2,8 @@ import type { ChatMessage, Conversation } from '@/services/types'
 import type { Todo } from '@/types/todo'
 import { vi } from 'vitest'
 import { createI18n } from 'vue-i18n'
-import zh from '../locales/zh.json'
 import en from '../locales/en.json'
+import zh from '../locales/zh.json'
 
 export function createTestI18n() {
   return createI18n({
@@ -23,8 +23,8 @@ export function createTestI18n() {
 export function createTestTodo(overrides: Partial<Todo> = {}): Todo {
   const now = new Date().toISOString()
   return {
-    id: Date.now() + Math.random(),
-    text: 'Test Todo',
+    id: `test-${Date.now()}-${Math.random().toString(36).substring(2, 11)}`,
+    title: 'Test Todo',
     completed: false,
     tags: [],
     createdAt: now,
@@ -37,8 +37,8 @@ export function createTestTodo(overrides: Partial<Todo> = {}): Todo {
 export function createTestTodos(count: number, baseOverrides: Partial<Todo> = {}): Todo[] {
   return Array.from({ length: count }, (_, index) =>
     createTestTodo({
-      id: Date.now() + index,
-      text: `Test Todo ${index + 1}`,
+      id: `test-${Date.now()}-${index}-${Math.random().toString(36).substring(2, 11)}`,
+      title: `Test Todo ${index + 1}`,
       order: index,
       ...baseOverrides,
     })

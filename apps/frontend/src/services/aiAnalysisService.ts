@@ -111,8 +111,8 @@ export async function analyzeTodo(todoText: string): Promise<AIAnalysisResult> {
  * @param todos Todo 项目列表
  * @returns 分析结果映射
  */
-export async function batchAnalyzeTodos(todos: Todo[]): Promise<Map<number, AIAnalysisResult>> {
-  const results = new Map<number, AIAnalysisResult>()
+export async function batchAnalyzeTodos(todos: Todo[]): Promise<Map<string, AIAnalysisResult>> {
+  const results = new Map<string, AIAnalysisResult>()
 
   // 过滤出需要分析的 Todo（未分析过的）
   const todosToAnalyze = todos.filter((todo) => !todo.aiAnalyzed && !todo.completed)
@@ -124,7 +124,7 @@ export async function batchAnalyzeTodos(todos: Todo[]): Promise<Map<number, AIAn
   try {
     // 构建批量分析的提示词
     const todoList = todosToAnalyze
-      .map((todo, index) => `${index + 1}. ${todo.text} (ID: ${todo.id})`)
+      .map((todo, index) => `${index + 1}. ${todo.title} (ID: ${todo.id})`)
       .join('\n')
 
     const prompt = `作为一个专业的任务管理助手，请批量分析以下待办事项的重要等级和完成时间估算：
@@ -174,13 +174,13 @@ ${todoList}
         result.analyses.forEach((analysis: Record<string, unknown>) => {
           console.warn('处理分析项:', analysis)
           if (analysis.id && analysis.priority && analysis.estimatedTime) {
-            // 确保 ID 类型一致（转换为数字）
-            const todoId = typeof analysis.id === 'string' ? parseInt(analysis.id) : analysis.id
-            console.warn(`设置结果 - 原始ID: ${analysis.id}, 转换后ID: ${todoId}`)
+            // 确保 ID 类型一致（使用字符串）
+            const todoId = analysis.id.toString()
+            console.warn(`设置结果 - 原始ID: ${analysis.id}, 使用ID: ${todoId}`)
             results.set(todoId, {
               priority: Math.max(1, Math.min(5, Math.round(Number(analysis.priority)))),
-              estimatedTime: analysis.estimatedTime,
-              reasoning: analysis.reasoning || '批量分析结果',
+              estimatedTime: String(analysis.estimatedTime),
+              reasoning: String(analysis.reasoning) || '批量分析结果',
             })
           }
         })
@@ -192,8 +192,8 @@ ${todoList}
       for (const todo of todosToAnalyze.slice(0, 3)) {
         // 限制数量避免过多请求
         try {
-          console.warn(`单个分析任务 ${todo.id}: ${todo.text}`)
-          const analysis = await analyzeTodo(todo.text)
+          console.warn(`单个分析任务 ${todo.id}: ${todo.title}`)
+          const analysis = await analyzeTodo(todo.title)
           console.warn(`任务 ${todo.id} 单个分析结果:`, analysis)
           results.set(todo.id, analysis)
 
@@ -217,7 +217,7 @@ ${todoList}
  * @returns 更新后的分析结果
  */
 export async function reanalyzeTodo(todo: Todo): Promise<AIAnalysisResult> {
-  const result = await analyzeTodo(todo.text)
+  const result = await analyzeTodo(todo.title)
   return result
 }
 
@@ -435,7 +435,7 @@ export function generateTodoSystemPrompt(todos: Todo[]): string {
       const estimation = todo.estimatedTime || '未估算'
       const tags = todo.tags.length > 0 ? todo.tags.join(',') : '无'
 
-      return `${index + 1}. ${todo.text} [优先级:${priority}] [时间:${estimation}] [标签:${tags}]`
+      return `${index + 1}. ${todo.title} [优先级:${priority}] [时间:${estimation}] [标签:${tags}]`
     })
     .join('\n')
 
@@ -460,7 +460,7 @@ export function generateTodoSystemPrompt(todos: Todo[]): string {
       const daysToComplete = Math.floor((completedTime - createdTime) / (1000 * 60 * 60 * 24))
       const completionSpeed = daysToComplete === 0 ? '当天' : `${daysToComplete}天`
 
-      return `${index + 1}. ${todo.text} [优先级:${priority}] [用时:${completionSpeed}] [预估:${estimation}]`
+      return `${index + 1}. ${todo.title} [优先级:${priority}] [用时:${completionSpeed}] [预估:${estimation}]`
     })
     .join('\n')
 
@@ -508,14 +508,14 @@ export async function generateSmartQuestion(todos: Todo[]): Promise<SmartQuestio
 
     // 获取任务样本
     const activeSamples = activeTodos.slice(0, 3).map((todo) => ({
-      text: todo.text,
+      text: todo.title,
       priority: todo.priority || 0,
       estimatedTime: todo.estimatedTime || '未估算',
       tags: todo.tags.join(', ') || '无标签',
     }))
 
     const completedSamples = completedTodos.slice(-3).map((todo) => ({
-      text: todo.text,
+      text: todo.title,
       completedAt: todo.completedAt || todo.updatedAt,
     }))
 

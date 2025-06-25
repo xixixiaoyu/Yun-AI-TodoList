@@ -1,7 +1,7 @@
 import { computed, nextTick, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { getAIResponse } from '../services/deepseekService'
-import type { Todo } from '../types/todo'
+import type { Todo, UpdateTodoDto } from '../types/todo'
 import { handleError, logger } from '../utils/logger'
 import { useAIAnalysis } from './useAIAnalysis'
 import { useErrorHandler } from './useErrorHandler'
@@ -58,7 +58,7 @@ export function useTodoManagement() {
       const query = searchQuery.value.trim().toLowerCase()
       result = result.filter((todo) => {
         return (
-          todo.text.toLowerCase().includes(query) ||
+          todo.title.toLowerCase().includes(query) ||
           (todo.tags && todo.tags.some((tag) => tag.toLowerCase().includes(query)))
         )
       })
@@ -106,7 +106,7 @@ export function useTodoManagement() {
         // 格式化已完成的 todo 项列表
         const completedTodosList = completedTodos
           .slice(-50) // 只取最近的50个已完成项
-          .map((todo, index) => `${index + 1}. ${todo.text}`)
+          .map((todo, index) => `${index + 1}. ${todo.title}`)
           .join('\n')
 
         const template = t('generateDomainSuggestionsWithHistoryPrompt')
@@ -215,7 +215,7 @@ export function useTodoManagement() {
     const originalSuggestedCount = validSuggestions.length
     const duplicates = addMultipleTodos(
       validSuggestions.map((todo) => ({
-        text: todo,
+        title: todo,
       }))
     )
     if (duplicates.length > 0) {
@@ -284,7 +284,7 @@ export function useTodoManagement() {
 
     logger.info(
       'Starting AI sorting for todos',
-      { todos: activeTodos.map((t) => t.text) },
+      { todos: activeTodos.map((t) => t.title) },
       'TodoManagement'
     )
     isSorting.value = true
@@ -299,7 +299,7 @@ export function useTodoManagement() {
       }
 
       // 构建更详细的提示词，包含任务内容和上下文
-      const todoTexts = activeTodos.map((todo, index) => `${index + 1}. ${todo.text}`).join('\n')
+      const todoTexts = activeTodos.map((todo, index) => `${index + 1}. ${todo.title}`).join('\n')
       const prompt = `作为一个专业的任务管理助手，请根据以下标准对待办事项进行优先级排序：
 1. 紧急程度（截止时间、时间敏感性）
 2. 重要程度（对目标的影响）
@@ -354,7 +354,7 @@ ${todoTexts}
         const sortedTodos = sortedIndices.map((index) => activeTodos[index])
         logger.info(
           'Todos sorted successfully',
-          { sortedTodos: sortedTodos.map((t) => t.text) },
+          { sortedTodos: sortedTodos.map((t) => t.title) },
           'TodoManagement'
         )
         const todoMap = new Map(todos.value.map((todo) => [todo.id, todo]))
@@ -388,7 +388,7 @@ ${todoTexts}
 
         logger.info(
           'AI sorting completed, todos array updated',
-          { todos: todos.value.map((t) => ({ id: t.id, text: t.text, order: t.order })) },
+          { todos: todos.value.map((t) => ({ id: t.id, title: t.title, order: t.order })) },
           'TodoManagement'
         )
 
@@ -473,7 +473,7 @@ ${todoTexts}
       }
     }
 
-    const success = addTodo(text, tags)
+    const success = addTodo({ title: text, tags })
     if (!success) {
       showError(t('duplicateError'))
       return { needsSplitting: false }
@@ -498,9 +498,9 @@ ${todoTexts}
         if (newTodo) {
           logger.info('Starting auto AI analysis', {}, 'TodoManagement')
           // 异步执行 AI 分析，不阻塞用户操作
-          analyzeSingleTodo(newTodo, (id: number, updates: Partial<Todo>) => {
+          analyzeSingleTodo(newTodo, (id: string, updates: Partial<Todo>) => {
             logger.info('Auto analysis completed, updating todo', { id, updates }, 'TodoManagement')
-            updateTodo(id, updates)
+            updateTodo(id, updates as UpdateTodoDto)
           }).catch((error) => {
             // 分析失败时静默处理，不影响任务添加，也不设置任何默认值
             logger.warn('Auto AI analysis failed for new todo', error, 'TodoManagement')
@@ -527,8 +527,7 @@ ${todoTexts}
    */
   const handleAddSubtasks = async (subtasks: string[], tags: string[]) => {
     let successCount = 0
-    let _duplicateCount = 0
-    const _failedCount = 0
+    let duplicateCount = 0
 
     for (const subtask of subtasks) {
       if (subtask && subtask.trim() !== '') {
@@ -538,17 +537,17 @@ ${todoTexts}
         const isDuplicate = todos.value.some(
           (todo) =>
             todo &&
-            todo.text &&
-            todo.text.toLowerCase() === trimmedSubtask.toLowerCase() &&
+            todo.title &&
+            todo.title.toLowerCase() === trimmedSubtask.toLowerCase() &&
             !todo.completed
         )
 
         if (isDuplicate) {
-          _duplicateCount++
+          duplicateCount++
           continue
         }
 
-        const success = addTodo(trimmedSubtask, tags)
+        const success = addTodo({ title: trimmedSubtask, tags })
 
         if (success) {
           successCount++
@@ -599,10 +598,10 @@ ${todoTexts}
             // 使用批量分析功能统一处理所有新添加的子任务
             batchAnalyzeTodosAction(
               newTodos,
-              (updates: Array<{ id: number; updates: Partial<Todo> }>) => {
+              (updates: Array<{ id: string; updates: Partial<Todo> }>) => {
                 // 批量更新所有分析结果
                 updates.forEach(({ id, updates: todoUpdates }) => {
-                  updateTodo(id, todoUpdates)
+                  updateTodo(id, todoUpdates as UpdateTodoDto)
                 })
               }
             ).catch((error) => {
@@ -614,7 +613,17 @@ ${todoTexts}
         }
       }
     }
-    return successCount
+
+    // 记录添加结果
+    if (duplicateCount > 0) {
+      logger.info(
+        'Subtask addition completed with duplicates',
+        { successCount, duplicateCount },
+        'TodoManagement'
+      )
+    }
+
+    return { successCount, duplicateCount }
   }
 
   /**
@@ -622,7 +631,7 @@ ${todoTexts}
    * @param id Todo ID
    * @param newText 新的文本内容
    */
-  const updateTodoText = async (id: number, newText: string) => {
+  const updateTodoText = async (id: string, newText: string) => {
     try {
       // 验证文本内容
       if (!newText || newText.trim().length === 0) {
@@ -641,7 +650,7 @@ ${todoTexts}
         (todo) =>
           todo &&
           todo.id !== id &&
-          todo.text.toLowerCase() === trimmedText.toLowerCase() &&
+          todo.title.toLowerCase() === trimmedText.toLowerCase() &&
           !todo.completed
       )
 
@@ -652,7 +661,7 @@ ${todoTexts}
 
       // 更新 todo 文本，重置 AI 分析状态
       const updates: Partial<Todo> = {
-        text: trimmedText,
+        title: trimmedText,
         aiAnalyzed: false,
         priority: undefined,
         estimatedTime: undefined,
@@ -668,7 +677,9 @@ ${todoTexts}
           const updatedTodo = todos.value.find((todo) => todo.id === id)
           if (updatedTodo && !updatedTodo.completed) {
             try {
-              await analyzeSingleTodo(updatedTodo, updateTodo)
+              await analyzeSingleTodo(updatedTodo, (id: string, updates: Partial<Todo>) => {
+                updateTodo(id, updates as UpdateTodoDto)
+              })
             } catch (error) {
               logger.warn('Auto AI analysis failed after text update', error, 'TodoManagement')
             }

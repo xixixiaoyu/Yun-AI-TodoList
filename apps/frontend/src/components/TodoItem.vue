@@ -287,7 +287,7 @@ const handleAnalyzeClick = () => {
 
 // 处理文本更新
 const handleTextUpdate = (newText: string) => {
-  if (newText.trim() !== props.todo.text.trim()) {
+  if (newText.trim() !== props.todo.title.trim()) {
     // 触发文本更新事件，让父组件处理
     emit('updateText', props.todo.id, newText.trim())
   }

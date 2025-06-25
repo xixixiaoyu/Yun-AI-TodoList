@@ -31,7 +31,7 @@
     "db:seed": "ts-node prisma/seed.ts",
     "type-check": "tsc --noEmit",
     "clean": "rimraf dist",
-    "postinstall": "prisma generate"
+    "postinstall": "prisma generate --schema=./prisma/schema.prisma"
   },
   "dependencies": {
     "@nestjs/cache-manager": "^2.2.2",

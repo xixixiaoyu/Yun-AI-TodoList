@@ -104,17 +104,17 @@ describe('正确的测试模式示例', () => {
     })
 
     it('应该测试数据转换', () => {
-      const formatTodoList = (todos: Array<{ id: number; text: string; completed: boolean }>) => {
+      const formatTodoList = (todos: Array<{ id: string; title: string; completed: boolean }>) => {
         return todos.map((todo) => ({
           ...todo,
-          displayText: todo.completed ? `✓ ${todo.text}` : todo.text,
+          displayText: todo.completed ? `✓ ${todo.title}` : todo.title,
           status: todo.completed ? 'completed' : 'active',
         }))
       }
 
       const todos = [
-        { id: 1, text: '任务1', completed: false },
-        { id: 2, text: '任务2', completed: true },
+        { id: 'test-1', title: '任务1', completed: false },
+        { id: 'test-2', title: '任务2', completed: true },
       ]
 
       const formatted = formatTodoList(todos)

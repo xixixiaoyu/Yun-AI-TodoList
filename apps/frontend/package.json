@@ -64,7 +64,7 @@
     "vue": "3.5.16",
     "vue-i18n": "11.1.5",
     "vue-router": "4.5.1",
-    "xlsx": "https://cdn.sheetjs.com/xlsx-latest/xlsx-latest.tgz"
+    "xlsx": "0.18.5"
   },
   "devDependencies": {
     "@capacitor/android": "6.1.2",
@@ -87,7 +87,6 @@
     "@vue/cli-service": "5.0.8",
     "@vue/test-utils": "2.4.6",
     "@yun-ai-todolist/typescript-config": "workspace:*",
-    "canvas": "3.1.0",
     "chartjs-chart-matrix": "3.0.0",
     "concurrently": "9.1.2",
     "cross-env": "7.0.3",

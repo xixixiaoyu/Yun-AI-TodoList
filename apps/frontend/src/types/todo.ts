@@ -1,41 +1,24 @@
-export interface Todo {
-  id: number
-  text: string
-  completed: boolean
-  completedAt?: string
-  tags: string[]
-  createdAt: string
-  updatedAt: string
-  order: number
-  priority?: number // 重要等级 (1-5 星)
-  estimatedTime?: string // 时间估算 (如: "30分钟", "2小时", "1天")
-  aiAnalyzed?: boolean // 是否已进行 AI 分析
-}
+// Re-export shared types to ensure consistency across the frontend
+export type {
+  CreateTodoDto,
+  SortDirection,
+  Todo,
+  TodoFilter,
+  TodoSortField,
+  TodoSortOptions,
+  TodoStats,
+  UpdateTodoDto,
+} from '@shared/types/todo'
 
+// Import Todo type for use in interfaces
+import type { Todo } from '@shared/types/todo'
+
+// Local frontend-specific types
 export interface HistoryItem {
-  id: number
+  id: string // Align with shared Todo ID type
   todos: Todo[]
   timestamp: string
   action: string
-}
-
-export interface TodoStats {
-  total: number
-  completed: number
-  active: number
-  completionRate: number
-}
-
-export interface TodoFilter {
-  type: 'all' | 'active' | 'completed'
-}
-
-export type TodoSortField = 'createdAt' | 'completedAt' | 'text'
-export type SortDirection = 'asc' | 'desc'
-
-export interface TodoSortOptions {
-  field: TodoSortField
-  direction: SortDirection
 }
 
 // AI 分析相关类型

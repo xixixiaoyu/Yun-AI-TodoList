@@ -247,7 +247,6 @@ fetch(url, { signal: controller.signal })
 
     // 检查网络连接
     if ('connection' in navigator) {
-       
       const connection = (navigator as any).connection
       if (connection && connection.effectiveType === 'slow-2g') {
         this.addIssue({

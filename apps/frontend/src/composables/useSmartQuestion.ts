@@ -1,5 +1,5 @@
 import type { Todo } from '@/types/todo'
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useErrorHandler } from './useErrorHandler'
 import { useSystemPrompts } from './useSystemPrompts'

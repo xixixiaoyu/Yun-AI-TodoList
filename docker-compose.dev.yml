@@ -1,9 +1,11 @@
-version: '3.8'
+# Yun AI TodoList - 开发环境 Docker Compose 配置
+# 支持热重载和开发工具
+# ===========================================
 
 services:
   # PostgreSQL 数据库 (开发环境)
   postgres-dev:
-    image: postgres:15-alpine
+    image: docker.m.daocloud.io/library/postgres:15-alpine
     container_name: yun-todolist-postgres-dev
     restart: unless-stopped
     environment:
@@ -15,7 +17,7 @@ services:
       - postgres_dev_data:/var/lib/postgresql/data
       - ./scripts/init-db.sql:/docker-entrypoint-initdb.d/init-db.sql:ro
     ports:
-      - '5433:5432'
+      - '5432:5432'
     networks:
       - todolist-dev-network
     healthcheck:
@@ -26,7 +28,7 @@ services:
 
   # Redis 缓存 (开发环境)
   redis-dev:
-    image: redis:7-alpine
+    image: docker.m.daocloud.io/library/redis:7-alpine
     container_name: yun-todolist-redis-dev
     restart: unless-stopped
     command: redis-server --appendonly yes
@@ -42,12 +44,14 @@ services:
       timeout: 3s
       retries: 5
 
-  # 后端开发服务 (支持热重载)
+  # 后端开发服务 (支持热重载) - 优化版本
   backend-dev:
     build:
       context: .
       dockerfile: Dockerfile.dev
       target: backend-dev
+      args:
+        BUILDKIT_INLINE_CACHE: 1
     container_name: yun-todolist-backend-dev
     restart: unless-stopped
     environment:
@@ -63,17 +67,22 @@ services:
       BCRYPT_ROUNDS: 10
       FRONTEND_URL: http://localhost:5173
       LOG_LEVEL: debug
+      # 优化环境变量
+      CHOKIDAR_USEPOLLING: true
+      WATCHPACK_POLLING: true
     volumes:
-      # 挂载源代码以支持热重载
-      - ./apps/backend/src:/app/apps/backend/src:ro
-      - ./apps/backend/prisma:/app/apps/backend/prisma:ro
-      - ./packages:/app/packages:ro
+      # 挂载源代码以支持热重载（优化版本）
+      - ./apps/backend/src:/app/apps/backend/src:cached
+      - ./apps/backend/prisma:/app/apps/backend/prisma:cached
+      - ./packages:/app/packages:cached
       # 挂载 node_modules 以提高性能
       - backend_dev_node_modules:/app/node_modules
       - backend_dev_dist:/app/apps/backend/dist
+      # 挂载日志目录
+      - ./apps/backend/logs:/app/apps/backend/logs
     ports:
       - '3000:3000'
-      - '9229:9229'  # Node.js 调试端口
+      - '9229:9229' # Node.js 调试端口
     depends_on:
       postgres-dev:
         condition: service_healthy
@@ -82,31 +91,44 @@ services:
     networks:
       - todolist-dev-network
     healthcheck:
-      test: ['CMD', 'curl', '-f', 'http://localhost:3000/health']
+      test: ['CMD', 'curl', '-f', 'http://localhost:3000/api/v1/health']
       interval: 30s
-      timeout: 10s
+      timeout: 5s
       retries: 3
       start_period: 30s
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+          cpus: '1.0'
+        reservations:
+          memory: 512M
+          cpus: '0.5'
 
-  # 前端开发服务 (支持热重载)
+  # 前端开发服务 (支持热重载) - 优化版本
   frontend-dev:
     build:
       context: .
       dockerfile: Dockerfile.dev
       target: frontend-dev
+      args:
+        BUILDKIT_INLINE_CACHE: 1
     container_name: yun-todolist-frontend-dev
     restart: unless-stopped
     environment:
       NODE_ENV: development
       VITE_API_BASE_URL: http://localhost:3000/api/v1
+      # 优化环境变量
+      CHOKIDAR_USEPOLLING: true
+      VITE_HMR_PORT: 5173
     volumes:
-      # 挂载源代码以支持热重载
-      - ./apps/frontend/src:/app/apps/frontend/src:ro
-      - ./apps/frontend/public:/app/apps/frontend/public:ro
-      - ./apps/frontend/index.html:/app/apps/frontend/index.html:ro
-      - ./apps/frontend/vite.config.ts:/app/apps/frontend/vite.config.ts:ro
-      - ./apps/frontend/uno.config.ts:/app/apps/frontend/uno.config.ts:ro
-      - ./packages:/app/packages:ro
+      # 挂载源代码以支持热重载（优化版本）
+      - ./apps/frontend/src:/app/apps/frontend/src:cached
+      - ./apps/frontend/public:/app/apps/frontend/public:cached
+      - ./apps/frontend/index.html:/app/apps/frontend/index.html:cached
+      - ./apps/frontend/vite.config.ts:/app/apps/frontend/vite.config.ts:cached
+      - ./apps/frontend/uno.config.ts:/app/apps/frontend/uno.config.ts:cached
+      - ./packages:/app/packages:cached
       # 挂载 node_modules 以提高性能
       - frontend_dev_node_modules:/app/node_modules
     ports:
@@ -118,13 +140,21 @@ services:
     healthcheck:
       test: ['CMD', 'curl', '-f', 'http://localhost:5173']
       interval: 30s
-      timeout: 10s
+      timeout: 5s
       retries: 3
       start_period: 10s
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+          cpus: '1.0'
+        reservations:
+          memory: 512M
+          cpus: '0.5'
 
   # 数据库管理工具
   adminer:
-    image: adminer:4.8.1
+    image: docker.m.daocloud.io/library/adminer:4.8.1
     container_name: yun-todolist-adminer
     restart: unless-stopped
     ports:

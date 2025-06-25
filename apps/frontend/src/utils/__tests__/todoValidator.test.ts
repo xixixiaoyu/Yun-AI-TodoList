@@ -1,10 +1,10 @@
-import { describe, it, expect } from 'vitest'
+import { describe, expect, it } from 'vitest'
 import { TodoValidator } from '../todoValidator'
 
 describe('TodoValidator', () => {
   const validTodo = {
-    id: 1,
-    text: 'Test todo',
+    id: 'test-todo-1',
+    title: 'Test todo',
     completed: false,
     tags: ['work'],
     createdAt: '2023-01-01T00:00:00.000Z',
@@ -21,17 +21,17 @@ describe('TodoValidator', () => {
     })
 
     it('should reject invalid ID', () => {
-      const invalidTodo = { ...validTodo, id: 'invalid' }
+      const invalidTodo = { ...validTodo, id: '' }
       const result = TodoValidator.validateTodo(invalidTodo)
       expect(result.isValid).toBe(false)
-      expect(result.errors).toContain('Invalid ID: must be a positive number')
+      expect(result.errors).toContain('Invalid ID: must be a non-empty string')
     })
 
-    it('should reject empty text', () => {
-      const invalidTodo = { ...validTodo, text: '' }
+    it('should reject empty title', () => {
+      const invalidTodo = { ...validTodo, title: '' }
       const result = TodoValidator.validateTodo(invalidTodo)
       expect(result.isValid).toBe(false)
-      expect(result.errors).toContain('Invalid text: must be a non-empty string')
+      expect(result.errors).toContain('Invalid title: must be a non-empty string')
     })
 
     it('should reject invalid completed status', () => {
@@ -55,11 +55,11 @@ describe('TodoValidator', () => {
       expect(result.errors).toContain('Invalid createdAt: must be a valid ISO string')
     })
 
-    it('should sanitize text in valid todo', () => {
-      const todoWithExtraSpaces = { ...validTodo, text: '  Test todo  ' }
+    it('should sanitize title in valid todo', () => {
+      const todoWithExtraSpaces = { ...validTodo, title: '  Test todo  ' }
       const result = TodoValidator.validateTodo(todoWithExtraSpaces)
       expect(result.isValid).toBe(true)
-      expect(result.sanitizedData?.text).toBe('Test todo')
+      expect(result.sanitizedData?.title).toBe('Test todo')
     })
 
     it('should filter empty tags', () => {
@@ -72,7 +72,7 @@ describe('TodoValidator', () => {
 
   describe('validateTodos', () => {
     it('should validate array of todos', () => {
-      const todos = [validTodo, { ...validTodo, id: 2 }]
+      const todos = [validTodo, { ...validTodo, id: 'test-todo-2' }]
       const result = TodoValidator.validateTodos(todos)
       expect(result.validTodos).toHaveLength(2)
       expect(result.invalidCount).toBe(0)
@@ -80,7 +80,7 @@ describe('TodoValidator', () => {
     })
 
     it('should handle mixed valid and invalid todos', () => {
-      const todos = [validTodo, { ...validTodo, id: 'invalid' }, { ...validTodo, id: 3 }]
+      const todos = [validTodo, { ...validTodo, id: 'test-todo-2' }, { ...validTodo, id: '' }]
       const result = TodoValidator.validateTodos(todos)
       expect(result.validTodos).toHaveLength(2)
       expect(result.invalidCount).toBe(1)
@@ -95,35 +95,35 @@ describe('TodoValidator', () => {
     })
   })
 
-  describe('sanitizeText', () => {
+  describe('sanitizeTitle', () => {
     it('should trim and normalize spaces', () => {
-      expect(TodoValidator.sanitizeText('  hello   world  ')).toBe('hello world')
+      expect(TodoValidator.sanitizeTitle('  hello   world  ')).toBe('hello world')
     })
 
-    it('should limit text length', () => {
-      const longText = 'a'.repeat(600)
-      const result = TodoValidator.sanitizeText(longText)
+    it('should limit title length', () => {
+      const longTitle = 'a'.repeat(600)
+      const result = TodoValidator.sanitizeTitle(longTitle)
       expect(result.length).toBe(500)
     })
   })
 
-  describe('isTextSafe', () => {
-    it('should allow safe text', () => {
-      expect(TodoValidator.isTextSafe('Normal todo text')).toBe(true)
+  describe('isTitleSafe', () => {
+    it('should allow safe title', () => {
+      expect(TodoValidator.isTitleSafe('Normal todo title')).toBe(true)
     })
 
     it('should reject script tags', () => {
-      expect(TodoValidator.isTextSafe('<script>alert("xss")</script>')).toBe(false)
+      expect(TodoValidator.isTitleSafe('<script>alert("xss")</script>')).toBe(false)
     })
 
     it('should reject javascript: URLs', () => {
       const protocol = 'javascript'
       const maliciousUrl = `${protocol}:alert("xss")`
-      expect(TodoValidator.isTextSafe(maliciousUrl)).toBe(false)
+      expect(TodoValidator.isTitleSafe(maliciousUrl)).toBe(false)
     })
 
     it('should reject event handlers', () => {
-      expect(TodoValidator.isTextSafe('onclick=alert("xss")')).toBe(false)
+      expect(TodoValidator.isTitleSafe('onclick=alert("xss")')).toBe(false)
     })
   })
 })

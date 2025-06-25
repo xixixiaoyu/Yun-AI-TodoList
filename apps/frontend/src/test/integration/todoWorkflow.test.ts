@@ -44,10 +44,10 @@ describe('待办事项工作流集成测试', () => {
     it('应该完成完整的待办事项生命周期', () => {
       const { todos, addTodo, toggleTodo, removeTodo } = useTodos()
 
-      const success = addTodo('学习 Vue 3')
-      expect(success).toBe(true)
+      const success = addTodo({ title: '学习 Vue 3' })
+      expect(success).toBeTruthy()
       expect(todos.value).toHaveLength(1)
-      expect(todos.value[0].text).toBe('学习 Vue 3')
+      expect(todos.value[0].title).toBe('学习 Vue 3')
       expect(todos.value[0].completed).toBe(false)
 
       const todoId = todos.value[0].id
@@ -64,13 +64,13 @@ describe('待办事项工作流集成测试', () => {
     it('应该处理多个待办事项', () => {
       const { todos, addTodo, addMultipleTodos } = useTodos()
 
-      addTodo('任务 1')
+      addTodo({ title: '任务 1' })
       expect(todos.value).toHaveLength(1)
 
       const newTodos = [
-        { text: '任务 2', tags: [] },
-        { text: '任务 3', tags: [] },
-        { text: '任务 4', tags: [] },
+        { title: '任务 2', tags: [] },
+        { title: '任务 3', tags: [] },
+        { title: '任务 4', tags: [] },
       ]
       const duplicates = addMultipleTodos(newTodos)
 
@@ -81,12 +81,12 @@ describe('待办事项工作流集成测试', () => {
     it('应该防止重复的待办事项', () => {
       const { todos, addTodo } = useTodos()
 
-      const success1 = addTodo('重复任务')
-      expect(success1).toBe(true)
+      const success1 = addTodo({ title: '重复任务' })
+      expect(success1).toBeTruthy()
       expect(todos.value).toHaveLength(1)
 
-      const success2 = addTodo('重复任务')
-      expect(success2).toBe(false)
+      const success2 = addTodo({ title: '重复任务' })
+      expect(success2).toBe(null)
       expect(todos.value).toHaveLength(1)
     })
   })
@@ -159,7 +159,7 @@ describe('待办事项工作流集成测试', () => {
       searchQuery.value = 'Vue'
       await new Promise((resolve) => setTimeout(resolve, 50))
       expect(filteredTodos.value).toHaveLength(1)
-      expect(filteredTodos.value[0].text).toContain('Vue')
+      expect(filteredTodos.value[0].title).toContain('Vue')
 
       searchQuery.value = '学习'
       await new Promise((resolve) => setTimeout(resolve, 50))
@@ -232,7 +232,7 @@ describe('待办事项工作流集成测试', () => {
     it('应该保存和加载待办事项', () => {
       const { todos, addTodo, loadTodos, saveTodos } = useTodos()
 
-      addTodo('持久化测试')
+      addTodo({ title: '持久化测试' })
       expect(todos.value).toHaveLength(1)
 
       saveTodos()
@@ -241,7 +241,7 @@ describe('待办事项工作流集成测试', () => {
       loadTodos()
 
       expect(todos.value).toHaveLength(1)
-      expect(todos.value[0].text).toBe('持久化测试')
+      expect(todos.value[0].title).toBe('持久化测试')
     })
 
     it('应该处理无效的存储数据', () => {

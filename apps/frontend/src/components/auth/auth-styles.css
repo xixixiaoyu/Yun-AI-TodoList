@@ -1,0 +1,271 @@
+/* 认证页面共享样式 */
+
+/* 基础布局 */
+.auth-container {
+  @apply min-h-screen flex items-center justify-center p-4 relative overflow-hidden;
+  background: linear-gradient(135deg, var(--bg-color) 0%, rgba(121, 180, 166, 0.05) 100%);
+}
+
+.auth-card {
+  @apply w-full max-w-md relative z-10;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 24px;
+  padding: 2rem;
+  box-shadow:
+    0 20px 40px rgba(0, 0, 0, 0.1),
+    0 8px 16px rgba(0, 0, 0, 0.05),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+
+[data-theme='dark'] .auth-card {
+  background: rgba(37, 43, 50, 0.95);
+  border-color: rgba(121, 180, 166, 0.2);
+}
+
+/* 头部样式 */
+.auth-header {
+  @apply text-center mb-8;
+}
+
+.auth-logo {
+  @apply flex flex-col items-center mb-4;
+}
+
+.logo-icon {
+  @apply mb-3;
+}
+
+.auth-title {
+  @apply text-2xl font-bold text-text;
+  background: linear-gradient(135deg, var(--text-color) 0%, var(--primary-color) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.auth-subtitle {
+  @apply text-text-secondary text-sm;
+}
+
+/* 表单样式 */
+.auth-form {
+  @apply space-y-6;
+}
+
+.form-group {
+  @apply space-y-2;
+}
+
+.input-wrapper {
+  @apply relative;
+}
+
+.auth-input {
+  @apply w-full h-14 px-4 pr-12 bg-input-bg border-2 border-input-border rounded-xl text-text transition-all-300;
+  @apply focus:border-primary focus:outline-none focus:ring-0;
+}
+
+.auth-input.error {
+  @apply border-error;
+}
+
+.floating-label {
+  @apply absolute left-4 top-1/2 transform -translate-y-1/2 text-text-secondary transition-all-300 pointer-events-none;
+}
+
+.auth-input:focus + .floating-label,
+.auth-input:not(:placeholder-shown) + .floating-label {
+  @apply top-2 text-xs text-primary;
+}
+
+.input-icon {
+  @apply absolute right-4 top-1/2 transform -translate-y-1/2;
+}
+
+.password-toggle {
+  @apply absolute right-4 top-1/2 transform -translate-y-1/2 text-text-secondary hover:text-text transition-colors;
+}
+
+.error-message {
+  @apply text-error text-sm flex items-center gap-1;
+}
+
+/* 表单选项 */
+.form-options {
+  @apply flex items-center justify-between;
+}
+
+.checkbox-wrapper {
+  @apply flex items-center gap-2 cursor-pointer;
+}
+
+.checkbox-input {
+  @apply sr-only;
+}
+
+.checkbox-custom {
+  @apply w-4 h-4 border-2 border-input-border rounded bg-input-bg transition-all-300;
+}
+
+.checkbox-input:checked + .checkbox-custom {
+  @apply bg-primary border-primary;
+}
+
+.checkbox-input:checked + .checkbox-custom::after {
+  content: '✓';
+  @apply text-white text-xs flex items-center justify-center;
+}
+
+.checkbox-label {
+  @apply text-sm text-text;
+}
+
+.forgot-link {
+  @apply text-sm text-primary hover:text-primary-hover transition-colors;
+}
+
+/* 按钮样式 */
+.auth-button {
+  @apply w-full h-12 bg-primary text-white rounded-xl font-medium transition-all-300;
+  @apply hover:bg-primary-hover focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2;
+  @apply disabled:opacity-50 disabled:cursor-not-allowed;
+}
+
+.button-text {
+  @apply flex items-center justify-center;
+}
+
+.loading-spinner {
+  @apply flex items-center justify-center gap-2;
+}
+
+.submit-error {
+  @apply flex items-center gap-2 text-error text-sm bg-error/10 p-3 rounded-lg;
+}
+
+/* 底部样式 */
+.auth-footer {
+  @apply mt-8 text-center;
+}
+
+.footer-text {
+  @apply text-sm text-text-secondary;
+}
+
+.auth-link {
+  @apply text-primary hover:text-primary-hover font-medium transition-colors;
+}
+
+/* 背景装饰 */
+.auth-background {
+  @apply absolute inset-0 overflow-hidden pointer-events-none;
+}
+
+.bg-decoration {
+  @apply absolute rounded-full opacity-20;
+  background: linear-gradient(135deg, var(--primary-color), transparent);
+}
+
+.bg-decoration-1 {
+  @apply w-64 h-64 -top-32 -right-32;
+}
+
+.bg-decoration-2 {
+  @apply w-48 h-48 -bottom-24 -left-24;
+}
+
+.bg-decoration-3 {
+  @apply w-32 h-32 top-1/4 -left-16;
+}
+
+/* 响应式设计 */
+@media (max-width: 640px) {
+  .auth-card {
+    padding: 1.5rem;
+    margin: 1rem;
+  }
+
+  .auth-title {
+    @apply text-xl;
+  }
+
+  .auth-input {
+    @apply h-12;
+  }
+
+  .floating-label {
+    @apply text-sm;
+  }
+}
+
+/* 动画效果 */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.auth-card {
+  animation: fadeInUp 0.6s ease-out;
+}
+
+.form-group {
+  animation: fadeInUp 0.6s ease-out;
+  animation-fill-mode: both;
+}
+
+.form-group:nth-child(1) {
+  animation-delay: 0.1s;
+}
+.form-group:nth-child(2) {
+  animation-delay: 0.2s;
+}
+.form-group:nth-child(3) {
+  animation-delay: 0.3s;
+}
+.form-group:nth-child(4) {
+  animation-delay: 0.4s;
+}
+.form-group:nth-child(5) {
+  animation-delay: 0.5s;
+}
+
+/* 焦点状态增强 */
+.auth-input:focus {
+  box-shadow: 0 0 0 3px rgba(255, 126, 103, 0.1);
+}
+
+/* 悬停效果 */
+.auth-button:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(255, 126, 103, 0.3);
+}
+
+.auth-button:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+/* 加载状态 */
+.auth-button.loading {
+  @apply cursor-wait;
+}
+
+.loading-spinner i {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}

@@ -114,7 +114,7 @@ defineProps<{
   isGenerating?: boolean
 }>()
 
-const emit = defineEmits<{
+defineEmits<{
   (e: 'new'): void
   (e: 'toggleDrawer'): void
 }>()

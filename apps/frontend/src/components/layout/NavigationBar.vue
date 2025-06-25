@@ -15,6 +15,42 @@
     >
       {{ t('settings') }}
     </button>
+
+    <!-- 认证状态按钮 -->
+    <div v-if="!isAuthenticated" class="auth-buttons">
+      <button class="nav-button auth-button" @click="router.push('/login')">
+        <i class="i-carbon-login text-sm mr-1"></i>
+        {{ t('auth.login') }}
+      </button>
+    </div>
+
+    <!-- 用户菜单 -->
+    <div v-else ref="userMenuRef" class="user-menu" @click="toggleUserMenu">
+      <button class="nav-button user-button">
+        <i class="i-carbon-user text-sm mr-1"></i>
+        {{ user?.username || user?.email?.split('@')[0] }}
+        <i class="i-carbon-chevron-down text-xs ml-1" :class="{ 'rotate-180': showUserMenu }"></i>
+      </button>
+
+      <!-- 用户下拉菜单 -->
+      <div v-if="showUserMenu" class="user-dropdown">
+        <div class="user-info">
+          <div class="user-avatar">
+            <i class="i-carbon-user text-lg"></i>
+          </div>
+          <div class="user-details">
+            <div class="user-name">{{ user?.username || '用户' }}</div>
+            <div class="user-email">{{ user?.email }}</div>
+          </div>
+        </div>
+        <div class="menu-divider"></div>
+        <button class="menu-item" @click="handleLogout">
+          <i class="i-carbon-logout text-sm mr-2"></i>
+          {{ t('auth.logout') }}
+        </button>
+      </div>
+    </div>
+
     <button class="nav-button" @click="toggleLanguage">
       {{ locale === 'zh' ? 'EN' : '中文' }}
     </button>
@@ -22,11 +58,20 @@
 </template>
 
 <script setup lang="ts">
+import { ref } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { useAuth } from '../../composables/useAuth'
+import { useNotifications } from '../../composables/useNotifications'
 import { setLanguage } from '../../i18n'
 import router from '../../router'
 
 const { locale, t } = useI18n()
+const { isAuthenticated, user, logout } = useAuth()
+const { success, error } = useNotifications()
+
+// 用户菜单状态
+const showUserMenu = ref(false)
+const userMenuRef = ref<HTMLElement>()
 
 // 移除了 AI 助手相关的事件定义，因为已移动到待办事项卡片内
 
@@ -34,6 +79,37 @@ const toggleLanguage = () => {
   const newLocale = locale.value === 'zh' ? 'en' : 'zh'
   setLanguage(newLocale)
 }
+
+const toggleUserMenu = () => {
+  showUserMenu.value = !showUserMenu.value
+}
+
+const handleLogout = async () => {
+  try {
+    await logout()
+    showUserMenu.value = false
+    success('登出成功', '您已安全登出')
+    router.push('/')
+  } catch (err) {
+    console.error('Logout failed:', err)
+    error('登出失败', '请稍后重试')
+  }
+}
+
+// 点击外部关闭用户菜单
+onMounted(() => {
+  const handleClickOutside = (event: Event) => {
+    if (userMenuRef.value && !userMenuRef.value.contains(event.target as Node)) {
+      showUserMenu.value = false
+    }
+  }
+
+  document.addEventListener('click', handleClickOutside)
+
+  onUnmounted(() => {
+    document.removeEventListener('click', handleClickOutside)
+  })
+})
 
 defineOptions({
   name: 'NavigationBar',
@@ -128,5 +204,90 @@ defineOptions({
     padding: 8px 4px;
     min-width: 50px;
   }
+}
+
+/* 认证按钮样式 */
+.auth-buttons {
+  @apply flex gap-2;
+}
+
+.auth-button {
+  @apply flex items-center;
+}
+
+.register-button {
+  @apply bg-primary text-white;
+}
+
+.register-button:hover {
+  @apply bg-primary-hover;
+}
+
+/* 用户菜单样式 */
+.user-menu {
+  @apply relative;
+}
+
+.user-button {
+  @apply flex items-center bg-primary text-white;
+}
+
+.user-button:hover {
+  @apply bg-primary-hover;
+}
+
+.user-dropdown {
+  @apply absolute top-full right-0 mt-2 w-64 bg-card border border-border rounded-xl shadow-lg backdrop-blur-sm z-50;
+  @apply transform transition-all duration-200 ease-out;
+}
+
+.user-info {
+  @apply flex items-center gap-3 p-4;
+}
+
+.user-avatar {
+  @apply w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center text-primary;
+}
+
+.user-details {
+  @apply flex-1 min-w-0;
+}
+
+.user-name {
+  @apply font-medium text-text text-sm truncate;
+}
+
+.user-email {
+  @apply text-text-secondary text-xs truncate;
+}
+
+.menu-divider {
+  @apply h-px bg-border mx-4;
+}
+
+.menu-item {
+  @apply w-full flex items-center gap-2 px-4 py-3 text-left text-sm text-text hover:bg-bg-secondary transition-colors;
+  @apply rounded-none first:rounded-t-none last:rounded-b-xl;
+}
+
+.menu-item:hover {
+  @apply bg-bg-secondary;
+}
+
+/* 深色主题适配 */
+[data-theme='dark'] .user-dropdown {
+  @apply bg-card-dark border-border-dark;
+}
+
+[data-theme='dark'] .user-name {
+  @apply text-text-dark;
+}
+
+[data-theme='dark'] .user-email {
+  @apply text-text-secondary-dark;
+}
+
+[data-theme='dark'] .menu-item {
+  @apply text-text-dark hover:bg-bg-secondary-dark;
 }
 </style>
