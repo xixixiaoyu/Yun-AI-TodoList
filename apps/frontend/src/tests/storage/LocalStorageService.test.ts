@@ -65,7 +65,7 @@ describe('LocalStorageService', () => {
       const result = await service.getTodos()
 
       expect(result.success).toBe(false)
-      expect(result.error).toBe('读取本地数据失败')
+      expect(result.error).toBe('storage.readLocalDataFailed')
     })
   })
 
@@ -93,7 +93,7 @@ describe('LocalStorageService', () => {
       const result = await service.createTodo(createDto)
 
       expect(result.success).toBe(false)
-      expect(result.error).toBe('Todo 标题不能为空')
+      expect(result.error).toBe('storage.todoTitleEmpty')
     })
 
     it('should reject duplicate titles', async () => {
@@ -116,7 +116,7 @@ describe('LocalStorageService', () => {
       const result = await service.createTodo(createDto)
 
       expect(result.success).toBe(false)
-      expect(result.error).toBe('该 Todo 已存在')
+      expect(result.error).toBe('storage.todoAlreadyExists')
     })
   })
 
@@ -153,7 +153,7 @@ describe('LocalStorageService', () => {
       })
 
       expect(result.success).toBe(false)
-      expect(result.error).toBe('Todo 不存在')
+      expect(result.error).toBe('storage.todoNotFound')
     })
   })
 
@@ -183,7 +183,7 @@ describe('LocalStorageService', () => {
       const result = await service.deleteTodo('nonexistent')
 
       expect(result.success).toBe(false)
-      expect(result.error).toBe('Todo 不存在')
+      expect(result.error).toBe('storage.todoNotFound')
     })
   })
 
@@ -223,6 +223,9 @@ describe('LocalStorageService', () => {
 
   describe('checkHealth', () => {
     it('should return true when localStorage is working', async () => {
+      // Mock getItem to return the same value that was set
+      localStorageMock.getItem.mockReturnValue('test')
+
       const result = await service.checkHealth()
 
       expect(result).toBe(true)

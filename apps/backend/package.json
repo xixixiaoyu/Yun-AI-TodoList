@@ -78,6 +78,7 @@
     "@typescript-eslint/eslint-plugin": "^8.34.0",
     "@typescript-eslint/parser": "^8.34.0",
     "@yun-ai-todolist/typescript-config": "workspace:*",
+    "dotenv": "^16.5.0",
     "eslint": "^9.28.0",
     "eslint-config-prettier": "^10.1.5",
     "eslint-plugin-prettier": "^5.2.1",
@@ -100,7 +101,7 @@
       "ts"
     ],
     "rootDir": ".",
-    "testRegex": ".*\\.(spec|e2e-spec)\\.ts$",
+    "testRegex": ".*\\.spec\\.ts$",
     "transform": {
       "^.+\\.(t|j)s$": "ts-jest"
     },
@@ -111,12 +112,10 @@
     ],
     "coverageDirectory": "coverage",
     "testEnvironment": "node",
-    "moduleNameMapping": {
-      "^@/(.*)": "<rootDir>/src/$1"
+    "moduleNameMapper": {
+      "^@/(.*)$": "<rootDir>/src/$1"
     },
-    "setupFilesAfterEnv": [
-      "<rootDir>/test/setup.ts"
-    ]
+    "testTimeout": 30000
   },
   "engines": {
     "node": ">=18.0.0",

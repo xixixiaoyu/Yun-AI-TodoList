@@ -101,6 +101,8 @@ vi.mock('vue-router', () => ({
   }),
 }))
 
+// Note: useStorageMode mock is now handled per test file to avoid conflicts with integration tests
+
 // Setup test environment
 global.beforeEach(() => {
   vi.clearAllMocks()

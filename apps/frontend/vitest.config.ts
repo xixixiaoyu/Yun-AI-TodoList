@@ -1,5 +1,6 @@
 import vue from '@vitejs/plugin-vue'
-import { fileURLToPath } from 'node:url'
+import vue from '@vitejs/plugin-vue'
+import { fileURLToPath, URL } from 'node:url'
 import { defineConfig } from 'vitest/config'
 
 export default defineConfig({
@@ -41,6 +42,7 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url)),
+      '@shared': fileURLToPath(new URL('../../packages/shared/src', import.meta.url)),
     },
   },
 })

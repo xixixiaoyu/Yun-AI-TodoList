@@ -118,6 +118,11 @@ export abstract class TodoStorageService {
   abstract checkHealth(): Promise<boolean>
 
   /**
+   * 保存所有 Todo
+   */
+  abstract saveTodos(todos: Todo[]): Promise<StorageOperationResult<void>>
+
+  /**
    * 同步数据（仅对支持同步的存储有效）
    */
   async syncData(): Promise<StorageOperationResult<void>> {

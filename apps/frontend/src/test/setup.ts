@@ -278,6 +278,132 @@ vi.mock('sortablejs', () => ({
   })),
 }))
 
+// Mock auth service
+vi.mock('../composables/useAuth', () => ({
+  useAuth: () => ({
+    isAuthenticated: { value: false },
+    user: { value: null },
+    login: vi.fn(),
+    logout: vi.fn(),
+    register: vi.fn(),
+  }),
+}))
+
+// Mock data migration service
+vi.mock('../composables/useDataMigration', () => ({
+  useDataMigration: () => ({
+    addSyncOperation: vi.fn(),
+    processSyncQueue: vi.fn(),
+    clearSyncQueue: vi.fn(),
+  }),
+}))
+
+// Mock useStorageMode
+vi.mock('@/composables/useStorageMode', () => {
+  // 使用全局变量来确保每次测试都能重置
+  let globalNextId = 1
+  let globalTodos: any[] = []
+
+  const mockStorageService = {
+    async createTodo(dto: any) {
+      const newTodo = {
+        id: `todo-${globalNextId++}`,
+        title: dto.title,
+        completed: false,
+        order: globalTodos.length,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        ...dto,
+      }
+      globalTodos.push(newTodo)
+      return { success: true, data: newTodo }
+    },
+    async createTodos(dtos: any[]) {
+      const createdTodos = dtos.map((dto) => {
+        const newTodo = {
+          id: `todo-${globalNextId++}`,
+          title: dto.title,
+          completed: false,
+          order: globalTodos.length,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+          ...dto,
+        }
+        globalTodos.push(newTodo)
+        return newTodo
+      })
+      return { success: true, data: createdTodos, successCount: createdTodos.length }
+    },
+    async updateTodo(id: string, data: any) {
+      const index = globalTodos.findIndex((t) => t.id === id)
+      if (index !== -1) {
+        globalTodos[index] = { ...globalTodos[index], ...data, updatedAt: new Date().toISOString() }
+        return { success: true, data: globalTodos[index] }
+      }
+      return { success: false, error: 'Todo not found' }
+    },
+    async deleteTodo(id: string) {
+      const index = globalTodos.findIndex((t) => t.id === id)
+      if (index !== -1) {
+        globalTodos.splice(index, 1)
+        return { success: true }
+      }
+      return { success: false, error: 'Todo not found' }
+    },
+    async getTodos() {
+      return { success: true, data: [...globalTodos] }
+    },
+    async reorderTodos(todoIds: string[]) {
+      const reorderedTodos = todoIds
+        .map((id, index) => {
+          const todo = globalTodos.find((t) => t.id === id)
+          if (todo) {
+            return { ...todo, order: index }
+          }
+          return null
+        })
+        .filter(Boolean)
+      globalTodos.splice(0, globalTodos.length, ...reorderedTodos)
+      return { success: true, data: globalTodos }
+    },
+    async saveTodos(todoList: any[]) {
+      globalTodos.splice(0, globalTodos.length, ...todoList)
+      return { success: true }
+    },
+  }
+
+  const mockUseStorageMode = () => ({
+    currentMode: { value: 'local' },
+    config: { value: { mode: 'local' } },
+    syncStatus: { value: { syncInProgress: false, pendingChanges: 0, conflictsCount: 0 } },
+    isInitialized: { value: true },
+    canUseRemoteStorage: { value: false },
+    isOnlineMode: { value: false },
+    isOfflineMode: { value: true },
+    initializeStorage: vi.fn(),
+    initializeStorageMode: vi.fn().mockResolvedValue(true),
+    switchStorageMode: vi.fn(),
+    syncData: vi.fn(),
+    clearStorage: vi.fn(() => {
+      globalTodos.splice(0, globalTodos.length)
+      globalNextId = 1
+    }),
+    getCurrentStorageService: () => mockStorageService,
+  })
+
+  // 导出重置函数
+  const resetMockState = () => {
+    globalTodos.splice(0, globalTodos.length)
+    globalNextId = 1
+  }
+
+  return {
+    useStorageMode: mockUseStorageMode,
+    getCurrentStorageService: () => mockStorageService,
+    resetMockState,
+  }
+})
+
 // Mock DOM methods for testing
 Object.defineProperty(Element.prototype, 'scrollIntoView', {
   value: vi.fn(),

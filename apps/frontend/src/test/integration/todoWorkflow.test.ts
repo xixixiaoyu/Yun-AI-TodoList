@@ -31,60 +31,75 @@ vi.mock('@/composables/useErrorHandler', () => ({
 describe('待办事项工作流集成测试', () => {
   let testEnv: ReturnType<typeof setupTestEnvironment>
 
-  beforeEach(() => {
+  beforeEach(async () => {
     testEnv = setupTestEnvironment()
     vi.clearAllMocks()
+    localStorage.clear()
+    const { todos, resetState } = useTodos()
+    await resetState()
+    todos.value = []
+    await new Promise((resolve) => setTimeout(resolve, 100)) // 等待状态更新
   })
 
-  afterEach(() => {
+  afterEach(async () => {
     testEnv.cleanup()
+    localStorage.clear()
+    const { todos, resetState } = useTodos()
+    await resetState()
+    todos.value = []
+    await new Promise((resolve) => setTimeout(resolve, 100)) // 等待状态更新
   })
 
   describe('基本待办事项工作流', () => {
-    it('应该完成完整的待办事项生命周期', () => {
-      const { todos, addTodo, toggleTodo, removeTodo } = useTodos()
+    it('应该完成完整的待办事项生命周期', async () => {
+      const { todos, addTodo, toggleTodo, removeTodo, initializeTodos } = useTodos()
+      await initializeTodos()
+      todos.value = []
 
-      const success = addTodo({ title: '学习 Vue 3' })
+      const success = await addTodo({ title: '学习 Vue 3' })
       expect(success).toBeTruthy()
       expect(todos.value).toHaveLength(1)
       expect(todos.value[0].title).toBe('学习 Vue 3')
       expect(todos.value[0].completed).toBe(false)
 
       const todoId = todos.value[0].id
-      toggleTodo(todoId)
+      await toggleTodo(todoId)
       expect(todos.value[0].completed).toBe(true)
 
-      toggleTodo(todoId)
+      await toggleTodo(todoId)
       expect(todos.value[0].completed).toBe(false)
 
-      removeTodo(todoId)
+      await removeTodo(todoId)
       expect(todos.value).toHaveLength(0)
     })
 
-    it('应该处理多个待办事项', () => {
-      const { todos, addTodo, addMultipleTodos } = useTodos()
+    it('应该处理多个待办事项', async () => {
+      const { todos, addTodo, addMultipleTodos, initializeTodos } = useTodos()
+      await initializeTodos()
+      todos.value = []
 
-      addTodo({ title: '任务 1' })
+      await addTodo({ title: '任务 1' })
       expect(todos.value).toHaveLength(1)
 
       const newTodos = [{ title: '任务 2' }, { title: '任务 3' }, { title: '任务 4' }]
-      const duplicates = addMultipleTodos(newTodos)
+      const duplicates = await addMultipleTodos(newTodos)
 
       expect(duplicates).toHaveLength(0)
       expect(todos.value).toHaveLength(4)
     })
 
-    it('应该防止重复的待办事项', () => {
+    it('应该防止重复的待办事项', async () => {
       // 清理状态
       localStorage.clear()
-      const { todos, addTodo } = useTodos()
+      const { todos, addTodo, initializeTodos } = useTodos()
+      await initializeTodos()
       todos.value = []
 
-      const success1 = addTodo({ title: '重复任务' })
+      const success1 = await addTodo({ title: '重复任务' })
       expect(success1).toBeTruthy()
       expect(todos.value).toHaveLength(1)
 
-      const success2 = addTodo({ title: '重复任务' })
+      const success2 = await addTodo({ title: '重复任务' })
       expect(success2).toBe(null)
       expect(todos.value).toHaveLength(1)
     })
@@ -98,7 +113,10 @@ describe('待办事项工作流集成测试', () => {
       const { filter, filteredTodos } = todoManagement
 
       // 获取 todos 引用
-      const { todos } = useTodos()
+      const { todos, initializeTodos } = useTodos()
+
+      // 初始化存储服务
+      await initializeTodos()
 
       // 清空现有的 todos
       todos.value = []
@@ -112,7 +130,7 @@ describe('待办事项工作流集成测试', () => {
       expect(todos.value).toHaveLength(3)
 
       // 完成第三个任务
-      toggleTodo(todos.value[2].id)
+      await toggleTodo(todos.value[2].id)
 
       // 等待响应式更新
       await new Promise((resolve) => setTimeout(resolve, 50))
@@ -138,7 +156,10 @@ describe('待办事项工作流集成测试', () => {
       const { searchQuery, filteredTodos, filter } = todoManagement
 
       // 获取 todos 引用
-      const { todos } = useTodos()
+      const { todos, initializeTodos } = useTodos()
+
+      // 初始化存储服务
+      await initializeTodos()
 
       // 清空现有的 todos
       todos.value = []
@@ -177,13 +198,16 @@ describe('待办事项工作流集成测试', () => {
 
       mockGetAIResponse.mockResolvedValue('1. 学习 TypeScript\n2. 编写单元测试\n3. 优化性能')
 
-      const { todos } = useTodos()
+      const { todos, initializeTodos } = useTodos()
       const {
         generateSuggestedTodosWithDomain,
         confirmSuggestedTodos,
         suggestedTodos,
         showSuggestedTodos,
       } = useTodoManagement()
+
+      // 初始化存储服务
+      await initializeTodos()
 
       // 清空现有的 todos
       todos.value = []
@@ -217,13 +241,16 @@ describe('待办事项工作流集成测试', () => {
 
       mockGetAIResponse.mockResolvedValue('1. 任务 1\n2. 任务 2')
 
-      const { todos } = useTodos()
+      const { todos, initializeTodos } = useTodos()
       const {
         generateSuggestedTodosWithDomain,
         cancelSuggestedTodos,
         suggestedTodos,
         showSuggestedTodos,
       } = useTodoManagement()
+
+      // 初始化存储服务
+      await initializeTodos()
 
       // 清空现有的 todos
       todos.value = []
@@ -241,29 +268,36 @@ describe('待办事项工作流集成测试', () => {
   })
 
   describe('数据持久化', () => {
-    it('应该保存和加载待办事项', () => {
-      const { todos, addTodo, loadTodos, saveTodos } = useTodos()
+    it('应该保存和加载待办事项', async () => {
+      const { todos, addTodo, loadTodos, saveTodos, initializeTodos } = useTodos()
+
+      // 初始化存储服务
+      await initializeTodos()
 
       // 清空现有的 todos
       todos.value = []
 
-      addTodo({ title: '持久化测试' })
+      await addTodo({ title: '持久化测试' })
       expect(todos.value).toHaveLength(1)
 
-      saveTodos()
+      await saveTodos()
 
       todos.value = []
-      loadTodos()
+      await loadTodos()
 
       expect(todos.value).toHaveLength(1)
       expect(todos.value[0].title).toBe('持久化测试')
     })
 
-    it('应该处理无效的存储数据', () => {
+    it('应该处理无效的存储数据', async () => {
       testEnv.localStorage.store.todos = 'invalid json'
 
-      const { todos, loadTodos } = useTodos()
-      loadTodos()
+      const { todos, loadTodos, initializeTodos } = useTodos()
+
+      // 初始化存储服务
+      await initializeTodos()
+
+      await loadTodos()
 
       expect(todos.value).toEqual([])
     })

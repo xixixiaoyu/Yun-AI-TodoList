@@ -470,8 +470,8 @@ ${todoTexts}
       }
     }
 
-    const success = addTodo({ title: text })
-    if (!success) {
+    const result = await addTodo({ title: text })
+    if (!result) {
       showError(t('duplicateError'))
       return { needsSplitting: false }
     }

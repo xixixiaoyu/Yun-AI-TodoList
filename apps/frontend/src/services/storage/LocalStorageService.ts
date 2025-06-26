@@ -44,7 +44,7 @@ export class LocalStorageService extends TodoStorageService {
       if (invalidCount > 0) {
         console.warn(`Found ${invalidCount} invalid todos in localStorage`)
         // 自动清理无效数据
-        await this.saveTodos(validTodos)
+        await this.saveToStorage(validTodos)
       }
 
       return this.createSuccessResult(validTodos.sort((a, b) => a.order - b.order))
@@ -80,42 +80,42 @@ export class LocalStorageService extends TodoStorageService {
     }
   }
 
+  private async getTodosFromStorage(): Promise<Todo[]> {
+    const storedTodos = localStorage.getItem(STORAGE_KEYS.TODOS)
+    if (!storedTodos) {
+      return []
+    }
+    try {
+      const parsedTodos = JSON.parse(storedTodos)
+      if (Array.isArray(parsedTodos)) {
+        return parsedTodos as Todo[]
+      }
+      console.warn('Corrupted todo data in localStorage, not an array.')
+      return []
+    } catch (error) {
+      console.error('Failed to parse todos from localStorage:', error)
+      throw new Error('Failed to read corrupted data from local storage')
+    }
+  }
+
   async createTodo(todoData: CreateTodoDto): Promise<StorageOperationResult<Todo>> {
     try {
-      // 直接从 localStorage 读取，避免触发自动清理
-      const storedTodos = localStorage.getItem(STORAGE_KEYS.TODOS)
-      let todos: Todo[] = []
+      const todos = await this.getTodosFromStorage()
 
-      if (storedTodos) {
-        try {
-          const parsedTodos = JSON.parse(storedTodos)
-          if (Array.isArray(parsedTodos)) {
-            todos = parsedTodos as Todo[]
-          }
-        } catch (error) {
-          console.warn('Failed to parse stored todos, starting with empty array:', error)
-        }
-      }
-
-      // 验证标题
+      // Validation logic
       if (!todoData.title || todoData.title.trim() === '') {
         return this.createErrorResult('storage.todoTitleEmpty')
       }
-
       const sanitizedTitle = TodoValidator.sanitizeTitle(todoData.title)
       if (!TodoValidator.isTitleSafe(sanitizedTitle)) {
         return this.createErrorResult('storage.todoTitleEmpty')
       }
-
-      // 检查重复
-      const isDuplicate = todos.some(
-        (todo) => todo.title.toLowerCase() === sanitizedTitle.toLowerCase() && !todo.completed
-      )
-      if (isDuplicate) {
+      if (
+        todos.some((t) => !t.completed && t.title.toLowerCase() === sanitizedTitle.toLowerCase())
+      ) {
         return this.createErrorResult('storage.todoAlreadyExists')
       }
 
-      // 创建新 Todo
       const now = new Date().toISOString()
       const newTodo: Todo = {
         id: IdGenerator.generateStringId(),
@@ -129,14 +129,13 @@ export class LocalStorageService extends TodoStorageService {
         estimatedTime: todoData.estimatedTime,
         dueDate: todoData.dueDate,
         aiAnalyzed: false,
-        // 双重存储支持
         synced: false,
         lastSyncTime: undefined,
         syncError: undefined,
       }
 
-      todos.push(newTodo)
-      await this.saveTodos(todos)
+      const updatedTodos = [...todos, newTodo]
+      await this.saveToStorage(updatedTodos)
 
       return this.createSuccessResult(newTodo)
     } catch (error) {
@@ -194,7 +193,7 @@ export class LocalStorageService extends TodoStorageService {
       }
 
       todos[todoIndex] = updatedTodo
-      await this.saveTodos(todos)
+      await this.saveToStorage(todos)
 
       return this.createSuccessResult(updatedTodo)
     } catch (error) {
@@ -223,7 +222,7 @@ export class LocalStorageService extends TodoStorageService {
         return this.createErrorResult('storage.todoNotFound')
       }
 
-      await this.saveTodos(filteredTodos)
+      await this.saveToStorage(filteredTodos)
       return this.createSuccessResult(undefined)
     } catch (error) {
       console.error('Failed to delete todo:', error)
@@ -233,21 +232,80 @@ export class LocalStorageService extends TodoStorageService {
 
   async createTodos(todosData: CreateTodoDto[]): Promise<BatchOperationResult> {
     const errors: Array<{ id: string; error: string }> = []
-    let successCount = 0
+    const createdTodos: Todo[] = []
 
-    for (const todoData of todosData) {
-      const result = await this.createTodo(todoData)
-      if (result.success) {
-        successCount++
-      } else {
-        errors.push({
-          id: todoData.title,
-          error: result.error || '创建失败',
-        })
+    try {
+      // 1. Read existing todos once
+      const storedTodos = localStorage.getItem(STORAGE_KEYS.TODOS)
+      let todos: Todo[] = []
+      if (storedTodos) {
+        try {
+          const parsedTodos = JSON.parse(storedTodos)
+          if (Array.isArray(parsedTodos)) {
+            todos = parsedTodos as Todo[]
+          }
+        } catch (error) {
+          console.warn('Failed to parse stored todos, starting with empty array:', error)
+        }
       }
-    }
 
-    return this.createBatchErrorResult(successCount, errors)
+      const existingTitles = new Set(
+        todos.filter((t) => !t.completed).map((t) => t.title.toLowerCase())
+      )
+      let currentOrder = todos.length
+
+      // 2. Process new todos in memory
+      for (const todoData of todosData) {
+        // Validation logic from createTodo
+        if (!todoData.title || todoData.title.trim() === '') {
+          errors.push({ id: todoData.title || 'untitled', error: 'storage.todoTitleEmpty' })
+          continue
+        }
+        const sanitizedTitle = TodoValidator.sanitizeTitle(todoData.title)
+        if (!TodoValidator.isTitleSafe(sanitizedTitle)) {
+          errors.push({ id: todoData.title, error: 'storage.todoTitleEmpty' })
+          continue
+        }
+        if (existingTitles.has(sanitizedTitle.toLowerCase())) {
+          errors.push({ id: todoData.title, error: 'storage.todoAlreadyExists' })
+          continue
+        }
+
+        // Create new todo object
+        const now = new Date().toISOString()
+        const newTodo: Todo = {
+          id: IdGenerator.generateStringId(),
+          title: sanitizedTitle,
+          description: todoData.description,
+          completed: false,
+          createdAt: now,
+          updatedAt: now,
+          order: currentOrder++,
+          priority: todoData.priority,
+          estimatedTime: todoData.estimatedTime,
+          dueDate: todoData.dueDate,
+          aiAnalyzed: false,
+          synced: false,
+          lastSyncTime: undefined,
+          syncError: undefined,
+        }
+        createdTodos.push(newTodo)
+        existingTitles.add(sanitizedTitle.toLowerCase()) // Avoid duplicates within the same batch
+      }
+
+      // 3. Save all at once
+      if (createdTodos.length > 0) {
+        const finalTodos = [...todos, ...createdTodos]
+        await this.saveToStorage(finalTodos)
+      }
+
+      return this.createBatchErrorResult(createdTodos.length, errors)
+    } catch (error) {
+      console.error('Failed to batch create todos:', error)
+      return this.createBatchErrorResult(0, [
+        { id: 'batch_create', error: 'storage.saveLocalDataFailed' },
+      ])
+    }
   }
 
   async updateTodos(
@@ -316,7 +374,7 @@ export class LocalStorageService extends TodoStorageService {
         }
       })
 
-      await this.saveTodos(todos)
+      await this.saveToStorage(todos)
       return this.createSuccessResult(undefined)
     } catch (error) {
       console.error('Failed to reorder todos:', error)
@@ -402,7 +460,7 @@ export class LocalStorageService extends TodoStorageService {
         console.warn(`Skipped ${invalidCount} invalid todos during import`)
       }
 
-      await this.saveTodos(validTodos)
+      await this.saveToStorage(validTodos)
 
       return this.createBatchSuccessResult(validTodos.length)
     } catch (error) {
@@ -458,7 +516,7 @@ export class LocalStorageService extends TodoStorageService {
         syncError: undefined,
       }
 
-      await this.saveTodos(todos)
+      await this.saveToStorage(todos)
       return this.createSuccessResult(undefined)
     } catch (error) {
       console.error('Failed to mark todo as synced:', error)
@@ -495,7 +553,7 @@ export class LocalStorageService extends TodoStorageService {
         syncError: error,
       }
 
-      await this.saveTodos(todos)
+      await this.saveToStorage(todos)
       return this.createSuccessResult(undefined)
     } catch (error) {
       console.error('Failed to mark sync error:', error)
@@ -522,18 +580,26 @@ export class LocalStorageService extends TodoStorageService {
   }
 
   /**
-   * 保存 Todos 到 localStorage
+   * 保存所有 Todo。此方法为公共接口，用于封装底层的存储逻辑。
    */
-  private async saveTodos(todos: Todo[]): Promise<void> {
+  async saveTodos(todos: Todo[]): Promise<StorageOperationResult<void>> {
     try {
-      // 保存新数据
+      await this.saveToStorage(todos)
+      return this.createSuccessResult(undefined)
+    } catch (error) {
+      console.error('Failed to save todos:', error)
+      return this.createErrorResult('storage.saveLocalDataFailed')
+    }
+  }
+
+  private async saveToStorage(todos: Todo[]): Promise<void> {
+    try {
       localStorage.setItem(STORAGE_KEYS.TODOS, JSON.stringify(todos))
       localStorage.setItem(STORAGE_KEYS.LAST_COUNT, todos.length.toString())
-
       this.setStatus({ lastSyncTime: new Date() })
     } catch (error) {
       console.error('Failed to save todos to localStorage:', error)
-      throw error
+      throw error // Re-throw the original error to be caught by the caller
     }
   }
 }

@@ -61,6 +61,7 @@ describe('AI 集成测试', () => {
       mockGetAIStreamResponse.mockImplementation(async (messages, onChunk) => {
         onChunk('Hello')
         onChunk(' World')
+        onChunk('[DONE]')
       })
 
       const { sendMessage, userMessage, chatHistory, isGenerating, currentAIResponse } = useChat()
