@@ -244,7 +244,7 @@ export default defineConfig({
     chunkSizeWarningLimit: 1500,
     // 启用 gzip 压缩
     reportCompressedSize: true,
-    // 优化构建性能
+    // 优化构建性能和兼容性
     target: 'es2020',
     rollupOptions: {
       external: [
@@ -262,24 +262,38 @@ export default defineConfig({
           // 第三方库分组
           if (id.includes('node_modules')) {
             // Vue 核心库
-            if (id.includes('vue') || id.includes('@vue')) {
+            if (
+              id.includes('vue') ||
+              id.includes('@vue') ||
+              id.includes('vue-router') ||
+              id.includes('vue-i18n')
+            ) {
               return 'vue-vendor'
             }
             // 图表库
             if (id.includes('chart.js') || id.includes('chartjs')) {
-              return 'chart-vendor'
+              return 'chart-libs'
+            }
+            // 编辑器库
+            if (id.includes('marked') || id.includes('highlight.js') || id.includes('mermaid')) {
+              return 'editor-libs'
             }
             // 工具库
-            if (id.includes('lodash') || id.includes('date-fns') || id.includes('@vueuse')) {
-              return 'utils-vendor'
-            }
-            // UI 库
             if (
-              id.includes('canvas-confetti') ||
+              id.includes('lodash') ||
+              id.includes('date-fns') ||
               id.includes('dompurify') ||
-              id.includes('marked')
+              id.includes('@vueuse')
             ) {
-              return 'ui-vendor'
+              return 'utils-libs'
+            }
+            // 文件处理库
+            if (id.includes('mammoth') || id.includes('xlsx') || id.includes('pdfjs')) {
+              return 'file-libs'
+            }
+            // 动画库
+            if (id.includes('canvas-confetti') || id.includes('sortablejs')) {
+              return 'animation-libs'
             }
             // 图标库
             if (id.includes('@iconify') || id.includes('iconify')) {
@@ -288,22 +302,66 @@ export default defineConfig({
             // 其他第三方库
             return 'vendor'
           }
-          // 应用代码分组
-          if (id.includes('/src/components/')) {
-            return 'components'
+
+          // AI 相关服务单独分块
+          if (
+            id.includes('aiAnalysisService') ||
+            id.includes('deepseekService') ||
+            id.includes('useAIAnalysis') ||
+            id.includes('useChat')
+          ) {
+            return 'ai-services'
           }
+
+          // 核心服务分组（包含相关的工具函数以避免循环依赖）
+          if (
+            id.includes('/src/services/') &&
+            (id.includes('apiClient') ||
+              id.includes('authService') ||
+              id.includes('todoService') ||
+              id.includes('syncService'))
+          ) {
+            return 'core-services'
+          }
+
+          // 数据转换工具与核心服务放在一起（避免循环依赖）
+          if (id.includes('/src/utils/dataTransform')) {
+            return 'core-services'
+          }
+
+          // 存储服务分组
+          if (id.includes('/src/services/storage/')) {
+            return 'storage-services'
+          }
+
+          // 组合式函数
           if (id.includes('/src/composables/')) {
             return 'composables'
           }
-          if (id.includes('/src/services/')) {
-            return 'services'
+
+          // 组件
+          if (id.includes('/src/components/')) {
+            return 'components'
           }
+
+          // 工具函数
           if (id.includes('/src/utils/')) {
             return 'utils'
           }
         },
+        // 确保文件名和模块格式兼容性
         entryFileNames: 'assets/[name]-[hash].js',
         chunkFileNames: 'assets/[name]-[hash].js',
+        format: 'es',
+        // 确保模块导出兼容性
+        exports: 'named',
+        // 避免变量名冲突
+        generatedCode: {
+          constBindings: true,
+          arrowFunctions: true,
+          objectShorthand: true,
+          reservedNamesAsProps: false,
+        },
         assetFileNames: (assetInfo) => {
           // 根据文件类型分组资源
           const name = assetInfo.name || 'asset'

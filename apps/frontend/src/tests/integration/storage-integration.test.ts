@@ -225,7 +225,11 @@ describe('Storage Integration Tests', () => {
 
     it('should identify migration conflicts when resolution is required', async () => {
       const dataMigration = useDataMigration()
-      const { conflicts, resolveConflicts, migrateToCloud } = dataMigration
+      const {
+        conflicts: _conflicts,
+        resolveConflicts: _resolveConflicts,
+        migrateToCloud,
+      } = dataMigration
 
       // In a real test, we would mock the migration service to return conflicts
       const migrationResult = await migrateToCloud({
@@ -308,12 +312,16 @@ describe('Storage Integration Tests', () => {
       }
 
       const todos = await Promise.all(operations)
-      const validTodos = todos.filter((todo): todo is NonNullable<typeof todo> => todo !== null)
+      const validTodos = todos.filter(
+        (todo): todo is Awaited<ReturnType<typeof addTodo>> => todo !== null && todo !== undefined
+      )
       expect(validTodos).toHaveLength(100)
 
       // Clean up
       for (const todo of validTodos) {
-        await removeTodo(todo.id)
+        if (todo && 'id' in todo) {
+          await removeTodo(todo.id)
+        }
       }
     })
 

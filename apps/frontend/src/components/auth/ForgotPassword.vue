@@ -128,9 +128,10 @@ const handleSubmit = async () => {
     setTimeout(() => {
       router.push('/login')
     }, 3000)
-  } catch (error: any) {
-    if (error.message.includes('email')) {
-      errors.email = error.message
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : String(error)
+    if (errorMessage.includes('email')) {
+      errors.email = errorMessage
     }
   } finally {
     isLoading.value = false

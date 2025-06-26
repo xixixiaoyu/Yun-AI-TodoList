@@ -211,7 +211,7 @@ export function useAuth() {
     try {
       authState.isLoading = true
       await authApi.requestPasswordReset(email)
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Forgot password failed:', error)
       throw error
     } finally {

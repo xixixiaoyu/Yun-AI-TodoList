@@ -312,7 +312,7 @@ vi.mock('../composables/useDataMigration', () => ({
 vi.mock('@/composables/useStorageMode', () => {
   // 使用全局变量来确保每次测试都能重置
   let globalNextId = 1
-  let globalTodos: any[] = []
+  const globalTodos: any[] = []
 
   const mockStorageService = {
     async createTodo(dto: any) {
@@ -335,7 +335,7 @@ vi.mock('@/composables/useStorageMode', () => {
         const testKey = `test-${Date.now()}-${Math.random()}`
         localStorage.setItem(testKey, 'test')
         localStorage.removeItem(testKey)
-      } catch (error) {
+      } catch (_error) {
         // 如果 localStorage 抛出错误，返回失败结果
         return { success: false, error: 'Storage quota exceeded' }
       }

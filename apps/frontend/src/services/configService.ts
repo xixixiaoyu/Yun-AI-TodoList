@@ -1,3 +1,6 @@
+/**
+ * 配置服务
+ */
 import { ref } from 'vue'
 import type { AIModel } from './types'
 

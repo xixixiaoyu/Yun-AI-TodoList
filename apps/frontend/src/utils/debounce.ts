@@ -10,7 +10,7 @@
  * @param immediate 是否立即执行第一次调用
  * @returns 防抖后的函数
  */
-export function debounce<T extends (...args: any[]) => any>(
+export function debounce<T extends (...args: unknown[]) => unknown>(
   func: T,
   delay: number,
   immediate = false

@@ -9,6 +9,7 @@ import { useAuth } from './useAuth'
 import { useNetworkStatus } from './useNetworkStatus'
 import { useNotifications } from './useNotifications'
 import { useTodos } from './useTodos'
+import type { Todo } from '../types/todo'
 
 /**
  * 同步状态接口

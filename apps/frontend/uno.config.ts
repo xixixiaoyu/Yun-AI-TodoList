@@ -10,6 +10,61 @@ import {
 } from 'unocss'
 
 export default defineConfig({
+  // 明确列出所有使用的图标，避免构建时误解析
+  safelist: [
+    'i-carbon-task-star',
+    'i-carbon-email',
+    'i-carbon-password',
+    'i-carbon-view',
+    'i-carbon-view-off',
+    'i-carbon-warning',
+    'i-carbon-warning-filled',
+    'i-carbon-checkmark',
+    'i-carbon-checkmark-filled',
+    'i-carbon-circle-dash',
+    'i-carbon-cloud-offline',
+    'i-carbon-user',
+    'i-carbon-user-plus',
+    'i-carbon-login',
+    'i-carbon-logout',
+    'i-carbon-chevron-down',
+    'i-carbon-chevron-up',
+    'i-carbon-close',
+    'i-carbon-restart',
+    'i-carbon-sync',
+    'i-carbon-information',
+    'i-carbon-information-filled',
+    'i-carbon-error-filled',
+    'i-carbon-ai-status',
+    'i-carbon-devices',
+    'i-carbon-chart-line',
+    'i-carbon-play',
+    'i-carbon-logo-github',
+    'i-carbon-application',
+    'i-carbon-application-web',
+    'i-carbon-logo-vue',
+    'i-carbon-code',
+    'i-carbon-color-palette',
+    'i-carbon-flash',
+    'i-carbon-server',
+    'i-carbon-network-3',
+    'i-carbon-data-base',
+    'i-carbon-data-base-alt',
+    'i-carbon-data-table',
+    'i-carbon-cloud',
+    'i-carbon-container-registry',
+    'i-carbon-cloud-foundry-1',
+    'i-carbon-mobile',
+    'i-carbon-download',
+    'i-carbon-launch',
+    'i-carbon-development',
+    'i-carbon-zoom-in',
+    'i-carbon-arrow-down',
+    'i-carbon-document',
+    'i-carbon-timer',
+    'i-carbon-task',
+    'i-carbon-settings',
+  ],
   // 预设配置
   presets: [
     presetUno(), // 默认预设，包含 Tailwind CSS 兼容的工具类
@@ -17,9 +72,13 @@ export default defineConfig({
     presetIcons({
       // 图标预设配置
       scale: 1.2,
-      warn: true,
       collections: {
         carbon: () => import('@iconify-json/carbon/icons.json').then((i) => i.default),
+      },
+      warn: false, // 禁用图标加载警告
+      extraProperties: {
+        display: 'inline-block',
+        'vertical-align': 'middle',
       },
     }),
     presetTypography(), // 排版预设

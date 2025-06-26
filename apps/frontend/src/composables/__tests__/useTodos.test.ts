@@ -1,9 +1,9 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
-import { mount } from '@vue/test-utils'
-import { defineComponent } from 'vue'
+import { mount as _mount } from '@vue/test-utils'
+import { defineComponent as _defineComponent } from 'vue'
 
 // Mock data
-let mockTodos: any[] = []
+const mockTodos: any[] = []
 let mockNextId = 1
 
 // Mock storage service
@@ -99,7 +99,7 @@ describe('useTodos', () => {
     vi.clearAllMocks()
 
     // 动态导入 useTodos 以确保 mock 生效
-    const { useTodos } = await import('@/composables/useTodos')
+    const { useTodos } = await import('../useTodos')
 
     // 直接使用 composable
     todoInstance = useTodos()
@@ -114,7 +114,7 @@ describe('useTodos', () => {
   })
 
   it('should add a todo', async () => {
-    const result = await todoInstance.addTodo({ title: 'Test todo' })
+    const _result = await todoInstance.addTodo({ title: 'Test todo' })
 
     expect(todoInstance.todos.value).toHaveLength(1)
     expect(todoInstance.todos.value[0].title).toBe('Test todo')

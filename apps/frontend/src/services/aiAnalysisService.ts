@@ -419,9 +419,10 @@ export function generateTodoSystemPrompt(todos: Todo[]): string {
     .map((todo, index) => {
       const priority = todo.priority ? `${todo.priority}星` : '无'
       const estimation = todo.estimatedTime || '未估算'
+      const todoWithTags = todo as Todo & { tags?: string[] }
       const tags =
-        (todo as any).tags && (todo as any).tags.length > 0
-          ? `[标签:${(todo as any).tags.join(',')}]`
+        todoWithTags.tags && todoWithTags.tags.length > 0
+          ? `[标签:${todoWithTags.tags.join(',')}]`
           : ''
       return `${index + 1}. ${todo.title} [优先级:${priority}] [时间:${estimation}]${tags ? ' ' + tags : ''}`
     })

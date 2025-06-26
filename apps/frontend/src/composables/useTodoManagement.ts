@@ -36,7 +36,7 @@ export function useTodoManagement() {
     isAnalyzing.value = true
     try {
       // 添加重试机制提高 AI 分析的可靠性
-      const result = await withRetry(
+      const _result = await withRetry(
         () =>
           analyzeSingleTodo(todo, (id: string, updates: Partial<Todo>) => {
             updateTodo(id, updates as UpdateTodoDto)

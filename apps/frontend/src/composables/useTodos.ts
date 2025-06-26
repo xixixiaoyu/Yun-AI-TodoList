@@ -1,5 +1,5 @@
-import { ref, computed, watch, onUnmounted } from 'vue'
-import type { Ref } from 'vue'
+import { ref, onUnmounted } from 'vue'
+import type { Ref as _Ref } from 'vue'
 import type { CreateTodoDto, Todo, UpdateTodoDto } from '../types/todo'
 import { logger } from '@/utils/logger'
 import { TodoValidator } from '../utils/todoValidator'
@@ -19,8 +19,8 @@ export function useTodos() {
     initializeStorageMode,
     isInitialized: storageInitialized,
   } = useStorageMode()
-  const { addSyncOperation, resolveConflicts, conflicts } = useDataMigration()
-  const { isAuthenticated } = useAuth()
+  const { addSyncOperation: _addSyncOperation, resolveConflicts, conflicts } = useDataMigration()
+  const { isAuthenticated: _isAuthenticated } = useAuth()
   const todos = globalTodos
 
   const setTodos = (newTodos: Todo[]) => {
