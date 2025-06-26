@@ -233,16 +233,16 @@ export class LocalStorageService extends TodoStorageService {
   async createTodos(todosData: CreateTodoDto[]): Promise<BatchOperationResult> {
     const errors: Array<{ id: string; error: string }> = []
     const createdTodos: Todo[] = []
+    let originalTodos: Todo[] = []
 
     try {
-      // 1. Read existing todos once
+      // 1. Read existing todos once and backup for rollback
       const storedTodos = localStorage.getItem(STORAGE_KEYS.TODOS)
-      let todos: Todo[] = []
       if (storedTodos) {
         try {
           const parsedTodos = JSON.parse(storedTodos)
           if (Array.isArray(parsedTodos)) {
-            todos = parsedTodos as Todo[]
+            originalTodos = parsedTodos as Todo[]
           }
         } catch (error) {
           console.warn('Failed to parse stored todos, starting with empty array:', error)
@@ -250,9 +250,9 @@ export class LocalStorageService extends TodoStorageService {
       }
 
       const existingTitles = new Set(
-        todos.filter((t) => !t.completed).map((t) => t.title.toLowerCase())
+        originalTodos.filter((t) => !t.completed).map((t) => t.title.toLowerCase())
       )
-      let currentOrder = todos.length
+      let currentOrder = originalTodos.length
 
       // 2. Process new todos in memory
       for (const todoData of todosData) {
@@ -293,10 +293,21 @@ export class LocalStorageService extends TodoStorageService {
         existingTitles.add(sanitizedTitle.toLowerCase()) // Avoid duplicates within the same batch
       }
 
-      // 3. Save all at once
+      // 3. Save all at once with transaction-like behavior
       if (createdTodos.length > 0) {
-        const finalTodos = [...todos, ...createdTodos]
-        await this.saveToStorage(finalTodos)
+        const finalTodos = [...originalTodos, ...createdTodos]
+        try {
+          await this.saveToStorage(finalTodos)
+        } catch (saveError) {
+          // 回滚：恢复原始数据
+          console.error('Failed to save batch created todos, rolling back:', saveError)
+          try {
+            await this.saveToStorage(originalTodos)
+          } catch (rollbackError) {
+            console.error('Failed to rollback after batch create failure:', rollbackError)
+          }
+          throw saveError
+        }
       }
 
       return this.createBatchErrorResult(createdTodos.length, errors)
@@ -313,39 +324,127 @@ export class LocalStorageService extends TodoStorageService {
   ): Promise<BatchOperationResult> {
     const errors: Array<{ id: string; error: string }> = []
     let successCount = 0
+    let originalTodos: Todo[] = []
 
-    for (const update of updates) {
-      const result = await this.updateTodo(update.id, update.data)
-      if (result.success) {
-        successCount++
-      } else {
-        errors.push({
-          id: update.id,
-          error: result.error || '更新失败',
-        })
+    try {
+      // 1. 备份原始数据
+      const storedTodos = localStorage.getItem(STORAGE_KEYS.TODOS)
+      if (storedTodos) {
+        originalTodos = JSON.parse(storedTodos) as Todo[]
       }
-    }
 
-    return this.createBatchErrorResult(successCount, errors)
+      // 2. 批量更新处理
+      const updatedTodos = [...originalTodos]
+      const validUpdates: Array<{ index: number; data: UpdateTodoDto }> = []
+
+      for (const update of updates) {
+        const todoIndex = updatedTodos.findIndex((t) => t.id === update.id)
+        if (todoIndex === -1) {
+          errors.push({ id: update.id, error: 'storage.todoNotFound' })
+          continue
+        }
+
+        // 验证更新数据
+        if (update.data.title !== undefined) {
+          const sanitizedTitle = TodoValidator.sanitizeTitle(update.data.title)
+          if (!TodoValidator.isTitleSafe(sanitizedTitle)) {
+            errors.push({ id: update.id, error: 'storage.todoTitleEmpty' })
+            continue
+          }
+          update.data.title = sanitizedTitle
+        }
+
+        validUpdates.push({ index: todoIndex, data: update.data })
+      }
+
+      // 3. 应用所有有效更新
+      for (const { index, data } of validUpdates) {
+        const todo = updatedTodos[index]
+        Object.assign(todo, data, { updatedAt: new Date().toISOString() })
+        successCount++
+      }
+
+      // 4. 原子性保存
+      if (successCount > 0) {
+        try {
+          await this.saveToStorage(updatedTodos)
+        } catch (saveError) {
+          // 回滚
+          console.error('Failed to save batch updates, rolling back:', saveError)
+          try {
+            await this.saveToStorage(originalTodos)
+          } catch (rollbackError) {
+            console.error('Failed to rollback after batch update failure:', rollbackError)
+          }
+          throw saveError
+        }
+      }
+
+      return this.createBatchErrorResult(successCount, errors)
+    } catch (error) {
+      console.error('Failed to batch update todos:', error)
+      return this.createBatchErrorResult(0, [
+        { id: 'batch_update', error: 'storage.saveLocalDataFailed' },
+      ])
+    }
   }
 
   async deleteTodos(ids: string[]): Promise<BatchOperationResult> {
     const errors: Array<{ id: string; error: string }> = []
     let successCount = 0
+    let originalTodos: Todo[] = []
 
-    for (const id of ids) {
-      const result = await this.deleteTodo(id)
-      if (result.success) {
-        successCount++
-      } else {
-        errors.push({
-          id,
-          error: result.error || '删除失败',
-        })
+    try {
+      // 1. 备份原始数据
+      const storedTodos = localStorage.getItem(STORAGE_KEYS.TODOS)
+      if (storedTodos) {
+        originalTodos = JSON.parse(storedTodos) as Todo[]
       }
-    }
 
-    return this.createBatchErrorResult(successCount, errors)
+      // 2. 批量删除处理
+      const idsToDelete = new Set(ids)
+      const remainingTodos: Todo[] = []
+      const deletedIds: string[] = []
+
+      for (const todo of originalTodos) {
+        if (idsToDelete.has(todo.id)) {
+          deletedIds.push(todo.id)
+          successCount++
+        } else {
+          remainingTodos.push(todo)
+        }
+      }
+
+      // 3. 检查未找到的 ID
+      for (const id of ids) {
+        if (!deletedIds.includes(id)) {
+          errors.push({ id, error: 'storage.todoNotFound' })
+        }
+      }
+
+      // 4. 原子性保存
+      if (successCount > 0) {
+        try {
+          await this.saveToStorage(remainingTodos)
+        } catch (saveError) {
+          // 回滚
+          console.error('Failed to save after batch delete, rolling back:', saveError)
+          try {
+            await this.saveToStorage(originalTodos)
+          } catch (rollbackError) {
+            console.error('Failed to rollback after batch delete failure:', rollbackError)
+          }
+          throw saveError
+        }
+      }
+
+      return this.createBatchErrorResult(successCount, errors)
+    } catch (error) {
+      console.error('Failed to batch delete todos:', error)
+      return this.createBatchErrorResult(0, [
+        { id: 'batch_delete', error: 'storage.saveLocalDataFailed' },
+      ])
+    }
   }
 
   async reorderTodos(

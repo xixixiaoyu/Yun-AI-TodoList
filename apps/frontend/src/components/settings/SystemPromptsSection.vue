@@ -21,8 +21,22 @@
     <div class="settings-content">
       <!-- 系统提示词管理 -->
       <div class="mt-6 space-y-4">
-        <!-- 当前激活的提示词 -->
+        <!-- 系统提示词总开关 -->
         <div class="setting-item">
+          <div class="setting-info">
+            <label class="setting-label">{{ $t('systemPromptsEnabled') }}</label>
+            <p class="setting-description">{{ $t('systemPromptsEnabledDesc') }}</p>
+          </div>
+          <div class="setting-control">
+            <label class="toggle-switch">
+              <input type="checkbox" :checked="config.enabled" @change="handleToggleEnabled" />
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+        </div>
+
+        <!-- 当前激活的提示词 -->
+        <div class="setting-item" :class="{ 'opacity-50': !config.enabled }">
           <div class="setting-info">
             <label class="setting-label">{{ t('activeSystemPrompt') }}</label>
             <p class="setting-description">{{ t('activeSystemPromptDesc') }}</p>
@@ -31,6 +45,7 @@
             <select
               :value="config.activePromptId || ''"
               class="select-input"
+              :disabled="!config.enabled"
               @change="handleActivePromptChange"
             >
               <option value="">{{ t('noSystemPrompt') }}</option>
@@ -188,6 +203,7 @@ const {
   updateSystemPrompt,
   deleteSystemPrompt,
   setActivePrompt,
+  updateConfig,
 } = useSystemPrompts()
 
 // 对话框状态
@@ -219,7 +235,22 @@ const handlePromptClick = async (prompt: SystemPrompt) => {
   }
 }
 
-// 处理语言指令开关
+// 处理系统提示词总开关
+const handleToggleEnabled = async (event: Event) => {
+  const target = event.target as HTMLInputElement
+  const enabled = target.checked
+
+  try {
+    await updateConfig({ enabled })
+
+    // 如果禁用系统提示词，同时清除激活的提示词
+    if (!enabled && config.value.activePromptId) {
+      await setActivePrompt(null)
+    }
+  } catch (error) {
+    console.error('切换系统提示词开关失败:', error)
+  }
+}
 
 // 编辑提示词
 const editPrompt = (prompt: SystemPrompt) => {

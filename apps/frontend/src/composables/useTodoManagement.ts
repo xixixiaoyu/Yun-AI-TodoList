@@ -1,4 +1,5 @@
-import { computed, nextTick, ref } from 'vue'
+import { AI_RETRY_OPTIONS, withRetry } from '@/utils/retryHelper'
+import { computed, nextTick, onUnmounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { getAIResponse } from '../services/deepseekService'
 import type { Todo, UpdateTodoDto } from '../types/todo'
@@ -22,13 +23,34 @@ export function useTodoManagement() {
   const { showError, showSuccess, error: duplicateError } = useErrorHandler()
 
   // AI 分析功能
-  const {
-    analyzeSingleTodo,
-    analysisConfig,
-    isAnalyzing,
-    isBatchAnalyzing,
-    batchAnalyzeTodosAction,
-  } = useAIAnalysis()
+  const { analyzeSingleTodo, analysisConfig, batchAnalyzeTodosAction } = useAIAnalysis()
+
+  // 本地状态管理（避免只读属性赋值问题）
+  const isAnalyzing = ref(false)
+  const isBatchAnalyzing = ref(false)
+  const analysisProgress = ref(0)
+
+  const analyzeTodoAction = async (todo: Todo): Promise<void> => {
+    if (isAnalyzing.value) return
+
+    isAnalyzing.value = true
+    try {
+      // 添加重试机制提高 AI 分析的可靠性
+      const result = await withRetry(
+        () =>
+          analyzeSingleTodo(todo, (id: string, updates: Partial<Todo>) => {
+            updateTodo(id, updates as UpdateTodoDto)
+          }),
+        AI_RETRY_OPTIONS
+      )
+
+      logger.info('Todo analyzed successfully', { todoId: todo.id }, 'useTodoManagement')
+    } catch (error) {
+      logger.error('Error analyzing todo', error, 'useTodoManagement')
+    } finally {
+      isAnalyzing.value = false
+    }
+  }
 
   const filter = ref('active')
   const searchQuery = ref('')
@@ -440,7 +462,7 @@ ${todoTexts}
     }
   }
 
-  const handleAddTodo = async (text: string, skipSplitAnalysis = false) => {
+  const handleAddTodo = async (text: string, skipSplitAnalysis: boolean = false) => {
     if (!text || text.trim() === '') {
       showError(t('emptyTodoError'))
       return
@@ -495,12 +517,24 @@ ${todoTexts}
         if (newTodo) {
           logger.info('Starting auto AI analysis', {}, 'TodoManagement')
           // 异步执行 AI 分析，不阻塞用户操作
-          analyzeSingleTodo(newTodo, (id: string, updates: Partial<Todo>) => {
-            logger.info('Auto analysis completed, updating todo', { id, updates }, 'TodoManagement')
-            updateTodo(id, updates as UpdateTodoDto)
-          }).catch((error) => {
-            // 分析失败时静默处理，不影响任务添加，也不设置任何默认值
-            logger.warn('Auto AI analysis failed for new todo', error, 'TodoManagement')
+          withRetry(
+            () =>
+              analyzeSingleTodo(newTodo, (id: string, updates: Partial<Todo>) => {
+                logger.info(
+                  'Auto analysis completed, updating todo',
+                  { id, updates },
+                  'TodoManagement'
+                )
+                updateTodo(id, updates as UpdateTodoDto)
+              }),
+            AI_RETRY_OPTIONS
+          ).catch((error) => {
+            // 重试后仍失败时静默处理，不影响任务添加
+            logger.warn(
+              'Auto AI analysis failed for new todo after retries',
+              error,
+              'TodoManagement'
+            )
             // 不更新任何字段，保持 Todo 的原始状态
           })
         } else {
@@ -592,16 +626,24 @@ ${todoTexts}
             )
 
             // 使用批量分析功能统一处理所有新添加的子任务
-            batchAnalyzeTodosAction(
-              newTodos,
-              (updates: Array<{ id: string; updates: Partial<Todo> }>) => {
-                // 批量更新所有分析结果
-                updates.forEach(({ id, updates: todoUpdates }) => {
-                  updateTodo(id, todoUpdates as UpdateTodoDto)
-                })
-              }
+            withRetry(
+              () =>
+                batchAnalyzeTodosAction(
+                  newTodos,
+                  (updates: Array<{ id: string; updates: Partial<Todo> }>) => {
+                    // 批量更新所有分析结果
+                    updates.forEach(({ id, updates: todoUpdates }) => {
+                      updateTodo(id, todoUpdates as UpdateTodoDto)
+                    })
+                  }
+                ),
+              AI_RETRY_OPTIONS
             ).catch((error) => {
-              logger.warn('Batch AI analysis failed for subtasks', error, 'TodoManagement')
+              logger.warn(
+                'Batch AI analysis failed for subtasks after retries',
+                error,
+                'TodoManagement'
+              )
             })
           }
         } catch (error) {
@@ -673,11 +715,19 @@ ${todoTexts}
           const updatedTodo = todos.value.find((todo) => todo.id === id)
           if (updatedTodo && !updatedTodo.completed) {
             try {
-              await analyzeSingleTodo(updatedTodo, (id: string, updates: Partial<Todo>) => {
-                updateTodo(id, updates as UpdateTodoDto)
-              })
+              await withRetry(
+                () =>
+                  analyzeSingleTodo(updatedTodo, (id: string, updates: Partial<Todo>) => {
+                    updateTodo(id, updates as UpdateTodoDto)
+                  }),
+                AI_RETRY_OPTIONS
+              )
             } catch (error) {
-              logger.warn('Auto AI analysis failed after text update', error, 'TodoManagement')
+              logger.warn(
+                'Auto AI analysis failed after text update after retries',
+                error,
+                'TodoManagement'
+              )
             }
           }
         }
@@ -691,7 +741,7 @@ ${todoTexts}
     }
   }
 
-  return {
+  const result = {
     todos,
     filter,
     searchQuery,
@@ -703,6 +753,8 @@ ${todoTexts}
     isSorting,
     isLoading,
     isAnalyzing,
+    isBatchAnalyzing,
+    analysisProgress,
     suggestedTodos,
     showSuggestedTodos,
     showDomainSelection,
@@ -725,5 +777,35 @@ ${todoTexts}
     updateTodo,
     updateTodoText,
     batchUpdateTodos,
+    batchAnalyzeTodos: batchAnalyzeTodosAction,
+    analyzeTodo: analyzeTodoAction,
+
+    // 清理机制
+    cleanup: () => {
+      // 重置所有状态
+      filter.value = 'active'
+      searchQuery.value = ''
+      isGenerating.value = false
+      isSplittingTask.value = false
+      isSorting.value = false
+      isAnalyzing.value = false
+      isBatchAnalyzing.value = false
+      analysisProgress.value = 0
+      suggestedTodos.value = []
+      showSuggestedTodos.value = false
+      showDomainSelection.value = false
+      selectedDomain.value = ''
+      duplicateError.value = ''
+      logger.info('useTodoManagement cleanup completed', undefined, 'TodoManagement')
+    },
   }
+
+  // 组件卸载时自动清理
+  onUnmounted(() => {
+    if (typeof result.cleanup === 'function') {
+      result.cleanup()
+    }
+  })
+
+  return result
 }

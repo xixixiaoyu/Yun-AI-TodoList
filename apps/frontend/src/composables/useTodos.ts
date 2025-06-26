@@ -1,10 +1,13 @@
-import { ref } from 'vue'
+import { ref, computed, watch, onUnmounted } from 'vue'
+import type { Ref } from 'vue'
 import type { CreateTodoDto, Todo, UpdateTodoDto } from '../types/todo'
-import { logger } from '../utils/logger'
+import { logger } from '@/utils/logger'
 import { TodoValidator } from '../utils/todoValidator'
 import { useAuth } from './useAuth'
 import { useDataMigration } from './useDataMigration'
 import { useStorageMode } from './useStorageMode'
+import { withRetry, STORAGE_RETRY_OPTIONS } from '@/utils/retryHelper'
+import { debounceAsync } from '@/utils/debounce'
 
 // 全局单例状态
 const globalTodos = ref<Todo[]>([])
@@ -91,26 +94,37 @@ export function useTodos() {
     }
   }
 
-  const saveTodos = async () => {
+  // 创建防抖的保存函数，避免频繁保存
+  const debouncedSaveTodos = debounceAsync(async () => {
     if (!isInitialized.value) return
 
     try {
       const storageService = getCurrentStorageService()
-      await storageService.saveTodos(todos.value)
+      await withRetry(() => storageService.saveTodos(todos.value), STORAGE_RETRY_OPTIONS)
       logger.info('Todos saved successfully', undefined, 'useTodos')
     } catch (error) {
       logger.error('Error saving todos', error, 'useTodos')
       throw error
     }
+  }, 500) // 500ms 防抖延迟
+
+  const saveTodos = async () => {
+    return await debouncedSaveTodos()
   }
 
   const addTodo = async (createDto: CreateTodoDto): Promise<Todo | null> => {
     try {
       const storageService = getCurrentStorageService()
-      const result = await storageService.createTodo(createDto)
+
+      // 添加重试机制提高可靠性
+      const result = await withRetry(
+        () => storageService.createTodo(createDto),
+        STORAGE_RETRY_OPTIONS
+      )
 
       if (result.success && result.data) {
-        await loadTodos() // Reload for consistency
+        // 优化：直接添加到内存状态，避免重新加载
+        todos.value.push(result.data)
         logger.info('Todo added successfully', { todo: result.data }, 'useTodos')
         return result.data
       } else {
@@ -195,11 +209,17 @@ export function useTodos() {
   const removeTodo = async (id: string): Promise<boolean> => {
     try {
       const storageService = getCurrentStorageService()
-      const result = await storageService.deleteTodo(id)
+
+      // 添加重试机制提高可靠性
+      const result = await withRetry(() => storageService.deleteTodo(id), STORAGE_RETRY_OPTIONS)
 
       if (result.success) {
-        await loadTodos()
-        logger.info('Todo removed successfully and state reloaded', { id }, 'useTodos')
+        // 优化：直接从内存状态移除，避免重新加载
+        const index = todos.value.findIndex((todo) => todo.id === id)
+        if (index !== -1) {
+          todos.value.splice(index, 1)
+        }
+        logger.info('Todo removed successfully', { id }, 'useTodos')
         return true
       } else {
         logger.error('Failed to remove todo', result.error, 'useTodos')
@@ -301,11 +321,24 @@ export function useTodos() {
   const updateTodo = async (id: string, updates: UpdateTodoDto): Promise<boolean> => {
     try {
       const storageService = getCurrentStorageService()
-      const result = await storageService.updateTodo(id, updates)
+
+      // 添加重试机制提高可靠性
+      const result = await withRetry(
+        () => storageService.updateTodo(id, updates),
+        STORAGE_RETRY_OPTIONS
+      )
 
       if (result.success) {
-        await loadTodos()
-        logger.info('Todo updated successfully and state reloaded', { id, updates }, 'useTodos')
+        // 优化：直接更新内存状态，避免重新加载
+        const todoIndex = todos.value.findIndex((todo) => todo.id === id)
+        if (todoIndex !== -1) {
+          todos.value[todoIndex] = {
+            ...todos.value[todoIndex],
+            ...updates,
+            updatedAt: new Date().toISOString(),
+          }
+        }
+        logger.info('Todo updated successfully', { id, updates }, 'useTodos')
         return true
       } else {
         logger.error('Failed to update todo', result.error, 'useTodos')
@@ -359,7 +392,7 @@ export function useTodos() {
     }
   }
 
-  return {
+  const result = {
     // 状态
     todos,
     isInitialized,
@@ -400,5 +433,22 @@ export function useTodos() {
       await saveTodos() // 保存空的待办事项列表
       isInitialized.value = false // 重置初始化状态
     },
+
+    // 清理机制
+    cleanup: () => {
+      // 清理状态
+      globalTodos.value = []
+      isInitialized.value = false
+      logger.info('useTodos cleanup completed', undefined, 'useTodos')
+    },
   }
+
+  // 组件卸载时自动清理
+  onUnmounted(() => {
+    if (typeof result.cleanup === 'function') {
+      result.cleanup()
+    }
+  })
+
+  return result
 }

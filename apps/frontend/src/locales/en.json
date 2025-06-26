@@ -424,6 +424,8 @@
   "systemPromptsDescription": "Manage AI assistant system prompts to customize AI behavior and response style",
   "enableSystemPrompts": "Enable System Prompts",
   "enableSystemPromptsDesc": "Use custom system prompts instead of default prompts",
+  "systemPromptsEnabled": "Enable System Prompts Feature",
+  "systemPromptsEnabledDesc": "When enabled, you can use custom system prompts to control AI assistant behavior",
   "activeSystemPrompt": "Active System Prompt",
   "activeSystemPromptDesc": "Select the system prompt to use",
   "noSystemPrompt": "No System Prompt",

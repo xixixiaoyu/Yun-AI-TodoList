@@ -463,6 +463,8 @@
   "systemPromptsDescription": "管理 AI 助手的系统提示词，自定义 AI 的行为和回复风格",
   "enableSystemPrompts": "启用系统提示词",
   "enableSystemPromptsDesc": "使用自定义系统提示词替代默认提示词",
+  "systemPromptsEnabled": "启用系统提示词功能",
+  "systemPromptsEnabledDesc": "开启后可以使用自定义系统提示词来控制 AI 助手的行为",
   "activeSystemPrompt": "当前激活的提示词",
   "activeSystemPromptDesc": "选择要使用的系统提示词",
   "noSystemPrompt": "不使用系统提示词",
