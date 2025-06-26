@@ -251,9 +251,9 @@ const handleSubtaskConfirm = async (selectedSubtasks: string[]) => {
   if (selectedSubtasks.length > 0) {
     try {
       // 添加选中的子任务
-      const successCount = await handleAddSubtasks(selectedSubtasks, [])
+      const result = await handleAddSubtasks(selectedSubtasks)
 
-      if (successCount > 0) {
+      if (result.successCount > 0) {
         // 强制触发响应式更新
         await nextTick()
         await nextTick()
@@ -270,13 +270,13 @@ const handleSubtaskCancel = () => {
 
   // 添加原始任务
   if (subtaskConfig.originalTask) {
-    originalHandleAddTodo(subtaskConfig.originalTask, [], true) // 跳过拆分分析
+    originalHandleAddTodo(subtaskConfig.originalTask, true) // 跳过拆分分析
   }
 }
 
 // 处理 Todo 文本更新
 const handleUpdateTodoText = async (id: number, newText: string) => {
-  await updateTodoText(id, newText)
+  await updateTodoText(String(id), newText)
 }
 
 // 清除重复错误
@@ -401,7 +401,7 @@ onUnmounted(() => {
 
 .todo-grid {
   @apply overflow-y-auto flex h-40vh max-h-125 flex-col mb-4 rounded;
-  gap: 0.75rem;
+  gap: 0.5rem;
   padding: 0.5rem 0.5rem 0.5rem 0;
 }
 
@@ -545,7 +545,7 @@ onUnmounted(() => {
   }
 
   .todo-grid {
-    @apply h-30vh max-h-100 gap-2 mb-3;
+    @apply h-30vh max-h-100 gap-1.5 mb-3;
   }
 
   .todo-card-header {
