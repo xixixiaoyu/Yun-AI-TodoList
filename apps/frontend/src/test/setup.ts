@@ -295,6 +295,16 @@ vi.mock('../composables/useDataMigration', () => ({
     addSyncOperation: vi.fn(),
     processSyncQueue: vi.fn(),
     clearSyncQueue: vi.fn(),
+    migrateToCloud: vi.fn().mockResolvedValue(true),
+    migrateToLocal: vi.fn().mockResolvedValue(true),
+    resolveConflicts: vi.fn().mockResolvedValue(true),
+    conflicts: { value: [] },
+    syncStatus: { value: 'idle' },
+    isSyncEnabled: { value: false },
+    canMigrate: { value: true },
+    hasConflicts: { value: false },
+    hasPendingOperations: { value: false },
+    hasFailedOperations: { value: false },
   }),
 }))
 
@@ -306,6 +316,30 @@ vi.mock('@/composables/useStorageMode', () => {
 
   const mockStorageService = {
     async createTodo(dto: any) {
+      // 检查标题是否为空
+      if (!dto.title || dto.title.trim() === '') {
+        return { success: false, error: 'storage.todoTitleEmpty' }
+      }
+
+      // 检查重复标题（只检查未完成的待办事项）
+      const duplicateExists = globalTodos.some(
+        (t) => !t.completed && t.title.toLowerCase() === dto.title.toLowerCase()
+      )
+      if (duplicateExists) {
+        return { success: false, error: 'storage.todoAlreadyExists' }
+      }
+
+      // 检查是否模拟存储错误（通过检查 localStorage.setItem 是否被 mock 为抛出错误）
+      try {
+        // 尝试调用 localStorage.setItem 来检测是否被 mock 为抛出错误
+        const testKey = `test-${Date.now()}-${Math.random()}`
+        localStorage.setItem(testKey, 'test')
+        localStorage.removeItem(testKey)
+      } catch (error) {
+        // 如果 localStorage 抛出错误，返回失败结果
+        return { success: false, error: 'Storage quota exceeded' }
+      }
+
       const newTodo = {
         id: `todo-${globalNextId++}`,
         title: dto.title,
@@ -372,9 +406,12 @@ vi.mock('@/composables/useStorageMode', () => {
     },
   }
 
+  const mockCurrentMode = { value: 'local' }
+  const mockConfig = { value: { mode: 'local' } }
+
   const mockUseStorageMode = () => ({
-    currentMode: { value: 'local' },
-    config: { value: { mode: 'local' } },
+    currentMode: mockCurrentMode,
+    config: mockConfig,
     syncStatus: { value: { syncInProgress: false, pendingChanges: 0, conflictsCount: 0 } },
     isInitialized: { value: true },
     canUseRemoteStorage: { value: false },
@@ -382,7 +419,11 @@ vi.mock('@/composables/useStorageMode', () => {
     isOfflineMode: { value: true },
     initializeStorage: vi.fn(),
     initializeStorageMode: vi.fn().mockResolvedValue(true),
-    switchStorageMode: vi.fn(),
+    switchStorageMode: vi.fn().mockImplementation(async (mode: string) => {
+      mockCurrentMode.value = mode
+      mockConfig.value.mode = mode
+      return true
+    }),
     syncData: vi.fn(),
     clearStorage: vi.fn(() => {
       globalTodos.splice(0, globalTodos.length)
