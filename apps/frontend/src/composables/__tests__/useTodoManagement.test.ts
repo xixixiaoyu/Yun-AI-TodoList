@@ -111,9 +111,9 @@ describe('useTodoManagement', () => {
       })
 
       const { toggleTodo } = useTodoManagement()
-      toggleTodo(1)
+      toggleTodo('1')
 
-      expect(mockUseTodos().toggleTodo).toHaveBeenCalledWith(1)
+      expect(mockUseTodos().toggleTodo).toHaveBeenCalledWith('1')
     })
 
     it('应该正确处理删除待办事项', () => {
@@ -126,9 +126,9 @@ describe('useTodoManagement', () => {
       })
 
       const { removeTodo } = useTodoManagement()
-      removeTodo(1)
+      removeTodo('1')
 
-      expect(mockUseTodos().removeTodo).toHaveBeenCalledWith(1)
+      expect(mockUseTodos().removeTodo).toHaveBeenCalledWith('1')
     })
   })
 
@@ -217,13 +217,13 @@ describe('useTodoManagement', () => {
   })
 
   describe('建议待办事项管理', () => {
-    it('应该确认建议的待办事项', () => {
+    it('应该确认建议的待办事项', async () => {
       mockUseTodos.mockReturnValue({
         todos: { value: [] },
         addTodo: vi.fn(),
         toggleTodo: vi.fn(),
         removeTodo: vi.fn(),
-        addMultipleTodos: vi.fn().mockReturnValue([]),
+        addMultipleTodos: vi.fn().mockResolvedValue([]),
       })
 
       const { suggestedTodos, showSuggestedTodos, confirmSuggestedTodos } = useTodoManagement()
@@ -231,7 +231,7 @@ describe('useTodoManagement', () => {
       suggestedTodos.value = ['测试任务1', '测试任务2']
       showSuggestedTodos.value = true
 
-      confirmSuggestedTodos()
+      await confirmSuggestedTodos()
 
       expect(mockUseTodos().addMultipleTodos).toHaveBeenCalledWith([
         { title: '测试任务1' },
