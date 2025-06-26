@@ -6,7 +6,7 @@
     <NavigationBar />
 
     <div
-      class="flex-1 flex flex-col justify-center items-center p-4 min-h-[calc(100vh-60px)] overflow-hidden transition-all duration-300 ease-in-out pt-16 md:pt-4 md:pb-2 md:justify-start md:overflow-y-auto"
+      class="flex-1 flex flex-col justify-center items-center p-4 min-h-[calc(100vh-60px)] overflow-hidden transition-all duration-300 ease-in-out pt-16 md:pt-8 md:pb-2 md:justify-start md:overflow-y-auto"
     >
       <div class="w-full max-w-screen-xl flex flex-col justify-center px-2 md:px-4">
         <router-view @open-ai-sidebar="openAISidebar" />
