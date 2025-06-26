@@ -169,7 +169,11 @@
             <h4 class="status-title">{{ t('storageHealth') }}</h4>
             <p class="status-subtitle">{{ getHealthStatusText() }}</p>
           </div>
-          <button :disabled="isCheckingHealth" class="action-button small" @click="checkHealth">
+          <button
+            :disabled="isCheckingHealth"
+            class="action-button small primary"
+            @click="checkHealth"
+          >
             {{ isCheckingHealth ? t('checking') : t('checkHealth') }}
           </button>
         </div>
@@ -213,9 +217,9 @@ import { useI18n } from 'vue-i18n'
 import { useAuth } from '../../composables/useAuth'
 import { useStorageMode } from '../../composables/useStorageMode'
 import { useSyncManager } from '../../composables/useSyncManager'
-import LocalIcon from '../icons/LocalIcon.vue'
 import CloudIcon from '../icons/CloudIcon.vue'
 import HybridIcon from '../icons/HybridIcon.vue'
+import LocalIcon from '../icons/LocalIcon.vue'
 
 const { t } = useI18n()
 const { isAuthenticated } = useAuth()
