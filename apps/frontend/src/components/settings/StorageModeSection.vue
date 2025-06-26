@@ -29,10 +29,6 @@
     <div class="settings-content">
       <!-- 存储模式选择 -->
       <div class="setting-item">
-        <div class="setting-info">
-          <label class="setting-label">{{ t('selectStorageMode') }}</label>
-          <p class="setting-description">{{ t('selectStorageModeDesc') }}</p>
-        </div>
         <div class="setting-control">
           <div class="storage-mode-options">
             <div
@@ -153,14 +149,14 @@
 </template>
 
 <script setup lang="ts">
-import type { StorageMode, StorageConfig } from '@shared/types'
+import type { StorageConfig, StorageMode } from '@shared/types'
 import { useI18n } from 'vue-i18n'
 import { useAuth } from '../../composables/useAuth'
 import { useStorageMode } from '../../composables/useStorageMode'
 import { useSyncManager } from '../../composables/useSyncManager'
-import LocalIcon from '../icons/LocalIcon.vue'
 import CloudIcon from '../icons/CloudIcon.vue'
 import HybridIcon from '../icons/HybridIcon.vue'
+import LocalIcon from '../icons/LocalIcon.vue'
 
 const { t } = useI18n()
 const { isAuthenticated } = useAuth()

@@ -508,9 +508,7 @@
   },
 
   "storageMode": "Storage Mode",
-  "storageModeDescription": "Choose your data storage method",
-  "selectStorageMode": "Select Storage Mode",
-  "selectStorageModeDesc": "Choose the storage method that suits your needs",
+  "storageModeDescription": "Choose the storage method that suits your needs",
 
   "online": "Online",
   "healthy": "Healthy",
