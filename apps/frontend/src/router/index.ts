@@ -56,6 +56,16 @@ const router = createRouter({
         requiresGuest: true, // 只有未登录用户可以访问
       },
     },
+    {
+      path: '/forgot-password',
+      name: 'forgot-password',
+      component: () => import('../components/auth/ForgotPassword.vue'),
+      meta: {
+        title: '重置密码 - Yun AI TodoList',
+        preload: false,
+        requiresGuest: true, // 只有未登录用户可以访问
+      },
+    },
   ],
 })
 

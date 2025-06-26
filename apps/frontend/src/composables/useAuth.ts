@@ -205,6 +205,21 @@ export function useAuth() {
   }
 
   /**
+   * 忘记密码
+   */
+  const forgotPassword = async (email: string): Promise<void> => {
+    try {
+      authState.isLoading = true
+      await authApi.requestPasswordReset(email)
+    } catch (error: any) {
+      console.error('Forgot password failed:', error)
+      throw error
+    } finally {
+      authState.isLoading = false
+    }
+  }
+
+  /**
    * 用户登出
    */
   const logout = async (): Promise<void> => {
@@ -265,6 +280,7 @@ export function useAuth() {
     login,
     register,
     logout,
+    forgotPassword,
     refreshAccessToken,
     getAuthHeaders,
     initAuth,

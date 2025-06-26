@@ -57,6 +57,16 @@
     "signUp": "立即注册",
     "error": "登录失败，请检查您的邮箱和密码"
   },
+  "forgotPassword": {
+    "title": "重置密码",
+    "subtitle": "输入您的邮箱地址，我们将发送重置密码的链接",
+    "email": "邮箱地址",
+    "submit": "发送重置链接",
+    "sending": "发送中...",
+    "success": "重置链接已发送到您的邮箱，请查收",
+    "backToLogin": "记起密码了？",
+    "loginLink": "返回登录"
+  },
   "register": {
     "title": "注册",
     "subtitle": "创建您的账户，开始使用智能待办事项",

@@ -59,6 +59,16 @@
     "signUp": "Sign up now",
     "error": "Login failed, please check your email and password"
   },
+  "forgotPassword": {
+    "title": "Reset Password",
+    "subtitle": "Enter your email address and we'll send you a link to reset your password",
+    "email": "Email Address",
+    "submit": "Send Reset Link",
+    "sending": "Sending...",
+    "success": "Reset link has been sent to your email, please check your inbox",
+    "backToLogin": "Remember your password?",
+    "loginLink": "Back to Login"
+  },
   "register": {
     "title": "Register",
     "subtitle": "Create your account to start using smart todo list",
