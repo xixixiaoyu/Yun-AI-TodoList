@@ -22,7 +22,7 @@
       </div>
       <div class="section-info">
         <h3 class="section-title">{{ t('storageMode') }}</h3>
-        <p class="section-description">{{ t('storageModeDescription') }}</p>
+        <p class="section-description mb-2">{{ t('storageModeDescription') }}</p>
       </div>
     </div>
 
