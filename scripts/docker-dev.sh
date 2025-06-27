@@ -114,11 +114,35 @@ build() {
     export DOCKER_BUILDKIT=1
     export COMPOSE_DOCKER_CLI_BUILD=1
 
-    # 使用并行构建和缓存
+    # 设置网络优化环境变量
+    export ELECTRON_SKIP_BINARY_DOWNLOAD=1
+    export PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=1
+    export PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1
+
+    # 使用并行构建和缓存，增加重试机制
     log_info "使用优化构建策略..."
-    docker-compose -f docker-compose.dev.yml build \
-        --parallel \
-        --build-arg BUILDKIT_INLINE_CACHE=1
+    local max_retries=3
+    local retry_count=0
+    
+    while [ $retry_count -lt $max_retries ]; do
+        if docker-compose -f docker-compose.dev.yml build \
+            --parallel \
+            --build-arg BUILDKIT_INLINE_CACHE=1; then
+            log_success "镜像构建成功"
+            return 0
+        else
+            retry_count=$((retry_count + 1))
+            log_warning "构建失败，重试 $retry_count/$max_retries..."
+            if [ $retry_count -lt $max_retries ]; then
+                log_info "清理构建缓存后重试..."
+                docker builder prune -f
+                sleep 5
+            fi
+        fi
+    done
+    
+    log_error "构建失败，已达到最大重试次数"
+    return 1
 }
 
 # 启动服务

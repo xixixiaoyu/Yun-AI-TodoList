@@ -31,13 +31,15 @@ RUN apk update && apk add --no-cache \
   git \
   bash \
   dumb-init \
-  && npm config set registry https://registry.npmjs.org \
+  && npm config set registry https://registry.npmmirror.com \
   && npm install -g pnpm@9.0.0 nodemon \
-  && pnpm config set registry https://registry.npmjs.org \
+  && pnpm config set registry https://registry.npmmirror.com \
   && pnpm config set network-timeout 600000 \
-  && pnpm config set fetch-retries 5 \
+  && pnpm config set fetch-retries 10 \
   && pnpm config set fetch-retry-mintimeout 20000 \
-  && pnpm config set fetch-retry-maxtimeout 120000
+  && pnpm config set fetch-retry-maxtimeout 120000 \
+  && pnpm config set electron_mirror https://npmmirror.com/mirrors/electron/ \
+  && pnpm config set electron_custom_dir "{{ version }}"
 
 # 创建非 root 用户（开发环境）
 RUN addgroup -g 1001 -S nodejs && \
@@ -50,6 +52,11 @@ FROM dev-base AS frontend-dev
 
 # 设置环境变量
 ENV VITE_API_BASE_URL=http://localhost:3000/api/v1
+ENV ELECTRON_SKIP_BINARY_DOWNLOAD=1
+ENV ELECTRON_MIRROR=https://npmmirror.com/mirrors/electron/
+ENV ELECTRON_CUSTOM_DIR="{{ version }}"
+ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=1
+ENV PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1
 
 # 复制 workspace 配置（优化缓存层）
 COPY --chown=developer:nodejs package.json pnpm-lock.yaml pnpm-workspace.yaml ./
@@ -87,6 +94,9 @@ FROM dev-base AS backend-dev
 
 # 设置环境变量
 ENV PORT=3000
+ENV ELECTRON_SKIP_BINARY_DOWNLOAD=1
+ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=1
+ENV PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1
 
 # 复制 workspace 配置（优化缓存层）
 COPY --chown=developer:nodejs package.json pnpm-lock.yaml pnpm-workspace.yaml ./
