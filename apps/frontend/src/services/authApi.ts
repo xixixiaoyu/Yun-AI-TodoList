@@ -16,7 +16,7 @@ import type {
  * 认证 API 类
  */
 class AuthApi {
-  private readonly baseEndpoint = '/api/auth'
+  private readonly baseEndpoint = '/api/v1/auth'
 
   /**
    * 用户登录

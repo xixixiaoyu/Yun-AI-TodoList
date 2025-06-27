@@ -74,7 +74,7 @@ const DEFAULT_SYNC_CONFIG: SyncConfig = {
  * 数据同步服务类
  */
 class SyncService {
-  private readonly baseEndpoint = '/api/todos'
+  private readonly baseEndpoint = '/api/v1/todos'
   private config: SyncConfig = DEFAULT_SYNC_CONFIG
   private isOnline = navigator.onLine
   private syncInProgress = false
@@ -345,4 +345,4 @@ class SyncService {
 export const syncService = new SyncService()
 
 // 导出类型
-export type { MergeStrategy, SyncConfig, SyncResult }
+export type { MergeStrategy }

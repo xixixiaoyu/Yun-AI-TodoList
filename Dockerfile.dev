@@ -61,6 +61,11 @@ ENV PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1
 # 复制 workspace 配置（优化缓存层）
 COPY --chown=developer:nodejs package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 
+# 创建应用目录并设置权限
+RUN mkdir -p /app/apps/frontend/node_modules && \
+    chown -R developer:nodejs /app/apps && \
+    chmod -R 755 /app/apps
+
 # 复制前端相关的 package.json（分层复制优化缓存）
 COPY --chown=developer:nodejs apps/frontend/package.json ./apps/frontend/
 COPY --chown=developer:nodejs packages/shared/package.json ./packages/shared/
@@ -68,7 +73,7 @@ COPY --chown=developer:nodejs tools/eslint-config/package.json ./tools/eslint-co
 COPY --chown=developer:nodejs tools/typescript-config/package.json ./tools/typescript-config/
 
 # 复制 TypeScript 配置文件
-COPY --chown=developer:nodejs tools/typescript-config/*.json ./tools/typescript-config/
+COPY --chown=developer:nodejs tools/typescript-config/ ./tools/typescript-config/
 
 # 复制前端配置文件
 COPY --chown=developer:nodejs apps/frontend/tsconfig*.json ./apps/frontend/
@@ -82,7 +87,24 @@ COPY --chown=developer:nodejs apps/backend/prisma ./apps/backend/prisma
 
 # 安装依赖（优化版本）
 RUN --mount=type=cache,target=/root/.local/share/pnpm/store,uid=1001,gid=1001 \
-    pnpm install --frozen-lockfile --prefer-offline
+    pnpm install --frozen-lockfile --prefer-offline && \
+    chown -R developer:nodejs /app/node_modules && \
+    chmod -R 755 /app/node_modules
+
+# 安装 sudo 并配置无密码权限
+RUN apk add --no-cache sudo && \
+    echo 'developer ALL=(ALL) NOPASSWD: ALL' >> /etc/sudoers
+
+# 创建启动脚本
+RUN echo '#!/bin/bash' > /app/start-frontend.sh && \
+    echo 'set -e' >> /app/start-frontend.sh && \
+    echo 'echo "Fixing permissions..."' >> /app/start-frontend.sh && \
+    echo 'sudo chown -R developer:nodejs /app/apps/frontend/node_modules || true' >> /app/start-frontend.sh && \
+    echo 'sudo chmod -R 755 /app/apps/frontend/node_modules || true' >> /app/start-frontend.sh && \
+    echo 'echo "Starting frontend development server..."' >> /app/start-frontend.sh && \
+    echo 'exec pnpm --filter frontend dev --host 0.0.0.0' >> /app/start-frontend.sh && \
+    chmod +x /app/start-frontend.sh && \
+    chown developer:nodejs /app/start-frontend.sh
 
 # 切换到非 root 用户
 USER developer
@@ -95,7 +117,7 @@ HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
   CMD curl -f http://localhost:5173 || exit 1
 
 # 启动开发服务器（源代码通过 volume 挂载）
-CMD ["pnpm", "--filter", "frontend", "dev", "--host", "0.0.0.0"]
+CMD ["/app/start-frontend.sh"]
 
 # ===========================================
 # 后端开发环境 - 优化版本

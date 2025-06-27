@@ -10,7 +10,7 @@ let isRefreshing = false
 let refreshPromise: Promise<string> | null = null
 
 // API 基础配置
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000'
+const API_BASE_URL = (import.meta.env?.VITE_API_BASE_URL as string) || 'http://localhost:3000'
 const API_TIMEOUT = 10000 // 10秒超时
 
 // 请求重试配置
@@ -43,7 +43,8 @@ const isNetworkError = (error: {
     !error.response &&
     (error.code === 'NETWORK_ERROR' ||
       error.code === 'ECONNABORTED' ||
-      error.message?.includes('Network Error'))
+      error.message?.includes('Network Error') ||
+      false)
   )
 }
 
@@ -128,10 +129,11 @@ class HttpClient {
         }
       }
 
-      const message = data?.message || data?.error || `HTTP ${response.status}`
-      const code = data?.code || response.status.toString()
+      const errorData = data as any
+      const message = errorData?.message || errorData?.error || `HTTP ${response.status}`
+      const code = errorData?.code || response.status.toString()
 
-      throw new ApiError(message, response.status, code, data)
+      throw new ApiError(message, response.status, code, errorData as Record<string, unknown>)
     }
 
     return data
@@ -178,7 +180,7 @@ class HttpClient {
     }
 
     try {
-      const response = await fetch(`${this.baseURL}/api/auth/refresh`, {
+      const response = await fetch(`${this.baseURL}/api/v1/auth/refresh`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -244,10 +246,12 @@ class HttpClient {
     } catch (error: unknown) {
       clearTimeout(timeoutId)
 
+      const errorObj = error as any
+
       // 检查是否需要重试
       const shouldRetry =
         retryCount < RETRY_CONFIG.maxRetries &&
-        (isNetworkError(error) ||
+        (isNetworkError(errorObj) ||
           (error instanceof ApiError && RETRY_CONFIG.retryableStatuses.includes(error.status || 0)))
 
       if (shouldRetry) {
@@ -257,11 +261,11 @@ class HttpClient {
       }
 
       // 处理特定错误
-      if (error.name === 'AbortError') {
+      if (errorObj?.name === 'AbortError') {
         throw new ApiError('Request timeout', 408, 'TIMEOUT')
       }
 
-      if (isNetworkError(error)) {
+      if (isNetworkError(errorObj)) {
         throw new ApiError('Network error, please check your connection', 0, 'NETWORK_ERROR')
       }
 
@@ -286,7 +290,7 @@ class HttpClient {
     return this.executeRequest(url.toString(), {
       method: 'GET',
       headers: this.buildHeaders(),
-    })
+    }) as Promise<T>
   }
 
   /**
@@ -303,7 +307,7 @@ class HttpClient {
       method: 'POST',
       headers: this.buildHeaders(customHeaders),
       body: data ? JSON.stringify(data) : undefined,
-    })
+    }) as Promise<T>
   }
 
   /**
@@ -320,7 +324,7 @@ class HttpClient {
       method: 'PUT',
       headers: this.buildHeaders(customHeaders),
       body: data ? JSON.stringify(data) : undefined,
-    })
+    }) as Promise<T>
   }
 
   /**
@@ -337,7 +341,7 @@ class HttpClient {
       method: 'PATCH',
       headers: this.buildHeaders(customHeaders),
       body: data ? JSON.stringify(data) : undefined,
-    })
+    }) as Promise<T>
   }
 
   /**
@@ -349,7 +353,7 @@ class HttpClient {
     return this.executeRequest(url.toString(), {
       method: 'DELETE',
       headers: this.buildHeaders(),
-    })
+    }) as Promise<T>
   }
 }
 

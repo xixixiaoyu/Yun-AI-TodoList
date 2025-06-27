@@ -152,9 +152,10 @@ quality-report.json
 scripts/
 !scripts/init-db.sql
 
-# Tools (exclude all except package.json)
+# Tools (exclude all except package.json and typescript config)
 tools/
 !tools/*/package.json
+!tools/typescript-config/*.json
 
 # Workers
 workers-site/
