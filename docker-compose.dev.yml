@@ -58,6 +58,11 @@ services:
       NODE_ENV: development
       PORT: 3000
       DATABASE_URL: postgresql://postgres:postgres123@postgres-dev:5432/yun_ai_todolist_dev
+      DATABASE_HOST: postgres-dev
+      DATABASE_PORT: 5432
+      DATABASE_NAME: yun_ai_todolist_dev
+      DATABASE_USER: postgres
+      DATABASE_PASSWORD: postgres123
       REDIS_HOST: redis-dev
       REDIS_PORT: 6379
       JWT_SECRET: dev-jwt-secret-key
@@ -77,7 +82,6 @@ services:
       - ./packages:/app/packages:cached
       # 挂载 node_modules 以提高性能
       - backend_dev_node_modules:/app/node_modules
-      - backend_dev_dist:/app/apps/backend/dist
       # 挂载日志目录
       - ./apps/backend/logs:/app/apps/backend/logs
     ports:
@@ -179,5 +183,3 @@ volumes:
     name: yun-todolist-backend-dev-node-modules
   frontend_dev_node_modules:
     name: yun-todolist-frontend-dev-node-modules
-  backend_dev_dist:
-    name: yun-todolist-backend-dev-dist

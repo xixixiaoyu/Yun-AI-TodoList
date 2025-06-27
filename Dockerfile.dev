@@ -67,6 +67,16 @@ COPY --chown=developer:nodejs packages/shared/package.json ./packages/shared/
 COPY --chown=developer:nodejs tools/eslint-config/package.json ./tools/eslint-config/
 COPY --chown=developer:nodejs tools/typescript-config/package.json ./tools/typescript-config/
 
+# 复制 TypeScript 配置文件
+COPY --chown=developer:nodejs tools/typescript-config/*.json ./tools/typescript-config/
+
+# 复制前端配置文件
+COPY --chown=developer:nodejs apps/frontend/tsconfig*.json ./apps/frontend/
+COPY --chown=developer:nodejs apps/frontend/vite*.config.ts ./apps/frontend/
+COPY --chown=developer:nodejs apps/frontend/uno.config.ts ./apps/frontend/
+COPY --chown=developer:nodejs apps/frontend/eslint.config.js ./apps/frontend/
+COPY --chown=developer:nodejs tsconfig.json ./
+
 # 复制 Prisma schema（用于类型生成）
 COPY --chown=developer:nodejs apps/backend/prisma ./apps/backend/prisma
 
@@ -106,6 +116,11 @@ COPY --chown=developer:nodejs apps/backend/package.json ./apps/backend/
 COPY --chown=developer:nodejs packages/shared/package.json ./packages/shared/
 COPY --chown=developer:nodejs tools/eslint-config/package.json ./tools/eslint-config/
 COPY --chown=developer:nodejs tools/typescript-config/package.json ./tools/typescript-config/
+
+# 复制后端配置文件
+COPY --chown=developer:nodejs apps/backend/tsconfig.json ./apps/backend/
+COPY --chown=developer:nodejs apps/backend/nest-cli.json ./apps/backend/
+COPY --chown=developer:nodejs tsconfig.json ./
 
 # 复制 Prisma schema
 COPY --chown=developer:nodejs apps/backend/prisma ./apps/backend/prisma
