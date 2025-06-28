@@ -401,8 +401,8 @@ onUnmounted(() => {
 
 .todo-grid {
   @apply overflow-y-auto flex h-40vh max-h-125 flex-col mb-4 rounded;
-  gap: 0.5rem;
-  padding: 0.5rem 0.5rem 0.5rem 0;
+  gap: 0.75rem;
+  padding: 0.75rem 0.75rem 0.75rem 0;
 }
 
 /* 拖拽容器样式 */

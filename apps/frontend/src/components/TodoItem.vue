@@ -320,9 +320,10 @@ onErrorCaptured(handleError)
 
 <style scoped>
 .card-todo {
-  @apply font-sans flex items-center w-full box-border gap-2 will-change-transform;
-  padding: 0.7rem;
+  @apply font-sans flex items-center w-full box-border gap-3 will-change-transform;
+  padding: 1rem 1.2rem;
   margin-bottom: 0.75rem;
+  min-height: 4rem;
   background-color: var(--input-bg-color);
   border: 1px solid var(--input-border-color);
   border-radius: 12px;
@@ -610,7 +611,8 @@ onErrorCaptured(handleError)
 @media (max-width: 768px) {
   .card-todo {
     @apply flex-row items-center;
-    padding: 0.8rem 0.7rem;
+    padding: 1rem 0.9rem;
+    min-height: 4.5rem;
   }
 
   .todo-content {

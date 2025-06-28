@@ -16,6 +16,10 @@
       {{ t('settings') }}
     </button>
 
+    <button class="nav-button" @click="toggleLanguage">
+      {{ locale === 'zh' ? 'EN' : '中文' }}
+    </button>
+
     <!-- 认证状态按钮 -->
     <div v-if="!isAuthenticated" class="auth-buttons">
       <button class="nav-button auth-button" @click="router.push('/login')">
@@ -50,10 +54,6 @@
         </button>
       </div>
     </div>
-
-    <button class="nav-button" @click="toggleLanguage">
-      {{ locale === 'zh' ? 'EN' : '中文' }}
-    </button>
   </div>
 </template>
 
