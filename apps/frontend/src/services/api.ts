@@ -10,7 +10,8 @@ let isRefreshing = false
 let refreshPromise: Promise<string> | null = null
 
 // API 基础配置
-const API_BASE_URL = (import.meta.env?.VITE_API_BASE_URL as string) || 'http://localhost:3000'
+const API_BASE_URL =
+  (import.meta.env && (import.meta.env.VITE_API_BASE_URL as string)) || 'http://localhost:3000'
 const API_TIMEOUT = 10000 // 10秒超时
 
 // 请求重试配置
@@ -193,14 +194,15 @@ class HttpClient {
       }
 
       const data = await response.json()
-      const newAccessToken = data.accessToken
+      const newAccessToken = data.data?.accessToken || data.accessToken
 
       // 更新存储的令牌
       const storage = localStorage.getItem('auth_access_token') ? localStorage : sessionStorage
       storage.setItem('auth_access_token', newAccessToken)
 
-      if (data.refreshToken) {
-        storage.setItem('auth_refresh_token', data.refreshToken)
+      const newRefreshToken = data.data?.refreshToken || data.refreshToken
+      if (newRefreshToken) {
+        storage.setItem('auth_refresh_token', newRefreshToken)
       }
 
       console.log('Token refreshed successfully')

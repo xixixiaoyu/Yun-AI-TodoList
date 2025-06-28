@@ -1,9 +1,9 @@
 <template>
   <Teleport to="body">
-    <div v-if="notifications.length > 0" class="notification-container" :class="positionClass">
+    <div v-if="typedNotifications.length > 0" class="notification-container" :class="positionClass">
       <TransitionGroup name="notification" tag="div" class="notification-list">
         <div
-          v-for="notification in notifications"
+          v-for="notification in typedNotifications"
           :key="notification.id"
           class="notification-item"
           :class="notificationClass(notification)"
@@ -64,6 +64,10 @@ import { useNotifications, type Notification } from '../../composables/useNotifi
 
 const { notifications, removeNotification, config } = useNotifications()
 
+// 类型断言以解决 readonly 类型问题
+type ReadonlyNotification = Readonly<Notification>
+const typedNotifications = notifications as ReadonlyNotification[]
+
 // 计算属性
 const positionClass = computed(() => {
   const position = config.position
@@ -115,8 +119,9 @@ defineOptions({
 
 <style scoped>
 .notification-container {
-  @apply fixed z-50 pointer-events-none;
+  @apply fixed pointer-events-none;
   @apply flex flex-col gap-3 p-4;
+  z-index: 10002;
 }
 
 .notification-list {

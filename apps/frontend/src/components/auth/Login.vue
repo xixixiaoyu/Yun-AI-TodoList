@@ -206,14 +206,17 @@ const handleSubmit = async () => {
     })
 
     // 显示成功通知
-    success('登录成功', '欢迎回来！')
+    success('登录成功', '欢迎回来！即将跳转到主页面。')
 
-    // 登录成功，重定向到目标页面或首页
-    const redirectPath = (route.query.redirect as string) || '/'
-    await router.push(redirectPath)
+    // 延迟一下让用户看到成功提示
+    setTimeout(async () => {
+      // 登录成功，重定向到目标页面或首页
+      const redirectPath = (route.query.redirect as string) || '/'
+      await router.push(redirectPath)
+    }, 1500)
   } catch (error) {
     // 使用通知系统显示错误
-    authError(error)
+    authError(error as { code?: string; message?: string })
     submitError.value = error instanceof Error ? error.message : t('login.error')
   }
 }

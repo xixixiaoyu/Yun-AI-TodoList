@@ -23,17 +23,23 @@ class AuthApi {
    */
   async login(credentials: LoginDto): Promise<AuthResponse> {
     try {
-      const response = await httpClient.post<AuthResponse>(
+      const response = await httpClient.post<{ success: boolean; data: AuthResponse }>(
         `${this.baseEndpoint}/login`,
         credentials
       )
 
       // 验证响应数据结构
-      if (!response.user || !response.accessToken || !response.refreshToken) {
+      if (
+        !response.success ||
+        !response.data ||
+        !response.data.user ||
+        !response.data.accessToken ||
+        !response.data.refreshToken
+      ) {
         throw new ApiError('Invalid response format from server', 500, 'INVALID_RESPONSE')
       }
 
-      return response
+      return response.data
     } catch (error) {
       if (error instanceof ApiError) {
         // 处理特定的认证错误
@@ -57,17 +63,23 @@ class AuthApi {
    */
   async register(userData: CreateUserDto): Promise<AuthResponse> {
     try {
-      const response = await httpClient.post<AuthResponse>(
+      const response = await httpClient.post<{ success: boolean; data: AuthResponse }>(
         `${this.baseEndpoint}/register`,
         userData
       )
 
       // 验证响应数据结构
-      if (!response.user || !response.accessToken || !response.refreshToken) {
+      if (
+        !response.success ||
+        !response.data ||
+        !response.data.user ||
+        !response.data.accessToken ||
+        !response.data.refreshToken
+      ) {
         throw new ApiError('Invalid response format from server', 500, 'INVALID_RESPONSE')
       }
 
-      return response
+      return response.data
     } catch (error) {
       if (error instanceof ApiError) {
         // 处理特定的注册错误
@@ -95,16 +107,25 @@ class AuthApi {
    */
   async refreshToken(refreshToken: string): Promise<AuthResponse> {
     try {
-      const response = await httpClient.post<AuthResponse>(`${this.baseEndpoint}/refresh`, {
-        refreshToken,
-      } as RefreshTokenDto)
+      const response = await httpClient.post<{ success: boolean; data: AuthResponse }>(
+        `${this.baseEndpoint}/refresh`,
+        {
+          refreshToken,
+        } as RefreshTokenDto
+      )
 
       // 验证响应数据结构
-      if (!response.user || !response.accessToken || !response.refreshToken) {
+      if (
+        !response.success ||
+        !response.data ||
+        !response.data.user ||
+        !response.data.accessToken ||
+        !response.data.refreshToken
+      ) {
         throw new ApiError('Invalid response format from server', 500, 'INVALID_RESPONSE')
       }
 
-      return response
+      return response.data
     } catch (error) {
       if (error instanceof ApiError) {
         // 处理令牌刷新错误

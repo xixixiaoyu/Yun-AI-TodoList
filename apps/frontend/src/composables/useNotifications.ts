@@ -182,12 +182,12 @@ export function useNotifications() {
   /**
    * 显示认证相关的错误
    */
-  const authError = (error: { code?: string; message?: string }): string => {
+  const authError = (authErr: { code?: string; message?: string }): string => {
     let title = '认证失败'
     let message = '请检查您的登录信息'
 
-    if (error?.code) {
-      switch (error.code) {
+    if (authErr?.code) {
+      switch (authErr.code) {
         case 'INVALID_CREDENTIALS':
           title = '登录失败'
           message = '邮箱或密码错误'
@@ -213,17 +213,15 @@ export function useNotifications() {
           message = '请重新登录'
           break
         default:
-          message = error.message || '认证过程中发生错误'
+          message = authErr.message || '认证过程中发生错误'
       }
-    } else if (error?.message) {
-      message = error.message
+    } else if (authErr?.message) {
+      message = authErr.message
     }
 
-    return error({
-      title,
-      message,
+    return error(title, message, {
       actions:
-        error.code === 'REFRESH_TOKEN_EXPIRED'
+        authErr?.code === 'REFRESH_TOKEN_EXPIRED'
           ? [
               {
                 label: '重新登录',
@@ -239,14 +237,14 @@ export function useNotifications() {
   }
 
   /**
-   * 显示同步相关的通知
+   * 同步成功通知
    */
   const syncSuccess = (stats: {
     uploaded?: number
     downloaded?: number
     conflicts?: number
   }): string => {
-    const { uploaded, downloaded, conflicts } = stats
+    const { uploaded = 0, downloaded = 0, conflicts = 0 } = stats
     let message = '数据同步完成'
 
     if (uploaded > 0 || downloaded > 0) {
@@ -263,11 +261,11 @@ export function useNotifications() {
     return success('同步成功', message)
   }
 
-  const syncError = (error: { message?: string }): string => {
+  const syncError = (syncErr: { message?: string }): string => {
     let message = '数据同步失败'
 
-    if (error?.message) {
-      message = error.message
+    if (syncErr?.message) {
+      message = syncErr.message
     }
 
     return error('同步失败', message, {

@@ -148,24 +148,6 @@
           </div>
         </div>
 
-        <!-- 服务条款 -->
-        <div class="form-group">
-          <label class="checkbox-wrapper">
-            <input v-model="formData.acceptTerms" type="checkbox" class="checkbox-input" required />
-            <span class="checkbox-custom"></span>
-            <span class="checkbox-label">
-              {{ t('register.acceptTerms') }}
-              <a href="/terms" target="_blank" class="terms-link">
-                {{ t('register.termsOfService') }}
-              </a>
-              {{ t('register.and') }}
-              <a href="/privacy" target="_blank" class="terms-link">
-                {{ t('register.privacyPolicy') }}
-              </a>
-            </span>
-          </label>
-        </div>
-
         <!-- 提交按钮 -->
         <button
           type="submit"
@@ -226,7 +208,6 @@ const formData = ref({
   email: '',
   password: '',
   confirmPassword: '',
-  acceptTerms: false,
 })
 
 const errors = ref({
@@ -280,7 +261,6 @@ const isFormValid = computed(() => {
     formData.value.email &&
     formData.value.password &&
     formData.value.confirmPassword &&
-    formData.value.acceptTerms &&
     !errors.value.username &&
     !errors.value.email &&
     !errors.value.password &&
@@ -363,13 +343,16 @@ const handleSubmit = async () => {
     })
 
     // 显示成功通知
-    success('注册成功', '欢迎加入！您已自动登录。')
+    success('注册成功', '欢迎加入！您已自动登录，即将跳转到首页。')
 
-    // 注册成功，重定向到首页（注册后自动登录）
-    await router.push('/')
+    // 延迟一下让用户看到成功提示
+    setTimeout(async () => {
+      // 注册成功，重定向到首页（注册后自动登录）
+      await router.push('/')
+    }, 1500)
   } catch (error) {
     // 使用通知系统显示错误
-    authError(error)
+    authError(error as { code?: string; message?: string })
     submitError.value = error instanceof Error ? error.message : t('register.error')
   }
 }
