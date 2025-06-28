@@ -156,14 +156,14 @@ defineOptions({
 }
 
 .settings-content {
-  @apply ml-11;
+  /* @apply ml-11; */
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 0.75rem;
+  grid-template-columns: 1fr;
+  gap: 0.5rem;
 }
 
 .setting-item {
-  @apply flex items-center justify-between gap-3 p-3 rounded-lg border transition-all duration-200;
+  @apply flex items-center justify-between gap-2 p-2.5 rounded-lg border transition-all duration-200;
   background: var(--ai-accent-color);
   border-color: var(--ai-message-border);
 }
@@ -181,10 +181,12 @@ defineOptions({
 
 .setting-label {
   @apply block text-sm font-medium text-text mb-0.5;
+  line-height: 1.3;
 }
 
 .setting-description {
-  @apply text-xs text-text-secondary leading-snug;
+  @apply text-xs text-text-secondary leading-tight;
+  line-height: 1.2;
 }
 
 .setting-control {

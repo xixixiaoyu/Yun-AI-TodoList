@@ -312,23 +312,22 @@ defineOptions({
   min-height: 320px;
 }
 
-/* 第二行：AI分析配置 - 独立全宽 */
+/* 第二行：语言、AI分析、存储并列展示 */
 .settings-card:nth-child(4) {
-  grid-column: 1 / -1;
+  grid-column: span 1;
 }
 
-/* 第三行：系统提示词 - 独立全宽 */
 .settings-card:nth-child(5) {
-  grid-column: 1 / -1;
+  grid-column: span 1;
 }
 
-/* 第四行：存储配置并列展示 */
 .settings-card:nth-child(6) {
   grid-column: span 1;
 }
 
+/* 第三行：系统提示词独占一行 */
 .settings-card:nth-child(7) {
-  grid-column: span 1;
+  grid-column: 1 / -1;
 }
 
 .settings-card::before {

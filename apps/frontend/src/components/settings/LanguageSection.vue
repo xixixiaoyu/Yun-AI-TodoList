@@ -10,7 +10,7 @@
       </div>
     </div>
 
-    <div class="flex-1 space-y-2">
+    <div class="flex-1 space-y-2 pt-2">
       <div
         v-for="option in languageOptions"
         :key="option.value"
