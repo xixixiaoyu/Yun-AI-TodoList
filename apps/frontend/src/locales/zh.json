@@ -579,6 +579,9 @@
   "checkHealth": "检查健康状态",
 
   "storage": {
+    "title": "存储设置",
+    "description": "管理您的数据存储方式和同步设置",
+    "selectMode": "选择存储模式",
     "networkUnavailable": "网络连接不可用",
     "networkRequestFailed": "网络请求失败",
     "todoNotFound": "Todo 不存在",

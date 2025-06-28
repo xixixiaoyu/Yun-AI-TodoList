@@ -540,6 +540,9 @@
   "checkHealth": "Check Health",
 
   "storage": {
+    "title": "Storage Settings",
+    "description": "Manage your data storage method and sync settings",
+    "selectMode": "Select Storage Mode",
     "networkUnavailable": "Network unavailable",
     "networkRequestFailed": "Network request failed",
     "todoNotFound": "Todo not found",

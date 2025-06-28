@@ -50,29 +50,25 @@
           <ThemeSection />
         </div>
 
-        <div class="settings-card settings-card-language" data-category="core">
+        <!-- 第二行：语言、AI分析、存储并排展示 -->
+        <div class="settings-card settings-card-language" data-category="featured">
           <LanguageSection />
         </div>
 
-        <!-- 第二行：高级配置并列展示 -->
-        <div class="settings-card settings-card-ai" data-category="advanced">
+        <div class="settings-card settings-card-ai" data-category="featured">
           <AIAnalysisSection />
         </div>
 
-        <div class="settings-card settings-card-prompts" data-category="advanced">
-          <SystemPromptsSection />
+        <div class="settings-card settings-card-storage" data-category="featured">
+          <StorageSection />
         </div>
 
-        <!-- 第三行：存储配置移到最后 -->
+        <!-- 第三行：系统提示词 -->
         <div
-          class="settings-card settings-card-large settings-card-storage"
-          data-category="storage"
+          class="settings-card settings-card-prompts settings-card-full"
+          data-category="advanced"
         >
-          <StorageModeSection />
-        </div>
-
-        <div class="settings-card settings-card-large settings-card-status" data-category="storage">
-          <StorageStatusSection />
+          <SystemPromptsSection />
         </div>
       </div>
     </div>
@@ -100,8 +96,7 @@ import DataMigrationWizard from './settings/DataMigrationWizard.vue'
 import LanguageSection from './settings/LanguageSection.vue'
 import ModelSelectionSection from './settings/ModelSelectionSection.vue'
 import SettingsToast from './settings/SettingsToast.vue'
-import StorageModeSection from './settings/StorageModeSection.vue'
-import StorageStatusSection from './settings/StorageStatusSection.vue'
+import StorageSection from './settings/StorageSection.vue'
 import SystemPromptsSection from './settings/SystemPromptsSection.vue'
 import ThemeSection from './settings/ThemeSection.vue'
 
@@ -277,9 +272,14 @@ defineOptions({
 /* 设置网格 */
 .settings-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  grid-template-columns: repeat(3, 1fr);
   gap: 2rem;
   width: 100%;
+}
+
+/* 系统提示词卡片占满整行 */
+.settings-card-full {
+  grid-column: 1 / -1;
 }
 
 /* 设置卡片基础样式 */
@@ -416,6 +416,10 @@ defineOptions({
   border-color: rgba(168, 85, 247, 0.2);
 }
 
+.settings-card-full {
+  grid-column: 1 / -1;
+}
+
 /* 背景装饰 */
 .settings-bg-decoration {
   position: absolute;
@@ -483,16 +487,8 @@ defineOptions({
     padding: 2rem;
   }
 
-  /* AI分析和系统提示词在中等屏幕上保持全宽 */
-  .settings-card:nth-child(4),
-  .settings-card:nth-child(5) {
+  .settings-card-full {
     grid-column: 1 / -1;
-  }
-
-  /* 存储配置在中等屏幕上并列 */
-  .settings-card:nth-child(6),
-  .settings-card:nth-child(7) {
-    grid-column: span 1;
   }
 
   .settings-container {
@@ -524,10 +520,6 @@ defineOptions({
   .settings-card {
     min-height: 200px;
     padding: 1.5rem;
-  }
-
-  .settings-card-large {
-    grid-column: span 1;
   }
 
   .settings-container {
