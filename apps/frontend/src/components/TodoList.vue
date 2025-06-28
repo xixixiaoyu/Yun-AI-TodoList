@@ -11,11 +11,8 @@
       <LoadingOverlay :show="isLoading" :message="t('sorting')" />
 
       <TodoListHeader
-        :theme-icon="themeIcon"
-        :theme-tooltip="themeTooltip"
         :show-charts="showCharts"
         :show-search="showSearch"
-        @toggle-theme="toggleTheme"
         @toggle-charts="toggleCharts"
         @toggle-search="toggleSearch"
         @open-ai-sidebar="$emit('openAiSidebar')"
@@ -206,9 +203,6 @@ const {
   showCharts,
   showSearch,
   isSmallScreen,
-  themeIcon,
-  themeTooltip,
-  toggleTheme,
   toggleCharts,
   toggleSearch,
   closeCharts,

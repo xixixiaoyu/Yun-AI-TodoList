@@ -50,6 +50,10 @@
           <ThemeSection />
         </div>
 
+        <div class="settings-card settings-card-language" data-category="core">
+          <LanguageSection />
+        </div>
+
         <!-- 第二行：高级配置并列展示 -->
         <div class="settings-card settings-card-ai" data-category="advanced">
           <AIAnalysisSection />
@@ -93,6 +97,7 @@ import { useStorageMode } from '../composables/useStorageMode'
 import AIAnalysisSection from './settings/AIAnalysisSection.vue'
 import ApiKeySection from './settings/ApiKeySection.vue'
 import DataMigrationWizard from './settings/DataMigrationWizard.vue'
+import LanguageSection from './settings/LanguageSection.vue'
 import ModelSelectionSection from './settings/ModelSelectionSection.vue'
 import SettingsToast from './settings/SettingsToast.vue'
 import StorageModeSection from './settings/StorageModeSection.vue'
@@ -384,6 +389,11 @@ defineOptions({
 .settings-card-accent {
   background: linear-gradient(135deg, rgba(245, 158, 11, 0.1) 0%, rgba(255, 255, 255, 0.8) 100%);
   border-color: rgba(245, 158, 11, 0.2);
+}
+
+.settings-card-language {
+  background: linear-gradient(135deg, rgba(34, 197, 94, 0.1) 0%, rgba(255, 255, 255, 0.8) 100%);
+  border-color: rgba(34, 197, 94, 0.2);
 }
 
 .settings-card-storage {

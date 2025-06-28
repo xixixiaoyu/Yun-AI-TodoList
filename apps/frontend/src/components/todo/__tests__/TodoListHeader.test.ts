@@ -17,8 +17,6 @@ const globalConfig = {
 
 describe('TodoListHeader', () => {
   const defaultProps = {
-    themeIcon: 'sun',
-    themeTooltip: '切换到深色模式',
     showCharts: false,
     showSearch: false,
   }
@@ -30,16 +28,14 @@ describe('TodoListHeader', () => {
     })
 
     const buttons = wrapper.findAll('.icon-button')
-    expect(buttons).toHaveLength(4)
+    expect(buttons).toHaveLength(3)
 
     expect(wrapper.find('.ai-assistant-button').exists()).toBe(true)
     expect(wrapper.find('.search-button').exists()).toBe(true)
-    expect(wrapper.find('.theme-toggle').exists()).toBe(true)
     expect(wrapper.find('.charts-button').exists()).toBe(true)
 
     expect(wrapper.find('.ai-assistant-button .button-icon').exists()).toBe(true)
     expect(wrapper.find('.search-button .button-icon').exists()).toBe(true)
-    expect(wrapper.find('.theme-toggle .button-icon').exists()).toBe(true)
     expect(wrapper.find('.charts-button .button-icon').exists()).toBe(true)
 
     expect(wrapper.find('.button-text').exists()).toBe(false)
@@ -63,11 +59,11 @@ describe('TodoListHeader', () => {
       global: globalConfig,
     })
 
-    await wrapper.find('.theme-toggle').trigger('click')
-    expect(wrapper.emitted('toggleTheme')).toHaveLength(1)
-
     await wrapper.find('.charts-button').trigger('click')
     expect(wrapper.emitted('toggleCharts')).toHaveLength(1)
+
+    await wrapper.find('.search-button').trigger('click')
+    expect(wrapper.emitted('toggleSearch')).toHaveLength(1)
   })
 
   it('应该显示正确的工具提示', () => {
@@ -76,43 +72,32 @@ describe('TodoListHeader', () => {
       global: globalConfig,
     })
 
-    const themeButton = wrapper.find('.theme-toggle')
     const chartsButton = wrapper.find('.charts-button')
-
-    expect(themeButton.attributes('title')).toContain('切换到深色模式')
-    expect(themeButton.attributes('title')).toContain('Ctrl+T')
 
     expect(chartsButton.attributes('title')).toContain('打开统计图表')
     expect(chartsButton.attributes('title')).toContain('Ctrl+S')
   })
 
-  it('应该根据不同主题图标显示不同的 SVG', () => {
-    const sunWrapper = mount(TodoListHeader, {
-      props: { ...defaultProps, themeIcon: 'sun' },
+  it('应该为按钮显示正确的图标', () => {
+    const wrapper = mount(TodoListHeader, {
+      props: defaultProps,
       global: globalConfig,
     })
-    const sunSvg = sunWrapper.find('.theme-toggle svg')
-    expect(sunSvg.exists()).toBe(true)
-    expect(sunSvg.attributes('width')).toBe('22')
-    expect(sunSvg.attributes('height')).toBe('22')
 
-    const moonWrapper = mount(TodoListHeader, {
-      props: { ...defaultProps, themeIcon: 'moon' },
-      global: globalConfig,
-    })
-    const moonSvg = moonWrapper.find('.theme-toggle svg')
-    expect(moonSvg.exists()).toBe(true)
-    expect(moonSvg.attributes('width')).toBe('22')
-    expect(moonSvg.attributes('height')).toBe('22')
+    const aiButton = wrapper.find('.ai-assistant-button svg')
+    expect(aiButton.exists()).toBe(true)
+    expect(aiButton.attributes('width')).toBe('22')
+    expect(aiButton.attributes('height')).toBe('22')
 
-    const autoWrapper = mount(TodoListHeader, {
-      props: { ...defaultProps, themeIcon: 'auto' },
-      global: globalConfig,
-    })
-    const autoSvg = autoWrapper.find('.theme-toggle svg')
-    expect(autoSvg.exists()).toBe(true)
-    expect(autoSvg.attributes('width')).toBe('22')
-    expect(autoSvg.attributes('height')).toBe('22')
+    const searchButton = wrapper.find('.search-button svg')
+    expect(searchButton.exists()).toBe(true)
+    expect(searchButton.attributes('width')).toBe('22')
+    expect(searchButton.attributes('height')).toBe('22')
+
+    const chartsButton = wrapper.find('.charts-button svg')
+    expect(chartsButton.exists()).toBe(true)
+    expect(chartsButton.attributes('width')).toBe('22')
+    expect(chartsButton.attributes('height')).toBe('22')
   })
 
   it('应该为按钮设置正确的尺寸和样式', () => {

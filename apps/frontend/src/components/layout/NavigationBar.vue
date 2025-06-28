@@ -25,10 +25,6 @@
       {{ t('settings') }}
     </button>
 
-    <button class="nav-button" @click="toggleLanguage">
-      {{ locale === 'zh' ? 'EN' : '中文' }}
-    </button>
-
     <!-- 认证状态按钮 -->
     <div v-if="!isAuthenticated" class="auth-buttons">
       <button class="nav-button auth-button" @click="router.push('/login')">
@@ -71,23 +67,15 @@ import { ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useAuth } from '../../composables/useAuth'
 import { useNotifications } from '../../composables/useNotifications'
-import { setLanguage } from '../../i18n'
 import router from '../../router'
 
-const { locale, t } = useI18n()
+const { t } = useI18n()
 const { isAuthenticated, user, logout } = useAuth()
 const { success, error } = useNotifications()
 
 // 用户菜单状态
 const showUserMenu = ref(false)
 const userMenuRef = ref<HTMLElement>()
-
-// 移除了 AI 助手相关的事件定义，因为已移动到待办事项卡片内
-
-const toggleLanguage = () => {
-  const newLocale = locale.value === 'zh' ? 'en' : 'zh'
-  setLanguage(newLocale)
-}
 
 const toggleUserMenu = () => {
   showUserMenu.value = !showUserMenu.value

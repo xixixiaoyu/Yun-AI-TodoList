@@ -71,65 +71,6 @@
       </button>
 
       <button
-        class="icon-button theme-toggle"
-        :class="{ active: themeIcon !== 'auto' }"
-        :title="`${themeTooltip} (Ctrl+T)`"
-        :aria-label="themeTooltip"
-        @click="$emit('toggleTheme')"
-      >
-        <svg
-          v-if="themeIcon === 'moon'"
-          xmlns="http://www.w3.org/2000/svg"
-          viewBox="0 0 24 24"
-          width="22"
-          height="22"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          class="button-icon"
-        >
-          <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
-        </svg>
-        <svg
-          v-else-if="themeIcon === 'sun'"
-          xmlns="http://www.w3.org/2000/svg"
-          viewBox="0 0 24 24"
-          width="22"
-          height="22"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          class="button-icon"
-        >
-          <circle cx="12" cy="12" r="5" />
-          <path
-            d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"
-          />
-        </svg>
-        <svg
-          v-else
-          xmlns="http://www.w3.org/2000/svg"
-          viewBox="0 0 24 24"
-          width="22"
-          height="22"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          class="button-icon"
-        >
-          <path d="M12 3a9 9 0 1 0 0 18c-2.5-1.5-4-4.5-4-9s1.5-7.5 4-9z" />
-
-          <path d="M16 8l1.5-1.5M20 12h2M16 16l1.5 1.5" />
-        </svg>
-      </button>
-
-      <button
         class="icon-button charts-button"
         :class="{ active: showCharts }"
         :title="`${showCharts ? t('closeCharts') : t('openCharts')} (Ctrl+S)`"
@@ -161,15 +102,12 @@
 import { useI18n } from 'vue-i18n'
 
 interface Props {
-  themeIcon: string
-  themeTooltip: string
   showCharts: boolean
   showSearch: boolean
   isLoading?: boolean
 }
 
 interface Emits {
-  (e: 'toggleTheme'): void
   (e: 'toggleCharts'): void
   (e: 'toggleSearch'): void
   (e: 'openAiSidebar'): void

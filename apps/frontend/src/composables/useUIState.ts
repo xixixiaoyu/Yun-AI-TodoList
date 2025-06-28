@@ -1,36 +1,12 @@
-import { ref, computed } from 'vue'
 import { useWindowSize } from '@vueuse/core'
-import { useTheme } from './useTheme'
-import { useI18n } from 'vue-i18n'
 import confetti from 'canvas-confetti'
+import { computed, ref } from 'vue'
 
 export function useUIState() {
   const showCharts = ref(false)
   const { width } = useWindowSize()
-  const { theme, toggleTheme } = useTheme()
-  const { t } = useI18n()
 
   const isSmallScreen = computed(() => width.value < 768)
-
-  const themeIcon = computed(() => {
-    if (theme.value === 'auto') {
-      return 'auto'
-    }
-    return theme.value === 'light' ? 'sun' : 'moon'
-  })
-
-  const themeTooltip = computed(() => {
-    switch (theme.value) {
-      case 'light':
-        return t('switchToDarkMode')
-      case 'dark':
-        return t('switchToAutoMode')
-      case 'auto':
-        return t('switchToLightMode')
-      default:
-        return t('switchToLightMode')
-    }
-  })
 
   const toggleCharts = () => {
     showCharts.value = !showCharts.value
@@ -81,10 +57,6 @@ export function useUIState() {
           event.preventDefault()
           toggleCharts()
           break
-        case 't':
-          event.preventDefault()
-          toggleTheme()
-          break
       }
     }
   }
@@ -92,9 +64,6 @@ export function useUIState() {
   return {
     showCharts,
     isSmallScreen,
-    themeIcon,
-    themeTooltip,
-    toggleTheme,
     toggleCharts,
     closeCharts,
     handlePomodoroComplete,
