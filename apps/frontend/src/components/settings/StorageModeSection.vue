@@ -61,87 +61,59 @@
         </div>
       </div>
 
-      <!-- 自动同步设置 -->
-      <div v-if="selectedMode !== 'local'" class="setting-item">
+      <!-- 混合存储说明 -->
+      <div v-if="selectedMode === 'hybrid'" class="setting-item">
         <div class="setting-info">
-          <label class="setting-label">{{ t('autoSync') }}</label>
-          <p class="setting-description">{{ t('autoSyncDesc') }}</p>
-        </div>
-        <div class="setting-control">
-          <label class="toggle-switch">
-            <input
-              type="checkbox"
-              :checked="config.autoSync"
-              @change="updateConfig({ autoSync: ($event.target as HTMLInputElement).checked })"
-            />
-            <span class="toggle-slider"></span>
-          </label>
-        </div>
-      </div>
-
-      <!-- 同步间隔设置 -->
-      <div v-if="selectedMode !== 'local' && config.autoSync" class="setting-item">
-        <div class="setting-info">
-          <label class="setting-label">{{ t('syncInterval') }}</label>
-          <p class="setting-description">{{ t('syncIntervalDesc') }}</p>
-        </div>
-        <div class="setting-control">
-          <select
-            :value="config.syncInterval"
-            class="select-input"
-            @change="
-              updateConfig({ syncInterval: parseInt(($event.target as HTMLSelectElement).value) })
-            "
-          >
-            <option value="1">1 {{ t('minute') }}</option>
-            <option value="5">5 {{ t('minutes') }}</option>
-            <option value="10">10 {{ t('minutes') }}</option>
-            <option value="15">15 {{ t('minutes') }}</option>
-            <option value="30">30 {{ t('minutes') }}</option>
-            <option value="60">1 {{ t('hour') }}</option>
-          </select>
-        </div>
-      </div>
-
-      <!-- 离线模式设置 -->
-      <div v-if="selectedMode !== 'local'" class="setting-item">
-        <div class="setting-info">
-          <label class="setting-label">{{ t('offlineMode') }}</label>
-          <p class="setting-description">{{ t('offlineModeDesc') }}</p>
-        </div>
-        <div class="setting-control">
-          <label class="toggle-switch">
-            <input
-              type="checkbox"
-              :checked="config.offlineMode"
-              @change="updateConfig({ offlineMode: ($event.target as HTMLInputElement).checked })"
-            />
-            <span class="toggle-slider"></span>
-          </label>
-        </div>
-      </div>
-
-      <!-- 冲突解决策略 -->
-      <div v-if="selectedMode !== 'local'" class="setting-item">
-        <div class="setting-info">
-          <label class="setting-label">{{ t('conflictResolution') }}</label>
-          <p class="setting-description">{{ t('conflictResolutionDesc') }}</p>
-        </div>
-        <div class="setting-control">
-          <select
-            :value="config.conflictResolution"
-            class="select-input"
-            @change="
-              updateConfig({
-                conflictResolution: ($event.target as HTMLSelectElement).value as any,
-              })
-            "
-          >
-            <option value="ask-user">{{ t('askUser') }}</option>
-            <option value="local-wins">{{ t('localWins') }}</option>
-            <option value="remote-wins">{{ t('remoteWins') }}</option>
-            <option value="merge">{{ t('autoMerge') }}</option>
-          </select>
+          <div class="hybrid-storage-info">
+            <div class="info-item">
+              <div class="info-icon">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <path d="M12 2L2 7l10 5 10-5-10-5z" />
+                  <path d="m2 17 10 5 10-5" />
+                  <path d="m2 12 10 5 10-5" />
+                </svg>
+              </div>
+              <div class="info-text">
+                <span class="info-title">{{ t('storage.offlineFirst') }}</span>
+                <span class="info-desc">{{ t('storage.offlineFirstDesc') }}</span>
+              </div>
+            </div>
+            <div class="info-item">
+              <div class="info-icon">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <path
+                    d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"
+                  />
+                  <polyline points="3.27,6.96 12,12.01 20.73,6.96" />
+                  <line x1="12" y1="22.08" x2="12" y2="12" />
+                </svg>
+              </div>
+              <div class="info-text">
+                <span class="info-title">{{ t('storage.autoMerge') }}</span>
+                <span class="info-desc">{{ t('storage.autoMergeDesc') }}</span>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -154,7 +126,6 @@ import { useI18n } from 'vue-i18n'
 import { useAuth } from '../../composables/useAuth'
 import { useStorageMode } from '../../composables/useStorageMode'
 import { useSyncManager } from '../../composables/useSyncManager'
-import CloudIcon from '../icons/CloudIcon.vue'
 import HybridIcon from '../icons/HybridIcon.vue'
 import LocalIcon from '../icons/LocalIcon.vue'
 
@@ -179,14 +150,6 @@ const storageModeOptions = computed(() => [
     disabled: false,
   },
   {
-    value: 'remote' as StorageMode,
-    label: t('storage.cloudStorage'),
-    description: t('storage.cloudStorageDesc'),
-    icon: CloudIcon,
-    disabled: !isAuthenticated.value,
-    disabledReason: !isAuthenticated.value ? t('storage.requiresLogin') : undefined,
-  },
-  {
     value: 'hybrid' as StorageMode,
     label: t('storage.hybridStorage'),
     description: t('storage.hybridStorageDesc'),
@@ -200,8 +163,8 @@ const switchStorageModeInternal = async (mode: StorageMode) => {
   try {
     await switchStorageMode(mode)
 
-    // 如果切换到云端或混合模式，且用户已登录，初始化同步
-    if ((mode === 'remote' || mode === 'hybrid') && isAuthenticated.value) {
+    // 如果切换到混合模式，且用户已登录，初始化同步
+    if (mode === 'hybrid' && isAuthenticated.value) {
       await initialize()
     }
     return true
@@ -321,5 +284,29 @@ defineOptions({
 
 .toggle-switch input {
   @apply sr-only;
+}
+
+.hybrid-storage-info {
+  @apply space-y-3;
+}
+
+.info-item {
+  @apply flex items-start space-x-3 p-3 bg-primary/5 rounded-lg;
+}
+
+.info-icon {
+  @apply flex-shrink-0 text-primary mt-0.5;
+}
+
+.info-text {
+  @apply flex-1;
+}
+
+.info-title {
+  @apply block font-medium text-text-primary text-sm;
+}
+
+.info-desc {
+  @apply block text-xs text-text-secondary mt-1;
 }
 </style>

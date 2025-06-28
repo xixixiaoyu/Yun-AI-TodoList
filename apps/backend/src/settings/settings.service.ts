@@ -176,11 +176,11 @@ export class SettingsService {
         reminderMinutes: 30,
       },
       storageConfig: {
-        mode: 'local',
-        autoSync: true,
+        mode: 'hybrid', // 默认混合存储模式
+        autoSync: true, // 默认启用自动同步
         syncInterval: 5, // 5分钟自动同步
-        offlineMode: true,
-        conflictResolution: 'ask-user',
+        offlineMode: true, // 默认启用离线模式
+        conflictResolution: 'merge', // 默认自动合并冲突
       },
     }
   }

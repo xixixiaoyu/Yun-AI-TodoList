@@ -23,7 +23,7 @@ export interface StorageStatus {
   isOnline: boolean
   lastSyncTime?: Date
   pendingOperations: number
-  storageMode: 'local' | 'remote' | 'hybrid'
+  storageMode: 'local' | 'hybrid'
 }
 
 /**

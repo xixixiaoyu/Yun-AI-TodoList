@@ -105,10 +105,10 @@ describe('Storage Integration Tests', () => {
       await initializeStorageMode()
       expect(currentMode.value).toBe('local')
 
-      // Switch to remote mode
-      const success = await switchStorageMode('remote')
+      // Switch to hybrid mode
+      const success = await switchStorageMode('hybrid')
       expect(success).toBe(true)
-      expect(currentMode.value).toBe('remote')
+      expect(currentMode.value).toBe('hybrid')
 
       // Switch back to local mode
       const success2 = await switchStorageMode('local')
@@ -313,13 +313,14 @@ describe('Storage Integration Tests', () => {
 
       const todos = await Promise.all(operations)
       const validTodos = todos.filter(
-        (todo): todo is Awaited<ReturnType<typeof addTodo>> => todo !== null && todo !== undefined
+        (todo): todo is NonNullable<Awaited<ReturnType<typeof addTodo>>> =>
+          todo !== null && todo !== undefined
       )
       expect(validTodos).toHaveLength(100)
 
       // Clean up
       for (const todo of validTodos) {
-        if (todo && 'id' in todo) {
+        if (todo && todo.id) {
           await removeTodo(todo.id)
         }
       }

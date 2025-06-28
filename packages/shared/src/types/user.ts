@@ -104,7 +104,7 @@ export interface NotificationSettings {
 }
 
 // 存储模式配置
-export type StorageMode = 'local' | 'remote' | 'hybrid'
+export type StorageMode = 'local' | 'hybrid'
 
 export interface StorageConfig {
   mode: StorageMode

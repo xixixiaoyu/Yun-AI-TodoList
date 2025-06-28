@@ -76,74 +76,50 @@
           </div>
         </div>
 
-        <!-- 同步详情 -->
-        <div class="status-details">
-          <div class="detail-item">
-            <span class="detail-label">{{ t('pendingOperations') }}</span>
-            <span class="detail-value">{{ syncStatus.pendingOperations || 0 }}</span>
+        <!-- 简化的混合存储状态 -->
+        <div v-if="currentMode === 'hybrid'" class="status-details">
+          <div class="hybrid-status-info">
+            <div class="info-item">
+              <div class="info-icon text-primary">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <path d="M12 2L2 7l10 5 10-5-10-5z" />
+                  <path d="m2 17 10 5 10-5" />
+                  <path d="m2 12 10 5 10-5" />
+                </svg>
+              </div>
+              <span class="info-text">{{ t('storage.offlineFirst') }}</span>
+            </div>
+            <div class="info-item">
+              <div class="info-icon text-primary">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <path
+                    d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.3"
+                  />
+                </svg>
+              </div>
+              <span class="info-text">{{ t('storage.autoMerge') }}</span>
+            </div>
           </div>
-          <div v-if="(syncStatus.failedOperations || 0) > 0" class="detail-item">
-            <span class="detail-label">{{ t('failedOperations') }}</span>
-            <span class="detail-value text-red-500">{{ syncStatus.failedOperations || 0 }}</span>
-          </div>
-        </div>
-
-        <!-- 同步操作按钮 -->
-        <div class="status-actions">
-          <button :disabled="isInProgress" class="action-button primary" @click="performManualSync">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            >
-              <path
-                d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.3"
-              />
-            </svg>
-            {{ t('syncNow') }}
-          </button>
-
-          <button v-if="isSyncEnabled" class="action-button secondary" @click="disableAutoSync">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            >
-              <circle cx="12" cy="12" r="10" />
-              <path d="M4.93 4.93l14.14 14.14" />
-            </svg>
-            {{ t('disableAutoSync') }}
-          </button>
-
-          <button v-else class="action-button secondary" @click="enableAutoSync">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            >
-              <circle cx="12" cy="12" r="10" />
-              <polyline points="12,6 12,12 16,14" />
-            </svg>
-            {{ t('enableAutoSync') }}
-          </button>
         </div>
       </div>
 
@@ -242,8 +218,6 @@ const getCurrentModeIcon = () => {
   switch (currentMode.value) {
     case 'local':
       return LocalIcon
-    case 'remote':
-      return CloudIcon
     case 'hybrid':
       return HybridIcon
     default:
@@ -255,8 +229,6 @@ const getCurrentModeLabel = () => {
   switch (currentMode.value) {
     case 'local':
       return t('storage.localStorage')
-    case 'remote':
-      return t('storage.cloudStorage')
     case 'hybrid':
       return t('storage.hybridStorage')
     default:
@@ -268,8 +240,6 @@ const getModeStatusClass = () => {
   switch (currentMode.value) {
     case 'local':
       return 'text-gray-500'
-    case 'remote':
-      return 'text-blue-500'
     case 'hybrid':
       return 'text-purple-500'
     default:
@@ -426,5 +396,21 @@ defineOptions({
 
 .spinner {
   @apply w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin;
+}
+
+.hybrid-status-info {
+  @apply space-y-2;
+}
+
+.info-item {
+  @apply flex items-center space-x-2;
+}
+
+.info-icon {
+  @apply flex-shrink-0;
+}
+
+.info-text {
+  @apply text-sm text-text-secondary;
 }
 </style>

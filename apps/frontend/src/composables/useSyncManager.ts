@@ -3,21 +3,21 @@
  * 提供实时同步状态监控和控制功能
  */
 
-import { ref, reactive, computed, watch, onUnmounted, getCurrentInstance } from 'vue'
 import type {
-  SyncStatus,
-  StorageConfig,
-  StorageHealth,
   ConflictResolutionStrategy,
   DataMigrationOptions,
+  StorageConfig,
+  StorageHealth,
+  SyncStatus,
 } from '@shared/types'
+import { computed, getCurrentInstance, onUnmounted, reactive, ref, watch } from 'vue'
 
-import { HybridStorageService, type ExportedData } from '../services/storage/HybridStorageService'
 import {
   DataMigrationService,
   type MigrationProgress,
   type MigrationResult,
 } from '../services/storage/DataMigrationService'
+import { HybridStorageService, type ExportedData } from '../services/storage/HybridStorageService'
 import { useAuth } from './useAuth'
 
 // 全局同步状态
@@ -39,11 +39,11 @@ const globalSyncState = reactive({
     lastHealthCheck: new Date().toISOString(),
   } as StorageHealth,
   config: {
-    mode: 'local',
-    autoSync: true,
-    syncInterval: 5,
-    offlineMode: true,
-    conflictResolution: 'ask-user',
+    mode: 'hybrid', // 默认混合存储模式
+    autoSync: true, // 默认启用自动同步
+    syncInterval: 5, // 5分钟自动同步
+    offlineMode: true, // 默认启用离线模式
+    conflictResolution: 'merge', // 默认自动合并冲突
   } as StorageConfig,
 })
 
@@ -200,8 +200,8 @@ export function useSyncManager() {
       lastMigrationResult.value = result
 
       if (result.success) {
-        // 更新配置为云端模式
-        await updateConfig({ mode: 'remote' })
+        // 更新配置为混合模式
+        await updateConfig({ mode: 'hybrid' })
       }
 
       return result

@@ -4,12 +4,12 @@
  */
 
 import type {
-  SyncableEntity,
   ConflictResolution,
   ConflictResolutionStrategy,
+  StorageHealth,
+  SyncableEntity,
   SyncOperation,
   SyncQueue,
-  StorageHealth,
 } from '@shared/types'
 
 export interface HybridStorageOptions {
@@ -484,14 +484,23 @@ export abstract class BaseHybridStorageService<T extends SyncableEntity> {
           resolved.push(conflict.remoteData)
           break
         case 'merge': {
-          // 简单合并策略：使用最新的 updatedAt
+          // 智能合并策略：优先使用最新的数据，但保留重要的本地更改
           const localTime = new Date(conflict.localData.updatedAt).getTime()
           const remoteTime = new Date(conflict.remoteData.updatedAt).getTime()
-          resolved.push(localTime > remoteTime ? conflict.localData : conflict.remoteData)
+
+          // 如果时间差小于5分钟，优先使用本地数据（可能是用户正在编辑）
+          const timeDiff = Math.abs(localTime - remoteTime)
+          if (timeDiff < 5 * 60 * 1000) {
+            // 5分钟
+            resolved.push(conflict.localData)
+          } else {
+            // 否则使用最新的数据
+            resolved.push(localTime > remoteTime ? conflict.localData : conflict.remoteData)
+          }
           break
         }
         default:
-          // ask-user 策略需要 UI 支持，这里默认使用本地数据
+          // 默认策略：优先使用本地数据（离线优先原则）
           resolved.push(conflict.localData)
       }
     }

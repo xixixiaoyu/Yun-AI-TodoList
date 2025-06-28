@@ -11,13 +11,13 @@ import { useAuth } from './useAuth'
 
 // 全局存储状态
 const storageState = reactive({
-  currentMode: 'local' as StorageMode,
+  currentMode: 'hybrid' as StorageMode, // 默认使用混合存储
   config: {
-    mode: 'local' as StorageMode,
-    autoSync: true,
-    syncInterval: 15, // 15分钟
-    offlineMode: false,
-    conflictResolution: 'ask-user',
+    mode: 'hybrid' as StorageMode, // 默认混合存储模式
+    autoSync: true, // 默认启用自动同步
+    syncInterval: 5, // 5分钟自动同步，更频繁的同步
+    offlineMode: true, // 默认启用离线模式
+    conflictResolution: 'merge', // 默认自动合并冲突
   } as StorageConfig,
   syncStatus: {
     syncInProgress: false,
@@ -46,7 +46,6 @@ export function useStorageMode() {
 
   // 计算属性
   const canUseRemoteStorage = computed(() => isAuthenticated.value)
-  const isOnlineMode = computed(() => storageState.currentMode === 'remote')
   const isOfflineMode = computed(() => storageState.currentMode === 'local')
   const isHybridMode = computed(() => storageState.currentMode === 'hybrid')
 
@@ -99,8 +98,8 @@ export function useStorageMode() {
    */
   const switchStorageMode = async (mode: StorageMode): Promise<boolean> => {
     try {
-      if (mode === 'remote' && !canUseRemoteStorage.value) {
-        throw new Error('Remote storage requires authentication')
+      if (mode === 'hybrid' && !canUseRemoteStorage.value) {
+        throw new Error('Hybrid storage requires authentication')
       }
 
       const oldMode = storageState.currentMode
@@ -133,20 +132,6 @@ export function useStorageMode() {
     storageState.syncStatus = {
       ...storageState.syncStatus,
       syncInProgress: false,
-    }
-  }
-
-  /**
-   * 切换到远程存储
-   */
-  const switchToRemoteStorage = async (): Promise<void> => {
-    if (!canUseRemoteStorage.value) {
-      throw new Error('Remote storage requires authentication')
-    }
-
-    storageState.currentMode = 'remote'
-    if (remoteStorageService) {
-      currentStorageService = remoteStorageService
     }
   }
 
@@ -248,16 +233,16 @@ export function useStorageMode() {
    */
   const handleNetworkChange = async (isOnline: boolean): Promise<void> => {
     if (!isOnline && storageState.config.offlineMode) {
-      // 网络断开，切换到本地存储
-      if (storageState.currentMode === 'remote') {
+      // 网络断开，混合模式切换到本地存储
+      if (storageState.currentMode === 'hybrid') {
         console.log('Network offline, switching to local storage')
         await switchToLocalStorage()
       }
-    } else if (isOnline && storageState.config.mode === 'remote') {
-      // 网络恢复，切换回远程存储
+    } else if (isOnline && storageState.config.mode === 'hybrid') {
+      // 网络恢复，切换回混合存储
       if (storageState.currentMode === 'local') {
-        console.log('Network online, switching back to remote storage')
-        await switchToRemoteStorage()
+        console.log('Network online, switching back to hybrid storage')
+        await setStorageMode('hybrid')
       }
     }
   }
@@ -269,9 +254,6 @@ export function useStorageMode() {
     switch (mode) {
       case 'local':
         await switchToLocalStorage()
-        break
-      case 'remote':
-        await switchToRemoteStorage()
         break
       case 'hybrid':
         await switchToHybridMode()
@@ -287,13 +269,19 @@ export function useStorageMode() {
   const determineStorageMode = async (): Promise<void> => {
     const configMode = storageState.config.mode
 
-    if (configMode === 'local') {
+    // 优先尝试使用混合存储模式
+    if (configMode === 'hybrid' && canUseRemoteStorage.value) {
+      await setStorageMode('hybrid')
+    } else if (configMode === 'local') {
       await switchToLocalStorage()
     } else if (canUseRemoteStorage.value) {
-      await setStorageMode(configMode)
+      // 如果用户已登录，默认使用混合存储
+      await setStorageMode('hybrid')
     } else {
-      // 用户未登录，降级到本地存储
+      // 用户未登录，使用本地存储但保持混合模式配置
       await switchToLocalStorage()
+      // 保持配置为混合模式，等用户登录后自动切换
+      storageState.config.mode = 'hybrid'
     }
   }
 
@@ -360,7 +348,6 @@ export function useStorageMode() {
     syncStatus,
     isInitialized,
     canUseRemoteStorage,
-    isOnlineMode,
     isOfflineMode,
     isHybridMode,
 

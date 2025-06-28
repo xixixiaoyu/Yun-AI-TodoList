@@ -545,7 +545,11 @@
     "syncPending": "等待同步",
     "lastSyncTime": "上次同步：{time}",
     "neverSynced": "从未同步",
-    "retrySync": "重试同步"
+    "retrySync": "重试同步",
+    "offlineFirst": "离线优先",
+    "offlineFirstDesc": "离线时优先使用本地存储，联网后自动同步",
+    "autoMerge": "智能合并",
+    "autoMergeDesc": "自动合并本地和云端数据，无需手动处理冲突"
   },
 
   "storageMode": "存储模式",

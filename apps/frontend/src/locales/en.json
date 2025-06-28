@@ -506,7 +506,11 @@
     "syncPending": "Waiting to sync",
     "lastSyncTime": "Last sync: {time}",
     "neverSynced": "Never synced",
-    "retrySync": "Retry sync"
+    "retrySync": "Retry sync",
+    "offlineFirst": "Offline First",
+    "offlineFirstDesc": "Use local storage when offline, auto sync when online",
+    "autoMerge": "Smart Merge",
+    "autoMergeDesc": "Automatically merge local and cloud data without manual conflict resolution"
   },
 
   "storageMode": "Storage Mode",

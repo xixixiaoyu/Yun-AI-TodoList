@@ -67,7 +67,7 @@ export class HybridStorageService {
     }
 
     return {
-      todos: this.config.mode === 'remote' ? new RemoteStorageService() : new LocalStorageService(),
+      todos: new LocalStorageService(),
       userSettings: new UserSettingsStorageService(this.userId, hybridOptions),
       aiAnalyses: new AIAnalysisStorageService(this.userId, hybridOptions),
     }
@@ -83,8 +83,8 @@ export class HybridStorageService {
     this.services.userSettings.setUserId(userId)
     this.services.aiAnalyses.setUserId(userId)
 
-    // 如果启用云端存储，切换到远程服务
-    if (this.config.mode === 'remote' || this.config.mode === 'hybrid') {
+    // 如果启用混合存储，切换到远程服务
+    if (this.config.mode === 'hybrid') {
       this.services.todos = new RemoteStorageService()
     }
 

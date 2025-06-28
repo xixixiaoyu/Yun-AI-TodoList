@@ -68,8 +68,8 @@ export function useOfflineMode() {
     console.log('Entering offline mode')
     offlineState.isOfflineMode = true
 
-    // 如果当前是远程存储模式，切换到本地存储
-    if (currentMode.value === 'remote') {
+    // 离线模式下确保使用本地存储
+    if (currentMode.value === 'hybrid') {
       try {
         await switchStorageMode('local')
         showInfo('已切换到离线模式，数据将保存在本地')
