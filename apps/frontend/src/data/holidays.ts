@@ -1,0 +1,417 @@
+/**
+ * 节假日数据库
+ * 包含中国法定节假日、传统节日和国际节日
+ */
+
+import type { Holiday } from '@/types/holiday'
+
+// 2025年中国法定节假日
+export const chineseLegalHolidays2025: Holiday[] = [
+  {
+    id: 'new-year-2025',
+    name: '元旦',
+    nameEn: "New Year's Day",
+    date: '2025-01-01',
+    type: 'legal',
+    importance: 'high',
+    isOfficial: true,
+    description: '公历新年',
+    color: '#ff6b6b',
+    icon: '🎉',
+  },
+  {
+    id: 'new-year-eve-2025',
+    name: '除夕',
+    nameEn: "New Year's Eve",
+    date: '2025-01-28',
+    type: 'legal',
+    importance: 'high',
+    isOfficial: true,
+    description: '农历年最后一天',
+    color: '#ff4757',
+    icon: '🏮',
+  },
+  {
+    id: 'spring-festival-2025',
+    name: '春节',
+    nameEn: 'Spring Festival',
+    date: '2025-01-29',
+    type: 'legal',
+    importance: 'high',
+    isOfficial: true,
+    description: '农历新年',
+    color: '#ff4757',
+    icon: '🧧',
+  },
+  {
+    id: 'qingming-2025',
+    name: '清明节',
+    nameEn: 'Qingming Festival',
+    date: '2025-04-05',
+    type: 'legal',
+    importance: 'high',
+    isOfficial: true,
+    description: '祭祖扫墓的传统节日',
+    color: '#2ed573',
+    icon: '🌿',
+  },
+  {
+    id: 'labor-day-2025',
+    name: '劳动节',
+    nameEn: 'Labor Day',
+    date: '2025-05-01',
+    type: 'legal',
+    importance: 'high',
+    isOfficial: true,
+    description: '国际劳动节',
+    color: '#ffa502',
+    icon: '⚒️',
+  },
+  {
+    id: 'dragon-boat-2025',
+    name: '端午节',
+    nameEn: 'Dragon Boat Festival',
+    date: '2025-05-31',
+    type: 'legal',
+    importance: 'high',
+    isOfficial: true,
+    description: '纪念屈原的传统节日',
+    color: '#3742fa',
+    icon: '🐉',
+  },
+  {
+    id: 'mid-autumn-2025',
+    name: '中秋节',
+    nameEn: 'Mid-Autumn Festival',
+    date: '2025-10-06',
+    type: 'legal',
+    importance: 'high',
+    isOfficial: true,
+    description: '团圆赏月的传统节日',
+    color: '#f39c12',
+    icon: '🌕',
+  },
+  {
+    id: 'national-day-2025',
+    name: '国庆节',
+    nameEn: 'National Day',
+    date: '2025-10-01',
+    type: 'legal',
+    importance: 'high',
+    isOfficial: true,
+    description: '中华人民共和国成立纪念日',
+    color: '#e74c3c',
+    icon: '🇨🇳',
+  },
+]
+
+// 中国传统节日
+export const chineseTraditionalHolidays2025: Holiday[] = [
+  {
+    id: 'lantern-festival-2025',
+    name: '元宵节',
+    nameEn: 'Lantern Festival',
+    date: '2025-02-12',
+    type: 'traditional',
+    importance: 'medium',
+    isOfficial: false,
+    description: '正月十五，观灯猜谜',
+    color: '#ff9ff3',
+    icon: '🏮',
+  },
+  {
+    id: 'double-seventh-2025',
+    name: '七夕节',
+    nameEn: 'Qixi Festival',
+    date: '2025-08-29',
+    type: 'traditional',
+    importance: 'medium',
+    isOfficial: false,
+    description: '中国情人节',
+    color: '#ff6b9d',
+    icon: '💕',
+  },
+  {
+    id: 'double-ninth-2025',
+    name: '重阳节',
+    nameEn: 'Double Ninth Festival',
+    date: '2025-10-29',
+    type: 'traditional',
+    importance: 'medium',
+    isOfficial: false,
+    description: '登高赏菊，敬老节',
+    color: '#f39c12',
+    icon: '🌼',
+  },
+]
+
+// 国际节日
+export const internationalHolidays2025: Holiday[] = [
+  {
+    id: 'valentines-day-2025',
+    name: '情人节',
+    nameEn: "Valentine's Day",
+    date: '2025-02-14',
+    type: 'international',
+    importance: 'medium',
+    isOfficial: false,
+    description: '西方情人节',
+    color: '#ff6b9d',
+    icon: '💝',
+  },
+  {
+    id: 'womens-day-2025',
+    name: '妇女节',
+    nameEn: "International Women's Day",
+    date: '2025-03-08',
+    type: 'international',
+    importance: 'medium',
+    isOfficial: false,
+    description: '国际妇女节',
+    color: '#ff6b9d',
+    icon: '👩',
+  },
+  {
+    id: 'april-fools-2025',
+    name: '愚人节',
+    nameEn: "April Fool's Day",
+    date: '2025-04-01',
+    type: 'international',
+    importance: 'low',
+    isOfficial: false,
+    description: '西方愚人节',
+    color: '#ffa502',
+    icon: '😄',
+  },
+  {
+    id: 'mothers-day-2025',
+    name: '母亲节',
+    nameEn: "Mother's Day",
+    date: '2025-05-11',
+    type: 'international',
+    importance: 'medium',
+    isOfficial: false,
+    description: '感恩母亲的节日',
+    color: '#ff6b9d',
+    icon: '👩‍👧‍👦',
+  },
+  {
+    id: 'childrens-day-2025',
+    name: '儿童节',
+    nameEn: "Children's Day",
+    date: '2025-06-01',
+    type: 'international',
+    importance: 'medium',
+    isOfficial: false,
+    description: '国际儿童节',
+    color: '#70a1ff',
+    icon: '👶',
+  },
+  {
+    id: 'fathers-day-2025',
+    name: '父亲节',
+    nameEn: "Father's Day",
+    date: '2025-06-15',
+    type: 'international',
+    importance: 'medium',
+    isOfficial: false,
+    description: '感恩父亲的节日',
+    color: '#5352ed',
+    icon: '👨‍👧‍👦',
+  },
+  {
+    id: 'halloween-2025',
+    name: '万圣节',
+    nameEn: 'Halloween',
+    date: '2025-10-31',
+    type: 'international',
+    importance: 'low',
+    isOfficial: false,
+    description: '西方万圣节',
+    color: '#ff7675',
+    icon: '🎃',
+  },
+  {
+    id: 'christmas-2025',
+    name: '圣诞节',
+    nameEn: 'Christmas Day',
+    date: '2025-12-25',
+    type: 'international',
+    importance: 'medium',
+    isOfficial: false,
+    description: '西方圣诞节',
+    color: '#00b894',
+    icon: '🎄',
+  },
+]
+
+// 合并所有节假日数据
+export const allHolidays2025: Holiday[] = [
+  ...chineseLegalHolidays2025,
+  ...chineseTraditionalHolidays2025,
+  ...internationalHolidays2025,
+]
+
+// 2026年中国法定节假日
+export const chineseLegalHolidays2026: Holiday[] = [
+  {
+    id: 'new-year-2026',
+    name: '元旦',
+    nameEn: "New Year's Day",
+    date: '2026-01-01',
+    type: 'legal',
+    importance: 'high',
+    isOfficial: true,
+    description: '公历新年',
+    color: '#ff6b6b',
+    icon: '🎉',
+  },
+  {
+    id: 'new-year-eve-2026',
+    name: '除夕',
+    nameEn: "New Year's Eve",
+    date: '2026-02-16',
+    type: 'legal',
+    importance: 'high',
+    isOfficial: true,
+    description: '农历年最后一天',
+    color: '#ff4757',
+    icon: '🏮',
+  },
+  {
+    id: 'spring-festival-2026',
+    name: '春节',
+    nameEn: 'Spring Festival',
+    date: '2026-02-17',
+    type: 'legal',
+    importance: 'high',
+    isOfficial: true,
+    description: '农历新年',
+    color: '#ff4757',
+    icon: '🧧',
+  },
+  {
+    id: 'qingming-2026',
+    name: '清明节',
+    nameEn: 'Qingming Festival',
+    date: '2026-04-05',
+    type: 'legal',
+    importance: 'high',
+    isOfficial: true,
+    description: '祭祖扫墓的传统节日',
+    color: '#2ed573',
+    icon: '🌿',
+  },
+  {
+    id: 'labor-day-2026',
+    name: '劳动节',
+    nameEn: 'Labor Day',
+    date: '2026-05-01',
+    type: 'legal',
+    importance: 'high',
+    isOfficial: true,
+    description: '国际劳动节',
+    color: '#ffa502',
+    icon: '⚒️',
+  },
+  {
+    id: 'dragon-boat-2026',
+    name: '端午节',
+    nameEn: 'Dragon Boat Festival',
+    date: '2026-06-19',
+    type: 'legal',
+    importance: 'high',
+    isOfficial: true,
+    description: '纪念屈原的传统节日',
+    color: '#3742fa',
+    icon: '🐉',
+  },
+  {
+    id: 'mid-autumn-2026',
+    name: '中秋节',
+    nameEn: 'Mid-Autumn Festival',
+    date: '2026-09-25',
+    type: 'legal',
+    importance: 'high',
+    isOfficial: true,
+    description: '团圆赏月的传统节日',
+    color: '#f39c12',
+    icon: '🌕',
+  },
+  {
+    id: 'national-day-2026',
+    name: '国庆节',
+    nameEn: 'National Day',
+    date: '2026-10-01',
+    type: 'legal',
+    importance: 'high',
+    isOfficial: true,
+    description: '中华人民共和国成立纪念日',
+    color: '#e74c3c',
+    icon: '🇨🇳',
+  },
+]
+
+// 2026年传统节日
+export const chineseTraditionalHolidays2026: Holiday[] = [
+  {
+    id: 'lantern-festival-2026',
+    name: '元宵节',
+    nameEn: 'Lantern Festival',
+    date: '2026-03-05',
+    type: 'traditional',
+    importance: 'medium',
+    isOfficial: false,
+    description: '正月十五，观灯猜谜',
+    color: '#ff9ff3',
+    icon: '🏮',
+  },
+  {
+    id: 'qixi-festival-2026',
+    name: '七夕节',
+    nameEn: 'Qixi Festival',
+    date: '2026-08-19',
+    type: 'traditional',
+    importance: 'medium',
+    isOfficial: false,
+    description: '中国情人节',
+    color: '#ff6b9d',
+    icon: '💕',
+  },
+  {
+    id: 'double-ninth-2026',
+    name: '重阳节',
+    nameEn: 'Double Ninth Festival',
+    date: '2026-10-21',
+    type: 'traditional',
+    importance: 'medium',
+    isOfficial: false,
+    description: '登高赏菊，敬老节',
+    color: '#ffa726',
+    icon: '🌼',
+  },
+]
+
+// 所有2026年节假日
+export const allHolidays2026: Holiday[] = [
+  ...chineseLegalHolidays2026,
+  ...chineseTraditionalHolidays2026,
+]
+
+// 按日期索引的节假日数据
+export const holidaysByDate2025: Record<string, Holiday[]> = {}
+export const holidaysByDate2026: Record<string, Holiday[]> = {}
+
+allHolidays2025.forEach((holiday) => {
+  if (!holidaysByDate2025[holiday.date]) {
+    holidaysByDate2025[holiday.date] = []
+  }
+  holidaysByDate2025[holiday.date].push(holiday)
+})
+
+allHolidays2026.forEach((holiday) => {
+  if (!holidaysByDate2026[holiday.date]) {
+    holidaysByDate2026[holiday.date] = []
+  }
+  holidaysByDate2026[holiday.date].push(holiday)
+})

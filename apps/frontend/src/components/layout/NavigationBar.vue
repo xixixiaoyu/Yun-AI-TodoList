@@ -10,6 +10,15 @@
 
     <button
       class="nav-button"
+      :class="{ 'nav-button-active': $route.path === '/calendar' }"
+      @click="router.push('/calendar')"
+    >
+      <i class="i-carbon-calendar text-sm mr-1"></i>
+      {{ t('calendar') }}
+    </button>
+
+    <button
+      class="nav-button"
       :class="{ 'nav-button-active': $route.path === '/settings' }"
       @click="router.push('/settings')"
     >

@@ -37,6 +37,15 @@ const router = createRouter({
       },
     },
     {
+      path: '/calendar',
+      name: 'calendar',
+      component: () => import('../components/Calendar.vue'),
+      meta: {
+        title: '日历',
+        preload: false, // 按需加载
+      },
+    },
+    {
       path: '/login',
       name: 'login',
       component: () => import('../components/auth/Login.vue'),
