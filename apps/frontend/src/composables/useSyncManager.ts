@@ -3,7 +3,7 @@
  * 提供实时同步状态监控和控制功能
  */
 
-import { ref, reactive, computed, watch, onUnmounted } from 'vue'
+import { ref, reactive, computed, watch, onUnmounted, getCurrentInstance } from 'vue'
 import type {
   SyncStatus,
   StorageConfig,
@@ -25,6 +25,7 @@ const globalSyncState = reactive({
   isInitialized: false,
   hybridStorage: null as HybridStorageService | null,
   migrationService: null as DataMigrationService | null,
+  cleanupFunctions: [] as (() => void)[],
   syncStatus: {
     syncInProgress: false,
     pendingChanges: 0,
@@ -164,7 +165,10 @@ export function useSyncManager() {
       const result = await globalSyncState.hybridStorage.syncAll()
 
       if (result.success) {
-        globalSyncState.syncStatus.lastSyncTime = new Date().toISOString()
+        // 只有在实际有数据变化时才更新同步时间
+        if (result.syncedCount > 0) {
+          globalSyncState.syncStatus.lastSyncTime = new Date().toISOString()
+        }
         globalSyncState.syncStatus.pendingChanges = 0
         globalSyncState.syncStatus.conflictsCount = result.conflicts.length
       } else {
@@ -321,6 +325,26 @@ export function useSyncManager() {
     return globalSyncState.hybridStorage.getServices()
   }
 
+  /**
+   * 销毁同步管理器，清理所有资源
+   */
+  const destroy = (): void => {
+    // 清理自动同步定时器
+    if (autoSyncTimer.value) {
+      clearInterval(autoSyncTimer.value)
+      autoSyncTimer.value = null
+    }
+
+    // 执行所有清理函数
+    globalSyncState.cleanupFunctions.forEach((cleanup) => cleanup())
+    globalSyncState.cleanupFunctions = []
+
+    // 重置状态
+    globalSyncState.isInitialized = false
+    globalSyncState.hybridStorage = null
+    globalSyncState.migrationService = null
+  }
+
   // 私有方法
   const setupNetworkListeners = (): void => {
     const updateOnlineStatus = () => {
@@ -338,11 +362,23 @@ export function useSyncManager() {
     window.addEventListener('online', updateOnlineStatus)
     window.addEventListener('offline', updateOnlineStatus)
 
-    // 清理函数
-    onUnmounted(() => {
-      window.removeEventListener('online', updateOnlineStatus)
-      window.removeEventListener('offline', updateOnlineStatus)
-    })
+    // 清理函数 - 只在组件上下文中使用 onUnmounted
+    const instance = getCurrentInstance()
+    if (instance) {
+      onUnmounted(() => {
+        window.removeEventListener('online', updateOnlineStatus)
+        window.removeEventListener('offline', updateOnlineStatus)
+      })
+    } else {
+      // 如果不在组件上下文中，将清理函数存储到全局状态
+      if (!globalSyncState.cleanupFunctions) {
+        globalSyncState.cleanupFunctions = []
+      }
+      globalSyncState.cleanupFunctions.push(() => {
+        window.removeEventListener('online', updateOnlineStatus)
+        window.removeEventListener('offline', updateOnlineStatus)
+      })
+    }
   }
 
   const setupAutoSync = (): void => {
@@ -410,6 +446,7 @@ export function useSyncManager() {
     importAllData,
     updateHealthStatus,
     getStorageServices,
+    destroy,
     performManualSync: syncAll,
     enableAutoSync: () => updateConfig({ autoSync: true }),
     disableAutoSync: () => updateConfig({ autoSync: false }),

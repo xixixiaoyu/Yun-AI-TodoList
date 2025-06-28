@@ -511,10 +511,16 @@
 
   "storageMode": "Storage Mode",
   "storageModeDescription": "Choose the storage method that suits your needs",
+  "autoSync": "Auto Sync",
+  "autoSyncDesc": "Automatically sync your data in the background when enabled",
 
   "online": "Online",
   "healthy": "Healthy",
   "checking": "Checking",
+
+  "dataMigration": "Data Migration",
+  "dataMigrationDescription": "Migrate your data between local storage and cloud storage",
+  "openMigrationWizard": "Open Migration Wizard",
 
   "migration": {
     "selectDirection": "Select migration direction",
@@ -534,5 +540,25 @@
     "migratedCount": "Migrated: {count} items",
     "conflictCount": "Conflicts: {count} items",
     "errorCount": "Errors: {count} items"
-  }
+  },
+
+  "remoteWins": "Remote wins",
+  "autoMerge": "Auto merge",
+  "syncStatus": "Sync status",
+  "neverSynced": "Never synced",
+  "pendingOperations": "Pending operations",
+  "syncNow": "Sync now",
+  "disableAutoSync": "Disable auto sync",
+  "enableAutoSync": "Enable auto sync",
+  "syncInterval": "Sync interval",
+  "syncIntervalDesc": "Set the time interval for automatic synchronization",
+  "minute": "minute",
+  "minutes": "minutes",
+  "hour": "hour",
+  "offlineMode": "Offline mode",
+  "offlineModeDesc": "Work in offline mode without network synchronization",
+  "conflictResolution": "Conflict resolution",
+  "conflictResolutionDesc": "How to handle data conflicts",
+  "lastSyncTime": "Last sync time",
+  "failedOperations": "Failed operations"
 }

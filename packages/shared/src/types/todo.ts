@@ -91,6 +91,9 @@ export interface AIAnalysis {
   estimatedTime?: string
   reasoning?: string
   analyzedAt: string
+  synced?: boolean // 是否已同步到云端
+  lastSyncTime?: string // 最后同步时间
+  syncError?: string // 同步错误信息
 }
 
 export interface AIAnalysisConfig {
@@ -149,6 +152,7 @@ export interface UpdateUserSettingDto {
 
 export interface CreateAIAnalysisDto {
   todoId: string
+  userId: string
   priority?: number
   estimatedTime?: string
   reasoning?: string

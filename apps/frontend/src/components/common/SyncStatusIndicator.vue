@@ -105,7 +105,7 @@ defineOptions({
 
 <style scoped>
 .sync-indicator {
-  @apply fixed top-4 right-4 z-50 max-w-sm;
+  @apply fixed top-4 right-4 z-[1001] max-w-sm;
   @apply bg-card border border-border rounded-lg shadow-lg backdrop-blur-sm;
   @apply transform transition-all-300;
   animation: slideInRight 0.3s ease-out;
@@ -197,7 +197,7 @@ defineOptions({
 /* 响应式设计 */
 @media (max-width: 640px) {
   .sync-indicator {
-    @apply top-2 right-2 left-2 max-w-none;
+    @apply top-16 right-2 left-2 max-w-none z-[1001];
   }
 
   .sync-content {

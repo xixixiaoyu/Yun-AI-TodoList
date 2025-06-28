@@ -111,8 +111,26 @@ class SyncService {
    */
   private async fetchServerTodos(): Promise<ServerTodo[]> {
     try {
-      const response = await httpClient.get<ServerTodo[]>(this.baseEndpoint)
-      return response
+      // 后端返回的是 {success: boolean, data: {todos: Todo[], total: number, page?: number, limit?: number, stats: TodoStats}} 格式
+      const response = await httpClient.get<{
+        success: boolean
+        data: { todos: ServerTodo[]; total: number; page?: number; limit?: number; stats?: any }
+      }>(this.baseEndpoint)
+
+      // 验证响应格式
+      if (!response || typeof response !== 'object') {
+        throw new Error('服务器响应格式无效')
+      }
+
+      if (!response.success || !response.data) {
+        throw new Error('服务器返回数据格式错误')
+      }
+
+      if (!Array.isArray(response.data.todos)) {
+        throw new Error('服务器返回数据格式错误')
+      }
+
+      return response.data.todos
     } catch (error) {
       if (error instanceof ApiError && error.status === 401) {
         throw new Error('用户未登录或令牌已过期')
@@ -139,8 +157,14 @@ class SyncService {
         // 暂时使用单个创建的方式
         const batchResults: ServerTodo[] = []
         for (const createDto of createDtos) {
-          const response = await httpClient.post<ServerTodo>(this.baseEndpoint, createDto)
-          batchResults.push(response)
+          const response = await httpClient.post<{ success: boolean; data: ServerTodo }>(
+            this.baseEndpoint,
+            createDto
+          )
+          if (!response.success || !response.data) {
+            throw new Error('服务器响应格式无效')
+          }
+          batchResults.push(response.data)
         }
         const response = batchResults
 
@@ -153,8 +177,13 @@ class SyncService {
         for (const todo of batch) {
           try {
             const createDto = localTodosToServer([todo])[0]
-            const response = await httpClient.post<ServerTodo>(this.baseEndpoint, createDto)
-            uploaded.push(response)
+            const response = await httpClient.post<{ success: boolean; data: ServerTodo }>(
+              this.baseEndpoint,
+              createDto
+            )
+            if (response.success && response.data) {
+              uploaded.push(response.data)
+            }
           } catch (singleError) {
             const singleErrorMsg =
               singleError instanceof Error ? singleError.message : '单个上传失败'
@@ -181,8 +210,14 @@ class SyncService {
     for (const { id, data } of todos) {
       try {
         const updateDto = createUpdateTodoDto(data)
-        const response = await httpClient.put<ServerTodo>(`${this.baseEndpoint}/${id}`, updateDto)
-        updated.push(response)
+        const response = await httpClient.put<{ success: boolean; data: ServerTodo }>(
+          `${this.baseEndpoint}/${id}`,
+          updateDto
+        )
+        if (!response.success || !response.data) {
+          throw new Error('服务器响应格式无效')
+        }
+        updated.push(response.data)
       } catch (error) {
         const errorMsg = error instanceof Error ? error.message : '更新失败'
         errors.push(`Todo "${data.title}" (ID: ${id}): ${errorMsg}`)

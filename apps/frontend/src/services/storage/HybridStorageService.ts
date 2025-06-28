@@ -187,7 +187,10 @@ export class HybridStorageService {
         errors: results.flatMap((r) => r.errors),
       }
 
-      this.syncStatus.lastSyncTime = new Date().toISOString()
+      // 只有在实际有数据变化时才更新同步时间
+      if (combinedResult.syncedCount > 0) {
+        this.syncStatus.lastSyncTime = new Date().toISOString()
+      }
       this.syncStatus.conflictsCount = combinedResult.conflicts.length
 
       return combinedResult

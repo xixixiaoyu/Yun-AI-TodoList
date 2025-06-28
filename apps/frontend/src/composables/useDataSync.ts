@@ -111,7 +111,13 @@ export function useDataSync() {
 
       // 标记初始同步完成
       syncState.isInitialSyncComplete = true
-      syncState.lastSyncTime = new Date()
+      // 只有在实际有数据变化时才更新同步时间
+      if (
+        result.status === SyncStatus.SUCCESS &&
+        (result.stats.uploaded > 0 || result.stats.downloaded > 0)
+      ) {
+        syncState.lastSyncTime = new Date()
+      }
 
       console.log('初始同步完成:', result)
       return result
@@ -143,7 +149,13 @@ export function useDataSync() {
       const result = await syncService.syncData(localTodos)
 
       await handleSyncResult(result)
-      syncState.lastSyncTime = new Date()
+      // 只有在实际有数据变化时才更新同步时间
+      if (
+        result.status === SyncStatus.SUCCESS &&
+        (result.stats.uploaded > 0 || result.stats.downloaded > 0)
+      ) {
+        syncState.lastSyncTime = new Date()
+      }
 
       console.log('增量同步完成:', result)
       return result

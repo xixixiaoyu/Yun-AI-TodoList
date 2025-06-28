@@ -202,15 +202,18 @@ export class AIAnalysisStorageService extends BaseHybridStorageService<AIAnalysi
   }
 
   protected validateEntity(entity: unknown): entity is AIAnalysis {
+    if (typeof entity !== 'object' || entity === null) {
+      return false
+    }
+
+    const obj = entity as Record<string, any>
     return (
-      typeof entity === 'object' &&
-      entity !== null &&
-      typeof entity.todoId === 'string' &&
-      typeof entity.userId === 'string' &&
-      typeof entity.analyzedAt === 'string' &&
-      (entity.priority === undefined || typeof entity.priority === 'number') &&
-      (entity.estimatedTime === undefined || typeof entity.estimatedTime === 'string') &&
-      (entity.reasoning === undefined || typeof entity.reasoning === 'string')
+      typeof obj.todoId === 'string' &&
+      typeof obj.userId === 'string' &&
+      typeof obj.analyzedAt === 'string' &&
+      (obj.priority === undefined || typeof obj.priority === 'number') &&
+      (obj.estimatedTime === undefined || typeof obj.estimatedTime === 'string') &&
+      (obj.reasoning === undefined || typeof obj.reasoning === 'string')
     )
   }
 
@@ -334,7 +337,7 @@ export class AIAnalysisStorageService extends BaseHybridStorageService<AIAnalysi
     }
   }
 
-  protected async getRemoteEntity(todoId: string): Promise<HybridStorageResult<AIAnalysis>> {
+  protected override async fetchRemote(todoId: string): Promise<HybridStorageResult<AIAnalysis>> {
     try {
       if (!this.isOnline) {
         return {
@@ -343,11 +346,22 @@ export class AIAnalysisStorageService extends BaseHybridStorageService<AIAnalysi
         }
       }
 
-      const analysis = await httpClient.get<AIAnalysis>(`${this.baseUrl}/${todoId}`)
+      const response = await httpClient.get<{ success: boolean; data: AIAnalysis }>(
+        `${this.baseUrl}/${todoId}`
+      )
+
+      // 验证响应格式
+      if (!response || typeof response !== 'object') {
+        throw new Error('服务器响应格式无效')
+      }
+
+      if (!response.success || !response.data) {
+        throw new Error('服务器返回数据格式错误')
+      }
 
       return {
         success: true,
-        data: analysis,
+        data: response.data,
       }
     } catch (error: unknown) {
       console.error('Failed to fetch remote analysis:', error)
@@ -365,7 +379,7 @@ export class AIAnalysisStorageService extends BaseHybridStorageService<AIAnalysi
   }
 
   // 重写create方法以正确处理todoId作为主键
-  async create(
+  override async create(
     entityData: Omit<AIAnalysis, 'analyzedAt' | keyof import('@shared/types').SyncableEntity>
   ): Promise<HybridStorageResult<AIAnalysis>> {
     try {

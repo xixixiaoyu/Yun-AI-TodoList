@@ -152,12 +152,15 @@ export abstract class TodoStorageService {
   /**
    * 创建错误结果
    */
-  protected createErrorResult(error: string, retryable = false): StorageOperationResult {
+  protected createErrorResult<T = any>(
+    error: string,
+    retryable = false
+  ): StorageOperationResult<T> {
     return {
       success: false,
       error,
       retryable,
-    }
+    } as StorageOperationResult<T>
   }
 
   /**

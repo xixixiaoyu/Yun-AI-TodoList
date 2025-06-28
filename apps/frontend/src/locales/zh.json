@@ -550,10 +550,16 @@
 
   "storageMode": "存储模式",
   "storageModeDescription": "根据您的需求选择合适的数据存储方式",
+  "autoSync": "自动同步",
+  "autoSyncDesc": "启用后将自动在后台同步您的数据",
 
   "online": "在线",
   "healthy": "健康",
   "checking": "检查中",
+
+  "dataMigration": "数据迁移",
+  "dataMigrationDescription": "将您的数据在本地存储和云端存储之间进行迁移",
+  "openMigrationWizard": "打开迁移向导",
 
   "migration": {
     "selectDirection": "选择迁移方向",
@@ -573,5 +579,25 @@
     "migratedCount": "已迁移：{count} 项",
     "conflictCount": "冲突：{count} 项",
     "errorCount": "错误：{count} 项"
-  }
+  },
+
+  "remoteWins": "远程优先",
+  "autoMerge": "自动合并",
+  "syncStatus": "同步状态",
+  "neverSynced": "从未同步",
+  "pendingOperations": "待处理操作",
+  "syncNow": "立即同步",
+  "disableAutoSync": "禁用自动同步",
+  "enableAutoSync": "启用自动同步",
+  "syncInterval": "同步间隔",
+  "syncIntervalDesc": "设置自动同步的时间间隔",
+  "minute": "分钟",
+  "minutes": "分钟",
+  "hour": "小时",
+  "offlineMode": "离线模式",
+  "offlineModeDesc": "在离线模式下工作，不进行网络同步",
+  "conflictResolution": "冲突解决",
+  "conflictResolutionDesc": "当数据冲突时的处理方式",
+  "lastSyncTime": "上次同步时间",
+  "failedOperations": "失败操作"
 }

@@ -38,8 +38,21 @@ export class RemoteStorageService extends TodoStorageService {
         return this.createErrorResult('storage.networkUnavailable', true)
       }
 
-      const response = await httpClient.get<{ todos: Todo[]; stats: TodoStats }>(this.baseUrl)
-      return this.createSuccessResult(response.todos || [])
+      const response = await httpClient.get<{
+        success: boolean
+        data: { todos: Todo[]; total: number; page: number; limit: number; stats: TodoStats }
+      }>(this.baseUrl)
+
+      // 验证响应格式
+      if (!response || typeof response !== 'object') {
+        throw new Error('服务器响应格式无效')
+      }
+
+      if (!response.success || !response.data) {
+        throw new Error('服务器返回数据格式错误')
+      }
+
+      return this.createSuccessResult(response.data.todos || [])
     } catch (error: unknown) {
       console.error('Failed to fetch todos from server:', error)
       return this.createErrorResult(this.getErrorMessage(error), this.isRetryableError(error))
@@ -52,8 +65,20 @@ export class RemoteStorageService extends TodoStorageService {
         return this.createErrorResult('storage.networkUnavailable', true)
       }
 
-      const todo = await httpClient.get<Todo>(`${this.baseUrl}/${id}`)
-      return this.createSuccessResult(todo)
+      const response = await httpClient.get<{ success: boolean; data: Todo }>(
+        `${this.baseUrl}/${id}`
+      )
+
+      // 验证响应格式
+      if (!response || typeof response !== 'object') {
+        throw new Error('服务器响应格式无效')
+      }
+
+      if (!response.success || !response.data) {
+        throw new Error('服务器返回数据格式错误')
+      }
+
+      return this.createSuccessResult(response.data)
     } catch (error: unknown) {
       console.error('Failed to fetch todo from server:', error)
       return this.createErrorResult(this.getErrorMessage(error), this.isRetryableError(error))
@@ -240,8 +265,20 @@ export class RemoteStorageService extends TodoStorageService {
         return this.createErrorResult('storage.networkUnavailable', true)
       }
 
-      const stats = await httpClient.get<TodoStats>(`${this.baseUrl}/stats`)
-      return this.createSuccessResult(stats)
+      const response = await httpClient.get<{ success: boolean; data: TodoStats }>(
+        `${this.baseUrl}/stats`
+      )
+
+      // 验证响应格式
+      if (!response || typeof response !== 'object') {
+        throw new Error('服务器响应格式无效')
+      }
+
+      if (!response.success || !response.data) {
+        throw new Error('服务器返回数据格式错误')
+      }
+
+      return this.createSuccessResult(response.data)
     } catch (error: unknown) {
       console.error('Failed to fetch stats from server:', error)
       return this.createErrorResult(this.getErrorMessage(error), this.isRetryableError(error))
@@ -294,6 +331,38 @@ export class RemoteStorageService extends TodoStorageService {
     return this.createTodos(createDtos)
   }
 
+  async saveTodos(todos: Todo[]): Promise<StorageOperationResult<void>> {
+    try {
+      if (!this._status.isOnline) {
+        return this.createErrorResult('storage.networkUnavailable', true)
+      }
+
+      // 对于远程存储，保存所有 Todo 意味着批量更新
+      const updates = todos.map((todo) => ({
+        id: todo.id,
+        data: {
+          title: todo.title,
+          description: todo.description,
+          completed: todo.completed,
+          priority: todo.priority,
+          estimatedTime: todo.estimatedTime,
+          dueDate: todo.dueDate,
+          order: todo.order,
+        } as UpdateTodoDto,
+      }))
+
+      const result = await this.updateTodos(updates)
+      if (result.success) {
+        return this.createSuccessResult(undefined)
+      } else {
+        return this.createErrorResult('批量保存失败')
+      }
+    } catch (error: unknown) {
+      console.error('Failed to save todos to server:', error)
+      return this.createErrorResult(this.getErrorMessage(error), this.isRetryableError(error))
+    }
+  }
+
   async checkHealth(): Promise<boolean> {
     try {
       if (!this._status.isOnline) {
@@ -309,7 +378,7 @@ export class RemoteStorageService extends TodoStorageService {
     }
   }
 
-  async syncData(): Promise<StorageOperationResult<void>> {
+  override async syncData(): Promise<StorageOperationResult<void>> {
     try {
       if (!this._status.isOnline) {
         return this.createErrorResult('storage.networkUnavailable', true)

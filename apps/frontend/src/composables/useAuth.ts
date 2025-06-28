@@ -43,29 +43,32 @@ export function useAuth() {
   const isLoading = readonly(toRef(authState, 'isLoading'))
 
   /**
-   * 从 localStorage 加载认证状态
+   * 从存储中加载认证状态
    */
-  const loadAuthState = () => {
+  const loadAuthState = (): boolean => {
     try {
-      const accessToken = localStorage.getItem(STORAGE_KEYS.ACCESS_TOKEN)
-      const refreshToken = localStorage.getItem(STORAGE_KEYS.REFRESH_TOKEN)
-      const userStr = localStorage.getItem(STORAGE_KEYS.USER)
+      // 使用 tokenManager 获取令牌信息
+      const tokenInfo = tokenManager.getTokenInfo()
 
-      if (accessToken && userStr) {
+      // 尝试从 localStorage 和 sessionStorage 获取用户信息
+      const userStr =
+        localStorage.getItem(STORAGE_KEYS.USER) || sessionStorage.getItem(STORAGE_KEYS.USER)
+
+      if (tokenInfo && userStr) {
         const user = JSON.parse(userStr) as PublicUser
 
         // 验证令牌是否过期
-        if (isTokenValid(accessToken)) {
-          authState.accessToken = accessToken
-          authState.refreshToken = refreshToken
+        if (!tokenManager.isTokenExpired(tokenInfo)) {
+          authState.accessToken = tokenInfo.accessToken
+          authState.refreshToken = tokenInfo.refreshToken
           authState.user = user
           authState.isAuthenticated = true
 
-          console.log('Auth state loaded from localStorage')
+          console.log('Auth state loaded from storage')
           return true
         } else {
           // 令牌过期，尝试刷新
-          if (refreshToken) {
+          if (tokenInfo.refreshToken) {
             refreshAccessToken()
           } else {
             clearAuthState()
@@ -287,7 +290,3 @@ export function useAuth() {
     clearAuthState,
   }
 }
-
-// 自动初始化认证状态
-const { initAuth } = useAuth()
-initAuth()
