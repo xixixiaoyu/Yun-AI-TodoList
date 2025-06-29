@@ -67,11 +67,15 @@ export function useAIAnalysis() {
    * 分析单个 Todo 项目
    * @param todo Todo 项目
    * @param updateCallback 更新回调函数
+   * @param options 分析选项
    */
   const analyzeSingleTodo = async (
     todo: Todo,
-    updateCallback: (id: string, updates: Partial<Todo>) => void
+    updateCallback: (id: string, updates: Partial<Todo>) => void,
+    options: { silent?: boolean; showSuccess?: boolean } = {}
   ) => {
+    const { silent = false, showSuccess: showSuccessMessage = true } = options
+
     // 如果正在进行批量分析，则禁止单个分析
     if (!isAnalysisEnabled.value || isAnalyzing.value || isBatchAnalyzing.value) {
       return
@@ -96,11 +100,16 @@ export function useAIAnalysis() {
 
       updateCallback(todo.id, updates)
 
-      showSuccess(t('aiAnalysisSuccess', 'AI 分析完成'))
+      if (showSuccessMessage) {
+        showSuccess(t('aiAnalysisSuccess', 'AI 分析完成'))
+      }
     } catch (error) {
       console.error('AI 分析失败:', error)
-      showError(t('aiAnalysisError', 'AI 分析失败，请重试'))
+      if (!silent) {
+        showError(t('aiAnalysisError', 'AI 分析失败，请重试'))
+      }
       // AI 分析失败时不更新任何字段，保持原有状态
+      throw error // 重新抛出错误以便上层处理
     } finally {
       isAnalyzing.value = false
     }

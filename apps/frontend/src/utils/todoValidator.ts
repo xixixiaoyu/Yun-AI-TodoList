@@ -52,32 +52,32 @@ export class TodoValidator {
     }
 
     // 验证 AI 分析字段（可选）
-    if (todoObj.priority !== undefined) {
+    if (todoObj.priority !== undefined && todoObj.priority !== null) {
       if (typeof todoObj.priority !== 'number' || todoObj.priority < 1 || todoObj.priority > 5) {
         errors.push('Invalid priority: must be a number between 1 and 5')
       }
     }
 
-    if (todoObj.estimatedTime !== undefined) {
+    if (todoObj.estimatedTime !== undefined && todoObj.estimatedTime !== null) {
       if (typeof todoObj.estimatedTime !== 'string' || todoObj.estimatedTime.trim() === '') {
         errors.push('Invalid estimatedTime: must be a non-empty string')
       }
     }
 
-    if (todoObj.aiAnalyzed !== undefined) {
+    if (todoObj.aiAnalyzed !== undefined && todoObj.aiAnalyzed !== null) {
       if (typeof todoObj.aiAnalyzed !== 'boolean') {
         errors.push('Invalid aiAnalyzed: must be boolean')
       }
     }
 
     // 验证同步相关字段（可选）
-    if (todoObj.synced !== undefined) {
+    if (todoObj.synced !== undefined && todoObj.synced !== null) {
       if (typeof todoObj.synced !== 'boolean') {
         errors.push('Invalid synced: must be boolean')
       }
     }
 
-    if (todoObj.lastSyncTime !== undefined) {
+    if (todoObj.lastSyncTime !== undefined && todoObj.lastSyncTime !== null) {
       if (
         typeof todoObj.lastSyncTime !== 'string' ||
         !this.isValidISOString(todoObj.lastSyncTime)
@@ -86,25 +86,25 @@ export class TodoValidator {
       }
     }
 
-    if (todoObj.syncError !== undefined) {
+    if (todoObj.syncError !== undefined && todoObj.syncError !== null) {
       if (typeof todoObj.syncError !== 'string') {
         errors.push('Invalid syncError: must be a string')
       }
     }
 
-    if (todoObj.description !== undefined) {
+    if (todoObj.description !== undefined && todoObj.description !== null) {
       if (typeof todoObj.description !== 'string') {
         errors.push('Invalid description: must be a string')
       }
     }
 
-    if (todoObj.dueDate !== undefined) {
+    if (todoObj.dueDate !== undefined && todoObj.dueDate !== null) {
       if (typeof todoObj.dueDate !== 'string' || !this.isValidISOString(todoObj.dueDate)) {
         errors.push('Invalid dueDate: must be a valid ISO string')
       }
     }
 
-    if (todoObj.userId !== undefined) {
+    if (todoObj.userId !== undefined && todoObj.userId !== null) {
       if (typeof todoObj.userId !== 'string' || todoObj.userId.trim() === '') {
         errors.push('Invalid userId: must be a non-empty string')
       }
@@ -126,41 +126,41 @@ export class TodoValidator {
         sanitizedData.completedAt = todoObj.completedAt as string
       }
 
-      // 添加 AI 分析字段
-      if (todoObj.priority !== undefined) {
+      // 添加 AI 分析字段（跳过 null 值）
+      if (todoObj.priority !== undefined && todoObj.priority !== null) {
         sanitizedData.priority = todoObj.priority as number
       }
 
-      if (todoObj.estimatedTime !== undefined) {
+      if (todoObj.estimatedTime !== undefined && todoObj.estimatedTime !== null) {
         sanitizedData.estimatedTime = (todoObj.estimatedTime as string).trim()
       }
 
-      if (todoObj.aiAnalyzed !== undefined) {
+      if (todoObj.aiAnalyzed !== undefined && todoObj.aiAnalyzed !== null) {
         sanitizedData.aiAnalyzed = todoObj.aiAnalyzed as boolean
       }
 
-      // 添加同步相关字段
-      if (todoObj.synced !== undefined) {
+      // 添加同步相关字段（跳过 null 值）
+      if (todoObj.synced !== undefined && todoObj.synced !== null) {
         sanitizedData.synced = todoObj.synced as boolean
       }
 
-      if (todoObj.lastSyncTime !== undefined) {
+      if (todoObj.lastSyncTime !== undefined && todoObj.lastSyncTime !== null) {
         sanitizedData.lastSyncTime = todoObj.lastSyncTime as string
       }
 
-      if (todoObj.syncError !== undefined) {
+      if (todoObj.syncError !== undefined && todoObj.syncError !== null) {
         sanitizedData.syncError = todoObj.syncError as string
       }
 
-      if (todoObj.description !== undefined) {
+      if (todoObj.description !== undefined && todoObj.description !== null) {
         sanitizedData.description = (todoObj.description as string).trim()
       }
 
-      if (todoObj.dueDate !== undefined) {
+      if (todoObj.dueDate !== undefined && todoObj.dueDate !== null) {
         sanitizedData.dueDate = todoObj.dueDate as string
       }
 
-      if (todoObj.userId !== undefined) {
+      if (todoObj.userId !== undefined && todoObj.userId !== null) {
         sanitizedData.userId = (todoObj.userId as string).trim()
       }
 

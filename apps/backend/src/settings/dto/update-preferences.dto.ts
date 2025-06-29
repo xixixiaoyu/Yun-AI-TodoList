@@ -23,7 +23,6 @@ export enum Language {
 
 export enum StorageMode {
   LOCAL = 'local',
-  REMOTE = 'remote',
   HYBRID = 'hybrid',
 }
 

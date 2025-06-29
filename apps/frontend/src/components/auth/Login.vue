@@ -13,7 +13,7 @@
       </div>
 
       <!-- 登录表单 -->
-      <form class="auth-form" @submit.prevent="handleSubmit">
+      <form class="auth-form" @submit.prevent="handleSubmit" @submit="handleSubmit">
         <!-- 邮箱输入 -->
         <div class="form-group">
           <div class="input-wrapper">
@@ -83,10 +83,11 @@
 
         <!-- 提交按钮 -->
         <button
-          type="submit"
+          type="button"
           class="auth-button"
           :disabled="isLoading || !isFormValid"
           :class="{ loading: isLoading }"
+          @click="handleSubmit"
         >
           <span v-if="!isLoading" class="button-text">
             {{ t('login.submit') }}
@@ -151,11 +152,11 @@ const errors = ref({
 const showPassword = ref(false)
 const submitError = ref('')
 
-// 计算属性
+// 计算属性 - 简化验证逻辑
 const isFormValid = computed(() => {
-  return (
-    formData.value.email && formData.value.password && !errors.value.email && !errors.value.password
-  )
+  const hasEmail = formData.value.email && formData.value.email.trim().length > 0
+  const hasPassword = formData.value.password && formData.value.password.length > 0
+  return hasEmail && hasPassword
 })
 
 // 方法
@@ -186,24 +187,41 @@ const clearError = (field: string) => {
   submitError.value = ''
 }
 
-const handleSubmit = async () => {
-  // 验证表单
-  validateEmail()
-  validatePassword()
+const handleSubmit = async (event?: Event) => {
+  console.log('Login form submitted', event)
 
-  if (!isFormValid.value) {
+  if (event) {
+    event.preventDefault()
+  }
+
+  console.log('Form data:', formData.value)
+  console.log('Form valid:', isFormValid.value)
+  console.log('Errors:', errors.value)
+
+  // 简化验证逻辑
+  if (!formData.value.email || !formData.value.password) {
+    console.log('Email or password missing')
+    submitError.value = '请填写邮箱和密码'
     return
   }
 
   submitError.value = ''
 
   try {
+    console.log('Attempting login with:', {
+      email: formData.value.email.trim(),
+      password: '***',
+      rememberMe: formData.value.rememberMe,
+    })
+
     // 使用认证 composable 进行登录
     await login({
       email: formData.value.email.trim(),
       password: formData.value.password,
       rememberMe: formData.value.rememberMe,
     })
+
+    console.log('Login successful')
 
     // 显示成功通知
     success('登录成功', '欢迎回来！即将跳转到主页面。')
@@ -215,6 +233,7 @@ const handleSubmit = async () => {
       await router.push(redirectPath)
     }, 1500)
   } catch (error) {
+    console.error('Login failed:', error)
     // 使用通知系统显示错误
     authError(error as { code?: string; message?: string })
     submitError.value = error instanceof Error ? error.message : t('login.error')

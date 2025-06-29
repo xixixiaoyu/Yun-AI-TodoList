@@ -85,4 +85,13 @@ export class UpdateTodoDto {
   @IsInt({ message: '排序位置必须是整数' })
   @Min(0, { message: '排序位置不能小于0' })
   order?: number
+
+  @ApiProperty({
+    description: '是否已进行 AI 分析',
+    example: false,
+    required: false,
+  })
+  @IsOptional()
+  @IsBoolean({ message: 'AI 分析状态必须是布尔值' })
+  aiAnalyzed?: boolean
 }

@@ -1,13 +1,12 @@
-import { ref, onUnmounted } from 'vue'
-import type { Ref as _Ref } from 'vue'
-import type { CreateTodoDto, Todo, UpdateTodoDto } from '../types/todo'
+import { debounceAsync } from '@/utils/debounce'
 import { logger } from '@/utils/logger'
+import { STORAGE_RETRY_OPTIONS, withRetry } from '@/utils/retryHelper'
+import { onUnmounted, ref } from 'vue'
+import type { CreateTodoDto, Todo, UpdateTodoDto } from '../types/todo'
 import { TodoValidator } from '../utils/todoValidator'
 import { useAuth } from './useAuth'
 import { useDataMigration } from './useDataMigration'
 import { useStorageMode } from './useStorageMode'
-import { withRetry, STORAGE_RETRY_OPTIONS } from '@/utils/retryHelper'
-import { debounceAsync } from '@/utils/debounce'
 
 // 全局单例状态
 const globalTodos = ref<Todo[]>([])
@@ -320,11 +319,37 @@ export function useTodos() {
 
   const updateTodo = async (id: string, updates: UpdateTodoDto): Promise<boolean> => {
     try {
+      // 验证 ID 参数
+      if (!id || id === 'undefined') {
+        logger.error('Invalid todo ID provided', { id }, 'useTodos')
+        return false
+      }
+
       const storageService = getCurrentStorageService()
+
+      // 过滤掉不属于 UpdateTodoDto 的字段，确保与后端 DTO 一致
+      const allowedFields: (keyof UpdateTodoDto)[] = [
+        'title',
+        'description',
+        'completed',
+        'completedAt',
+        'priority',
+        'estimatedTime',
+        'dueDate',
+        'order',
+        'aiAnalyzed',
+      ]
+
+      const filteredUpdates: UpdateTodoDto = {}
+      allowedFields.forEach((field) => {
+        if (field in updates && updates[field] !== undefined) {
+          ;(filteredUpdates as any)[field] = updates[field]
+        }
+      })
 
       // 添加重试机制提高可靠性
       const result = await withRetry(
-        () => storageService.updateTodo(id, updates),
+        () => storageService.updateTodo(id, filteredUpdates),
         STORAGE_RETRY_OPTIONS
       )
 
@@ -334,11 +359,11 @@ export function useTodos() {
         if (todoIndex !== -1) {
           todos.value[todoIndex] = {
             ...todos.value[todoIndex],
-            ...updates,
+            ...filteredUpdates,
             updatedAt: new Date().toISOString(),
           }
         }
-        logger.info('Todo updated successfully', { id, updates }, 'useTodos')
+        logger.info('Todo updated successfully', { id, updates: filteredUpdates }, 'useTodos')
         return true
       } else {
         logger.error('Failed to update todo', result.error, 'useTodos')
@@ -346,6 +371,34 @@ export function useTodos() {
       }
     } catch (error) {
       logger.error('Error updating todo', error, 'useTodos')
+      return false
+    }
+  }
+
+  /**
+   * 更新 Todo 的 AI 分析状态
+   * 专门用于 AI 分析完成后更新相关字段
+   */
+  const updateTodoAIAnalysis = async (
+    id: string,
+    analysisData: { priority?: number; estimatedTime?: string; aiAnalyzed?: boolean }
+  ): Promise<boolean> => {
+    try {
+      // 验证 ID 参数
+      if (!id || id === 'undefined') {
+        logger.error('Invalid todo ID provided for AI analysis update', { id }, 'useTodos')
+        return false
+      }
+
+      const updates: UpdateTodoDto = {
+        priority: analysisData.priority,
+        estimatedTime: analysisData.estimatedTime,
+        aiAnalyzed: analysisData.aiAnalyzed ?? true,
+      }
+
+      return await updateTodo(id, updates)
+    } catch (error) {
+      logger.error('Error updating todo AI analysis', error, 'useTodos')
       return false
     }
   }
@@ -405,6 +458,7 @@ export function useTodos() {
     addTodo,
     addMultipleTodos,
     updateTodo,
+    updateTodoAIAnalysis,
     removeTodo,
     toggleTodo,
 

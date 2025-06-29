@@ -40,6 +40,7 @@ export interface UpdateTodoDto {
   estimatedTime?: string
   dueDate?: string
   order?: number
+  aiAnalyzed?: boolean
 }
 
 export interface TodoStats {

@@ -17,6 +17,7 @@ export function useTodoManagement() {
     toggleTodo,
     removeTodo,
     updateTodo,
+    updateTodoAIAnalysis,
     batchUpdateTodos,
     saveTodos,
   } = useTodos()
@@ -39,7 +40,12 @@ export function useTodoManagement() {
       const _result = await withRetry(
         () =>
           analyzeSingleTodo(todo, (id: string, updates: Partial<Todo>) => {
-            updateTodo(id, updates as UpdateTodoDto)
+            // 使用专门的 AI 分析更新函数
+            updateTodoAIAnalysis(id, {
+              priority: updates.priority,
+              estimatedTime: updates.estimatedTime,
+              aiAnalyzed: updates.aiAnalyzed,
+            })
           }),
         AI_RETRY_OPTIONS
       )
@@ -255,8 +261,14 @@ export function useTodoManagement() {
         const newTodos = todos.value.filter((todo) => !todo.aiAnalyzed && !todo.completed)
         if (newTodos.length > 0) {
           await batchAnalyzeTodosAction(newTodos, (updates) => {
-            // 批量更新待办事项
-            batchUpdateTodos(updates)
+            // 批量更新待办事项，使用专门的 AI 分析更新函数
+            updates.forEach(({ id, updates: todoUpdates }) => {
+              updateTodoAIAnalysis(id, {
+                priority: todoUpdates.priority,
+                estimatedTime: todoUpdates.estimatedTime,
+                aiAnalyzed: todoUpdates.aiAnalyzed,
+              })
+            })
           })
         }
       } catch (error) {
@@ -516,17 +528,26 @@ ${todoTexts}
 
         if (newTodo) {
           logger.info('Starting auto AI analysis', {}, 'TodoManagement')
-          // 异步执行 AI 分析，不阻塞用户操作
+          // 异步执行 AI 分析，不阻塞用户操作，静默处理错误
           withRetry(
             () =>
-              analyzeSingleTodo(newTodo, (id: string, updates: Partial<Todo>) => {
-                logger.info(
-                  'Auto analysis completed, updating todo',
-                  { id, updates },
-                  'TodoManagement'
-                )
-                updateTodo(id, updates as UpdateTodoDto)
-              }),
+              analyzeSingleTodo(
+                newTodo,
+                (id: string, updates: Partial<Todo>) => {
+                  logger.info(
+                    'Auto analysis completed, updating todo',
+                    { id, updates },
+                    'TodoManagement'
+                  )
+                  // 使用专门的 AI 分析更新函数
+                  updateTodoAIAnalysis(id, {
+                    priority: updates.priority,
+                    estimatedTime: updates.estimatedTime,
+                    aiAnalyzed: updates.aiAnalyzed,
+                  })
+                },
+                { silent: true, showSuccess: false } // 自动分析时静默处理
+              ),
             AI_RETRY_OPTIONS
           ).catch((error) => {
             // 重试后仍失败时静默处理，不影响任务添加
@@ -633,7 +654,12 @@ ${todoTexts}
                   (updates: Array<{ id: string; updates: Partial<Todo> }>) => {
                     // 批量更新所有分析结果
                     updates.forEach(({ id, updates: todoUpdates }) => {
-                      updateTodo(id, todoUpdates as UpdateTodoDto)
+                      // 使用专门的 AI 分析更新函数
+                      updateTodoAIAnalysis(id, {
+                        priority: todoUpdates.priority,
+                        estimatedTime: todoUpdates.estimatedTime,
+                        aiAnalyzed: todoUpdates.aiAnalyzed,
+                      })
                     })
                   }
                 ),
@@ -688,6 +714,7 @@ ${todoTexts}
         (todo) =>
           todo &&
           todo.id !== id &&
+          todo.title &&
           todo.title.toLowerCase() === trimmedText.toLowerCase() &&
           !todo.completed
       )
@@ -698,12 +725,11 @@ ${todoTexts}
       }
 
       // 更新 todo 文本，重置 AI 分析状态
-      const updates: Partial<Todo> = {
+      const updates: UpdateTodoDto = {
         title: trimmedText,
-        aiAnalyzed: false,
         priority: undefined,
         estimatedTime: undefined,
-        updatedAt: new Date().toISOString(),
+        aiAnalyzed: false, // 重置 AI 分析状态
       }
 
       const success = await updateTodo(id, updates)
@@ -717,9 +743,18 @@ ${todoTexts}
             try {
               await withRetry(
                 () =>
-                  analyzeSingleTodo(updatedTodo, (id: string, updates: Partial<Todo>) => {
-                    updateTodo(id, updates as UpdateTodoDto)
-                  }),
+                  analyzeSingleTodo(
+                    updatedTodo,
+                    (id: string, updates: Partial<Todo>) => {
+                      // 使用专门的 AI 分析更新函数
+                      updateTodoAIAnalysis(id, {
+                        priority: updates.priority,
+                        estimatedTime: updates.estimatedTime,
+                        aiAnalyzed: updates.aiAnalyzed,
+                      })
+                    },
+                    { silent: true, showSuccess: false } // 自动分析时静默处理
+                  ),
                 AI_RETRY_OPTIONS
               )
             } catch (error) {

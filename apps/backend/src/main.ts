@@ -27,7 +27,9 @@ async function bootstrap() {
     origin: [
       'http://localhost:3001', // 前端开发服务器
       'http://localhost:3000', // Electron 应用
-      configService.get('FRONTEND_URL', 'http://localhost:3001'),
+      'http://localhost:5173', // Vite 开发服务器
+      configService.get('FRONTEND_URL', 'http://localhost:5173'),
+      /^file:\/\//, // 允许 file:// 协议用于测试
     ],
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],

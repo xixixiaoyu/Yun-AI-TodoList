@@ -269,8 +269,8 @@ const handleSubtaskCancel = () => {
 }
 
 // 处理 Todo 文本更新
-const handleUpdateTodoText = async (id: number, newText: string) => {
-  await updateTodoText(String(id), newText)
+const handleUpdateTodoText = async (id: string, newText: string) => {
+  await updateTodoText(id, newText)
 }
 
 // 清除重复错误
