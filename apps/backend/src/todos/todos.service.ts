@@ -18,6 +18,22 @@ export class TodosService {
   ) {}
 
   async create(userId: string, createTodoDto: CreateTodoDto): Promise<Todo> {
+    // 检查是否存在相同标题的未完成待办事项
+    const existingTodo = await this.prisma.todo.findFirst({
+      where: {
+        userId,
+        title: {
+          equals: createTodoDto.title.trim(),
+          mode: 'insensitive', // 忽略大小写
+        },
+        completed: false, // 只检查未完成的待办事项
+      },
+    })
+
+    if (existingTodo) {
+      throw new ForbiddenException('该待办事项已存在')
+    }
+
     // 获取当前用户的最大排序值
     const maxOrder = await this.prisma.todo.aggregate({
       where: { userId },
@@ -28,7 +44,7 @@ export class TodosService {
       data: {
         id: this.utilsService.generateId(),
         userId,
-        title: createTodoDto.title,
+        title: createTodoDto.title.trim(),
         description: createTodoDto.description,
         priority: createTodoDto.priority,
         estimatedTime: createTodoDto.estimatedTime,
@@ -175,10 +191,24 @@ export class TodosService {
       updateData.dueDate = updateTodoDto.dueDate ? new Date(updateTodoDto.dueDate) : null
     }
 
-    // 处理完成状态
+    // 处理完成状态和完成时间
     if (updateTodoDto.completed !== undefined) {
       updateData.completed = updateTodoDto.completed
-      updateData.completedAt = updateTodoDto.completed ? new Date() : null
+
+      // 如果前端提供了 completedAt，使用前端的值；否则使用默认逻辑
+      if (updateTodoDto.completedAt !== undefined) {
+        updateData.completedAt = updateTodoDto.completedAt
+          ? new Date(updateTodoDto.completedAt)
+          : null
+      } else {
+        // 如果前端没有提供 completedAt，使用默认逻辑
+        updateData.completedAt = updateTodoDto.completed ? new Date() : null
+      }
+    } else if (updateTodoDto.completedAt !== undefined) {
+      // 如果只更新 completedAt 而不更新 completed 状态
+      updateData.completedAt = updateTodoDto.completedAt
+        ? new Date(updateTodoDto.completedAt)
+        : null
     }
 
     const todo = await this.prisma.todo.update({

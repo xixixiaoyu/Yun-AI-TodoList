@@ -114,7 +114,13 @@ class SyncService {
       // 后端返回的是 {success: boolean, data: {todos: Todo[], total: number, page?: number, limit?: number, stats: TodoStats}} 格式
       const response = await httpClient.get<{
         success: boolean
-        data: { todos: ServerTodo[]; total: number; page?: number; limit?: number; stats?: any }
+        data: {
+          todos: ServerTodo[]
+          total: number
+          page?: number
+          limit?: number
+          stats?: Record<string, unknown>
+        }
       }>(this.baseEndpoint)
 
       // 验证响应格式
@@ -269,15 +275,40 @@ class SyncService {
         conflicts: mergeResult.conflicts.length,
       })
 
-      // 3. 上传本地独有的数据
+      // 3. 过滤掉最近创建的 Todo（避免双重上传）
+      const recentlyCreatedThreshold = 5000 // 5秒内创建的认为是最近创建的
+      console.log(`开始过滤最近创建的 Todo，阈值：${recentlyCreatedThreshold}ms`)
+      console.log(`待上传的 Todo 数量：${mergeResult.toUpload.length}`)
+
+      const filteredToUpload = mergeResult.toUpload.filter((todo) => {
+        const createdTime = new Date(todo.createdAt).getTime()
+        const currentTime = Date.now()
+        const timeDiff = currentTime - createdTime
+        const isRecent = timeDiff < recentlyCreatedThreshold
+
+        console.log(
+          `Todo "${todo.title}": 创建时间=${new Date(todo.createdAt).toISOString()}, 时间差=${timeDiff}ms, 是否最近创建=${isRecent}`
+        )
+
+        if (isRecent) {
+          console.log(`🚫 跳过最近创建的 Todo "${todo.title}"，避免双重上传`)
+          return false
+        }
+        console.log(`✅ 允许上传 Todo "${todo.title}"`)
+        return true
+      })
+
+      console.log(`过滤后待上传的 Todo 数量：${filteredToUpload.length}`)
+
+      // 4. 上传过滤后的本地独有数据
       let uploadedCount = 0
-      if (mergeResult.toUpload.length > 0) {
-        const uploaded = await this.uploadTodos(mergeResult.toUpload)
+      if (filteredToUpload.length > 0) {
+        const uploaded = await this.uploadTodos(filteredToUpload)
         uploadedCount = uploaded.length
         console.log(`上传了 ${uploadedCount} 条数据`)
       }
 
-      // 4. 计算统计信息
+      // 5. 计算统计信息
       const stats = {
         totalItems: mergeResult.merged.length,
         uploaded: uploadedCount,

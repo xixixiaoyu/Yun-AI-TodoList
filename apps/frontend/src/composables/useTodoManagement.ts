@@ -486,6 +486,18 @@ ${todoTexts}
   }
 
   const handleAddTodo = async (text: string, skipSplitAnalysis: boolean = false) => {
+    // 添加调用栈信息来调试双重请求
+    const stack = new Error().stack
+    logger.info(
+      '🔍 handleAddTodo called',
+      {
+        text,
+        skipSplitAnalysis,
+        caller: stack?.split('\n')[2]?.trim() || 'unknown',
+      },
+      'TodoManagement'
+    )
+
     if (!text || text.trim() === '') {
       showError(t('emptyTodoError'))
       return
@@ -516,14 +528,37 @@ ${todoTexts}
     }
 
     logger.info('Adding todo with text', { text }, 'TodoManagement')
-    const result = await addTodo({ title: text })
 
-    if (!result) {
-      logger.error('Failed to add todo', { text }, 'TodoManagement')
-      showError(t('duplicateError'))
+    try {
+      const result = await addTodo({ title: text })
+
+      if (!result) {
+        logger.error('Failed to add todo - duplicate detected', { text }, 'TodoManagement')
+        showError(t('duplicateError', '该待办事项已存在'))
+        return { needsSplitting: false }
+      }
+
+      return await handleSuccessfulTodoAdd(result, text)
+    } catch (error: unknown) {
+      logger.error('Error adding todo', { text, error }, 'TodoManagement')
+
+      // 检查是否是重复错误
+      if (
+        error?.message?.includes('该待办事项已存在') ||
+        error?.message?.includes('already exists') ||
+        error?.response?.data?.message?.includes('该待办事项已存在')
+      ) {
+        showError(t('duplicateError', '该待办事项已存在'))
+      } else {
+        showError(t('addTodoError', '添加待办事项失败，请重试'))
+      }
+
       return { needsSplitting: false }
     }
+  }
 
+  // 提取成功添加 Todo 的处理逻辑
+  const handleSuccessfulTodoAdd = async (result: Todo, text: string) => {
     // 验证添加的 Todo 数据完整性
     if (!result.title || result.title.trim() === '') {
       logger.error('Added todo has empty title', { result, originalText: text }, 'TodoManagement')

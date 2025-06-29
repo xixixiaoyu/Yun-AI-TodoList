@@ -3,7 +3,7 @@
  * 定义统一的存储操作接口，支持本地存储和远程存储
  */
 
-import type { Todo, CreateTodoDto, UpdateTodoDto, TodoStats } from '@shared/types'
+import type { CreateTodoDto, Todo, TodoStats, UpdateTodoDto } from '@shared/types'
 
 export interface StorageOperationResult<T = unknown> {
   success: boolean
@@ -152,7 +152,7 @@ export abstract class TodoStorageService {
   /**
    * 创建错误结果
    */
-  protected createErrorResult<T = any>(
+  protected createErrorResult<T = unknown>(
     error: string,
     retryable = false
   ): StorageOperationResult<T> {

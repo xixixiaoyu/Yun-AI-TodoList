@@ -4,18 +4,18 @@
  */
 
 import type {
-  StorageConfig,
-  SyncStatus,
   DataExportOptions,
   DataImportResult,
+  StorageConfig,
   StorageHealth,
+  SyncStatus,
 } from '@shared/types'
 
+import { AIAnalysisStorageService } from './AIAnalysisStorageService'
+import type { HybridStorageOptions, SyncResult } from './BaseHybridStorageService'
 import { LocalStorageService } from './LocalStorageService'
 import { RemoteStorageService } from './RemoteStorageService'
 import { UserSettingsStorageService } from './UserSettingsStorageService'
-import { AIAnalysisStorageService } from './AIAnalysisStorageService'
-import type { HybridStorageOptions, SyncResult } from './BaseHybridStorageService'
 
 export interface HybridStorageServices {
   todos: LocalStorageService | RemoteStorageService
@@ -228,119 +228,6 @@ export class HybridStorageService {
         (userSettingsHealth?.remoteStorage && aiAnalysesHealth?.remoteStorage) || false,
       lastHealthCheck: new Date().toISOString(),
     }
-  }
-
-  /**
-   * 数据迁移：从本地存储迁移到云端
-   */
-  async migrateToCloud(): Promise<DataImportResult> {
-    if (!this.userId) {
-      return {
-        success: false,
-        importedCount: 0,
-        skippedCount: 0,
-        errorCount: 1,
-        errors: [{ type: 'auth', message: 'User not authenticated' }],
-      }
-    }
-
-    const result: DataImportResult = {
-      success: true,
-      importedCount: 0,
-      skippedCount: 0,
-      errorCount: 0,
-      errors: [],
-    }
-
-    try {
-      // 迁移Todos
-      if (this.services.todos instanceof LocalStorageService) {
-        const todosResult = await this.services.todos.exportData()
-        if (todosResult.success && todosResult.data) {
-          // 切换到远程服务并导入数据
-          const remoteService = new RemoteStorageService()
-          const importResult = await remoteService.importData(todosResult.data)
-
-          if (importResult.success) {
-            result.importedCount += importResult.successCount
-            this.services.todos = remoteService
-          } else {
-            result.errorCount += importResult.failureCount
-            result.errors.push(
-              ...importResult.errors.map((e) => ({ type: 'todo', message: e.error }))
-            )
-          }
-        }
-      }
-
-      // 迁移用户设置和AI分析会自动通过同步机制处理
-      const syncResult = await this.syncAll()
-      if (syncResult.success) {
-        result.importedCount += syncResult.syncedCount
-      } else {
-        result.errorCount += syncResult.failedCount
-        result.errors.push(...syncResult.errors.map((e) => ({ type: 'sync', message: e.error })))
-      }
-
-      result.success = result.errorCount === 0
-    } catch (error) {
-      result.success = false
-      result.errorCount++
-      result.errors.push({
-        type: 'migration',
-        message: error instanceof Error ? error.message : 'Unknown migration error',
-      })
-    }
-
-    return result
-  }
-
-  /**
-   * 数据迁移：从云端迁移到本地
-   */
-  async migrateToLocal(): Promise<DataImportResult> {
-    const result: DataImportResult = {
-      success: true,
-      importedCount: 0,
-      skippedCount: 0,
-      errorCount: 0,
-      errors: [],
-    }
-
-    try {
-      // 从远程服务导出数据
-      if (this.services.todos instanceof RemoteStorageService) {
-        const todosResult = await this.services.todos.exportData()
-        if (todosResult.success && todosResult.data) {
-          // 切换到本地服务并导入数据
-          const localService = new LocalStorageService()
-          const importResult = await localService.importData(todosResult.data)
-
-          if (importResult.success) {
-            result.importedCount += importResult.successCount
-            this.services.todos = localService
-          } else {
-            result.errorCount += importResult.failureCount
-            result.errors.push(
-              ...importResult.errors.map((e) => ({ type: 'todo', message: e.error }))
-            )
-          }
-        }
-      }
-
-      // 用户设置和AI分析已经在本地存储中，无需迁移
-
-      result.success = result.errorCount === 0
-    } catch (error) {
-      result.success = false
-      result.errorCount++
-      result.errors.push({
-        type: 'migration',
-        message: error instanceof Error ? error.message : 'Unknown migration error',
-      })
-    }
-
-    return result
   }
 
   /**

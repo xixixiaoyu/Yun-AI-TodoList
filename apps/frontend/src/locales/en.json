@@ -579,30 +579,6 @@
   "healthy": "Healthy",
   "checking": "Checking",
 
-  "dataMigration": "Data Migration",
-  "dataMigrationDescription": "Migrate your data between local storage and cloud storage",
-  "openMigrationWizard": "Open Migration Wizard",
-
-  "migration": {
-    "selectDirection": "Select migration direction",
-    "toCloud": "Migrate to cloud",
-    "toLocal": "Migrate to local",
-    "configureOptions": "Configure migration options",
-    "preserveLocalData": "Preserve local data",
-    "mergeStrategy": "Merge strategy",
-    "askUser": "Ask user",
-    "localWins": "Local wins",
-    "remoteWins": "Remote wins",
-    "migrationInProgress": "Migration in progress...",
-    "migrationComplete": "Migration complete",
-    "migrationFailed": "Migration failed",
-    "conflictResolution": "Conflict resolution",
-    "resolveConflicts": "Resolve conflicts",
-    "migratedCount": "Migrated: {count} items",
-    "conflictCount": "Conflicts: {count} items",
-    "errorCount": "Errors: {count} items"
-  },
-
   "remoteWins": "Remote wins",
   "autoMerge": "Auto merge",
   "syncStatus": "Sync status",

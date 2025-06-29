@@ -87,6 +87,13 @@ export class RemoteStorageService extends TodoStorageService {
 
   async createTodo(todoData: CreateTodoDto): Promise<StorageOperationResult<Todo>> {
     try {
+      // 添加调用栈信息来调试双重请求
+      const stack = new Error().stack
+      console.log('🔍 RemoteStorageService.createTodo called', {
+        title: todoData.title,
+        caller: stack?.split('\n')[2]?.trim() || 'unknown',
+      })
+
       if (!this._status.isOnline) {
         return this.createErrorResult('storage.networkUnavailable', true)
       }

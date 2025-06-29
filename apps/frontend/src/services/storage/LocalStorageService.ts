@@ -119,7 +119,7 @@ export class LocalStorageService extends TodoStorageService {
 
       const now = new Date().toISOString()
       const newTodo: Todo = {
-        id: IdGenerator.generateStringId(),
+        id: IdGenerator.generateTodoId(), // 使用统一的UUID格式
         title: sanitizedTitle,
         description: todoData.description,
         completed: false,

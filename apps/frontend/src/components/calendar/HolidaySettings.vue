@@ -107,8 +107,8 @@
           </div>
           <select
             :value="config.locale"
-            @change="updateConfig({ locale: $event.target.value })"
             class="language-select"
+            @change="updateConfig({ locale: $event.target.value })"
           >
             <option value="zh">中文</option>
             <option value="en">English</option>
@@ -147,7 +147,7 @@
           </div>
           <div class="form-row">
             <input v-model="newHoliday.color" type="color" class="form-color" />
-            <button @click="addCustomHoliday" class="add-btn" :disabled="!canAddHoliday">
+            <button class="add-btn" :disabled="!canAddHoliday" @click="addCustomHoliday">
               <i class="i-carbon-add"></i>
               添加
             </button>
@@ -170,7 +170,7 @@
                 }}</span>
               </div>
             </div>
-            <button @click="removeCustomHoliday(holiday.id)" class="remove-btn">
+            <button class="remove-btn" @click="removeCustomHoliday(holiday.id)">
               <i class="i-carbon-trash-can"></i>
             </button>
           </div>

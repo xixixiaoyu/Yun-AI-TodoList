@@ -178,21 +178,18 @@ export function useDataSync() {
       const downloadResult = await syncService.downloadData()
 
       if (!downloadResult.error && downloadResult.todos.length >= 0) {
-        // 智能合并本地和云端数据，而不是简单覆盖
+        // 智能合并本地和云端数据，包含去重逻辑
         const currentLocalTodos = todos.value
         const cloudTodos = downloadResult.todos
 
-        // 创建本地 Todo ID 集合，用于快速查找
-        const localTodoIds = new Set(currentLocalTodos.map((todo) => todo.id))
+        // 创建更智能的去重逻辑
+        const mergedTodos = smartMergeTodos(currentLocalTodos, cloudTodos)
 
-        // 只添加本地不存在的云端 Todo
-        const todosToAdd = cloudTodos.filter((cloudTodo) => !localTodoIds.has(cloudTodo.id))
-
-        if (todosToAdd.length > 0) {
-          // 使用响应式安全的方式添加新的 Todo
-          todos.value = [...currentLocalTodos, ...todosToAdd].sort((a, b) => a.order - b.order)
+        if (mergedTodos.length !== currentLocalTodos.length) {
+          // 使用响应式安全的方式更新 Todo 列表
+          todos.value = mergedTodos.sort((a, b) => a.order - b.order)
           console.log(
-            `从云端添加了 ${todosToAdd.length} 条新记录，本地总计 ${todos.value.length} 条记录`
+            `数据同步完成：本地 ${currentLocalTodos.length} 条，云端 ${cloudTodos.length} 条，合并后 ${mergedTodos.length} 条记录`
           )
         } else {
           console.log(`同步完成，本地数据无变化，共 ${currentLocalTodos.length} 条记录`)
@@ -407,7 +404,22 @@ export function useDataSync() {
           (newTodo) => !oldTodos.some((oldTodo) => oldTodo.id === newTodo.id)
         )
 
-        newItems.forEach((todo) => {
+        // 过滤掉最近创建的 Todo（避免双重上传）
+        const recentlyCreatedThreshold = 10000 // 10秒内创建的认为是最近创建的
+        const filteredNewItems = newItems.filter((todo) => {
+          const createdTime = new Date(todo.createdAt).getTime()
+          const currentTime = Date.now()
+          const timeDiff = currentTime - createdTime
+          const isRecent = timeDiff < recentlyCreatedThreshold
+
+          if (isRecent) {
+            console.log(`🚫 跳过最近创建的 Todo "${todo.title}"，避免实时同步重复上传`)
+            return false
+          }
+          return true
+        })
+
+        filteredNewItems.forEach((todo) => {
           addPendingOperation('create', todo)
         })
 
@@ -508,6 +520,61 @@ export function useDataSync() {
     })
   })
 
+  /**
+   * 智能合并本地和云端 Todo 数据
+   * 基于 ID 和内容进行去重
+   */
+  const smartMergeTodos = (localTodos: Todo[], cloudTodos: Todo[]): Todo[] => {
+    const mergedMap = new Map<string, Todo>()
+    const titleMap = new Map<string, Todo>()
+
+    // 首先处理本地数据
+    localTodos.forEach((todo) => {
+      mergedMap.set(todo.id, todo)
+      // 使用标题的小写版本作为内容匹配键
+      const titleKey = todo.title.toLowerCase().trim()
+      if (!titleMap.has(titleKey)) {
+        titleMap.set(titleKey, todo)
+      }
+    })
+
+    // 处理云端数据
+    cloudTodos.forEach((cloudTodo) => {
+      const titleKey = cloudTodo.title.toLowerCase().trim()
+      const existingByTitle = titleMap.get(titleKey)
+
+      if (mergedMap.has(cloudTodo.id)) {
+        // ID 相同，更新为云端版本（云端为权威数据源）
+        mergedMap.set(cloudTodo.id, cloudTodo)
+      } else if (existingByTitle) {
+        // 标题相同但 ID 不同，可能是重复数据
+        const localTodo = existingByTitle
+
+        // 比较创建时间，保留较早创建的 ID，但使用较新的数据
+        const localTime = new Date(localTodo.createdAt).getTime()
+        const cloudTime = new Date(cloudTodo.createdAt).getTime()
+
+        if (cloudTime < localTime) {
+          // 云端数据更早，删除本地版本，使用云端版本
+          mergedMap.delete(localTodo.id)
+          mergedMap.set(cloudTodo.id, cloudTodo)
+          titleMap.set(titleKey, cloudTodo)
+        } else {
+          // 本地数据更早，保留本地版本，忽略云端版本
+          console.log(
+            `检测到重复 Todo "${cloudTodo.title}"，保留本地版本 (${localTodo.id})，忽略云端版本 (${cloudTodo.id})`
+          )
+        }
+      } else {
+        // 新的云端数据，直接添加
+        mergedMap.set(cloudTodo.id, cloudTodo)
+        titleMap.set(titleKey, cloudTodo)
+      }
+    })
+
+    return Array.from(mergedMap.values())
+  }
+
   return {
     // 状态
     syncState: readonly(syncState),
@@ -523,5 +590,6 @@ export function useDataSync() {
     resetSyncState,
     toggleRealTimeSync,
     processPendingOperations,
+    smartMergeTodos, // 导出供测试使用
   }
 }

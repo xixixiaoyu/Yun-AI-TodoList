@@ -26,6 +26,7 @@ async function bootstrap() {
   app.enableCors({
     origin: [
       'http://localhost:3001', // 前端开发服务器
+      'http://localhost:3002', // 前端开发服务器（备用端口）
       'http://localhost:3000', // Electron 应用
       'http://localhost:5173', // Vite 开发服务器
       configService.get('FRONTEND_URL', 'http://localhost:5173'),

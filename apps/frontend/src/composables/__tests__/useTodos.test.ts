@@ -1,6 +1,4 @@
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
-import { mount as _mount } from '@vue/test-utils'
-import { defineComponent as _defineComponent } from 'vue'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 // Mock data
 const mockTodos: any[] = []
@@ -61,12 +59,6 @@ const mockStorageService = {
 vi.mock('@/composables/useAuth', () => ({
   useAuth: () => ({
     isAuthenticated: { value: false },
-  }),
-}))
-
-vi.mock('@/composables/useDataMigration', () => ({
-  useDataMigration: () => ({
-    addSyncOperation: vi.fn(),
   }),
 }))
 

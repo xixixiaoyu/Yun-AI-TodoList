@@ -618,30 +618,6 @@
   "healthy": "健康",
   "checking": "检查中",
 
-  "dataMigration": "数据迁移",
-  "dataMigrationDescription": "将您的数据在本地存储和云端存储之间进行迁移",
-  "openMigrationWizard": "打开迁移向导",
-
-  "migration": {
-    "selectDirection": "选择迁移方向",
-    "toCloud": "迁移到云端",
-    "toLocal": "迁移到本地",
-    "configureOptions": "配置迁移选项",
-    "preserveLocalData": "保留本地数据",
-    "mergeStrategy": "合并策略",
-    "askUser": "询问用户",
-    "localWins": "本地优先",
-    "remoteWins": "远程优先",
-    "migrationInProgress": "迁移进行中...",
-    "migrationComplete": "迁移完成",
-    "migrationFailed": "迁移失败",
-    "conflictResolution": "冲突解决",
-    "resolveConflicts": "解决冲突",
-    "migratedCount": "已迁移：{count} 项",
-    "conflictCount": "冲突：{count} 项",
-    "errorCount": "错误：{count} 项"
-  },
-
   "remoteWins": "远程优先",
   "autoMerge": "自动合并",
   "syncStatus": "同步状态",

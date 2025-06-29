@@ -116,14 +116,6 @@ export interface StorageConfig {
 
 export type ConflictResolutionStrategy = 'local-wins' | 'remote-wins' | 'merge' | 'ask-user'
 
-// 数据迁移相关
-export interface DataMigrationOptions {
-  migrateFromLocal: boolean
-  migrateToLocal: boolean
-  preserveLocalData: boolean
-  mergeStrategy: ConflictResolutionStrategy
-}
-
 export interface SyncStatus {
   lastSyncTime?: string
   syncInProgress: boolean

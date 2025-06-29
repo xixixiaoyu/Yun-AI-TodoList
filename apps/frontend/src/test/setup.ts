@@ -289,25 +289,6 @@ vi.mock('../composables/useAuth', () => ({
   }),
 }))
 
-// Mock data migration service
-vi.mock('../composables/useDataMigration', () => ({
-  useDataMigration: () => ({
-    addSyncOperation: vi.fn(),
-    processSyncQueue: vi.fn(),
-    clearSyncQueue: vi.fn(),
-    migrateToCloud: vi.fn().mockResolvedValue(true),
-    migrateToLocal: vi.fn().mockResolvedValue(true),
-    resolveConflicts: vi.fn().mockResolvedValue(true),
-    conflicts: { value: [] },
-    syncStatus: { value: 'idle' },
-    isSyncEnabled: { value: false },
-    canMigrate: { value: true },
-    hasConflicts: { value: false },
-    hasPendingOperations: { value: false },
-    hasFailedOperations: { value: false },
-  }),
-}))
-
 // Mock useStorageMode
 vi.mock('@/composables/useStorageMode', () => {
   // 使用全局变量来确保每次测试都能重置

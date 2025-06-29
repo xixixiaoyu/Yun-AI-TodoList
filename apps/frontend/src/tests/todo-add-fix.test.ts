@@ -37,13 +37,6 @@ vi.mock('@/composables/useAuth', () => ({
   }),
 }))
 
-// Mock data migration
-vi.mock('@/composables/useDataMigration', () => ({
-  useDataMigration: () => ({
-    migrateData: vi.fn(),
-  }),
-}))
-
 describe('Todo Add Fix', () => {
   beforeEach(() => {
     vi.clearAllMocks()

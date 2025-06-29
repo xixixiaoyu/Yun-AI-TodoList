@@ -75,7 +75,6 @@
 
     <!-- 浮动元素 -->
     <SettingsToast :show="showSuccessMessage" />
-    <DataMigrationWizard :is-open="showMigrationWizard" @close="showMigrationWizard = false" />
 
     <!-- 背景装饰 -->
     <div class="settings-bg-decoration">
@@ -92,7 +91,7 @@ import { useSettingsState } from '../composables/useSettingsState'
 import { useStorageMode } from '../composables/useStorageMode'
 import AIAnalysisSection from './settings/AIAnalysisSection.vue'
 import ApiKeySection from './settings/ApiKeySection.vue'
-import DataMigrationWizard from './settings/DataMigrationWizard.vue'
+
 import LanguageSection from './settings/LanguageSection.vue'
 import ModelSelectionSection from './settings/ModelSelectionSection.vue'
 import SettingsToast from './settings/SettingsToast.vue'
@@ -105,8 +104,6 @@ const { initializeStorageMode } = useStorageMode()
 
 const { showApiKey, showApiKeyPopover, localApiKey, showSuccessMessage, showSuccessToast } =
   useSettingsState()
-
-const showMigrationWizard = ref(false)
 
 // Initialize storage mode on component mount
 onMounted(async () => {

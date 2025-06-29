@@ -46,6 +46,15 @@ export class UpdateTodoDto {
   completed?: boolean
 
   @ApiProperty({
+    description: '完成时间',
+    example: '2024-12-31T23:59:59.000Z',
+    required: false,
+  })
+  @IsOptional()
+  @IsDateString({}, { message: '完成时间格式不正确' })
+  completedAt?: string
+
+  @ApiProperty({
     description: '优先级 (1-5 星)',
     example: 3,
     minimum: 1,

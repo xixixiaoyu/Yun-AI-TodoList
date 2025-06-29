@@ -215,7 +215,7 @@ const toggleTodo = () => {
   }
 
   try {
-    emit('toggle', props.todo.id)
+    // 在切换前显示庆祝动画（如果当前是未完成状态）
     if (!isCompleted.value) {
       requestAnimationFrame(() => {
         confetti({
@@ -226,7 +226,10 @@ const toggleTodo = () => {
         })
       })
     }
-    isCompleted.value = !isCompleted.value
+
+    // 发出 toggle 事件，让父组件处理状态更新
+    // 不要在这里直接修改 isCompleted.value，让 watchEffect 通过 props 更新
+    emit('toggle', props.todo.id)
   } catch (error) {
     console.error('Error toggling todo:', error)
     showError(t('toggleError'))

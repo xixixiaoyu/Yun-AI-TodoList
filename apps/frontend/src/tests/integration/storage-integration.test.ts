@@ -9,7 +9,6 @@ import type { CreateTodoDto } from '../../types/todo'
 
 // Import composables dynamically to allow for proper mocking
 let useStorageMode: any
-let useDataMigration: any
 let useTodos: any
 
 // Mock network status
@@ -71,11 +70,9 @@ describe('Storage Integration Tests', () => {
 
     // Dynamically import composables
     const storageModule = await import('../../composables/useStorageMode')
-    const migrationModule = await import('../../composables/useDataMigration')
     const todosModule = await import('../../composables/useTodos')
 
     useStorageMode = storageModule.useStorageMode
-    useDataMigration = migrationModule.useDataMigration
     useTodos = todosModule.useTodos
 
     // Reset todos state
@@ -181,64 +178,6 @@ describe('Storage Integration Tests', () => {
       const duplicates2 = await addMultipleTodos([{ title: 'Todo 1' }])
       expect(duplicates2).toContain('Todo 1')
       expect(todos.value).toHaveLength(3) // Should not increase
-    })
-  })
-
-  describe('Data Migration', () => {
-    it('should migrate data between storage modes', async () => {
-      const { migrateToCloud } = useDataMigration()
-      const { initializeTodos, addTodo, todos } = useTodos()
-      const { initializeStorageMode, switchStorageMode } = useStorageMode()
-
-      // Start with local storage and add some todos
-      await initializeStorageMode()
-      await switchStorageMode('local')
-      await initializeTodos()
-
-      await addTodo({ title: 'Local Todo 1' })
-      await addTodo({ title: 'Local Todo 2' })
-      expect(todos.value).toHaveLength(2)
-
-      // Migrate to cloud
-      const migrationSuccess = await migrateToCloud({
-        preserveLocalData: true,
-        mergeStrategy: 'cloud-wins',
-      })
-
-      expect(migrationSuccess).toBe(true)
-    })
-
-    it('should handle migration conflicts with a "local-wins" strategy', async () => {
-      // This test simulates a scenario where a conflict occurs but is automatically resolved.
-      const { migrateToCloud } = useDataMigration()
-
-      // In a real test, we would set up conflicting data in local and (mocked) remote storage.
-      // Then, we would call migrateToCloud with the 'local-wins' strategy.
-      const migrationSuccess = await migrateToCloud({
-        preserveLocalData: true,
-        mergeStrategy: 'local-wins',
-      })
-
-      // The migration should be considered successful as the conflict is auto-resolved.
-      expect(migrationSuccess).toBe(true)
-    })
-
-    it('should identify migration conflicts when resolution is required', async () => {
-      const dataMigration = useDataMigration()
-      const {
-        conflicts: _conflicts,
-        resolveConflicts: _resolveConflicts,
-        migrateToCloud,
-      } = dataMigration
-
-      // In a real test, we would mock the migration service to return conflicts
-      const migrationResult = await migrateToCloud({
-        preserveLocalData: true,
-        mergeStrategy: 'ask-user',
-      })
-
-      // Check if conflicts were detected (or migration completed)
-      expect(migrationResult).toBeDefined()
     })
   })
 

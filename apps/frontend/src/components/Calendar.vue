@@ -63,32 +63,23 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, onMounted, watch } from 'vue'
+import { addWeeks, format, parseISO, subWeeks } from 'date-fns'
+import { enUS, zhCN } from 'date-fns/locale'
+import { computed, onMounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
-import {
-  format,
-  startOfMonth,
-  endOfMonth,
-  eachDayOfInterval,
-  isSameDay,
-  parseISO,
-  addWeeks,
-  subWeeks,
-} from 'date-fns'
-import { zhCN, enUS } from 'date-fns/locale'
 
-import type { Todo } from '@/types/todo'
-import { useTodos } from '@/composables/useTodos'
-import { useTodoManagement } from '@/composables/useTodoManagement'
-import { useUIState } from '@/composables/useUIState'
 import { useHolidays } from '@/composables/useHolidays'
+import { useTodoManagement } from '@/composables/useTodoManagement'
+import { useTodos } from '@/composables/useTodos'
+import { useUIState } from '@/composables/useUIState'
+import type { Todo } from '@/types/todo'
 
-import CalendarHeader from './calendar/CalendarHeader.vue'
 import CalendarGrid from './calendar/CalendarGrid.vue'
+import CalendarHeader from './calendar/CalendarHeader.vue'
 import DayTodosModal from './calendar/DayTodosModal.vue'
 import HolidaySettings from './calendar/HolidaySettings.vue'
-import TodoInput from './TodoInput.vue'
 import LoadingOverlay from './common/LoadingOverlay.vue'
+import TodoInput from './TodoInput.vue'
 
 // 国际化
 const { t, locale } = useI18n()
@@ -101,7 +92,7 @@ const { todos, loadTodos } = useTodos()
 const { handleAddTodo, updateTodo, removeTodo, MAX_TODO_LENGTH } = useTodoManagement()
 
 // 节假日管理
-const { isHolidayEnabled } = useHolidays()
+const { isHolidayEnabled: _isHolidayEnabled } = useHolidays()
 
 // 日历状态
 const currentDate = ref(new Date())
@@ -197,7 +188,7 @@ const handleDateClick = (date: Date) => {
   showDayModal.value = true
 }
 
-const handleDateHover = (date: Date) => {
+const handleDateHover = (_date: Date) => {
   // 可以在这里添加悬停效果
 }
 

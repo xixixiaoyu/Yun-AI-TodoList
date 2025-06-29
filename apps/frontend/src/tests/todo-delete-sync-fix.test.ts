@@ -43,13 +43,6 @@ vi.mock('@/composables/useAuth', () => ({
   }),
 }))
 
-// Mock data migration
-vi.mock('@/composables/useDataMigration', () => ({
-  useDataMigration: () => ({
-    migrateData: vi.fn(),
-  }),
-}))
-
 // Mock sync service
 const mockSyncService = {
   downloadData: vi.fn(),
@@ -112,7 +105,7 @@ describe('Todo Delete and Sync Fix', () => {
   })
 
   it('should handle sync without overwriting local deletions', async () => {
-    const { todos, setTodos } = useTodos()
+    const { todos, setTodos: _setTodos } = useTodos()
 
     // 模拟本地有一个 Todo
     const localTodo: Todo = {

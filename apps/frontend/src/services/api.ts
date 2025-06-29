@@ -130,7 +130,7 @@ class HttpClient {
         }
       }
 
-      const errorData = data as any
+      const errorData = data as Record<string, unknown>
       const message = errorData?.message || errorData?.error || `HTTP ${response.status}`
       const code = errorData?.code || response.status.toString()
 
@@ -234,6 +234,16 @@ class HttpClient {
     options: RequestInit,
     retryCount = 0
   ): Promise<unknown> {
+    // 添加调试信息来追踪重试
+    if (options.method === 'POST' && url.includes('/todos')) {
+      console.log('🔍 executeRequest called', {
+        url,
+        method: options.method,
+        retryCount,
+        body: options.body,
+      })
+    }
+
     const controller = new AbortController()
     const timeoutId = setTimeout(() => controller.abort(), this.timeout)
 
@@ -248,7 +258,7 @@ class HttpClient {
     } catch (error: unknown) {
       clearTimeout(timeoutId)
 
-      const errorObj = error as any
+      const errorObj = error as Record<string, unknown>
 
       // 检查是否需要重试
       const shouldRetry =
@@ -257,6 +267,13 @@ class HttpClient {
           (error instanceof ApiError && RETRY_CONFIG.retryableStatuses.includes(error.status || 0)))
 
       if (shouldRetry) {
+        if (options.method === 'POST' && url.includes('/todos')) {
+          console.log('🔄 Retrying request', {
+            url,
+            retryCount: retryCount + 1,
+            error: errorObj?.message || error,
+          })
+        }
         const delayMs = RETRY_CONFIG.retryDelay * Math.pow(2, retryCount) // 指数退避
         await delay(delayMs)
         return this.executeRequest(url, options, retryCount + 1)

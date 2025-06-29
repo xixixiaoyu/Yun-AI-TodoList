@@ -7,8 +7,8 @@ import type { AIAnalysis, CreateAIAnalysisDto, UpdateAIAnalysisDto } from '@shar
 import { httpClient } from '../api'
 import {
   BaseHybridStorageService,
-  type HybridStorageResult,
   type HybridStorageOptions,
+  type HybridStorageResult,
 } from './BaseHybridStorageService'
 
 export class AIAnalysisStorageService extends BaseHybridStorageService<AIAnalysis> {
@@ -206,7 +206,7 @@ export class AIAnalysisStorageService extends BaseHybridStorageService<AIAnalysi
       return false
     }
 
-    const obj = entity as Record<string, any>
+    const obj = entity as Record<string, unknown>
     return (
       typeof obj.todoId === 'string' &&
       typeof obj.userId === 'string' &&

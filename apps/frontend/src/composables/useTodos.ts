@@ -5,7 +5,7 @@ import { nextTick, onUnmounted, ref } from 'vue'
 import type { CreateTodoDto, Todo, UpdateTodoDto } from '../types/todo'
 import { TodoValidator } from '../utils/todoValidator'
 import { useAuth } from './useAuth'
-import { useDataMigration } from './useDataMigration'
+
 import { useStorageMode } from './useStorageMode'
 
 // 全局单例状态
@@ -18,7 +18,7 @@ export function useTodos() {
     initializeStorageMode,
     isInitialized: storageInitialized,
   } = useStorageMode()
-  const { addSyncOperation: _addSyncOperation, resolveConflicts, conflicts } = useDataMigration()
+
   const { isAuthenticated: _isAuthenticated } = useAuth()
   const todos = globalTodos
 
@@ -70,14 +70,62 @@ export function useTodos() {
 
   const validateDataConsistency = () => {
     const seenIds = new Set<string>()
+    const seenTitles = new Map<string, Todo>()
     const originalLength = todos.value.length
-    todos.value = todos.value.filter((todo) => {
+    const validTodos: Todo[] = []
+
+    todos.value.forEach((todo) => {
+      // 检查 ID 重复
       if (seenIds.has(todo.id)) {
-        return false
+        logger.warn(
+          `Removed duplicate todo by ID: ${todo.id} - "${todo.title}"`,
+          undefined,
+          'useTodos'
+        )
+        return
       }
+
+      // 检查标题重复（忽略大小写和前后空格）
+      const titleKey = todo.title.toLowerCase().trim()
+      const existingTodo = seenTitles.get(titleKey)
+
+      if (existingTodo) {
+        // 发现标题重复，保留创建时间较早的
+        const currentTime = new Date(todo.createdAt).getTime()
+        const existingTime = new Date(existingTodo.createdAt).getTime()
+
+        if (currentTime < existingTime) {
+          // 当前 Todo 更早，替换已存在的
+          const existingIndex = validTodos.findIndex((t) => t.id === existingTodo.id)
+          if (existingIndex !== -1) {
+            validTodos[existingIndex] = todo
+            seenIds.delete(existingTodo.id)
+            seenIds.add(todo.id)
+            seenTitles.set(titleKey, todo)
+            logger.warn(
+              `Replaced duplicate todo by title: kept "${todo.title}" (${todo.id}), removed (${existingTodo.id})`,
+              undefined,
+              'useTodos'
+            )
+          }
+        } else {
+          // 已存在的 Todo 更早，忽略当前的
+          logger.warn(
+            `Removed duplicate todo by title: "${todo.title}" (${todo.id}), kept (${existingTodo.id})`,
+            undefined,
+            'useTodos'
+          )
+        }
+        return
+      }
+
+      // 没有重复，添加到有效列表
       seenIds.add(todo.id)
-      return true
+      seenTitles.set(titleKey, todo)
+      validTodos.push(todo)
     })
+
+    todos.value = validTodos
 
     // 只有在发现重复数据时才保存和记录日志
     if (todos.value.length !== originalLength) {
@@ -113,35 +161,81 @@ export function useTodos() {
 
   const addTodo = async (createDto: CreateTodoDto): Promise<Todo | null> => {
     try {
-      const storageService = getCurrentStorageService()
-
-      // 添加重试机制提高可靠性
-      const result = await withRetry(
-        () => storageService.createTodo(createDto),
-        STORAGE_RETRY_OPTIONS
+      // 检查是否存在重复的未完成待办事项
+      const sanitizedTitle = createDto.title.trim()
+      const isDuplicate = todos.value.some(
+        (todo) =>
+          todo &&
+          todo.title &&
+          todo.title.toLowerCase() === sanitizedTitle.toLowerCase() &&
+          !todo.completed
       )
 
-      if (result.success && result.data) {
-        // 确保响应式更新：使用 nextTick 和强制触发响应式更新
-        const newTodo = result.data
+      if (isDuplicate) {
+        logger.warn('Attempted to create duplicate todo', { title: sanitizedTitle }, 'useTodos')
+        return null
+      }
 
-        // 验证新 Todo 的数据完整性
-        if (!newTodo.title || newTodo.title.trim() === '') {
-          logger.error('Created todo has empty title', { todo: newTodo }, 'useTodos')
+      const storageService = getCurrentStorageService()
+      const { currentMode } = useStorageMode()
+
+      // 在混合模式下，只通过远程服务创建，避免双重请求
+      if (currentMode.value === 'hybrid') {
+        // 直接使用远程服务，不触发同步
+        const result = await withRetry(
+          () => storageService.createTodo(createDto),
+          STORAGE_RETRY_OPTIONS
+        )
+
+        if (result.success && result.data) {
+          const newTodo = result.data
+
+          // 验证新 Todo 的数据完整性
+          if (!newTodo.title || newTodo.title.trim() === '') {
+            logger.error('Created todo has empty title', { todo: newTodo }, 'useTodos')
+            return null
+          }
+
+          // 使用响应式安全的方式添加到数组
+          todos.value = [...todos.value, newTodo]
+
+          // 使用 nextTick 确保 DOM 更新
+          await nextTick()
+
+          logger.info('Todo added successfully (hybrid mode)', { todo: newTodo }, 'useTodos')
+          return newTodo
+        } else {
+          logger.error('Failed to add todo in hybrid mode', result.error, 'useTodos')
           return null
         }
-
-        // 使用响应式安全的方式添加到数组
-        todos.value = [...todos.value, newTodo]
-
-        // 使用 nextTick 确保 DOM 更新
-        await nextTick()
-
-        logger.info('Todo added successfully', { todo: newTodo }, 'useTodos')
-        return newTodo
       } else {
-        logger.error('Failed to add todo', result.error, 'useTodos')
-        return null
+        // 本地模式：正常流程
+        const result = await withRetry(
+          () => storageService.createTodo(createDto),
+          STORAGE_RETRY_OPTIONS
+        )
+
+        if (result.success && result.data) {
+          const newTodo = result.data
+
+          // 验证新 Todo 的数据完整性
+          if (!newTodo.title || newTodo.title.trim() === '') {
+            logger.error('Created todo has empty title', { todo: newTodo }, 'useTodos')
+            return null
+          }
+
+          // 使用响应式安全的方式添加到数组
+          todos.value = [...todos.value, newTodo]
+
+          // 使用 nextTick 确保 DOM 更新
+          await nextTick()
+
+          logger.info('Todo added successfully (local mode)', { todo: newTodo }, 'useTodos')
+          return newTodo
+        } else {
+          logger.error('Failed to add todo in local mode', result.error, 'useTodos')
+          return null
+        }
       }
     } catch (error) {
       logger.error('Error adding todo', error, 'useTodos')
@@ -374,7 +468,7 @@ export function useTodos() {
       const filteredUpdates: UpdateTodoDto = {}
       allowedFields.forEach((field) => {
         if (field in updates && updates[field] !== undefined) {
-          ;(filteredUpdates as any)[field] = updates[field]
+          ;(filteredUpdates as Record<string, unknown>)[field] = updates[field]
         }
       })
 
@@ -518,10 +612,6 @@ export function useTodos() {
     // 查询
     getCompletedTodosByDate,
 
-    // 数据迁移
-    resolveConflicts,
-    conflicts,
-
     // 存储
     saveTodos,
 
@@ -531,6 +621,21 @@ export function useTodos() {
       isInitialized.value = true // 允许保存操作
       await saveTodos() // 保存空的待办事项列表
       isInitialized.value = false // 重置初始化状态
+    },
+
+    // 数据清理
+    cleanupDuplicates: async () => {
+      const originalLength = todos.value.length
+      validateDataConsistency()
+      const removedCount = originalLength - todos.value.length
+
+      if (removedCount > 0) {
+        logger.info(`Cleaned up ${removedCount} duplicate todos`, undefined, 'useTodos')
+        return { removed: removedCount, remaining: todos.value.length }
+      } else {
+        logger.info('No duplicate todos found', undefined, 'useTodos')
+        return { removed: 0, remaining: todos.value.length }
+      }
     },
 
     // 清理机制

@@ -2,11 +2,11 @@
  * 测试 Todo 删除问题修复
  */
 
-import { describe, it, expect, beforeEach, vi } from 'vitest'
-import { nextTick, ref } from 'vue'
-import { useTodos } from '@/composables/useTodos'
 import { useTodoManagement } from '@/composables/useTodoManagement'
+import { useTodos } from '@/composables/useTodos'
 import type { CreateTodoDto, Todo } from '@shared/types'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { nextTick, ref } from 'vue'
 
 // Mock 存储服务
 const mockCreateTodo = vi.fn()
@@ -36,13 +36,6 @@ vi.mock('@/utils/logger', () => ({
 vi.mock('@/composables/useAuth', () => ({
   useAuth: () => ({
     user: ref({ id: 'test-user' }),
-  }),
-}))
-
-// Mock data migration
-vi.mock('@/composables/useDataMigration', () => ({
-  useDataMigration: () => ({
-    migrateData: vi.fn(),
   }),
 }))
 

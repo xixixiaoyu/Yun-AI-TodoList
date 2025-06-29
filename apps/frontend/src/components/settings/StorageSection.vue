@@ -167,26 +167,6 @@
             {{ getHealthStatusText() }}
           </div>
         </div>
-        <div v-if="isAuthenticated" class="action-group">
-          <button class="action-button primary small" @click="openMigrationWizard">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            >
-              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-              <polyline points="14,2 14,8 20,8" />
-              <path d="M16 13H8M16 17H8M10 9H8" />
-            </svg>
-            {{ t('dataMigration') }}
-          </button>
-        </div>
       </div>
     </div>
   </div>
@@ -205,7 +185,7 @@ const { t } = useI18n()
 const { isAuthenticated } = useAuth()
 const {
   currentMode,
-  config,
+  config: _config,
   switchStorageMode,
   updateStorageConfig,
   getStorageStatus,
@@ -217,10 +197,10 @@ const {
   syncAll: _syncAll,
   isInProgress,
   syncStatus,
-  isSyncEnabled,
-  performManualSync,
-  enableAutoSync,
-  disableAutoSync,
+  isSyncEnabled: _isSyncEnabled,
+  performManualSync: _performManualSync,
+  enableAutoSync: _enableAutoSync,
+  disableAutoSync: _disableAutoSync,
 } = useSyncManager()
 
 const isCheckingHealth = ref(false)
@@ -331,7 +311,7 @@ const selectStorageMode = async (mode: StorageMode) => {
   }
 }
 
-const updateConfig = async (updates: Partial<StorageConfig>) => {
+const _updateConfig = async (updates: Partial<StorageConfig>) => {
   const success = await updateStorageConfig(updates)
   if (!success) {
     console.error('Failed to update storage config')
@@ -347,11 +327,6 @@ const checkHealth = async () => {
   } finally {
     isCheckingHealth.value = false
   }
-}
-
-const openMigrationWizard = () => {
-  // TODO: Open migration wizard modal
-  console.warn('Open migration wizard')
 }
 
 // Check health on mount

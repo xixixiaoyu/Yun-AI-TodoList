@@ -124,7 +124,7 @@ export function useAuth() {
   /**
    * 检查令牌是否有效
    */
-  const isTokenValid = (token: string): boolean => {
+  const _isTokenValid = (token: string): boolean => {
     try {
       const payload = JSON.parse(atob(token.split('.')[1]))
       const currentTime = Math.floor(Date.now() / 1000)

@@ -3,20 +3,9 @@
  * 提供实时同步状态监控和控制功能
  */
 
-import type {
-  ConflictResolutionStrategy,
-  DataMigrationOptions,
-  StorageConfig,
-  StorageHealth,
-  SyncStatus,
-} from '@shared/types'
+import type { StorageConfig, StorageHealth, SyncStatus } from '@shared/types'
 import { computed, getCurrentInstance, onUnmounted, reactive, ref, watch } from 'vue'
 
-import {
-  DataMigrationService,
-  type MigrationProgress,
-  type MigrationResult,
-} from '../services/storage/DataMigrationService'
 import { HybridStorageService, type ExportedData } from '../services/storage/HybridStorageService'
 import { useAuth } from './useAuth'
 
@@ -24,7 +13,7 @@ import { useAuth } from './useAuth'
 const globalSyncState = reactive({
   isInitialized: false,
   hybridStorage: null as HybridStorageService | null,
-  migrationService: null as DataMigrationService | null,
+
   cleanupFunctions: [] as (() => void)[],
   syncStatus: {
     syncInProgress: false,
@@ -52,8 +41,7 @@ export function useSyncManager() {
 
   // 响应式状态
   const isOnline = ref(navigator.onLine)
-  const migrationProgress = ref<MigrationProgress | null>(null)
-  const lastMigrationResult = ref<MigrationResult | null>(null)
+
   const autoSyncTimer = ref<ReturnType<typeof setInterval> | null>(null)
 
   // 计算属性
@@ -103,16 +91,9 @@ export function useSyncManager() {
       // 初始化混合存储服务
       globalSyncState.hybridStorage = new HybridStorageService(globalSyncState.config)
 
-      // 初始化迁移服务
-      globalSyncState.migrationService = new DataMigrationService()
-      globalSyncState.migrationService.setProgressCallback((progress) => {
-        migrationProgress.value = progress
-      })
-
       // 如果用户已登录，设置用户ID
       if (user.value?.id) {
         await globalSyncState.hybridStorage.setUserId(user.value.id)
-        globalSyncState.migrationService.setUserId(user.value.id)
       }
 
       // 设置网络状态监听
@@ -180,94 +161,6 @@ export function useSyncManager() {
       throw error
     } finally {
       globalSyncState.syncStatus.syncInProgress = false
-    }
-  }
-
-  /**
-   * 迁移到云端存储
-   */
-  const migrateToCloud = async (options?: DataMigrationOptions): Promise<MigrationResult> => {
-    if (!globalSyncState.migrationService) {
-      throw new Error('Migration service not initialized')
-    }
-
-    if (!canUseCloudSync.value) {
-      throw new Error('Cloud migration not available')
-    }
-
-    try {
-      const result = await globalSyncState.migrationService.migrateToCloud(options)
-      lastMigrationResult.value = result
-
-      if (result.success) {
-        // 更新配置为混合模式
-        await updateConfig({ mode: 'hybrid' })
-      }
-
-      return result
-    } catch (error) {
-      console.error('Migration to cloud failed:', error)
-      throw error
-    } finally {
-      migrationProgress.value = null
-    }
-  }
-
-  /**
-   * 迁移到本地存储
-   */
-  const migrateToLocal = async (options?: DataMigrationOptions): Promise<MigrationResult> => {
-    if (!globalSyncState.migrationService) {
-      throw new Error('Migration service not initialized')
-    }
-
-    try {
-      const result = await globalSyncState.migrationService.migrateToLocal(options)
-      lastMigrationResult.value = result
-
-      if (result.success) {
-        // 更新配置为本地模式
-        await updateConfig({ mode: 'local' })
-      }
-
-      return result
-    } catch (error) {
-      console.error('Migration to local failed:', error)
-      throw error
-    } finally {
-      migrationProgress.value = null
-    }
-  }
-
-  /**
-   * 双向同步
-   */
-  const syncBidirectional = async (
-    strategy?: ConflictResolutionStrategy
-  ): Promise<MigrationResult> => {
-    if (!globalSyncState.migrationService) {
-      throw new Error('Migration service not initialized')
-    }
-
-    if (!canUseCloudSync.value) {
-      throw new Error('Bidirectional sync not available')
-    }
-
-    try {
-      const result = await globalSyncState.migrationService.syncBidirectional(strategy)
-      lastMigrationResult.value = result
-
-      if (result.success) {
-        // 更新配置为混合模式
-        await updateConfig({ mode: 'hybrid' })
-      }
-
-      return result
-    } catch (error) {
-      console.error('Bidirectional sync failed:', error)
-      throw error
-    } finally {
-      migrationProgress.value = null
     }
   }
 
@@ -403,9 +296,8 @@ export function useSyncManager() {
 
   // 监听用户登录状态变化
   watch(user, async (newUser) => {
-    if (newUser?.id && globalSyncState.hybridStorage && globalSyncState.migrationService) {
+    if (newUser?.id && globalSyncState.hybridStorage) {
       await globalSyncState.hybridStorage.setUserId(newUser.id)
-      globalSyncState.migrationService.setUserId(newUser.id)
     }
   })
 
@@ -425,8 +317,6 @@ export function useSyncManager() {
     syncStatus: readonly(globalSyncState.syncStatus),
     storageHealth: readonly(globalSyncState.storageHealth),
     config: readonly(globalSyncState.config),
-    migrationProgress: readonly(migrationProgress),
-    lastMigrationResult: readonly(lastMigrationResult),
 
     // 计算属性
     canUseCloudSync,
@@ -439,9 +329,7 @@ export function useSyncManager() {
     initialize,
     updateConfig,
     syncAll,
-    migrateToCloud,
-    migrateToLocal,
-    syncBidirectional,
+
     exportAllData,
     importAllData,
     updateHealthStatus,

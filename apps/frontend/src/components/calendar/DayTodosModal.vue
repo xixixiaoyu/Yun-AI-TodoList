@@ -2,14 +2,14 @@
   <Teleport to="body">
     <div
       class="modal-overlay"
-      @click="handleOverlayClick"
-      @keydown.esc="handleClose"
       tabindex="-1"
       role="dialog"
       aria-modal="true"
       :aria-labelledby="headerId"
+      @click="handleOverlayClick"
+      @keydown.esc="handleClose"
     >
-      <div class="modal-content" @click.stop ref="modalRef" role="document">
+      <div ref="modalRef" class="modal-content" role="document" @click.stop>
         <!-- 增强的模态框头部 -->
         <header class="modal-header">
           <div class="date-info">
@@ -23,19 +23,19 @@
             <button
               v-if="todos.length > 0"
               class="action-btn"
-              @click="toggleAllTodos"
               :title="allCompleted ? t('markAllIncomplete') : t('markAllComplete')"
+              @click="toggleAllTodos"
             >
               <i :class="allCompleted ? 'i-carbon-checkbox-checked' : 'i-carbon-checkbox'"></i>
             </button>
-            <button class="close-btn" @click="handleClose" :title="t('close')" ref="closeButtonRef">
+            <button ref="closeButtonRef" class="close-btn" :title="t('close')" @click="handleClose">
               <i class="i-carbon-close"></i>
             </button>
           </div>
         </header>
 
         <!-- 增强的统计信息区域 -->
-        <section class="stats-section" v-if="todos.length > 0">
+        <section v-if="todos.length > 0" class="stats-section">
           <div class="stats-grid">
             <!-- 进度环形图 -->
             <div class="progress-circle-container">
@@ -98,7 +98,7 @@
         <!-- 快速操作区域 -->
         <section class="quick-actions-section">
           <div class="quick-add-container">
-            <form @submit.prevent="handleQuickAdd" class="quick-add-form">
+            <form class="quick-add-form" @submit.prevent="handleQuickAdd">
               <div class="input-group">
                 <input
                   ref="quickAddInputRef"
@@ -106,9 +106,9 @@
                   class="quick-add-input"
                   :placeholder="t('addTodoForThisDate')"
                   :maxlength="MAX_TODO_LENGTH"
+                  :disabled="isAdding"
                   @keydown.enter="handleQuickAdd"
                   @keydown.esc="clearQuickAdd"
-                  :disabled="isAdding"
                 />
                 <button
                   type="submit"
@@ -184,10 +184,10 @@
   </Teleport>
 </template>
 <script setup lang="ts">
-import { computed, ref, nextTick, onMounted, onUnmounted, watch } from 'vue'
+import { isToday as checkIsToday, format } from 'date-fns'
+import { enUS, zhCN } from 'date-fns/locale'
+import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { format, isToday as checkIsToday } from 'date-fns'
-import { zhCN, enUS } from 'date-fns/locale'
 
 import type { Todo } from '@/types/todo'
 import TodoItem from '../TodoItem.vue'
@@ -216,8 +216,8 @@ const MAX_TODO_LENGTH = 200
 
 // 响应式数据
 const modalRef = ref<HTMLElement>()
-const closeButtonRef = ref<HTMLButtonElement>()
-const footerCloseButtonRef = ref<HTMLButtonElement>()
+const closeButtonRef = ref<HTMLElement>()
+const _footerCloseButtonRef = ref<HTMLElement>()
 const quickAddInputRef = ref<HTMLInputElement>()
 
 const quickAddText = ref('')
@@ -362,7 +362,7 @@ const toggleAllTodos = () => {
   })
 }
 
-const clearCompleted = () => {
+const _clearCompleted = () => {
   const completedTodos = props.todos.filter((todo) => todo.completed)
   completedTodos.forEach((todo) => {
     emit('removeTodo', todo.id)

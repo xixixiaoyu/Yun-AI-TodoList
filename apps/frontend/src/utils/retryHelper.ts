@@ -7,7 +7,7 @@ export interface RetryOptions {
   maxAttempts?: number
   delay?: number
   backoffMultiplier?: number
-  shouldRetry?: (error: any) => boolean
+  shouldRetry?: (error: unknown) => boolean
 }
 
 const DEFAULT_OPTIONS: Required<RetryOptions> = {
@@ -28,7 +28,7 @@ export async function withRetry<T>(
   options: RetryOptions = {}
 ): Promise<T> {
   const config = { ...DEFAULT_OPTIONS, ...options }
-  let lastError: any
+  let lastError: unknown
   let currentDelay = config.delay
 
   for (let attempt = 1; attempt <= config.maxAttempts; attempt++) {
@@ -56,10 +56,10 @@ export async function withRetry<T>(
  * @param error 错误对象
  * @returns 是否应该重试
  */
-export function isRetryableError(error: any): boolean {
+export function isRetryableError(error: unknown): boolean {
   if (!error) return false
 
-  const errorMessage = error.message?.toLowerCase() || ''
+  const errorMessage = (error as { message?: string }).message?.toLowerCase() || ''
   const retryablePatterns = [
     'network',
     'timeout',
@@ -89,8 +89,8 @@ export const AI_RETRY_OPTIONS: RetryOptions = {
   maxAttempts: 2,
   delay: 2000,
   backoffMultiplier: 2,
-  shouldRetry: (error: any) => {
-    const errorMessage = error.message?.toLowerCase() || ''
+  shouldRetry: (error: unknown) => {
+    const errorMessage = (error as { message?: string }).message?.toLowerCase() || ''
     // 对于 API 限制错误不重试，对于网络错误重试
     return !errorMessage.includes('rate limit') && isRetryableError(error)
   },

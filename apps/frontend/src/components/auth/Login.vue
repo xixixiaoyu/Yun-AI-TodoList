@@ -188,19 +188,12 @@ const clearError = (field: string) => {
 }
 
 const handleSubmit = async (event?: Event) => {
-  console.log('Login form submitted', event)
-
   if (event) {
     event.preventDefault()
   }
 
-  console.log('Form data:', formData.value)
-  console.log('Form valid:', isFormValid.value)
-  console.log('Errors:', errors.value)
-
   // 简化验证逻辑
   if (!formData.value.email || !formData.value.password) {
-    console.log('Email or password missing')
     submitError.value = '请填写邮箱和密码'
     return
   }
@@ -208,20 +201,12 @@ const handleSubmit = async (event?: Event) => {
   submitError.value = ''
 
   try {
-    console.log('Attempting login with:', {
-      email: formData.value.email.trim(),
-      password: '***',
-      rememberMe: formData.value.rememberMe,
-    })
-
     // 使用认证 composable 进行登录
     await login({
       email: formData.value.email.trim(),
       password: formData.value.password,
       rememberMe: formData.value.rememberMe,
     })
-
-    console.log('Login successful')
 
     // 显示成功通知
     success('登录成功', '欢迎回来！即将跳转到主页面。')

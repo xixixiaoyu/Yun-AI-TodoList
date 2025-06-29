@@ -16,9 +16,9 @@ export function debounce<T extends (...args: unknown[]) => unknown>(
   immediate = false
 ): (...args: Parameters<T>) => void {
   let timeoutId: ReturnType<typeof setTimeout> | null = null
-  let lastCallTime = 0
+  let _lastCallTime = 0
 
-  return function (this: any, ...args: Parameters<T>) {
+  return function (this: unknown, ...args: Parameters<T>) {
     const now = Date.now()
     const callNow = immediate && !timeoutId
 
@@ -28,7 +28,7 @@ export function debounce<T extends (...args: unknown[]) => unknown>(
 
     timeoutId = setTimeout(() => {
       timeoutId = null
-      lastCallTime = now
+      _lastCallTime = now
       if (!immediate) {
         func.apply(this, args)
       }
@@ -46,14 +46,14 @@ export function debounce<T extends (...args: unknown[]) => unknown>(
  * @param delay 延迟时间（毫秒）
  * @returns 防抖后的异步函数
  */
-export function debounceAsync<T extends (...args: any[]) => Promise<any>>(
+export function debounceAsync<T extends (...args: unknown[]) => Promise<unknown>>(
   func: T,
   delay: number
 ): (...args: Parameters<T>) => Promise<ReturnType<T>> {
   let timeoutId: ReturnType<typeof setTimeout> | null = null
   let pendingPromise: Promise<ReturnType<T>> | null = null
 
-  return function (this: any, ...args: Parameters<T>): Promise<ReturnType<T>> {
+  return function (this: unknown, ...args: Parameters<T>): Promise<ReturnType<T>> {
     if (timeoutId) {
       clearTimeout(timeoutId)
     }
@@ -86,14 +86,14 @@ export function debounceAsync<T extends (...args: any[]) => Promise<any>>(
  * @param delay 节流间隔（毫秒）
  * @returns 节流后的函数
  */
-export function throttle<T extends (...args: any[]) => any>(
+export function throttle<T extends (...args: unknown[]) => unknown>(
   func: T,
   delay: number
 ): (...args: Parameters<T>) => void {
   let lastCallTime = 0
   let timeoutId: ReturnType<typeof setTimeout> | null = null
 
-  return function (this: any, ...args: Parameters<T>) {
+  return function (this: unknown, ...args: Parameters<T>) {
     const now = Date.now()
     const timeSinceLastCall = now - lastCallTime
 
