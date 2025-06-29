@@ -72,7 +72,12 @@ export function useTodoManagement() {
   const isLoading = computed(() => isSorting.value)
 
   const filteredTodos = computed(() => {
-    let result = todos.value
+    // 首先过滤掉无效的 Todo 对象
+    let result = todos.value.filter((todo) => {
+      return (
+        todo && todo.id && todo.title && typeof todo.title === 'string' && todo.title.trim() !== ''
+      )
+    })
 
     // 根据完成状态过滤
     if (filter.value === 'active') {
@@ -85,7 +90,13 @@ export function useTodoManagement() {
     if (searchQuery.value.trim()) {
       const query = searchQuery.value.trim().toLowerCase()
       result = result.filter((todo) => {
-        return todo.title.toLowerCase().includes(query)
+        // 确保 todo 和 title 存在且不为空
+        return (
+          todo &&
+          todo.title &&
+          typeof todo.title === 'string' &&
+          todo.title.toLowerCase().includes(query)
+        )
       })
     }
 
@@ -504,11 +515,23 @@ ${todoTexts}
       }
     }
 
+    logger.info('Adding todo with text', { text }, 'TodoManagement')
     const result = await addTodo({ title: text })
+
     if (!result) {
+      logger.error('Failed to add todo', { text }, 'TodoManagement')
       showError(t('duplicateError'))
       return { needsSplitting: false }
     }
+
+    // 验证添加的 Todo 数据完整性
+    if (!result.title || result.title.trim() === '') {
+      logger.error('Added todo has empty title', { result, originalText: text }, 'TodoManagement')
+      showError('添加的待办事项标题为空，请重试')
+      return { needsSplitting: false }
+    }
+
+    logger.info('Todo added successfully', { result }, 'TodoManagement')
 
     logger.info(
       'Todo added successfully, checking auto analysis config',

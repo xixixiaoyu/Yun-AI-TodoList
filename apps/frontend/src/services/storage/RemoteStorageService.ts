@@ -93,7 +93,21 @@ export class RemoteStorageService extends TodoStorageService {
 
       this.setStatus({ pendingOperations: this._status.pendingOperations + 1 })
 
-      const todo = await httpClient.post<Todo>(this.baseUrl, todoData)
+      const response = await httpClient.post<{ success: boolean; data: Todo; timestamp: string }>(
+        this.baseUrl,
+        todoData
+      )
+
+      // 验证响应格式
+      if (!response || typeof response !== 'object') {
+        throw new Error('服务器响应格式无效')
+      }
+
+      if (!response.success || !response.data) {
+        throw new Error('服务器返回数据格式错误')
+      }
+
+      const todo = response.data
 
       this.setStatus({
         pendingOperations: Math.max(0, this._status.pendingOperations - 1),
@@ -116,7 +130,21 @@ export class RemoteStorageService extends TodoStorageService {
 
       this.setStatus({ pendingOperations: this._status.pendingOperations + 1 })
 
-      const todo = await httpClient.patch<Todo>(`${this.baseUrl}/${id}`, updates)
+      const response = await httpClient.patch<{ success: boolean; data: Todo; timestamp: string }>(
+        `${this.baseUrl}/${id}`,
+        updates
+      )
+
+      // 验证响应格式
+      if (!response || typeof response !== 'object') {
+        throw new Error('服务器响应格式无效')
+      }
+
+      if (!response.success || !response.data) {
+        throw new Error('服务器返回数据格式错误')
+      }
+
+      const todo = response.data
 
       this.setStatus({
         pendingOperations: Math.max(0, this._status.pendingOperations - 1),

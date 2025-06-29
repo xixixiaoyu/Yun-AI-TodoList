@@ -110,6 +110,7 @@ export class LocalStorageService extends TodoStorageService {
       if (!TodoValidator.isTitleSafe(sanitizedTitle)) {
         return this.createErrorResult('storage.todoTitleEmpty')
       }
+
       if (
         todos.some((t) => !t.completed && t.title.toLowerCase() === sanitizedTitle.toLowerCase())
       ) {

@@ -1,7 +1,7 @@
 import { debounceAsync } from '@/utils/debounce'
 import { logger } from '@/utils/logger'
 import { STORAGE_RETRY_OPTIONS, withRetry } from '@/utils/retryHelper'
-import { onUnmounted, ref } from 'vue'
+import { nextTick, onUnmounted, ref } from 'vue'
 import type { CreateTodoDto, Todo, UpdateTodoDto } from '../types/todo'
 import { TodoValidator } from '../utils/todoValidator'
 import { useAuth } from './useAuth'
@@ -122,10 +122,23 @@ export function useTodos() {
       )
 
       if (result.success && result.data) {
-        // 优化：直接添加到内存状态，避免重新加载
-        todos.value.push(result.data)
-        logger.info('Todo added successfully', { todo: result.data }, 'useTodos')
-        return result.data
+        // 确保响应式更新：使用 nextTick 和强制触发响应式更新
+        const newTodo = result.data
+
+        // 验证新 Todo 的数据完整性
+        if (!newTodo.title || newTodo.title.trim() === '') {
+          logger.error('Created todo has empty title', { todo: newTodo }, 'useTodos')
+          return null
+        }
+
+        // 使用响应式安全的方式添加到数组
+        todos.value = [...todos.value, newTodo]
+
+        // 使用 nextTick 确保 DOM 更新
+        await nextTick()
+
+        logger.info('Todo added successfully', { todo: newTodo }, 'useTodos')
+        return newTodo
       } else {
         logger.error('Failed to add todo', result.error, 'useTodos')
         return null
@@ -213,15 +226,33 @@ export function useTodos() {
       const result = await withRetry(() => storageService.deleteTodo(id), STORAGE_RETRY_OPTIONS)
 
       if (result.success) {
-        // 优化：直接从内存状态移除，避免重新加载
+        // 确保响应式更新：使用响应式安全的方式从数组中移除
         const index = todos.value.findIndex((todo) => todo.id === id)
         if (index !== -1) {
-          todos.value.splice(index, 1)
+          // 验证要删除的 Todo 存在
+          const todoToRemove = todos.value[index]
+          logger.info('Removing todo', { id, todo: todoToRemove }, 'useTodos')
+
+          // 使用响应式安全的方式移除元素
+          todos.value = todos.value.filter((todo) => todo.id !== id)
+
+          // 使用 nextTick 确保 DOM 更新
+          await nextTick()
+
+          logger.info(
+            'Todo removed successfully from memory',
+            { id, remainingCount: todos.value.length },
+            'useTodos'
+          )
+
+          // 确保状态保存到本地存储
+          await saveTodos()
+        } else {
+          logger.warn('Todo not found in memory for removal', { id }, 'useTodos')
         }
-        logger.info('Todo removed successfully', { id }, 'useTodos')
         return true
       } else {
-        logger.error('Failed to remove todo', result.error, 'useTodos')
+        logger.error('Failed to remove todo from storage', { id, error: result.error }, 'useTodos')
         return false
       }
     } catch (error) {
@@ -354,14 +385,28 @@ export function useTodos() {
       )
 
       if (result.success) {
-        // 优化：直接更新内存状态，避免重新加载
+        // 确保响应式更新：使用响应式安全的方式更新数组
         const todoIndex = todos.value.findIndex((todo) => todo.id === id)
         if (todoIndex !== -1) {
-          todos.value[todoIndex] = {
+          const updatedTodo = {
             ...todos.value[todoIndex],
             ...filteredUpdates,
             updatedAt: new Date().toISOString(),
           }
+
+          // 验证更新后的 Todo 数据完整性
+          if (!updatedTodo.title || updatedTodo.title.trim() === '') {
+            logger.error('Updated todo has empty title', { id, todo: updatedTodo }, 'useTodos')
+            return false
+          }
+
+          // 使用响应式安全的方式更新数组
+          const newTodos = [...todos.value]
+          newTodos[todoIndex] = updatedTodo
+          todos.value = newTodos
+
+          // 使用 nextTick 确保 DOM 更新
+          await nextTick()
         }
         logger.info('Todo updated successfully', { id, updates: filteredUpdates }, 'useTodos')
         return true
