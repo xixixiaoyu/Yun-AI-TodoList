@@ -161,6 +161,12 @@ export function useTodos() {
 
   const addTodo = async (createDto: CreateTodoDto): Promise<Todo | null> => {
     try {
+      // 确保存储模式已初始化
+      if (!storageInitialized.value) {
+        logger.info('Storage not initialized, initializing now', undefined, 'useTodos')
+        await initializeStorageMode()
+      }
+
       // 检查是否存在重复的未完成待办事项
       const sanitizedTitle = createDto.title.trim()
       const isDuplicate = todos.value.some(
@@ -176,11 +182,22 @@ export function useTodos() {
         return null
       }
 
-      const storageService = getCurrentStorageService()
+      // 安全获取存储服务
+      let storageService: any
+      try {
+        storageService = getCurrentStorageService()
+      } catch (error) {
+        logger.warn('Storage service not available, initializing', error, 'useTodos')
+        await initializeStorageMode()
+        storageService = getCurrentStorageService()
+      }
+
+      // 安全获取当前模式
       const { currentMode } = useStorageMode()
+      const mode = currentMode?.value || 'local' // 提供默认值
 
       // 在混合模式下，只通过远程服务创建，避免双重请求
-      if (currentMode.value === 'hybrid') {
+      if (mode === 'hybrid') {
         // 直接使用远程服务，不触发同步
         const result = await withRetry(
           () => storageService.createTodo(createDto),
@@ -357,14 +374,22 @@ export function useTodos() {
 
   const updateTodosOrder = async (newOrder: string[]): Promise<boolean> => {
     try {
+      logger.info('Starting updateTodosOrder', { newOrder }, 'useTodos')
+
       const storageService = getCurrentStorageService()
       const reorders = newOrder.map((id, index) => ({ id, order: index }))
 
+      logger.info('Calling storageService.reorderTodos', { reorders }, 'useTodos')
+
       const result = await storageService.reorderTodos(reorders)
+
+      logger.info('storageService.reorderTodos result', { result }, 'useTodos')
 
       if (result.success) {
         // 更新本地状态
         const orderMap = new Map(newOrder.map((id, index) => [id, index]))
+        const oldTodos = [...todos.value]
+
         todos.value = todos.value
           .map((todo) => ({
             ...todo,
@@ -372,6 +397,15 @@ export function useTodos() {
             updatedAt: new Date().toISOString(),
           }))
           .sort((a, b) => a.order - b.order)
+
+        logger.info(
+          'Local todos updated',
+          {
+            oldOrders: oldTodos.map((t) => ({ id: t.id, order: t.order })),
+            newOrders: todos.value.map((t) => ({ id: t.id, order: t.order })),
+          },
+          'useTodos'
+        )
 
         await saveTodos()
 
@@ -393,6 +427,17 @@ export function useTodos() {
    */
   const updateTodosOrderByArray = async (newTodos: Todo[]): Promise<boolean> => {
     try {
+      logger.info(
+        'Starting updateTodosOrderByArray',
+        {
+          newTodosLength: newTodos?.length,
+          currentTodosLength: todos.value.length,
+          newTodosIds: newTodos?.map((t) => t.id),
+          newTodosOrders: newTodos?.map((t) => ({ id: t.id, order: t.order })),
+        },
+        'useTodos'
+      )
+
       // 验证新的 todos 数组
       if (!Array.isArray(newTodos) || newTodos.length !== todos.value.length) {
         logger.warn(
@@ -424,7 +469,13 @@ export function useTodos() {
 
       // 使用存储服务更新顺序
       const newOrder = newTodos.map((todo) => todo.id)
-      return await updateTodosOrder(newOrder)
+      logger.info('Calling updateTodosOrder with newOrder', { newOrder }, 'useTodos')
+
+      const result = await updateTodosOrder(newOrder)
+
+      logger.info('updateTodosOrder result', { result }, 'useTodos')
+
+      return result
     } catch (error) {
       logger.error('Error updating todos order by array', error, 'useTodos')
       return false

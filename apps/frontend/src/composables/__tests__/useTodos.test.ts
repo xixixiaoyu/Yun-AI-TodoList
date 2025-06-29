@@ -3,6 +3,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 // Mock data
 const mockTodos: any[] = []
 let mockNextId = 1
+let app: any = null
 
 // Mock storage service
 const mockStorageService = {
@@ -72,7 +73,16 @@ vi.mock('@/composables/useStorageMode', () => ({
   useStorageMode: () => ({
     getCurrentStorageService: () => mockStorageService,
     initializeStorageMode: vi.fn().mockResolvedValue(undefined),
-    isInitialized: { value: true },
+    isInitialized: ref(true),
+    currentMode: ref('local'), // 确保有默认值
+    config: ref({
+      mode: 'local',
+      autoSync: true,
+      syncInterval: 5,
+      offlineMode: true,
+      conflictResolution: 'merge',
+    }),
+    switchStorageMode: vi.fn().mockResolvedValue(true),
   }),
 }))
 
@@ -80,6 +90,9 @@ describe('useTodos', () => {
   let todoInstance: any
 
   beforeEach(async () => {
+    // 创建 Vue 应用实例用于测试
+    app = createApp({})
+
     // 重置 mock 状态
     mockTodos.splice(0, mockTodos.length)
     mockNextId = 1
@@ -102,7 +115,22 @@ describe('useTodos', () => {
   })
 
   afterEach(() => {
-    // 清理工作
+    // 清理 Vue 应用实例
+    if (app) {
+      try {
+        app.unmount()
+      } catch (error) {
+        // 忽略卸载错误
+      }
+      app = null
+    }
+
+    // 清理 mock 状态
+    mockTodos.splice(0, mockTodos.length)
+    mockNextId = 1
+
+    // 清理 localStorage
+    localStorage.clear()
   })
 
   it('should add a todo', async () => {

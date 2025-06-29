@@ -279,7 +279,13 @@ export class RemoteStorageService extends TodoStorageService {
 
       this.setStatus({ pendingOperations: this._status.pendingOperations + 1 })
 
-      await httpClient.post(`${this.baseUrl}/reorder`, { reorders })
+      // 转换数据格式以匹配后端 DTO
+      const items = reorders.map(({ id, order }) => ({
+        todoId: id,
+        newOrder: order,
+      }))
+
+      await httpClient.post(`${this.baseUrl}/reorder`, { items })
 
       this.setStatus({
         pendingOperations: Math.max(0, this._status.pendingOperations - 1),

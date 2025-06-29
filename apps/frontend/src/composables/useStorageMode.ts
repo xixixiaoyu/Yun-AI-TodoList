@@ -84,12 +84,23 @@ export function useStorageMode() {
   }
 
   /**
-   * 获取当前存储服务
+   * 获取当前存储服务（带自动降级机制）
    */
   const getCurrentStorageService = (): TodoStorageService => {
     if (!currentStorageService) {
-      throw new Error('Storage service not initialized')
+      // 尝试自动初始化
+      console.warn('Storage service not initialized, attempting auto-initialization')
+
+      if (!localStorageService) {
+        localStorageService = new LocalStorageService()
+      }
+
+      currentStorageService = localStorageService
+      storageState.currentMode = 'local'
+
+      console.log('Fallback to local storage service')
     }
+
     return currentStorageService
   }
 

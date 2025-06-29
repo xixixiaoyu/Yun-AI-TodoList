@@ -61,10 +61,10 @@ export function useTodoListState() {
   } = useTodoManagement()
 
   // 拖拽排序功能
-  const handleDragOrderChange = (newTodos: Todo[]) => {
+  const handleDragOrderChange = async (newTodos: Todo[]) => {
     logger.info('Drag order change initiated', { count: newTodos.length }, 'TodoListState')
     try {
-      const success = updateTodosOrderByArray(newTodos)
+      const success = await updateTodosOrderByArray(newTodos)
       if (success) {
         logger.debug(
           'Drag sort completed successfully',
