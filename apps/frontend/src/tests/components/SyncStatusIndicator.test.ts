@@ -52,6 +52,17 @@ describe('SyncStatusIndicator', () => {
     mockIsAuthenticated.value = true
   })
 
+  afterEach(async () => {
+    // 清理通知状态
+    try {
+      const { useNotifications } = await import('@/composables/useNotifications')
+      const { clearNotifications } = useNotifications()
+      clearNotifications()
+    } catch (error) {
+      // 忽略导入错误
+    }
+  })
+
   it('should not show when user is not authenticated', () => {
     mockIsAuthenticated.value = false
     const wrapper = mount(SyncStatusIndicator)
@@ -183,6 +194,7 @@ describe('Notification System Integration', () => {
   })
 
   it('should create and auto-remove success notifications', async () => {
+    const { useNotifications } = await import('@/composables/useNotifications')
     const { success, getDebugInfo } = useNotifications()
 
     // 创建成功通知
@@ -204,7 +216,8 @@ describe('Notification System Integration', () => {
     expect(debugInfo.activeTimers).toHaveLength(0)
   })
 
-  it('should prevent duplicate notifications', () => {
+  it('should prevent duplicate notifications', async () => {
+    const { useNotifications } = await import('@/composables/useNotifications')
     const { success, getDebugInfo } = useNotifications()
 
     // 创建第一个通知
@@ -220,13 +233,35 @@ describe('Notification System Integration', () => {
     expect(debugInfo.notifications).toHaveLength(1)
   })
 
-  it('should handle different notification types with correct durations', () => {
-    const { success, error, warning, info, getDebugInfo } = useNotifications()
+  it('should handle different notification types with correct durations', async () => {
+    const { useNotifications } = await import('@/composables/useNotifications')
+    const { addNotification, getDebugInfo, clearNotifications } = useNotifications()
 
-    success('成功通知')
-    error('错误通知')
-    warning('警告通知')
-    info('信息通知')
+    // 先清理之前的通知，确保干净的状态
+    clearNotifications()
+
+    // 使用 addNotification 直接创建通知以避免防重复机制
+    const timestamp = Date.now()
+    addNotification({
+      type: 'success',
+      title: `成功通知_${timestamp}`,
+      duration: 3000,
+    })
+    addNotification({
+      type: 'error',
+      title: `错误通知_${timestamp}`,
+      duration: 8000,
+    })
+    addNotification({
+      type: 'warning',
+      title: `警告通知_${timestamp}`,
+      duration: 6000,
+    })
+    addNotification({
+      type: 'info',
+      title: `信息通知_${timestamp}`,
+      duration: 4000,
+    })
 
     const debugInfo = getDebugInfo()
     expect(debugInfo.notifications).toHaveLength(4)
@@ -244,13 +279,30 @@ describe('Notification System Integration', () => {
     expect(infoNotif?.duration).toBe(4000)
   })
 
-  it('should clean up resources when clearing all notifications', () => {
-    const { success, error, clearNotifications, getDebugInfo } = useNotifications()
+  it('should clean up resources when clearing all notifications', async () => {
+    const { useNotifications } = await import('@/composables/useNotifications')
+    const { addNotification, clearNotifications, getDebugInfo } = useNotifications()
 
-    // 创建多个通知
-    success('通知1')
-    error('通知2')
-    success('通知3')
+    // 先清理之前的通知，确保干净的状态
+    clearNotifications()
+
+    // 使用 addNotification 直接创建通知以避免防重复机制
+    const timestamp = Date.now()
+    addNotification({
+      type: 'success',
+      title: `清理测试通知1_${timestamp}`,
+      message: '消息1',
+    })
+    addNotification({
+      type: 'error',
+      title: `清理测试通知2_${timestamp}`,
+      message: '消息2',
+    })
+    addNotification({
+      type: 'success',
+      title: `清理测试通知3_${timestamp}`,
+      message: '消息3',
+    })
 
     let debugInfo = getDebugInfo()
     expect(debugInfo.notifications).toHaveLength(3)

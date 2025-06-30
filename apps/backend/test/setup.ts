@@ -1,10 +1,9 @@
-import { Test, TestingModule } from '@nestjs/testing'
 import { INestApplication, ValidationPipe } from '@nestjs/common'
-import { ConfigModule } from '@nestjs/config'
+import { Test, TestingModule } from '@nestjs/testing'
+import * as path from 'path'
+import * as request from 'supertest'
 import { AppModule } from '../src/app.module'
 import { PrismaService } from '../src/database/prisma.service'
-import * as request from 'supertest'
-import * as path from 'path'
 
 // Load test environment variables
 process.env.NODE_ENV = 'test'
@@ -46,6 +45,9 @@ beforeAll(async () => {
 
   // 获取 Prisma 服务
   prisma = app.get<PrismaService>(PrismaService)
+
+  // 清理数据库，确保测试开始时数据库是干净的
+  await cleanupDatabase()
 })
 
 afterAll(async () => {
@@ -56,10 +58,8 @@ afterAll(async () => {
   await app.close()
 })
 
-beforeEach(async () => {
-  // 每个测试前清理数据库
-  await cleanupDatabase()
-})
+// 移除 beforeEach 清理，让测试套件内的测试可以共享数据
+// 只在测试套件开始前清理一次数据库
 
 async function cleanupDatabase() {
   // For SQLite, we need to delete from tables individually

@@ -3,12 +3,40 @@
  * 用于配置测试环境中的全局 mock 和设置
  */
 
-import { vi } from 'vitest'
+import { afterEach, beforeEach, vi } from 'vitest'
 import * as Vue from 'vue'
+import { createApp } from 'vue'
 import { createI18n } from 'vue-i18n'
 
 // 全局注册 Vue API
 Object.assign(global, Vue)
+
+// 全局应用实例管理
+let currentApp: any = null
+
+// 在每个测试前创建新的应用实例
+beforeEach(() => {
+  if (currentApp) {
+    try {
+      currentApp.unmount()
+    } catch (error) {
+      // 忽略卸载错误
+    }
+  }
+  currentApp = createApp({})
+})
+
+// 在每个测试后清理应用实例
+afterEach(() => {
+  if (currentApp) {
+    try {
+      currentApp.unmount()
+    } catch (error) {
+      // 忽略卸载错误
+    }
+    currentApp = null
+  }
+})
 
 // Mock Worker for tests
 global.Worker = class Worker {
@@ -423,6 +451,176 @@ vi.mock('@/composables/useStorageMode', () => {
     useStorageMode: mockUseStorageMode,
     getCurrentStorageService: () => mockStorageService,
     resetMockState,
+  }
+})
+
+// Mock useNotifications
+vi.mock('@/composables/useNotifications', () => {
+  const mockNotifications = ref([])
+  const mockTimers = new Map()
+
+  const mockUseNotifications = () => ({
+    notifications: readonly(mockNotifications),
+    config: readonly({ maxNotifications: 5, defaultDuration: 4000, position: 'top-right' }),
+
+    addNotification: vi.fn((notification) => {
+      const id = `notification_${Date.now()}_${Math.random().toString(36).substring(2, 11)}`
+      const newNotification = {
+        id,
+        timestamp: new Date(),
+        duration: notification.duration || 4000,
+        ...notification,
+      }
+      mockNotifications.value.unshift(newNotification)
+
+      // 模拟自动移除
+      if (!newNotification.persistent && newNotification.duration > 0) {
+        const timerId = setTimeout(() => {
+          const index = mockNotifications.value.findIndex((n) => n.id === id)
+          if (index > -1) {
+            mockNotifications.value.splice(index, 1)
+            mockTimers.delete(id)
+          }
+        }, newNotification.duration)
+        mockTimers.set(id, timerId)
+      }
+
+      return id
+    }),
+
+    removeNotification: vi.fn((id) => {
+      const index = mockNotifications.value.findIndex((n) => n.id === id)
+      if (index > -1) {
+        mockNotifications.value.splice(index, 1)
+        const timerId = mockTimers.get(id)
+        if (timerId) {
+          clearTimeout(timerId)
+          mockTimers.delete(id)
+        }
+      }
+    }),
+
+    clearNotifications: vi.fn(() => {
+      mockTimers.forEach((timerId) => clearTimeout(timerId))
+      mockTimers.clear()
+      mockNotifications.value = []
+    }),
+
+    success: vi.fn((title, message, options = {}) => {
+      const id = `notification_${Date.now()}_${Math.random().toString(36).substring(2, 11)}`
+      const notification = {
+        id,
+        type: 'success',
+        title,
+        message,
+        duration: options.duration || 3000,
+        timestamp: new Date(),
+        ...options,
+      }
+
+      // 检查重复通知
+      const isDuplicate = mockNotifications.value.some(
+        (n) => n.title === title && n.message === message && n.type === 'success'
+      )
+      if (isDuplicate) {
+        return ''
+      }
+
+      mockNotifications.value.unshift(notification)
+
+      if (!notification.persistent && notification.duration > 0) {
+        const timerId = setTimeout(() => {
+          const index = mockNotifications.value.findIndex((n) => n.id === id)
+          if (index > -1) {
+            mockNotifications.value.splice(index, 1)
+            mockTimers.delete(id)
+          }
+        }, notification.duration)
+        mockTimers.set(id, timerId)
+      }
+
+      return id
+    }),
+
+    error: vi.fn((title, message, options = {}) => {
+      const id = `notification_${Date.now()}_${Math.random().toString(36).substring(2, 11)}`
+      const notification = {
+        id,
+        type: 'error',
+        title,
+        message,
+        duration: options.duration || 8000,
+        timestamp: new Date(),
+        ...options,
+      }
+      mockNotifications.value.unshift(notification)
+      return id
+    }),
+
+    warning: vi.fn((title, message, options = {}) => {
+      const id = `notification_${Date.now()}_${Math.random().toString(36).substring(2, 11)}`
+      const notification = {
+        id,
+        type: 'warning',
+        title,
+        message,
+        duration: options.duration || 6000,
+        timestamp: new Date(),
+        ...options,
+      }
+      mockNotifications.value.unshift(notification)
+      return id
+    }),
+
+    info: vi.fn((title, message, options = {}) => {
+      const id = `notification_${Date.now()}_${Math.random().toString(36).substring(2, 11)}`
+      const notification = {
+        id,
+        type: 'info',
+        title,
+        message,
+        duration: options.duration || 4000,
+        timestamp: new Date(),
+        ...options,
+      }
+      mockNotifications.value.unshift(notification)
+      return id
+    }),
+
+    getDebugInfo: vi.fn(() => ({
+      notifications: mockNotifications.value.map((n) => ({
+        id: n.id.slice(-8),
+        title: n.title,
+        type: n.type,
+        duration: n.duration,
+        persistent: n.persistent,
+        timestamp: n.timestamp,
+        age: Date.now() - n.timestamp.getTime(),
+      })),
+      activeTimers: Array.from(mockTimers.entries()).map(([id, timerId]) => ({
+        notificationId: id.slice(-8),
+        timerId,
+      })),
+      recentNotificationsCache: [],
+      config: { maxNotifications: 5, defaultDuration: 4000, position: 'top-right' },
+      stats: {
+        totalNotifications: mockNotifications.value.length,
+        activeTimers: mockTimers.size,
+        cacheEntries: 0,
+      },
+    })),
+
+    updateConfig: vi.fn(),
+    loading: vi.fn(),
+    authError: vi.fn(),
+    syncSuccess: vi.fn(),
+    syncError: vi.fn(),
+    networkOffline: vi.fn(),
+    networkOnline: vi.fn(),
+  })
+
+  return {
+    useNotifications: mockUseNotifications,
   }
 })
 

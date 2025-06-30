@@ -6,59 +6,19 @@ import { useTodoManagement } from '@/composables/useTodoManagement'
 import { useTodos } from '@/composables/useTodos'
 import type { CreateTodoDto, Todo } from '@shared/types'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { nextTick, ref } from 'vue'
+import { nextTick } from 'vue'
 
-// Mock 存储服务
-const mockCreateTodo = vi.fn()
-const mockUpdateTodo = vi.fn()
-
-vi.mock('@/composables/useStorageMode', () => ({
-  useStorageMode: () => ({
-    getCurrentStorageService: () => ({
-      createTodo: mockCreateTodo,
-      updateTodo: mockUpdateTodo,
-    }),
-  }),
-}))
-
-// Mock logger
-vi.mock('@/utils/logger', () => ({
-  logger: {
-    info: vi.fn(),
-    error: vi.fn(),
-    warn: vi.fn(),
-  },
-}))
-
-// Mock auth
-vi.mock('@/composables/useAuth', () => ({
-  useAuth: () => ({
-    user: ref({ id: 'test-user' }),
-  }),
-}))
+// 使用全局 mock，不需要重复定义
 
 describe('Todo Add Fix', () => {
-  beforeEach(() => {
+  beforeEach(async () => {
     vi.clearAllMocks()
     // 重置 todos 状态
-    const { todos } = useTodos()
-    todos.value = []
+    const { resetState } = useTodos()
+    await resetState()
   })
 
   it('should add todo with valid title', async () => {
-    // 配置 mock 返回正确的数据
-    mockCreateTodo.mockResolvedValue({
-      success: true,
-      data: {
-        id: 'test-id',
-        title: 'Test Todo Title',
-        completed: false,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-        order: 0,
-      },
-    })
-
     const { addTodo, todos } = useTodos()
 
     const createDto: CreateTodoDto = {
@@ -75,12 +35,6 @@ describe('Todo Add Fix', () => {
   })
 
   it('should not add todo with empty title', async () => {
-    // 配置 mock 返回失败结果
-    mockCreateTodo.mockResolvedValue({
-      success: false,
-      error: 'storage.todoTitleEmpty',
-    })
-
     const { addTodo, todos } = useTodos()
 
     const createDto: CreateTodoDto = {
@@ -158,19 +112,6 @@ describe('Todo Add Fix', () => {
   })
 
   it('should maintain reactivity after adding todo', async () => {
-    // 配置 mock 返回正确的数据
-    mockCreateTodo.mockResolvedValue({
-      success: true,
-      data: {
-        id: 'reactive-test-id',
-        title: 'Reactive Test Todo',
-        completed: false,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-        order: 0,
-      },
-    })
-
     const { addTodo, todos } = useTodos()
     const { filteredTodos } = useTodoManagement()
 

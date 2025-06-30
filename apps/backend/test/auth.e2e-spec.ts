@@ -1,7 +1,13 @@
 import request from 'supertest'
-import { app } from './setup'
+import { app, prisma } from './setup'
 
 describe('Authentication (e2e)', () => {
+  // 在认证测试套件开始前清理数据库
+  beforeAll(async () => {
+    await prisma.userSetting.deleteMany()
+    await prisma.todo.deleteMany()
+    await prisma.user.deleteMany()
+  })
   const testUser = {
     email: 'test@example.com',
     username: 'testuser',
@@ -11,34 +17,22 @@ describe('Authentication (e2e)', () => {
   let accessToken: string
   let refreshToken: string
 
-  beforeAll(async () => {
-    // 注册测试用户
-    const response = await request(app.getHttpServer())
-      .post('/api/v1/auth/register')
-      .send(testUser)
-      .expect(201)
-
-    accessToken = response.body.accessToken
-    refreshToken = response.body.refreshToken
-  })
-
   describe('/auth/register (POST)', () => {
-    it('should register a new user', () => {
-      return request(app.getHttpServer())
+    it('should register a new user', async () => {
+      const response = await request(app.getHttpServer())
         .post('/api/v1/auth/register')
         .send(testUser)
         .expect(201)
-        .expect((res) => {
-          expect(res.body).toHaveProperty('user')
-          expect(res.body).toHaveProperty('accessToken')
-          expect(res.body).toHaveProperty('refreshToken')
-          expect(res.body.user.email).toBe(testUser.email)
-          expect(res.body.user.username).toBe(testUser.username)
-          expect(res.body.user).not.toHaveProperty('password')
 
-          accessToken = res.body.accessToken
-          refreshToken = res.body.refreshToken
-        })
+      expect(response.body).toHaveProperty('user')
+      expect(response.body).toHaveProperty('accessToken')
+      expect(response.body).toHaveProperty('refreshToken')
+      expect(response.body.user.email).toBe(testUser.email)
+      expect(response.body.user.username).toBe(testUser.username)
+      expect(response.body.user).not.toHaveProperty('password')
+
+      accessToken = response.body.accessToken
+      refreshToken = response.body.refreshToken
     })
 
     it('should not register user with existing email', () => {
@@ -74,20 +68,23 @@ describe('Authentication (e2e)', () => {
   })
 
   describe('/auth/login (POST)', () => {
-    it('should login with valid credentials', () => {
-      return request(app.getHttpServer())
+    it('should login with valid credentials', async () => {
+      const response = await request(app.getHttpServer())
         .post('/api/v1/auth/login')
         .send({
           email: testUser.email,
           password: testUser.password,
         })
         .expect(200)
-        .expect((res) => {
-          expect(res.body).toHaveProperty('user')
-          expect(res.body).toHaveProperty('accessToken')
-          expect(res.body).toHaveProperty('refreshToken')
-          expect(res.body.user.email).toBe(testUser.email)
-        })
+
+      expect(response.body).toHaveProperty('user')
+      expect(response.body).toHaveProperty('accessToken')
+      expect(response.body).toHaveProperty('refreshToken')
+      expect(response.body.user.email).toBe(testUser.email)
+
+      // 更新 token 用于后续测试
+      accessToken = response.body.accessToken
+      refreshToken = response.body.refreshToken
     })
 
     it('should not login with invalid email', () => {
