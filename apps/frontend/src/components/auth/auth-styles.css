@@ -244,12 +244,11 @@
 
 /* 悬停效果 */
 .auth-button:hover:not(:disabled) {
-  transform: translateY(-1px);
   box-shadow: 0 4px 12px rgba(255, 126, 103, 0.3);
 }
 
 .auth-button:active:not(:disabled) {
-  transform: translateY(0);
+  box-shadow: 0 2px 6px rgba(255, 126, 103, 0.2);
 }
 
 /* 加载状态 */

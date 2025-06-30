@@ -143,9 +143,13 @@ defineOptions({
   margin-bottom: 3rem;
   position: relative;
   padding: 2rem;
-  background: linear-gradient(135deg, rgba(121, 180, 166, 0.1) 0%, rgba(121, 180, 166, 0.05) 100%);
+  background: linear-gradient(
+    135deg,
+    var(--settings-primary-soft) 0%,
+    var(--settings-primary-ultra-light) 100%
+  );
   border-radius: 24px;
-  border: 1px solid rgba(121, 180, 166, 0.1);
+  border: 1px solid var(--settings-card-border);
   -webkit-backdrop-filter: blur(20px);
   backdrop-filter: blur(20px);
   /* Edge 浏览器回退 */
@@ -162,7 +166,7 @@ defineOptions({
   left: 0;
   right: 0;
   height: 2px;
-  background: linear-gradient(90deg, transparent 0%, #79b4a6 50%, transparent 100%);
+  background: linear-gradient(90deg, transparent 0%, var(--settings-primary) 50%, transparent 100%);
 }
 
 .settings-header-icon {
@@ -172,8 +176,12 @@ defineOptions({
   width: 4rem;
   height: 4rem;
   border-radius: 20px;
-  background: linear-gradient(135deg, #79b4a6 0%, rgba(121, 180, 166, 0.8) 100%);
-  box-shadow: 0 8px 32px rgba(121, 180, 166, 0.3);
+  background: linear-gradient(
+    135deg,
+    var(--settings-primary) 0%,
+    var(--settings-primary-dark) 100%
+  );
+  box-shadow: 0 8px 32px var(--settings-primary-medium);
   position: relative;
   overflow: hidden;
 }
@@ -211,7 +219,12 @@ defineOptions({
 .settings-title {
   font-size: 2.5rem;
   font-weight: 700;
-  background: linear-gradient(135deg, #2d3748 0%, #79b4a6 50%, #2d3748 100%);
+  background: linear-gradient(
+    135deg,
+    var(--text-color) 0%,
+    var(--settings-primary) 50%,
+    var(--text-color) 100%
+  );
   -webkit-background-clip: text;
   -moz-background-clip: text;
   background-clip: text;
@@ -236,7 +249,11 @@ defineOptions({
   width: 100px;
   height: 100px;
   border-radius: 50%;
-  background: linear-gradient(135deg, rgba(121, 180, 166, 0.1) 0%, rgba(121, 180, 166, 0.05) 100%);
+  background: linear-gradient(
+    135deg,
+    var(--settings-primary-soft) 0%,
+    var(--settings-primary-ultra-light) 100%
+  );
   position: relative;
   overflow: hidden;
 }
@@ -249,7 +266,11 @@ defineOptions({
   width: 60%;
   height: 60%;
   border-radius: 50%;
-  background: linear-gradient(135deg, rgba(121, 180, 166, 0.2) 0%, rgba(121, 180, 166, 0.1) 100%);
+  background: linear-gradient(
+    135deg,
+    var(--settings-primary-medium) 0%,
+    var(--settings-primary-soft) 100%
+  );
   transform: translate(-50%, -50%);
   animation: pulse 2s infinite;
 }
@@ -281,14 +302,14 @@ defineOptions({
 
 /* 设置卡片基础样式 */
 .settings-card {
-  background: rgba(255, 255, 255, 0.8);
+  background: var(--settings-card-bg);
   -webkit-backdrop-filter: blur(20px);
   backdrop-filter: blur(20px);
   /* Edge 浏览器回退 */
   @supports not (backdrop-filter: blur(20px)) {
-    background: rgba(255, 255, 255, 0.95);
+    background: var(--settings-card-hover-bg);
   }
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  border: 1px solid var(--settings-card-border);
   border-radius: 24px;
   padding: 2rem;
   position: relative;
@@ -296,11 +317,9 @@ defineOptions({
   transition:
     transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
     box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1),
-    border-color 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow:
-    0 4px 6px -1px rgba(0, 0, 0, 0.1),
-    0 2px 4px -1px rgba(0, 0, 0, 0.06),
-    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    border-color 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+    background-color 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: var(--settings-card-shadow);
   min-height: 240px;
 }
 
@@ -358,12 +377,9 @@ defineOptions({
 }
 
 .settings-card:hover {
-  transform: translateY(-4px);
-  box-shadow:
-    0 20px 40px -12px rgba(0, 0, 0, 0.12),
-    0 8px 16px -4px rgba(0, 0, 0, 0.08),
-    inset 0 1px 0 rgba(255, 255, 255, 0.2);
-  border-color: rgba(255, 255, 255, 0.3);
+  background: var(--settings-card-hover-bg);
+  box-shadow: var(--settings-card-hover-shadow);
+  border-color: var(--settings-card-hover-border);
 }
 
 .settings-card:hover::before,
@@ -371,45 +387,124 @@ defineOptions({
   opacity: 1;
 }
 
-/* 不同类型卡片的特殊样式 */
+/* 不同类型卡片的特殊样式 - 基于主色调的和谐变体 */
 .settings-card-primary {
-  background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(255, 255, 255, 0.8) 100%);
-  border-color: rgba(99, 102, 241, 0.2);
+  background: linear-gradient(
+    135deg,
+    var(--settings-card-primary-accent) 0%,
+    var(--settings-card-bg) 100%
+  );
+  border-color: var(--settings-primary-medium);
+}
+
+.settings-card-primary:hover {
+  background: linear-gradient(
+    135deg,
+    var(--settings-primary-soft) 0%,
+    var(--settings-card-hover-bg) 100%
+  );
 }
 
 .settings-card-secondary {
-  background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(255, 255, 255, 0.8) 100%);
-  border-color: rgba(16, 185, 129, 0.2);
+  background: linear-gradient(
+    135deg,
+    var(--settings-card-secondary-accent) 0%,
+    var(--settings-card-bg) 100%
+  );
+  border-color: var(--settings-primary-soft);
+}
+
+.settings-card-secondary:hover {
+  background: linear-gradient(
+    135deg,
+    var(--settings-primary-medium) 0%,
+    var(--settings-card-hover-bg) 100%
+  );
 }
 
 .settings-card-accent {
-  background: linear-gradient(135deg, rgba(245, 158, 11, 0.1) 0%, rgba(255, 255, 255, 0.8) 100%);
-  border-color: rgba(245, 158, 11, 0.2);
+  background: linear-gradient(
+    135deg,
+    var(--settings-card-tertiary-accent) 0%,
+    var(--settings-card-bg) 100%
+  );
+  border-color: var(--settings-primary-ultra-light);
+}
+
+.settings-card-accent:hover {
+  background: linear-gradient(
+    135deg,
+    var(--settings-primary-soft) 0%,
+    var(--settings-card-hover-bg) 100%
+  );
 }
 
 .settings-card-language {
-  background: linear-gradient(135deg, rgba(34, 197, 94, 0.1) 0%, rgba(255, 255, 255, 0.8) 100%);
-  border-color: rgba(34, 197, 94, 0.2);
+  background: linear-gradient(
+    135deg,
+    var(--settings-card-secondary-accent) 0%,
+    var(--settings-card-bg) 100%
+  );
+  border-color: var(--settings-primary-soft);
+}
+
+.settings-card-language:hover {
+  background: linear-gradient(
+    135deg,
+    var(--settings-primary-medium) 0%,
+    var(--settings-card-hover-bg) 100%
+  );
 }
 
 .settings-card-storage {
-  background: linear-gradient(135deg, rgba(139, 92, 246, 0.1) 0%, rgba(255, 255, 255, 0.8) 100%);
-  border-color: rgba(139, 92, 246, 0.2);
+  background: linear-gradient(
+    135deg,
+    var(--settings-card-primary-accent) 0%,
+    var(--settings-card-bg) 100%
+  );
+  border-color: var(--settings-primary-medium);
 }
 
-.settings-card-status {
-  background: linear-gradient(135deg, rgba(236, 72, 153, 0.1) 0%, rgba(255, 255, 255, 0.8) 100%);
-  border-color: rgba(236, 72, 153, 0.2);
+.settings-card-storage:hover {
+  background: linear-gradient(
+    135deg,
+    var(--settings-primary-soft) 0%,
+    var(--settings-card-hover-bg) 100%
+  );
 }
 
 .settings-card-ai {
-  background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(255, 255, 255, 0.8) 100%);
-  border-color: rgba(59, 130, 246, 0.2);
+  background: linear-gradient(
+    135deg,
+    var(--settings-card-secondary-accent) 0%,
+    var(--settings-card-bg) 100%
+  );
+  border-color: var(--settings-primary-soft);
+}
+
+.settings-card-ai:hover {
+  background: linear-gradient(
+    135deg,
+    var(--settings-primary-medium) 0%,
+    var(--settings-card-hover-bg) 100%
+  );
 }
 
 .settings-card-prompts {
-  background: linear-gradient(135deg, rgba(168, 85, 247, 0.1) 0%, rgba(255, 255, 255, 0.8) 100%);
-  border-color: rgba(168, 85, 247, 0.2);
+  background: linear-gradient(
+    135deg,
+    var(--settings-card-primary-accent) 0%,
+    var(--settings-card-bg) 100%
+  );
+  border-color: var(--settings-primary-medium);
+}
+
+.settings-card-prompts:hover {
+  background: linear-gradient(
+    135deg,
+    var(--settings-primary-soft) 0%,
+    var(--settings-card-hover-bg) 100%
+  );
 }
 
 .settings-card-full {
@@ -430,7 +525,7 @@ defineOptions({
 .decoration-circle {
   position: absolute;
   border-radius: 50%;
-  background: linear-gradient(135deg, rgba(121, 180, 166, 0.05) 0%, rgba(121, 180, 166, 0.02) 100%);
+  background: linear-gradient(135deg, var(--settings-primary-ultra-light) 0%, transparent 100%);
   animation: float 6s ease-in-out infinite;
 }
 
@@ -544,27 +639,7 @@ defineOptions({
   }
 }
 
-/* 暗色主题适配 - 为了 Edge 兼容性，使用具体颜色值 */
-@media (prefers-color-scheme: dark) {
-  .settings-card {
-    background: rgba(255, 255, 255, 0.1);
-    border-color: rgba(121, 180, 166, 0.2);
-  }
-
-  .settings-card:hover {
-    background: rgba(255, 255, 255, 0.15);
-    border-color: rgba(121, 180, 166, 0.3);
-  }
-
-  .settings-header {
-    background: linear-gradient(
-      135deg,
-      rgba(121, 180, 166, 0.15) 0%,
-      rgba(121, 180, 166, 0.08) 100%
-    );
-    border-color: rgba(121, 180, 166, 0.2);
-  }
-}
+/* 深色主题适配已通过 CSS 变量系统自动处理 */
 
 /* 动画性能优化 */
 .settings-card {

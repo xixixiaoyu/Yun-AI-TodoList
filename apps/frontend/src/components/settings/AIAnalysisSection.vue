@@ -139,8 +139,8 @@ defineOptions({
 
 .section-icon {
   @apply flex-shrink-0 w-8 h-8 rounded-lg flex items-center justify-center;
-  background: rgba(121, 180, 166, 0.12);
-  color: var(--primary-color);
+  background: var(--settings-primary-soft);
+  color: var(--settings-primary);
 }
 
 .section-title-group {
@@ -156,23 +156,21 @@ defineOptions({
 }
 
 .settings-content {
-  /* @apply ml-11; */
   display: grid;
   grid-template-columns: 1fr;
   gap: 0.5rem;
 }
 
 .setting-item {
-  @apply flex items-center justify-between gap-2 p-2.5 rounded-lg border transition-all duration-200;
-  background: var(--ai-accent-color);
-  border-color: var(--ai-message-border);
+  @apply flex items-center justify-between gap-2 p-2.5 rounded-lg transition-all duration-200;
+  background: var(--settings-primary-ultra-light);
+  border: 1px solid var(--settings-input-border);
 }
 
 .setting-item:hover {
-  background: var(--ai-accent-hover);
-  border-color: rgba(121, 180, 166, 0.2);
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px var(--ai-message-shadow);
+  background: var(--settings-primary-soft);
+  border-color: var(--settings-primary-medium);
+  box-shadow: var(--settings-input-focus-shadow);
 }
 
 .setting-info {
@@ -203,19 +201,16 @@ defineOptions({
 
 .toggle-slider {
   @apply absolute inset-0 rounded-full transition-all duration-300 ease-in-out;
-  background: rgba(156, 163, 175, 0.4);
-}
-
-[data-theme='dark'] .toggle-slider {
-  background: rgba(107, 114, 128, 0.6);
+  background: var(--settings-input-border);
 }
 
 .toggle-slider:before {
   @apply absolute content-[''] h-5 w-5 left-0.5 bottom-0.5 bg-white rounded-full transition-all duration-300 ease-in-out;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .toggle-switch input:checked + .toggle-slider {
-  background: var(--primary-color);
+  background: var(--settings-primary);
 }
 
 .toggle-switch input:checked + .toggle-slider:before {
@@ -223,9 +218,9 @@ defineOptions({
 }
 
 .analysis-status {
-  @apply mt-4 p-3 rounded-lg border;
-  background: var(--ai-accent-color);
-  border-color: var(--ai-message-border);
+  @apply mt-4 p-3 rounded-lg;
+  background: var(--settings-primary-ultra-light);
+  border: 1px solid var(--settings-input-border);
   grid-column: 1 / -1;
 }
 
@@ -238,11 +233,12 @@ defineOptions({
 }
 
 .status-value {
-  @apply text-sm font-medium text-gray-500;
+  @apply text-sm font-medium text-text-secondary;
 }
 
 .status-enabled {
-  color: var(--primary-color);
+  color: var(--settings-primary);
+  font-weight: 600;
 }
 
 @media (max-width: 768px) {

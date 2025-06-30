@@ -3,7 +3,7 @@
     <div class="mb-4">
       <div class="flex items-center gap-3 mb-1">
         <div
-          class="w-7 h-7 bg-gradient-to-br from-purple-500 to-purple-600 rounded-lg flex items-center justify-center shadow-lg"
+          class="w-7 h-7 rounded-lg flex items-center justify-center shadow-lg settings-section-icon"
         >
           <svg class="w-3.5 h-3.5 text-white" fill="currentColor" viewBox="0 0 24 24">
             <path
@@ -20,7 +20,7 @@
       </p>
     </div>
 
-    <div class="flex-1 space-y-2">
+    <div class="flex-1 space-y-1">
       <div
         v-for="option in modelOptions"
         :key="option.value"
@@ -29,12 +29,18 @@
         @click="selectModel(option.value)"
       >
         <div class="flex items-center gap-3">
-          <div class="radio-button" :class="{ checked: selectedModel === option.value }">
-            <div v-if="selectedModel === option.value" class="radio-dot" />
-          </div>
           <div class="flex-1">
             <div class="model-name">{{ option.label }}</div>
             <div class="model-description">{{ option.description }}</div>
+          </div>
+          <div v-if="selectedModel === option.value" class="selected-indicator">
+            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+              <path
+                fill-rule="evenodd"
+                d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                clip-rule="evenodd"
+              />
+            </svg>
           </div>
         </div>
       </div>
@@ -93,23 +99,34 @@ defineOptions({
 
 <style scoped>
 .model-option {
-  @apply p-3 border border-input-border rounded-lg cursor-pointer transition-all duration-200 hover:border-primary hover:bg-primary/5;
+  @apply px-4 py-2.5 rounded-md cursor-pointer transition-all duration-200;
+  background: transparent;
+  border: 1px solid transparent;
+}
+
+.model-option:hover {
+  background: var(--settings-primary-ultra-light);
+  border-color: var(--settings-primary-ultra-light);
+  box-shadow: 0 1px 3px rgba(121, 180, 166, 0.06);
 }
 
 .model-option.active {
-  @apply border-primary bg-primary/10;
+  background: var(--settings-primary-soft);
+  border-color: var(--settings-primary-medium);
 }
 
-.radio-button {
-  @apply w-5 h-5 border-2 border-input-border rounded-full flex items-center justify-center transition-all duration-200;
+.selected-indicator {
+  @apply flex items-center justify-center;
+  color: var(--settings-primary);
 }
 
-.radio-button.checked {
-  @apply border-primary;
-}
-
-.radio-dot {
-  @apply w-2.5 h-2.5 bg-primary rounded-full;
+.settings-section-icon {
+  background: linear-gradient(
+    135deg,
+    var(--settings-primary) 0%,
+    var(--settings-primary-dark) 100%
+  );
+  color: white;
 }
 
 .model-name {
@@ -121,6 +138,8 @@ defineOptions({
 }
 
 .current-model-info {
-  @apply p-3 bg-bg-card rounded-lg border border-input-border/50;
+  @apply p-3 rounded-lg;
+  background: var(--settings-primary-ultra-light);
+  border: 1px solid var(--settings-input-border);
 }
 </style>

@@ -78,8 +78,14 @@
                   {{ option.disabledReason }}
                 </div>
               </div>
-              <div class="radio-button" :class="{ checked: selectedMode === option.value }">
-                <div v-if="selectedMode === option.value" class="radio-dot" />
+              <div v-if="selectedMode === option.value" class="selected-indicator">
+                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                  <path
+                    fill-rule="evenodd"
+                    d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                    clip-rule="evenodd"
+                  />
+                </svg>
               </div>
             </div>
           </div>
@@ -412,16 +418,24 @@ defineOptions({
 }
 
 .storage-mode-options {
-  @apply space-y-3;
+  @apply space-y-1;
 }
 
 .storage-mode-option {
-  @apply p-3 border border-input-border rounded-lg cursor-pointer transition-all duration-200;
-  @apply hover:border-primary hover:bg-primary/5;
+  @apply px-4 py-2.5 rounded-md cursor-pointer transition-all duration-200;
+  background: transparent;
+  border: 1px solid transparent;
+}
+
+.storage-mode-option:hover {
+  background: var(--settings-primary-ultra-light);
+  border-color: var(--settings-primary-ultra-light);
+  box-shadow: 0 1px 3px rgba(121, 180, 166, 0.06);
 }
 
 .storage-mode-option.active {
-  @apply border-primary bg-primary/10;
+  background: var(--settings-primary-soft);
+  border-color: var(--settings-primary-medium);
 }
 
 .storage-mode-option.disabled {
@@ -429,7 +443,9 @@ defineOptions({
 }
 
 .storage-mode-option.disabled:hover {
-  @apply border-input-border bg-transparent;
+  border-color: transparent;
+  background: transparent;
+  box-shadow: none;
 }
 
 .option-content {
@@ -437,7 +453,8 @@ defineOptions({
 }
 
 .option-icon {
-  @apply flex-shrink-0 text-primary;
+  @apply flex-shrink-0;
+  color: var(--settings-primary);
 }
 
 .option-info {
@@ -445,7 +462,7 @@ defineOptions({
 }
 
 .option-title {
-  @apply font-medium text-text-primary;
+  @apply font-medium text-text;
 }
 
 .option-description {
@@ -453,20 +470,13 @@ defineOptions({
 }
 
 .option-disabled-reason {
-  @apply text-xs text-red-500 mt-1;
+  @apply text-xs mt-1;
+  color: var(--error-color);
 }
 
-.radio-button {
-  @apply w-5 h-5 border-2 border-input-border rounded-full flex items-center justify-center;
-  @apply transition-all duration-200;
-}
-
-.radio-button.checked {
-  @apply border-primary bg-primary;
-}
-
-.radio-dot {
-  @apply w-2 h-2 bg-white rounded-full;
+.selected-indicator {
+  @apply flex items-center justify-center;
+  color: var(--settings-primary);
 }
 
 /* 混合存储特性 */
@@ -479,11 +489,13 @@ defineOptions({
 }
 
 .feature-item {
-  @apply flex items-start space-x-3 p-3 bg-primary/5 rounded-lg;
+  @apply flex items-start space-x-3 p-3 rounded-lg;
+  background: var(--settings-primary-ultra-light);
 }
 
 .feature-icon {
-  @apply flex-shrink-0 text-primary mt-0.5;
+  @apply flex-shrink-0 mt-0.5;
+  color: var(--settings-primary);
 }
 
 .feature-text {
@@ -491,7 +503,7 @@ defineOptions({
 }
 
 .feature-title {
-  @apply block font-medium text-text-primary text-sm;
+  @apply block font-medium text-text text-sm;
 }
 
 .feature-desc {
@@ -513,12 +525,25 @@ defineOptions({
 }
 
 .action-button.primary {
-  @apply bg-primary text-white hover:bg-primary/90;
+  background: var(--settings-button-primary-bg);
+  color: white;
+  transition: all 0.2s ease;
+}
+
+.action-button.primary:hover {
+  background: var(--settings-button-primary-hover);
+  box-shadow: var(--settings-input-focus-shadow);
 }
 
 .action-button.secondary {
-  @apply bg-gray-100 text-gray-700 hover:bg-gray-200;
-  @apply dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600;
+  background: var(--settings-button-secondary-bg);
+  color: var(--settings-button-secondary-text);
+  transition: all 0.2s ease;
+}
+
+.action-button.secondary:hover {
+  background: var(--settings-button-secondary-hover);
+  box-shadow: var(--settings-input-focus-shadow);
 }
 
 .action-button.small {

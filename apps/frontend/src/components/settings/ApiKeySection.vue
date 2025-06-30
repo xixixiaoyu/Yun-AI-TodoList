@@ -3,7 +3,7 @@
     <div class="mb-4">
       <div class="flex items-center gap-3 mb-1">
         <div
-          class="w-7 h-7 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center shadow-lg"
+          class="w-7 h-7 rounded-lg flex items-center justify-center shadow-lg settings-section-icon"
         >
           <svg class="w-3.5 h-3.5 text-white" fill="currentColor" viewBox="0 0 24 24">
             <path
@@ -103,3 +103,14 @@ defineOptions({
   name: 'ApiKeySection',
 })
 </script>
+
+<style scoped>
+.settings-section-icon {
+  background: linear-gradient(
+    135deg,
+    var(--settings-primary) 0%,
+    var(--settings-primary-dark) 100%
+  );
+  color: white;
+}
+</style>

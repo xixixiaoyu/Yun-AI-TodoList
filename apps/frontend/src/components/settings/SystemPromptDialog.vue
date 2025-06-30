@@ -435,13 +435,12 @@ defineOptions({
 }
 
 .enhance-btn:hover:not(:disabled) {
-  transform: translateY(-2px) scale(1.05);
   background: linear-gradient(135deg, var(--button-hover-bg-color) 0%, var(--primary-color) 100%);
   box-shadow: 0 6px 20px rgba(var(--primary-color-rgb), 0.35);
 }
 
 .enhance-btn:active:not(:disabled) {
-  transform: translateY(-1px) scale(1.02);
+  box-shadow: 0 3px 12px rgba(var(--primary-color-rgb), 0.25);
   transition: all 0.1s ease;
 }
 

@@ -319,8 +319,8 @@ defineOptions({
 
 .section-icon {
   @apply flex-shrink-0 w-8 h-8 rounded-lg flex items-center justify-center;
-  background: rgba(121, 180, 166, 0.12);
-  color: var(--primary-color);
+  background: var(--settings-primary-soft);
+  color: var(--settings-primary);
 }
 
 .section-title-group {
@@ -369,16 +369,17 @@ defineOptions({
 
 .toggle-slider {
   @apply absolute cursor-pointer top-0 left-0 right-0 bottom-0 rounded-full transition-all duration-300;
-  background-color: var(--input-border-color);
+  background-color: var(--settings-input-border);
 }
 
 .toggle-slider:before {
   @apply absolute content-[''] h-4 w-4 left-1 bottom-1 rounded-full transition-all duration-300;
   background-color: white;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .toggle-switch input:checked + .toggle-slider {
-  background-color: var(--primary-color);
+  background-color: var(--settings-primary);
 }
 
 .toggle-switch input:checked + .toggle-slider:before {
@@ -386,16 +387,16 @@ defineOptions({
 }
 
 .select-input {
-  @apply px-3 py-2 text-sm rounded-lg border transition-all duration-200 min-w-48;
-  background-color: var(--input-bg-color);
-  border-color: var(--input-border-color);
+  @apply px-3 py-2 text-sm rounded-lg transition-all duration-200 min-w-48;
+  background: var(--settings-input-bg);
+  border: 1px solid var(--settings-input-border);
   color: var(--text-color);
 }
 
 .select-input:focus {
   outline: none;
-  border-color: var(--primary-color);
-  box-shadow: 0 0 0 3px rgba(121, 180, 166, 0.1);
+  border-color: var(--settings-input-focus-border);
+  box-shadow: var(--settings-input-focus-shadow);
 }
 
 .prompts-list {
@@ -412,13 +413,14 @@ defineOptions({
 
 .btn-primary {
   @apply px-3 py-1.5 text-sm font-medium rounded-lg transition-all duration-200 flex items-center;
-  background-color: var(--primary-color);
+  background: var(--settings-button-primary-bg);
   color: white;
 }
 
 .btn-primary:hover:not(:disabled) {
-  background-color: var(--primary-hover-color);
+  background: var(--settings-button-primary-hover);
   transform: translateY(-1px);
+  box-shadow: var(--settings-input-focus-shadow);
 }
 
 .btn-primary:disabled {
@@ -434,15 +436,14 @@ defineOptions({
 }
 
 .prompt-item {
-  @apply block p-4 rounded-xl border transition-all duration-200;
-  background-color: var(--card-bg-color);
-  border-color: var(--input-border-color);
+  @apply block p-4 rounded-xl transition-all duration-200;
+  background: var(--settings-input-bg);
+  border: 1px solid var(--settings-input-border);
 }
 
 .prompt-item:hover {
-  border-color: var(--primary-color);
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  border-color: var(--settings-primary-medium);
+  box-shadow: var(--settings-input-focus-shadow);
 }
 
 .prompt-clickable {
@@ -450,19 +451,23 @@ defineOptions({
 }
 
 .prompt-clickable:hover {
-  border-color: var(--primary-color);
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(121, 180, 166, 0.15);
+  border-color: var(--settings-primary);
+  box-shadow: var(--settings-card-hover-shadow);
+  background: var(--settings-primary-ultra-light);
 }
 
 .prompt-clickable:active {
-  transform: translateY(-1px);
+  box-shadow: var(--settings-input-focus-shadow);
   transition: all 0.1s ease;
 }
 
 .prompt-active {
-  border-color: var(--primary-color);
-  background: linear-gradient(135deg, var(--card-bg-color) 0%, rgba(121, 180, 166, 0.05) 100%);
+  border-color: var(--settings-primary);
+  background: linear-gradient(
+    135deg,
+    var(--settings-input-bg) 0%,
+    var(--settings-primary-soft) 100%
+  );
 }
 
 .prompt-info {
@@ -486,17 +491,19 @@ defineOptions({
 }
 
 .badge-primary {
-  background-color: var(--primary-color);
+  background: var(--settings-primary);
   color: white;
 }
 
 .badge-secondary {
-  @apply bg-gray-100 text-gray-600;
+  background: var(--settings-primary-ultra-light);
+  color: var(--settings-primary-dark);
 }
 
 .prompt-content-preview {
-  @apply text-xs text-text-secondary/80 bg-bg/50 p-3 rounded border font-mono;
-  border-color: var(--input-border-color);
+  @apply text-xs text-text-secondary/80 p-3 rounded font-mono;
+  background: var(--settings-primary-ultra-light);
+  border: 1px solid var(--settings-input-border);
   width: 100%;
   word-wrap: break-word;
   line-height: 1.4;
@@ -512,7 +519,7 @@ defineOptions({
 }
 
 .btn-ghost:hover:not(:disabled) {
-  background-color: var(--input-bg-color);
+  background: var(--settings-primary-ultra-light);
   transform: translateY(-1px);
 }
 

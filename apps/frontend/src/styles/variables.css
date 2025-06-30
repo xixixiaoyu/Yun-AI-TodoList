@@ -54,6 +54,41 @@
   --ai-code-border: rgba(226, 232, 240, 0.6);
   --ai-accent-color: rgba(121, 180, 166, 0.1);
   --ai-accent-hover: rgba(121, 180, 166, 0.15);
+
+  /* 设置页面专用色彩变量 - 浅色主题 */
+  --settings-primary: #79b4a6;
+  --settings-primary-light: #8bc4b8;
+  --settings-primary-dark: #68a295;
+  --settings-primary-ultra-light: rgba(121, 180, 166, 0.06);
+  --settings-primary-soft: rgba(121, 180, 166, 0.1);
+  --settings-primary-medium: rgba(121, 180, 166, 0.15);
+  --settings-primary-strong: rgba(121, 180, 166, 0.2);
+
+  /* 设置卡片色彩系统 */
+  --settings-card-bg: rgba(255, 255, 255, 0.85);
+  --settings-card-border: rgba(121, 180, 166, 0.12);
+  --settings-card-shadow: 0 4px 16px rgba(121, 180, 166, 0.08);
+  --settings-card-hover-bg: rgba(255, 255, 255, 0.95);
+  --settings-card-hover-border: rgba(121, 180, 166, 0.2);
+  --settings-card-hover-shadow: 0 8px 32px rgba(121, 180, 166, 0.12);
+
+  /* 设置卡片类型色彩 */
+  --settings-card-primary-accent: rgba(121, 180, 166, 0.08);
+  --settings-card-secondary-accent: rgba(121, 180, 166, 0.06);
+  --settings-card-tertiary-accent: rgba(121, 180, 166, 0.04);
+
+  /* 设置组件交互色彩 */
+  --settings-input-bg: rgba(255, 255, 255, 0.8);
+  --settings-input-border: rgba(121, 180, 166, 0.15);
+  --settings-input-focus-border: rgba(121, 180, 166, 0.4);
+  --settings-input-focus-shadow: 0 0 0 3px rgba(121, 180, 166, 0.1);
+
+  /* 设置按钮色彩 */
+  --settings-button-primary-bg: #79b4a6;
+  --settings-button-primary-hover: #68a295;
+  --settings-button-secondary-bg: rgba(121, 180, 166, 0.08);
+  --settings-button-secondary-hover: rgba(121, 180, 166, 0.12);
+  --settings-button-secondary-text: #79b4a6;
 }
 
 /* 深色主题变量 */
@@ -98,6 +133,41 @@
   --ai-code-border: rgba(64, 70, 80, 0.6);
   --ai-accent-color: rgba(121, 180, 166, 0.12);
   --ai-accent-hover: rgba(121, 180, 166, 0.18);
+
+  /* 设置页面专用色彩变量 - 深色主题 */
+  --settings-primary: #79b4a6;
+  --settings-primary-light: #8bc4b8;
+  --settings-primary-dark: #68a295;
+  --settings-primary-ultra-light: rgba(121, 180, 166, 0.08);
+  --settings-primary-soft: rgba(121, 180, 166, 0.12);
+  --settings-primary-medium: rgba(121, 180, 166, 0.18);
+  --settings-primary-strong: rgba(121, 180, 166, 0.25);
+
+  /* 设置卡片色彩系统 - 深色主题 */
+  --settings-card-bg: rgba(37, 43, 50, 0.85);
+  --settings-card-border: rgba(121, 180, 166, 0.15);
+  --settings-card-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+  --settings-card-hover-bg: rgba(37, 43, 50, 0.95);
+  --settings-card-hover-border: rgba(121, 180, 166, 0.25);
+  --settings-card-hover-shadow: 0 8px 32px rgba(0, 0, 0, 0.18);
+
+  /* 设置卡片类型色彩 - 深色主题 */
+  --settings-card-primary-accent: rgba(121, 180, 166, 0.1);
+  --settings-card-secondary-accent: rgba(121, 180, 166, 0.08);
+  --settings-card-tertiary-accent: rgba(121, 180, 166, 0.06);
+
+  /* 设置组件交互色彩 - 深色主题 */
+  --settings-input-bg: rgba(47, 53, 61, 0.8);
+  --settings-input-border: rgba(121, 180, 166, 0.18);
+  --settings-input-focus-border: rgba(121, 180, 166, 0.45);
+  --settings-input-focus-shadow: 0 0 0 3px rgba(121, 180, 166, 0.12);
+
+  /* 设置按钮色彩 - 深色主题 */
+  --settings-button-primary-bg: #79b4a6;
+  --settings-button-primary-hover: #8bc4b8;
+  --settings-button-secondary-bg: rgba(121, 180, 166, 0.12);
+  --settings-button-secondary-hover: rgba(121, 180, 166, 0.18);
+  --settings-button-secondary-text: #8bc4b8;
 }
 
 /* 基础样式重置 */
