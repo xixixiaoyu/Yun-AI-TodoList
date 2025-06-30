@@ -37,6 +37,9 @@ const globalSyncState = reactive({
 })
 
 export function useSyncManager() {
+  // 临时禁用旧的同步管理器，使用新的 HybridTodoStorageService
+  const DISABLE_OLD_SYNC_MANAGER = true
+
   const { user, isAuthenticated } = useAuth()
 
   // 响应式状态
@@ -80,6 +83,12 @@ export function useSyncManager() {
    * 初始化同步管理器
    */
   const initialize = async (config?: Partial<StorageConfig>): Promise<void> => {
+    if (DISABLE_OLD_SYNC_MANAGER) {
+      console.log('🚫 旧同步管理器已禁用，使用新的 HybridTodoStorageService')
+      globalSyncState.isInitialized = true
+      return
+    }
+
     if (globalSyncState.isInitialized) return
 
     try {

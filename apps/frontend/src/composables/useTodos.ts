@@ -24,7 +24,10 @@ export function useTodos() {
 
   const setTodos = (newTodos: Todo[]) => {
     todos.value = newTodos.sort((a, b) => a.order - b.order)
-    saveTodos()
+    // 只在初始化时保存，避免不必要的全量同步
+    if (!isInitialized.value) {
+      saveTodos()
+    }
   }
 
   // 初始化方法
@@ -137,7 +140,7 @@ export function useTodos() {
         },
         'useTodos'
       )
-      saveTodos()
+      // 不需要调用 saveTodos()，因为 HybridTodoStorageService 已经处理了同步
     }
   }
 
@@ -192,67 +195,35 @@ export function useTodos() {
         storageService = getCurrentStorageService()
       }
 
-      // 安全获取当前模式
-      const { currentMode } = useStorageMode()
-      const mode = currentMode?.value || 'local' // 提供默认值
+      // 统一的存储逻辑，适用于所有模式（本地、混合）
+      const result = await withRetry(
+        () => storageService.createTodo(createDto),
+        STORAGE_RETRY_OPTIONS
+      )
 
-      // 在混合模式下，只通过远程服务创建，避免双重请求
-      if (mode === 'hybrid') {
-        // 直接使用远程服务，不触发同步
-        const result = await withRetry(
-          () => storageService.createTodo(createDto),
-          STORAGE_RETRY_OPTIONS
-        )
+      if (result.success && result.data) {
+        const newTodo = result.data
 
-        if (result.success && result.data) {
-          const newTodo = result.data
-
-          // 验证新 Todo 的数据完整性
-          if (!newTodo.title || newTodo.title.trim() === '') {
-            logger.error('Created todo has empty title', { todo: newTodo }, 'useTodos')
-            return null
-          }
-
-          // 使用响应式安全的方式添加到数组
-          todos.value = [...todos.value, newTodo]
-
-          // 使用 nextTick 确保 DOM 更新
-          await nextTick()
-
-          logger.info('Todo added successfully (hybrid mode)', { todo: newTodo }, 'useTodos')
-          return newTodo
-        } else {
-          logger.error('Failed to add todo in hybrid mode', result.error, 'useTodos')
+        // 验证新 Todo 的数据完整性
+        if (!newTodo.title || newTodo.title.trim() === '') {
+          logger.error('Created todo has empty title', { todo: newTodo }, 'useTodos')
           return null
         }
+
+        // 使用响应式安全的方式添加到数组
+        todos.value = [...todos.value, newTodo]
+
+        // 使用 nextTick 确保 DOM 更新
+        await nextTick()
+
+        // 获取当前模式用于日志
+        const { currentMode } = useStorageMode()
+        const mode = currentMode?.value || 'local'
+        logger.info(`Todo added successfully (${mode} mode)`, { todo: newTodo }, 'useTodos')
+        return newTodo
       } else {
-        // 本地模式：正常流程
-        const result = await withRetry(
-          () => storageService.createTodo(createDto),
-          STORAGE_RETRY_OPTIONS
-        )
-
-        if (result.success && result.data) {
-          const newTodo = result.data
-
-          // 验证新 Todo 的数据完整性
-          if (!newTodo.title || newTodo.title.trim() === '') {
-            logger.error('Created todo has empty title', { todo: newTodo }, 'useTodos')
-            return null
-          }
-
-          // 使用响应式安全的方式添加到数组
-          todos.value = [...todos.value, newTodo]
-
-          // 使用 nextTick 确保 DOM 更新
-          await nextTick()
-
-          logger.info('Todo added successfully (local mode)', { todo: newTodo }, 'useTodos')
-          return newTodo
-        } else {
-          logger.error('Failed to add todo in local mode', result.error, 'useTodos')
-          return null
-        }
+        logger.error('Failed to add todo', result.error, 'useTodos')
+        return null
       }
     } catch (error) {
       logger.error('Error adding todo', error, 'useTodos')
@@ -356,8 +327,7 @@ export function useTodos() {
             'useTodos'
           )
 
-          // 确保状态保存到本地存储
-          await saveTodos()
+          // 不需要调用 saveTodos()，因为 HybridTodoStorageService 已经处理了同步
         } else {
           logger.warn('Todo not found in memory for removal', { id }, 'useTodos')
         }
@@ -407,7 +377,7 @@ export function useTodos() {
           'useTodos'
         )
 
-        await saveTodos()
+        // 不需要调用 saveTodos()，因为 reorderTodos 已经处理了存储
 
         logger.info('Todos reordered successfully', { count: newOrder.length }, 'useTodos')
         return true

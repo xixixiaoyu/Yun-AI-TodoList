@@ -33,14 +33,17 @@ interface SyncState {
  * 数据同步 Composable
  */
 export function useDataSync() {
+  // 临时禁用旧的同步系统，使用新的 HybridTodoStorageService
+  const DISABLE_OLD_SYNC = true
+
   // 同步状态
   const syncState = reactive<SyncState>({
-    isInitialSyncComplete: false,
+    isInitialSyncComplete: true, // 标记为已完成，避免自动触发
     lastSyncTime: null,
     syncInProgress: false,
     syncError: null,
     conflictsCount: 0,
-    realTimeSyncEnabled: true,
+    realTimeSyncEnabled: false, // 禁用实时同步
     pendingOperations: [],
   })
 
@@ -90,6 +93,16 @@ export function useDataSync() {
    * 执行初始同步（登录时调用）
    */
   const performInitialSync = async (): Promise<SyncResult> => {
+    if (DISABLE_OLD_SYNC) {
+      console.log('🚫 旧同步系统已禁用，使用新的 HybridTodoStorageService')
+      return {
+        status: SyncStatus.SUCCESS,
+        message: '使用新的混合存储系统',
+        timestamp: new Date(),
+        stats: { totalItems: 0, uploaded: 0, downloaded: 0, conflicts: 0, errors: 0 },
+      }
+    }
+
     if (!canSync.value) {
       throw new Error('无法执行同步：用户未登录或网络不可用')
     }

@@ -155,10 +155,11 @@ export function useStorageMode() {
     }
 
     storageState.currentMode = 'hybrid'
-    // 混合模式优先使用远程存储，本地作为缓存
-    if (remoteStorageService) {
-      currentStorageService = remoteStorageService
-    }
+    // 混合模式使用真正的混合存储服务（本地+远程）
+    const { HybridTodoStorageService } = await import(
+      '../services/storage/HybridTodoStorageService'
+    )
+    currentStorageService = new HybridTodoStorageService()
   }
 
   /**
