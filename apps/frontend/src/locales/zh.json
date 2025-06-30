@@ -600,6 +600,7 @@
     "syncSuccess": "同步成功",
     "syncFailed": "同步失败",
     "syncPending": "等待同步",
+    "retrySync": "重试同步",
     "lastSyncTime": "上次同步：{time}",
     "neverSynced": "从未同步",
     "retrySync": "重试同步",
@@ -617,6 +618,21 @@
   "online": "在线",
   "healthy": "健康",
   "checking": "检查中",
+
+  "common": {
+    "close": "关闭",
+    "cancel": "取消",
+    "confirm": "确认",
+    "save": "保存",
+    "delete": "删除",
+    "edit": "编辑",
+    "add": "添加",
+    "loading": "加载中...",
+    "success": "成功",
+    "error": "错误",
+    "warning": "警告",
+    "info": "信息"
+  },
 
   "remoteWins": "远程优先",
   "autoMerge": "自动合并",

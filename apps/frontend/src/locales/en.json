@@ -579,6 +579,21 @@
   "healthy": "Healthy",
   "checking": "Checking",
 
+  "common": {
+    "close": "Close",
+    "cancel": "Cancel",
+    "confirm": "Confirm",
+    "save": "Save",
+    "delete": "Delete",
+    "edit": "Edit",
+    "add": "Add",
+    "loading": "Loading...",
+    "success": "Success",
+    "error": "Error",
+    "warning": "Warning",
+    "info": "Info"
+  },
+
   "remoteWins": "Remote wins",
   "autoMerge": "Auto merge",
   "syncStatus": "Sync status",

@@ -1,15 +1,32 @@
 <template>
-  <div v-if="shouldShow" class="sync-indicator" :class="indicatorClass">
+  <div
+    v-if="shouldShow"
+    class="sync-indicator"
+    :class="[indicatorClass, { 'fade-out': shouldFadeOut }]"
+  >
     <div class="sync-content">
       <i :class="statusIcon" class="sync-icon"></i>
       <span class="sync-text">{{ statusText }}</span>
+
+      <!-- 重试按钮 -->
       <button
         v-if="showRetryButton"
         class="retry-button"
         :disabled="syncState.syncInProgress"
         @click="handleRetry"
+        :title="t('storage.retrySync')"
       >
         <i class="i-carbon-restart text-xs"></i>
+      </button>
+
+      <!-- 关闭按钮 -->
+      <button
+        v-if="showCloseButton"
+        class="close-button"
+        @click="handleDismiss"
+        :title="t('common.close')"
+      >
+        <i class="i-carbon-close text-xs"></i>
       </button>
     </div>
 
@@ -21,7 +38,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useAuth } from '../../composables/useAuth'
 import { useDataSync } from '../../composables/useDataSync'
@@ -31,39 +48,216 @@ interface Props {
   mode?: 'auto' | 'always' | 'never'
   // 是否显示重试按钮
   showRetry?: boolean
+  // 是否显示关闭按钮
+  showClose?: boolean
   // 自动隐藏延迟（毫秒）
   autoHideDelay?: number
+  // 用户关闭后的静默期（毫秒）
+  dismissSilencePeriod?: number
 }
 
 const props = withDefaults(defineProps<Props>(), {
   mode: 'auto',
   showRetry: true,
-  autoHideDelay: 3000,
+  showClose: true,
+  autoHideDelay: 2000, // 减少到2秒，让成功通知更快消失
+  dismissSilencePeriod: 30000, // 30秒
 })
 
 const { t } = useI18n()
 const { syncState, syncStatusText, manualSync } = useDataSync()
 const { isAuthenticated } = useAuth()
 
-// 计算属性
-const shouldShow = computed(() => {
-  if (props.mode === 'never') return false
-  if (props.mode === 'always') return isAuthenticated.value
+// 用户关闭状态管理
+const userDismissedAt = ref<number | null>(null)
+const lastSyncTimeWhenDismissed = ref<Date | null>(null)
 
-  // auto 模式：同步中、有错误或刚完成同步时显示
-  return (
-    isAuthenticated.value &&
-    (syncState.syncInProgress ||
-      syncState.syncError ||
-      (syncState.lastSyncTime && isRecentSync.value))
+// 强制更新时间计算的响应式变量
+const forceUpdateTrigger = ref(0)
+
+// 定时器用于强制更新时间相关的计算
+let updateTimer: number | null = null
+
+// 组件挂载时启动定时器
+onMounted(() => {
+  // 只有在有同步时间时才启动定时器，避免不必要的性能开销
+  const startUpdateTimer = () => {
+    if (updateTimer) return // 避免重复启动
+
+    updateTimer = window.setInterval(() => {
+      // 只有在有同步时间且可能需要隐藏时才更新
+      if (syncState.lastSyncTime && !syncState.syncInProgress && !syncState.syncError) {
+        forceUpdateTrigger.value++
+
+        // 如果通知应该已经隐藏了，停止定时器
+        const now = Date.now()
+        const syncTime =
+          syncState.lastSyncTime instanceof Date
+            ? syncState.lastSyncTime.getTime()
+            : new Date(syncState.lastSyncTime).getTime()
+        const timeSinceSync = now - syncTime
+
+        if (timeSinceSync > props.autoHideDelay + 1000) {
+          // 多等1秒确保隐藏
+          window.clearInterval(updateTimer!)
+          updateTimer = null
+        }
+      }
+    }, 500)
+  }
+
+  // 监听同步状态变化，智能启动/停止定时器
+  watch(
+    () => syncState.lastSyncTime,
+    (newTime, oldTime) => {
+      if (import.meta.env.DEV) {
+        console.log('[SyncStatusIndicator] lastSyncTime changed:', {
+          old: oldTime,
+          new: newTime,
+          type: newTime ? typeof newTime : 'null',
+          isDate: newTime instanceof Date,
+        })
+      }
+
+      if (newTime && !syncState.syncInProgress && !syncState.syncError) {
+        console.log('[SyncStatusIndicator] Starting update timer for notification auto-hide')
+        startUpdateTimer()
+      }
+    },
+    { immediate: true }
   )
 })
 
-const isRecentSync = computed(() => {
-  if (!syncState.lastSyncTime) return false
+// 组件卸载时清理定时器
+onUnmounted(() => {
+  if (updateTimer) {
+    window.clearInterval(updateTimer)
+    updateTimer = null
+  }
+})
+
+// 这个 watch 已经合并到上面的 onMounted 中了
+
+// 计算属性
+const shouldShow = computed(() => {
+  if (props.mode === 'never') return false
+  if (!isAuthenticated.value) return false
+
+  if (props.mode === 'always') return true
+
+  // auto 模式的显示逻辑
   const now = Date.now()
-  const syncTime = syncState.lastSyncTime.getTime()
-  return now - syncTime < props.autoHideDelay
+
+  // 如果用户最近关闭了通知，检查是否在静默期内
+  if (userDismissedAt.value) {
+    const timeSinceDismiss = now - userDismissedAt.value
+    const isInSilencePeriod = timeSinceDismiss < props.dismissSilencePeriod
+
+    // 如果在静默期内，只显示重要状态（同步中或错误）
+    if (isInSilencePeriod) {
+      return syncState.syncInProgress || syncState.syncError
+    }
+
+    // 如果有新的同步活动（同步时间比关闭时记录的时间更新），重置关闭状态
+    if (
+      syncState.lastSyncTime &&
+      lastSyncTimeWhenDismissed.value &&
+      syncState.lastSyncTime > lastSyncTimeWhenDismissed.value
+    ) {
+      userDismissedAt.value = null
+      lastSyncTimeWhenDismissed.value = null
+    }
+  }
+
+  // 显示条件：同步中、有错误或刚完成同步
+  const result =
+    syncState.syncInProgress ||
+    syncState.syncError ||
+    (syncState.lastSyncTime && isRecentSync.value)
+
+  // 只在通知应该显示但可能有问题时输出调试信息
+  if (result && syncState.lastSyncTime && !syncState.syncInProgress && !syncState.syncError) {
+    console.log('[SyncStatusIndicator] Success notification showing:', {
+      timeSinceSync:
+        Date.now() -
+        (syncState.lastSyncTime instanceof Date
+          ? syncState.lastSyncTime.getTime()
+          : new Date(syncState.lastSyncTime).getTime()),
+      autoHideDelay: props.autoHideDelay,
+      isRecentSync: isRecentSync.value,
+    })
+  }
+
+  return result
+})
+
+const isRecentSync = computed(() => {
+  // 依赖强制更新触发器，确保时间计算能够及时响应
+  forceUpdateTrigger.value
+
+  if (!syncState.lastSyncTime) {
+    return false
+  }
+
+  try {
+    const now = Date.now()
+
+    // 确保 lastSyncTime 是有效的 Date 对象
+    let syncTime: number
+    if (syncState.lastSyncTime instanceof Date) {
+      syncTime = syncState.lastSyncTime.getTime()
+    } else if (typeof syncState.lastSyncTime === 'string') {
+      syncTime = new Date(syncState.lastSyncTime).getTime()
+    } else {
+      console.warn(
+        '[SyncStatusIndicator] Invalid lastSyncTime type:',
+        typeof syncState.lastSyncTime
+      )
+      return false
+    }
+
+    // 检查时间是否有效
+    if (isNaN(syncTime)) {
+      console.warn('[SyncStatusIndicator] Invalid syncTime:', syncState.lastSyncTime)
+      return false
+    }
+
+    const timeSinceSync = now - syncTime
+
+    // 防止负数时间差（时钟同步问题）
+    if (timeSinceSync < 0) {
+      console.warn('[SyncStatusIndicator] Negative time difference, hiding indicator')
+      return false
+    }
+
+    const hideDelay = syncState.syncError
+      ? props.autoHideDelay * 2 // 错误状态显示4秒
+      : props.autoHideDelay // 成功状态显示2秒
+
+    const shouldShow = timeSinceSync < hideDelay
+
+    // 调试信息：通知状态变化
+    if (import.meta.env.DEV) {
+      if (!shouldShow && timeSinceSync >= hideDelay) {
+        console.log('[SyncStatusIndicator] Notification hiding:', {
+          timeSinceSync,
+          hideDelay,
+          hasError: !!syncState.syncError,
+        })
+      } else if (shouldShow) {
+        console.log('[SyncStatusIndicator] Notification showing:', {
+          timeSinceSync,
+          hideDelay,
+          hasError: !!syncState.syncError,
+        })
+      }
+    }
+
+    return shouldShow
+  } catch (error) {
+    console.error('[SyncStatusIndicator] Error in isRecentSync calculation:', error)
+    return false
+  }
 })
 
 const indicatorClass = computed(() => {
@@ -89,6 +283,23 @@ const showRetryButton = computed(() => {
   return props.showRetry && syncState.syncError && !syncState.syncInProgress
 })
 
+const showCloseButton = computed(() => {
+  return props.showClose && !syncState.syncInProgress
+})
+
+const shouldFadeOut = computed(() => {
+  if (!syncState.lastSyncTime || syncState.syncInProgress || syncState.syncError) {
+    return false
+  }
+
+  const now = Date.now()
+  const syncTime = syncState.lastSyncTime.getTime()
+  const timeSinceSync = now - syncTime
+
+  // 在最后500ms开始淡出效果
+  return timeSinceSync > props.autoHideDelay - 500 && timeSinceSync < props.autoHideDelay
+})
+
 // 方法
 const handleRetry = async () => {
   try {
@@ -96,6 +307,11 @@ const handleRetry = async () => {
   } catch (error) {
     console.error('Retry sync failed:', error)
   }
+}
+
+const handleDismiss = () => {
+  userDismissedAt.value = Date.now()
+  lastSyncTimeWhenDismissed.value = syncState.lastSyncTime
 }
 
 defineOptions({
@@ -107,8 +323,16 @@ defineOptions({
 .sync-indicator {
   @apply fixed top-4 right-4 z-[1001] max-w-sm;
   @apply bg-card border border-border rounded-lg shadow-lg backdrop-blur-sm;
-  @apply transform transition-all-300;
+  @apply transform transition-all duration-300;
   animation: slideInRight 0.3s ease-out;
+}
+
+.sync-indicator.fade-out {
+  @apply opacity-60;
+  transform: translateX(10px);
+  transition:
+    opacity 0.5s ease-out,
+    transform 0.5s ease-out;
 }
 
 .sync-content {
@@ -123,9 +347,14 @@ defineOptions({
   @apply flex-1 text-sm font-medium text-text;
 }
 
-.retry-button {
+.retry-button,
+.close-button {
   @apply flex-shrink-0 p-1 rounded hover:bg-bg-secondary transition-colors;
   @apply disabled:opacity-50 disabled:cursor-not-allowed;
+}
+
+.close-button {
+  @apply text-text-secondary hover:text-text;
 }
 
 .progress-bar {

@@ -50,7 +50,10 @@
           <div
             v-if="!notification.persistent && notification.duration"
             class="notification-progress"
-            :style="{ animationDuration: `${notification.duration}ms` }"
+            :style="{
+              animationDuration: `${notification.duration}ms`,
+              animationDelay: '100ms', // 稍微延迟开始，让用户看到完整进度条
+            }"
           ></div>
         </div>
       </TransitionGroup>
@@ -129,9 +132,22 @@ defineOptions({
 }
 
 .notification-item {
-  @apply relative flex items-start gap-3 p-4 rounded-xl shadow-lg backdrop-blur-sm;
+  @apply relative flex items-start gap-3 p-4 rounded-xl backdrop-blur-sm;
   @apply border border-border bg-card pointer-events-auto;
   @apply max-w-sm min-w-80;
+  box-shadow:
+    0 10px 25px -5px rgba(0, 0, 0, 0.1),
+    0 8px 10px -6px rgba(0, 0, 0, 0.1),
+    0 0 0 1px rgba(255, 255, 255, 0.05);
+  transition: all 0.2s ease;
+}
+
+.notification-item:hover {
+  transform: translateY(-1px);
+  box-shadow:
+    0 20px 35px -5px rgba(0, 0, 0, 0.15),
+    0 12px 15px -6px rgba(0, 0, 0, 0.1),
+    0 0 0 1px rgba(255, 255, 255, 0.1);
 }
 
 /* 位置样式 */
@@ -162,34 +178,42 @@ defineOptions({
 /* 通知类型样式 */
 .notification-success {
   @apply border-success/30 bg-success/5;
+  border-left: 4px solid rgb(34 197 94);
 }
 
 .notification-success .notification-icon {
-  @apply text-success;
+  @apply text-success bg-success/10 rounded-full p-1.5;
+  box-shadow: 0 2px 8px rgba(34, 197, 94, 0.2);
 }
 
 .notification-error {
   @apply border-error/30 bg-error/5;
+  border-left: 4px solid rgb(239 68 68);
 }
 
 .notification-error .notification-icon {
-  @apply text-error;
+  @apply text-error bg-error/10 rounded-full p-1.5;
+  box-shadow: 0 2px 8px rgba(239, 68, 68, 0.2);
 }
 
 .notification-warning {
   @apply border-warning/30 bg-warning/5;
+  border-left: 4px solid rgb(245 158 11);
 }
 
 .notification-warning .notification-icon {
-  @apply text-warning;
+  @apply text-warning bg-warning/10 rounded-full p-1.5;
+  box-shadow: 0 2px 8px rgba(245, 158, 11, 0.2);
 }
 
 .notification-info {
   @apply border-primary/30 bg-primary/5;
+  border-left: 4px solid rgb(59 130 246);
 }
 
 .notification-info .notification-icon {
-  @apply text-primary;
+  @apply text-primary bg-primary/10 rounded-full p-1.5;
+  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.2);
 }
 
 /* 内容样式 */
@@ -236,29 +260,99 @@ defineOptions({
 }
 
 .notification-progress {
-  @apply absolute bottom-0 left-0 h-1 bg-primary rounded-b-xl;
+  @apply absolute bottom-0 left-0 h-1 rounded-b-xl;
   @apply w-full origin-left;
+  background: linear-gradient(
+    90deg,
+    rgba(59, 130, 246, 0.8) 0%,
+    rgba(59, 130, 246, 0.6) 50%,
+    rgba(59, 130, 246, 0.4) 100%
+  );
   animation: progress-shrink linear forwards;
+  box-shadow: 0 0 8px rgba(59, 130, 246, 0.3);
+}
+
+/* 不同类型通知的进度条颜色 */
+.notification-success .notification-progress {
+  background: linear-gradient(
+    90deg,
+    rgba(34, 197, 94, 0.8) 0%,
+    rgba(34, 197, 94, 0.6) 50%,
+    rgba(34, 197, 94, 0.4) 100%
+  );
+  box-shadow: 0 0 8px rgba(34, 197, 94, 0.3);
+}
+
+.notification-error .notification-progress {
+  background: linear-gradient(
+    90deg,
+    rgba(239, 68, 68, 0.8) 0%,
+    rgba(239, 68, 68, 0.6) 50%,
+    rgba(239, 68, 68, 0.4) 100%
+  );
+  box-shadow: 0 0 8px rgba(239, 68, 68, 0.3);
+}
+
+.notification-warning .notification-progress {
+  background: linear-gradient(
+    90deg,
+    rgba(245, 158, 11, 0.8) 0%,
+    rgba(245, 158, 11, 0.6) 50%,
+    rgba(245, 158, 11, 0.4) 100%
+  );
+  box-shadow: 0 0 8px rgba(245, 158, 11, 0.3);
 }
 
 /* 动画 */
-.notification-enter-active,
+.notification-enter-active {
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  animation: slideInBounce 0.4s ease-out;
+}
+
 .notification-leave-active {
-  transition: all 0.3s ease;
+  transition: all 0.3s cubic-bezier(0.55, 0.085, 0.68, 0.53);
+  animation: slideOutFade 0.3s ease-in;
 }
 
 .notification-enter-from {
   opacity: 0;
-  transform: translateX(100%);
+  transform: translateX(100%) scale(0.9);
 }
 
 .notification-leave-to {
   opacity: 0;
-  transform: translateX(100%);
+  transform: translateX(100%) scale(0.95);
 }
 
 .notification-move {
-  transition: transform 0.3s ease;
+  transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+/* 自定义动画关键帧 */
+@keyframes slideInBounce {
+  0% {
+    opacity: 0;
+    transform: translateX(100%) scale(0.9);
+  }
+  60% {
+    opacity: 1;
+    transform: translateX(-5%) scale(1.02);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+}
+
+@keyframes slideOutFade {
+  0% {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(100%) scale(0.95);
+  }
 }
 
 @keyframes progress-shrink {

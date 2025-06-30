@@ -48,7 +48,7 @@ export function useDataSync() {
   const { todos, setTodos } = useTodos()
   const { isAuthenticated } = useAuth()
   const { isOnline, isSlowConnection, onOnline, onOffline } = useNetworkStatus()
-  const { networkOnline, networkOffline } = useNotifications()
+  const { networkOnline, networkOffline, syncSuccess, syncError } = useNotifications()
 
   // 计算属性
   const canSync = computed(() => {
@@ -117,6 +117,8 @@ export function useDataSync() {
         (result.stats.uploaded > 0 || result.stats.downloaded > 0)
       ) {
         syncState.lastSyncTime = new Date()
+        // 显示同步成功通知
+        syncSuccess(result.stats)
       }
 
       console.log('初始同步完成:', result)
@@ -125,6 +127,8 @@ export function useDataSync() {
       const errorMsg = error instanceof Error ? error.message : '同步失败'
       syncState.syncError = errorMsg
       console.error('初始同步失败:', error)
+      // 显示同步失败通知
+      syncError({ message: errorMsg })
       throw error
     } finally {
       syncState.syncInProgress = false
@@ -155,6 +159,8 @@ export function useDataSync() {
         (result.stats.uploaded > 0 || result.stats.downloaded > 0)
       ) {
         syncState.lastSyncTime = new Date()
+        // 显示同步成功通知
+        syncSuccess(result.stats)
       }
 
       console.log('增量同步完成:', result)
@@ -163,6 +169,8 @@ export function useDataSync() {
       const errorMsg = error instanceof Error ? error.message : '同步失败'
       syncState.syncError = errorMsg
       console.error('增量同步失败:', error)
+      // 显示同步失败通知
+      syncError({ message: errorMsg })
       throw error
     } finally {
       syncState.syncInProgress = false

@@ -46,6 +46,15 @@ const router = createRouter({
       },
     },
     {
+      path: '/demo/notifications',
+      name: 'notification-showcase',
+      component: () => import('../demo/notification-showcase.vue'),
+      meta: {
+        title: '通知系统展示',
+        preload: false, // 按需加载
+      },
+    },
+    {
       path: '/login',
       name: 'login',
       component: () => import('../components/auth/Login.vue'),
