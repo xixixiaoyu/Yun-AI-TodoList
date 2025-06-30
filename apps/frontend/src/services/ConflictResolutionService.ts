@@ -21,7 +21,6 @@ export interface ConflictResolution {
   strategy: 'use_local' | 'use_remote' | 'merge' | 'manual' | 'create_both'
   resolvedData: Todo
   reason: string
-  confidence: number // 0-1, 解决方案的置信度
 }
 
 export interface ConflictResolutionOptions {
@@ -163,7 +162,6 @@ export class ConflictResolutionService {
           lastSyncTime: new Date().toISOString(),
         },
         reason: '使用远程UUID格式ID，保留本地数据修改',
-        confidence: 0.9,
       }
     } else if (localIsUUID && !remoteIsUUID) {
       // 保留本地的UUID
@@ -175,7 +173,6 @@ export class ConflictResolutionService {
           lastSyncTime: new Date().toISOString(),
         },
         reason: '保留本地UUID格式ID',
-        confidence: 0.8,
       }
     } else {
       // 都是UUID或都不是UUID，按时间选择
@@ -187,14 +184,12 @@ export class ConflictResolutionService {
           strategy: 'use_remote',
           resolvedData: remoteData,
           reason: '使用创建时间较早的版本',
-          confidence: 0.7,
         }
       } else {
         return {
           strategy: 'use_local',
           resolvedData: localData,
           reason: '使用创建时间较早的版本',
-          confidence: 0.7,
         }
       }
     }
@@ -217,14 +212,12 @@ export class ConflictResolutionService {
           strategy: 'use_remote',
           resolvedData: remoteData,
           reason: '使用最近修改的版本',
-          confidence: 0.8,
         }
       } else {
         return {
           strategy: 'use_local',
           resolvedData: localData,
           reason: '使用最近修改的版本',
-          confidence: 0.8,
         }
       }
     }
@@ -251,7 +244,6 @@ export class ConflictResolutionService {
       strategy: 'manual',
       resolvedData: localData, // 临时使用本地数据
       reason: `冲突字段过多(${conflictFields.length})，需要手动解决`,
-      confidence: 0.3,
     }
   }
 
@@ -328,7 +320,6 @@ export class ConflictResolutionService {
       strategy: 'merge',
       resolvedData: merged,
       reason: '执行智能合并，保留最佳字段值',
-      confidence: 0.75,
     }
   }
 

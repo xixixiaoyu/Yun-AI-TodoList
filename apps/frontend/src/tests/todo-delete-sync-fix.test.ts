@@ -25,7 +25,7 @@ describe('Todo Delete and Sync Fix', () => {
     expect(todos.value).toHaveLength(1)
 
     // 删除 Todo
-    const result = await removeTodo(addedTodo!.id)
+    const result = await removeTodo((addedTodo as Todo).id)
 
     expect(result).toBe(true)
     expect(todos.value).toHaveLength(0)
@@ -134,14 +134,14 @@ describe('Todo Delete and Sync Fix', () => {
     expect(todos.value).toHaveLength(3)
 
     // 删除中间的 Todo
-    const result = await removeTodo(todo2!.id)
+    const result = await removeTodo((todo2 as Todo).id)
     expect(result).toBe(true)
     expect(todos.value).toHaveLength(2)
 
     // 验证剩余 Todo 存在
-    expect(todos.value.find((t) => t.id === todo1!.id)).toBeTruthy()
-    expect(todos.value.find((t) => t.id === todo3!.id)).toBeTruthy()
-    expect(todos.value.find((t) => t.id === todo2!.id)).toBeFalsy()
+    expect(todos.value.find((t) => t.id === (todo1 as Todo).id)).toBeTruthy()
+    expect(todos.value.find((t) => t.id === (todo3 as Todo).id)).toBeTruthy()
+    expect(todos.value.find((t) => t.id === (todo2 as Todo).id)).toBeFalsy()
   })
 
   it('should handle delete operation in sync queue', () => {

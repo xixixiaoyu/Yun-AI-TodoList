@@ -114,19 +114,23 @@ defineOptions({
 }
 
 .status-loading .status-icon {
-  @apply bg-blue-500/20 text-blue-400;
+  background: var(--settings-primary-soft);
+  color: var(--primary-color);
 }
 
 .status-success .status-icon {
-  @apply bg-green-500/20 text-green-400;
+  background: rgba(16, 185, 129, 0.1);
+  color: #10b981;
 }
 
 .status-error .status-icon {
-  @apply bg-red-500/20 text-red-400;
+  background: rgba(245, 101, 101, 0.1);
+  color: var(--error-color);
 }
 
 .status-info .status-icon {
-  @apply bg-gray-500/20 text-gray-400;
+  background: var(--settings-primary-ultra-light);
+  color: var(--text-secondary-color);
 }
 
 .status-icon svg {
@@ -159,11 +163,13 @@ defineOptions({
 }
 
 .status-title {
-  @apply text-sm font-medium text-text mb-1;
+  @apply text-sm font-medium mb-1;
+  color: var(--text-color);
 }
 
 .status-description {
-  @apply text-xs text-text-secondary opacity-80;
+  @apply text-xs opacity-80;
+  color: var(--text-secondary-color);
 }
 
 .progress-bar {
@@ -175,25 +181,30 @@ defineOptions({
 }
 
 .status-loading .progress-fill {
-  @apply bg-blue-400;
+  background: var(--primary-color);
 }
 
 .status-success .progress-fill {
-  @apply bg-green-400;
+  background: #10b981;
 }
 
 .status-error .progress-fill {
-  @apply bg-red-400;
+  background: var(--error-color);
 }
 
 .status-info .progress-fill {
-  @apply bg-gray-400;
+  background: var(--text-secondary-color);
 }
 
 .close-button {
   @apply flex-shrink-0 w-6 h-6 rounded-md;
-  @apply flex items-center justify-center text-text-secondary;
-  @apply hover:bg-white/5 hover:text-text transition-all-300;
+  @apply flex items-center justify-center transition-all-300;
+  color: var(--text-secondary-color);
+}
+
+.close-button:hover {
+  background: var(--settings-primary-ultra-light);
+  color: var(--text-color);
 }
 
 .close-button svg {

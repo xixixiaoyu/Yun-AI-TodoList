@@ -83,7 +83,7 @@ export function useNotifications() {
     notification: Omit<Notification, 'id' | 'timestamp'>
   ): boolean => {
     // 在测试环境中禁用防重复机制
-    if (typeof window !== 'undefined' && (window as any).__vitest__) {
+    if (typeof window !== 'undefined' && (window as { __vitest__?: boolean }).__vitest__) {
       return false
     }
 
@@ -245,7 +245,7 @@ export function useNotifications() {
     notifications.value = []
 
     // 重置配置为默认值（仅在测试环境中）
-    if (typeof window !== 'undefined' && (window as any).__vitest__) {
+    if (typeof window !== 'undefined' && (window as { __vitest__?: boolean }).__vitest__) {
       config.maxNotifications = 5
       config.defaultDuration = 4000
       config.position = 'top-right'

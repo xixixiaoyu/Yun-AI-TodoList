@@ -58,7 +58,7 @@ describe('SyncStatusIndicator', () => {
       const { useNotifications } = await import('@/composables/useNotifications')
       const { clearNotifications } = useNotifications()
       clearNotifications()
-    } catch (error) {
+    } catch (_error) {
       // 忽略导入错误
     }
   })

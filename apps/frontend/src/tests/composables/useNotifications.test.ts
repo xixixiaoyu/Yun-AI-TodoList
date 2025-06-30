@@ -153,7 +153,7 @@ describe('useNotifications', () => {
     })
 
     it('should clean up expired cache entries', () => {
-      const { success, getDebugInfo } = useNotifications()
+      const { success: _success, getDebugInfo } = useNotifications()
 
       // 由于在测试环境中防重复机制被禁用，我们跳过这个测试
       // 或者修改测试逻辑来适应当前的实现

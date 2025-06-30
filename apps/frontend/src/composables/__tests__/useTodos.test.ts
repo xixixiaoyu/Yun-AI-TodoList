@@ -119,7 +119,7 @@ describe('useTodos', () => {
     if (app) {
       try {
         app.unmount()
-      } catch (error) {
+      } catch (_error) {
         // 忽略卸载错误
       }
       app = null

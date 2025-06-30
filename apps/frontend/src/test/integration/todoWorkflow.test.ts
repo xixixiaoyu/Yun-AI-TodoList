@@ -199,12 +199,8 @@ describe('待办事项工作流集成测试', () => {
       mockGetAIResponse.mockResolvedValue('1. 学习 TypeScript\n2. 编写单元测试\n3. 优化性能')
 
       const { todos, initializeTodos } = useTodos()
-      const {
-        generateSuggestedTodosWithDomain,
-        confirmSuggestedTodos,
-        suggestedTodos,
-        showSuggestedTodos,
-      } = useTodoManagement()
+      const { generateSuggestedTodos, confirmSuggestedTodos, suggestedTodos, showSuggestedTodos } =
+        useTodoManagement()
 
       // 初始化存储服务
       await initializeTodos()
@@ -217,7 +213,7 @@ describe('待办事项工作流集成测试', () => {
 
       const initialTodoCount = todos.value.length
 
-      await generateSuggestedTodosWithDomain('work')
+      await generateSuggestedTodos()
 
       // 等待异步操作完成
       await new Promise((resolve) => setTimeout(resolve, 50))
@@ -242,12 +238,8 @@ describe('待办事项工作流集成测试', () => {
       mockGetAIResponse.mockResolvedValue('1. 任务 1\n2. 任务 2')
 
       const { todos, initializeTodos } = useTodos()
-      const {
-        generateSuggestedTodosWithDomain,
-        cancelSuggestedTodos,
-        suggestedTodos,
-        showSuggestedTodos,
-      } = useTodoManagement()
+      const { generateSuggestedTodos, cancelSuggestedTodos, suggestedTodos, showSuggestedTodos } =
+        useTodoManagement()
 
       // 初始化存储服务
       await initializeTodos()
@@ -257,7 +249,7 @@ describe('待办事项工作流集成测试', () => {
 
       const initialTodoCount = todos.value.length
 
-      await generateSuggestedTodosWithDomain('work')
+      await generateSuggestedTodos()
       expect(suggestedTodos.value.length).toBeGreaterThan(0)
 
       cancelSuggestedTodos()

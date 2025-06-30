@@ -138,9 +138,9 @@ describe('useTodoManagement', () => {
         '1. 学习 Vue 3\n2. 编写单元测试\n3. 部署应用\n4. 代码重构\n5. 文档更新'
       )
 
-      const { generateSuggestedTodosWithDomain, suggestedTodos, isGenerating } = useTodoManagement()
+      const { generateSuggestedTodos, suggestedTodos, isGenerating } = useTodoManagement()
 
-      const promise = generateSuggestedTodosWithDomain('work')
+      const promise = generateSuggestedTodos()
       expect(isGenerating.value).toBe(true)
 
       await promise
@@ -154,9 +154,9 @@ describe('useTodoManagement', () => {
     it('应该处理逗号分隔的建议格式', async () => {
       mockGetAIResponse.mockResolvedValue('学习 Vue,写测试,部署应用')
 
-      const { generateSuggestedTodosWithDomain, suggestedTodos } = useTodoManagement()
+      const { generateSuggestedTodos, suggestedTodos } = useTodoManagement()
 
-      await generateSuggestedTodosWithDomain('study')
+      await generateSuggestedTodos()
 
       expect(suggestedTodos.value.length).toBe(3)
       expect(suggestedTodos.value[0]).toBe('学习 Vue')
@@ -170,9 +170,9 @@ describe('useTodoManagement', () => {
         showError: mockShowError,
       })
 
-      const { generateSuggestedTodosWithDomain, isGenerating } = useTodoManagement()
+      const { generateSuggestedTodos, isGenerating } = useTodoManagement()
 
-      await generateSuggestedTodosWithDomain('work')
+      await generateSuggestedTodos()
 
       expect(isGenerating.value).toBe(false)
       expect(mockShowError).toHaveBeenCalled()

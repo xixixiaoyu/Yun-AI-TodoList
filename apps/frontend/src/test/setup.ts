@@ -19,7 +19,7 @@ beforeEach(() => {
   if (currentApp) {
     try {
       currentApp.unmount()
-    } catch (error) {
+    } catch (_error) {
       // 忽略卸载错误
     }
   }
@@ -31,7 +31,7 @@ afterEach(() => {
   if (currentApp) {
     try {
       currentApp.unmount()
-    } catch (error) {
+    } catch (_error) {
       // 忽略卸载错误
     }
     currentApp = null

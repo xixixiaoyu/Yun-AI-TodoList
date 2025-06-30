@@ -3,12 +3,12 @@
  * 提供手动测试混合存储功能的工具函数
  */
 
-import type { Todo, CreateTodoDto } from '@shared/types'
+import type { CreateTodoDto } from '@shared/types'
 
 export interface TestResult {
   success: boolean
   message: string
-  data?: any
+  data?: Record<string, unknown>
   error?: string
 }
 
@@ -38,7 +38,7 @@ export class HybridStorageInteractiveTester {
     let networkErrorEnabled = false
 
     // 重写 fetch 以模拟网络状态
-    window.fetch = async (input: RequestInfo | URL, init?: RequestInit) => {
+    window.fetch = async (input: string | URL | Request, init?: RequestInit) => {
       if (networkErrorEnabled) {
         throw new Error('Simulated network error')
       }
@@ -172,7 +172,7 @@ export class HybridStorageInteractiveTester {
       const isDataIntact =
         parsedData.length === testData.length &&
         parsedData.every(
-          (item: any, index: number) =>
+          (item: Record<string, unknown>, index: number) =>
             item.id === testData[index].id && item.title === testData[index].title
         )
 
@@ -298,7 +298,10 @@ export class HybridStorageInteractiveTester {
   /**
    * 执行智能合并
    */
-  private performSmartMerge(localData: any[], cloudData: any[]): any[] {
+  private performSmartMerge(
+    localData: Record<string, unknown>[],
+    cloudData: Record<string, unknown>[]
+  ): Record<string, unknown>[] {
     const mergedMap = new Map()
 
     // 添加本地数据
@@ -488,6 +491,16 @@ export async function runHybridStorageTests(): Promise<TestResult[]> {
 
 // 全局暴露测试工具（用于浏览器控制台调试）
 if (typeof window !== 'undefined') {
-  ;(window as any).hybridStorageTester = new HybridStorageInteractiveTester()
-  ;(window as any).runHybridStorageTests = runHybridStorageTests
+  ;(
+    window as {
+      hybridStorageTester?: HybridStorageInteractiveTester
+      runHybridStorageTests?: typeof runHybridStorageTests
+    }
+  ).hybridStorageTester = new HybridStorageInteractiveTester()
+  ;(
+    window as {
+      hybridStorageTester?: HybridStorageInteractiveTester
+      runHybridStorageTests?: typeof runHybridStorageTests
+    }
+  ).runHybridStorageTests = runHybridStorageTests
 }

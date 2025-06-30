@@ -3,10 +3,7 @@
  * 执行所有存储相关的测试并生成详细报告
  */
 
-import {
-  runHybridStorageTests,
-  HybridStorageInteractiveTester,
-} from '../utils/test-hybrid-storage-interactive'
+import { runHybridStorageTests } from '../utils/test-hybrid-storage-interactive'
 
 interface TestSuite {
   name: string
@@ -253,7 +250,7 @@ class StorageTestRunner {
       if (!suiteResults.has(result.suite)) {
         suiteResults.set(result.suite, { passed: 0, total: 0 })
       }
-      const stats = suiteResults.get(result.suite)!
+      const stats = suiteResults.get(result.suite) as { passed: number; total: number }
       stats.total++
       if (result.success) stats.passed++
     })

@@ -127,7 +127,7 @@ class ConsistencyChecker {
       if (!localMap.has(id)) {
         differences.push({ type: 'missing_local', id })
       } else {
-        const localTodo = localMap.get(id)!
+        const localTodo = localMap.get(id) as Todo
         if (JSON.stringify(localTodo) !== JSON.stringify(remoteTodo)) {
           differences.push({
             type: 'content_diff',
@@ -168,9 +168,9 @@ Object.defineProperty(window, 'localStorage', { value: localStorageMock })
 global.fetch = vi.fn()
 
 // Mock composables
-let mockTodos = ref<Todo[]>([])
-let mockStorageMode = ref<'local' | 'remote' | 'hybrid'>('hybrid')
-let mockIsAuthenticated = ref(true)
+const mockTodos = ref<Todo[]>([])
+const mockStorageMode = ref<'local' | 'remote' | 'hybrid'>('hybrid')
+const mockIsAuthenticated = ref(true)
 
 vi.mock('@/composables/useTodos', () => ({
   useTodos: () => ({
@@ -548,7 +548,7 @@ describe('混合存储功能综合测试', () => {
         try {
           const response = await fetch('/api/v1/todos')
           if (response.ok) break
-        } catch (error) {
+        } catch (_error) {
           retryCount++
           if (retryCount >= maxRetries) {
             // 应该回退到本地存储

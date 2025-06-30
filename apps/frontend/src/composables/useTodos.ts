@@ -2,6 +2,7 @@ import { debounceAsync } from '@/utils/debounce'
 import { logger } from '@/utils/logger'
 import { STORAGE_RETRY_OPTIONS, withRetry } from '@/utils/retryHelper'
 import { nextTick, onUnmounted, ref } from 'vue'
+import { TodoStorageService } from '../services/storage/TodoStorageService'
 import type { CreateTodoDto, Todo, UpdateTodoDto } from '../types/todo'
 import { TodoValidator } from '../utils/todoValidator'
 import { useAuth } from './useAuth'
@@ -186,7 +187,7 @@ export function useTodos() {
       }
 
       // 安全获取存储服务
-      let storageService: any
+      let storageService: TodoStorageService
       try {
         storageService = getCurrentStorageService()
       } catch (error) {

@@ -1,13 +1,21 @@
 // Re-export shared types to ensure consistency across the frontend
 export type {
+  // AI 任务生成相关类型
+  AITaskGenerationRequest,
+  AITaskGenerationResult,
   CreateTodoDto,
+  GeneratedTask,
   SortDirection,
+  TaskGenerationConfig,
+  TaskGenerationHistory,
+  TaskTemplate,
   Todo,
   TodoFilter,
   TodoSortField,
   TodoSortOptions,
   TodoStats,
   UpdateTodoDto,
+  UserTaskPreferences,
 } from '@shared/types/todo'
 
 // Import Todo type for use in interfaces

@@ -16,7 +16,11 @@ export class HybridTodoStorageService extends TodoStorageService {
   private localService: LocalStorageService
   private remoteService: RemoteStorageService
   private isOnline: boolean = navigator.onLine
-  private syncQueue: Array<{ operation: string; data: any; timestamp: number }> = []
+  private syncQueue: Array<{
+    operation: string
+    data: Record<string, unknown>
+    timestamp: number
+  }> = []
   private syncInProgress = false
 
   constructor() {
@@ -146,7 +150,7 @@ export class HybridTodoStorageService extends TodoStorageService {
       return localResult
     }
 
-    const newTodo = localResult.data!
+    const newTodo = localResult.data as Todo
 
     // 标记为待同步
     this.addToSyncQueue('create', { localId: newTodo.id, data: todoData })
@@ -167,7 +171,7 @@ export class HybridTodoStorageService extends TodoStorageService {
         return localResult
       }
 
-      const updatedTodo = localResult.data!
+      const updatedTodo = localResult.data as Todo
 
       // 2. 如果在线，尝试同步到远程
       if (this.isOnline) {
@@ -261,7 +265,7 @@ export class HybridTodoStorageService extends TodoStorageService {
   }
 
   // 同步队列管理
-  private addToSyncQueue(operation: string, data: any): void {
+  private addToSyncQueue(operation: string, data: Record<string, unknown>): void {
     this.syncQueue.push({
       operation,
       data,

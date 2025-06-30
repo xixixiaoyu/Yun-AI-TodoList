@@ -126,7 +126,10 @@ class QuickStorageTest {
     }
   }
 
-  private smartMerge(localData: any[], remoteData: any[]): any[] {
+  private smartMerge(
+    localData: Record<string, unknown>[],
+    remoteData: Record<string, unknown>[]
+  ): Record<string, unknown>[] {
     const mergedMap = new Map()
 
     // 添加本地数据
@@ -307,8 +310,18 @@ export async function runQuickStorageTest(): Promise<TestResult[]> {
 
 // 全局暴露（用于浏览器控制台）
 if (typeof window !== 'undefined') {
-  ;(window as any).runQuickStorageTest = runQuickStorageTest(window as any).QuickStorageTest =
-    QuickStorageTest
+  ;(
+    window as {
+      runQuickStorageTest?: typeof runQuickStorageTest
+      QuickStorageTest?: typeof QuickStorageTest
+    }
+  ).runQuickStorageTest = runQuickStorageTest
+  ;(
+    window as {
+      runQuickStorageTest?: typeof runQuickStorageTest
+      QuickStorageTest?: typeof QuickStorageTest
+    }
+  ).QuickStorageTest = QuickStorageTest
 }
 
 export { QuickStorageTest }

@@ -29,7 +29,7 @@ const storageState = reactive({
 
 // 存储服务实例
 let localStorageService: LocalStorageService | null = null
-let remoteStorageService: RemoteStorageService | null = null
+let _remoteStorageService: RemoteStorageService | null = null
 let currentStorageService: TodoStorageService | null = null
 
 /**
@@ -60,7 +60,7 @@ export function useStorageMode() {
     try {
       // 创建存储服务实例
       localStorageService = new LocalStorageService()
-      remoteStorageService = new RemoteStorageService()
+      _remoteStorageService = new RemoteStorageService()
 
       // 从用户偏好设置加载配置
       await loadStorageConfig()

@@ -3,9 +3,9 @@
  * 验证拖拽后 Todo 的 order 字段是否正确保存到数据库
  */
 
+import type { Todo } from '@shared/types'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { ref, nextTick } from 'vue'
-import type { Todo, CreateTodoDto } from '@shared/types'
+import { nextTick, ref } from 'vue'
 
 // Mock 数据
 const mockTodos = ref<Todo[]>([])

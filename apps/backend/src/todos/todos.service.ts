@@ -429,44 +429,10 @@ export class TodosService {
       estimatedTime = '1.5小时'
     }
 
-    // 计算置信度（基于关键词匹配程度）
-    let confidence = 0.6 // 基础置信度
-    const keywords = [
-      '紧急',
-      'urgent',
-      '重要',
-      'important',
-      '高',
-      'high',
-      '低',
-      'low',
-      '简单',
-      'easy',
-      '项目',
-      'project',
-      '开发',
-      'develop',
-      '文档',
-      'document',
-      '写',
-      'write',
-      '会议',
-      'meeting',
-      '讨论',
-      'discuss',
-      '学习',
-      'learn',
-      '研究',
-      'research',
-    ]
-    const matchedKeywords = keywords.filter((keyword) => text.includes(keyword))
-    confidence = Math.min(0.9, 0.6 + matchedKeywords.length * 0.1)
-
     return {
       priority,
       estimatedTime,
-      reasoning: `基于关键词分析：优先级 ${priority}/5，预计耗时 ${estimatedTime}。匹配关键词：${matchedKeywords.join(', ') || '无'}`,
-      confidence,
+      reasoning: `基于关键词分析：优先级 ${priority}/5，预计耗时 ${estimatedTime}`,
     }
   }
 

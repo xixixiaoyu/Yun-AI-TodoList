@@ -105,9 +105,9 @@ describe('AI 集成测试', () => {
 
       mockGetAIResponse.mockResolvedValue('1. 学习 Vue 3\n2. 编写测试\n3. 部署应用')
 
-      const { generateSuggestedTodosWithDomain, suggestedTodos, isGenerating } = useTodoManagement()
+      const { generateSuggestedTodos, suggestedTodos, isGenerating } = useTodoManagement()
 
-      await generateSuggestedTodosWithDomain('work')
+      await generateSuggestedTodos()
 
       // 等待异步操作完成
       await new Promise((resolve) => setTimeout(resolve, 100))

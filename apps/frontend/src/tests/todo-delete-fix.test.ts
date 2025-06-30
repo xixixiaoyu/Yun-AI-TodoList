@@ -27,7 +27,7 @@ describe('Todo Delete Fix', () => {
     expect(todos.value).toHaveLength(1)
 
     // 删除 Todo
-    const result = await removeTodo(addedTodo!.id)
+    const result = await removeTodo((addedTodo as Todo).id)
 
     expect(result).toBe(true)
     expect(todos.value).toHaveLength(0)
@@ -62,7 +62,7 @@ describe('Todo Delete Fix', () => {
     expect(filteredTodos.value).toHaveLength(2)
 
     // 删除第一个 Todo
-    const result = await removeTodo(todo1!.id)
+    const result = await removeTodo((todo1 as Todo).id)
 
     // 等待响应式更新
     await nextTick()
@@ -71,8 +71,8 @@ describe('Todo Delete Fix', () => {
     expect(result).toBe(true)
     expect(todos.value).toHaveLength(1)
     expect(filteredTodos.value).toHaveLength(1)
-    expect(todos.value[0].id).toBe(todo2!.id)
-    expect(filteredTodos.value[0].id).toBe(todo2!.id)
+    expect(todos.value[0].id).toBe((todo2 as Todo).id)
+    expect(filteredTodos.value[0].id).toBe((todo2 as Todo).id)
   })
 
   it('should allow adding new todo after delete', async () => {
@@ -84,7 +84,7 @@ describe('Todo Delete Fix', () => {
     expect(todos.value).toHaveLength(1)
 
     // 删除 Todo
-    const deleteResult = await removeTodo(firstTodo!.id)
+    const deleteResult = await removeTodo((firstTodo as Todo).id)
     expect(deleteResult).toBe(true)
     expect(todos.value).toHaveLength(0)
 

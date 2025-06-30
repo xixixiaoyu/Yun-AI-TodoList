@@ -13,8 +13,8 @@
         v-if="showRetryButton"
         class="retry-button"
         :disabled="syncState.syncInProgress"
-        @click="handleRetry"
         :title="t('storage.retrySync')"
+        @click="handleRetry"
       >
         <i class="i-carbon-restart text-xs"></i>
       </button>
@@ -23,8 +23,8 @@
       <button
         v-if="showCloseButton"
         class="close-button"
-        @click="handleDismiss"
         :title="t('common.close')"
+        @click="handleDismiss"
       >
         <i class="i-carbon-close text-xs"></i>
       </button>
@@ -99,7 +99,7 @@ onMounted(() => {
 
         if (timeSinceSync > props.autoHideDelay + 1000) {
           // 多等1秒确保隐藏
-          window.clearInterval(updateTimer!)
+          window.clearInterval(updateTimer as number)
           updateTimer = null
         }
       }
@@ -111,7 +111,7 @@ onMounted(() => {
     () => syncState.lastSyncTime,
     (newTime, oldTime) => {
       if (import.meta.env.DEV) {
-        console.log('[SyncStatusIndicator] lastSyncTime changed:', {
+        console.warn('[SyncStatusIndicator] lastSyncTime changed:', {
           old: oldTime,
           new: newTime,
           type: newTime ? typeof newTime : 'null',
@@ -120,7 +120,7 @@ onMounted(() => {
       }
 
       if (newTime && !syncState.syncInProgress && !syncState.syncError) {
-        console.log('[SyncStatusIndicator] Starting update timer for notification auto-hide')
+        console.warn('[SyncStatusIndicator] Starting update timer for notification auto-hide')
         startUpdateTimer()
       }
     },
@@ -137,6 +137,22 @@ onUnmounted(() => {
 })
 
 // 这个 watch 已经合并到上面的 onMounted 中了
+
+// 监听同步状态变化，处理关闭状态重置
+watch(
+  () => [syncState.lastSyncTime, userDismissedAt.value, lastSyncTimeWhenDismissed.value],
+  () => {
+    // 如果有新的同步活动（同步时间比关闭时记录的时间更新），重置关闭状态
+    if (
+      syncState.lastSyncTime &&
+      lastSyncTimeWhenDismissed.value &&
+      syncState.lastSyncTime > lastSyncTimeWhenDismissed.value
+    ) {
+      userDismissedAt.value = null
+      lastSyncTimeWhenDismissed.value = null
+    }
+  }
+)
 
 // 计算属性
 const shouldShow = computed(() => {
@@ -157,38 +173,14 @@ const shouldShow = computed(() => {
     if (isInSilencePeriod) {
       return syncState.syncInProgress || syncState.syncError
     }
-
-    // 如果有新的同步活动（同步时间比关闭时记录的时间更新），重置关闭状态
-    if (
-      syncState.lastSyncTime &&
-      lastSyncTimeWhenDismissed.value &&
-      syncState.lastSyncTime > lastSyncTimeWhenDismissed.value
-    ) {
-      userDismissedAt.value = null
-      lastSyncTimeWhenDismissed.value = null
-    }
   }
 
   // 显示条件：同步中、有错误或刚完成同步
-  const result =
+  return (
     syncState.syncInProgress ||
     syncState.syncError ||
     (syncState.lastSyncTime && isRecentSync.value)
-
-  // 只在通知应该显示但可能有问题时输出调试信息
-  if (result && syncState.lastSyncTime && !syncState.syncInProgress && !syncState.syncError) {
-    console.log('[SyncStatusIndicator] Success notification showing:', {
-      timeSinceSync:
-        Date.now() -
-        (syncState.lastSyncTime instanceof Date
-          ? syncState.lastSyncTime.getTime()
-          : new Date(syncState.lastSyncTime).getTime()),
-      autoHideDelay: props.autoHideDelay,
-      isRecentSync: isRecentSync.value,
-    })
-  }
-
-  return result
+  )
 })
 
 const isRecentSync = computed(() => {
@@ -239,13 +231,13 @@ const isRecentSync = computed(() => {
     // 调试信息：通知状态变化
     if (import.meta.env.DEV) {
       if (!shouldShow && timeSinceSync >= hideDelay) {
-        console.log('[SyncStatusIndicator] Notification hiding:', {
+        console.warn('[SyncStatusIndicator] Notification hiding:', {
           timeSinceSync,
           hideDelay,
           hasError: !!syncState.syncError,
         })
       } else if (shouldShow) {
-        console.log('[SyncStatusIndicator] Notification showing:', {
+        console.warn('[SyncStatusIndicator] Notification showing:', {
           timeSinceSync,
           hideDelay,
           hasError: !!syncState.syncError,

@@ -64,8 +64,6 @@ export function useTodoManagement() {
   const isSplittingTask = ref(false) // AI 拆分分析加载状态
   const suggestedTodos = ref<string[]>([])
   const showSuggestedTodos = ref(false)
-  const showDomainSelection = ref(false)
-  const selectedDomain = ref('')
   const isSorting = ref(false)
   const MAX_TODO_LENGTH = 50
 
@@ -108,77 +106,56 @@ export function useTodoManagement() {
   })
 
   const generateSuggestedTodos = async () => {
-    // 显示领域选择对话框
-    showDomainSelection.value = true
-  }
-
-  const generateSuggestedTodosWithDomain = async (domain: string) => {
-    // 增强的输入验证
-    if (!domain || typeof domain !== 'string' || domain.trim() === '') {
-      showError('请选择或输入一个有效的领域')
-      return
-    }
-
-    // 清理和标准化 domain 参数
-    const cleanDomain = domain.trim()
-
     isGenerating.value = true
-    showDomainSelection.value = false // 立即关闭领域选择对话框
     try {
       // 获取已完成的历史 todo 项
       const completedTodos = todos.value.filter((todo) => todo.completed)
 
-      // 根据选择的领域构建不同的提示词
+      // 构建通用的提示词
       let prompt = ''
-      let domainName = cleanDomain
 
-      // 检查是否是预设领域
-      if (['work', 'study', 'life'].includes(cleanDomain)) {
-        domainName = t(`domain.${cleanDomain}`)
-      }
-
-      // 如果有已完成的历史记录，使用增强的提示词
       if (completedTodos.length > 0) {
-        // 格式化已完成的 todo 项列表
+        // 如果有历史记录，结合历史记录生成个性化建议
         const completedTodosList = completedTodos
-          .slice(-50) // 只取最近的50个已完成项
-          .map((todo, index) => `${index + 1}. ${todo.title}`)
+          .slice(-10) // 只取最近的10个已完成任务
+          .map((todo) => `- ${todo.text}`)
           .join('\n')
 
-        const template = t('generateDomainSuggestionsWithHistoryPrompt')
-
-        // 使用正则表达式进行全局替换
-        prompt = template
-          .replace(/{domain}/g, domainName)
-          .replace(/{completedTodos}/g, completedTodosList)
+        const template = t('generateSuggestionsWithHistoryPrompt')
+        prompt = template.replace('{completedTodos}', completedTodosList)
 
         // 验证替换结果
         const replacementSuccessful =
-          prompt.includes(domainName) &&
-          prompt.includes(completedTodosList) &&
-          !prompt.includes('{domain}') &&
-          !prompt.includes('{completedTodos}')
+          prompt.includes(completedTodosList) && !prompt.includes('{completedTodos}')
 
         if (!replacementSuccessful) {
-          prompt = `请为我生成5个关于${domainName}领域的待办事项建议。\n\n我已完成的相关任务：\n${completedTodosList}\n\n请按以下要求生成：\n1. 从我的历史记录中选择2个与${domainName}领域最相关的任务（如果有）\n2. 基于${domainName}领域生成3个全新的待办事项\n\n每个建议应该简洁明了，不超过50个字符。请直接返回建议列表，每行一个建议，总共5个建议。`
+          prompt = `请为我生成5个待办事项建议。\n\n我已完成的相关任务：\n${completedTodosList}\n\n请按以下要求生成：\n1. 从我的历史记录中分析我的兴趣和需求\n2. 生成5个实用的待办事项建议\n\n每个建议应该简洁明了，不超过50个字符。请直接返回建议列表，每行一个建议，总共5个建议。`
         }
       } else {
-        // 没有历史记录时，使用原有的提示词
-        const template = t('generateDomainSuggestionsPrompt')
+        // 没有历史记录时，使用通用提示词
+        const template = t('generateSuggestionsPrompt')
+        prompt = template
 
-        // 使用正则表达式进行全局替换
-        prompt = template.replace(/{domain}/g, domainName)
-
-        // 验证替换结果
-        const replacementSuccessful = prompt.includes(domainName) && !prompt.includes('{domain}')
-
-        if (!replacementSuccessful) {
-          prompt = `请为我生成5个关于${domainName}领域的实用待办事项建议。每个建议应该简洁明了，不超过50个字符。请直接返回建议列表，每行一个建议。`
+        // 如果翻译失败，使用默认提示词
+        if (!prompt || prompt.includes('{')) {
+          prompt = `请为我生成5个实用的待办事项建议，涵盖工作、学习、生活等不同方面。每个建议应该简洁明了，不超过50个字符。请直接返回建议列表，每行一个建议。`
         }
       }
 
-      const response = await getAIResponse(prompt, 1)
+      logger.info(
+        'Generating AI suggestions',
+        { hasHistory: completedTodos.length > 0 },
+        'TodoManagement'
+      )
 
+      const { getAIResponse } = await import('@/services/deepseekService')
+      const response = await getAIResponse(prompt)
+
+      if (!response || response.trim() === '') {
+        throw new Error(t('aiEmptyResponseError'))
+      }
+
+      // 解析 AI 响应
       let parsedTodos: string[] = []
 
       const lines = response.split('\n').filter((line) => line.trim() !== '')
@@ -200,21 +177,17 @@ export function useTodoManagement() {
         parsedTodos = [response.trim()]
       }
 
-      // 统一生成 5 个建议
-
       suggestedTodos.value = parsedTodos
         .filter((todo) => todo.length > 0 && todo.length <= MAX_TODO_LENGTH)
         .slice(0, 5)
 
       if (suggestedTodos.value.length > 0) {
         showSuggestedTodos.value = true
-        showDomainSelection.value = false
         logger.info(
           'AI suggestions generated successfully',
           {
             count: suggestedTodos.value.length,
             suggestions: suggestedTodos.value,
-            domain: cleanDomain,
           },
           'TodoManagement'
         )
@@ -227,11 +200,6 @@ export function useTodoManagement() {
     } finally {
       isGenerating.value = false
     }
-  }
-
-  const cancelDomainSelection = () => {
-    showDomainSelection.value = false
-    selectedDomain.value = ''
   }
 
   // 计算是否有已完成的历史记录
@@ -850,13 +818,9 @@ ${todoTexts}
     analysisProgress,
     suggestedTodos,
     showSuggestedTodos,
-    showDomainSelection,
-    selectedDomain,
     MAX_TODO_LENGTH,
     duplicateError,
     generateSuggestedTodos,
-    generateSuggestedTodosWithDomain,
-    cancelDomainSelection,
     confirmSuggestedTodos,
     cancelSuggestedTodos,
     updateSuggestedTodo,
@@ -886,8 +850,6 @@ ${todoTexts}
       analysisProgress.value = 0
       suggestedTodos.value = []
       showSuggestedTodos.value = false
-      showDomainSelection.value = false
-      selectedDomain.value = ''
       duplicateError.value = ''
       logger.info('useTodoManagement cleanup completed', undefined, 'TodoManagement')
     },

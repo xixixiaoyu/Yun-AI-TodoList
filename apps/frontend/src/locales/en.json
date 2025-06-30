@@ -12,10 +12,42 @@
   "generateSuggestions": "Generate suggestions",
   "aiPrioritySort": "AI Priority Sort",
 
+  "aiTaskGeneration": "AI Smart Task Breakdown",
+  "aiTaskGenerationSubtitle": "Intelligently break down complex tasks into actionable steps",
+  "taskDescription": "Task Description",
+  "taskDescriptionPlaceholder": "Describe the task you want to complete, e.g.: Prepare for next week's product launch",
+  "taskInputHint": "💡 Tip: The more detailed the description, the more precise the AI task breakdown. Press Enter to generate quickly, Shift+Enter for new line",
+  "generationOptions": "Generation Options",
+  "enablePriorityAnalysis": "Enable Priority Analysis",
+  "enableTimeEstimation": "Enable Time Estimation",
+  "maxTasks": "Max Tasks",
+  "autoJudge": "Auto Judge",
+  "tasks": "tasks",
+  "generateTasks": "Generate Tasks",
+  "generatingTasks": "AI is analyzing tasks...",
+  "generatedTasks": "Generated Tasks",
+  "validationIssuesFound": "Task quality issues found",
+  "selectAll": "Select All",
+  "deselectAll": "Deselect All",
+  "regenerate": "Regenerate",
+  "addSelectedTasks": "Add {count} selected tasks",
+
+  "taskGenerationSettings": "Task Generation Settings",
+  "enableTaskGeneration": "Enable AI Task Generation",
+  "enableTaskGenerationDesc": "Allow AI to break down complex tasks into multiple actionable subtasks",
+  "defaultMaxTasks": "Default Max Tasks",
+  "defaultMaxTasksDesc": "Default maximum number limit when AI generates tasks",
+  "defaultEnablePriorityAnalysis": "Default Enable Priority Analysis",
+  "defaultEnablePriorityAnalysisDesc": "Analyze task priority by default when generating tasks",
+  "defaultEnableTimeEstimation": "Default Enable Time Estimation",
+  "defaultEnableTimeEstimationDesc": "Estimate completion time by default when generating tasks",
+
   "aiAssistant": "AI Assistant",
   "delete": "Delete",
   "confirm": "Confirm",
   "cancel": "Cancel",
+  "stopGeneration": "Stop Generation",
+  "confirmStopGeneration": "Are you sure you want to stop task generation?",
   "suggestedTodos": "Suggested Todos",
   "confirmOrModify": "Please confirm or modify the following suggested todos:",
   "confirmOrModifyWithHistory": "Personalized suggestions based on your history",
@@ -80,12 +112,8 @@
   "addTodoError": "Failed to add todo, please try again",
   "dragToResize": "Drag to resize, double-click to reset",
   "generateSuggestionsPrompt": "Please generate 5 practical todo suggestions covering work, study, life and other aspects. Each suggestion should be concise and clear, no more than 50 characters. Please return the suggestion list directly, one suggestion per line.",
-  "generateDomainSuggestionsPrompt": "Please generate 5 practical todo suggestions about {domain}. Each suggestion should be concise and clear, no more than 50 characters. Please return the suggestion list directly, one suggestion per line.",
-  "generateDomainSuggestionsWithHistoryPrompt": "Please generate 5 todo suggestions about {domain}.\n\nMy completed related tasks:\n{completedTodos}\n\nPlease generate according to the following requirements:\n1. Select 2 tasks most relevant to {domain} from my history\n2. Generate 3 new todos based on {domain}\n\nEach suggestion should be concise and clear, no more than 50 characters. Please return the suggestion list directly, one suggestion per line, total 5 suggestions.",
-  "selectDomain": "Select Suggestion Domain",
-  "selectDomainDescription": "Please select the domain you want to generate suggestions for:",
-  "confirmSelection": "Confirm Selection",
-  "cancelSelection": "Cancel",
+  "generateSuggestionsWithHistoryPrompt": "Please generate 5 todo suggestions.\n\nMy completed related tasks:\n{completedTodos}\n\nPlease generate according to the following requirements:\n1. Analyze my interests and needs from my history\n2. Generate 5 practical todo suggestions\n\nEach suggestion should be concise and clear, no more than 50 characters. Please return the suggestion list directly, one suggestion per line, total 5 suggestions.",
+
   "login": {
     "title": "Login",
     "subtitle": "Welcome back, please sign in to your account",
@@ -141,19 +169,14 @@
     "usernameTooShort": "Username must be at least 3 characters",
     "usernameInvalid": "Username can only contain letters, numbers and underscores"
   },
-  "domain": {
-    "work": "Work",
-    "study": "Study",
-    "life": "Life",
-    "custom": "Custom"
-  },
+
   "thinking": {
     "title": "Thinking Process",
     "expand": "Expand thinking process",
     "collapse": "Collapse thinking process"
   },
-  "customDomainPlaceholder": "Enter your desired domain (e.g., Health, Finance, Hobby, etc.)",
-  "sortPrompt": "Please sort the following todos by priority based on importance and urgency. Consider: 1. Task importance and urgency 2. Task complexity and time required 3. Dependencies between tasks. Please return the sorted numbers in the following format, separated by commas (e.g. 3,1,4,2)",
+
+  "sortPrompt": "Please sort the following todos by priority based on importance and urgency. Consider: 1. Task importance and urgency 2. Task complexity and time required 3. Execution order and logical relationships. Please return the sorted numbers in the following format, separated by commas (e.g. 3,1,4,2)",
   "aiEmptyResponseError": "AI returned an empty response",
   "aiSortMismatchError": "AI returned sort order does not match the number of todos",
   "aiSortError": "AI sorting failed, please try again later.",
@@ -423,7 +446,7 @@
   "needsSearch": "Needs search",
   "yes": "Yes",
   "no": "No",
-  "confidence": "Confidence",
+
   "reason": "Reason",
 
   "aiAnalysis": "AI Smart Analysis",

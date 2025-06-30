@@ -11,7 +11,6 @@ export interface CreateAIAnalysisRequest {
   priority?: number
   estimatedTime?: string
   reasoning?: string
-  confidence?: number
   modelName?: string
   modelVersion?: string
   analysisType?: string
@@ -23,13 +22,11 @@ export interface UpdateAIAnalysisRequest {
   priority?: number
   estimatedTime?: string
   reasoning?: string
-  confidence?: number
 }
 
 export interface AIAnalysisStats {
   totalAnalyses: number
   recentAnalyses: number
-  avgConfidence: number
   analysisByType: Array<{
     type: string
     count: number
@@ -158,7 +155,6 @@ export class AIAnalysisApiService {
     hasAnalysis: boolean
     latestAnalysis?: AIAnalysis
     analysisCount: number
-    avgConfidence?: number
   }> {
     try {
       const [latestAnalysis, history] = await Promise.all([
@@ -166,18 +162,10 @@ export class AIAnalysisApiService {
         this.getAnalysisHistory(todoId),
       ])
 
-      const avgConfidence =
-        history.length > 0
-          ? history
-              .filter((a) => a.confidence !== null && a.confidence !== undefined)
-              .reduce((sum, a) => sum + (a.confidence || 0), 0) / history.length
-          : undefined
-
       return {
         hasAnalysis: latestAnalysis !== null,
         latestAnalysis: latestAnalysis || undefined,
         analysisCount: history.length,
-        avgConfidence,
       }
     } catch (error) {
       console.error('Failed to get todo analysis summary:', error)
@@ -215,17 +203,6 @@ export class AIAnalysisApiService {
     if (!analysis.reasoning || analysis.reasoning.trim().length < 10) {
       issues.push('推理过程过于简单')
       score -= 15
-    }
-
-    // 检查置信度
-    if (analysis.confidence !== undefined) {
-      if (analysis.confidence < 0 || analysis.confidence > 1) {
-        issues.push('置信度应该在 0-1 之间')
-        score -= 10
-      } else if (analysis.confidence < 0.3) {
-        issues.push('置信度过低')
-        score -= 5
-      }
     }
 
     return {

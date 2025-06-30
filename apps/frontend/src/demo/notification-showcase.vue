@@ -9,19 +9,19 @@
       <div class="control-section">
         <h3>基础通知类型</h3>
         <div class="button-grid">
-          <button @click="testSuccess" class="btn btn-success">
+          <button class="btn btn-success" @click="testSuccess">
             <i class="i-carbon-checkmark-filled"></i>
             成功通知 (3秒)
           </button>
-          <button @click="testError" class="btn btn-danger">
+          <button class="btn btn-danger" @click="testError">
             <i class="i-carbon-error-filled"></i>
             错误通知 (8秒)
           </button>
-          <button @click="testWarning" class="btn btn-warning">
+          <button class="btn btn-warning" @click="testWarning">
             <i class="i-carbon-warning-filled"></i>
             警告通知 (6秒)
           </button>
-          <button @click="testInfo" class="btn btn-info">
+          <button class="btn btn-info" @click="testInfo">
             <i class="i-carbon-information-filled"></i>
             信息通知 (4秒)
           </button>
@@ -31,19 +31,19 @@
       <div class="control-section">
         <h3>同步相关通知</h3>
         <div class="button-grid">
-          <button @click="testSyncSuccess" class="btn btn-success">
+          <button class="btn btn-success" @click="testSyncSuccess">
             <i class="i-carbon-cloud-upload"></i>
             同步成功
           </button>
-          <button @click="testSyncError" class="btn btn-danger">
+          <button class="btn btn-danger" @click="testSyncError">
             <i class="i-carbon-cloud-offline"></i>
             同步失败
           </button>
-          <button @click="testNetworkOnline" class="btn btn-info">
+          <button class="btn btn-info" @click="testNetworkOnline">
             <i class="i-carbon-wifi"></i>
             网络恢复
           </button>
-          <button @click="testNetworkOffline" class="btn btn-warning">
+          <button class="btn btn-warning" @click="testNetworkOffline">
             <i class="i-carbon-wifi-off"></i>
             网络断开
           </button>
@@ -53,19 +53,19 @@
       <div class="control-section">
         <h3>特殊功能测试</h3>
         <div class="button-grid">
-          <button @click="testCustomDuration" class="btn btn-info">
+          <button class="btn btn-info" @click="testCustomDuration">
             <i class="i-carbon-timer"></i>
             自定义时长 (2秒)
           </button>
-          <button @click="testPersistent" class="btn btn-warning">
+          <button class="btn btn-warning" @click="testPersistent">
             <i class="i-carbon-pin-filled"></i>
             持久化通知
           </button>
-          <button @click="testDuplicate" class="btn btn-secondary">
+          <button class="btn btn-secondary" @click="testDuplicate">
             <i class="i-carbon-copy"></i>
             重复通知测试
           </button>
-          <button @click="testBatch" class="btn btn-primary">
+          <button class="btn btn-primary" @click="testBatch">
             <i class="i-carbon-batch-job"></i>
             批量通知
           </button>
@@ -75,11 +75,11 @@
       <div class="control-section">
         <h3>管理操作</h3>
         <div class="button-grid">
-          <button @click="clearAll" class="btn btn-danger">
+          <button class="btn btn-danger" @click="clearAll">
             <i class="i-carbon-trash-can"></i>
             清除所有通知
           </button>
-          <button @click="showDebugInfo" class="btn btn-secondary">
+          <button class="btn btn-secondary" @click="showDebugInfo">
             <i class="i-carbon-debug"></i>
             显示调试信息
           </button>
@@ -107,7 +107,7 @@
       <div class="debug-content" @click.stop>
         <div class="debug-header">
           <h3>调试信息</h3>
-          <button @click="showDebug = false" class="close-btn">
+          <button class="close-btn" @click="showDebug = false">
             <i class="i-carbon-close"></i>
           </button>
         </div>
