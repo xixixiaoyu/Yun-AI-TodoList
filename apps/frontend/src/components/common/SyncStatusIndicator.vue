@@ -1,19 +1,19 @@
 <template>
   <div
     v-if="shouldShow"
-    class="sync-indicator"
+    class="network-indicator"
     :class="[indicatorClass, { 'fade-out': shouldFadeOut }]"
   >
-    <div class="sync-content">
-      <i :class="statusIcon" class="sync-icon"></i>
-      <span class="sync-text">{{ statusText }}</span>
+    <div class="network-content">
+      <i :class="statusIcon" class="network-icon"></i>
+      <span class="network-text">{{ statusText }}</span>
 
       <!-- 重试按钮 -->
       <button
         v-if="showRetryButton"
         class="retry-button"
-        :disabled="syncState.syncInProgress"
-        :title="t('storage.retrySync')"
+        :disabled="isCheckingConnection"
+        :title="t('network.retryConnection')"
         @click="handleRetry"
       >
         <i class="i-carbon-restart text-xs"></i>
@@ -30,8 +30,8 @@
       </button>
     </div>
 
-    <!-- 进度条 -->
-    <div v-if="syncState.syncInProgress" class="progress-bar">
+    <!-- 连接检查进度条 -->
+    <div v-if="isCheckingConnection" class="progress-bar">
       <div class="progress-fill"></div>
     </div>
   </div>
@@ -41,7 +41,8 @@
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useAuth } from '../../composables/useAuth'
-import { useDataSync } from '../../composables/useDataSync'
+import { useStorageMode } from '../../composables/useStorageMode'
+import { useSyncManager } from '../../composables/useSyncManager'
 
 interface Props {
   // 显示模式：'auto' | 'always' | 'never'
@@ -65,12 +66,16 @@ const props = withDefaults(defineProps<Props>(), {
 })
 
 const { t } = useI18n()
-const { syncState, syncStatusText, manualSync } = useDataSync()
 const { isAuthenticated } = useAuth()
+const { networkStatus, reconnectCloudStorage } = useStorageMode()
+const { networkStatusText, checkServerHealth } = useSyncManager()
 
 // 用户关闭状态管理
 const userDismissedAt = ref<number | null>(null)
-const lastSyncTimeWhenDismissed = ref<Date | null>(null)
+const lastCheckTimeWhenDismissed = ref<Date | null>(null)
+
+// 连接检查状态
+const isCheckingConnection = ref(false)
 
 // 强制更新时间计算的响应式变量
 const forceUpdateTrigger = ref(0)
@@ -80,24 +85,21 @@ let updateTimer: number | null = null
 
 // 组件挂载时启动定时器
 onMounted(() => {
-  // 只有在有同步时间时才启动定时器，避免不必要的性能开销
+  // 启动定时器用于更新时间显示
   const startUpdateTimer = () => {
     if (updateTimer) return // 避免重复启动
 
     updateTimer = window.setInterval(() => {
-      // 只有在有同步时间且可能需要隐藏时才更新
-      if (syncState.lastSyncTime && !syncState.syncInProgress && !syncState.syncError) {
+      // 定期更新时间显示
+      if (networkStatus.value.lastCheckTime) {
         forceUpdateTrigger.value++
 
         // 如果通知应该已经隐藏了，停止定时器
         const now = Date.now()
-        const syncTime =
-          syncState.lastSyncTime instanceof Date
-            ? syncState.lastSyncTime.getTime()
-            : new Date(syncState.lastSyncTime).getTime()
-        const timeSinceSync = now - syncTime
+        const checkTime = new Date(networkStatus.value.lastCheckTime).getTime()
+        const timeSinceCheck = now - checkTime
 
-        if (timeSinceSync > props.autoHideDelay + 1000) {
+        if (timeSinceCheck > props.autoHideDelay + 1000) {
           // 多等1秒确保隐藏
           window.clearInterval(updateTimer as number)
           updateTimer = null
@@ -106,21 +108,19 @@ onMounted(() => {
     }, 500)
   }
 
-  // 监听同步状态变化，智能启动/停止定时器
+  // 监听网络状态变化，智能启动/停止定时器
   watch(
-    () => syncState.lastSyncTime,
+    () => networkStatus.value.lastCheckTime,
     (newTime, oldTime) => {
       if (import.meta.env.DEV) {
-        console.warn('[SyncStatusIndicator] lastSyncTime changed:', {
+        console.warn('[NetworkStatusIndicator] lastCheckTime changed:', {
           old: oldTime,
           new: newTime,
-          type: newTime ? typeof newTime : 'null',
-          isDate: newTime instanceof Date,
         })
       }
 
-      if (newTime && !syncState.syncInProgress && !syncState.syncError) {
-        console.warn('[SyncStatusIndicator] Starting update timer for notification auto-hide')
+      if (newTime && !isCheckingConnection.value) {
+        console.warn('[NetworkStatusIndicator] Starting update timer for notification auto-hide')
         startUpdateTimer()
       }
     },
@@ -136,20 +136,22 @@ onUnmounted(() => {
   }
 })
 
-// 这个 watch 已经合并到上面的 onMounted 中了
-
-// 监听同步状态变化，处理关闭状态重置
+// 监听网络状态变化，处理关闭状态重置
 watch(
-  () => [syncState.lastSyncTime, userDismissedAt.value, lastSyncTimeWhenDismissed.value],
+  () => [
+    networkStatus.value.lastCheckTime,
+    userDismissedAt.value,
+    lastCheckTimeWhenDismissed.value,
+  ],
   () => {
-    // 如果有新的同步活动（同步时间比关闭时记录的时间更新），重置关闭状态
+    // 如果有新的检查活动（检查时间比关闭时记录的时间更新），重置关闭状态
     if (
-      syncState.lastSyncTime &&
-      lastSyncTimeWhenDismissed.value &&
-      syncState.lastSyncTime > lastSyncTimeWhenDismissed.value
+      networkStatus.value.lastCheckTime &&
+      lastCheckTimeWhenDismissed.value &&
+      new Date(networkStatus.value.lastCheckTime) > lastCheckTimeWhenDismissed.value
     ) {
       userDismissedAt.value = null
-      lastSyncTimeWhenDismissed.value = null
+      lastCheckTimeWhenDismissed.value = null
     }
   }
 )
@@ -169,157 +171,166 @@ const shouldShow = computed(() => {
     const timeSinceDismiss = now - userDismissedAt.value
     const isInSilencePeriod = timeSinceDismiss < props.dismissSilencePeriod
 
-    // 如果在静默期内，只显示重要状态（同步中或错误）
+    // 如果在静默期内，只显示重要状态（连接检查中或网络错误）
     if (isInSilencePeriod) {
-      return syncState.syncInProgress || syncState.syncError
+      return (
+        isCheckingConnection.value ||
+        !networkStatus.value.isOnline ||
+        !networkStatus.value.isServerReachable
+      )
     }
   }
 
-  // 显示条件：同步中、有错误或刚完成同步
+  // 显示条件：连接检查中、网络离线、服务器不可达或刚完成检查
   return (
-    syncState.syncInProgress ||
-    syncState.syncError ||
-    (syncState.lastSyncTime && isRecentSync.value)
+    isCheckingConnection.value ||
+    !networkStatus.value.isOnline ||
+    !networkStatus.value.isServerReachable ||
+    (networkStatus.value.lastCheckTime && isRecentCheck.value)
   )
 })
 
-const isRecentSync = computed(() => {
+const isRecentCheck = computed(() => {
   // 依赖强制更新触发器，确保时间计算能够及时响应
   forceUpdateTrigger.value
 
-  if (!syncState.lastSyncTime) {
+  if (!networkStatus.value.lastCheckTime) {
     return false
   }
 
   try {
     const now = Date.now()
-
-    // 确保 lastSyncTime 是有效的 Date 对象
-    let syncTime: number
-    if (syncState.lastSyncTime instanceof Date) {
-      syncTime = syncState.lastSyncTime.getTime()
-    } else if (typeof syncState.lastSyncTime === 'string') {
-      syncTime = new Date(syncState.lastSyncTime).getTime()
-    } else {
-      console.warn(
-        '[SyncStatusIndicator] Invalid lastSyncTime type:',
-        typeof syncState.lastSyncTime
-      )
-      return false
-    }
-
+    const checkTime = new Date(networkStatus.value.lastCheckTime).getTime()
     // 检查时间是否有效
-    if (isNaN(syncTime)) {
-      console.warn('[SyncStatusIndicator] Invalid syncTime:', syncState.lastSyncTime)
+    if (isNaN(checkTime)) {
+      console.warn('[NetworkStatusIndicator] Invalid checkTime:', networkStatus.value.lastCheckTime)
       return false
     }
 
-    const timeSinceSync = now - syncTime
+    const timeSinceCheck = now - checkTime
 
     // 防止负数时间差（时钟同步问题）
-    if (timeSinceSync < 0) {
-      console.warn('[SyncStatusIndicator] Negative time difference, hiding indicator')
+    if (timeSinceCheck < 0) {
+      console.warn('[NetworkStatusIndicator] Negative time difference, hiding indicator')
       return false
     }
 
-    const hideDelay = syncState.syncError
-      ? props.autoHideDelay * 2 // 错误状态显示4秒
-      : props.autoHideDelay // 成功状态显示2秒
+    const hideDelay =
+      !networkStatus.value.isOnline || !networkStatus.value.isServerReachable
+        ? props.autoHideDelay * 2 // 错误状态显示4秒
+        : props.autoHideDelay // 成功状态显示2秒
 
-    const shouldShow = timeSinceSync < hideDelay
+    const shouldShow = timeSinceCheck < hideDelay
 
     // 调试信息：通知状态变化
     if (import.meta.env.DEV) {
-      if (!shouldShow && timeSinceSync >= hideDelay) {
-        console.warn('[SyncStatusIndicator] Notification hiding:', {
-          timeSinceSync,
+      if (!shouldShow && timeSinceCheck >= hideDelay) {
+        console.warn('[NetworkStatusIndicator] Notification hiding:', {
+          timeSinceCheck,
           hideDelay,
-          hasError: !!syncState.syncError,
+          hasError: !networkStatus.value.isOnline || !networkStatus.value.isServerReachable,
         })
       } else if (shouldShow) {
-        console.warn('[SyncStatusIndicator] Notification showing:', {
-          timeSinceSync,
+        console.warn('[NetworkStatusIndicator] Notification showing:', {
+          timeSinceCheck,
           hideDelay,
-          hasError: !!syncState.syncError,
+          hasError: !networkStatus.value.isOnline || !networkStatus.value.isServerReachable,
         })
       }
     }
 
     return shouldShow
   } catch (error) {
-    console.error('[SyncStatusIndicator] Error in isRecentSync calculation:', error)
+    console.error('[NetworkStatusIndicator] Error in isRecentCheck calculation:', error)
     return false
   }
 })
 
 const indicatorClass = computed(() => {
-  if (syncState.syncInProgress) return 'indicator-syncing'
-  if (syncState.syncError) return 'indicator-error'
-  if (syncState.lastSyncTime) return 'indicator-success'
-  return 'indicator-pending'
+  if (isCheckingConnection.value) return 'indicator-checking'
+  if (!networkStatus.value.isOnline) return 'indicator-offline'
+  if (!networkStatus.value.isServerReachable) return 'indicator-error'
+  if (networkStatus.value.consecutiveFailures > 0) return 'indicator-warning'
+  return 'indicator-success'
 })
 
 const statusIcon = computed(() => {
-  if (syncState.syncInProgress) return 'i-carbon-circle-dash animate-spin'
-  if (syncState.syncError) return 'i-carbon-warning'
-  if (syncState.lastSyncTime) return 'i-carbon-checkmark'
-  return 'i-carbon-cloud-offline'
+  if (isCheckingConnection.value) return 'i-carbon-circle-dash animate-spin'
+  if (!networkStatus.value.isOnline) return 'i-carbon-wifi-off'
+  if (!networkStatus.value.isServerReachable) return 'i-carbon-warning'
+  if (networkStatus.value.consecutiveFailures > 0) return 'i-carbon-warning-alt'
+  return 'i-carbon-checkmark'
 })
 
 const statusText = computed(() => {
-  if (syncState.syncError) return `${t('storage.syncFailed')}: ${syncState.syncError}`
-  return syncStatusText.value
+  if (isCheckingConnection.value) return t('network.checking')
+  return networkStatusText.value || t('network.unknown')
 })
 
 const showRetryButton = computed(() => {
-  return props.showRetry && syncState.syncError && !syncState.syncInProgress
+  return (
+    props.showRetry &&
+    (!networkStatus.value.isOnline || !networkStatus.value.isServerReachable) &&
+    !isCheckingConnection.value
+  )
 })
 
 const showCloseButton = computed(() => {
-  return props.showClose && !syncState.syncInProgress
+  return props.showClose && !isCheckingConnection.value
 })
 
 const shouldFadeOut = computed(() => {
-  if (!syncState.lastSyncTime || syncState.syncInProgress || syncState.syncError) {
+  if (
+    !networkStatus.value.lastCheckTime ||
+    isCheckingConnection.value ||
+    !networkStatus.value.isOnline ||
+    !networkStatus.value.isServerReachable
+  ) {
     return false
   }
 
   const now = Date.now()
-  const syncTime = syncState.lastSyncTime.getTime()
-  const timeSinceSync = now - syncTime
+  const checkTime = new Date(networkStatus.value.lastCheckTime).getTime()
+  const timeSinceCheck = now - checkTime
 
   // 在最后500ms开始淡出效果
-  return timeSinceSync > props.autoHideDelay - 500 && timeSinceSync < props.autoHideDelay
+  return timeSinceCheck > props.autoHideDelay - 500 && timeSinceCheck < props.autoHideDelay
 })
 
 // 方法
 const handleRetry = async () => {
   try {
-    await manualSync()
+    isCheckingConnection.value = true
+    await reconnectCloudStorage()
+    await checkServerHealth()
   } catch (error) {
-    console.error('Retry sync failed:', error)
+    console.error('Retry connection failed:', error)
+  } finally {
+    isCheckingConnection.value = false
   }
 }
 
 const handleDismiss = () => {
   userDismissedAt.value = Date.now()
-  lastSyncTimeWhenDismissed.value = syncState.lastSyncTime
+  lastCheckTimeWhenDismissed.value = networkStatus.value.lastCheckTime
+    ? new Date(networkStatus.value.lastCheckTime)
+    : null
 }
 
 defineOptions({
-  name: 'SyncStatusIndicator',
+  name: 'NetworkStatusIndicator',
 })
 </script>
 
 <style scoped>
-.sync-indicator {
+.network-indicator {
   @apply fixed top-4 right-4 z-[1001] max-w-sm;
   @apply bg-card border border-border rounded-lg shadow-lg backdrop-blur-sm;
   @apply transform transition-all duration-300;
   animation: slideInRight 0.3s ease-out;
 }
 
-.sync-indicator.fade-out {
+.network-indicator.fade-out {
   @apply opacity-60;
   transform: translateX(10px);
   transition:
@@ -327,15 +338,15 @@ defineOptions({
     transform 0.5s ease-out;
 }
 
-.sync-content {
+.network-content {
   @apply flex items-center gap-2 p-3;
 }
 
-.sync-icon {
+.network-icon {
   @apply flex-shrink-0 text-sm;
 }
 
-.sync-text {
+.network-text {
   @apply flex-1 text-sm font-medium text-text;
 }
 
@@ -359,11 +370,11 @@ defineOptions({
 }
 
 /* 状态样式 */
-.indicator-syncing {
+.indicator-checking {
   @apply border-primary/30;
 }
 
-.indicator-syncing .sync-icon {
+.indicator-checking .network-icon {
   @apply text-primary;
 }
 
@@ -371,7 +382,7 @@ defineOptions({
   @apply border-success/30;
 }
 
-.indicator-success .sync-icon {
+.indicator-success .network-icon {
   @apply text-success;
 }
 
@@ -379,16 +390,24 @@ defineOptions({
   @apply border-error/30;
 }
 
-.indicator-error .sync-icon {
+.indicator-error .network-icon {
   @apply text-error;
 }
 
-.indicator-pending {
+.indicator-warning {
   @apply border-warning/30;
 }
 
-.indicator-pending .sync-icon {
+.indicator-warning .network-icon {
   @apply text-warning;
+}
+
+.indicator-offline {
+  @apply border-gray-500/30;
+}
+
+.indicator-offline .network-icon {
+  @apply text-gray-500;
 }
 
 /* 动画 */
@@ -417,25 +436,25 @@ defineOptions({
 
 /* 响应式设计 */
 @media (max-width: 640px) {
-  .sync-indicator {
+  .network-indicator {
     @apply top-16 right-2 left-2 max-w-none z-[1001];
   }
 
-  .sync-content {
+  .network-content {
     @apply p-2;
   }
 
-  .sync-text {
+  .network-text {
     @apply text-xs;
   }
 }
 
 /* 深色主题适配 */
-[data-theme='dark'] .sync-indicator {
+[data-theme='dark'] .network-indicator {
   @apply bg-card-dark border-border-dark;
 }
 
-[data-theme='dark'] .sync-text {
+[data-theme='dark'] .network-text {
   @apply text-text-dark;
 }
 

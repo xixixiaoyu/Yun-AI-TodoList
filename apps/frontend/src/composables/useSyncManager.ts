@@ -1,351 +1,227 @@
 /**
- * 同步状态管理 Composable
- * 提供实时同步状态监控和控制功能
+ * 网络状态管理 Composable
+ * 提供网络连接状态监控功能（简化版，专为云端存储设计）
  */
 
-import type { StorageConfig, StorageHealth, SyncStatus } from '@shared/types'
-import { computed, getCurrentInstance, onUnmounted, reactive, ref, watch } from 'vue'
+import type { NetworkStatus, StorageConfig } from '@shared/types'
+import { computed, onUnmounted, reactive, readonly, ref, toRef } from 'vue'
 
-import { HybridStorageService, type ExportedData } from '../services/storage/HybridStorageService'
 import { useAuth } from './useAuth'
 
-// 全局同步状态
-const globalSyncState = reactive({
+// 全局网络状态
+const globalNetworkState = reactive({
   isInitialized: false,
-  hybridStorage: null as HybridStorageService | null,
-
-  cleanupFunctions: [] as (() => void)[],
-  syncStatus: {
-    syncInProgress: false,
-    pendingChanges: 0,
-    conflictsCount: 0,
-    failedOperations: 0,
-    pendingOperations: 0,
-  } as SyncStatus,
-  storageHealth: {
-    localStorage: true,
-    remoteStorage: false,
-    lastHealthCheck: new Date().toISOString(),
-  } as StorageHealth,
+  networkStatus: {
+    isOnline: navigator.onLine,
+    isServerReachable: false,
+    consecutiveFailures: 0,
+    lastCheckTime: undefined,
+  } as NetworkStatus,
   config: {
-    mode: 'hybrid', // 默认混合存储模式
-    autoSync: true, // 默认启用自动同步
-    syncInterval: 5, // 5分钟自动同步
-    offlineMode: true, // 默认启用离线模式
-    conflictResolution: 'merge', // 默认自动合并冲突
+    mode: 'cloud',
+    retryAttempts: 3,
+    requestTimeout: 10000,
   } as StorageConfig,
 })
 
 export function useSyncManager() {
-  // 临时禁用旧的同步管理器，使用新的 HybridTodoStorageService
-  const DISABLE_OLD_SYNC_MANAGER = true
-
-  const { user, isAuthenticated } = useAuth()
+  const { isAuthenticated } = useAuth()
 
   // 响应式状态
   const isOnline = ref(navigator.onLine)
-
-  const autoSyncTimer = ref<ReturnType<typeof setInterval> | null>(null)
+  const healthCheckTimer = ref<ReturnType<typeof setInterval> | null>(null)
 
   // 计算属性
-  const canUseCloudSync = computed(() => isAuthenticated.value && isOnline.value)
-  const syncStatusText = computed(() => {
-    if (globalSyncState.syncStatus.syncInProgress) {
-      return 'Syncing...'
-    }
-    if (globalSyncState.syncStatus.syncError) {
-      return `Sync Error: ${globalSyncState.syncStatus.syncError}`
-    }
-    if (globalSyncState.syncStatus.lastSyncTime) {
-      const lastSync = new Date(globalSyncState.syncStatus.lastSyncTime)
-      const now = new Date()
-      const diffMinutes = Math.floor((now.getTime() - lastSync.getTime()) / (1000 * 60))
+  const canUseCloudStorage = computed(() => isAuthenticated.value && isOnline.value)
 
-      if (diffMinutes < 1) {
-        return 'Just synced'
-      } else if (diffMinutes < 60) {
-        return `Synced ${diffMinutes}m ago`
-      } else {
-        const diffHours = Math.floor(diffMinutes / 60)
-        return `Synced ${diffHours}h ago`
-      }
+  const networkStatusText = computed(() => {
+    const status = globalNetworkState.networkStatus
+    if (!status.isOnline) {
+      return '网络已断开'
     }
-    return 'Not synced'
+    if (!status.isServerReachable) {
+      return '服务器不可达'
+    }
+    if (status.consecutiveFailures > 0) {
+      return `连接不稳定 (${status.consecutiveFailures} 次失败)`
+    }
+    return '网络连接正常'
   })
 
-  const pendingChangesText = computed(() => {
-    const count = globalSyncState.syncStatus.pendingChanges
-    if (count === 0) return 'All changes synced'
-    return `${count} change${count > 1 ? 's' : ''} pending`
+  const connectionQualityText = computed(() => {
+    const failures = globalNetworkState.networkStatus.consecutiveFailures
+    if (failures === 0) return '良好'
+    if (failures < 3) return '一般'
+    return '较差'
   })
 
   /**
-   * 初始化同步管理器
+   * 初始化网络状态管理器
    */
   const initialize = async (config?: Partial<StorageConfig>): Promise<void> => {
-    if (DISABLE_OLD_SYNC_MANAGER) {
-      console.log('🚫 旧同步管理器已禁用，使用新的 HybridTodoStorageService')
-      globalSyncState.isInitialized = true
-      return
-    }
-
-    if (globalSyncState.isInitialized) return
+    if (globalNetworkState.isInitialized) return
 
     try {
       // 合并配置
       if (config) {
-        globalSyncState.config = { ...globalSyncState.config, ...config }
-      }
-
-      // 初始化混合存储服务
-      globalSyncState.hybridStorage = new HybridStorageService(globalSyncState.config)
-
-      // 如果用户已登录，设置用户ID
-      if (user.value?.id) {
-        await globalSyncState.hybridStorage.setUserId(user.value.id)
+        globalNetworkState.config = { ...globalNetworkState.config, ...config }
       }
 
       // 设置网络状态监听
       setupNetworkListeners()
 
-      // 设置自动同步
-      setupAutoSync()
+      // 开始定期健康检查
+      startHealthCheck()
 
-      // 初始健康检查
-      await updateHealthStatus()
+      // 初始网络状态检查
+      await checkServerHealth()
 
-      globalSyncState.isInitialized = true
+      globalNetworkState.isInitialized = true
+      console.log('网络状态管理器初始化成功')
     } catch (error) {
-      console.error('Failed to initialize sync manager:', error)
+      console.error('Failed to initialize network manager:', error)
       throw error
     }
   }
 
   /**
-   * 更新存储配置
+   * 更新配置
    */
   const updateConfig = async (newConfig: Partial<StorageConfig>): Promise<void> => {
-    if (!globalSyncState.hybridStorage) {
-      throw new Error('Sync manager not initialized')
-    }
-
-    globalSyncState.config = { ...globalSyncState.config, ...newConfig }
-    await globalSyncState.hybridStorage.updateConfig(newConfig)
-
-    // 重新设置自动同步
-    setupAutoSync()
+    globalNetworkState.config = { ...globalNetworkState.config, ...newConfig }
+    console.log('网络配置已更新:', newConfig)
   }
 
   /**
-   * 手动同步所有数据
+   * 检查服务器健康状态
    */
-  const syncAll = async (): Promise<void> => {
-    if (!globalSyncState.hybridStorage) {
-      throw new Error('Sync manager not initialized')
-    }
-
-    if (!canUseCloudSync.value) {
-      throw new Error('Cloud sync not available')
-    }
-
+  const checkServerHealth = async (): Promise<boolean> => {
     try {
-      globalSyncState.syncStatus.syncInProgress = true
-      globalSyncState.syncStatus.syncError = undefined
+      const response = await fetch('/api/health', {
+        method: 'HEAD',
+        signal: AbortSignal.timeout(globalNetworkState.config.requestTimeout || 10000),
+      })
 
-      const result = await globalSyncState.hybridStorage.syncAll()
+      const isHealthy = response.ok
+      globalNetworkState.networkStatus.isServerReachable = isHealthy
+      globalNetworkState.networkStatus.lastCheckTime = new Date().toISOString()
 
-      if (result.success) {
-        // 只有在实际有数据变化时才更新同步时间
-        if (result.syncedCount > 0) {
-          globalSyncState.syncStatus.lastSyncTime = new Date().toISOString()
-        }
-        globalSyncState.syncStatus.pendingChanges = 0
-        globalSyncState.syncStatus.conflictsCount = result.conflicts.length
+      if (isHealthy) {
+        globalNetworkState.networkStatus.consecutiveFailures = 0
       } else {
-        globalSyncState.syncStatus.syncError = result.errors[0]?.error || 'Sync failed'
+        globalNetworkState.networkStatus.consecutiveFailures++
       }
+
+      return isHealthy
     } catch (error) {
-      globalSyncState.syncStatus.syncError =
-        error instanceof Error ? error.message : 'Unknown sync error'
-      throw error
-    } finally {
-      globalSyncState.syncStatus.syncInProgress = false
+      console.error('服务器健康检查失败:', error)
+      globalNetworkState.networkStatus.isServerReachable = false
+      globalNetworkState.networkStatus.consecutiveFailures++
+      globalNetworkState.networkStatus.lastCheckTime = new Date().toISOString()
+      return false
     }
   }
 
   /**
-   * 导出所有数据
+   * 开始定期健康检查
    */
-  const exportAllData = async (
-    options = {
-      includeTodos: true,
-      includeSettings: true,
-      includeAIAnalysis: true,
-      format: 'json' as const,
-      compressed: false,
-    }
-  ) => {
-    if (!globalSyncState.hybridStorage) {
-      throw new Error('Sync manager not initialized')
+  const startHealthCheck = (): void => {
+    // 清除现有定时器
+    if (healthCheckTimer.value) {
+      clearInterval(healthCheckTimer.value)
     }
 
-    return globalSyncState.hybridStorage.exportAllData(options)
+    // 每30秒检查一次服务器健康状态
+    healthCheckTimer.value = setInterval(() => {
+      if (isOnline.value) {
+        checkServerHealth()
+      }
+    }, 30000)
   }
 
   /**
-   * 导入所有数据
+   * 停止健康检查
    */
-  const importAllData = async (data: unknown) => {
-    if (!globalSyncState.hybridStorage) {
-      throw new Error('Sync manager not initialized')
+  const stopHealthCheck = (): void => {
+    if (healthCheckTimer.value) {
+      clearInterval(healthCheckTimer.value)
+      healthCheckTimer.value = null
     }
-
-    return globalSyncState.hybridStorage.importAllData(data as ExportedData)
   }
 
   /**
-   * 更新健康状态
+   * 设置网络状态监听器
    */
-  const updateHealthStatus = async (): Promise<void> => {
-    if (!globalSyncState.hybridStorage) return
-
-    try {
-      const health = await globalSyncState.hybridStorage.getHealth()
-      globalSyncState.storageHealth = health
-    } catch (error) {
-      console.error('Failed to update health status:', error)
+  const setupNetworkListeners = (): void => {
+    const handleOnline = () => {
+      isOnline.value = true
+      globalNetworkState.networkStatus.isOnline = true
+      console.log('网络已连接')
+      // 网络恢复时立即检查服务器健康状态
+      checkServerHealth()
     }
+
+    const handleOffline = () => {
+      isOnline.value = false
+      globalNetworkState.networkStatus.isOnline = false
+      globalNetworkState.networkStatus.isServerReachable = false
+      globalNetworkState.networkStatus.consecutiveFailures++
+      console.log('网络已断开')
+    }
+
+    window.addEventListener('online', handleOnline)
+    window.addEventListener('offline', handleOffline)
+
+    // 清理函数
+    onUnmounted(() => {
+      window.removeEventListener('online', handleOnline)
+      window.removeEventListener('offline', handleOffline)
+    })
   }
 
   /**
-   * 获取存储服务
-   */
-  const getStorageServices = () => {
-    if (!globalSyncState.hybridStorage) {
-      throw new Error('Sync manager not initialized')
-    }
-    return globalSyncState.hybridStorage.getServices()
-  }
-
-  /**
-   * 销毁同步管理器，清理所有资源
+   * 销毁网络管理器，清理所有资源
    */
   const destroy = (): void => {
-    // 清理自动同步定时器
-    if (autoSyncTimer.value) {
-      clearInterval(autoSyncTimer.value)
-      autoSyncTimer.value = null
-    }
-
-    // 执行所有清理函数
-    globalSyncState.cleanupFunctions.forEach((cleanup) => cleanup())
-    globalSyncState.cleanupFunctions = []
+    // 停止健康检查
+    stopHealthCheck()
 
     // 重置状态
-    globalSyncState.isInitialized = false
-    globalSyncState.hybridStorage = null
-    globalSyncState.migrationService = null
+    globalNetworkState.isInitialized = false
+    globalNetworkState.networkStatus = {
+      isOnline: navigator.onLine,
+      isServerReachable: false,
+      consecutiveFailures: 0,
+      lastCheckTime: undefined,
+    }
+
+    console.log('网络管理器已销毁')
   }
-
-  // 私有方法
-  const setupNetworkListeners = (): void => {
-    const updateOnlineStatus = () => {
-      isOnline.value = navigator.onLine
-      if (isOnline.value && globalSyncState.config.autoSync) {
-        // 网络恢复时自动同步
-        setTimeout(() => {
-          if (canUseCloudSync.value) {
-            syncAll().catch(console.error)
-          }
-        }, 1000)
-      }
-    }
-
-    window.addEventListener('online', updateOnlineStatus)
-    window.addEventListener('offline', updateOnlineStatus)
-
-    // 清理函数 - 只在组件上下文中使用 onUnmounted
-    const instance = getCurrentInstance()
-    if (instance) {
-      onUnmounted(() => {
-        window.removeEventListener('online', updateOnlineStatus)
-        window.removeEventListener('offline', updateOnlineStatus)
-      })
-    } else {
-      // 如果不在组件上下文中，将清理函数存储到全局状态
-      if (!globalSyncState.cleanupFunctions) {
-        globalSyncState.cleanupFunctions = []
-      }
-      globalSyncState.cleanupFunctions.push(() => {
-        window.removeEventListener('online', updateOnlineStatus)
-        window.removeEventListener('offline', updateOnlineStatus)
-      })
-    }
-  }
-
-  const setupAutoSync = (): void => {
-    // 清除现有定时器
-    if (autoSyncTimer.value) {
-      clearInterval(autoSyncTimer.value)
-      autoSyncTimer.value = null
-    }
-
-    // 设置新的自动同步定时器
-    if (globalSyncState.config.autoSync && globalSyncState.config.syncInterval > 0) {
-      autoSyncTimer.value = setInterval(
-        () => {
-          if (canUseCloudSync.value && !globalSyncState.syncStatus.syncInProgress) {
-            syncAll().catch(console.error)
-          }
-        },
-        globalSyncState.config.syncInterval * 60 * 1000
-      )
-    }
-  }
-
-  // 监听用户登录状态变化
-  watch(user, async (newUser) => {
-    if (newUser?.id && globalSyncState.hybridStorage) {
-      await globalSyncState.hybridStorage.setUserId(newUser.id)
-    }
-  })
 
   // 清理资源
   onUnmounted(() => {
-    if (autoSyncTimer.value) {
-      clearInterval(autoSyncTimer.value)
-    }
-    if (globalSyncState.hybridStorage) {
-      globalSyncState.hybridStorage.destroy()
-    }
+    destroy()
   })
 
   return {
     // 状态
     isOnline: readonly(isOnline),
-    syncStatus: readonly(globalSyncState.syncStatus),
-    storageHealth: readonly(globalSyncState.storageHealth),
-    config: readonly(globalSyncState.config),
+    networkStatus: readonly(toRef(globalNetworkState, 'networkStatus')),
+    config: readonly(toRef(globalNetworkState, 'config')),
 
     // 计算属性
-    canUseCloudSync,
-    syncStatusText,
-    pendingChangesText,
-    isInProgress: computed(() => globalSyncState.syncStatus.syncInProgress),
-    isSyncEnabled: computed(() => globalSyncState.config.autoSync),
+    canUseCloudStorage,
+    networkStatusText,
+    connectionQualityText,
+    isInitialized: computed(() => globalNetworkState.isInitialized),
 
     // 方法
     initialize,
     updateConfig,
-    syncAll,
-
-    exportAllData,
-    importAllData,
-    updateHealthStatus,
-    getStorageServices,
+    checkServerHealth,
+    startHealthCheck,
+    stopHealthCheck,
+    setupNetworkListeners,
     destroy,
-    performManualSync: syncAll,
-    enableAutoSync: () => updateConfig({ autoSync: true }),
-    disableAutoSync: () => updateConfig({ autoSync: false }),
   }
 }

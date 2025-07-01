@@ -104,62 +104,30 @@ export interface NotificationSettings {
 }
 
 // 存储模式配置
-export type StorageMode = 'local' | 'hybrid'
+export type StorageMode = 'cloud' | 'local' | 'hybrid'
 
 export interface StorageConfig {
   mode: StorageMode
-  autoSync: boolean
-  syncInterval: number // 自动同步间隔（分钟）
-  offlineMode: boolean // 离线模式是否启用
-  conflictResolution: ConflictResolutionStrategy
+  retryAttempts: number // 网络请求重试次数
+  requestTimeout: number // 请求超时时间（毫秒）
+  // 可选的额外配置字段
+  autoSync?: boolean // 是否启用自动同步
+  syncInterval?: number // 同步间隔（分钟）
+  offlineMode?: boolean // 是否启用离线模式
+  conflictResolution?: 'local-wins' | 'remote-wins' | 'merge' | 'ask-user' // 冲突解决策略
 }
 
-export type ConflictResolutionStrategy = 'local-wins' | 'remote-wins' | 'merge' | 'ask-user'
-
-export interface SyncStatus {
-  lastSyncTime?: string
-  syncInProgress: boolean
-  syncError?: string
-  pendingChanges: number
-  conflictsCount: number
-  failedOperations?: number
-  pendingOperations?: number
-}
-
-// 双重存储相关类型
-export interface SyncableEntity {
-  synced?: boolean // 是否已同步到云端
-  lastSyncTime?: string // 最后同步时间
-  syncError?: string // 同步错误信息
-}
-
-export interface ConflictResolution<T = any> {
-  localData: T
-  remoteData: T
-  strategy: ConflictResolutionStrategy
-  resolvedData?: T
-}
-
-export interface SyncOperation {
-  id: string
-  type: 'create' | 'update' | 'delete'
-  entityType: 'todo' | 'user_setting' | 'ai_analysis'
-  entityId: string
-  data?: any
-  timestamp: string
-  retryCount: number
-  maxRetries: number
-}
-
-export interface SyncQueue {
-  operations: SyncOperation[]
-  isProcessing: boolean
-  lastProcessedTime?: string
+// 网络状态相关类型
+export interface NetworkStatus {
+  isOnline: boolean
+  isServerReachable: boolean
+  lastCheckTime?: string
+  consecutiveFailures: number
 }
 
 export interface StorageHealth {
-  localStorage: boolean
-  remoteStorage: boolean
+  cloudStorage: boolean
+  networkConnectivity: boolean
   lastHealthCheck: string
 }
 

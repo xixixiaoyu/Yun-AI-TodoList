@@ -1,9 +1,9 @@
 /**
  * Todo 存储服务抽象接口
- * 定义统一的存储操作接口，支持本地存储和远程存储
+ * 定义统一的云端存储操作接口
  */
 
-import type { CreateTodoDto, Todo, TodoStats, UpdateTodoDto } from '@shared/types'
+import type { CreateTodoDto, NetworkStatus, Todo, TodoStats, UpdateTodoDto } from '@shared/types'
 
 export interface StorageOperationResult<T = unknown> {
   success: boolean
@@ -19,27 +19,29 @@ export interface BatchOperationResult {
   errors: Array<{ id: string; error: string }>
 }
 
-export interface StorageStatus {
-  isOnline: boolean
-  lastSyncTime?: Date
+export interface CloudStorageStatus {
+  networkStatus: NetworkStatus
+  lastOperationTime?: Date
   pendingOperations: number
-  storageMode: 'local' | 'hybrid'
 }
 
 /**
  * Todo 存储服务抽象基类
  */
 export abstract class TodoStorageService {
-  protected _status: StorageStatus = {
-    isOnline: true,
+  protected _status: CloudStorageStatus = {
+    networkStatus: {
+      isOnline: navigator.onLine,
+      isServerReachable: false,
+      consecutiveFailures: 0,
+    },
     pendingOperations: 0,
-    storageMode: 'local',
   }
 
   /**
    * 获取存储状态
    */
-  get status(): StorageStatus {
+  get status(): CloudStorageStatus {
     return { ...this._status }
   }
 
@@ -123,19 +125,14 @@ export abstract class TodoStorageService {
   abstract saveTodos(todos: Todo[]): Promise<StorageOperationResult<void>>
 
   /**
-   * 同步数据（仅对支持同步的存储有效）
+   * 检查网络连接状态
    */
-  async syncData(): Promise<StorageOperationResult<void>> {
-    return {
-      success: true,
-      data: undefined,
-    }
-  }
+  abstract checkNetworkStatus(): Promise<NetworkStatus>
 
   /**
    * 设置存储状态
    */
-  protected setStatus(updates: Partial<StorageStatus>): void {
+  protected setStatus(updates: Partial<CloudStorageStatus>): void {
     this._status = { ...this._status, ...updates }
   }
 

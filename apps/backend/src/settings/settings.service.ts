@@ -176,7 +176,9 @@ export class SettingsService {
         reminderMinutes: 30,
       },
       storageConfig: {
-        mode: 'hybrid', // 默认混合存储模式
+        mode: 'cloud', // 默认云端存储模式
+        retryAttempts: 3, // 默认重试3次
+        requestTimeout: 10000, // 默认超时10秒
         autoSync: true, // 默认启用自动同步
         syncInterval: 5, // 5分钟自动同步
         offlineMode: true, // 默认启用离线模式

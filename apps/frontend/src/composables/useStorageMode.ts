@@ -1,39 +1,35 @@
 /**
- * 存储模式管理 Composable
- * 管理本地存储和远程存储的切换，提供统一的存储接口
+ * 云端存储管理 Composable
+ * 管理纯云端存储，提供统一的存储接口和网络状态监控
  */
 
-import type { StorageConfig, StorageMode, SyncStatus } from '@shared/types'
-import { LocalStorageService } from '../services/storage/LocalStorageService'
+import type { NetworkStatus, StorageConfig, StorageMode } from '@shared/types'
 import { RemoteStorageService } from '../services/storage/RemoteStorageService'
 import { TodoStorageService } from '../services/storage/TodoStorageService'
 import { useAuth } from './useAuth'
 
 // 全局存储状态
 const storageState = reactive({
-  currentMode: 'hybrid' as StorageMode, // 默认使用混合存储
+  currentMode: 'cloud' as StorageMode, // 纯云端存储
   config: {
-    mode: 'hybrid' as StorageMode, // 默认混合存储模式
-    autoSync: true, // 默认启用自动同步
-    syncInterval: 5, // 5分钟自动同步，更频繁的同步
-    offlineMode: true, // 默认启用离线模式
-    conflictResolution: 'merge', // 默认自动合并冲突
+    mode: 'cloud' as StorageMode,
+    retryAttempts: 3, // 网络请求重试次数
+    requestTimeout: 10000, // 请求超时时间（毫秒）
   } as StorageConfig,
-  syncStatus: {
-    syncInProgress: false,
-    pendingChanges: 0,
-    conflictsCount: 0,
-  } as SyncStatus,
+  networkStatus: {
+    isOnline: navigator.onLine,
+    isServerReachable: false,
+    consecutiveFailures: 0,
+  } as NetworkStatus,
   isInitialized: false,
 })
 
 // 存储服务实例
-let localStorageService: LocalStorageService | null = null
-let _remoteStorageService: RemoteStorageService | null = null
+let cloudStorageService: RemoteStorageService | null = null
 let currentStorageService: TodoStorageService | null = null
 
 /**
- * 存储模式管理 Composable
+ * 云端存储管理 Composable
  */
 export function useStorageMode() {
   const { isAuthenticated, user } = useAuth()
@@ -41,16 +37,16 @@ export function useStorageMode() {
   // 响应式状态
   const currentMode = readonly(toRef(storageState, 'currentMode'))
   const config = readonly(toRef(storageState, 'config'))
-  const syncStatus = readonly(toRef(storageState, 'syncStatus'))
+  const networkStatus = readonly(toRef(storageState, 'networkStatus'))
   const isInitialized = readonly(toRef(storageState, 'isInitialized'))
 
   // 计算属性
-  const canUseRemoteStorage = computed(() => isAuthenticated.value)
-  const isOfflineMode = computed(() => storageState.currentMode === 'local')
-  const isHybridMode = computed(() => storageState.currentMode === 'hybrid')
+  const canUseCloudStorage = computed(() => isAuthenticated.value)
+  const isOnline = computed(() => storageState.networkStatus.isOnline)
+  const isServerReachable = computed(() => storageState.networkStatus.isServerReachable)
 
   /**
-   * 初始化存储模式
+   * 初始化云端存储
    */
   const initializeStorageMode = async (): Promise<void> => {
     if (storageState.isInitialized) {
@@ -58,108 +54,72 @@ export function useStorageMode() {
     }
 
     try {
-      // 创建存储服务实例
-      localStorageService = new LocalStorageService()
-      _remoteStorageService = new RemoteStorageService()
+      // 检查用户认证状态
+      if (!isAuthenticated.value) {
+        throw new Error('用户未认证，无法使用云端存储')
+      }
+
+      // 创建云端存储服务实例
+      cloudStorageService = new RemoteStorageService()
+      currentStorageService = cloudStorageService
 
       // 从用户偏好设置加载配置
       await loadStorageConfig()
 
-      // 根据配置和认证状态确定存储模式
-      await determineStorageMode()
-
-      // 确保 currentStorageService 已设置
-      if (!currentStorageService) {
-        await switchToLocalStorage()
-      }
+      // 检查网络连接状态
+      await updateNetworkStatus()
 
       storageState.isInitialized = true
-      console.log('Storage mode initialized:', storageState.currentMode)
+      console.log('Cloud storage initialized successfully')
     } catch (error) {
-      console.error('Failed to initialize storage mode:', error)
-      // 降级到本地存储
-      await switchToLocalStorage()
-      storageState.isInitialized = true
+      console.error('Failed to initialize cloud storage:', error)
+      throw error // 纯云端模式下，初始化失败应该抛出错误
     }
   }
 
   /**
-   * 获取当前存储服务（带自动降级机制）
+   * 获取当前存储服务
    */
   const getCurrentStorageService = (): TodoStorageService => {
     if (!currentStorageService) {
-      // 尝试自动初始化
-      console.warn('Storage service not initialized, attempting auto-initialization')
-
-      if (!localStorageService) {
-        localStorageService = new LocalStorageService()
-      }
-
-      currentStorageService = localStorageService
-      storageState.currentMode = 'local'
-
-      console.log('Fallback to local storage service')
+      throw new Error('存储服务未初始化，请先调用 initializeStorageMode()')
     }
 
     return currentStorageService
   }
 
   /**
-   * 切换存储模式
+   * 更新网络状态
    */
-  const switchStorageMode = async (mode: StorageMode): Promise<boolean> => {
+  const updateNetworkStatus = async (): Promise<void> => {
+    if (currentStorageService) {
+      const networkStatus = await currentStorageService.checkNetworkStatus()
+      storageState.networkStatus = networkStatus
+    }
+  }
+
+  /**
+   * 重新连接云端存储
+   */
+  const reconnectCloudStorage = async (): Promise<boolean> => {
     try {
-      if (mode === 'hybrid' && !canUseRemoteStorage.value) {
-        throw new Error('Hybrid storage requires authentication')
+      if (!canUseCloudStorage.value) {
+        throw new Error('用户未认证，无法连接云端存储')
       }
 
-      const oldMode = storageState.currentMode
+      await updateNetworkStatus()
 
-      // 更新配置
-      storageState.config.mode = mode
-      await saveStorageConfig()
-
-      // 切换存储服务
-      await setStorageMode(mode)
-
-      console.log(`Storage mode switched from ${oldMode} to ${mode}`)
-      return true
+      if (storageState.networkStatus.isServerReachable) {
+        console.log('云端存储重新连接成功')
+        return true
+      } else {
+        console.warn('服务器不可达，重新连接失败')
+        return false
+      }
     } catch (error) {
-      console.error('Failed to switch storage mode:', error)
+      console.error('重新连接云端存储失败:', error)
       return false
     }
-  }
-
-  /**
-   * 切换到本地存储
-   */
-  const switchToLocalStorage = async (): Promise<void> => {
-    storageState.currentMode = 'local'
-    if (localStorageService) {
-      currentStorageService = localStorageService
-    }
-
-    // 更新同步状态
-    storageState.syncStatus = {
-      ...storageState.syncStatus,
-      syncInProgress: false,
-    }
-  }
-
-  /**
-   * 切换到混合模式
-   */
-  const switchToHybridMode = async (): Promise<void> => {
-    if (!canUseRemoteStorage.value) {
-      throw new Error('Hybrid mode requires authentication')
-    }
-
-    storageState.currentMode = 'hybrid'
-    // 混合模式使用真正的混合存储服务（本地+远程）
-    const { HybridTodoStorageService } = await import(
-      '../services/storage/HybridTodoStorageService'
-    )
-    currentStorageService = new HybridTodoStorageService()
   }
 
   /**
@@ -169,12 +129,6 @@ export function useStorageMode() {
     try {
       storageState.config = { ...storageState.config, ...updates }
       await saveStorageConfig()
-
-      // 如果模式发生变化，切换存储服务
-      if (updates.mode && updates.mode !== storageState.currentMode) {
-        await setStorageMode(updates.mode)
-      }
-
       return true
     } catch (error) {
       console.error('Failed to update storage config:', error)
@@ -189,16 +143,13 @@ export function useStorageMode() {
     const service = currentStorageService
     if (!service) {
       return {
-        isOnline: false,
-        storageMode: storageState.currentMode,
+        networkStatus: storageState.networkStatus,
         pendingOperations: 0,
+        lastOperationTime: undefined,
       }
     }
 
-    return {
-      ...service.status,
-      ...storageState.syncStatus,
-    }
+    return service.status
   }
 
   /**
@@ -207,7 +158,12 @@ export function useStorageMode() {
   const checkStorageHealth = async (): Promise<boolean> => {
     try {
       const service = getCurrentStorageService()
-      return await service.checkHealth()
+      const isHealthy = await service.checkHealth()
+
+      // 更新网络状态
+      await updateNetworkStatus()
+
+      return isHealthy
     } catch (error) {
       console.error('Storage health check failed:', error)
       return false
@@ -215,85 +171,20 @@ export function useStorageMode() {
   }
 
   /**
-   * 手动同步数据
-   */
-  const syncData = async (): Promise<boolean> => {
-    try {
-      storageState.syncStatus.syncInProgress = true
-
-      const service = getCurrentStorageService()
-      const result = await service.syncData()
-
-      if (result.success) {
-        storageState.syncStatus.lastSyncTime = new Date().toISOString()
-        return true
-      } else {
-        storageState.syncStatus.syncError = result.error
-        return false
-      }
-    } catch (error) {
-      console.error('Data sync failed:', error)
-      storageState.syncStatus.syncError = '同步失败'
-      return false
-    } finally {
-      storageState.syncStatus.syncInProgress = false
-    }
-  }
-
-  /**
    * 处理网络状态变化
    */
   const handleNetworkChange = async (isOnline: boolean): Promise<void> => {
-    if (!isOnline && storageState.config.offlineMode) {
-      // 网络断开，混合模式切换到本地存储
-      if (storageState.currentMode === 'hybrid') {
-        console.log('Network offline, switching to local storage')
-        await switchToLocalStorage()
-      }
-    } else if (isOnline && storageState.config.mode === 'hybrid') {
-      // 网络恢复，切换回混合存储
-      if (storageState.currentMode === 'local') {
-        console.log('Network online, switching back to hybrid storage')
-        await setStorageMode('hybrid')
-      }
-    }
-  }
+    storageState.networkStatus.isOnline = isOnline
 
-  /**
-   * 设置存储模式
-   */
-  const setStorageMode = async (mode: StorageMode): Promise<void> => {
-    switch (mode) {
-      case 'local':
-        await switchToLocalStorage()
-        break
-      case 'hybrid':
-        await switchToHybridMode()
-        break
-      default:
-        throw new Error(`Unknown storage mode: ${mode}`)
-    }
-  }
-
-  /**
-   * 确定存储模式
-   */
-  const determineStorageMode = async (): Promise<void> => {
-    const configMode = storageState.config.mode
-
-    // 优先尝试使用混合存储模式
-    if (configMode === 'hybrid' && canUseRemoteStorage.value) {
-      await setStorageMode('hybrid')
-    } else if (configMode === 'local') {
-      await switchToLocalStorage()
-    } else if (canUseRemoteStorage.value) {
-      // 如果用户已登录，默认使用混合存储
-      await setStorageMode('hybrid')
+    if (isOnline) {
+      // 网络恢复，尝试重新连接云端存储
+      console.log('网络已恢复，检查云端存储连接')
+      await reconnectCloudStorage()
     } else {
-      // 用户未登录，使用本地存储但保持混合模式配置
-      await switchToLocalStorage()
-      // 保持配置为混合模式，等用户登录后自动切换
-      storageState.config.mode = 'hybrid'
+      // 网络断开
+      console.log('网络已断开')
+      storageState.networkStatus.isServerReachable = false
+      storageState.networkStatus.consecutiveFailures++
     }
   }
 
@@ -304,10 +195,15 @@ export function useStorageMode() {
     try {
       if (isAuthenticated.value && user.value?.preferences?.storageConfig) {
         // 从用户偏好设置加载
-        storageState.config = { ...storageState.config, ...user.value.preferences.storageConfig }
+        const userConfig = user.value.preferences.storageConfig
+        storageState.config = {
+          ...storageState.config,
+          retryAttempts: userConfig.retryAttempts || storageState.config.retryAttempts,
+          requestTimeout: userConfig.requestTimeout || storageState.config.requestTimeout,
+        }
       } else {
         // 从本地存储加载
-        const savedConfig = localStorage.getItem('storage_config')
+        const savedConfig = localStorage.getItem('cloud_storage_config')
         if (savedConfig) {
           const config = JSON.parse(savedConfig)
           storageState.config = { ...storageState.config, ...config }
@@ -324,12 +220,12 @@ export function useStorageMode() {
   const saveStorageConfig = async (): Promise<void> => {
     try {
       // 保存到本地存储
-      localStorage.setItem('storage_config', JSON.stringify(storageState.config))
+      localStorage.setItem('cloud_storage_config', JSON.stringify(storageState.config))
 
       // 如果用户已登录，同步到服务器
       if (isAuthenticated.value) {
         // TODO: 调用设置 API 更新用户偏好
-        console.log('TODO: Sync storage config to server')
+        console.log('TODO: Sync cloud storage config to server')
       }
     } catch (error) {
       console.error('Failed to save storage config:', error)
@@ -338,12 +234,18 @@ export function useStorageMode() {
 
   // 监听认证状态变化
   watch(isAuthenticated, async (authenticated) => {
-    if (authenticated && storageState.config.mode !== 'local') {
-      // 用户登录，可以使用远程存储
-      await determineStorageMode()
-    } else if (!authenticated && storageState.currentMode !== 'local') {
-      // 用户登出，切换到本地存储
-      await switchToLocalStorage()
+    if (authenticated) {
+      // 用户登录，初始化云端存储
+      try {
+        await initializeStorageMode()
+      } catch (error) {
+        console.error('Failed to initialize cloud storage after login:', error)
+      }
+    } else {
+      // 用户登出，清理存储服务
+      currentStorageService = null
+      cloudStorageService = null
+      storageState.isInitialized = false
     }
   })
 
@@ -357,20 +259,20 @@ export function useStorageMode() {
     // 状态
     currentMode,
     config,
-    syncStatus,
+    networkStatus,
     isInitialized,
-    canUseRemoteStorage,
-    isOfflineMode,
-    isHybridMode,
+    canUseCloudStorage,
+    isOnline,
+    isServerReachable,
 
     // 方法
     initializeStorageMode,
     getCurrentStorageService,
-    switchStorageMode,
     updateStorageConfig,
     getStorageStatus,
     checkStorageHealth,
-    syncData,
+    updateNetworkStatus,
+    reconnectCloudStorage,
     handleNetworkChange,
   }
 }

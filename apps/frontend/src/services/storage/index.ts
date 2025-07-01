@@ -1,14 +1,12 @@
 /**
- * 存储服务统一导出
+ * 云端存储服务统一导出
  */
 
-export { HybridTodoStorageService } from './HybridTodoStorageService'
-export { LocalStorageService } from './LocalStorageService'
 export { RemoteStorageService } from './RemoteStorageService'
 export { TodoStorageService } from './TodoStorageService'
 
 export type {
   BatchOperationResult,
+  CloudStorageStatus,
   StorageOperationResult,
-  StorageStatus,
 } from './TodoStorageService'

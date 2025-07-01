@@ -27,73 +27,46 @@
     </div>
 
     <div class="settings-content">
-      <!-- 当前存储状态概览 -->
+      <!-- 云端存储状态概览 -->
       <div class="status-overview">
         <div class="status-header">
-          <div class="status-icon" :class="getModeStatusClass()">
-            <component :is="getCurrentModeIcon()" class="w-5 h-5" />
+          <div class="status-icon" :class="getNetworkStatusClass()">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z" />
+            </svg>
           </div>
           <div class="status-info">
-            <h4 class="status-title">{{ getCurrentModeLabel() }}</h4>
+            <h4 class="status-title">{{ t('storage.cloudStorage') }}</h4>
             <div class="status-indicators">
               <div class="status-indicator" :class="getConnectionStatusClass()">
                 <div class="indicator-dot"></div>
                 <span class="indicator-text">{{ getConnectionStatusText() }}</span>
               </div>
-              <div v-if="currentMode === 'hybrid' && syncStatus.lastSyncTime" class="sync-info">
-                <span class="sync-text">{{
-                  t('lastSyncTime', { time: formatTime(syncStatus.lastSyncTime) })
+              <div v-if="networkStatus.lastCheckTime" class="check-info">
+                <span class="check-text">{{
+                  t('lastCheckTime', { time: formatTime(networkStatus.lastCheckTime) })
                 }}</span>
               </div>
             </div>
           </div>
-          <div v-if="isInProgress" class="sync-spinner">
+          <div v-if="isCheckingHealth" class="health-spinner">
             <div class="spinner"></div>
           </div>
         </div>
       </div>
 
-      <!-- 存储模式选择 -->
-      <div class="storage-mode-selection">
-        <h4 class="selection-title">{{ t('storage.selectMode') }}</h4>
-        <div class="storage-mode-options">
-          <div
-            v-for="option in storageModeOptions"
-            :key="option.value"
-            class="storage-mode-option"
-            :class="{
-              active: selectedMode === option.value,
-              disabled: option.disabled,
-            }"
-            @click="!option.disabled && selectStorageMode(option.value)"
-          >
-            <div class="option-content">
-              <div class="option-icon">
-                <component :is="option.icon" class="w-5 h-5" />
-              </div>
-              <div class="option-info">
-                <div class="option-title">{{ option.label }}</div>
-                <div class="option-description">{{ option.description }}</div>
-                <div v-if="option.disabled" class="option-disabled-reason">
-                  {{ option.disabledReason }}
-                </div>
-              </div>
-              <div v-if="selectedMode === option.value" class="selected-indicator">
-                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                  <path
-                    fill-rule="evenodd"
-                    d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                    clip-rule="evenodd"
-                  />
-                </svg>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- 混合存储特性说明 -->
-      <div v-if="selectedMode === 'hybrid'" class="hybrid-features">
+      <!-- 云端存储特性说明 -->
+      <div class="cloud-features">
         <div class="features-grid">
           <div class="feature-item">
             <div class="feature-icon">
@@ -114,8 +87,8 @@
               </svg>
             </div>
             <div class="feature-text">
-              <span class="feature-title">{{ t('storage.offlineFirst') }}</span>
-              <span class="feature-desc">{{ t('storage.offlineFirstDesc') }}</span>
+              <span class="feature-title">{{ t('storage.realTimeSync') }}</span>
+              <span class="feature-desc">{{ t('storage.realTimeSyncDesc') }}</span>
             </div>
           </div>
           <div class="feature-item">
@@ -131,16 +104,16 @@
                 stroke-linecap="round"
                 stroke-linejoin="round"
               >
-                <path
-                  d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"
-                />
-                <polyline points="3.27,6.96 12,12.01 20.73,6.96" />
-                <line x1="12" y1="22.08" x2="12" y2="12" />
+                <path d="M9 12l2 2 4-4" />
+                <path d="M21 12c.552 0 1-.448 1-1s-.448-1-1-1-1 .448-1 1 .448 1 1 1z" />
+                <path d="M3 12c.552 0 1-.448 1-1s-.448-1-1-1-1 .448-1 1 .448 1 1 1z" />
+                <path d="M12 21c.552 0 1-.448 1-1s-.448-1-1-1-1 .448-1 1 .448 1 1 1z" />
+                <path d="M12 3c.552 0 1-.448 1-1s-.448-1-1-1-1 .448-1 1 .448 1 1 1z" />
               </svg>
             </div>
             <div class="feature-text">
-              <span class="feature-title">{{ t('storage.autoMerge') }}</span>
-              <span class="feature-desc">{{ t('storage.autoMergeDesc') }}</span>
+              <span class="feature-title">{{ t('storage.autoRetry') }}</span>
+              <span class="feature-desc">{{ t('storage.autoRetryDesc') }}</span>
             </div>
           </div>
         </div>
@@ -179,105 +152,36 @@
 </template>
 
 <script setup lang="ts">
-import type { StorageConfig, StorageMode } from '@shared/types'
+import { onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useAuth } from '../../composables/useAuth'
 import { useStorageMode } from '../../composables/useStorageMode'
 import { useSyncManager } from '../../composables/useSyncManager'
-import HybridIcon from '../icons/HybridIcon.vue'
-import LocalIcon from '../icons/LocalIcon.vue'
 
 const { t } = useI18n()
 const { isAuthenticated } = useAuth()
-const {
-  currentMode,
-  config: _config,
-  switchStorageMode,
-  updateStorageConfig,
-  getStorageStatus,
-  checkStorageHealth,
-  initializeStorageMode,
-} = useStorageMode()
-const {
-  initialize,
-  syncAll: _syncAll,
-  isInProgress,
-  syncStatus,
-  isSyncEnabled: _isSyncEnabled,
-  performManualSync: _performManualSync,
-  enableAutoSync: _enableAutoSync,
-  disableAutoSync: _disableAutoSync,
-} = useSyncManager()
+const { networkStatus, checkStorageHealth, initializeStorageMode } = useStorageMode()
+const { initialize, checkServerHealth, networkStatusText } = useSyncManager()
 
 const isCheckingHealth = ref(false)
 const healthStatus = ref<boolean | null>(null)
 
-const selectedMode = computed({
-  get: () => currentMode.value,
-  set: (value: StorageMode) => {
-    switchStorageModeInternal(value)
-  },
-})
-
-const storageModeOptions = computed(() => [
-  {
-    value: 'local' as StorageMode,
-    label: t('storage.localStorage'),
-    description: t('storage.localStorageDesc'),
-    icon: LocalIcon,
-    disabled: false,
-  },
-  {
-    value: 'hybrid' as StorageMode,
-    label: t('storage.hybridStorage'),
-    description: t('storage.hybridStorageDesc'),
-    icon: HybridIcon,
-    disabled: !isAuthenticated.value,
-    disabledReason: !isAuthenticated.value ? t('storage.requiresLogin') : undefined,
-  },
-])
-
-const getCurrentModeIcon = () => {
-  switch (currentMode.value) {
-    case 'local':
-      return LocalIcon
-    case 'hybrid':
-      return HybridIcon
-    default:
-      return LocalIcon
-  }
-}
-
-const getCurrentModeLabel = () => {
-  switch (currentMode.value) {
-    case 'local':
-      return t('storage.localStorage')
-    case 'hybrid':
-      return t('storage.hybridStorage')
-    default:
-      return t('storage.localStorage')
-  }
-}
-
-const getModeStatusClass = () => {
-  switch (currentMode.value) {
-    case 'local':
-      return 'text-gray-500'
-    case 'hybrid':
-      return 'text-purple-500'
-    default:
-      return 'text-gray-500'
-  }
+const getNetworkStatusClass = () => {
+  if (!networkStatus.value.isOnline) return 'text-red-500'
+  if (!networkStatus.value.isServerReachable) return 'text-orange-500'
+  if (networkStatus.value.consecutiveFailures > 0) return 'text-yellow-500'
+  return 'text-green-500'
 }
 
 const getConnectionStatusClass = () => {
-  const status = getStorageStatus()
-  return status.isOnline ? 'status-online' : 'status-offline'
+  if (!networkStatus.value.isOnline) return 'status-offline'
+  if (!networkStatus.value.isServerReachable) return 'status-error'
+  if (networkStatus.value.consecutiveFailures > 0) return 'status-warning'
+  return 'status-online'
 }
 
 const getConnectionStatusText = () => {
-  const status = getStorageStatus()
-  return status.isOnline ? t('online') : t('offline')
+  return networkStatusText.value || t('unknown')
 }
 
 const getHealthStatusClass = () => {
@@ -295,50 +199,32 @@ const formatTime = (time: string | Date) => {
   return date.toLocaleString()
 }
 
-const switchStorageModeInternal = async (mode: StorageMode) => {
-  try {
-    await switchStorageMode(mode)
-
-    // 如果切换到混合模式，且用户已登录，初始化同步
-    if (mode === 'hybrid' && isAuthenticated.value) {
-      await initialize()
-    }
-    return true
-  } catch (error) {
-    console.error('Failed to switch storage mode:', error)
-    return false
-  }
-}
-
-const selectStorageMode = async (mode: StorageMode) => {
-  const success = await switchStorageModeInternal(mode)
-  if (!success) {
-    console.error('Failed to switch storage mode')
-  }
-}
-
-const _updateConfig = async (updates: Partial<StorageConfig>) => {
-  const success = await updateStorageConfig(updates)
-  if (!success) {
-    console.error('Failed to update storage config')
-  }
-}
-
 const checkHealth = async () => {
   isCheckingHealth.value = true
   try {
+    // 检查云端存储健康状态
     healthStatus.value = await checkStorageHealth()
-  } catch (_error) {
+    // 同时检查服务器健康状态
+    await checkServerHealth()
+  } catch (error) {
+    console.error('Health check failed:', error)
     healthStatus.value = false
   } finally {
     isCheckingHealth.value = false
   }
 }
 
-// Check health on mount
+// 初始化云端存储和健康检查
 onMounted(async () => {
-  await initializeStorageMode()
-  checkHealth()
+  if (isAuthenticated.value) {
+    try {
+      await initializeStorageMode()
+      await initialize()
+      await checkHealth()
+    } catch (error) {
+      console.error('Failed to initialize cloud storage:', error)
+    }
+  }
 })
 
 defineOptions({

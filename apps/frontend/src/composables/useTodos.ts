@@ -217,10 +217,8 @@ export function useTodos() {
         // 使用 nextTick 确保 DOM 更新
         await nextTick()
 
-        // 获取当前模式用于日志
-        const { currentMode } = useStorageMode()
-        const mode = currentMode?.value || 'local'
-        logger.info(`Todo added successfully (${mode} mode)`, { todo: newTodo }, 'useTodos')
+        // 记录成功日志
+        logger.info('Todo added successfully (cloud mode)', { todo: newTodo }, 'useTodos')
         return newTodo
       } else {
         logger.error('Failed to add todo', result.error, 'useTodos')

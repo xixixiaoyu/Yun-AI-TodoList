@@ -58,15 +58,9 @@
           <i :class="syncStatusIcon" class="text-sm"></i>
           <span class="status-text">{{ syncStatusText }}</span>
         </div>
-        <button
-          v-if="!syncState.syncInProgress"
-          class="sync-button"
-          :disabled="syncState.syncInProgress"
-          @click="handleManualSync"
-        >
-          <i class="i-carbon-sync text-sm"></i>
-          <span>{{ t('authSettings.syncNow') }}</span>
-        </button>
+        <div class="cloud-info">
+          <span class="info-text">{{ t('authSettings.cloudStorageInfo') }}</span>
+        </div>
       </div>
 
       <div class="auth-actions">
@@ -85,28 +79,35 @@ import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
 import { useAuth } from '../../composables/useAuth'
-import { useDataSync } from '../../composables/useDataSync'
+import { useStorageMode } from '../../composables/useStorageMode'
 import { useNotifications } from '../../composables/useNotifications'
 
 const { t } = useI18n()
 const _router = useRouter()
 const { user, isAuthenticated, isLoading, logout } = useAuth()
-const { syncState, canSync: _canSync, syncStatusText, manualSync } = useDataSync()
-const { success, error, syncSuccess, syncError } = useNotifications()
+const { networkStatus } = useStorageMode()
+const { success, error } = useNotifications()
 
 // 计算属性
 const syncStatusClass = computed(() => {
-  if (syncState.syncInProgress) return 'status-syncing'
-  if (syncState.syncError) return 'status-error'
-  if (syncState.lastSyncTime) return 'status-synced'
-  return 'status-pending'
+  if (!networkStatus.value.isOnline) return 'status-error'
+  if (!networkStatus.value.isServerReachable) return 'status-error'
+  if (networkStatus.value.consecutiveFailures > 0) return 'status-warning'
+  return 'status-synced'
 })
 
 const syncStatusIcon = computed(() => {
-  if (syncState.syncInProgress) return 'i-carbon-circle-dash animate-spin'
-  if (syncState.syncError) return 'i-carbon-warning'
-  if (syncState.lastSyncTime) return 'i-carbon-checkmark'
-  return 'i-carbon-warning'
+  if (!networkStatus.value.isOnline) return 'i-carbon-wifi-off'
+  if (!networkStatus.value.isServerReachable) return 'i-carbon-warning'
+  if (networkStatus.value.consecutiveFailures > 0) return 'i-carbon-warning-alt'
+  return 'i-carbon-checkmark'
+})
+
+const syncStatusText = computed(() => {
+  if (!networkStatus.value.isOnline) return '网络已断开'
+  if (!networkStatus.value.isServerReachable) return '服务器不可达'
+  if (networkStatus.value.consecutiveFailures > 0) return '连接不稳定'
+  return '云端存储已连接'
 })
 
 // 方法
@@ -120,19 +121,7 @@ const _formatTime = (date: Date): string => {
   return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
 }
 
-const handleManualSync = async () => {
-  try {
-    const result = await manualSync()
-    if (result.status === 'success') {
-      syncSuccess(result.stats)
-    } else if (result.status === 'conflict') {
-      success('同步完成', `发现 ${result.conflicts?.length || 0} 个冲突需要处理`)
-    }
-  } catch (err) {
-    console.error('Manual sync failed:', err)
-    syncError(err)
-  }
-}
+// 云端存储模式下不需要手动同步
 
 const handleLogout = async () => {
   try {

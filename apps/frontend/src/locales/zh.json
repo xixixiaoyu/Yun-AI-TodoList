@@ -485,7 +485,8 @@
     "syncing": "同步中...",
     "lastSync": "上次同步：{time}",
     "notSynced": "尚未同步",
-    "syncNow": "立即同步"
+    "syncNow": "立即同步",
+    "cloudStorageInfo": "所有数据实时保存到云端"
   },
 
   "aiAnalysis": "AI 智能分析",
@@ -630,7 +631,11 @@
     "offlineFirst": "离线优先",
     "offlineFirstDesc": "离线时优先使用本地存储，联网后自动同步",
     "autoMerge": "智能合并",
-    "autoMergeDesc": "自动合并本地和云端数据，无需手动处理冲突"
+    "autoMergeDesc": "自动合并本地和云端数据，无需手动处理冲突",
+    "realTimeSync": "实时同步",
+    "realTimeSyncDesc": "数据变更即时保存到云端，无需等待",
+    "autoRetry": "自动重试",
+    "autoRetryDesc": "网络异常时自动重试，确保数据安全"
   },
 
   "storageMode": "存储模式",
@@ -640,6 +645,9 @@
 
   "online": "在线",
   "healthy": "健康",
+  "unhealthy": "异常",
+  "checking": "检查中...",
+  "lastCheckTime": "上次检查：{time}",
   "checking": "检查中",
 
   "common": {

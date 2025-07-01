@@ -34,12 +34,13 @@ export class AIAnalysisService {
       throw new NotFoundException('Todo not found')
     }
 
-    // 暂时直接更新 Todo 表，等 Prisma 客户端生成后再使用独立的 AI 分析表
-    await this.prisma.todo.update({
+    // 直接更新 Todo 表，包含 AI 分析结果
+    const updatedTodo = await this.prisma.todo.update({
       where: { id: data.todoId },
       data: {
         priority: data.priority,
         estimatedTime: data.estimatedTime,
+        aiReasoning: data.reasoning,
         aiAnalyzed: true,
         updatedAt: new Date(),
       },
@@ -47,12 +48,12 @@ export class AIAnalysisService {
 
     // 返回 AIAnalysis 对象
     return {
-      todoId: data.todoId,
+      todoId: updatedTodo.id,
       userId,
-      priority: data.priority,
-      estimatedTime: data.estimatedTime,
-      reasoning: data.reasoning,
-      analyzedAt: new Date().toISOString(),
+      priority: updatedTodo.priority || undefined,
+      estimatedTime: updatedTodo.estimatedTime || undefined,
+      reasoning: updatedTodo.aiReasoning || undefined,
+      analyzedAt: updatedTodo.updatedAt.toISOString(),
     }
   }
 
@@ -60,7 +61,7 @@ export class AIAnalysisService {
    * 获取 Todo 的最新 AI 分析
    */
   async getLatestAnalysis(userId: string, todoId: string): Promise<AIAnalysis | null> {
-    // 暂时从 Todo 表获取分析数据
+    // 从 Todo 表获取分析数据
     const todo = await this.prisma.todo.findFirst({
       where: {
         id: todoId,
@@ -78,8 +79,60 @@ export class AIAnalysisService {
       userId,
       priority: todo.priority || undefined,
       estimatedTime: todo.estimatedTime || undefined,
-      reasoning: `AI 分析结果：优先级 ${todo.priority || 'N/A'}，预计时间 ${todo.estimatedTime || 'N/A'}`,
+      reasoning: todo.aiReasoning || undefined,
       analyzedAt: todo.updatedAt?.toISOString() || todo.createdAt.toISOString(),
     }
+  }
+
+  /**
+   * 获取用户的所有 AI 分析记录
+   */
+  async getUserAnalyses(userId: string): Promise<AIAnalysis[]> {
+    const todos = await this.prisma.todo.findMany({
+      where: {
+        userId,
+        aiAnalyzed: true,
+      },
+      orderBy: { updatedAt: 'desc' },
+    })
+
+    return todos.map((todo) => ({
+      todoId: todo.id,
+      userId,
+      priority: todo.priority || undefined,
+      estimatedTime: todo.estimatedTime || undefined,
+      reasoning: todo.aiReasoning || undefined,
+      analyzedAt: todo.updatedAt?.toISOString() || todo.createdAt.toISOString(),
+    }))
+  }
+
+  /**
+   * 删除 AI 分析记录
+   */
+  async deleteAnalysis(userId: string, todoId: string): Promise<void> {
+    // 验证 Todo 是否存在且属于用户
+    const todo = await this.prisma.todo.findFirst({
+      where: {
+        id: todoId,
+        userId,
+        aiAnalyzed: true,
+      },
+    })
+
+    if (!todo) {
+      throw new NotFoundException('AI analysis not found')
+    }
+
+    // 清除 Todo 的 AI 分析数据
+    await this.prisma.todo.update({
+      where: { id: todoId },
+      data: {
+        aiAnalyzed: false,
+        priority: null,
+        estimatedTime: null,
+        aiReasoning: null,
+        updatedAt: new Date(),
+      },
+    })
   }
 }

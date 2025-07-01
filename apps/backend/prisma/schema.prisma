@@ -32,7 +32,6 @@ model User {
   // Relations
   todos         Todo[]
   settings      UserSetting[]
-  aiAnalyses    AIAnalysis[]
 
   @@map("users")
 }
@@ -48,6 +47,7 @@ model Todo {
   priority      Int?
   estimatedTime String?
   aiAnalyzed    Boolean @default(false)
+  aiReasoning   String? // AI 分析推理过程
 
   // Organization
   order    Int      @default(0)
@@ -60,7 +60,6 @@ model Todo {
   // Relations
   userId String
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-  aiAnalyses AIAnalysis[]
 
   @@map("todos")
 }
@@ -81,26 +80,4 @@ model UserSetting {
 
   @@unique([userId, key])
   @@map("user_settings")
-}
-
-model AIAnalysis {
-  // 使用 todoId 作为主键，确保一个 Todo 只有一条分析记录
-  todoId String @id
-
-  // AI 分析结果
-  priority      Int?    // 1-5 星级优先级
-  estimatedTime String? // 时间估算
-  reasoning     String? // AI 分析推理过程
-
-  // 时间戳
-  analyzedAt DateTime @default(now())
-
-  // Relations
-  todo   Todo   @relation(fields: [todoId], references: [id], onDelete: Cascade)
-  userId String
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  // 索引
-  @@index([userId])
-  @@map("ai_analyses")
 }

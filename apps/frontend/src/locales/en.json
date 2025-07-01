@@ -415,7 +415,8 @@
     "syncing": "Syncing...",
     "lastSync": "Last sync: {time}",
     "notSynced": "Not synced yet",
-    "syncNow": "Sync now"
+    "syncNow": "Sync now",
+    "cloudStorageInfo": "All data is saved to cloud in real-time"
   },
 
   "searchLocale": "Search Language",
@@ -590,7 +591,11 @@
     "offlineFirst": "Offline First",
     "offlineFirstDesc": "Use local storage when offline, auto sync when online",
     "autoMerge": "Smart Merge",
-    "autoMergeDesc": "Automatically merge local and cloud data without manual conflict resolution"
+    "autoMergeDesc": "Automatically merge local and cloud data without manual conflict resolution",
+    "realTimeSync": "Real-time Sync",
+    "realTimeSyncDesc": "Data changes are saved to cloud instantly, no waiting",
+    "autoRetry": "Auto Retry",
+    "autoRetryDesc": "Automatically retry on network errors to ensure data safety"
   },
 
   "storageMode": "Storage Mode",
@@ -600,6 +605,9 @@
 
   "online": "Online",
   "healthy": "Healthy",
+  "unhealthy": "Unhealthy",
+  "checking": "Checking...",
+  "lastCheckTime": "Last check: {time}",
   "checking": "Checking",
 
   "common": {
