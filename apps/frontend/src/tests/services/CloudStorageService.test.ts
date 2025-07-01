@@ -1,17 +1,15 @@
-import type { CreateTodoDto, Todo, UpdateTodoDto } from '@shared/types'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { RemoteStorageService } from '../../services/storage/RemoteStorageService'
+import type { CreateTodoDto, Todo, UpdateTodoDto } from '../../types/todo'
 
-// Mock httpClient
-const mockHttpClient = {
-  get: vi.fn(),
-  post: vi.fn(),
-  patch: vi.fn(),
-  delete: vi.fn(),
-}
-
+// Mock httpClient - 将 mock 定义移到 vi.mock 内部以避免初始化顺序问题
 vi.mock('../../services/api', () => ({
-  httpClient: mockHttpClient,
+  httpClient: {
+    get: vi.fn(),
+    post: vi.fn(),
+    patch: vi.fn(),
+    delete: vi.fn(),
+  },
 }))
 
 // Mock fetch for health checks
@@ -19,16 +17,23 @@ global.fetch = vi.fn()
 
 describe('RemoteStorageService (Cloud Storage)', () => {
   let service: RemoteStorageService
+  let mockHttpClient: any
 
-  beforeEach(() => {
+  beforeEach(async () => {
     vi.clearAllMocks()
-    service = new RemoteStorageService()
+
+    // 获取 mock 的 httpClient
+    const { httpClient } = await import('../../services/api')
+    mockHttpClient = httpClient
 
     // Mock successful health check by default
     ;(global.fetch as any).mockResolvedValue({
       ok: true,
       status: 200,
     })
+
+    // 创建新的服务实例
+    service = new RemoteStorageService()
   })
 
   describe('Network Status Management', () => {
@@ -188,9 +193,19 @@ describe('RemoteStorageService (Cloud Storage)', () => {
       expect(service.status.pendingOperations).toBe(1)
 
       // Mock successful response
+      const testTodo = {
+        id: 'test-id',
+        title: 'Test',
+        description: '',
+        completed: false,
+        priority: 'medium' as const,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      }
+
       mockHttpClient.post.mockResolvedValue({
         success: true,
-        data: mockTodo,
+        data: testTodo,
         timestamp: new Date().toISOString(),
       })
 
