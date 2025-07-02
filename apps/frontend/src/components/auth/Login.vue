@@ -69,13 +69,8 @@
           </div>
         </div>
 
-        <!-- 记住我 -->
+        <!-- 忘记密码链接 -->
         <div class="form-options">
-          <label class="checkbox-wrapper">
-            <input v-model="formData.rememberMe" type="checkbox" class="checkbox-input" />
-            <span class="checkbox-custom"></span>
-            <span class="checkbox-label">{{ t('login.rememberMe') }}</span>
-          </label>
           <router-link to="/forgot-password" class="forgot-link">
             {{ t('login.forgotPassword') }}
           </router-link>
@@ -131,11 +126,13 @@ const route = useRoute()
 const { login, isLoading } = useAuth()
 const { success, authError } = useNotifications()
 
+// 存储键名
+const LAST_EMAIL_KEY = 'last_login_email'
+
 // 响应式数据
 const formData = ref({
   email: '',
   password: '',
-  rememberMe: false,
 })
 
 const errors = ref({
@@ -145,6 +142,27 @@ const errors = ref({
 
 const showPassword = ref(false)
 const submitError = ref('')
+
+// 加载上次登录的邮箱地址
+const loadLastEmail = () => {
+  try {
+    const lastEmail = localStorage.getItem(LAST_EMAIL_KEY)
+    if (lastEmail) {
+      formData.value.email = lastEmail
+    }
+  } catch (error) {
+    console.warn('Failed to load last email:', error)
+  }
+}
+
+// 保存邮箱地址到本地存储
+const saveLastEmail = (email: string) => {
+  try {
+    localStorage.setItem(LAST_EMAIL_KEY, email.trim())
+  } catch (error) {
+    console.warn('Failed to save last email:', error)
+  }
+}
 
 // 计算属性 - 简化验证逻辑
 const isFormValid = computed(() => {
@@ -195,12 +213,16 @@ const handleSubmit = async (event?: Event) => {
   submitError.value = ''
 
   try {
+    const email = formData.value.email.trim()
+
     // 使用认证 composable 进行登录
     await login({
-      email: formData.value.email.trim(),
+      email,
       password: formData.value.password,
-      rememberMe: formData.value.rememberMe,
     })
+
+    // 保存邮箱地址到本地存储
+    saveLastEmail(email)
 
     // 显示成功通知
     success('登录成功', '欢迎回来！即将跳转到主页面。')
@@ -217,6 +239,11 @@ const handleSubmit = async (event?: Event) => {
     authError(error as { code?: string; message?: string })
   }
 }
+
+// 组件挂载时加载上次登录的邮箱
+onMounted(() => {
+  loadLastEmail()
+})
 
 defineOptions({
   name: 'LoginPage',

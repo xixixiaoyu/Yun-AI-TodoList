@@ -111,40 +111,7 @@
 
 /* 表单选项 */
 .form-options {
-  @apply flex items-center justify-between;
-}
-
-.checkbox-wrapper {
-  @apply flex items-center gap-3 cursor-pointer;
-}
-
-.checkbox-input {
-  @apply sr-only;
-}
-
-.checkbox-custom {
-  @apply w-5 h-5 border-2 border-input-border rounded bg-input-bg transition-all-300 flex items-center justify-center;
-  @apply hover:border-primary focus-within:border-primary;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-}
-
-.checkbox-input:checked + .checkbox-custom {
-  @apply bg-primary border-primary;
-  box-shadow: 0 2px 4px rgba(121, 180, 166, 0.3);
-}
-
-.checkbox-input:checked + .checkbox-custom::after {
-  content: '✓';
-  @apply text-white text-sm font-bold;
-  line-height: 1;
-}
-
-.checkbox-input:focus + .checkbox-custom {
-  @apply ring-2 ring-primary ring-offset-2;
-}
-
-.checkbox-label {
-  @apply text-sm text-text font-medium;
+  @apply flex items-center justify-end;
 }
 
 .forgot-link {

@@ -30,7 +30,6 @@ const STORAGE_KEYS = {
   ACCESS_TOKEN: 'auth_access_token',
   REFRESH_TOKEN: 'auth_refresh_token',
   USER: 'auth_user',
-  REMEMBER_ME: 'auth_remember_me',
 } as const
 
 /**
@@ -86,19 +85,18 @@ export function useAuth() {
   /**
    * 保存认证状态到 localStorage
    */
-  const saveAuthState = (authResponse: AuthResponse, rememberMe = false) => {
+  const saveAuthState = (authResponse: AuthResponse) => {
     try {
       authState.user = authResponse.user
       authState.accessToken = authResponse.accessToken
       authState.refreshToken = authResponse.refreshToken
       authState.isAuthenticated = true
 
-      // 使用令牌管理器保存令牌
-      tokenManager.saveTokens(authResponse.accessToken, authResponse.refreshToken, rememberMe)
+      // 默认使用 localStorage 保存令牌（记住登录状态）
+      tokenManager.saveTokens(authResponse.accessToken, authResponse.refreshToken, true)
 
-      // 保存用户信息
-      const storage = rememberMe ? localStorage : sessionStorage
-      storage.setItem(STORAGE_KEYS.USER, JSON.stringify(authResponse.user))
+      // 保存用户信息到 localStorage
+      localStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(authResponse.user))
 
       console.log('Auth state saved to storage')
     } catch (error) {
@@ -149,8 +147,7 @@ export function useAuth() {
       const response = await authApi.refreshToken(authState.refreshToken)
 
       // 保存新的认证状态
-      const rememberMe = localStorage.getItem(STORAGE_KEYS.REMEMBER_ME) === 'true'
-      saveAuthState(response, rememberMe)
+      saveAuthState(response)
 
       return true
     } catch (error) {
@@ -163,7 +160,7 @@ export function useAuth() {
   /**
    * 用户登录
    */
-  const login = async (credentials: LoginDto & { rememberMe?: boolean }): Promise<void> => {
+  const login = async (credentials: LoginDto): Promise<void> => {
     authState.isLoading = true
 
     try {
@@ -175,8 +172,8 @@ export function useAuth() {
         password: credentials.password,
       })
 
-      // 保存认证状态
-      saveAuthState(response, credentials.rememberMe)
+      // 保存认证状态（默认记住登录状态）
+      saveAuthState(response)
     } catch (error) {
       console.error('Login failed:', error)
       throw error
@@ -198,7 +195,7 @@ export function useAuth() {
       const response = await authApi.register(userData)
 
       // 保存认证状态（注册后自动登录）
-      saveAuthState(response, false) // 注册时默认不记住登录状态
+      saveAuthState(response)
     } catch (error) {
       console.error('Registration failed:', error)
       throw error

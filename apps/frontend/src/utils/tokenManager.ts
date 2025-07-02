@@ -24,7 +24,6 @@ class TokenManager {
     ACCESS_TOKEN: 'auth_access_token',
     REFRESH_TOKEN: 'auth_refresh_token',
     USER: 'auth_user',
-    REMEMBER_ME: 'auth_remember_me',
   }
 
   /**
@@ -90,15 +89,10 @@ class TokenManager {
   /**
    * 保存令牌信息
    */
-  saveTokens(accessToken: string, refreshToken: string, rememberMe = false): void {
-    const storage = rememberMe ? localStorage : sessionStorage
-
-    storage.setItem(this.STORAGE_KEYS.ACCESS_TOKEN, accessToken)
-    storage.setItem(this.STORAGE_KEYS.REFRESH_TOKEN, refreshToken)
-
-    if (rememberMe) {
-      localStorage.setItem(this.STORAGE_KEYS.REMEMBER_ME, 'true')
-    }
+  saveTokens(accessToken: string, refreshToken: string, rememberMe = true): void {
+    // 默认使用 localStorage 保存令牌（记住登录状态）
+    localStorage.setItem(this.STORAGE_KEYS.ACCESS_TOKEN, accessToken)
+    localStorage.setItem(this.STORAGE_KEYS.REFRESH_TOKEN, refreshToken)
 
     // 设置自动刷新定时器
     this.scheduleTokenRefresh()
@@ -118,7 +112,6 @@ class TokenManager {
     localStorage.removeItem(this.STORAGE_KEYS.ACCESS_TOKEN)
     localStorage.removeItem(this.STORAGE_KEYS.REFRESH_TOKEN)
     localStorage.removeItem(this.STORAGE_KEYS.USER)
-    localStorage.removeItem(this.STORAGE_KEYS.REMEMBER_ME)
 
     sessionStorage.removeItem(this.STORAGE_KEYS.ACCESS_TOKEN)
     sessionStorage.removeItem(this.STORAGE_KEYS.REFRESH_TOKEN)
@@ -171,12 +164,10 @@ class TokenManager {
       const response = await authApi.refreshToken(tokenInfo.refreshToken)
 
       // 保存新令牌
-      const rememberMe = localStorage.getItem(this.STORAGE_KEYS.REMEMBER_ME) === 'true'
-      this.saveTokens(response.accessToken, response.refreshToken, rememberMe)
+      this.saveTokens(response.accessToken, response.refreshToken)
 
       // 更新用户信息
-      const storage = rememberMe ? localStorage : sessionStorage
-      storage.setItem(this.STORAGE_KEYS.USER, JSON.stringify(response.user))
+      localStorage.setItem(this.STORAGE_KEYS.USER, JSON.stringify(response.user))
 
       console.warn('Token refreshed automatically')
 
