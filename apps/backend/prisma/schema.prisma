@@ -1,6 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -11,73 +8,100 @@ datasource db {
 }
 
 model User {
-  id        String   @id @default(cuid())
-  email     String   @unique
-  username  String   @unique
-  password  String
-  avatarUrl String?
-
-  // User preferences stored as JSON
-  theme         String  @default("light")
-  language      String  @default("zh-CN")
-  aiConfig      String  @default("{}")
-  searchConfig  String  @default("{}")
-  notifications String  @default("{}")
-  storageConfig String  @default("{}")
-
-  // Timestamps
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  // Relations
+  id            String           @id @default(cuid())
+  email         String           @unique
+  username      String           @unique
+  password      String
+  avatarUrl     String?
+  createdAt     DateTime         @default(now())
+  updatedAt     DateTime         @updatedAt
+  accountStatus String           @default("active")
+  deletedAt     DateTime?
+  lastActiveAt  DateTime?
   todos         Todo[]
+  preferences   UserPreferences?
   settings      UserSetting[]
 
+  @@index([lastActiveAt], map: "idx_users_last_active")
+  @@index([deletedAt], map: "idx_users_soft_delete")
+  @@index([accountStatus], map: "idx_users_account_status")
   @@map("users")
 }
 
-model Todo {
-  id          String   @id @default(cuid())
-  title       String
-  description String?
-  completed   Boolean  @default(false)
-  completedAt DateTime?
+model UserPreferences {
+  id                   String   @id @default(cuid())
+  userId               String   @unique
+  theme                String   @default("light")
+  language             String   @default("zh-CN")
+  aiEnabled            Boolean  @default(true)
+  autoAnalyze          Boolean  @default(true)
+  priorityAnalysis     Boolean  @default(true)
+  timeEstimation       Boolean  @default(true)
+  subtaskSplitting     Boolean  @default(true)
+  aiModel              String   @default("deepseek-chat")
+  aiTemperature        Float    @default(0.3)
+  aiMaxTokens          Int      @default(1000)
+  searchLanguage       String   @default("zh-CN")
+  safeSearch           Boolean  @default(true)
+  defaultResultCount   Int      @default(10)
+  searchEngine         String   @default("google")
+  searchRegion         String   @default("CN")
+  desktopNotifications Boolean  @default(true)
+  emailNotifications   Boolean  @default(false)
+  dueReminder          Boolean  @default(true)
+  reminderMinutes      Int      @default(30)
+  storageMode          String   @default("hybrid")
+  autoSync             Boolean  @default(true)
+  syncInterval         Int      @default(5)
+  offlineMode          Boolean  @default(true)
+  conflictResolution   String   @default("merge")
+  retryAttempts        Int      @default(3)
+  requestTimeout       Int      @default(10000)
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+  user                 User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  // Priority and AI analysis
+  @@map("user_preferences")
+}
+
+model Todo {
+  id            String    @id @default(cuid())
+  title         String
+  description   String?
+  completed     Boolean   @default(false)
+  completedAt   DateTime?
   priority      Int?
   estimatedTime String?
-  aiAnalyzed    Boolean @default(false)
-  aiReasoning   String? // AI 分析推理过程
+  aiAnalyzed    Boolean   @default(false)
+  order         Int       @default(0)
+  dueDate       DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  userId        String
+  aiReasoning   String?
+  deletedAt     DateTime?
+  version       Int       @default(1)
+  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  // Organization
-  order    Int      @default(0)
-  dueDate  DateTime?
-
-  // Timestamps
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  // Relations
-  userId String
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-
+  @@index([userId, completed, dueDate], map: "idx_todos_user_status_due")
+  @@index([userId, createdAt], map: "idx_todos_user_created")
+  @@index([priority], map: "idx_todos_priority")
+  @@index([deletedAt], map: "idx_todos_soft_delete")
   @@map("todos")
 }
 
-
-
 model UserSetting {
-  id    String @id @default(cuid())
-  key   String
-  value String
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  // Relations
-  userId String
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id        String    @id @default(cuid())
+  key       String
+  value     String
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  userId    String
+  deletedAt DateTime?
+  version   Int       @default(1)
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, key])
+  @@index([deletedAt], map: "idx_user_settings_soft_delete")
   @@map("user_settings")
 }

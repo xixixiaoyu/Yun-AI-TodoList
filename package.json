@@ -16,10 +16,12 @@
     "tools/*"
   ],
   "scripts": {
-    "dev": "pnpm --filter frontend dev",
+    "dev": "pnpm build:shared && pnpm --filter frontend dev",
     "dev:backend": "pnpm --filter backend dev",
-    "dev:all": "concurrently \"pnpm dev:backend\" \"pnpm dev\"",
-    "build": "pnpm --filter shared build && pnpm --filter frontend build && pnpm --filter backend build",
+    "dev:all": "pnpm build:shared && concurrently \"pnpm dev:backend\" \"pnpm dev\"",
+    "build": "pnpm build:shared && pnpm --filter frontend build && pnpm --filter backend build",
+    "build:shared": "pnpm --filter shared build",
+    "build:frontend": "./scripts/build-shared-and-frontend.sh",
     "test": "pnpm --recursive test",
     "lint": "pnpm --recursive lint",
     "lint:fix": "pnpm --recursive lint:fix",

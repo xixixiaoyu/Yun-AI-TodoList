@@ -47,7 +47,7 @@
               id="password"
               v-model="formData.password"
               :type="showPassword ? 'text' : 'password'"
-              class="auth-input"
+              class="auth-input password-input"
               :class="{ error: errors.password }"
               required
               autocomplete="current-password"
@@ -57,7 +57,7 @@
             <label for="password" class="floating-label">
               {{ t('login.password') }}
             </label>
-            <div class="input-icon">
+            <div class="password-icon">
               <i class="i-carbon-password text-lg text-text-secondary"></i>
             </div>
             <button type="button" class="password-toggle" @click="showPassword = !showPassword">
@@ -97,12 +97,6 @@
             <span>{{ t('login.submitting') }}</span>
           </div>
         </button>
-
-        <!-- 错误提示 -->
-        <div v-if="submitError" class="submit-error">
-          <i class="i-carbon-warning text-lg"></i>
-          <span>{{ submitError }}</span>
-        </div>
       </form>
 
       <!-- 底部链接 -->
@@ -221,7 +215,6 @@ const handleSubmit = async (event?: Event) => {
     console.error('Login failed:', error)
     // 使用通知系统显示错误
     authError(error as { code?: string; message?: string })
-    submitError.value = error instanceof Error ? error.message : t('login.error')
   }
 }
 

@@ -75,7 +75,7 @@
               id="password"
               v-model="formData.password"
               :type="showPassword ? 'text' : 'password'"
-              class="auth-input"
+              class="auth-input password-input"
               :class="{ error: errors.password }"
               required
               autocomplete="new-password"
@@ -85,7 +85,7 @@
             <label for="password" class="floating-label">
               {{ t('register.password') }}
             </label>
-            <div class="input-icon">
+            <div class="password-icon">
               <i class="i-carbon-password text-lg text-text-secondary"></i>
             </div>
             <button type="button" class="password-toggle" @click="showPassword = !showPassword">
@@ -118,7 +118,7 @@
               id="confirmPassword"
               v-model="formData.confirmPassword"
               :type="showConfirmPassword ? 'text' : 'password'"
-              class="auth-input"
+              class="auth-input password-input"
               :class="{ error: errors.confirmPassword }"
               required
               autocomplete="new-password"
@@ -128,7 +128,7 @@
             <label for="confirmPassword" class="floating-label">
               {{ t('register.confirmPassword') }}
             </label>
-            <div class="input-icon">
+            <div class="password-icon">
               <i class="i-carbon-password text-lg text-text-secondary"></i>
             </div>
             <button

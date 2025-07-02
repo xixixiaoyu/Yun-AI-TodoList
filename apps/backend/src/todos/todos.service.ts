@@ -70,7 +70,10 @@ export class TodosService {
     const skip = (page - 1) * limit
 
     // 构建查询条件
-    const where: any = { userId }
+    const where: any = {
+      userId,
+      deletedAt: null, // 排除软删除的待办事项
+    }
 
     // 搜索条件
     if (search) {
@@ -162,7 +165,11 @@ export class TodosService {
 
   async findOne(userId: string, id: string): Promise<Todo> {
     const todo = await this.prisma.todo.findFirst({
-      where: { id, userId },
+      where: {
+        id,
+        userId,
+        deletedAt: null, // 排除软删除的待办事项
+      },
     })
 
     if (!todo) {
@@ -174,7 +181,11 @@ export class TodosService {
 
   async update(userId: string, id: string, updateTodoDto: UpdateTodoDto): Promise<Todo> {
     const existingTodo = await this.prisma.todo.findFirst({
-      where: { id, userId },
+      where: {
+        id,
+        userId,
+        deletedAt: null, // 排除软删除的待办事项
+      },
     })
 
     if (!existingTodo) {
@@ -183,6 +194,7 @@ export class TodosService {
 
     const updateData: any = {
       ...updateTodoDto,
+      version: existingTodo.version + 1, // 版本控制
       updatedAt: new Date(),
     }
 
@@ -221,6 +233,30 @@ export class TodosService {
 
   async remove(userId: string, id: string): Promise<void> {
     const existingTodo = await this.prisma.todo.findFirst({
+      where: {
+        id,
+        userId,
+        deletedAt: null, // 排除已软删除的待办事项
+      },
+    })
+
+    if (!existingTodo) {
+      throw new NotFoundException('Todo 不存在')
+    }
+
+    // 软删除待办事项
+    await this.prisma.todo.update({
+      where: { id },
+      data: {
+        deletedAt: new Date(),
+        version: existingTodo.version + 1,
+      },
+    })
+  }
+
+  // 硬删除方法（管理员使用）
+  async hardDelete(userId: string, id: string): Promise<void> {
+    const existingTodo = await this.prisma.todo.findFirst({
       where: { id, userId },
     })
 
@@ -231,6 +267,31 @@ export class TodosService {
     await this.prisma.todo.delete({
       where: { id },
     })
+  }
+
+  // 恢复软删除的待办事项
+  async restore(userId: string, id: string): Promise<Todo> {
+    const existingTodo = await this.prisma.todo.findFirst({
+      where: {
+        id,
+        userId,
+        deletedAt: { not: null }, // 只能恢复已软删除的待办事项
+      },
+    })
+
+    if (!existingTodo) {
+      throw new NotFoundException('Todo 不存在或未被删除')
+    }
+
+    const todo = await this.prisma.todo.update({
+      where: { id },
+      data: {
+        deletedAt: null,
+        version: existingTodo.version + 1,
+      },
+    })
+
+    return this.mapPrismaTodoToTodo(todo)
   }
 
   async reorder(userId: string, reorderDto: ReorderTodosDto): Promise<void> {
@@ -324,19 +385,21 @@ export class TodosService {
   }
 
   async getStats(userId: string): Promise<TodoStats> {
+    const baseWhere = { userId, deletedAt: null }
+
     const [total, completed, overdue, dueToday, dueThisWeek] = await Promise.all([
-      this.prisma.todo.count({ where: { userId } }),
-      this.prisma.todo.count({ where: { userId, completed: true } }),
+      this.prisma.todo.count({ where: baseWhere }),
+      this.prisma.todo.count({ where: { ...baseWhere, completed: true } }),
       this.prisma.todo.count({
         where: {
-          userId,
+          ...baseWhere,
           completed: false,
           dueDate: { lt: new Date() },
         },
       }),
       this.prisma.todo.count({
         where: {
-          userId,
+          ...baseWhere,
           completed: false,
           dueDate: {
             gte: new Date(new Date().setHours(0, 0, 0, 0)),
@@ -346,7 +409,7 @@ export class TodosService {
       }),
       this.prisma.todo.count({
         where: {
-          userId,
+          ...baseWhere,
           completed: false,
           dueDate: {
             gte: new Date(),

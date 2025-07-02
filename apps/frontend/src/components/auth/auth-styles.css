@@ -67,6 +67,10 @@
   @apply focus:border-primary focus:outline-none focus:ring-0;
 }
 
+.auth-input.password-input {
+  @apply pr-20; /* 为密码输入框预留更多右侧空间 */
+}
+
 .auth-input.error {
   @apply border-error;
 }
@@ -84,8 +88,21 @@
   @apply absolute right-4 top-1/2 transform -translate-y-1/2;
 }
 
+/* 密码输入框特殊样式 */
+.password-input {
+  @apply pr-20; /* 为两个图标留出空间 */
+}
+
+/* 密码输入框专用图标样式 */
+.password-icon {
+  @apply absolute right-12 top-1/2 transform -translate-y-1/2 pointer-events-none;
+}
+
 .password-toggle {
-  @apply absolute right-4 top-1/2 transform -translate-y-1/2 text-text-secondary hover:text-text transition-colors;
+  @apply absolute right-3 top-1/2 transform -translate-y-1/2 p-1 rounded-md;
+  @apply text-text-secondary hover:text-text-primary hover:bg-surface-hover;
+  @apply transition-colors duration-200;
+  @apply focus:outline-none focus:ring-2 focus:ring-primary/20;
 }
 
 .error-message {
@@ -98,7 +115,7 @@
 }
 
 .checkbox-wrapper {
-  @apply flex items-center gap-2 cursor-pointer;
+  @apply flex items-center gap-3 cursor-pointer;
 }
 
 .checkbox-input {
@@ -106,20 +123,28 @@
 }
 
 .checkbox-custom {
-  @apply w-4 h-4 border-2 border-input-border rounded bg-input-bg transition-all-300;
+  @apply w-5 h-5 border-2 border-input-border rounded bg-input-bg transition-all-300 flex items-center justify-center;
+  @apply hover:border-primary focus-within:border-primary;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 .checkbox-input:checked + .checkbox-custom {
   @apply bg-primary border-primary;
+  box-shadow: 0 2px 4px rgba(121, 180, 166, 0.3);
 }
 
 .checkbox-input:checked + .checkbox-custom::after {
   content: '✓';
-  @apply text-white text-xs flex items-center justify-center;
+  @apply text-white text-sm font-bold;
+  line-height: 1;
+}
+
+.checkbox-input:focus + .checkbox-custom {
+  @apply ring-2 ring-primary ring-offset-2;
 }
 
 .checkbox-label {
-  @apply text-sm text-text;
+  @apply text-sm text-text font-medium;
 }
 
 .forgot-link {
@@ -139,10 +164,6 @@
 
 .loading-spinner {
   @apply flex items-center justify-center gap-2;
-}
-
-.submit-error {
-  @apply flex items-center gap-2 text-error text-sm bg-error/10 p-3 rounded-lg;
 }
 
 /* 底部样式 */

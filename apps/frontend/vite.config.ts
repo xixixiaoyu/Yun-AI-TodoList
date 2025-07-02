@@ -229,6 +229,8 @@ export default defineConfig({
       '@shared': fileURLToPath(new URL('../../packages/shared/src', import.meta.url)),
       vue: 'vue/dist/vue.esm-bundler.js',
     },
+    // 确保正确解析共享包
+    dedupe: ['vue', 'vue-router', 'vue-i18n'],
   },
   server: {
     port: 3001,
@@ -417,11 +419,22 @@ export default defineConfig({
     'process.env': {},
   },
   optimizeDeps: {
-    include: ['vue', 'vue-router', 'vue-i18n', '@vueuse/core'],
+    include: [
+      'vue',
+      'vue-router',
+      'vue-i18n',
+      '@vueuse/core',
+      '@yun-ai-todolist/shared',
+      '@yun-ai-todolist/shared/types',
+      '@yun-ai-todolist/shared/utils',
+      '@yun-ai-todolist/shared/constants',
+    ],
     exclude: [
       // 排除 MCP SDK 的 Node.js 特定模块
       '@modelcontextprotocol/sdk/client/stdio.js',
       '@modelcontextprotocol/sdk/client/stdio',
     ],
+    // 强制重新构建依赖
+    force: process.env.NODE_ENV === 'development',
   },
 })
