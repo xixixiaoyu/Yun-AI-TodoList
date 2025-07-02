@@ -127,7 +127,7 @@
     "error": "Login failed, please check your email and password"
   },
   "forgotPassword": {
-    "title": "Reset Password",
+    "title": "Forgot Password",
     "subtitle": "Enter your email address and we'll send you a link to reset your password",
     "email": "Email Address",
     "submit": "Send Reset Link",
@@ -135,6 +135,21 @@
     "success": "Reset link has been sent to your email, please check your inbox",
     "backToLogin": "Remember your password?",
     "loginLink": "Back to Login"
+  },
+  "resetPassword": {
+    "title": "Reset Password",
+    "subtitle": "Please enter your new password",
+    "newPassword": "New Password",
+    "confirmPassword": "Confirm Password",
+    "submit": "Reset Password",
+    "resetting": "Resetting...",
+    "success": "Password reset successfully!",
+    "successDescription": "Your password has been successfully reset, redirecting to login page",
+    "backToLogin": "Remember your password?",
+    "loginLink": "Back to Login",
+    "invalidToken": "Invalid reset link",
+    "missingToken": "Missing reset token, please request password reset again",
+    "tokenExpired": "Reset link has expired, please request password reset again"
   },
   "register": {
     "title": "Register",
@@ -160,6 +175,8 @@
     "emailRequired": "Email address is required",
     "emailInvalid": "Please enter a valid email address",
     "passwordRequired": "Password is required",
+    "passwordMinLength": "Password must be at least 8 characters",
+    "passwordFormat": "Password must contain at least one letter and one number",
     "passwordTooShort": "Password must be at least 8 characters",
     "passwordTooWeak": "Password is too weak, please include uppercase, lowercase, numbers and special characters",
     "confirmPasswordRequired": "Please confirm your password",

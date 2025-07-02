@@ -124,10 +124,10 @@ const handleSubmit = async () => {
     await forgotPassword(formData.email)
     isSuccess.value = true
 
-    // 3秒后跳转到登录页
+    // 5秒后跳转到登录页（给用户更多时间查看成功消息）
     setTimeout(() => {
       router.push('/login')
-    }, 3000)
+    }, 5000)
   } catch (error: unknown) {
     const errorMessage = error instanceof Error ? error.message : String(error)
     if (errorMessage.includes('email')) {

@@ -1,12 +1,22 @@
-import { ConflictException, Injectable, UnauthorizedException } from '@nestjs/common'
+import {
+  BadRequestException,
+  ConflictException,
+  Injectable,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { JwtService } from '@nestjs/jwt'
 import type { AuthResponse, User } from '@shared/types'
 import { UtilsService } from '../common/services/utils.service'
+import { MailService } from '../mail/mail.service'
 import { UsersService } from '../users/users.service'
+import { ChangePasswordDto } from './dto/change-password.dto'
+import { ForgotPasswordDto } from './dto/forgot-password.dto'
 import { LoginDto } from './dto/login.dto'
 import { RefreshTokenDto } from './dto/refresh-token.dto'
 import { RegisterDto } from './dto/register.dto'
+import { ResetPasswordDto } from './dto/reset-password.dto'
 
 @Injectable()
 export class AuthService {
@@ -14,7 +24,8 @@ export class AuthService {
     private readonly usersService: UsersService,
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
-    private readonly utilsService: UtilsService
+    private readonly utilsService: UtilsService,
+    private readonly mailService: MailService
   ) {}
 
   async register(registerDto: RegisterDto): Promise<AuthResponse> {
@@ -131,5 +142,98 @@ export class AuthService {
       accessToken,
       refreshToken,
     }
+  }
+
+  async requestPasswordReset(forgotPasswordDto: ForgotPasswordDto): Promise<{ message: string }> {
+    const { email } = forgotPasswordDto
+
+    // 查找用户
+    const user = await this.usersService.findByEmail(email)
+    if (!user) {
+      throw new NotFoundException('该邮箱未注册')
+    }
+
+    // 生成重置令牌（1小时有效期）
+    const resetToken = this.jwtService.sign(
+      { sub: user.id, email: user.email, type: 'password-reset' },
+      {
+        secret: this.configService.get<string>('JWT_SECRET'),
+        expiresIn: '1h',
+      }
+    )
+
+    // 异步发送重置邮件，不阻塞响应
+    this.mailService.sendPasswordResetEmail(email, resetToken).catch((error) => {
+      console.error(`Failed to send password reset email to ${email}:`, error)
+    })
+
+    return { message: '重置密码的邮件已发送，请查收' }
+  }
+
+  async resetPassword(resetPasswordDto: ResetPasswordDto): Promise<{ message: string }> {
+    const { token, password } = resetPasswordDto
+
+    try {
+      // 验证重置令牌
+      const payload = this.jwtService.verify(token, {
+        secret: this.configService.get<string>('JWT_SECRET'),
+      })
+
+      // 检查令牌类型
+      if (payload.type !== 'password-reset') {
+        throw new BadRequestException('无效的重置令牌')
+      }
+
+      // 查找用户
+      const user = await this.usersService.findById(payload.sub)
+      if (!user) {
+        throw new NotFoundException('用户不存在')
+      }
+
+      // 更新密码
+      const hashedPassword = await this.utilsService.hashPassword(password)
+      await this.usersService.updatePassword(user.id, hashedPassword)
+
+      return { message: '密码重置成功' }
+    } catch (error: any) {
+      if (error.name === 'JsonWebTokenError' || error.name === 'TokenExpiredError') {
+        throw new BadRequestException('重置链接无效或已过期')
+      }
+      throw error
+    }
+  }
+
+  async changePassword(
+    userId: string,
+    changePasswordDto: ChangePasswordDto
+  ): Promise<{ message: string }> {
+    const { currentPassword, newPassword } = changePasswordDto
+
+    // 查找用户
+    const user = await this.usersService.findById(userId)
+    if (!user) {
+      throw new NotFoundException('用户不存在')
+    }
+
+    // 验证当前密码
+    const isCurrentPasswordValid = await this.utilsService.comparePassword(
+      currentPassword,
+      user.password
+    )
+    if (!isCurrentPasswordValid) {
+      throw new UnauthorizedException('当前密码错误')
+    }
+
+    // 检查新密码是否与当前密码相同
+    const isSamePassword = await this.utilsService.comparePassword(newPassword, user.password)
+    if (isSamePassword) {
+      throw new BadRequestException('新密码不能与当前密码相同')
+    }
+
+    // 更新密码
+    const hashedNewPassword = await this.utilsService.hashPassword(newPassword)
+    await this.usersService.updatePassword(user.id, hashedNewPassword)
+
+    return { message: '密码修改成功' }
   }
 }

@@ -176,4 +176,11 @@ export class UsersService {
       updatedAt: prismaUser.updatedAt.toISOString(),
     }
   }
+
+  async updatePassword(userId: string, hashedPassword: string): Promise<void> {
+    await this.prisma.user.update({
+      where: { id: userId },
+      data: { password: hashedPassword },
+    })
+  }
 }
