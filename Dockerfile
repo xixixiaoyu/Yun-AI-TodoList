@@ -36,7 +36,12 @@ COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 # 复制所有 package.json 文件以利用 Docker 缓存
 COPY apps/frontend/package.json ./apps/frontend/
 COPY apps/backend/package.json ./apps/backend/
-COPY packages/*/package.json ./packages/*/
+# 只复制存在的 package.json 文件，避免空目录问题
+COPY packages/shared/package.json ./packages/shared/
+COPY tools/*/package.json ./tools/*/
+
+# 复制 Prisma schema 文件（postinstall 脚本需要）
+COPY apps/backend/prisma ./apps/backend/prisma
 
 # 安装所有依赖（包括开发依赖，用于构建）
 RUN pnpm install --frozen-lockfile
