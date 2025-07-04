@@ -32,8 +32,10 @@
     "dev": "tsc --watch",
     "clean": "rimraf dist",
     "type-check": "tsc --noEmit",
-    "lint": "eslint src --ext .ts --fix",
-    "lint:check": "eslint src --ext .ts"
+    "lint": "eslint src --ext .ts",
+    "lint:fix": "eslint src --ext .ts --fix",
+    "test": "echo 'No tests defined for shared package' && exit 0",
+    "test:coverage": "echo 'No tests defined for shared package' && exit 0"
   },
   "devDependencies": {
     "@types/node": "^24.0.3",
