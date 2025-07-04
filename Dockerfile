@@ -71,7 +71,7 @@ COPY apps/backend ./apps/backend
 COPY packages ./packages
 
 # 生成 Prisma 客户端
-RUN pnpm --filter backend prisma:generate
+RUN cd apps/backend && pnpm prisma generate
 
 # 构建后端应用
 RUN pnpm --filter backend build

@@ -106,7 +106,7 @@ Yun AI TodoList 是一个现代化的全栈 AI 驱动的待办事项应用，包
 
 创建完成后，在数据库详情页面获取：
 
-- **Internal Database URL**：用于后端连接
+- **Internal Database URL**：用于后端连接（必须使用此URL）
 - **External Database URL**：用于本地开发和数据库管理
 
 格式类似：
@@ -114,6 +114,12 @@ Yun AI TodoList 是一个现代化的全栈 AI 驱动的待办事项应用，包
 ```
 postgresql://username:password@hostname:port/database
 ```
+
+**⚠️ 重要提醒：**
+
+- 必须使用 **Internal Database URL**，不要使用 External URL
+- 确保数据库和 Web Service 在同一个 Render 区域
+- 数据库创建后需要等待几分钟才能完全可用
 
 ## 🔧 后端 API 部署
 
@@ -140,7 +146,14 @@ Dockerfile Path: Dockerfile
 **Build Command:**
 
 ```bash
-# Render 会自动使用 Dockerfile 构建，无需额外配置
+# Render 会自动使用 Dockerfile 构建，但需要在构建后运行数据库迁移
+docker build --target backend -t backend . && docker run --rm -e DATABASE_URL=$DATABASE_URL backend sh -c "cd /app && pnpm prisma migrate deploy"
+```
+
+**重要说明：** 由于 Render 的 Docker 构建限制，推荐使用以下简化的构建命令：
+
+```bash
+# 让 Dockerfile 处理所有构建步骤
 ```
 
 **Docker Build Arguments:**
@@ -167,7 +180,7 @@ NODE_ENV=production
 PORT=10000
 FRONTEND_URL=https://your-frontend-url.onrender.com
 
-# 数据库配置（从 Render PostgreSQL 服务获取）
+# 数据库配置（必须使用 Render PostgreSQL 的 Internal Database URL）
 DATABASE_URL=postgresql://username:password@hostname:port/database
 
 # JWT 认证配置（请生成强密码）
@@ -518,13 +531,26 @@ VITE_API_BASE_URL=https://api.yourdomain.com/api/v1
 
 #### 1. 数据库连接失败
 
-**问题：** 后端无法连接到数据库
+**问题：** 后端无法连接到数据库，日志显示 "Database is unavailable"
 
 **解决方案：**
 
-- 检查 `DATABASE_URL` 环境变量是否正确
-- 确保使用 Internal Database URL
-- 检查数据库服务是否正常运行
+- **检查 `DATABASE_URL` 环境变量**：
+  - 必须使用 Render PostgreSQL 的 **Internal Database URL**
+  - 格式：`postgresql://user:password@internal-host:5432/database`
+  - 不要使用 External URL 或 localhost
+- **确保数据库服务状态**：
+  - 在 Render Dashboard 检查数据库服务状态为 "Available"
+  - 数据库和 Web Service 必须在同一区域
+- **检查数据库迁移**：
+  - 确保数据库表结构已正确创建
+  - 在 Render Shell 中手动运行：`pnpm prisma migrate deploy`
+- **验证连接**：
+  ```bash
+  # 在 Render Shell 中测试连接
+  echo $DATABASE_URL
+  pnpm prisma db push --accept-data-loss
+  ```
 
 #### 2. 前端无法访问后端 API
 
