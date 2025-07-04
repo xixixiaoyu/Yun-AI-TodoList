@@ -147,7 +147,6 @@ Dockerfile Path: Dockerfile
 
 ```bash
 target=backend
-PORT=10000
 ```
 
 **Start Command:**
@@ -626,10 +625,13 @@ VITE_API_BASE_URL=https://api.yourdomain.com/api/v1
 
 **解决方案：**
 
-- 确保 Render 环境变量 `PORT` 与 Docker 暴露端口一致
-- 检查 Docker Build Arguments 是否包含 `PORT` 参数
-- 验证应用是否正确监听 `PORT` 环境变量
+- 确保应用监听 `0.0.0.0` 而不是 `localhost` (Docker 容器要求)
+- 验证 Dockerfile 暴露了正确的端口 (3000, 10000)
+- 确认 `PORT` 环境变量设置正确
 - 检查健康检查端点：`curl -f https://your-backend-url.onrender.com/api/v1/health`
+
+**重要：** 在 Docker 容器中，应用必须绑定到 `0.0.0.0` 才能接受外部连接，绑定到
+`localhost` 或 `127.0.0.1` 将无法从容器外部访问。
 
 #### 10. 文件上传失败
 

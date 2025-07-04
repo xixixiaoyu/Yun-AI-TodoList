@@ -120,10 +120,6 @@ CMD ["nginx", "-g", "daemon off;"]
 # ===========================================
 FROM node:18-alpine AS backend
 
-# 接收构建参数
-ARG PORT=3000
-ENV PORT=$PORT
-
 # 安装系统依赖
 RUN apk add --no-cache dumb-init curl
 
@@ -147,10 +143,10 @@ RUN chmod +x docker-entrypoint.sh
 RUN chown -R nestjs:nodejs /app
 USER nestjs
 
-# 动态暴露端口
-EXPOSE $PORT
+# 暴露常用端口 (Render 通常使用 10000)
+EXPOSE 3000 10000
 
-# 健康检查 - 使用环境变量端口
+# 健康检查
 HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
   CMD node healthcheck.js
 
