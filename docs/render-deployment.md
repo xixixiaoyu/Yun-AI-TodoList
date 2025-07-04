@@ -147,6 +147,7 @@ Dockerfile Path: Dockerfile
 
 ```bash
 target=backend
+PORT=10000
 ```
 
 **Start Command:**
@@ -619,7 +620,18 @@ VITE_API_BASE_URL=https://api.yourdomain.com/api/v1
 - 验证 `FRONTEND_URL` 配置正确
 - 检查 API 请求 URL 是否正确
 
-#### 9. 文件上传失败
+#### 9. 端口绑定失败
+
+**问题：** "Port scan timeout reached, no open ports detected"
+
+**解决方案：**
+
+- 确保 Render 环境变量 `PORT` 与 Docker 暴露端口一致
+- 检查 Docker Build Arguments 是否包含 `PORT` 参数
+- 验证应用是否正确监听 `PORT` 环境变量
+- 检查健康检查端点：`curl -f https://your-backend-url.onrender.com/api/v1/health`
+
+#### 10. 文件上传失败
 
 **问题：** 文件上传功能不工作
 
