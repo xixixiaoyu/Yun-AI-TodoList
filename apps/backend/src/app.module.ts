@@ -66,6 +66,7 @@ import { configValidationSchema } from './config/config.validation'
     AuthModule,
     UsersModule,
     TodosModule,
+    DocumentsModule,
     SettingsModule,
     AIAnalysisModule,
   ],

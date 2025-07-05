@@ -74,9 +74,9 @@
 </template>
 
 <script setup lang="ts">
+import { parseFile } from '@/utils/fileParser'
 import { computed, nextTick, onMounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { parseFile } from '@/utils/fileParser'
 
 interface Props {
   modelValue: string
@@ -170,16 +170,36 @@ const handleFileUpload = async (event: Event) => {
   if (!file) return
 
   try {
-    // 使用新的文件解析工具解析文件内容
-    const content = await parseFile(file)
+    // 选择上传方式：传统方式（聊天）或新的 LlamaIndex 方式
+    const shouldUseLlamaIndex =
+      file.size > 1024 * 1024 || // 大于 1MB 的文件使用 LlamaIndex
+      file.type.includes('pdf') ||
+      file.type.includes('word') ||
+      file.type.includes('excel')
 
-    // 发送文件上传事件
-    emit('file-upload', file, content)
+    if (shouldUseLlamaIndex) {
+      // 使用 LlamaIndex 后端上传文档
+      const uploadResult = await uploadDocument(file)
+
+      if (uploadResult.success && uploadResult.data) {
+        // 发送文档上传成功事件，包含文档信息
+        emit('file-upload', file, `文档已上传: ${uploadResult.data.filename}`)
+
+        // 可以在这里添加成功提示
+        console.log('文档上传成功:', uploadResult.data)
+      } else {
+        throw new Error(uploadResult.error || '文档上传失败')
+      }
+    } else {
+      // 传统方式：直接解析文件内容用于聊天
+      const content = await parseFile(file)
+      emit('file-upload', file, content)
+    }
 
     // 清空文件输入框
     target.value = ''
   } catch (error) {
-    console.error('文件读取失败:', error)
+    console.error('文件处理失败:', error)
     alert(error instanceof Error ? error.message : t('fileReadError'))
   }
 }

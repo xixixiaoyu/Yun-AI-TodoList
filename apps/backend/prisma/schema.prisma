@@ -19,6 +19,7 @@ model User {
   deletedAt     DateTime?
   lastActiveAt  DateTime?
   todos         Todo[]
+  documents     Document[]
   preferences   UserPreferences?
   settings      UserSetting[]
 
@@ -81,12 +82,15 @@ model Todo {
   aiReasoning   String?
   deletedAt     DateTime?
   version       Int       @default(1)
+  documentId    String?   // 关联的文档ID
   user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  document      Document? @relation(fields: [documentId], references: [id], onDelete: SetNull)
 
   @@index([userId, completed, dueDate], map: "idx_todos_user_status_due")
   @@index([userId, createdAt], map: "idx_todos_user_created")
   @@index([priority], map: "idx_todos_priority")
   @@index([deletedAt], map: "idx_todos_soft_delete")
+  @@index([documentId], map: "idx_todos_document")
   @@map("todos")
 }
 
@@ -104,4 +108,42 @@ model UserSetting {
   @@unique([userId, key])
   @@index([deletedAt], map: "idx_user_settings_soft_delete")
   @@map("user_settings")
+}
+
+model Document {
+  id          String          @id @default(cuid())
+  userId      String
+  filename    String
+  fileType    String
+  fileSize    Int
+  content     String          @db.Text
+  metadata    Json?
+  processed   Boolean         @default(false)
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+  deletedAt   DateTime?
+  user        User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  chunks      DocumentChunk[]
+  todos       Todo[]
+
+  @@index([userId, createdAt], map: "idx_documents_user_created")
+  @@index([fileType], map: "idx_documents_file_type")
+  @@index([processed], map: "idx_documents_processed")
+  @@index([deletedAt], map: "idx_documents_soft_delete")
+  @@map("documents")
+}
+
+model DocumentChunk {
+  id         String   @id @default(cuid())
+  documentId String
+  chunkIndex Int
+  content    String   @db.Text
+  embedding  String?  @db.Text // 存储向量嵌入的JSON字符串
+  metadata   Json?
+  createdAt  DateTime @default(now())
+  document   Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
+
+  @@unique([documentId, chunkIndex])
+  @@index([documentId], map: "idx_document_chunks_document")
+  @@map("document_chunks")
 }
