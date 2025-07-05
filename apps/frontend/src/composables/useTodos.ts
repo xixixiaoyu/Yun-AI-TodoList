@@ -1,7 +1,7 @@
 import { debounceAsync } from '@/utils/debounce'
 import { logger } from '@/utils/logger'
 import { STORAGE_RETRY_OPTIONS, withRetry } from '@/utils/retryHelper'
-import { nextTick, onUnmounted, ref } from 'vue'
+import { nextTick, onUnmounted, ref, watch } from 'vue'
 import { TodoStorageService } from '../services/storage/TodoStorageService'
 import type { CreateTodoDto, Todo, UpdateTodoDto } from '../types/todo'
 import { TodoValidator } from '../utils/todoValidator'
@@ -20,7 +20,7 @@ export function useTodos() {
     isInitialized: storageInitialized,
   } = useStorageMode()
 
-  const { isAuthenticated: _isAuthenticated } = useAuth()
+  const { isAuthenticated } = useAuth()
   const todos = globalTodos
 
   const setTodos = (newTodos: Todo[]) => {
@@ -34,14 +34,15 @@ export function useTodos() {
   // 初始化方法
   const initializeTodos = async () => {
     if (!isInitialized.value) {
+      // 所有用户都需要加载数据（已登录用户从云端，未登录用户从本地）
       await loadTodos()
     }
   }
 
   const loadTodos = async () => {
     try {
-      // 确保存储模式已初始化
-      if (!storageInitialized.value) {
+      // 确保存储模式已初始化（仅对已登录用户）
+      if (!storageInitialized.value && isAuthenticated.value) {
         await initializeStorageMode()
       }
 
@@ -49,12 +50,23 @@ export function useTodos() {
       const result = await storageService.getTodos()
 
       if (result.success && result.data) {
+        logger.info(
+          `Loading ${result.data.length} todos from storage`,
+          { data: result.data },
+          'useTodos'
+        )
+
         const { validTodos, invalidCount, errors } = TodoValidator.validateTodos(result.data)
 
         if (invalidCount > 0) {
-          logger.warn(`Found ${invalidCount} invalid todos`, { errors }, 'useTodos')
+          logger.warn(
+            `Found ${invalidCount} invalid todos`,
+            { errors, rawData: result.data },
+            'useTodos'
+          )
         }
 
+        logger.info(`Validated ${validTodos.length} todos`, { validTodos }, 'useTodos')
         todos.value = validTodos.sort((a, b) => a.order - b.order)
         validateDataConsistency()
         isInitialized.value = true
@@ -163,27 +175,42 @@ export function useTodos() {
     return await debouncedSaveTodos()
   }
 
+  /**
+   * 清理 todos 数据（用户登出时调用）
+   */
+  const clearTodosOnLogout = () => {
+    logger.info('Clearing todos data on logout', undefined, 'useTodos')
+    todos.value = []
+    isInitialized.value = false
+  }
+
   const addTodo = async (createDto: CreateTodoDto): Promise<Todo | null> => {
     try {
-      // 确保存储模式已初始化
-      if (!storageInitialized.value) {
-        logger.info('Storage not initialized, initializing now', undefined, 'useTodos')
+      // 确保存储模式已初始化（仅对已登录用户）
+      if (!storageInitialized.value && isAuthenticated.value) {
+        logger.info(
+          'Storage not initialized for authenticated user, initializing now',
+          undefined,
+          'useTodos'
+        )
         await initializeStorageMode()
       }
 
-      // 检查是否存在重复的未完成待办事项
-      const sanitizedTitle = createDto.title.trim()
-      const isDuplicate = todos.value.some(
-        (todo) =>
-          todo &&
-          todo.title &&
-          todo.title.toLowerCase() === sanitizedTitle.toLowerCase() &&
-          !todo.completed
-      )
+      // 检查是否存在重复的未完成待办事项（仅在已登录且数据已初始化时检查）
+      if (isAuthenticated.value && isInitialized.value) {
+        const sanitizedTitle = createDto.title.trim()
+        const isDuplicate = todos.value.some(
+          (todo) =>
+            todo &&
+            todo.title &&
+            todo.title.toLowerCase() === sanitizedTitle.toLowerCase() &&
+            !todo.completed
+        )
 
-      if (isDuplicate) {
-        logger.warn('Attempted to create duplicate todo', { title: sanitizedTitle }, 'useTodos')
-        return null
+        if (isDuplicate) {
+          logger.warn('Attempted to create duplicate todo', { title: sanitizedTitle }, 'useTodos')
+          return null
+        }
       }
 
       // 安全获取存储服务
@@ -191,9 +218,18 @@ export function useTodos() {
       try {
         storageService = getCurrentStorageService()
       } catch (error) {
-        logger.warn('Storage service not available, initializing', error, 'useTodos')
-        await initializeStorageMode()
-        storageService = getCurrentStorageService()
+        if (isAuthenticated.value) {
+          logger.warn(
+            'Storage service not available for authenticated user, initializing',
+            error,
+            'useTodos'
+          )
+          await initializeStorageMode()
+          storageService = getCurrentStorageService()
+        } else {
+          logger.error('Failed to get storage service for unauthenticated user', error, 'useTodos')
+          throw error
+        }
       }
 
       // 统一的存储逻辑，适用于所有模式（本地、混合）
@@ -665,7 +701,21 @@ export function useTodos() {
       isInitialized.value = false
       logger.info('useTodos cleanup completed', undefined, 'useTodos')
     },
+
+    // 登出时清理数据
+    clearTodosOnLogout,
   }
+
+  // 监听认证状态变化，用户登出时清理数据
+  watch(
+    isAuthenticated,
+    (authenticated) => {
+      if (!authenticated) {
+        clearTodosOnLogout()
+      }
+    },
+    { immediate: true }
+  ) // 立即执行一次，确保页面加载时也会检查
 
   // 组件卸载时自动清理
   onUnmounted(() => {

@@ -26,7 +26,183 @@ const storageState = reactive({
 
 // 存储服务实例
 let cloudStorageService: RemoteStorageService | null = null
+let localStorageService: TodoStorageService | null = null
 let currentStorageService: TodoStorageService | null = null
+
+/**
+ * 创建本地存储服务实例
+ */
+function createLocalStorageService(): TodoStorageService {
+  // 直接内联创建一个简单的本地存储服务
+  return {
+    async getTodos() {
+      try {
+        const data = localStorage.getItem('local_todos')
+        console.log('🔍 LocalStorage getTodos - raw data:', data)
+        const todos = data ? JSON.parse(data) : []
+        console.log('🔍 LocalStorage getTodos - parsed todos:', todos)
+        const result = Array.isArray(todos) ? todos : []
+        console.log('🔍 LocalStorage getTodos - final result:', result)
+        return { success: true, data: result }
+      } catch (error) {
+        console.error('🔍 LocalStorage getTodos - error:', error)
+        return { success: false, error: 'Failed to load todos' }
+      }
+    },
+
+    async createTodo(createDto) {
+      try {
+        const data = localStorage.getItem('local_todos')
+        const todos = data ? JSON.parse(data) : []
+
+        // 检查重复
+        const duplicateExists = todos.some(
+          (t: any) =>
+            !t.completed && t.title.toLowerCase().trim() === createDto.title.toLowerCase().trim()
+        )
+
+        if (duplicateExists) {
+          return { success: false, error: '该待办事项已存在' }
+        }
+
+        const maxOrder = todos.length > 0 ? Math.max(...todos.map((t: any) => t.order || 0)) : 0
+        const now = new Date().toISOString()
+        const newTodo = {
+          id: `local_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+          title: createDto.title.trim(),
+          completed: false,
+          createdAt: now,
+          updatedAt: now,
+          order: maxOrder + 1,
+          description: createDto.description,
+          priority: createDto.priority,
+          estimatedTime: createDto.estimatedTime,
+          dueDate: createDto.dueDate,
+        }
+
+        todos.push(newTodo)
+        localStorage.setItem('local_todos', JSON.stringify(todos))
+        return { success: true, data: newTodo }
+      } catch (error) {
+        return { success: false, error: 'Failed to create todo' }
+      }
+    },
+
+    // 其他必需的方法（简化实现）
+    async getTodo(id) {
+      return { success: false, error: 'Not implemented' }
+    },
+    async updateTodo(id, updates) {
+      try {
+        const data = localStorage.getItem('local_todos')
+        const todos = data ? JSON.parse(data) : []
+        const todoIndex = todos.findIndex((t: any) => t.id === id)
+
+        if (todoIndex === -1) {
+          return { success: false, error: 'Todo not found' }
+        }
+
+        const updatedTodo = {
+          ...todos[todoIndex],
+          ...updates,
+          updatedAt: new Date().toISOString(),
+          completedAt:
+            updates.completed && !todos[todoIndex].completed
+              ? new Date().toISOString()
+              : !updates.completed && todos[todoIndex].completed
+                ? undefined
+                : todos[todoIndex].completedAt,
+        }
+
+        todos[todoIndex] = updatedTodo
+        localStorage.setItem('local_todos', JSON.stringify(todos))
+        return { success: true, data: updatedTodo }
+      } catch (error) {
+        return { success: false, error: 'Failed to update todo' }
+      }
+    },
+    async deleteTodo(id) {
+      try {
+        const data = localStorage.getItem('local_todos')
+        const todos = data ? JSON.parse(data) : []
+        const filteredTodos = todos.filter((t: any) => t.id !== id)
+
+        if (filteredTodos.length === todos.length) {
+          return { success: false, error: 'Todo not found' }
+        }
+
+        localStorage.setItem('local_todos', JSON.stringify(filteredTodos))
+        return { success: true }
+      } catch (error) {
+        return { success: false, error: 'Failed to delete todo' }
+      }
+    },
+    async createTodos(todos) {
+      return { success: false, successCount: 0, failureCount: 0, errors: [] }
+    },
+    async updateTodos(updates) {
+      return { success: false, successCount: 0, failureCount: 0, errors: [] }
+    },
+    async deleteTodos(ids) {
+      return { success: false, successCount: 0, failureCount: 0, errors: [] }
+    },
+    async reorderTodos(reorders) {
+      try {
+        const data = localStorage.getItem('local_todos')
+        const todos = data ? JSON.parse(data) : []
+
+        // 更新排序
+        for (const reorder of reorders) {
+          const todo = todos.find((t: any) => t.id === reorder.id)
+          if (todo) {
+            todo.order = reorder.order
+            todo.updatedAt = new Date().toISOString()
+          }
+        }
+
+        // 按新的顺序排序
+        todos.sort((a: any, b: any) => a.order - b.order)
+
+        localStorage.setItem('local_todos', JSON.stringify(todos))
+        return { success: true }
+      } catch (error) {
+        return { success: false, error: 'Failed to reorder todos' }
+      }
+    },
+    async getStats() {
+      return { success: false, error: 'Not implemented' }
+    },
+    async clearAll() {
+      return { success: false, error: 'Not implemented' }
+    },
+    async exportData() {
+      return { success: false, error: 'Not implemented' }
+    },
+    async importData(todos) {
+      return { success: false, successCount: 0, failureCount: 0, errors: [] }
+    },
+    async checkHealth() {
+      return true
+    },
+    async saveTodos(todos) {
+      try {
+        localStorage.setItem('local_todos', JSON.stringify(todos))
+        return { success: true }
+      } catch (error) {
+        return { success: false, error: 'Failed to save todos' }
+      }
+    },
+    async checkNetworkStatus() {
+      return { isOnline: false, isServerReachable: false, consecutiveFailures: 0 }
+    },
+    get status() {
+      return {
+        networkStatus: { isOnline: false, isServerReachable: false, consecutiveFailures: 0 },
+        pendingOperations: 0,
+      }
+    },
+  } as TodoStorageService
+}
 
 /**
  * 云端存储管理 Composable
@@ -81,11 +257,22 @@ export function useStorageMode() {
    * 获取当前存储服务
    */
   const getCurrentStorageService = (): TodoStorageService => {
-    if (!currentStorageService) {
-      throw new Error('存储服务未初始化，请先调用 initializeStorageMode()')
+    // 如果用户已登录且云端存储服务可用，使用云端存储
+    if (isAuthenticated.value && currentStorageService) {
+      return currentStorageService
     }
 
-    return currentStorageService
+    // 如果用户未登录，使用本地存储
+    if (!isAuthenticated.value) {
+      if (!localStorageService) {
+        // 创建本地存储服务实例
+        // 由于这是在浏览器环境中，我们可以直接创建一个简单的本地存储实现
+        localStorageService = createLocalStorageService()
+      }
+      return localStorageService
+    }
+
+    throw new Error('存储服务未初始化，请先调用 initializeStorageMode()')
   }
 
   /**
@@ -242,10 +429,13 @@ export function useStorageMode() {
         console.error('Failed to initialize cloud storage after login:', error)
       }
     } else {
-      // 用户登出，清理存储服务
+      // 用户登出，清理存储服务和数据
       currentStorageService = null
       cloudStorageService = null
       storageState.isInitialized = false
+
+      // 通知需要清理 todos 数据
+      console.log('User logged out, todos data should be cleared by useTodos composable')
     }
   })
 
