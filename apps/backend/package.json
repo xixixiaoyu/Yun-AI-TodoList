@@ -29,6 +29,8 @@
     "db:push": "prisma db push",
     "db:studio": "prisma studio",
     "db:seed": "ts-node prisma/seed.ts",
+    "db:test": "node scripts/test-db-connection.js",
+    "env:verify": "node scripts/verify-env.js",
     "type-check": "tsc --noEmit",
     "clean": "rimraf dist",
     "postinstall": "prisma generate --schema=./prisma/schema.prisma"
