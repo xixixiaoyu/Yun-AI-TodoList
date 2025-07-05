@@ -5,6 +5,7 @@
       :class="{ 'nav-button-active': $route.path === '/' }"
       @click="router.push('/')"
     >
+      <i class="i-carbon-task text-sm mr-1"></i>
       {{ t('home') }}
     </button>
 
@@ -22,6 +23,7 @@
       :class="{ 'nav-button-active': $route.path === '/settings' }"
       @click="router.push('/settings')"
     >
+      <i class="i-carbon-settings text-sm mr-1"></i>
       {{ t('settings') }}
     </button>
 

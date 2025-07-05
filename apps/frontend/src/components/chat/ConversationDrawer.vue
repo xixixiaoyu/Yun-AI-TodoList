@@ -17,7 +17,7 @@
   </Transition>
 
   <div
-    class="absolute top-0 left-0 h-full bg-bg/95 backdrop-blur-md transition-transform duration-300 shadow-2xl z-[1001] drawer-responsive"
+    class="fixed top-0 left-0 h-screen bg-bg/95 backdrop-blur-md transition-transform duration-300 shadow-2xl z-[1001] drawer-responsive"
     :class="{
       'translate-x-0': isOpen,
       '-translate-x-full': !isOpen,
