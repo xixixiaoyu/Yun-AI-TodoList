@@ -12,7 +12,7 @@
           </p>
           <div class="social-links">
             <a
-              href="https://github.com/yunmu-todolist/yun-ai-todolist"
+              href="https://github.com/xixixiaoyu/Yun-AI-TodoList"
               target="_blank"
               rel="noopener noreferrer"
               class="social-link"
@@ -35,7 +35,7 @@
           <p class="copyright">
             © {{ currentYear }} Yun AI TodoList. 基于
             <a
-              href="https://github.com/yunmu-todolist/yun-ai-todolist/blob/main/LICENSE"
+              href="https://github.com/xixixiaoyu/Yun-AI-TodoList/blob/main/LICENSE"
               target="_blank"
               rel="noopener noreferrer"
               class="license-link"

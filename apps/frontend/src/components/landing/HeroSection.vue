@@ -43,7 +43,7 @@
               立即体验
             </button>
             <a
-              href="https://github.com/yunmu-todolist/yun-ai-todolist"
+              href="https://github.com/xixixiaoyu/Yun-AI-TodoList"
               target="_blank"
               rel="noopener noreferrer"
               class="btn-secondary"

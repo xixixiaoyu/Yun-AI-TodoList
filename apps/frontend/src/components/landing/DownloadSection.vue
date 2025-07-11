@@ -66,7 +66,7 @@
             </div>
           </div>
           <a
-            href="https://github.com/yunmu-todolist/yun-ai-todolist"
+            href="https://github.com/xixixiaoyu/Yun-AI-TodoList"
             target="_blank"
             rel="noopener noreferrer"
             class="download-btn secondary-btn"
@@ -150,7 +150,7 @@
           <p class="modal-description">桌面应用正在开发中，您可以通过以下方式获取最新版本：</p>
           <div class="download-links">
             <a
-              href="https://github.com/yunmu-todolist/yun-ai-todolist/releases"
+              href="https://github.com/xixixiaoyu/Yun-AI-TodoList/releases"
               target="_blank"
               rel="noopener noreferrer"
               class="download-link"

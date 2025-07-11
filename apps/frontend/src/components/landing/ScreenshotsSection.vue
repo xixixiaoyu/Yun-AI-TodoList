@@ -274,15 +274,35 @@ defineOptions({
 
 /* 灯箱样式 */
 .lightbox-overlay {
-  @apply fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  padding: 1rem;
   backdrop-filter: blur(12px);
   animation: lightboxFadeIn 0.3s ease-out;
 }
 
 .lightbox-container {
-  @apply relative bg-card rounded-3xl max-w-5xl max-h-[90vh] overflow-hidden;
+  position: relative;
+  background: var(--card-bg-color);
+  border-radius: 1.5rem;
+  max-width: 90vw;
+  max-height: 90vh;
+  width: fit-content;
+  height: fit-content;
+  overflow: hidden;
   box-shadow: 0 25px 50px rgba(0, 0, 0, 0.4);
   animation: lightboxSlideIn 0.3s ease-out;
+  display: flex;
+  flex-direction: column;
+  margin: auto;
 }
 
 .lightbox-close {
@@ -295,15 +315,27 @@ defineOptions({
 }
 
 .lightbox-image-wrapper {
-  @apply relative;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
 }
 
 .lightbox-image {
-  @apply w-full max-h-[70vh] object-contain;
+  max-width: calc(90vw - 2rem);
+  max-height: calc(90vh - 8rem);
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  border-radius: 0.5rem;
+  display: block;
 }
 
 .lightbox-info {
-  @apply p-6 border-t border-white/10;
+  padding: 1.5rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  flex-shrink: 0;
 }
 
 .lightbox-title {
@@ -389,33 +421,38 @@ defineOptions({
   }
 
   .lightbox-container {
-    @apply max-w-full mx-2;
+    max-width: 100%;
+    margin: 0 0.5rem;
   }
 
   .lightbox-info {
-    @apply p-4;
+    padding: 1rem;
   }
 
   .lightbox-title {
-    @apply text-xl;
+    font-size: 1.25rem;
   }
 
   .lightbox-description {
-    @apply text-sm;
+    font-size: 0.875rem;
   }
 }
 
 @media (max-width: 640px) {
   .overlay-icon {
-    @apply w-6 h-6;
+    width: 1.5rem;
+    height: 1.5rem;
   }
 
   .overlay-text {
-    @apply text-xs;
+    font-size: 0.75rem;
   }
 
   .lightbox-close {
-    @apply w-10 h-10 top-2 right-2;
+    width: 2.5rem;
+    height: 2.5rem;
+    top: 0.5rem;
+    right: 0.5rem;
   }
 }
 
