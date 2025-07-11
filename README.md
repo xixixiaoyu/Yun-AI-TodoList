@@ -12,7 +12,7 @@ Electron 构建的现代化全栈 AI 智能待办事项应用，支持桌面端�
 
 ## 📸 应用截图
 
-<img src='https://cdn.nlark.com/yuque/0/2025/png/21596389/1750244289304-50f944bd-9923-4496-b02b-83872f93b9d2.png?x-oss-process=image%2Fformat%2Cwebp'>
+<img src='./apps/frontend/public/officialWebsite/首页.png'>
 
 ## ✨ 功能特性
 
