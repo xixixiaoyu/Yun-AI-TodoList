@@ -10,7 +10,7 @@ Electron 构建的现代化 AI 智能待办事项应用，支持跨平台使用�
 
 ## 📸 应用截图
 
-<img src='./apps/frontend/public/officialWebsite/首页.png'>
+<img src='./apps/frontend/public/officialWebsite/整体.png'>
 
 ## ✨ 功能特性
 
@@ -82,11 +82,10 @@ pnpm deploy:cf:prod
 
 ## 🛠️ 技术栈
 
-**前端**: Vue 3 + TypeScript + Vite + UnoCSS + Chart.js  
-**后端**: NestJS + Prisma + PostgreSQL + Redis + JWT  
-**跨平台**: Electron + Capacitor  
-**AI 集成**: Google Search CLI + MCP 协议 + Playwright  
-**开发工具**: pnpm + Docker + ESLint + Prettier
+**前端**: Vue 3 + TypeScript + Vite + UnoCSS + Chart.js **后端**: NestJS +
+Prisma + PostgreSQL + Redis + JWT **跨平台**: Electron + Capacitor **AI 集成**:
+Google Search CLI + MCP 协议 + Playwright **开发工具**: pnpm + Docker + ESLint +
+Prettier
 
 ## 📚 文档
 
