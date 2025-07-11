@@ -324,24 +324,14 @@ onMounted(() => {
 
 .primary-card {
   background: linear-gradient(135deg, var(--card-bg-color) 0%, rgba(121, 180, 166, 0.08) 100%);
-  border: 2px solid rgba(121, 180, 166, 0.3);
+  border: 1px solid rgba(121, 180, 166, 0.2);
   position: relative;
   overflow: hidden;
 }
 
-.primary-card::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 4px;
-  background: linear-gradient(90deg, #79b4a6 0%, #68a295 100%);
-}
-
 .primary-card:hover {
   transform: translateY(-10px);
-  border-color: rgba(121, 180, 166, 0.4);
+  border-color: rgba(121, 180, 166, 0.3);
 }
 
 .card-header {
