@@ -13,7 +13,7 @@
           v-for="(screenshot, index) in screenshots"
           :key="screenshot.id"
           class="screenshot-card"
-          :class="`screenshot-${index + 1}`"
+          :class="`screenshot-card-${index + 1}`"
           @click="openLightbox(screenshot)"
         >
           <div class="screenshot-image-container">
@@ -25,11 +25,12 @@
             />
             <div class="screenshot-overlay">
               <div class="overlay-content">
-                <i class="i-carbon-zoom-in" />
-                <span>点击查看大图</span>
+                <i class="i-carbon-zoom-in overlay-icon" />
+                <span class="overlay-text">点击查看大图</span>
               </div>
             </div>
           </div>
+
           <div class="screenshot-info">
             <h3 class="screenshot-title">{{ screenshot.title }}</h3>
             <p class="screenshot-description">{{ screenshot.description }}</p>
@@ -43,16 +44,23 @@
       </div>
     </div>
 
-    <!-- 图片灯箱 -->
+    <!-- 简化的图片灯箱 -->
     <div v-if="lightboxImage" class="lightbox-overlay" @click="closeLightbox">
       <div class="lightbox-container" @click.stop>
         <button class="lightbox-close" @click="closeLightbox">
           <i class="i-carbon-close" />
         </button>
-        <img :src="lightboxImage.image" :alt="lightboxImage.title" class="lightbox-image" />
+        <div class="lightbox-image-wrapper">
+          <img :src="lightboxImage.image" :alt="lightboxImage.title" class="lightbox-image" />
+        </div>
         <div class="lightbox-info">
           <h3 class="lightbox-title">{{ lightboxImage.title }}</h3>
           <p class="lightbox-description">{{ lightboxImage.description }}</p>
+          <div class="lightbox-tags">
+            <span v-for="tag in lightboxImage.tags" :key="tag" class="lightbox-tag">
+              {{ tag }}
+            </span>
+          </div>
         </div>
       </div>
     </div>
@@ -60,6 +68,8 @@
 </template>
 
 <script setup lang="ts">
+import { onMounted, onUnmounted, ref } from 'vue'
+
 interface Screenshot {
   id: string
   title: string
@@ -72,73 +82,83 @@ const screenshots: Screenshot[] = [
   {
     id: 'homepage',
     title: '主界面',
-    description: '简洁直观的任务管理界面，支持快速添加和管理待办事项',
-    image: '/首页.png',
+    description: '简洁直观的任务管理界面，支持快速添加和管理待办事项，提供流畅的用户体验',
+    image: '/officialWebsite/首页.png',
     tags: ['任务管理', '界面设计', '用户体验'],
   },
   {
     id: 'completed',
     title: '任务完成',
-    description: '任务完成后的庆祝动画和统计展示，增强成就感',
-    image: '/todo 完成.png',
+    description: '任务完成后的庆祝动画和统计展示，增强成就感，激励持续完成任务',
+    image: '/officialWebsite/todo 完成.png',
     tags: ['任务完成', '动画效果', '数据统计'],
   },
   {
     id: 'productivity-insights',
     title: '生产力洞察',
-    description: '深度数据分析和可视化图表，帮助您了解工作习惯和效率趋势',
-    image: '/生产力洞察.png',
+    description: '深度数据分析和可视化图表，帮助您了解工作习惯和效率趋势，优化工作方式',
+    image: '/officialWebsite/生产力洞察.png',
     tags: ['数据分析', '效率统计', '可视化图表'],
   },
   {
     id: 'ai-assistant',
     title: 'AI 助手',
-    description: '智能 AI 助手提供任务分析、建议和自动化功能',
-    image: '/AI 助手.png',
+    description: '智能 AI 助手提供任务分析、建议和自动化功能，让任务管理更加智能',
+    image: '/officialWebsite/AI 助手.png',
     tags: ['AI 分析', '智能助手', '自动化'],
   },
   {
     id: 'settings',
     title: '设置中心',
-    description: '丰富的个性化设置选项，打造专属的工作环境',
-    image: '/设置.png',
-    tags: ['个性化', '主题设置', '配置管理'],
+    description: '丰富的个性化设置选项，打造专属工作环境，支持主题切换和多语言',
+    image: '/officialWebsite/设置.png',
+    tags: ['个性化', '主题切换', '配置管理'],
   },
   {
-    id: 'i18n',
-    title: '国际化支持',
-    description: '完整的多语言支持，适应不同地区用户需求',
-    image: '/国际化.png',
-    tags: ['多语言', '国际化', '本地化'],
+    id: 'calendar',
+    title: '日历视图',
+    description: '直观的日历界面，轻松管理时间和任务安排，提供月视图和日程规划',
+    image: '/officialWebsite/日历.png',
+    tags: ['日历管理', '时间规划', '任务安排'],
   },
 ]
 
+// 灯箱状态
 const lightboxImage = ref<Screenshot | null>(null)
 
+// 打开灯箱
 const openLightbox = (screenshot: Screenshot) => {
   lightboxImage.value = screenshot
   document.body.style.overflow = 'hidden'
+  document.body.classList.add('lightbox-open')
 }
 
+// 关闭灯箱
 const closeLightbox = () => {
   lightboxImage.value = null
-  document.body.style.overflow = 'auto'
+  document.body.style.overflow = ''
+  document.body.classList.remove('lightbox-open')
 }
 
 // 键盘事件处理
-onMounted(() => {
-  const handleKeydown = (event: KeyboardEvent) => {
-    if (event.key === 'Escape' && lightboxImage.value) {
-      closeLightbox()
-    }
+const handleKeydown = (event: KeyboardEvent) => {
+  if (event.key === 'Escape' && lightboxImage.value) {
+    closeLightbox()
   }
+}
 
+onMounted(() => {
   document.addEventListener('keydown', handleKeydown)
+})
 
-  onUnmounted(() => {
-    document.removeEventListener('keydown', handleKeydown)
-    document.body.style.overflow = 'auto'
-  })
+onUnmounted(() => {
+  document.removeEventListener('keydown', handleKeydown)
+  document.body.style.overflow = ''
+  document.body.classList.remove('lightbox-open')
+})
+
+defineOptions({
+  name: 'ScreenshotsSection',
 })
 </script>
 
@@ -146,16 +166,15 @@ onMounted(() => {
 .screenshots-section {
   @apply py-20 relative;
   background: linear-gradient(
-    135deg,
-    rgba(121, 180, 166, 0.02) 0%,
-    var(--bg-color) 50%,
-    rgba(121, 180, 166, 0.02) 100%
+    180deg,
+    var(--bg-color) 0%,
+    rgba(121, 180, 166, 0.03) 50%,
+    var(--bg-color) 100%
   );
 }
 
 .screenshots-container {
-  @apply container-responsive;
-  max-width: 1400px;
+  @apply w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
 }
 
 .section-header {
@@ -163,19 +182,18 @@ onMounted(() => {
 }
 
 .section-title {
-  @apply text-4xl lg:text-5xl font-bold text-text mb-6;
-  background: linear-gradient(135deg, var(--text-color) 0%, #79b4a6 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  @apply text-3xl lg:text-4xl font-bold mb-4;
+  color: var(--text-color);
 }
 
 .section-description {
-  @apply text-lg lg:text-xl text-text-secondary max-w-3xl mx-auto leading-relaxed;
+  @apply text-lg lg:text-xl leading-relaxed max-w-2xl mx-auto;
+  color: var(--text-secondary-color);
 }
 
+/* 截图网格布局 */
 .screenshots-grid {
-  @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8;
+  @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6;
 }
 
 .screenshot-card {
@@ -190,39 +208,42 @@ onMounted(() => {
 }
 
 .screenshot-card:hover {
-  transform: translateY(-8px);
+  transform: translateY(-4px);
   box-shadow:
-    0 20px 40px rgba(0, 0, 0, 0.15),
-    0 4px 16px rgba(0, 0, 0, 0.08),
-    inset 0 1px 0 rgba(255, 255, 255, 0.15);
+    0 16px 32px rgba(0, 0, 0, 0.12),
+    0 2px 8px rgba(0, 0, 0, 0.06);
 }
 
+/* 截图图片容器 */
 .screenshot-image-container {
   @apply relative overflow-hidden;
+  aspect-ratio: 16 / 10;
 }
 
 .screenshot-image {
-  @apply w-full h-64 object-cover transition-transform-300;
+  @apply w-full h-full object-cover transition-all-300;
 }
 
-.screenshot-card:hover .screenshot-image {
-  transform: scale(1.05);
-}
-
+/* 悬停覆盖层 */
 .screenshot-overlay {
-  @apply absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center opacity-0 transition-opacity-300;
+  @apply absolute inset-0 bg-black/60 opacity-0 transition-all-300 flex items-center justify-center;
+  backdrop-filter: blur(4px);
 }
 
 .screenshot-card:hover .screenshot-overlay {
-  @apply opacity-100;
+  opacity: 1;
 }
 
 .overlay-content {
   @apply flex flex-col items-center gap-2 text-white;
 }
 
-.overlay-content i {
-  @apply text-2xl;
+.overlay-icon {
+  @apply w-8 h-8 text-white;
+}
+
+.overlay-text {
+  @apply text-sm font-medium;
 }
 
 .screenshot-info {
@@ -230,50 +251,59 @@ onMounted(() => {
 }
 
 .screenshot-title {
-  @apply text-xl font-bold text-text mb-3;
+  @apply text-xl font-semibold mb-3;
+  color: var(--text-color);
 }
 
 .screenshot-description {
-  @apply text-text-secondary mb-4 leading-relaxed;
+  @apply text-base leading-relaxed mb-4;
+  color: var(--text-secondary-color);
 }
 
+/* 截图标签 */
 .screenshot-tags {
   @apply flex flex-wrap gap-2;
 }
 
 .screenshot-tag {
-  @apply px-3 py-1 rounded-full text-xs font-medium;
+  @apply inline-flex items-center px-3 py-1 rounded-full text-xs font-medium;
   background: rgba(121, 180, 166, 0.1);
-  color: #79b4a6;
+  color: var(--text-color);
   border: 1px solid rgba(121, 180, 166, 0.2);
 }
 
 /* 灯箱样式 */
 .lightbox-overlay {
-  @apply fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50 p-4;
-  backdrop-filter: blur(10px);
+  @apply fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4;
+  backdrop-filter: blur(12px);
+  animation: lightboxFadeIn 0.3s ease-out;
 }
 
 .lightbox-container {
-  @apply relative max-w-4xl max-h-full bg-card rounded-3xl overflow-hidden;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  @apply relative bg-card rounded-3xl max-w-5xl max-h-[90vh] overflow-hidden;
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.4);
+  animation: lightboxSlideIn 0.3s ease-out;
 }
 
 .lightbox-close {
-  @apply absolute top-4 right-4 w-10 h-10 rounded-full bg-black bg-opacity-50 text-white flex items-center justify-center z-10 transition-all-300;
+  @apply absolute top-4 right-4 w-12 h-12 rounded-full bg-black/60 text-white flex items-center justify-center z-10 transition-all-300;
+  backdrop-filter: blur(10px);
 }
 
 .lightbox-close:hover {
-  @apply bg-opacity-70;
+  @apply bg-black/80 scale-110;
+}
+
+.lightbox-image-wrapper {
+  @apply relative;
 }
 
 .lightbox-image {
-  @apply w-full h-auto max-h-80vh object-contain;
+  @apply w-full max-h-[70vh] object-contain;
 }
 
 .lightbox-info {
-  @apply p-6;
-  background: var(--card-bg-color);
+  @apply p-6 border-t border-white/10;
 }
 
 .lightbox-title {
@@ -282,39 +312,46 @@ onMounted(() => {
 }
 
 .lightbox-description {
-  @apply leading-relaxed;
+  @apply leading-relaxed mb-4;
   color: var(--text-secondary-color);
 }
 
-/* 特殊卡片样式 */
-.screenshot-1 {
-  background: linear-gradient(135deg, var(--card-bg-color) 0%, rgba(121, 180, 166, 0.03) 100%);
+.lightbox-tags {
+  @apply flex flex-wrap gap-2;
 }
 
-.screenshot-2 {
-  background: linear-gradient(135deg, var(--card-bg-color) 0%, rgba(104, 162, 149, 0.03) 100%);
+.lightbox-tag {
+  @apply px-3 py-1.5 rounded-full text-sm font-medium;
+  background: rgba(121, 180, 166, 0.15);
+  color: var(--primary-color);
+  border: 1px solid rgba(121, 180, 166, 0.3);
 }
 
-.screenshot-3 {
-  background: linear-gradient(135deg, var(--card-bg-color) 0%, rgba(89, 144, 132, 0.03) 100%);
+/* 灯箱动画 */
+@keyframes lightboxFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
-.screenshot-4 {
-  background: linear-gradient(135deg, var(--card-bg-color) 0%, rgba(121, 180, 166, 0.04) 100%);
-}
-
-.screenshot-5 {
-  background: linear-gradient(135deg, var(--card-bg-color) 0%, rgba(104, 162, 149, 0.04) 100%);
-}
-
-.screenshot-6 {
-  background: linear-gradient(135deg, var(--card-bg-color) 0%, rgba(89, 144, 132, 0.04) 100%);
+@keyframes lightboxSlideIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9) translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
 }
 
 /* 响应式设计 */
 @media (max-width: 1024px) {
   .screenshots-grid {
-    @apply grid-cols-1 md:grid-cols-2;
+    @apply grid-cols-1 md:grid-cols-2 gap-6;
   }
 }
 
@@ -323,8 +360,12 @@ onMounted(() => {
     @apply py-16;
   }
 
+  .section-header {
+    @apply mb-12;
+  }
+
   .section-title {
-    @apply text-3xl;
+    @apply text-2xl;
   }
 
   .section-description {
@@ -332,15 +373,54 @@ onMounted(() => {
   }
 
   .screenshots-grid {
-    @apply grid-cols-1 gap-6;
+    @apply grid-cols-1 gap-4;
   }
 
   .screenshot-info {
     @apply p-4;
   }
 
-  .lightbox-container {
-    @apply mx-4;
+  .screenshot-title {
+    @apply text-lg;
   }
+
+  .screenshot-description {
+    @apply text-sm;
+  }
+
+  .lightbox-container {
+    @apply max-w-full mx-2;
+  }
+
+  .lightbox-info {
+    @apply p-4;
+  }
+
+  .lightbox-title {
+    @apply text-xl;
+  }
+
+  .lightbox-description {
+    @apply text-sm;
+  }
+}
+
+@media (max-width: 640px) {
+  .overlay-icon {
+    @apply w-6 h-6;
+  }
+
+  .overlay-text {
+    @apply text-xs;
+  }
+
+  .lightbox-close {
+    @apply w-10 h-10 top-2 right-2;
+  }
+}
+
+/* 全局样式：防止灯箱打开时的滚动 */
+:global(.lightbox-open) {
+  overflow: hidden;
 }
 </style>
