@@ -44,26 +44,41 @@
       </div>
     </div>
 
-    <!-- 简化的图片灯箱 -->
-    <div v-if="lightboxImage" class="lightbox-overlay" @click="closeLightbox">
-      <div class="lightbox-container" @click.stop>
-        <button class="lightbox-close" @click="closeLightbox">
-          <i class="i-carbon-close" />
-        </button>
-        <div class="lightbox-image-wrapper">
-          <img :src="lightboxImage.image" :alt="lightboxImage.title" class="lightbox-image" />
-        </div>
-        <div class="lightbox-info">
-          <h3 class="lightbox-title">{{ lightboxImage.title }}</h3>
-          <p class="lightbox-description">{{ lightboxImage.description }}</p>
-          <div class="lightbox-tags">
-            <span v-for="tag in lightboxImage.tags" :key="tag" class="lightbox-tag">
-              {{ tag }}
-            </span>
+    <!-- 重构优化的图片灯箱 -->
+    <Teleport to="body">
+      <div v-if="lightboxImage" class="lightbox-overlay" @click="closeLightbox">
+        <div class="lightbox-container" @click.stop>
+          <!-- 关闭按钮 -->
+          <button class="lightbox-close" @click="closeLightbox" aria-label="关闭灯箱">
+            <i class="i-carbon-close" />
+          </button>
+
+          <!-- 图片显示区域 -->
+          <div class="lightbox-content">
+            <div class="lightbox-image-container">
+              <img
+                :src="lightboxImage.image"
+                :alt="lightboxImage.title"
+                class="lightbox-image"
+                @load="onImageLoad"
+                @error="onImageError"
+              />
+            </div>
+          </div>
+
+          <!-- 图片信息 -->
+          <div class="lightbox-info">
+            <h3 class="lightbox-title">{{ lightboxImage.title }}</h3>
+            <p class="lightbox-description">{{ lightboxImage.description }}</p>
+            <div class="lightbox-tags">
+              <span v-for="tag in lightboxImage.tags" :key="tag" class="lightbox-tag">
+                {{ tag }}
+              </span>
+            </div>
           </div>
         </div>
       </div>
-    </div>
+    </Teleport>
   </section>
 </template>
 
@@ -138,6 +153,17 @@ const closeLightbox = () => {
   lightboxImage.value = null
   document.body.style.overflow = ''
   document.body.classList.remove('lightbox-open')
+}
+
+// 图片加载完成处理
+const onImageLoad = (event: Event) => {
+  const img = event.target as HTMLImageElement
+  console.log('图片加载完成:', img.naturalWidth, 'x', img.naturalHeight)
+}
+
+// 图片加载错误处理
+const onImageError = (event: Event) => {
+  console.error('图片加载失败:', event)
 }
 
 // 键盘事件处理
@@ -272,91 +298,140 @@ defineOptions({
   border: 1px solid rgba(121, 180, 166, 0.2);
 }
 
-/* 灯箱样式 */
+/* 重构优化的灯箱样式 */
 .lightbox-overlay {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.8);
+  background: rgba(0, 0, 0, 0.85);
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 9999;
-  padding: 1rem;
-  backdrop-filter: blur(12px);
-  animation: lightboxFadeIn 0.3s ease-out;
+  padding: 2rem;
+  backdrop-filter: blur(16px);
+  animation: lightboxFadeIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .lightbox-container {
   position: relative;
   background: var(--card-bg-color);
   border-radius: 1.5rem;
-  max-width: 90vw;
-  max-height: 90vh;
-  width: fit-content;
-  height: fit-content;
+  width: 100%;
+  height: 100%;
+  max-width: min(90vw, 1200px);
+  max-height: min(90vh, 800px);
   overflow: hidden;
-  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.4);
-  animation: lightboxSlideIn 0.3s ease-out;
+  box-shadow:
+    0 32px 64px rgba(0, 0, 0, 0.3),
+    0 8px 32px rgba(0, 0, 0, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  animation: lightboxSlideIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   display: flex;
   flex-direction: column;
-  margin: auto;
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .lightbox-close {
-  @apply absolute top-4 right-4 w-12 h-12 rounded-full bg-black/60 text-white flex items-center justify-center z-10 transition-all-300;
-  backdrop-filter: blur(10px);
-}
-
-.lightbox-close:hover {
-  @apply bg-black/80 scale-110;
-}
-
-.lightbox-image-wrapper {
-  position: relative;
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  width: 3rem;
+  height: 3rem;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.7);
+  color: white;
+  border: none;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 1rem;
+  z-index: 10;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  backdrop-filter: blur(12px);
+  cursor: pointer;
+}
+
+.lightbox-close:hover {
+  background: rgba(0, 0, 0, 0.9);
+  transform: scale(1.1);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+}
+
+.lightbox-content {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.lightbox-image-container {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
 }
 
 .lightbox-image {
-  max-width: calc(90vw - 2rem);
-  max-height: calc(90vh - 8rem);
+  max-width: 100%;
+  max-height: 100%;
   width: auto;
   height: auto;
   object-fit: contain;
-  border-radius: 0.5rem;
+  border-radius: 0.75rem;
   display: block;
+  box-shadow: 0 16px 32px rgba(0, 0, 0, 0.2);
+  transition: all 0.3s ease;
 }
 
 .lightbox-info {
-  padding: 1.5rem;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 2rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
   flex-shrink: 0;
+  background: linear-gradient(180deg, transparent 0%, rgba(0, 0, 0, 0.02) 100%);
 }
 
 .lightbox-title {
-  @apply text-2xl font-bold mb-3;
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 0.75rem;
   color: var(--text-color);
+  line-height: 1.3;
 }
 
 .lightbox-description {
-  @apply leading-relaxed mb-4;
+  line-height: 1.6;
+  margin-bottom: 1rem;
   color: var(--text-secondary-color);
+  font-size: 0.95rem;
 }
 
 .lightbox-tags {
-  @apply flex flex-wrap gap-2;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
 }
 
 .lightbox-tag {
-  @apply px-3 py-1.5 rounded-full text-sm font-medium;
-  background: rgba(121, 180, 166, 0.15);
+  padding: 0.5rem 1rem;
+  border-radius: 2rem;
+  font-size: 0.8rem;
+  font-weight: 500;
+  background: rgba(121, 180, 166, 0.12);
   color: var(--primary-color);
-  border: 1px solid rgba(121, 180, 166, 0.3);
+  border: 1px solid rgba(121, 180, 166, 0.25);
+  transition: all 0.2s ease;
+}
+
+.lightbox-tag:hover {
+  background: rgba(121, 180, 166, 0.18);
+  border-color: rgba(121, 180, 166, 0.4);
 }
 
 /* 灯箱动画 */
@@ -420,13 +495,21 @@ defineOptions({
     @apply text-sm;
   }
 
+  .lightbox-overlay {
+    padding: 1rem;
+  }
+
   .lightbox-container {
-    max-width: 100%;
-    margin: 0 0.5rem;
+    max-width: 95vw;
+    max-height: 95vh;
+  }
+
+  .lightbox-content {
+    padding: 1rem;
   }
 
   .lightbox-info {
-    padding: 1rem;
+    padding: 1.5rem;
   }
 
   .lightbox-title {
@@ -435,6 +518,13 @@ defineOptions({
 
   .lightbox-description {
     font-size: 0.875rem;
+  }
+
+  .lightbox-close {
+    width: 2.5rem;
+    height: 2.5rem;
+    top: 0.75rem;
+    right: 0.75rem;
   }
 }
 
@@ -448,11 +538,41 @@ defineOptions({
     font-size: 0.75rem;
   }
 
+  .lightbox-overlay {
+    padding: 0.5rem;
+  }
+
+  .lightbox-container {
+    max-width: 98vw;
+    max-height: 98vh;
+  }
+
+  .lightbox-content {
+    padding: 0.75rem;
+  }
+
+  .lightbox-info {
+    padding: 1rem;
+  }
+
+  .lightbox-title {
+    font-size: 1.125rem;
+  }
+
+  .lightbox-description {
+    font-size: 0.8rem;
+  }
+
   .lightbox-close {
-    width: 2.5rem;
-    height: 2.5rem;
+    width: 2.25rem;
+    height: 2.25rem;
     top: 0.5rem;
     right: 0.5rem;
+  }
+
+  .lightbox-tag {
+    font-size: 0.75rem;
+    padding: 0.375rem 0.75rem;
   }
 }
 

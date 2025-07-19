@@ -127,7 +127,7 @@ const techCategories: TechCategory[] = [
     id: 'backend',
     title: '后端技术',
     description: '高性能的服务端技术栈',
-    icon: 'i-carbon-server',
+    icon: 'i-carbon-api',
     technologies: [
       {
         name: 'NestJS',
