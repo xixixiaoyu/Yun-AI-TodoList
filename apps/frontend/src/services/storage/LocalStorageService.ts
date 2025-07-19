@@ -142,7 +142,7 @@ export class LocalStorageService extends TodoStorageService {
           (t, index) =>
             index !== todoIndex &&
             !t.completed &&
-            t.title.toLowerCase().trim() === updates.title!.toLowerCase().trim()
+            t.title.toLowerCase().trim() === (updates.title || '').toLowerCase().trim()
         )
 
         if (duplicateExists) {
@@ -301,7 +301,7 @@ export class LocalStorageService extends TodoStorageService {
       const stats: TodoStats = {
         total: todos.length,
         completed,
-        pending,
+        active: pending,
         completionRate: todos.length > 0 ? (completed / todos.length) * 100 : 0,
       }
 
@@ -385,7 +385,7 @@ export class LocalStorageService extends TodoStorageService {
     }
   }
 
-  private createErrorResult(
+  protected override createErrorResult(
     error: string,
     retryable: boolean = false
   ): StorageOperationResult<never> {

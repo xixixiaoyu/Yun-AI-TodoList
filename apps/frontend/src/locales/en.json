@@ -152,12 +152,17 @@
     "tokenExpired": "Reset link has expired, please request password reset again"
   },
   "register": {
-    "title": "Register",
-    "subtitle": "Create your account to start using smart todo list",
+    "title": "Sign Up",
+    "subtitle": "Create your account to start using smart todo",
     "username": "Username",
     "email": "Email Address",
     "password": "Password",
     "confirmPassword": "Confirm Password",
+    "verificationCode": "Email Verification Code",
+    "sendCode": "Send Code",
+    "resendCode": "Resend",
+    "codeSent": "Code sent",
+    "codeExpired": "Code expired",
     "acceptTerms": "I agree to the",
     "termsOfService": "Terms of Service",
     "and": "and",
@@ -183,7 +188,10 @@
     "passwordMismatch": "Passwords do not match",
     "usernameRequired": "Username is required",
     "usernameTooShort": "Username must be at least 3 characters",
-    "usernameInvalid": "Username can only contain letters, numbers and underscores"
+    "usernameInvalid": "Username can only contain letters, numbers and underscores",
+    "verificationCodeRequired": "Email verification code is required",
+    "verificationCodeInvalid": "Invalid verification code format",
+    "verificationCodeExpired": "Verification code has expired, please request a new one"
   },
 
   "thinking": {

@@ -68,6 +68,52 @@
           </div>
         </div>
 
+        <!-- 邮箱验证码输入 -->
+        <div class="form-group">
+          <div class="verification-code-wrapper">
+            <div class="input-wrapper flex-1">
+              <input
+                id="verificationCode"
+                v-model="formData.verificationCode"
+                type="text"
+                class="auth-input"
+                :class="{ error: errors.verificationCode }"
+                required
+                autocomplete="off"
+                maxlength="6"
+                placeholder="请输入6位验证码"
+                @blur="validateVerificationCode"
+                @input="clearError('verificationCode')"
+              />
+              <label for="verificationCode" class="floating-label">
+                {{ t('register.verificationCode') }}
+              </label>
+              <div class="input-icon">
+                <i class="i-carbon-security text-lg text-text-secondary"></i>
+              </div>
+            </div>
+            <button
+              type="button"
+              class="send-code-button"
+              :disabled="!canSendCode || isSendingCode"
+              @click="handleSendCode"
+            >
+              <span v-if="!isSendingCode && countdown === 0">
+                {{ t('register.sendCode') }}
+              </span>
+              <span v-else-if="isSendingCode">
+                <i class="i-carbon-circle-dash animate-spin"></i>
+                {{ t('register.sending') }}
+              </span>
+              <span v-else> {{ countdown }}s </span>
+            </button>
+          </div>
+          <div v-if="errors.verificationCode" class="error-message">
+            <i class="i-carbon-warning text-sm"></i>
+            {{ errors.verificationCode }}
+          </div>
+        </div>
+
         <!-- 密码输入 -->
         <div class="form-group">
           <div class="input-wrapper">
@@ -199,7 +245,7 @@ import { useNotifications } from '../../composables/useNotifications'
 
 const { t } = useI18n()
 const router = useRouter()
-const { register, isLoading } = useAuth()
+const { register, isLoading, sendVerificationCode } = useAuth()
 const { success, authError } = useNotifications()
 
 // 响应式数据
@@ -208,6 +254,7 @@ const formData = ref({
   email: '',
   password: '',
   confirmPassword: '',
+  verificationCode: '',
 })
 
 const errors = ref({
@@ -215,11 +262,17 @@ const errors = ref({
   email: '',
   password: '',
   confirmPassword: '',
+  verificationCode: '',
 })
 
 const showPassword = ref(false)
 const showConfirmPassword = ref(false)
 const submitError = ref('')
+
+// 验证码相关状态
+const isSendingCode = ref(false)
+const countdown = ref(0)
+const countdownTimer = ref<ReturnType<typeof setInterval> | null>(null)
 
 // 密码强度计算
 const passwordStrength = computed(() => {
@@ -254,6 +307,13 @@ const passwordStrengthText = computed(() => {
   return t('register.passwordStrong')
 })
 
+// 验证码发送条件
+const canSendCode = computed(() => {
+  return (
+    formData.value.email && !errors.value.email && countdown.value === 0 && !isSendingCode.value
+  )
+})
+
 // 表单验证
 const isFormValid = computed(() => {
   return (
@@ -261,10 +321,12 @@ const isFormValid = computed(() => {
     formData.value.email &&
     formData.value.password &&
     formData.value.confirmPassword &&
+    formData.value.verificationCode &&
     !errors.value.username &&
     !errors.value.email &&
     !errors.value.password &&
-    !errors.value.confirmPassword
+    !errors.value.confirmPassword &&
+    !errors.value.verificationCode
   )
 })
 
@@ -316,9 +378,57 @@ const validateConfirmPassword = () => {
   }
 }
 
+const validateVerificationCode = () => {
+  const code = formData.value.verificationCode.trim()
+  if (!code) {
+    errors.value.verificationCode = t('validation.verificationCodeRequired')
+  } else if (!/^\d{6}$/.test(code)) {
+    errors.value.verificationCode = t('validation.verificationCodeInvalid')
+  } else {
+    errors.value.verificationCode = ''
+  }
+}
+
 const clearError = (field: string) => {
   errors.value[field as keyof typeof errors.value] = ''
   submitError.value = ''
+}
+
+// 发送验证码
+const handleSendCode = async () => {
+  // 先验证邮箱
+  validateEmail()
+  if (errors.value.email) {
+    return
+  }
+
+  isSendingCode.value = true
+
+  try {
+    await sendVerificationCode(formData.value.email)
+    success('验证码已发送', '请查收邮箱中的验证码')
+
+    // 开始倒计时
+    startCountdown()
+  } catch (error) {
+    authError(error as { code?: string; message?: string })
+  } finally {
+    isSendingCode.value = false
+  }
+}
+
+// 开始倒计时
+const startCountdown = () => {
+  countdown.value = 60
+  countdownTimer.value = setInterval(() => {
+    countdown.value--
+    if (countdown.value <= 0) {
+      if (countdownTimer.value) {
+        clearInterval(countdownTimer.value)
+        countdownTimer.value = null
+      }
+    }
+  }, 1000)
 }
 
 const handleSubmit = async () => {
@@ -327,6 +437,7 @@ const handleSubmit = async () => {
   validateEmail()
   validatePassword()
   validateConfirmPassword()
+  validateVerificationCode()
 
   if (!isFormValid.value) {
     return
@@ -340,6 +451,7 @@ const handleSubmit = async () => {
       username: formData.value.username.trim(),
       email: formData.value.email.trim(),
       password: formData.value.password,
+      verificationCode: formData.value.verificationCode.trim(),
     })
 
     // 显示成功通知
@@ -356,6 +468,13 @@ const handleSubmit = async () => {
     submitError.value = error instanceof Error ? error.message : t('register.error')
   }
 }
+
+// 组件卸载时清理定时器
+onUnmounted(() => {
+  if (countdownTimer.value) {
+    clearInterval(countdownTimer.value)
+  }
+})
 
 defineOptions({
   name: 'RegisterPage',
@@ -410,6 +529,27 @@ defineOptions({
 /* 服务条款链接 */
 .terms-link {
   @apply text-primary hover:text-primary-hover underline transition-colors;
+}
+
+/* 验证码输入框样式 */
+.verification-code-wrapper {
+  @apply flex gap-3 items-start;
+}
+
+.verification-code-wrapper .input-wrapper {
+  @apply flex-1;
+}
+
+.send-code-button {
+  @apply px-4 py-3 bg-primary text-white rounded-lg font-medium transition-all-300 whitespace-nowrap;
+  @apply hover:bg-primary-hover focus:outline-none focus:ring-2 focus:ring-primary/20;
+  @apply disabled:bg-gray-300 disabled:text-gray-500 disabled:cursor-not-allowed;
+  min-width: 100px;
+  height: 48px;
+}
+
+.send-code-button:disabled {
+  @apply bg-gray-300 text-gray-500 cursor-not-allowed;
 }
 
 /* 调整表单间距 */

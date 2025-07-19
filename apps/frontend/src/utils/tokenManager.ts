@@ -89,7 +89,7 @@ class TokenManager {
   /**
    * 保存令牌信息
    */
-  saveTokens(accessToken: string, refreshToken: string, rememberMe = true): void {
+  saveTokens(accessToken: string, refreshToken: string, _rememberMe = true): void {
     // 默认使用 localStorage 保存令牌（记住登录状态）
     localStorage.setItem(this.STORAGE_KEYS.ACCESS_TOKEN, accessToken)
     localStorage.setItem(this.STORAGE_KEYS.REFRESH_TOKEN, refreshToken)

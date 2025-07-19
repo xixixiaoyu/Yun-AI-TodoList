@@ -8,6 +8,7 @@ export interface User {
   username: string
   password: string // 仅在后端内部使用，前端不会接收到此字段
   avatarUrl?: string
+  emailVerified: boolean
   preferences: UserPreferences
   createdAt: string
   updatedAt: string
@@ -19,6 +20,7 @@ export interface PublicUser {
   email: string
   username: string
   avatarUrl?: string
+  emailVerified: boolean
   preferences: UserPreferences
   createdAt: string
   updatedAt: string

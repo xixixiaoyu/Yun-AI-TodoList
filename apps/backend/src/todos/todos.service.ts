@@ -1,6 +1,6 @@
 import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common'
 import type { AIAnalysisResult, Todo, TodoListResponse, TodoStats } from '@shared/types'
-import { AIAnalysisService } from '../ai-analysis/ai-analysis.service'
+// import { AIAnalysisService } from '../ai-analysis/ai-analysis.service'
 import { UtilsService } from '../common/services/utils.service'
 import { PrismaService } from '../database/prisma.service'
 import { BatchAnalyzeDto } from './dto/batch-analyze.dto'
@@ -13,8 +13,8 @@ import { UpdateTodoDto } from './dto/update-todo.dto'
 export class TodosService {
   constructor(
     private readonly prisma: PrismaService,
-    private readonly utilsService: UtilsService,
-    private readonly aiAnalysisService: AIAnalysisService
+    private readonly utilsService: UtilsService
+    // private readonly aiAnalysisService: AIAnalysisService
   ) {}
 
   async create(userId: string, createTodoDto: CreateTodoDto): Promise<Todo> {
@@ -358,12 +358,12 @@ export class TodosService {
         })
 
         // 创建 AI 分析记录
-        await this.aiAnalysisService.createAnalysis(userId, {
-          todoId: todo.id,
-          priority: enablePriorityAnalysis ? analysis.priority : undefined,
-          estimatedTime: enableTimeEstimation ? analysis.estimatedTime : undefined,
-          reasoning: analysis.reasoning,
-        })
+        // await this.aiAnalysisService.createAnalysis(userId, {
+        //   todoId: todo.id,
+        //   priority: enablePriorityAnalysis ? analysis.priority : undefined,
+        //   estimatedTime: enableTimeEstimation ? analysis.estimatedTime : undefined,
+        //   reasoning: analysis.reasoning,
+        // })
 
         results.push({
           todoId: todo.id,

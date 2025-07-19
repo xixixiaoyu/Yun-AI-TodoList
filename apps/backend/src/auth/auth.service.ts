@@ -11,12 +11,15 @@ import type { AuthResponse, User } from '@shared/types'
 import { UtilsService } from '../common/services/utils.service'
 import { MailService } from '../mail/mail.service'
 import { UsersService } from '../users/users.service'
+import { EmailVerificationService } from './email-verification.service'
 import { ChangePasswordDto } from './dto/change-password.dto'
 import { ForgotPasswordDto } from './dto/forgot-password.dto'
 import { LoginDto } from './dto/login.dto'
 import { RefreshTokenDto } from './dto/refresh-token.dto'
 import { RegisterDto } from './dto/register.dto'
 import { ResetPasswordDto } from './dto/reset-password.dto'
+import { SendVerificationCodeDto } from './dto/send-verification-code.dto'
+import { VerifyEmailCodeDto } from './dto/verify-email-code.dto'
 
 @Injectable()
 export class AuthService {
@@ -25,11 +28,15 @@ export class AuthService {
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
     private readonly utilsService: UtilsService,
-    private readonly mailService: MailService
+    private readonly mailService: MailService,
+    private readonly emailVerificationService: EmailVerificationService
   ) {}
 
   async register(registerDto: RegisterDto): Promise<AuthResponse> {
-    const { email, username, password } = registerDto
+    const { email, username, password, verificationCode } = registerDto
+
+    // 验证邮箱验证码
+    await this.emailVerificationService.verifyCode(email, verificationCode, 'register')
 
     // 检查邮箱是否已存在
     const existingUserByEmail = await this.usersService.findByEmail(email)
@@ -49,6 +56,7 @@ export class AuthService {
       email,
       username,
       password: hashedPassword,
+      emailVerified: true, // 注册时已验证邮箱
     })
 
     // 生成令牌
@@ -235,5 +243,29 @@ export class AuthService {
     await this.usersService.updatePassword(user.id, hashedNewPassword)
 
     return { message: '密码修改成功' }
+  }
+
+  /**
+   * 发送邮箱验证码
+   */
+  async sendVerificationCode(sendCodeDto: SendVerificationCodeDto): Promise<{ message: string }> {
+    const { email, type, username } = sendCodeDto
+
+    await this.emailVerificationService.sendVerificationCode(email, type, username)
+
+    return { message: '验证码已发送，请查收邮件' }
+  }
+
+  /**
+   * 验证邮箱验证码
+   */
+  async verifyEmailCode(verifyCodeDto: VerifyEmailCodeDto): Promise<{ message: string }> {
+    const { email, code } = verifyCodeDto
+
+    // 这里可以根据需要指定验证码类型，或者从数据库中查找
+    // 为了简化，我们假设这是通用验证
+    await this.emailVerificationService.verifyCode(email, code, 'register')
+
+    return { message: '邮箱验证成功' }
   }
 }

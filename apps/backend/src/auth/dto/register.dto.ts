@@ -32,4 +32,15 @@ export class RegisterDto {
     message: '密码必须包含至少一个字母和一个数字',
   })
   password!: string
+
+  @ApiProperty({
+    description: '邮箱验证码',
+    example: '123456',
+    minLength: 6,
+    maxLength: 6,
+  })
+  @IsString({ message: '验证码必须是字符串' })
+  @MinLength(6, { message: '验证码必须是6位数字' })
+  @MaxLength(6, { message: '验证码必须是6位数字' })
+  verificationCode!: string
 }

@@ -13,6 +13,7 @@ model User {
   username      String           @unique
   password      String
   avatarUrl     String?
+  emailVerified Boolean          @default(false)
   createdAt     DateTime         @default(now())
   updatedAt     DateTime         @updatedAt
   accountStatus String           @default("active")
@@ -22,10 +23,12 @@ model User {
   documents     Document[]
   preferences   UserPreferences?
   settings      UserSetting[]
+  emailCodes    EmailVerificationCode[]
 
   @@index([lastActiveAt], map: "idx_users_last_active")
   @@index([deletedAt], map: "idx_users_soft_delete")
   @@index([accountStatus], map: "idx_users_account_status")
+  @@index([emailVerified], map: "idx_users_email_verified")
   @@map("users")
 }
 
@@ -146,4 +149,23 @@ model DocumentChunk {
   @@unique([documentId, chunkIndex])
   @@index([documentId], map: "idx_document_chunks_document")
   @@map("document_chunks")
+}
+
+model EmailVerificationCode {
+  id        String   @id @default(cuid())
+  email     String
+  code      String
+  type      String   // 'register' | 'login' | 'reset_password'
+  expiresAt DateTime
+  used      Boolean  @default(false)
+  attempts  Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  userId    String?
+  user      User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([email, type, expiresAt], map: "idx_email_codes_lookup")
+  @@index([code], map: "idx_email_codes_code")
+  @@index([expiresAt], map: "idx_email_codes_expires")
+  @@map("email_verification_codes")
 }

@@ -10,6 +10,8 @@ import type {
   CreateUserDto,
   RefreshTokenDto,
   PublicUser,
+  SendVerificationCodeDto,
+  VerifyEmailCodeDto,
 } from '@shared/types'
 
 /**
@@ -59,9 +61,62 @@ class AuthApi {
   }
 
   /**
-   * 用户注册
+   * 发送邮箱验证码
    */
-  async register(userData: CreateUserDto): Promise<AuthResponse> {
+  async sendVerificationCode(data: SendVerificationCodeDto): Promise<{ message: string }> {
+    try {
+      const response = await httpClient.post<{ message: string }>(
+        `${this.baseEndpoint}/send-verification-code`,
+        data
+      )
+
+      return response
+    } catch (error) {
+      if (error instanceof ApiError) {
+        if (error.status === 409) {
+          throw new ApiError('该邮箱已被注册', 409, 'EMAIL_EXISTS')
+        }
+        if (error.status === 429) {
+          throw new ApiError('发送过于频繁，请稍后再试', 429, 'TOO_MANY_REQUESTS')
+        }
+        if (error.status === 422) {
+          throw new ApiError('邮箱格式不正确', 422, 'INVALID_EMAIL')
+        }
+      }
+
+      throw error
+    }
+  }
+
+  /**
+   * 验证邮箱验证码
+   */
+  async verifyEmailCode(data: VerifyEmailCodeDto): Promise<{ message: string; valid: boolean }> {
+    try {
+      const response = await httpClient.post<{ message: string; valid: boolean }>(
+        `${this.baseEndpoint}/verify-email-code`,
+        data
+      )
+
+      return response
+    } catch (error) {
+      if (error instanceof ApiError) {
+        if (error.status === 400) {
+          throw new ApiError('验证码无效或已过期', 400, 'INVALID_CODE')
+        }
+        if (error.status === 429) {
+          throw new ApiError('验证尝试过于频繁，请稍后再试', 429, 'TOO_MANY_ATTEMPTS')
+        }
+      }
+
+      throw error
+    }
+  }
+
+  /**
+   * 用户注册（需要邮箱验证码）
+   */
+  async register(userData: CreateUserDto & { verificationCode: string }): Promise<AuthResponse> {
     try {
       const response = await httpClient.post<{ success: boolean; data: AuthResponse }>(
         `${this.baseEndpoint}/register`,
@@ -92,6 +147,9 @@ class AuthApi {
             throw new ApiError('该用户名已被使用', 409, 'USERNAME_EXISTS')
           }
           throw new ApiError('用户信息冲突', 409, 'USER_CONFLICT')
+        }
+        if (error.status === 400) {
+          throw new ApiError('邮箱验证码无效或已过期', 400, 'INVALID_VERIFICATION_CODE')
         }
         if (error.status === 422) {
           throw new ApiError('输入信息格式不正确', 422, 'VALIDATION_ERROR')
@@ -278,4 +336,12 @@ class AuthApi {
 export const authApi = new AuthApi()
 
 // 导出类型
-export type { AuthResponse, LoginDto, CreateUserDto, RefreshTokenDto, PublicUser }
+export type {
+  AuthResponse,
+  LoginDto,
+  CreateUserDto,
+  RefreshTokenDto,
+  PublicUser,
+  SendVerificationCodeDto,
+  VerifyEmailCodeDto,
+}

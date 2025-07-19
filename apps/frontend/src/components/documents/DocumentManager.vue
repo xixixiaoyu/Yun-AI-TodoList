@@ -10,7 +10,7 @@
           accept=".pdf,.doc,.docx,.xls,.xlsx,.csv,.txt,.md,.json"
           @change="handleFileUpload"
         />
-        <button @click="triggerFileUpload" class="btn btn-primary" :disabled="isUploading">
+        <button class="btn btn-primary" :disabled="isUploading" @click="triggerFileUpload">
           <span v-if="isUploading">上传中...</span>
           <span v-else>上传文档</span>
         </button>
@@ -46,7 +46,7 @@
         class="search-input"
         @keyup.enter="performSearch"
       />
-      <button @click="performSearch" class="btn btn-secondary" :disabled="isSearching">
+      <button class="btn btn-secondary" :disabled="isSearching" @click="performSearch">
         <span v-if="isSearching">搜索中...</span>
         <span v-else>搜索</span>
       </button>
@@ -85,8 +85,8 @@
             </div>
           </div>
           <div class="document-actions">
-            <button @click="viewDocument(document)" class="btn btn-sm btn-secondary">查看</button>
-            <button @click="deleteDocument(document.id)" class="btn btn-sm btn-danger">删除</button>
+            <button class="btn btn-sm btn-secondary" @click="viewDocument(document)">查看</button>
+            <button class="btn btn-sm btn-danger" @click="deleteDocument(document.id)">删除</button>
           </div>
         </div>
       </div>
@@ -95,9 +95,9 @@
     <!-- 分页 -->
     <div v-if="pagination && pagination.totalPages > 1" class="pagination">
       <button
-        @click="loadPage(pagination.page - 1)"
         :disabled="pagination.page <= 1"
         class="btn btn-sm"
+        @click="loadPage(pagination.page - 1)"
       >
         上一页
       </button>
@@ -105,9 +105,9 @@
         第 {{ pagination.page }} 页，共 {{ pagination.totalPages }} 页
       </span>
       <button
-        @click="loadPage(pagination.page + 1)"
         :disabled="pagination.page >= pagination.totalPages"
         class="btn btn-sm"
+        @click="loadPage(pagination.page + 1)"
       >
         下一页
       </button>
@@ -134,7 +134,12 @@ const documents = ref<Document[]>([])
 const stats = ref<DocumentStats | null>(null)
 const searchQuery = ref('')
 const searchResults = ref<SearchResult[]>([])
-const pagination = ref<any>(null)
+const pagination = ref<{
+  page: number
+  limit: number
+  total: number
+  totalPages: number
+} | null>(null)
 const fileInputRef = ref<HTMLInputElement>()
 
 // 状态
@@ -226,7 +231,8 @@ const performSearch = async () => {
 
 const viewDocument = (document: Document) => {
   // 这里可以实现文档查看功能
-  console.log('查看文档:', document)
+  // TODO: 实现文档查看逻辑
+  document // 避免未使用参数警告
 }
 
 const deleteDocument = async (documentId: string) => {

@@ -183,9 +183,38 @@ export function useAuth() {
   }
 
   /**
-   * 用户注册
+   * 发送邮箱验证码
    */
-  const register = async (userData: CreateUserDto): Promise<void> => {
+  const sendVerificationCode = async (email: string): Promise<void> => {
+    try {
+      console.log('Sending verification code to:', email)
+      await authApi.sendVerificationCode({ email })
+    } catch (error) {
+      console.error('Send verification code failed:', error)
+      throw error
+    }
+  }
+
+  /**
+   * 验证邮箱验证码
+   */
+  const verifyEmailCode = async (email: string, code: string): Promise<boolean> => {
+    try {
+      console.log('Verifying email code for:', email)
+      const response = await authApi.verifyEmailCode({ email, code })
+      return response.valid
+    } catch (error) {
+      console.error('Verify email code failed:', error)
+      throw error
+    }
+  }
+
+  /**
+   * 用户注册（需要邮箱验证码）
+   */
+  const register = async (
+    userData: CreateUserDto & { verificationCode: string }
+  ): Promise<void> => {
     authState.isLoading = true
 
     try {
@@ -281,6 +310,8 @@ export function useAuth() {
     register,
     logout,
     forgotPassword,
+    sendVerificationCode,
+    verifyEmailCode,
     refreshAccessToken,
     getAuthHeaders,
     initAuth,

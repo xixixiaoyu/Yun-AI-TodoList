@@ -75,6 +75,7 @@
 
 <script setup lang="ts">
 import { parseFile } from '@/utils/fileParser'
+import { uploadDocument } from '@/services/documentService'
 import { computed, nextTick, onMounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
@@ -185,8 +186,7 @@ const handleFileUpload = async (event: Event) => {
         // 发送文档上传成功事件，包含文档信息
         emit('file-upload', file, `文档已上传: ${uploadResult.data.filename}`)
 
-        // 可以在这里添加成功提示
-        console.log('文档上传成功:', uploadResult.data)
+        // 文档上传成功，已通过事件通知父组件
       } else {
         throw new Error(uploadResult.error || '文档上传失败')
       }

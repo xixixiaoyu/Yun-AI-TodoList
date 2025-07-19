@@ -10,6 +10,8 @@ import { LoginDto } from './dto/login.dto'
 import { RefreshTokenDto } from './dto/refresh-token.dto'
 import { RegisterDto } from './dto/register.dto'
 import { ResetPasswordDto } from './dto/reset-password.dto'
+import { SendVerificationCodeDto } from './dto/send-verification-code.dto'
+import { VerifyEmailCodeDto } from './dto/verify-email-code.dto'
 import { JwtAuthGuard } from './guards/jwt-auth.guard'
 
 @ApiTags('auth')
@@ -94,5 +96,25 @@ export class AuthController {
   @ApiResponse({ status: 401, description: '当前密码错误' })
   async changePassword(@CurrentUser() user: User, @Body() changePasswordDto: ChangePasswordDto) {
     return this.authService.changePassword(user.id, changePasswordDto)
+  }
+
+  @Public()
+  @Post('send-verification-code')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: '发送邮箱验证码' })
+  @ApiResponse({ status: 200, description: '验证码发送成功' })
+  @ApiResponse({ status: 400, description: '请求过于频繁或邮箱已存在' })
+  async sendVerificationCode(@Body() sendVerificationCodeDto: SendVerificationCodeDto) {
+    return this.authService.sendVerificationCode(sendVerificationCodeDto)
+  }
+
+  @Public()
+  @Post('verify-email-code')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: '验证邮箱验证码' })
+  @ApiResponse({ status: 200, description: '验证码验证成功' })
+  @ApiResponse({ status: 400, description: '验证码无效或已过期' })
+  async verifyEmailCode(@Body() verifyEmailCodeDto: VerifyEmailCodeDto) {
+    return this.authService.verifyEmailCode(verifyEmailCodeDto)
   }
 }

@@ -62,7 +62,13 @@ export async function parsePDFFile(file: File): Promise<string> {
         )
         const page = await pdf.getPage(i)
         const textContent = await page.getTextContent()
-        const pageText = textContent.items.map((item: { str: string }) => item.str).join(' ')
+        const pageText = textContent.items
+          .filter(
+            (item): item is { str: string } =>
+              'str' in item && typeof (item as { str?: unknown }).str === 'string'
+          )
+          .map((item) => item.str)
+          .join(' ')
         fullText += pageText + '\n'
       } catch (pageError) {
         logger.warn(`Page ${i} parsing failed`, pageError, 'FileParser')
@@ -488,7 +494,7 @@ export async function prepareFileForUpload(file: File): Promise<{
   fileType: string
   fileSize: number
   content: string
-  metadata: Record<string, any>
+  metadata: Record<string, unknown>
 }> {
   try {
     const content = await parseFileForLlamaIndex(file)

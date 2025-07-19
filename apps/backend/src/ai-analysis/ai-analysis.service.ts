@@ -6,6 +6,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common'
 import type { AIAnalysis } from '@shared/types'
 import { PrismaService } from '../database/prisma.service'
+import { LlamaIndexService } from '../documents/llamaindex.service'
 
 export interface CreateAIAnalysisDto {
   todoId: string
@@ -158,7 +159,7 @@ export class AIAnalysisService {
         throw new NotFoundException('Todo not found')
       }
 
-      let contextualInfo = ''
+      let contextualInfo: string | null = ''
 
       // 如果有关联文档，从文档中获取相关信息
       if (todo.documentId) {
@@ -176,7 +177,10 @@ export class AIAnalysisService {
           const searchResults = await this.llamaIndexService.searchDocuments(searchQuery, 3, 0.6)
           if (searchResults.length > 0) {
             contextualInfo = `\n\n基于相关文档的参考信息：\n${searchResults
-              .map((result, index) => `${index + 1}. ${result.content.substring(0, 200)}...`)
+              .map(
+                (result: any, index: number) =>
+                  `${index + 1}. ${result.content.substring(0, 200)}...`
+              )
               .join('\n')}`
           }
         } catch (error) {
@@ -207,7 +211,11 @@ ${contextualInfo}
 
       // 这里应该调用实际的 AI 服务（如 DeepSeek）
       // 暂时返回一个基于规则的分析结果
-      const analysis = this.generateEnhancedAnalysis(todo.title, todo.description, contextualInfo)
+      const analysis = this.generateEnhancedAnalysis(
+        todo.title,
+        todo.description || undefined,
+        contextualInfo || undefined
+      )
 
       // 创建分析记录
       return this.createAnalysis(userId, {

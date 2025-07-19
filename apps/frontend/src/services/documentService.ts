@@ -5,7 +5,7 @@
 
 import { httpClient } from './api'
 import { handleError } from '@/utils/logger'
-import type { ApiResponse } from '@/types/api'
+import type { ApiResponse } from '@shared/types'
 
 export interface Document {
   id: string
@@ -15,7 +15,7 @@ export interface Document {
   processed: boolean
   createdAt: string
   updatedAt: string
-  metadata?: Record<string, any>
+  metadata?: Record<string, unknown>
 }
 
 export interface DocumentDetail extends Document {
@@ -27,14 +27,14 @@ export interface DocumentChunk {
   id: string
   chunkIndex: number
   content: string
-  metadata?: Record<string, any>
+  metadata?: Record<string, unknown>
 }
 
 export interface SearchResult {
   content: string
   score: number
   chunkIndex?: number
-  metadata?: Record<string, any>
+  metadata?: Record<string, unknown>
   document?: Document
 }
 
@@ -90,13 +90,14 @@ export async function uploadDocument(file: File): Promise<ApiResponse<Document>>
     return {
       success: true,
       data: response.document,
-      message: response.message,
+      timestamp: new Date().toISOString(),
     }
   } catch (error) {
     handleError(error, 'DocumentService.uploadDocument')
     return {
       success: false,
       error: error instanceof Error ? error.message : '文档上传失败',
+      timestamp: new Date().toISOString(),
     }
   }
 }
@@ -116,12 +117,14 @@ export async function getUserDocuments(
     return {
       success: true,
       data: response,
+      timestamp: new Date().toISOString(),
     }
   } catch (error) {
     handleError(error, 'DocumentService.getUserDocuments')
     return {
       success: false,
       error: error instanceof Error ? error.message : '获取文档列表失败',
+      timestamp: new Date().toISOString(),
     }
   }
 }
@@ -136,12 +139,14 @@ export async function getDocument(documentId: string): Promise<ApiResponse<Docum
     return {
       success: true,
       data: response,
+      timestamp: new Date().toISOString(),
     }
   } catch (error) {
     handleError(error, 'DocumentService.getDocument')
     return {
       success: false,
       error: error instanceof Error ? error.message : '获取文档详情失败',
+      timestamp: new Date().toISOString(),
     }
   }
 }
@@ -164,12 +169,14 @@ export async function searchDocuments(
     return {
       success: true,
       data: response,
+      timestamp: new Date().toISOString(),
     }
   } catch (error) {
     handleError(error, 'DocumentService.searchDocuments')
     return {
       success: false,
       error: error instanceof Error ? error.message : '文档搜索失败',
+      timestamp: new Date().toISOString(),
     }
   }
 }
@@ -186,12 +193,14 @@ export async function queryDocuments(query: string): Promise<ApiResponse<Documen
     return {
       success: true,
       data: response,
+      timestamp: new Date().toISOString(),
     }
   } catch (error) {
     handleError(error, 'DocumentService.queryDocuments')
     return {
       success: false,
       error: error instanceof Error ? error.message : '文档查询失败',
+      timestamp: new Date().toISOString(),
     }
   }
 }
@@ -208,12 +217,14 @@ export async function deleteDocument(
     return {
       success: true,
       data: response,
+      timestamp: new Date().toISOString(),
     }
   } catch (error) {
     handleError(error, 'DocumentService.deleteDocument')
     return {
       success: false,
       error: error instanceof Error ? error.message : '删除文档失败',
+      timestamp: new Date().toISOString(),
     }
   }
 }
@@ -228,12 +239,14 @@ export async function getDocumentStats(): Promise<ApiResponse<DocumentStats>> {
     return {
       success: true,
       data: response,
+      timestamp: new Date().toISOString(),
     }
   } catch (error) {
     handleError(error, 'DocumentService.getDocumentStats')
     return {
       success: false,
       error: error instanceof Error ? error.message : '获取文档统计失败',
+      timestamp: new Date().toISOString(),
     }
   }
 }
@@ -244,7 +257,7 @@ export async function getDocumentStats(): Promise<ApiResponse<DocumentStats>> {
 export async function createDocumentBasedAnalysis(
   todoId: string,
   query?: string
-): Promise<ApiResponse<any>> {
+): Promise<ApiResponse<Record<string, unknown>>> {
   try {
     const response = await httpClient.post(`/api/v1/ai-analysis/document-based/${todoId}`, {
       query,
@@ -253,12 +266,14 @@ export async function createDocumentBasedAnalysis(
     return {
       success: true,
       data: response,
+      timestamp: new Date().toISOString(),
     }
   } catch (error) {
     handleError(error, 'DocumentService.createDocumentBasedAnalysis')
     return {
       success: false,
       error: error instanceof Error ? error.message : '基于文档的 AI 分析失败',
+      timestamp: new Date().toISOString(),
     }
   }
 }
@@ -266,7 +281,9 @@ export async function createDocumentBasedAnalysis(
 /**
  * 批量基于文档的 AI 分析
  */
-export async function batchDocumentBasedAnalysis(todoIds: string[]): Promise<ApiResponse<any>> {
+export async function batchDocumentBasedAnalysis(
+  todoIds: string[]
+): Promise<ApiResponse<Record<string, unknown>>> {
   try {
     const response = await httpClient.post('/api/v1/ai-analysis/batch-document-based', {
       todoIds,
@@ -281,6 +298,7 @@ export async function batchDocumentBasedAnalysis(todoIds: string[]): Promise<Api
     return {
       success: false,
       error: error instanceof Error ? error.message : '批量文档 AI 分析失败',
+      timestamp: new Date().toISOString(),
     }
   }
 }

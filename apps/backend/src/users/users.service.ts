@@ -10,13 +10,14 @@ export class UsersService {
     private readonly utilsService: UtilsService
   ) {}
 
-  async create(createUserDto: CreateUserDto): Promise<User> {
+  async create(createUserDto: CreateUserDto & { emailVerified?: boolean }): Promise<User> {
     const user = await this.prisma.user.create({
       data: {
         id: this.utilsService.generateId(),
         email: createUserDto.email.toLowerCase(),
         username: createUserDto.username.toLowerCase(),
         password: createUserDto.password,
+        emailVerified: createUserDto.emailVerified ?? false,
         lastActiveAt: new Date(),
         preferences: {
           create: {
@@ -132,6 +133,7 @@ export class UsersService {
       username: prismaUser.username,
       password: prismaUser.password,
       avatarUrl: prismaUser.avatarUrl,
+      emailVerified: prismaUser.emailVerified ?? false,
       preferences: {
         theme: prefs.theme || 'light',
         language: prefs.language || 'zh-CN',

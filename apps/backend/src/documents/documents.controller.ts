@@ -23,7 +23,7 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard'
 import { CurrentUser } from '../auth/decorators/current-user.decorator'
 import { User } from '@shared/types'
 import { DocumentsService, DocumentSearchDto, DocumentQueryDto } from './documents.service'
-import * as multer from 'multer'
+const multer = require('multer')
 
 // 文件上传配置
 const storage = multer.memoryStorage()
@@ -105,7 +105,9 @@ export class DocumentsController {
         },
       }
     } catch (error) {
-      throw new BadRequestException(`Failed to process file: ${error.message}`)
+      throw new BadRequestException(
+        `Failed to process file: ${error instanceof Error ? error.message : 'Unknown error'}`
+      )
     }
   }
 
@@ -190,7 +192,9 @@ export class DocumentsController {
           throw new Error(`Unsupported file type: ${mimeType}`)
       }
     } catch (error) {
-      throw new Error(`Failed to parse file content: ${error.message}`)
+      throw new Error(
+        `Failed to parse file content: ${error instanceof Error ? error.message : 'Unknown error'}`
+      )
     }
   }
 }
