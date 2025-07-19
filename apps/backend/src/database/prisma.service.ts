@@ -8,6 +8,11 @@ export class PrismaService extends PrismaClient implements OnModuleInit, OnModul
   constructor() {
     super({
       log: ['query', 'info', 'warn', 'error'],
+      datasources: {
+        db: {
+          url: process.env.DATABASE_URL + '?pgbouncer=true&connection_limit=1',
+        },
+      },
     })
   }
 

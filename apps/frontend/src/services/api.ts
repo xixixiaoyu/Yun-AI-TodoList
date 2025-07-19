@@ -11,7 +11,7 @@ let refreshPromise: Promise<string> | null = null
 
 // API 基础配置
 const API_BASE_URL =
-  (import.meta.env && (import.meta.env.VITE_API_BASE_URL as string)) || 'http://localhost:3000'
+  (import.meta.env && (import.meta.env.VITE_API_BASE_URL as string)) || 'http://localhost:3001'
 const API_TIMEOUT = 10000 // 10秒超时
 
 // 请求重试配置
