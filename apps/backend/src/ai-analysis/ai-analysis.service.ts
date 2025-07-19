@@ -6,7 +6,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common'
 import type { AIAnalysis } from '@shared/types'
 import { PrismaService } from '../database/prisma.service'
-import { LlamaIndexService } from '../documents/llamaindex.service'
 
 export interface CreateAIAnalysisDto {
   todoId: string
@@ -17,10 +16,7 @@ export interface CreateAIAnalysisDto {
 
 @Injectable()
 export class AIAnalysisService {
-  constructor(
-    private prisma: PrismaService,
-    private llamaIndexService: LlamaIndexService
-  ) {}
+  constructor(private prisma: PrismaService) {}
 
   /**
    * 创建 AI 分析记录
@@ -152,70 +148,15 @@ export class AIAnalysisService {
       // 获取 Todo 信息
       const todo = await this.prisma.todo.findFirst({
         where: { id: todoId, userId },
-        include: { document: true },
       })
 
       if (!todo) {
         throw new NotFoundException('Todo not found')
       }
 
-      let contextualInfo: string | null = ''
-
-      // 如果有关联文档，从文档中获取相关信息
-      if (todo.documentId) {
-        const query = documentQuery || `${todo.title} ${todo.description || ''}`
-        try {
-          const documentAnswer = await this.llamaIndexService.queryDocuments(query)
-          contextualInfo = `\n\n基于相关文档的上下文信息：\n${documentAnswer}`
-        } catch (error) {
-          console.warn('Failed to query document for context:', error)
-        }
-      } else {
-        // 如果没有关联文档，尝试搜索相关文档
-        const searchQuery = `${todo.title} ${todo.description || ''}`
-        try {
-          const searchResults = await this.llamaIndexService.searchDocuments(searchQuery, 3, 0.6)
-          if (searchResults.length > 0) {
-            contextualInfo = `\n\n基于相关文档的参考信息：\n${searchResults
-              .map(
-                (result: any, index: number) =>
-                  `${index + 1}. ${result.content.substring(0, 200)}...`
-              )
-              .join('\n')}`
-          }
-        } catch (error) {
-          console.warn('Failed to search documents for context:', error)
-        }
-      }
-
-      // 构建增强的分析提示
-      const enhancedPrompt = `
-请分析以下待办事项，并基于提供的上下文信息给出更准确的评估：
-
-待办事项：${todo.title}
-描述：${todo.description || '无'}
-${contextualInfo}
-
-请提供：
-1. 优先级评估（1-5，5为最高）
-2. 时间估算
-3. 详细的分析理由
-
-请以JSON格式返回：
-{
-  "priority": 数字,
-  "estimatedTime": "时间字符串",
-  "reasoning": "分析理由"
-}
-`
-
       // 这里应该调用实际的 AI 服务（如 DeepSeek）
       // 暂时返回一个基于规则的分析结果
-      const analysis = this.generateEnhancedAnalysis(
-        todo.title,
-        todo.description || undefined,
-        contextualInfo || undefined
-      )
+      const analysis = this.generateEnhancedAnalysis(todo.title, todo.description || undefined)
 
       // 创建分析记录
       return this.createAnalysis(userId, {
@@ -235,8 +176,7 @@ ${contextualInfo}
    */
   private generateEnhancedAnalysis(
     title: string,
-    description?: string,
-    contextualInfo?: string
+    description?: string
   ): { priority: number; estimatedTime: string; reasoning: string } {
     const text = `${title} ${description || ''}`.toLowerCase()
     let priority = 3
@@ -259,21 +199,6 @@ ${contextualInfo}
       estimatedTime = '1-2小时'
     } else if (text.includes('学习') || text.includes('研究')) {
       estimatedTime = '2-4小时'
-    }
-
-    // 如果有上下文信息，调整分析
-    if (contextualInfo && contextualInfo.trim()) {
-      reasoning = `基于任务内容和相关文档的综合分析。${
-        contextualInfo.includes('复杂') || contextualInfo.includes('困难')
-          ? '文档显示此任务可能较为复杂，建议预留更多时间。'
-          : ''
-      }`
-
-      // 根据上下文调整时间估算
-      if (contextualInfo.includes('复杂') || contextualInfo.includes('详细')) {
-        const currentHours = parseInt(estimatedTime.match(/\d+/)?.[0] || '1')
-        estimatedTime = `${Math.min(currentHours * 1.5, 8)}小时`
-      }
     }
 
     return { priority, estimatedTime, reasoning }

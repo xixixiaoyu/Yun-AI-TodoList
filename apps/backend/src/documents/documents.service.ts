@@ -6,7 +6,6 @@
 import { Injectable, Logger, NotFoundException } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { PrismaService } from '../database/prisma.service'
-import { LlamaIndexService, DocumentProcessingResult } from './llamaindex.service'
 import * as multer from 'multer'
 import * as path from 'path'
 import * as fs from 'fs/promises'
@@ -36,7 +35,6 @@ export class DocumentsService {
 
   constructor(
     private readonly prisma: PrismaService,
-    private readonly llamaIndexService: LlamaIndexService,
     private readonly configService: ConfigService
   ) {
     this.uploadPath = this.configService.get<string>('UPLOAD_DEST', './uploads')
@@ -60,7 +58,6 @@ export class DocumentsService {
    */
   async createDocument(userId: string, createDto: CreateDocumentDto) {
     try {
-      // 1. 保存文档到数据库
       const document = await this.prisma.document.create({
         data: {
           userId,
@@ -69,17 +66,9 @@ export class DocumentsService {
           fileSize: createDto.fileSize,
           content: createDto.content,
           metadata: createDto.metadata || {},
-          processed: false,
+          processed: true, // 简化处理，直接标记为已处理
         },
       })
-
-      // 2. 异步处理文档（向量化）
-      this.processDocumentAsync(
-        document.id,
-        createDto.content,
-        createDto.filename,
-        createDto.metadata
-      )
 
       this.logger.log(`Document created: ${document.id} - ${createDto.filename}`)
 
@@ -87,52 +76,6 @@ export class DocumentsService {
     } catch (error) {
       this.logger.error('Failed to create document:', error)
       throw error
-    }
-  }
-
-  /**
-   * 异步处理文档
-   */
-  private async processDocumentAsync(
-    documentId: string,
-    content: string,
-    filename: string,
-    metadata?: Record<string, any>
-  ): Promise<void> {
-    try {
-      // 使用 LlamaIndex 处理文档
-      const result: DocumentProcessingResult = await this.llamaIndexService.processDocument(
-        content,
-        filename,
-        { documentId, ...metadata }
-      )
-
-      if (result.success && result.chunks) {
-        // 保存分块到数据库
-        const chunkData = result.chunks.map((chunk, index) => ({
-          documentId,
-          chunkIndex: index,
-          content: chunk.content,
-          embedding: chunk.embedding ? JSON.stringify(chunk.embedding) : null,
-          metadata: chunk.metadata || {},
-        }))
-
-        await this.prisma.documentChunk.createMany({
-          data: chunkData,
-        })
-
-        // 更新文档处理状态
-        await this.prisma.document.update({
-          where: { id: documentId },
-          data: { processed: true },
-        })
-
-        this.logger.log(`Document processed successfully: ${documentId}`)
-      } else {
-        this.logger.error(`Failed to process document ${documentId}: ${result.error}`)
-      }
-    } catch (error) {
-      this.logger.error(`Error processing document ${documentId}:`, error)
     }
   }
 
@@ -231,39 +174,50 @@ export class DocumentsService {
    */
   async searchDocuments(userId: string, searchDto: DocumentSearchDto) {
     try {
-      const { query, topK = 5, threshold = 0.7 } = searchDto
+      const { query, topK = 5 } = searchDto
 
-      // 使用 LlamaIndex 进行语义搜索
-      const searchResults = await this.llamaIndexService.searchDocuments(query, topK, threshold)
-
-      // 获取相关文档的详细信息
-      const documentIds = searchResults
-        .map((result) => result.metadata?.documentId)
-        .filter((id) => id)
-
+      // 基于文件名和内容的简单文本搜索
       const documents = await this.prisma.document.findMany({
         where: {
-          id: { in: documentIds },
           userId,
           deletedAt: null,
+          OR: [
+            {
+              filename: {
+                contains: query,
+                mode: 'insensitive',
+              },
+            },
+            {
+              content: {
+                contains: query,
+                mode: 'insensitive',
+              },
+            },
+          ],
         },
         select: {
           id: true,
           filename: true,
           fileType: true,
+          content: true,
           createdAt: true,
           metadata: true,
         },
+        take: topK,
+        orderBy: { createdAt: 'desc' },
       })
 
-      // 合并搜索结果和文档信息
-      const results = searchResults.map((result) => {
-        const document = documents.find((doc) => doc.id === result.metadata?.documentId)
-        return {
-          ...result,
-          document,
-        }
-      })
+      const results = documents.map((doc) => ({
+        content: doc.content.substring(0, 200) + '...', // 返回内容摘要
+        document: {
+          id: doc.id,
+          filename: doc.filename,
+          fileType: doc.fileType,
+          createdAt: doc.createdAt,
+          metadata: doc.metadata,
+        },
+      }))
 
       this.logger.log(
         `Search completed for user ${userId}, query: "${query}", found ${results.length} results`
@@ -287,8 +241,13 @@ export class DocumentsService {
     try {
       const { query } = queryDto
 
-      // 使用 LlamaIndex 进行文档查询
-      const answer = await this.llamaIndexService.queryDocuments(query)
+      // 简单的文档搜索，返回相关文档内容
+      const searchResults = await this.searchDocuments(userId, { query, topK: 3 })
+
+      const answer =
+        searchResults.results.length > 0
+          ? `找到 ${searchResults.results.length} 个相关文档：\n${searchResults.results.map((r) => `- ${r.document.filename}: ${r.content}`).join('\n')}`
+          : '未找到相关文档内容。'
 
       this.logger.log(`Document query completed for user ${userId}, query: "${query}"`)
 
@@ -327,9 +286,6 @@ export class DocumentsService {
         data: { deletedAt: new Date() },
       })
 
-      // 从 LlamaIndex 索引中删除
-      await this.llamaIndexService.removeDocument(documentId)
-
       this.logger.log(`Document deleted: ${documentId}`)
 
       return { message: 'Document deleted successfully' }
@@ -344,12 +300,9 @@ export class DocumentsService {
    */
   async getDocumentStats(userId: string) {
     try {
-      const [totalDocuments, processedDocuments, totalSize] = await Promise.all([
+      const [totalDocuments, totalSize] = await Promise.all([
         this.prisma.document.count({
           where: { userId, deletedAt: null },
-        }),
-        this.prisma.document.count({
-          where: { userId, deletedAt: null, processed: true },
         }),
         this.prisma.document.aggregate({
           where: { userId, deletedAt: null },
@@ -357,14 +310,11 @@ export class DocumentsService {
         }),
       ])
 
-      const indexStats = await this.llamaIndexService.getIndexStats()
-
       return {
         totalDocuments,
-        processedDocuments,
-        pendingDocuments: totalDocuments - processedDocuments,
+        processedDocuments: totalDocuments, // 所有文档都标记为已处理
+        pendingDocuments: 0,
         totalSize: totalSize._sum.fileSize || 0,
-        ...indexStats,
       }
     } catch (error) {
       this.logger.error(`Failed to get document stats for user ${userId}:`, error)

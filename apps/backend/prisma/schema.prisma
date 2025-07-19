@@ -141,7 +141,6 @@ model DocumentChunk {
   documentId String
   chunkIndex Int
   content    String   @db.Text
-  embedding  String?  @db.Text // 存储向量嵌入的JSON字符串
   metadata   Json?
   createdAt  DateTime @default(now())
   document   Document @relation(fields: [documentId], references: [id], onDelete: Cascade)

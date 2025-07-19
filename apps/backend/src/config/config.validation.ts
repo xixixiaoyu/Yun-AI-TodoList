@@ -31,11 +31,6 @@ export const configValidationSchema = Joi.object({
   OPENAI_API_KEY: Joi.string().optional(),
   CLAUDE_API_KEY: Joi.string().optional(),
 
-  // LlamaIndex 配置
-  CHUNK_SIZE: Joi.number().default(1024),
-  CHUNK_OVERLAP: Joi.number().default(200),
-  EMBEDDING_MODEL: Joi.string().default('text-embedding-ada-002'),
-
   // 搜索服务配置
   GOOGLE_SEARCH_API_KEY: Joi.string().optional(),
   GOOGLE_SEARCH_ENGINE_ID: Joi.string().optional(),
