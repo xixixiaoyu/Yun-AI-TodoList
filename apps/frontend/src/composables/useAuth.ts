@@ -185,10 +185,13 @@ export function useAuth() {
   /**
    * 发送邮箱验证码
    */
-  const sendVerificationCode = async (email: string): Promise<void> => {
+  const sendVerificationCode = async (
+    email: string,
+    type: 'register' | 'login' | 'reset_password' = 'register'
+  ): Promise<void> => {
     try {
       console.log('Sending verification code to:', email)
-      await authApi.sendVerificationCode({ email })
+      await authApi.sendVerificationCode({ email, type })
     } catch (error) {
       console.error('Send verification code failed:', error)
       throw error

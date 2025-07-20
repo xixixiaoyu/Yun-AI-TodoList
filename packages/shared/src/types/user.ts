@@ -62,6 +62,16 @@ export interface RefreshTokenDto {
   refreshToken: string
 }
 
+export interface SendVerificationCodeDto {
+  email: string
+  type: 'register' | 'login' | 'reset_password'
+}
+
+export interface VerifyEmailCodeDto {
+  email: string
+  code: string
+}
+
 // 主题相关
 export type ThemeValue = 'light' | 'dark' | 'auto'
 
