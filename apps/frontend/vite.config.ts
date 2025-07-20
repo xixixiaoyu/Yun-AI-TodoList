@@ -233,7 +233,7 @@ export default defineConfig({
     dedupe: ['vue', 'vue-router', 'vue-i18n'],
   },
   server: {
-    port: 3000,
+    port: 3003,
     open: false,
     cors: true,
     host: true,
