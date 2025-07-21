@@ -94,6 +94,15 @@ const router = createRouter({
         requiresGuest: true, // 只有未登录用户可以访问
       },
     },
+    {
+      path: '/auth/callback',
+      name: 'auth-callback',
+      component: () => import('../pages/AuthCallback.vue'),
+      meta: {
+        title: '登录处理中 - Yun AI TodoList',
+        preload: false,
+      },
+    },
   ],
 })
 

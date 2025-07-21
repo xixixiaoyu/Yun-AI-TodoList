@@ -90,10 +90,63 @@ export class AuthService {
       return null
     }
 
+    // Google 登录用户没有密码
+    if (!user.password) {
+      return null
+    }
+
     const isPasswordValid = await this.utilsService.comparePassword(password, user.password)
     if (!isPasswordValid) {
       return null
     }
+
+    return user
+  }
+
+  async validateGoogleUser(googleUserData: {
+    googleId: string
+    email: string
+    username: string
+    avatarUrl?: string
+    emailVerified: boolean
+  }): Promise<User> {
+    const { googleId, email, username, avatarUrl, emailVerified } = googleUserData
+
+    // 首先尝试通过 Google ID 查找用户
+    let user = await this.usersService.findByGoogleId(googleId)
+
+    if (user) {
+      // 更新最后活跃时间
+      await this.usersService.updateLastActiveTime(user.id)
+      return user
+    }
+
+    // 如果没有找到，尝试通过邮箱查找
+    user = await this.usersService.findByEmail(email)
+
+    if (user) {
+      // 如果用户存在但没有 Google ID，则关联 Google 账户
+      user = await this.usersService.linkGoogleAccount(user.id, googleId, avatarUrl)
+      return user
+    }
+
+    // 如果用户不存在，创建新用户
+    // 确保用户名唯一
+    let uniqueUsername = username
+    let counter = 1
+    while (await this.usersService.findByUsername(uniqueUsername)) {
+      uniqueUsername = `${username}${counter}`
+      counter++
+    }
+
+    user = await this.usersService.create({
+      email,
+      username: uniqueUsername,
+      password: '', // Google 用户不需要密码，但数据库字段现在是可选的
+      googleId,
+      avatarUrl,
+      emailVerified,
+    })
 
     return user
   }
@@ -128,7 +181,7 @@ export class AuthService {
     return { message: '退出登录成功' }
   }
 
-  private async generateTokens(user: User) {
+  async generateTokens(user: User) {
     const payload = {
       sub: user.id,
       email: user.email,

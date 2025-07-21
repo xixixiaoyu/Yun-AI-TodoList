@@ -122,6 +122,8 @@
     "forgotPassword": "Forgot password?",
     "submit": "Sign In",
     "submitting": "Signing in...",
+    "or": "or",
+    "googleLogin": "Sign in with Google",
     "noAccount": "Don't have an account?",
     "signUp": "Sign up now",
     "error": "Login failed, please check your email and password"

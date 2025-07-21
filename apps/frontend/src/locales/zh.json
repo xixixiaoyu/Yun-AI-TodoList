@@ -120,6 +120,8 @@
     "forgotPassword": "忘记密码？",
     "submit": "登录",
     "submitting": "登录中...",
+    "or": "或",
+    "googleLogin": "使用 Google 登录",
     "noAccount": "还没有账户？",
     "signUp": "立即注册",
     "error": "登录失败，请检查您的邮箱和密码"

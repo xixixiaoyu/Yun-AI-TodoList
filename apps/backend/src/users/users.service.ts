@@ -10,13 +10,17 @@ export class UsersService {
     private readonly utilsService: UtilsService
   ) {}
 
-  async create(createUserDto: CreateUserDto & { emailVerified?: boolean }): Promise<User> {
+  async create(
+    createUserDto: CreateUserDto & { emailVerified?: boolean; googleId?: string }
+  ): Promise<User> {
     const user = await this.prisma.user.create({
       data: {
         id: this.utilsService.generateId(),
         email: createUserDto.email.toLowerCase(),
         username: createUserDto.username.toLowerCase(),
-        password: createUserDto.password,
+        password: createUserDto.password || null,
+        googleId: createUserDto.googleId || null,
+        avatarUrl: createUserDto.avatarUrl || null,
         emailVerified: createUserDto.emailVerified ?? false,
         lastActiveAt: new Date(),
         preferences: {
@@ -184,5 +188,35 @@ export class UsersService {
       where: { id: userId },
       data: { password: hashedPassword },
     })
+  }
+
+  async findByGoogleId(googleId: string): Promise<User | null> {
+    const user = await this.prisma.user.findFirst({
+      where: {
+        googleId,
+        deletedAt: null,
+      },
+      include: {
+        preferences: true,
+      },
+    })
+
+    return user ? this.mapPrismaUserToUser(user) : null
+  }
+
+  async linkGoogleAccount(userId: string, googleId: string, avatarUrl?: string): Promise<User> {
+    const user = await this.prisma.user.update({
+      where: { id: userId },
+      data: {
+        googleId,
+        avatarUrl: avatarUrl || undefined,
+        lastActiveAt: new Date(),
+      },
+      include: {
+        preferences: true,
+      },
+    })
+
+    return this.mapPrismaUserToUser(user)
   }
 }

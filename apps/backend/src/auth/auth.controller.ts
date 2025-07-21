@@ -1,6 +1,17 @@
-import { Body, Controller, Get, HttpCode, HttpStatus, Post, UseGuards } from '@nestjs/common'
+import {
+  Body,
+  Controller,
+  Get,
+  HttpCode,
+  HttpStatus,
+  Post,
+  Req,
+  Res,
+  UseGuards,
+} from '@nestjs/common'
 import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger'
 import type { User } from '@shared/types'
+import { Request, Response } from 'express'
 import { AuthService } from './auth.service'
 import { CurrentUser } from './decorators/current-user.decorator'
 import { Public } from './decorators/public.decorator'
@@ -12,6 +23,7 @@ import { RegisterDto } from './dto/register.dto'
 import { ResetPasswordDto } from './dto/reset-password.dto'
 import { SendVerificationCodeDto } from './dto/send-verification-code.dto'
 import { VerifyEmailCodeDto } from './dto/verify-email-code.dto'
+import { GoogleAuthGuard } from './guards/google-auth.guard'
 import { JwtAuthGuard } from './guards/jwt-auth.guard'
 
 @ApiTags('auth')
@@ -116,5 +128,31 @@ export class AuthController {
   @ApiResponse({ status: 400, description: '验证码无效或已过期' })
   async verifyEmailCode(@Body() verifyEmailCodeDto: VerifyEmailCodeDto) {
     return this.authService.verifyEmailCode(verifyEmailCodeDto)
+  }
+
+  @Public()
+  @Get('google')
+  @UseGuards(GoogleAuthGuard)
+  @ApiOperation({ summary: 'Google OAuth 登录' })
+  @ApiResponse({ status: 302, description: '重定向到 Google 授权页面' })
+  async googleAuth() {
+    // 此方法由 GoogleAuthGuard 处理，重定向到 Google
+  }
+
+  @Public()
+  @Get('google/callback')
+  @UseGuards(GoogleAuthGuard)
+  @ApiOperation({ summary: 'Google OAuth 回调' })
+  @ApiResponse({ status: 302, description: '登录成功，重定向到前端' })
+  @ApiResponse({ status: 401, description: 'Google 授权失败' })
+  async googleAuthCallback(@Req() req: Request, @Res() res: Response) {
+    const user = req.user as User
+    const tokens = await this.authService.generateTokens(user)
+
+    // 重定向到前端，携带令牌
+    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000'
+    const redirectUrl = `${frontendUrl}/auth/callback?token=${tokens.accessToken}&refresh=${tokens.refreshToken}`
+
+    res.redirect(redirectUrl)
   }
 }

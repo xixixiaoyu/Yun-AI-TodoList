@@ -39,6 +39,8 @@ export interface CreateUserDto {
   email: string
   username: string
   password: string
+  avatarUrl?: string
+  googleId?: string
 }
 
 export interface LoginDto {
