@@ -121,6 +121,7 @@
     "submit": "登录",
     "submitting": "登录中...",
     "or": "或",
+    "githubLogin": "使用 GitHub 登录",
     "googleLogin": "使用 Google 登录",
     "noAccount": "还没有账户？",
     "signUp": "立即注册",

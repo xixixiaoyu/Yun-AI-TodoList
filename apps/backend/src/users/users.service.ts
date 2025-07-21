@@ -11,7 +11,7 @@ export class UsersService {
   ) {}
 
   async create(
-    createUserDto: CreateUserDto & { emailVerified?: boolean; googleId?: string }
+    createUserDto: CreateUserDto & { emailVerified?: boolean; googleId?: string; githubId?: string }
   ): Promise<User> {
     const user = await this.prisma.user.create({
       data: {
@@ -20,6 +20,7 @@ export class UsersService {
         username: createUserDto.username.toLowerCase(),
         password: createUserDto.password || null,
         googleId: createUserDto.googleId || null,
+        githubId: createUserDto.githubId || null,
         avatarUrl: createUserDto.avatarUrl || null,
         emailVerified: createUserDto.emailVerified ?? false,
         lastActiveAt: new Date(),
@@ -209,6 +210,36 @@ export class UsersService {
       where: { id: userId },
       data: {
         googleId,
+        avatarUrl: avatarUrl || undefined,
+        lastActiveAt: new Date(),
+      },
+      include: {
+        preferences: true,
+      },
+    })
+
+    return this.mapPrismaUserToUser(user)
+  }
+
+  async findByGitHubId(githubId: string): Promise<User | null> {
+    const user = await this.prisma.user.findFirst({
+      where: {
+        githubId,
+        deletedAt: null,
+      },
+      include: {
+        preferences: true,
+      },
+    })
+
+    return user ? this.mapPrismaUserToUser(user) : null
+  }
+
+  async linkGitHubAccount(userId: string, githubId: string, avatarUrl?: string): Promise<User> {
+    const user = await this.prisma.user.update({
+      where: { id: userId },
+      data: {
+        githubId,
         avatarUrl: avatarUrl || undefined,
         lastActiveAt: new Date(),
       },

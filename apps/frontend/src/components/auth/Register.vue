@@ -76,12 +76,11 @@
                 id="verificationCode"
                 v-model="formData.verificationCode"
                 type="text"
-                class="auth-input"
+                class="auth-input verification-code-input"
                 :class="{ error: errors.verificationCode }"
                 required
                 autocomplete="off"
                 maxlength="6"
-                placeholder="请输入6位验证码"
                 @blur="validateVerificationCode"
                 @input="clearError('verificationCode')"
               />
@@ -102,7 +101,7 @@
                 {{ t('register.sendCode') }}
               </span>
               <span v-else-if="isSendingCode">
-                <i class="i-carbon-circle-dash animate-spin"></i>
+                <i class="i-carbon-circle-dash animate-spin mr-1"></i>
                 {{ t('register.sending') }}
               </span>
               <span v-else> {{ countdown }}s </span>
@@ -533,23 +532,34 @@ defineOptions({
 
 /* 验证码输入框样式 */
 .verification-code-wrapper {
-  @apply flex gap-3 items-start;
+  @apply flex gap-3 items-end;
 }
 
 .verification-code-wrapper .input-wrapper {
   @apply flex-1;
 }
 
+.verification-code-input {
+  @apply pr-12; /* 确保右侧图标有足够空间 */
+}
+
 .send-code-button {
-  @apply px-4 py-3 bg-primary text-white rounded-lg font-medium transition-all-300 whitespace-nowrap;
+  @apply px-4 py-0 bg-primary text-white rounded-xl font-medium transition-all-300 whitespace-nowrap;
   @apply hover:bg-primary-hover focus:outline-none focus:ring-2 focus:ring-primary/20;
   @apply disabled:bg-gray-300 disabled:text-gray-500 disabled:cursor-not-allowed;
+  @apply flex items-center justify-center;
+  @apply flex-shrink-0; /* 防止按钮被压缩 */
   min-width: 100px;
-  height: 48px;
+  height: 56px; /* 与 auth-input 高度保持一致 */
 }
 
 .send-code-button:disabled {
   @apply bg-gray-300 text-gray-500 cursor-not-allowed;
+}
+
+/* 确保验证码区域的错误消息不影响布局 */
+.verification-code-wrapper + .error-message {
+  @apply mt-2;
 }
 
 /* 调整表单间距 */

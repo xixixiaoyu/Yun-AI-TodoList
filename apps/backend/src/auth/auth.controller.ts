@@ -23,6 +23,7 @@ import { RegisterDto } from './dto/register.dto'
 import { ResetPasswordDto } from './dto/reset-password.dto'
 import { SendVerificationCodeDto } from './dto/send-verification-code.dto'
 import { VerifyEmailCodeDto } from './dto/verify-email-code.dto'
+import { GitHubOAuthGuard } from './guards/github-oauth.guard'
 import { GoogleAuthGuard } from './guards/google-auth.guard'
 import { JwtAuthGuard } from './guards/jwt-auth.guard'
 
@@ -146,6 +147,32 @@ export class AuthController {
   @ApiResponse({ status: 302, description: '登录成功，重定向到前端' })
   @ApiResponse({ status: 401, description: 'Google 授权失败' })
   async googleAuthCallback(@Req() req: Request, @Res() res: Response) {
+    const user = req.user as User
+    const tokens = await this.authService.generateTokens(user)
+
+    // 重定向到前端，携带令牌
+    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000'
+    const redirectUrl = `${frontendUrl}/auth/callback?token=${tokens.accessToken}&refresh=${tokens.refreshToken}`
+
+    res.redirect(redirectUrl)
+  }
+
+  @Public()
+  @Get('github')
+  @UseGuards(GitHubOAuthGuard)
+  @ApiOperation({ summary: 'GitHub OAuth 登录' })
+  @ApiResponse({ status: 302, description: '重定向到 GitHub 授权页面' })
+  async githubAuth() {
+    // 此方法由 GitHubOAuthGuard 处理，重定向到 GitHub
+  }
+
+  @Public()
+  @Get('github/callback')
+  @UseGuards(GitHubOAuthGuard)
+  @ApiOperation({ summary: 'GitHub OAuth 回调' })
+  @ApiResponse({ status: 302, description: '登录成功，重定向到前端' })
+  @ApiResponse({ status: 401, description: 'GitHub 授权失败' })
+  async githubAuthCallback(@Req() req: Request, @Res() res: Response) {
     const user = req.user as User
     const tokens = await this.authService.generateTokens(user)
 

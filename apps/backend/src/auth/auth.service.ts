@@ -11,7 +11,6 @@ import type { AuthResponse, User } from '@shared/types'
 import { UtilsService } from '../common/services/utils.service'
 import { MailService } from '../mail/mail.service'
 import { UsersService } from '../users/users.service'
-import { EmailVerificationService } from './email-verification.service'
 import { ChangePasswordDto } from './dto/change-password.dto'
 import { ForgotPasswordDto } from './dto/forgot-password.dto'
 import { LoginDto } from './dto/login.dto'
@@ -20,6 +19,7 @@ import { RegisterDto } from './dto/register.dto'
 import { ResetPasswordDto } from './dto/reset-password.dto'
 import { SendVerificationCodeDto } from './dto/send-verification-code.dto'
 import { VerifyEmailCodeDto } from './dto/verify-email-code.dto'
+import { EmailVerificationService } from './email-verification.service'
 
 @Injectable()
 export class AuthService {
@@ -146,6 +146,53 @@ export class AuthService {
       googleId,
       avatarUrl,
       emailVerified,
+    })
+
+    return user
+  }
+
+  async validateGitHubUser(githubUserData: {
+    githubId: string
+    email: string
+    username: string
+    avatarUrl?: string
+  }): Promise<User> {
+    const { githubId, email, username, avatarUrl } = githubUserData
+
+    // 首先尝试通过 GitHub ID 查找用户
+    let user = await this.usersService.findByGitHubId(githubId)
+
+    if (user) {
+      // 更新最后活跃时间
+      await this.usersService.updateLastActiveTime(user.id)
+      return user
+    }
+
+    // 如果没有找到，尝试通过邮箱查找
+    user = await this.usersService.findByEmail(email)
+
+    if (user) {
+      // 如果用户存在但没有 GitHub ID，则关联 GitHub 账户
+      user = await this.usersService.linkGitHubAccount(user.id, githubId, avatarUrl)
+      return user
+    }
+
+    // 如果用户不存在，创建新用户
+    // 确保用户名唯一
+    let uniqueUsername = username
+    let counter = 1
+    while (await this.usersService.findByUsername(uniqueUsername)) {
+      uniqueUsername = `${username}${counter}`
+      counter++
+    }
+
+    user = await this.usersService.create({
+      email,
+      username: uniqueUsername,
+      password: '', // GitHub 用户不需要密码
+      githubId,
+      avatarUrl,
+      emailVerified: true, // GitHub 用户邮箱默认已验证
     })
 
     return user

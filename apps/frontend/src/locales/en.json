@@ -123,6 +123,7 @@
     "submit": "Sign In",
     "submitting": "Signing in...",
     "or": "or",
+    "githubLogin": "Sign in with GitHub",
     "googleLogin": "Sign in with Google",
     "noAccount": "Don't have an account?",
     "signUp": "Sign up now",
