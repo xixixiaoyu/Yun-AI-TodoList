@@ -151,6 +151,18 @@ COPY --chown=developer:nodejs apps/backend/prisma ./apps/backend/prisma
 RUN --mount=type=cache,target=/root/.local/share/pnpm/store,uid=1001,gid=1001 \
     pnpm install --frozen-lockfile --prefer-offline
 
+# 暂时跳过 Prisma 客户端复制，使用运行时生成
+
+# 创建启动脚本（在切换用户之前）
+RUN echo '#!/bin/bash' > /app/start-backend.sh && \
+    echo 'set -e' >> /app/start-backend.sh && \
+    echo 'echo "Generating Prisma client..."' >> /app/start-backend.sh && \
+    echo 'cd /app/apps/backend && pnpm exec prisma generate || echo "Prisma generation failed, continuing..."' >> /app/start-backend.sh && \
+    echo 'echo "Starting backend development server..."' >> /app/start-backend.sh && \
+    echo 'exec pnpm --filter backend dev' >> /app/start-backend.sh && \
+    chmod +x /app/start-backend.sh && \
+    chown developer:nodejs /app/start-backend.sh
+
 # 切换到非 root 用户
 USER developer
 
@@ -162,7 +174,7 @@ HEALTHCHECK --interval=30s --timeout=5s --start-period=20s --retries=3 \
   CMD curl -f http://localhost:3000/api/v1/health || exit 1
 
 # 启动开发服务器（源代码通过 volume 挂载）
-CMD ["pnpm", "--filter", "backend", "dev"]
+CMD ["/app/start-backend.sh"]
 
 # ===========================================
 # 全栈开发环境（可选）
