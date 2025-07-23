@@ -15,13 +15,6 @@ export class PrismaService extends PrismaClient implements OnModuleInit, OnModul
             '?pgbouncer=true&connection_limit=10&pool_timeout=20&connect_timeout=60',
         },
       },
-      // 优化连接池配置
-      __internal: {
-        engine: {
-          connectTimeout: 60000,
-          queryTimeout: 30000,
-        },
-      },
     })
   }
 

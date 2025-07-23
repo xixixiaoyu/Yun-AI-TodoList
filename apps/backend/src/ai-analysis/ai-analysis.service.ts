@@ -19,6 +19,57 @@ export class AIAnalysisService {
   constructor(private prisma: PrismaService) {}
 
   /**
+   * 解析预估时间字符串为分钟数
+   * 支持格式：'30分钟', '2小时', '1.5小时', '90分钟' 等
+   */
+  private parseEstimatedTime(timeStr: string): number | null {
+    if (!timeStr || typeof timeStr !== 'string') {
+      return null
+    }
+
+    const str = timeStr.trim().toLowerCase()
+
+    // 匹配小时格式：1小时、1.5小时、2h等
+    const hourMatch = str.match(/(\d+(?:\.\d+)?)\s*(?:小时|hour|h)/)
+    if (hourMatch) {
+      return Math.round(parseFloat(hourMatch[1]) * 60)
+    }
+
+    // 匹配分钟格式：30分钟、45min等
+    const minuteMatch = str.match(/(\d+)\s*(?:分钟|minute|min|m)/)
+    if (minuteMatch) {
+      return parseInt(minuteMatch[1], 10)
+    }
+
+    // 如果只是数字，默认为分钟
+    const numberMatch = str.match(/^(\d+)$/)
+    if (numberMatch) {
+      return parseInt(numberMatch[1], 10)
+    }
+
+    return null
+  }
+
+  /**
+   * 将分钟数转换为可读的时间字符串
+   */
+  private formatEstimatedTime(minutes: number | null): string | undefined {
+    if (!minutes) return undefined
+
+    if (minutes < 60) {
+      return `${minutes}分钟`
+    } else {
+      const hours = Math.floor(minutes / 60)
+      const remainingMinutes = minutes % 60
+      if (remainingMinutes === 0) {
+        return `${hours}小时`
+      } else {
+        return `${hours}小时${remainingMinutes}分钟`
+      }
+    }
+  }
+
+  /**
    * 创建 AI 分析记录
    */
   async createAnalysis(userId: string, data: CreateAIAnalysisDto): Promise<AIAnalysis> {
@@ -34,12 +85,17 @@ export class AIAnalysisService {
       throw new NotFoundException('Todo not found')
     }
 
+    // 处理预估时间转换
+    const estimatedTimeInMinutes = data.estimatedTime
+      ? this.parseEstimatedTime(data.estimatedTime)
+      : null
+
     // 直接更新 Todo 表，包含 AI 分析结果
     const updatedTodo = await this.prisma.todo.update({
       where: { id: data.todoId },
       data: {
         priority: data.priority,
-        estimatedTime: data.estimatedTime,
+        estimatedTime: estimatedTimeInMinutes,
         aiReasoning: data.reasoning,
         aiAnalyzed: true,
         updatedAt: new Date(),
@@ -51,7 +107,7 @@ export class AIAnalysisService {
       todoId: updatedTodo.id,
       userId,
       priority: updatedTodo.priority || undefined,
-      estimatedTime: updatedTodo.estimatedTime || undefined,
+      estimatedTime: this.formatEstimatedTime(updatedTodo.estimatedTime),
       reasoning: updatedTodo.aiReasoning || undefined,
       analyzedAt: updatedTodo.updatedAt.toISOString(),
     }
@@ -78,7 +134,7 @@ export class AIAnalysisService {
       todoId: todo.id,
       userId,
       priority: todo.priority || undefined,
-      estimatedTime: todo.estimatedTime || undefined,
+      estimatedTime: this.formatEstimatedTime(todo.estimatedTime),
       reasoning: todo.aiReasoning || undefined,
       analyzedAt: todo.updatedAt?.toISOString() || todo.createdAt.toISOString(),
     }
@@ -100,7 +156,7 @@ export class AIAnalysisService {
       todoId: todo.id,
       userId,
       priority: todo.priority || undefined,
-      estimatedTime: todo.estimatedTime || undefined,
+      estimatedTime: this.formatEstimatedTime(todo.estimatedTime),
       reasoning: todo.aiReasoning || undefined,
       analyzedAt: todo.updatedAt?.toISOString() || todo.createdAt.toISOString(),
     }))

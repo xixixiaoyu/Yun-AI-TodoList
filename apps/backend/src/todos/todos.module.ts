@@ -1,5 +1,7 @@
 import { Module } from '@nestjs/common'
 // import { AIAnalysisModule } from '../ai-analysis/ai-analysis.module'
+import { CacheService } from '../common/cache.service'
+import { ValidationService } from '../common/validation.service'
 import { TodosController } from './todos.controller'
 import { TodosService } from './todos.service'
 
@@ -8,7 +10,7 @@ import { TodosService } from './todos.service'
     /* AIAnalysisModule */
   ],
   controllers: [TodosController],
-  providers: [TodosService],
+  providers: [TodosService, ValidationService, CacheService],
   exports: [TodosService],
 })
 export class TodosModule {}

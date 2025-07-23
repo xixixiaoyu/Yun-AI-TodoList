@@ -125,4 +125,13 @@ export class QueryTodosDto {
   })
   @IsBoolean({ message: '统计信息标志必须是布尔值' })
   includeStats?: boolean = true
+
+  @ApiProperty({
+    description: '游标分页的游标值',
+    example: 'eyJpZCI6IjEyMyIsImNyZWF0ZWRBdCI6IjIwMjQtMDEtMDEifQ==',
+    required: false,
+  })
+  @IsOptional()
+  @IsString({ message: '游标必须是字符串' })
+  cursor?: string
 }

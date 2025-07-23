@@ -1,6 +1,7 @@
 import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common'
 import type { AIAnalysisResult, Todo, TodoListResponse, TodoStats } from '@shared/types'
 // import { AIAnalysisService } from '../ai-analysis/ai-analysis.service'
+import { CacheService } from '../common/cache.service'
 import { UtilsService } from '../common/services/utils.service'
 import { ValidationService } from '../common/validation.service'
 import { PrismaService } from '../database/prisma.service'
@@ -9,6 +10,21 @@ import { CreateTodoDto } from './dto/create-todo.dto'
 import { QueryTodosDto, TodoFilterType, TodoSortField } from './dto/query-todos.dto'
 import { ReorderTodosDto } from './dto/reorder-todos.dto'
 import { UpdateTodoDto } from './dto/update-todo.dto'
+
+// 缓存键生成器
+class CacheKeyGenerator {
+  static stats(userId: string): string {
+    return `todo:stats:${userId}`
+  }
+
+  static list(userId: string, query: string): string {
+    return `todo:list:${userId}:${query}`
+  }
+
+  static todo(userId: string, pattern: string): string {
+    return `todo:${userId}:${pattern}`
+  }
+}
 
 @Injectable()
 export class TodosService {
@@ -53,7 +69,9 @@ export class TodosService {
         title: createTodoDto.title.trim(),
         description: createTodoDto.description,
         priority: createTodoDto.priority,
-        estimatedTime: createTodoDto.estimatedTime,
+        estimatedTime: createTodoDto.estimatedTime
+          ? this.parseEstimatedTime(createTodoDto.estimatedTime)
+          : null,
         dueDate: createTodoDto.dueDate ? new Date(createTodoDto.dueDate) : null,
         order: (maxOrder._max.order || 0) + 1,
       },
@@ -198,7 +216,6 @@ export class TodosService {
           updatedAt: true,
           aiReasoning: true,
           version: true,
-          documentId: true,
         },
       }),
       // 只在非游标分页时计算总数（游标分页通常不需要总数）
@@ -272,6 +289,13 @@ export class TodosService {
     // 处理截止日期
     if (updateTodoDto.dueDate !== undefined) {
       updateData.dueDate = updateTodoDto.dueDate ? new Date(updateTodoDto.dueDate) : null
+    }
+
+    // 处理预估时间（从字符串转换为分钟数）
+    if (updateTodoDto.estimatedTime !== undefined) {
+      updateData.estimatedTime = updateTodoDto.estimatedTime
+        ? this.parseEstimatedTime(updateTodoDto.estimatedTime)
+        : null
     }
 
     // 处理完成状态和完成时间
@@ -353,6 +377,21 @@ export class TodosService {
       this.validationService.validateTodoData(updateData)
     }
 
+    // 处理数据类型转换
+    const processedUpdateData: any = { ...updateData }
+
+    // 处理预估时间类型转换
+    if (updateData.estimatedTime !== undefined) {
+      processedUpdateData.estimatedTime = updateData.estimatedTime
+        ? this.parseEstimatedTime(updateData.estimatedTime)
+        : null
+    }
+
+    // 处理截止日期
+    if (updateData.dueDate !== undefined) {
+      processedUpdateData.dueDate = updateData.dueDate ? new Date(updateData.dueDate) : null
+    }
+
     // 使用事务确保数据一致性
     await this.prisma.$transaction(async (tx) => {
       // 先验证所有 todos 都属于该用户
@@ -375,7 +414,7 @@ export class TodosService {
           userId,
         },
         data: {
-          ...updateData,
+          ...processedUpdateData,
           updatedAt: new Date(),
         },
       })
@@ -646,6 +685,38 @@ export class TodosService {
       estimatedTime,
       reasoning: `基于关键词分析：优先级 ${priority}/5，预计耗时 ${estimatedTime}`,
     }
+  }
+
+  /**
+   * 解析预估时间字符串为分钟数
+   * 支持格式：'30分钟', '2小时', '1.5小时', '90分钟' 等
+   */
+  private parseEstimatedTime(timeStr: string): number | null {
+    if (!timeStr || typeof timeStr !== 'string') {
+      return null
+    }
+
+    const str = timeStr.trim().toLowerCase()
+
+    // 匹配小时格式：1小时、1.5小时、2h等
+    const hourMatch = str.match(/(\d+(?:\.\d+)?)\s*(?:小时|hour|h)/)
+    if (hourMatch) {
+      return Math.round(parseFloat(hourMatch[1]) * 60)
+    }
+
+    // 匹配分钟格式：30分钟、45min等
+    const minuteMatch = str.match(/(\d+)\s*(?:分钟|minute|min|m)/)
+    if (minuteMatch) {
+      return parseInt(minuteMatch[1], 10)
+    }
+
+    // 如果只是数字，默认为分钟
+    const numberMatch = str.match(/^(\d+)$/)
+    if (numberMatch) {
+      return parseInt(numberMatch[1], 10)
+    }
+
+    return null
   }
 
   private mapPrismaTodoToTodo(prismaTodo: any): Todo {

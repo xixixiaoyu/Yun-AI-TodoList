@@ -13,15 +13,15 @@ export class OptimizedTodosService {
     // 使用 PostgreSQL 全文搜索
     const todos = await this.prisma.$queryRaw`
       SELECT id, title, description, completed, priority, "createdAt"
-      FROM todos 
-      WHERE user_id = ${userId} 
+      FROM todos
+      WHERE user_id = ${userId}
         AND deleted_at IS NULL
         AND (
           to_tsvector('english', title) @@ plainto_tsquery('english', ${searchQuery})
           OR to_tsvector('english', COALESCE(description, '')) @@ plainto_tsquery('english', ${searchQuery})
         )
-      ORDER BY 
-        ts_rank(to_tsvector('english', title || ' ' || COALESCE(description, '')), 
+      ORDER BY
+        ts_rank(to_tsvector('english', title || ' ' || COALESCE(description, '')),
                 plainto_tsquery('english', ${searchQuery})) DESC,
         created_at DESC
       LIMIT ${limit}
@@ -104,17 +104,32 @@ export class OptimizedTodosService {
    */
   async getTodoStatsOptimized(userId: string) {
     // 使用单个查询获取所有统计信息
-    const stats = await this.prisma.$queryRaw`
-      SELECT 
+    const stats = await this.prisma.$queryRaw<
+      Array<{
+        total: bigint
+        active: bigint
+        completed: bigint
+        high_priority: bigint
+        overdue: bigint
+      }>
+    >`
+      SELECT
         COUNT(*) as total,
         COUNT(*) FILTER (WHERE completed = false) as active,
         COUNT(*) FILTER (WHERE completed = true) as completed,
         COUNT(*) FILTER (WHERE priority >= 4) as high_priority,
         COUNT(*) FILTER (WHERE due_date < NOW() AND completed = false) as overdue
-      FROM todos 
+      FROM todos
       WHERE user_id = ${userId} AND deleted_at IS NULL
     `
 
-    return stats[0]
+    const result = stats[0]
+    return {
+      total: Number(result.total),
+      active: Number(result.active),
+      completed: Number(result.completed),
+      highPriority: Number(result.high_priority),
+      overdue: Number(result.overdue),
+    }
   }
 }

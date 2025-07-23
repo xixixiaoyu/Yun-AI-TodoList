@@ -20,11 +20,14 @@ model User {
   accountStatus String           @default("active") /// 账户状态：active/inactive/suspended/deleted
   deletedAt     DateTime?        /// 软删除时间戳
   lastActiveAt  DateTime?        /// 最后活跃时间
-  todos         Todo[]
-  documents     Document[]
-  preferences   UserPreferences?
-  settings      UserSetting[]
-  emailCodes    EmailVerificationCode[]
+  todos              Todo[]
+  preferences        UserPreferences?
+  basicPreferences   UserBasicPreferences?
+  aiConfig          UserAIConfig?
+  searchConfig      UserSearchConfig?
+  notificationConfig UserNotificationConfig?
+  storageConfig     UserStorageConfig?
+  emailCodes        EmailVerificationCode[]
 
   @@index([lastActiveAt], map: "idx_users_last_active")
   @@index([deletedAt], map: "idx_users_soft_delete")
@@ -69,6 +72,92 @@ model UserPreferences {
   @@map("user_preferences")
 }
 
+/// 用户基本偏好表 - 存储主题、语言等基本设置
+model UserBasicPreferences {
+  id        String   @id @default(cuid())
+  userId    String   @unique
+  theme     String   @default("light")
+  language  String   @default("zh-CN")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId], map: "idx_user_basic_preferences_user_id")
+  @@map("user_basic_preferences")
+}
+
+/// 用户AI配置表 - 存储AI相关的所有配置
+model UserAIConfig {
+  id               String   @id @default(cuid())
+  userId           String   @unique
+  enabled          Boolean  @default(true)
+  autoAnalyze      Boolean  @default(true)
+  priorityAnalysis Boolean  @default(true)
+  timeEstimation   Boolean  @default(true)
+  subtaskSplitting Boolean  @default(true)
+  model            String   @default("deepseek-chat")
+  temperature      Float    @default(0.3)
+  maxTokens        Int      @default(1000)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+  user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId], map: "idx_user_ai_config_user_id")
+  @@map("user_ai_config")
+}
+
+/// 用户搜索配置表 - 存储搜索引擎相关配置
+model UserSearchConfig {
+  id                 String   @id @default(cuid())
+  userId             String   @unique
+  defaultLanguage    String   @default("zh-CN")
+  safeSearch         Boolean  @default(true)
+  defaultResultCount Int      @default(10)
+  engine             String   @default("google")
+  region             String   @default("CN")
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+  user               User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId], map: "idx_user_search_config_user_id")
+  @@map("user_search_config")
+}
+
+/// 用户通知配置表 - 存储通知相关设置
+model UserNotificationConfig {
+  id                   String   @id @default(cuid())
+  userId               String   @unique
+  desktopNotifications Boolean  @default(true)
+  emailNotifications   Boolean  @default(false)
+  dueReminder          Boolean  @default(true)
+  reminderMinutes      Int      @default(30)
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+  user                 User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId], map: "idx_user_notification_config_user_id")
+  @@map("user_notification_config")
+}
+
+/// 用户存储配置表 - 存储数据存储和同步相关配置
+model UserStorageConfig {
+  id                 String   @id @default(cuid())
+  userId             String   @unique
+  mode               String   @default("hybrid")
+  autoSync           Boolean  @default(true)
+  syncInterval       Int      @default(5)
+  offlineMode        Boolean  @default(true)
+  conflictResolution String   @default("merge")
+  retryAttempts      Int      @default(3)
+  requestTimeout     Int      @default(10000)
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+  user               User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId], map: "idx_user_storage_config_user_id")
+  @@map("user_storage_config")
+}
+
 /// 待办事项表 - 存储用户的任务和相关信息
 model Todo {
   id            String    @id @default(cuid()) /// 待办事项唯一标识符
@@ -87,9 +176,7 @@ model Todo {
   aiReasoning   String?
   deletedAt     DateTime?
   version       Int       @default(1)
-  documentId    String?   // 关联的文档ID
   user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  document      Document? @relation(fields: [documentId], references: [id], onDelete: SetNull)
 
   @@index([userId, completed, dueDate], map: "idx_todos_user_status_due")
   @@index([userId, createdAt], map: "idx_todos_user_created")
@@ -97,62 +184,11 @@ model Todo {
   @@index([userId, title, completed], map: "idx_todos_user_title_status")
   @@index([priority], map: "idx_todos_priority")
   @@index([deletedAt], map: "idx_todos_soft_delete")
-  @@index([documentId], map: "idx_todos_document")
   @@map("todos")
 }
 
-model UserSetting {
-  id        String    @id @default(cuid())
-  key       String
-  value     String
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-  userId    String
-  deletedAt DateTime?
-  version   Int       @default(1)
-  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@unique([userId, key])
-  @@index([deletedAt], map: "idx_user_settings_soft_delete")
-  @@map("user_settings")
-}
 
-model Document {
-  id          String          @id @default(cuid())
-  userId      String
-  filename    String
-  fileType    String
-  fileSize    Int
-  content     String          @db.Text
-  metadata    Json?
-  processed   Boolean         @default(false)
-  createdAt   DateTime        @default(now())
-  updatedAt   DateTime        @updatedAt
-  deletedAt   DateTime?
-  user        User            @relation(fields: [userId], references: [id], onDelete: Cascade)
-  chunks      DocumentChunk[]
-  todos       Todo[]
-
-  @@index([userId, createdAt], map: "idx_documents_user_created")
-  @@index([fileType], map: "idx_documents_file_type")
-  @@index([processed], map: "idx_documents_processed")
-  @@index([deletedAt], map: "idx_documents_soft_delete")
-  @@map("documents")
-}
-
-model DocumentChunk {
-  id         String   @id @default(cuid())
-  documentId String
-  chunkIndex Int
-  content    String   @db.Text
-  metadata   Json?
-  createdAt  DateTime @default(now())
-  document   Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
-
-  @@unique([documentId, chunkIndex])
-  @@index([documentId], map: "idx_document_chunks_document")
-  @@map("document_chunks")
-}
 
 model EmailVerificationCode {
   id        String   @id @default(cuid())

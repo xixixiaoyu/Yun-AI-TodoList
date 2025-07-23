@@ -1,4 +1,4 @@
-import { Injectable, BadRequestException } from '@nestjs/common'
+import { BadRequestException, Injectable } from '@nestjs/common'
 
 @Injectable()
 export class ValidationService {
@@ -23,7 +23,7 @@ export class ValidationService {
    * 验证待办事项标题
    */
   validateTodoTitle(title: string): boolean {
-    return title && title.trim().length >= 1 && title.trim().length <= 200
+    return Boolean(title && title.trim().length >= 1 && title.trim().length <= 200)
   }
 
   /**
@@ -84,7 +84,7 @@ export class ValidationService {
    * 验证文件名
    */
   validateFilename(filename: string): boolean {
-    return filename && filename.trim().length >= 1 && filename.trim().length <= 255
+    return Boolean(filename && filename.trim().length >= 1 && filename.trim().length <= 255)
   }
 
   /**
@@ -99,7 +99,7 @@ export class ValidationService {
    * 验证邮箱验证码格式
    */
   validateVerificationCode(code: string): boolean {
-    return code && code.length === 6 && /^\d{6}$/.test(code)
+    return Boolean(code && code.length === 6 && /^\d{6}$/.test(code))
   }
 
   /**

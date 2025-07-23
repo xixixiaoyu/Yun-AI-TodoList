@@ -203,6 +203,9 @@ export interface TodoListResponse {
   page?: number
   limit?: number
   stats: TodoStats
+  // 游标分页支持
+  hasNextPage?: boolean
+  nextCursor?: string
 }
 
 // 用户设置相关类型
