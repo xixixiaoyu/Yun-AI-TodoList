@@ -36,13 +36,21 @@ export class NetworkStatusService {
   private defaultOptions: NetworkCheckOptions = {
     timeout: 5000,
     retries: 2,
-    endpoint: '/api/v1/health',
+    endpoint: this.getHealthEndpoint(),
     method: 'HEAD',
   }
 
   constructor() {
     this.setupEventListeners()
     this.startPeriodicCheck()
+  }
+
+  /**
+   * 获取健康检查端点 URL
+   */
+  private getHealthEndpoint(): string {
+    const apiBaseUrl = import.meta.env?.VITE_API_BASE_URL || 'http://localhost:8888/api/v1'
+    return `${apiBaseUrl}/health`
   }
 
   /**

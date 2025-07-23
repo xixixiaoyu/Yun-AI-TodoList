@@ -11,6 +11,7 @@ import type { AuthResponse, User } from '@shared/types'
 import { UtilsService } from '../common/services/utils.service'
 import { MailService } from '../mail/mail.service'
 import { UsersService } from '../users/users.service'
+import { VerificationService } from '../verification/verification.service'
 import { ChangePasswordDto } from './dto/change-password.dto'
 import { ForgotPasswordDto } from './dto/forgot-password.dto'
 import { LoginDto } from './dto/login.dto'
@@ -29,14 +30,53 @@ export class AuthService {
     private readonly configService: ConfigService,
     private readonly utilsService: UtilsService,
     private readonly mailService: MailService,
-    private readonly emailVerificationService: EmailVerificationService
+    private readonly emailVerificationService: EmailVerificationService,
+    private readonly verificationService: VerificationService
   ) {}
+
+  /**
+   * 使用独立验证码服务验证验证码
+   */
+  private async verifyCodeWithStandaloneService(
+    email: string,
+    code: string,
+    type: 'register' | 'login' | 'reset_password'
+  ): Promise<void> {
+    try {
+      // 调用独立验证码服务的验证接口
+      const response = await fetch('http://localhost:3000/api/v1/verification/verify-code', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, code, type }),
+      })
+
+      const result = (await response.json()) as { success: boolean; message?: string }
+
+      if (!result.success) {
+        throw new BadRequestException(result.message || '验证码验证失败')
+      }
+    } catch (error) {
+      if (error instanceof BadRequestException) {
+        throw error
+      }
+      throw new BadRequestException('验证码验证失败')
+    }
+  }
 
   async register(registerDto: RegisterDto): Promise<AuthResponse> {
     const { email, username, password, verificationCode } = registerDto
 
-    // 验证邮箱验证码
-    await this.emailVerificationService.verifyCode(email, verificationCode, 'register')
+    // 验证邮箱验证码（使用内存验证码服务，不删除验证码）
+    const verificationResult = await this.verificationService.verifyCodeWithoutDelete(
+      email,
+      verificationCode,
+      'register'
+    )
+    if (!verificationResult.success) {
+      throw new BadRequestException(verificationResult.message)
+    }
 
     // 检查邮箱是否已存在
     const existingUserByEmail = await this.usersService.findByEmail(email)
@@ -58,6 +98,9 @@ export class AuthService {
       password: hashedPassword,
       emailVerified: true, // 注册时已验证邮箱
     })
+
+    // 注册成功后删除验证码
+    await this.verificationService.deleteCode(email, 'register')
 
     // 生成令牌
     const tokens = await this.generateTokens(user)
@@ -346,14 +389,26 @@ export class AuthService {
   }
 
   /**
-   * 发送邮箱验证码
+   * 发送邮箱验证码（使用独立服务）
    */
   async sendVerificationCode(sendCodeDto: SendVerificationCodeDto): Promise<{ message: string }> {
     const { email, type, username } = sendCodeDto
 
-    await this.emailVerificationService.sendVerificationCode(email, type, username)
+    try {
+      // 调用独立验证码服务的发送接口
+      const response = await fetch('http://localhost:3000/api/v1/verification/send-code', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, type, username }),
+      })
 
-    return { message: '验证码已发送，请查收邮件' }
+      const result = (await response.json()) as { message: string }
+      return { message: result.message || '验证码已发送，请查收邮件' }
+    } catch (error) {
+      throw new BadRequestException('发送验证码失败，请稍后重试')
+    }
   }
 
   /**
@@ -362,9 +417,8 @@ export class AuthService {
   async verifyEmailCode(verifyCodeDto: VerifyEmailCodeDto): Promise<{ message: string }> {
     const { email, code } = verifyCodeDto
 
-    // 这里可以根据需要指定验证码类型，或者从数据库中查找
-    // 为了简化，我们假设这是通用验证
-    await this.emailVerificationService.verifyCode(email, code, 'register')
+    // 使用独立验证码服务验证
+    await this.verifyCodeWithStandaloneService(email, code, 'register')
 
     return { message: '邮箱验证成功' }
   }

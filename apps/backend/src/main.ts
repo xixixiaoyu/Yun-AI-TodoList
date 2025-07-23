@@ -29,6 +29,7 @@ async function bootstrap() {
       'http://localhost:3002', // 前端开发服务器（备用端口）
       'http://localhost:3000', // Electron 应用
       'http://localhost:5173', // Vite 开发服务器
+      'http://localhost:8888', // 后端 API 服务器
       configService.get('FRONTEND_URL', 'http://localhost:5173'),
       /^file:\/\//, // 允许 file:// 协议用于测试
     ],
@@ -145,7 +146,7 @@ async function bootstrap() {
     })
   }
 
-  const port = configService.get('PORT', 3000)
+  const port = configService.get('PORT', 8888)
   const host = configService.get('HOST', '0.0.0.0')
 
   await app.listen(port, host)

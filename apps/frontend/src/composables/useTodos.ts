@@ -706,12 +706,18 @@ export function useTodos() {
     clearTodosOnLogout,
   }
 
-  // 监听认证状态变化，用户登出时清理数据
+  // 监听认证状态变化，用户登出时清理数据并重新加载本地数据
   watch(
     isAuthenticated,
-    (authenticated) => {
+    async (authenticated) => {
       if (!authenticated) {
         clearTodosOnLogout()
+        // 用户登出后，立即从本地存储重新加载数据
+        try {
+          await loadTodos()
+        } catch (error) {
+          logger.error('Failed to load local todos after logout', error, 'useTodos')
+        }
       }
     },
     { immediate: true }

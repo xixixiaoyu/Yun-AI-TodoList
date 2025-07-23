@@ -13,6 +13,7 @@ import { DatabaseModule } from './database/database.module'
 import { SettingsModule } from './settings/settings.module'
 import { TodosModule } from './todos/todos.module'
 import { UsersModule } from './users/users.module'
+import { VerificationModule } from './verification/verification.module'
 
 import { AppController } from './app.controller'
 import { AppService } from './app.service'
@@ -63,12 +64,13 @@ import { configValidationSchema } from './config/config.validation'
     // 业务模块
     DatabaseModule,
     CommonModule,
-    AuthModule,
-    UsersModule,
-    TodosModule,
+    AuthModule, // 重新启用认证模块
+    UsersModule, // 重新启用用户模块
+    TodosModule, // 重新启用待办事项模块
     // DocumentsModule, // 临时禁用以避免编译错误
-    SettingsModule,
+    SettingsModule, // 重新启用设置模块
     // AIAnalysisModule, // 临时禁用以避免编译错误
+    VerificationModule, // 独立的验证码模块，不依赖 Prisma
   ],
   controllers: [AppController],
   providers: [

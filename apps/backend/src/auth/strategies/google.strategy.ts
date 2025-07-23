@@ -21,10 +21,26 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
     private readonly configService: ConfigService,
     private readonly authService: AuthService
   ) {
+    const clientID = configService.get<string>('GOOGLE_CLIENT_ID')
+    const clientSecret = configService.get<string>('GOOGLE_CLIENT_SECRET')
+    const callbackURL = configService.get<string>('GOOGLE_CALLBACK_URL')
+
+    if (!clientID || !clientSecret) {
+      console.warn('Google OAuth credentials not configured. Google login will not work.')
+      // 提供默认值以避免策略初始化失败
+      super({
+        clientID: 'dummy',
+        clientSecret: 'dummy',
+        callbackURL: callbackURL || 'http://localhost:3000/auth/google/callback',
+        scope: ['email', 'profile'],
+      })
+      return
+    }
+
     super({
-      clientID: configService.get<string>('GOOGLE_CLIENT_ID'),
-      clientSecret: configService.get<string>('GOOGLE_CLIENT_SECRET'),
-      callbackURL: configService.get<string>('GOOGLE_CALLBACK_URL'),
+      clientID,
+      clientSecret,
+      callbackURL,
       scope: ['email', 'profile'],
     })
   }

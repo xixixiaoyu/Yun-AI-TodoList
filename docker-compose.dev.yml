@@ -56,7 +56,7 @@ services:
     restart: unless-stopped
     environment:
       NODE_ENV: development
-      PORT: 3000
+      PORT: 8888
       DATABASE_URL: postgresql://postgres:postgres123@postgres-dev:5432/yun_ai_todolist_dev
       DATABASE_HOST: postgres-dev
       DATABASE_PORT: 5432
@@ -72,6 +72,13 @@ services:
       BCRYPT_ROUNDS: 10
       FRONTEND_URL: http://localhost:5173
       LOG_LEVEL: debug
+      # SMTP 邮件配置
+      SMTP_HOST: smtp.qq.com
+      SMTP_PORT: 587
+      SMTP_SECURE: false
+      SMTP_USER: 1416900346@qq.com
+      SMTP_PASSWORD: pezjeplbzkonidjh
+      SMTP_FROM: 1416900346@qq.com
       # 优化环境变量
       CHOKIDAR_USEPOLLING: true
       WATCHPACK_POLLING: true
@@ -85,7 +92,7 @@ services:
       # 挂载日志目录
       - ./apps/backend/logs:/app/apps/backend/logs
     ports:
-      - '3000:3000'
+      - '8888:8888'
       - '9229:9229' # Node.js 调试端口
     depends_on:
       postgres-dev:
@@ -95,7 +102,7 @@ services:
     networks:
       - todolist-dev-network
     healthcheck:
-      test: ['CMD', 'curl', '-f', 'http://localhost:3000/api/v1/health']
+      test: ['CMD', 'curl', '-f', 'http://localhost:8888/api/v1/health']
       interval: 30s
       timeout: 5s
       retries: 3
@@ -121,7 +128,7 @@ services:
     restart: unless-stopped
     environment:
       NODE_ENV: development
-      VITE_API_BASE_URL: http://localhost:3000/api/v1
+      VITE_API_BASE_URL: http://localhost:8888/api/v1
       # 优化环境变量
       CHOKIDAR_USEPOLLING: true
       VITE_HMR_PORT: 5173

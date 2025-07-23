@@ -69,6 +69,7 @@ export default [
 
         fetch: 'readonly',
         URL: 'readonly',
+        URLSearchParams: 'readonly',
         Blob: 'readonly',
         File: 'readonly',
         FileReader: 'readonly',
@@ -100,6 +101,7 @@ export default [
         HTMLCanvasElement: 'readonly',
         HTMLDivElement: 'readonly',
         HTMLButtonElement: 'readonly',
+        HTMLImageElement: 'readonly',
 
         Notification: 'readonly',
         SpeechRecognition: 'readonly',
@@ -297,6 +299,7 @@ export default [
 
         fetch: 'readonly',
         URL: 'readonly',
+        URLSearchParams: 'readonly',
         Blob: 'readonly',
         File: 'readonly',
         FileReader: 'readonly',
@@ -326,6 +329,7 @@ export default [
         HTMLSelectElement: 'readonly',
         HTMLCanvasElement: 'readonly',
         HTMLDivElement: 'readonly',
+        HTMLImageElement: 'readonly',
         EventTarget: 'readonly',
 
         Notification: 'readonly',

@@ -124,17 +124,19 @@ export function useDataSync() {
 
       // 标记初始同步完成
       syncState.isInitialSyncComplete = true
-      // 只有在实际有数据变化时才更新同步时间
+      // 只有在实际有数据变化时才更新同步时间和显示通知
       if (
         result.status === SyncStatus.SUCCESS &&
         (result.stats.uploaded > 0 || result.stats.downloaded > 0)
       ) {
         syncState.lastSyncTime = new Date()
-        // 显示同步成功通知
-        syncSuccess(result.stats)
+        // 🔧 修复：只有在有实际数据变化时才显示同步成功通知
+        // 避免登录后无数据变化时的快速闪过通知
+        if (result.stats.uploaded > 0 || result.stats.downloaded > 0) {
+          syncSuccess(result.stats)
+        }
       }
 
-      console.log('初始同步完成:', result)
       return result
     } catch (error) {
       const errorMsg = error instanceof Error ? error.message : '同步失败'
@@ -166,13 +168,13 @@ export function useDataSync() {
       const result = await syncService.syncData(localTodos)
 
       await handleSyncResult(result)
-      // 只有在实际有数据变化时才更新同步时间
+      // 只有在实际有数据变化时才更新同步时间和显示通知
       if (
         result.status === SyncStatus.SUCCESS &&
         (result.stats.uploaded > 0 || result.stats.downloaded > 0)
       ) {
         syncState.lastSyncTime = new Date()
-        // 显示同步成功通知
+        // 🔧 修复：只有在有实际数据变化时才显示同步成功通知
         syncSuccess(result.stats)
       }
 
@@ -497,8 +499,11 @@ export function useDataSync() {
    * 处理网络恢复
    */
   const handleNetworkOnline = async () => {
-    // 显示网络恢复通知
-    networkOnline()
+    // 🔧 修复：只有在初始同步完成后才显示网络恢复通知
+    // 避免登录后立即显示网络恢复通知
+    if (syncState.isInitialSyncComplete) {
+      networkOnline()
+    }
 
     if (isAuthenticated.value && syncState.isInitialSyncComplete) {
       // 网络恢复且用户已登录，先处理待处理的操作，然后执行增量同步

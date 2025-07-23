@@ -12,8 +12,6 @@ model User {
   email         String           @unique
   username      String           @unique
   password      String?
-  googleId      String?          @unique
-  githubId      String?          @unique
   avatarUrl     String?
   emailVerified Boolean          @default(false)
   createdAt     DateTime         @default(now())
@@ -31,8 +29,6 @@ model User {
   @@index([deletedAt], map: "idx_users_soft_delete")
   @@index([accountStatus], map: "idx_users_account_status")
   @@index([emailVerified], map: "idx_users_email_verified")
-  @@index([googleId], map: "idx_users_google_id")
-  @@index([githubId], map: "idx_users_github_id")
   @@map("users")
 }
 

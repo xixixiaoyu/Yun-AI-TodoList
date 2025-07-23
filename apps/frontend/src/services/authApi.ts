@@ -3,16 +3,16 @@
  * 处理用户认证相关的 API 请求
  */
 
-import { httpClient, ApiError } from './api'
 import type {
   AuthResponse,
-  LoginDto,
   CreateUserDto,
-  RefreshTokenDto,
+  LoginDto,
   PublicUser,
+  RefreshTokenDto,
   SendVerificationCodeDto,
   VerifyEmailCodeDto,
 } from '@shared/types'
+import { ApiError, httpClient } from './api'
 
 /**
  * 认证 API 类
@@ -65,8 +65,9 @@ class AuthApi {
    */
   async sendVerificationCode(data: SendVerificationCodeDto): Promise<{ message: string }> {
     try {
+      // 使用独立的验证码 API
       const response = await httpClient.post<{ message: string }>(
-        `${this.baseEndpoint}/send-verification-code`,
+        `/api/v1/verification/send-code`,
         data
       )
 
@@ -93,12 +94,13 @@ class AuthApi {
    */
   async verifyEmailCode(data: VerifyEmailCodeDto): Promise<{ message: string; valid: boolean }> {
     try {
-      const response = await httpClient.post<{ message: string; valid: boolean }>(
-        `${this.baseEndpoint}/verify-email-code`,
-        data
+      // 使用独立的验证码 API
+      const response = await httpClient.post<{ success: boolean; message: string }>(
+        `/api/v1/verification/verify-code`,
+        { email: data.email, code: data.code, type: data.type }
       )
 
-      return response
+      return { message: response.message, valid: response.success }
     } catch (error) {
       if (error instanceof ApiError) {
         if (error.status === 400) {
@@ -338,10 +340,10 @@ export const authApi = new AuthApi()
 // 导出类型
 export type {
   AuthResponse,
-  LoginDto,
   CreateUserDto,
-  RefreshTokenDto,
+  LoginDto,
   PublicUser,
+  RefreshTokenDto,
   SendVerificationCodeDto,
   VerifyEmailCodeDto,
 }

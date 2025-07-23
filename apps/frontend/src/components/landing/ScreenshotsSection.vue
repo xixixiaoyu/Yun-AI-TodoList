@@ -49,7 +49,7 @@
       <div v-if="lightboxImage" class="lightbox-overlay" @click="closeLightbox">
         <div class="lightbox-container" @click.stop>
           <!-- 关闭按钮 -->
-          <button class="lightbox-close" @click="closeLightbox" aria-label="关闭灯箱">
+          <button class="lightbox-close" aria-label="关闭灯箱" @click="closeLightbox">
             <i class="i-carbon-close" />
           </button>
 
@@ -156,9 +156,8 @@ const closeLightbox = () => {
 }
 
 // 图片加载完成处理
-const onImageLoad = (event: Event) => {
-  const img = event.target as HTMLImageElement
-  console.log('图片加载完成:', img.naturalWidth, 'x', img.naturalHeight)
+const onImageLoad = (_event: Event) => {
+  // 图片加载完成，可以在这里处理加载完成的逻辑
 }
 
 // 图片加载错误处理

@@ -3,21 +3,23 @@
  * 用于未登录用户的本地数据存储
  */
 
-import type { CreateTodoDto, NetworkStatus, Todo, TodoStats, UpdateTodoDto } from '@shared/types'
 import { logger } from '@/utils/logger'
 import { TodoValidator } from '@/utils/todoValidator'
+import type { CreateTodoDto, NetworkStatus, Todo, TodoStats, UpdateTodoDto } from '@shared/types'
 import {
   TodoStorageService,
-  type StorageOperationResult,
   type BatchOperationResult,
+  type StorageOperationResult,
 } from './TodoStorageService'
 
 export class LocalStorageService extends TodoStorageService {
   private readonly storageKey = 'local_todos'
+  private readonly legacyStorageKey = 'todos' // 兼容旧的存储键名
 
   constructor() {
     super()
     this.initializeLocalStorage()
+    this.migrateLegacyData()
   }
 
   private initializeLocalStorage(): void {
@@ -29,6 +31,28 @@ export class LocalStorageService extends TodoStorageService {
       },
       pendingOperations: 0,
     })
+  }
+
+  /**
+   * 迁移旧的存储数据
+   */
+  private migrateLegacyData(): void {
+    try {
+      // 检查是否有新的存储数据
+      const newData = localStorage.getItem(this.storageKey)
+      if (newData) {
+        return // 已有新数据，无需迁移
+      }
+
+      // 检查是否有旧的存储数据
+      const legacyData = localStorage.getItem(this.legacyStorageKey)
+      if (legacyData) {
+        // 迁移数据
+        localStorage.setItem(this.storageKey, legacyData)
+      }
+    } catch (error) {
+      logger.error('Failed to migrate legacy todos data', error, 'LocalStorageService')
+    }
   }
 
   private getLocalTodos(): Todo[] {

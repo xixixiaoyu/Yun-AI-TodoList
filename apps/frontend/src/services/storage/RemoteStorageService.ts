@@ -59,7 +59,11 @@ export class RemoteStorageService extends TodoStorageService {
 
   private async checkServerReachability(): Promise<void> {
     try {
-      const response = await fetch('/api/health', {
+      // 使用正确的后端 API URL
+      const apiBaseUrl = import.meta.env?.VITE_API_BASE_URL || 'http://localhost:8888/api/v1'
+      const healthUrl = `${apiBaseUrl}/health`
+
+      const response = await fetch(healthUrl, {
         method: 'HEAD',
         signal: AbortSignal.timeout(5000), // 5秒超时
       })
@@ -70,6 +74,7 @@ export class RemoteStorageService extends TodoStorageService {
         lastCheckTime: new Date().toISOString(),
       })
     } catch (error) {
+      console.error('Server reachability check failed:', error)
       this.updateNetworkStatus({
         isServerReachable: false,
         consecutiveFailures: this._status.networkStatus.consecutiveFailures + 1,

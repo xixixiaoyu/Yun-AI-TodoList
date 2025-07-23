@@ -68,7 +68,7 @@ const props = withDefaults(defineProps<Props>(), {
 const { t } = useI18n()
 const { isAuthenticated } = useAuth()
 const { networkStatus, reconnectCloudStorage } = useStorageMode()
-const { networkStatusText, checkServerHealth } = useSyncManager()
+const { networkStatusText, checkServerHealth, isInitialized } = useSyncManager()
 
 // 用户关闭状态管理
 const userDismissedAt = ref<number | null>(null)
@@ -181,13 +181,26 @@ const shouldShow = computed(() => {
     }
   }
 
-  // 显示条件：连接检查中、网络离线、服务器不可达或刚完成检查
-  return (
-    isCheckingConnection.value ||
-    !networkStatus.value.isOnline ||
-    !networkStatus.value.isServerReachable ||
-    (networkStatus.value.lastCheckTime && isRecentCheck.value)
-  )
+  // 🔧 修复：避免在初始化完成前显示"服务器不可达"
+  // 只有在网络管理器初始化完成后，才显示服务器不可达的状态
+  const shouldShowServerError = isInitialized.value && !networkStatus.value.isServerReachable
+
+  // 🔧 修复：避免登录后立即显示成功状态的快速闪过通知
+  // 只有在有实际问题时才显示，或者是真正需要用户关注的状态变化
+  const hasActualProblem =
+    isCheckingConnection.value || !networkStatus.value.isOnline || shouldShowServerError
+
+  // 对于成功状态的检查结果，只在有意义的时候显示（比如从错误状态恢复）
+  const shouldShowRecentSuccess =
+    networkStatus.value.lastCheckTime &&
+    isRecentCheck.value &&
+    networkStatus.value.isOnline &&
+    isInitialized.value &&
+    networkStatus.value.isServerReachable &&
+    networkStatus.value.consecutiveFailures > 0 // 只有在之前有失败时才显示恢复通知
+
+  // 显示条件：有实际问题时正常显示，或者是从错误状态恢复的成功通知
+  return hasActualProblem || shouldShowRecentSuccess
 })
 
 const isRecentCheck = computed(() => {
