@@ -7,18 +7,19 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+/// 用户表 - 存储用户基本信息和账户状态
 model User {
-  id            String           @id @default(cuid())
-  email         String           @unique
-  username      String           @unique
-  password      String?
-  avatarUrl     String?
-  emailVerified Boolean          @default(false)
-  createdAt     DateTime         @default(now())
-  updatedAt     DateTime         @updatedAt
-  accountStatus String           @default("active")
-  deletedAt     DateTime?
-  lastActiveAt  DateTime?
+  id            String           @id @default(cuid()) /// 用户唯一标识符
+  email         String           @unique /// 用户邮箱地址，用于登录和通知
+  username      String           @unique /// 用户名，用于显示和登录
+  password      String?          /// 密码哈希，OAuth用户可为空
+  avatarUrl     String?          /// 用户头像URL
+  emailVerified Boolean          @default(false) /// 邮箱是否已验证
+  createdAt     DateTime         @default(now()) /// 账户创建时间
+  updatedAt     DateTime         @updatedAt /// 最后更新时间
+  accountStatus String           @default("active") /// 账户状态：active/inactive/suspended/deleted
+  deletedAt     DateTime?        /// 软删除时间戳
+  lastActiveAt  DateTime?        /// 最后活跃时间
   todos         Todo[]
   documents     Document[]
   preferences   UserPreferences?
@@ -68,14 +69,15 @@ model UserPreferences {
   @@map("user_preferences")
 }
 
+/// 待办事项表 - 存储用户的任务和相关信息
 model Todo {
-  id            String    @id @default(cuid())
-  title         String
-  description   String?
-  completed     Boolean   @default(false)
-  completedAt   DateTime?
-  priority      Int?
-  estimatedTime String?
+  id            String    @id @default(cuid()) /// 待办事项唯一标识符
+  title         String    /// 待办事项标题 (1-200字符)
+  description   String?   /// 详细描述
+  completed     Boolean   @default(false) /// 是否已完成
+  completedAt   DateTime? /// 完成时间
+  priority      Int?      /// 优先级 (1-5，5为最高)
+  estimatedTime Int?      /// 预估时间（分钟）
   aiAnalyzed    Boolean   @default(false)
   order         Int       @default(0)
   dueDate       DateTime?
@@ -91,6 +93,8 @@ model Todo {
 
   @@index([userId, completed, dueDate], map: "idx_todos_user_status_due")
   @@index([userId, createdAt], map: "idx_todos_user_created")
+  @@index([userId, completed, priority], map: "idx_todos_user_status_priority")
+  @@index([userId, title, completed], map: "idx_todos_user_title_status")
   @@index([priority], map: "idx_todos_priority")
   @@index([deletedAt], map: "idx_todos_soft_delete")
   @@index([documentId], map: "idx_todos_document")

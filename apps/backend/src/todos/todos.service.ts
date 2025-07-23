@@ -2,6 +2,7 @@ import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/commo
 import type { AIAnalysisResult, Todo, TodoListResponse, TodoStats } from '@shared/types'
 // import { AIAnalysisService } from '../ai-analysis/ai-analysis.service'
 import { UtilsService } from '../common/services/utils.service'
+import { ValidationService } from '../common/validation.service'
 import { PrismaService } from '../database/prisma.service'
 import { BatchAnalyzeDto } from './dto/batch-analyze.dto'
 import { CreateTodoDto } from './dto/create-todo.dto'
@@ -13,11 +14,16 @@ import { UpdateTodoDto } from './dto/update-todo.dto'
 export class TodosService {
   constructor(
     private readonly prisma: PrismaService,
-    private readonly utilsService: UtilsService
+    private readonly utilsService: UtilsService,
+    private readonly validationService: ValidationService,
+    private readonly cacheService: CacheService
     // private readonly aiAnalysisService: AIAnalysisService
   ) {}
 
   async create(userId: string, createTodoDto: CreateTodoDto): Promise<Todo> {
+    // 验证输入数据
+    this.validationService.validateTodoData(createTodoDto)
+
     // 检查是否存在相同标题的未完成待办事项
     const existingTodo = await this.prisma.todo.findFirst({
       where: {
@@ -53,6 +59,10 @@ export class TodosService {
       },
     })
 
+    // 清除相关缓存
+    this.cacheService.deletePattern(CacheKeyGenerator.todo(userId, '*'))
+    this.cacheService.delete(CacheKeyGenerator.stats(userId))
+
     return this.mapPrismaTodoToTodo(todo)
   }
 
@@ -66,8 +76,9 @@ export class TodosService {
       sortBy,
       sortOrder,
       includeStats,
+      cursor, // 添加游标支持
     } = queryDto
-    const skip = (page - 1) * limit
+    const skip = cursor ? 0 : (page - 1) * limit // 使用游标时不需要 skip
 
     // 构建查询条件
     const where: any = {
@@ -75,12 +86,37 @@ export class TodosService {
       deletedAt: null, // 排除软删除的待办事项
     }
 
-    // 搜索条件
+    // 游标分页支持
+    if (cursor) {
+      where.createdAt = { lt: new Date(cursor) }
+    }
+
+    // 搜索条件 - 优化为全文搜索
     if (search) {
-      where.OR = [
-        { title: { contains: search, mode: 'insensitive' } },
-        { description: { contains: search, mode: 'insensitive' } },
-      ]
+      // 使用 PostgreSQL 全文搜索提升性能
+      const searchResults = (await this.prisma.$queryRaw`
+        SELECT id FROM todos
+        WHERE "userId" = ${userId}
+          AND "deletedAt" IS NULL
+          AND (
+            to_tsvector('english', title) @@ plainto_tsquery('english', ${search})
+            OR to_tsvector('english', COALESCE(description, '')) @@ plainto_tsquery('english', ${search})
+          )
+        ORDER BY
+          ts_rank(to_tsvector('english', title || ' ' || COALESCE(description, '')),
+                  plainto_tsquery('english', ${search})) DESC
+        LIMIT 100
+      `) as { id: string }[]
+
+      if (searchResults.length > 0) {
+        where.id = { in: searchResults.map((r) => r.id) }
+      } else {
+        // 如果全文搜索没有结果，回退到模糊搜索
+        where.OR = [
+          { title: { contains: search, mode: 'insensitive' } },
+          { description: { contains: search, mode: 'insensitive' } },
+        ]
+      }
     }
 
     // 类型过滤
@@ -137,16 +173,48 @@ export class TodosService {
       orderBy.order = sortOrder
     }
 
-    // 执行查询
+    // 执行查询 - 优化为游标分页
+    const take = cursor ? limit + 1 : limit // 游标分页时多取一个判断是否有下一页
+
     const [todos, total] = await Promise.all([
       this.prisma.todo.findMany({
         where,
         orderBy,
-        skip,
-        take: limit,
+        skip: cursor ? 0 : skip, // 游标分页不使用 skip
+        take,
+        // 优化：只选择必要字段
+        select: {
+          id: true,
+          title: true,
+          description: true,
+          completed: true,
+          completedAt: true,
+          priority: true,
+          estimatedTime: true,
+          aiAnalyzed: true,
+          order: true,
+          dueDate: true,
+          createdAt: true,
+          updatedAt: true,
+          aiReasoning: true,
+          version: true,
+          documentId: true,
+        },
       }),
-      this.prisma.todo.count({ where }),
+      // 只在非游标分页时计算总数（游标分页通常不需要总数）
+      cursor ? Promise.resolve(0) : this.prisma.todo.count({ where }),
     ])
+
+    // 处理游标分页结果
+    let hasNextPage = false
+    let nextCursor: string | undefined
+    let actualTodos = todos
+
+    if (cursor && todos.length > limit) {
+      hasNextPage = true
+      actualTodos = todos.slice(0, -1) // 移除多取的一个
+      nextCursor = actualTodos[actualTodos.length - 1]?.createdAt.toISOString()
+    }
 
     // 获取统计信息
     let stats: TodoStats | undefined
@@ -155,11 +223,14 @@ export class TodosService {
     }
 
     return {
-      todos: todos.map((todo: any) => this.mapPrismaTodoToTodo(todo)),
+      todos: actualTodos.map((todo: any) => this.mapPrismaTodoToTodo(todo)),
       total,
       page,
       limit,
       stats: stats!,
+      // 游标分页信息
+      hasNextPage,
+      nextCursor,
     }
   }
 
@@ -266,6 +337,79 @@ export class TodosService {
 
     await this.prisma.todo.delete({
       where: { id },
+    })
+  }
+
+  /**
+   * 批量更新待办事项 - 性能优化版本
+   */
+  async batchUpdate(
+    userId: string,
+    todoIds: string[],
+    updateData: Partial<UpdateTodoDto>
+  ): Promise<void> {
+    // 验证输入数据
+    if (updateData.title || updateData.priority || updateData.estimatedTime) {
+      this.validationService.validateTodoData(updateData)
+    }
+
+    // 使用事务确保数据一致性
+    await this.prisma.$transaction(async (tx) => {
+      // 先验证所有 todos 都属于该用户
+      const count = await tx.todo.count({
+        where: {
+          id: { in: todoIds },
+          userId,
+          deletedAt: null,
+        },
+      })
+
+      if (count !== todoIds.length) {
+        throw new NotFoundException('部分待办事项不存在或无权访问')
+      }
+
+      // 批量更新
+      await tx.todo.updateMany({
+        where: {
+          id: { in: todoIds },
+          userId,
+        },
+        data: {
+          ...updateData,
+          updatedAt: new Date(),
+        },
+      })
+    })
+  }
+
+  /**
+   * 批量删除待办事项（软删除）
+   */
+  async batchDelete(userId: string, todoIds: string[]): Promise<void> {
+    await this.prisma.$transaction(async (tx) => {
+      // 验证权限
+      const count = await tx.todo.count({
+        where: {
+          id: { in: todoIds },
+          userId,
+          deletedAt: null,
+        },
+      })
+
+      if (count !== todoIds.length) {
+        throw new NotFoundException('部分待办事项不存在或无权访问')
+      }
+
+      // 批量软删除
+      await tx.todo.updateMany({
+        where: {
+          id: { in: todoIds },
+          userId,
+        },
+        data: {
+          deletedAt: new Date(),
+        },
+      })
     })
   }
 
@@ -385,52 +529,57 @@ export class TodosService {
   }
 
   async getStats(userId: string): Promise<TodoStats> {
-    const baseWhere = { userId, deletedAt: null }
+    // 使用缓存优化统计查询
+    const cacheKey = CacheKeyGenerator.stats(userId)
 
-    const [total, completed, overdue, dueToday, dueThisWeek] = await Promise.all([
-      this.prisma.todo.count({ where: baseWhere }),
-      this.prisma.todo.count({ where: { ...baseWhere, completed: true } }),
-      this.prisma.todo.count({
-        where: {
-          ...baseWhere,
-          completed: false,
-          dueDate: { lt: new Date() },
-        },
-      }),
-      this.prisma.todo.count({
-        where: {
-          ...baseWhere,
-          completed: false,
-          dueDate: {
-            gte: new Date(new Date().setHours(0, 0, 0, 0)),
-            lte: new Date(new Date().setHours(23, 59, 59, 999)),
-          },
-        },
-      }),
-      this.prisma.todo.count({
-        where: {
-          ...baseWhere,
-          completed: false,
-          dueDate: {
-            gte: new Date(),
-            lte: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
-          },
-        },
-      }),
-    ])
+    return this.cacheService.getOrSet(
+      cacheKey,
+      async () => {
+        // 优化：使用单个查询获取所有统计信息
+        const now = new Date()
+        const todayStart = new Date(now.setHours(0, 0, 0, 0))
+        const todayEnd = new Date(now.setHours(23, 59, 59, 999))
+        const weekEnd = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
 
-    const active = total - completed
-    const completionRate = total > 0 ? Math.round((completed / total) * 100) / 100 : 0
+        const stats = await this.prisma.$queryRaw<
+          Array<{
+            total: bigint
+            completed: bigint
+            active: bigint
+            overdue: bigint
+            due_today: bigint
+            due_this_week: bigint
+          }>
+        >`
+      SELECT
+        COUNT(*) as total,
+        COUNT(*) FILTER (WHERE completed = true) as completed,
+        COUNT(*) FILTER (WHERE completed = false) as active,
+        COUNT(*) FILTER (WHERE completed = false AND due_date < NOW()) as overdue,
+        COUNT(*) FILTER (WHERE completed = false AND due_date >= ${todayStart} AND due_date <= ${todayEnd}) as due_today,
+        COUNT(*) FILTER (WHERE completed = false AND due_date >= NOW() AND due_date <= ${weekEnd}) as due_this_week
+      FROM todos
+      WHERE user_id = ${userId} AND deleted_at IS NULL
+    `
 
-    return {
-      total,
-      completed,
-      active,
-      completionRate,
-      overdue,
-      dueToday,
-      dueThisWeek,
-    }
+        const result = stats[0]
+        const total = Number(result.total)
+        const completed = Number(result.completed)
+        const active = Number(result.active)
+        const completionRate = total > 0 ? Math.round((completed / total) * 100) / 100 : 0
+
+        return {
+          total,
+          completed,
+          active,
+          completionRate,
+          overdue: Number(result.overdue),
+          dueToday: Number(result.due_today),
+          dueThisWeek: Number(result.due_this_week),
+        }
+      },
+      2 * 60 * 1000 // 缓存2分钟
+    )
   }
 
   private async performAIAnalysis(

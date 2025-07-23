@@ -1,0 +1,89 @@
+// 重构后的用户偏好表结构建议
+// 将单个大表拆分为多个功能相关的表
+
+model UserPreferences {
+  id        String   @id @default(cuid())
+  userId    String   @unique
+  theme     String   @default("light")
+  language  String   @default("zh-CN")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("user_preferences")
+}
+
+model UserAIConfig {
+  id               String  @id @default(cuid())
+  userId           String  @unique
+  enabled          Boolean @default(true)
+  autoAnalyze      Boolean @default(true)
+  priorityAnalysis Boolean @default(true)
+  timeEstimation   Boolean @default(true)
+  subtaskSplitting Boolean @default(true)
+  model            String  @default("deepseek-chat")
+  temperature      Float   @default(0.3)
+  maxTokens        Int     @default(1000)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+  user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("user_ai_config")
+}
+
+model UserSearchConfig {
+  id                 String  @id @default(cuid())
+  userId             String  @unique
+  language           String  @default("zh-CN")
+  safeSearch         Boolean @default(true)
+  defaultResultCount Int     @default(10)
+  engine             String  @default("google")
+  region             String  @default("CN")
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+  user               User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("user_search_config")
+}
+
+model UserNotificationConfig {
+  id                   String  @id @default(cuid())
+  userId               String  @unique
+  desktopNotifications Boolean @default(true)
+  emailNotifications   Boolean @default(false)
+  dueReminder          Boolean @default(true)
+  reminderMinutes      Int     @default(30)
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+  user                 User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("user_notification_config")
+}
+
+model UserStorageConfig {
+  id                 String  @id @default(cuid())
+  userId             String  @unique
+  mode               String  @default("hybrid")
+  autoSync           Boolean @default(true)
+  syncInterval       Int     @default(5)
+  offlineMode        Boolean @default(true)
+  conflictResolution String  @default("merge")
+  retryAttempts      Int     @default(3)
+  requestTimeout     Int     @default(10000)
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+  user               User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("user_storage_config")
+}
+
+// 更新 User 模型以包含新的关系
+model User {
+  // ... 其他字段保持不变
+  preferences        UserPreferences?
+  aiConfig          UserAIConfig?
+  searchConfig      UserSearchConfig?
+  notificationConfig UserNotificationConfig?
+  storageConfig     UserStorageConfig?
+  // ... 其他关系保持不变
+}

@@ -10,7 +10,16 @@ export class PrismaService extends PrismaClient implements OnModuleInit, OnModul
       log: ['query', 'info', 'warn', 'error'],
       datasources: {
         db: {
-          url: process.env.DATABASE_URL + '?pgbouncer=true&connection_limit=1',
+          url:
+            process.env.DATABASE_URL +
+            '?pgbouncer=true&connection_limit=10&pool_timeout=20&connect_timeout=60',
+        },
+      },
+      // 优化连接池配置
+      __internal: {
+        engine: {
+          connectTimeout: 60000,
+          queryTimeout: 30000,
         },
       },
     })
@@ -18,6 +27,9 @@ export class PrismaService extends PrismaClient implements OnModuleInit, OnModul
 
   async onModuleInit() {
     try {
+      // 应用软删除中间件
+      // this.$use(softDeleteMiddleware)
+
       await this.$connect()
       this.logger.log('Successfully connected to database')
     } catch (error) {
