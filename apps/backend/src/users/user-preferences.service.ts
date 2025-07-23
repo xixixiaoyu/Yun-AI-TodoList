@@ -1,7 +1,7 @@
-import { Injectable, NotFoundException } from '@nestjs/common'
+import { Injectable } from '@nestjs/common'
 import type { UserPreferences } from '@shared/types'
-import { PrismaService } from '../database/prisma.service'
 import { UtilsService } from '../common/services/utils.service'
+import { PrismaService } from '../database/prisma.service'
 
 export interface UpdateUserPreferencesDto {
   theme?: string
@@ -64,14 +64,20 @@ export class UserPreferencesService {
     })
 
     if (!existingPreferences) {
-      throw new NotFoundException('用户偏好设置不存在')
+      // 如果偏好设置不存在，先创建默认设置
+      await this.createDefault(userId)
     }
 
-    const preferences = await this.prisma.userPreferences.update({
+    const preferences = await this.prisma.userPreferences.upsert({
       where: { userId },
-      data: {
+      update: {
         ...updateDto,
         updatedAt: new Date(),
+      },
+      create: {
+        id: this.utilsService.generateId(),
+        userId,
+        ...updateDto,
       },
     })
 

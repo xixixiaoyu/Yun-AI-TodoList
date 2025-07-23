@@ -20,14 +20,9 @@ model User {
   accountStatus String           @default("active") /// 账户状态：active/inactive/suspended/deleted
   deletedAt     DateTime?        /// 软删除时间戳
   lastActiveAt  DateTime?        /// 最后活跃时间
-  todos              Todo[]
-  preferences        UserPreferences?
-  basicPreferences   UserBasicPreferences?
-  aiConfig          UserAIConfig?
-  searchConfig      UserSearchConfig?
-  notificationConfig UserNotificationConfig?
-  storageConfig     UserStorageConfig?
-  emailCodes        EmailVerificationCode[]
+  todos         Todo[]
+  preferences   UserPreferences?
+  emailCodes    EmailVerificationCode[]
 
   @@index([lastActiveAt], map: "idx_users_last_active")
   @@index([deletedAt], map: "idx_users_soft_delete")
@@ -36,127 +31,59 @@ model User {
   @@map("users")
 }
 
+/// 用户偏好设置表 - 存储所有用户配置信息（简化版）
 model UserPreferences {
   id                   String   @id @default(cuid())
   userId               String   @unique
-  theme                String   @default("light")
-  language             String   @default("zh-CN")
-  aiEnabled            Boolean  @default(true)
-  autoAnalyze          Boolean  @default(true)
-  priorityAnalysis     Boolean  @default(true)
-  timeEstimation       Boolean  @default(true)
-  subtaskSplitting     Boolean  @default(true)
-  aiModel              String   @default("deepseek-chat")
-  aiTemperature        Float    @default(0.3)
-  aiMaxTokens          Int      @default(1000)
-  searchLanguage       String   @default("zh-CN")
-  safeSearch           Boolean  @default(true)
-  defaultResultCount   Int      @default(10)
-  searchEngine         String   @default("google")
-  searchRegion         String   @default("CN")
-  desktopNotifications Boolean  @default(true)
-  emailNotifications   Boolean  @default(false)
-  dueReminder          Boolean  @default(true)
-  reminderMinutes      Int      @default(30)
-  storageMode          String   @default("hybrid")
-  autoSync             Boolean  @default(true)
-  syncInterval         Int      @default(5)
-  offlineMode          Boolean  @default(true)
-  conflictResolution   String   @default("merge")
-  retryAttempts        Int      @default(3)
-  requestTimeout       Int      @default(10000)
+  theme                String   @default("light") /// 主题设置：light/dark
+  language             String   @default("zh-CN") /// 语言设置：zh-CN/en-US等
+
+  // AI 配置
+  aiEnabled            Boolean  @default(true) /// AI功能是否启用
+  aiModel              String   @default("deepseek-chat") /// AI模型选择
+  aiTemperature        Float    @default(0.3) /// AI温度参数 (0-2)
+  aiMaxTokens          Int      @default(1000) /// AI最大token数
+  autoAnalyze          Boolean  @default(true) /// 自动分析任务
+  priorityAnalysis     Boolean  @default(true) /// 优先级分析
+  timeEstimation       Boolean  @default(true) /// 时间估算
+  subtaskSplitting     Boolean  @default(true) /// 子任务拆分
+
+  // 通知配置
+  desktopNotifications Boolean  @default(true) /// 桌面通知
+  emailNotifications   Boolean  @default(false) /// 邮件通知
+  dueReminder          Boolean  @default(true) /// 到期提醒
+  reminderMinutes      Int      @default(30) /// 提醒提前时间（分钟）
+
+  // 搜索配置
+  searchLanguage       String   @default("zh-CN") /// 搜索语言
+  safeSearch           Boolean  @default(true) /// 安全搜索
+  defaultResultCount   Int      @default(10) /// 默认结果数量
+  searchEngine         String   @default("google") /// 搜索引擎
+  searchRegion         String   @default("CN") /// 搜索区域
+
+  // 存储配置
+  storageMode          String   @default("hybrid") /// 存储模式
+  autoSync             Boolean  @default(true) /// 自动同步
+  syncInterval         Int      @default(5) /// 同步间隔（分钟）
+  offlineMode          Boolean  @default(true) /// 离线模式
+  conflictResolution   String   @default("merge") /// 冲突解决策略
+  retryAttempts        Int      @default(3) /// 重试次数
+  requestTimeout       Int      @default(10000) /// 请求超时时间（毫秒）
+
+  // 高级配置（JSON格式存储复杂配置）
+  advancedConfig       Json?    /// 高级配置，JSON格式
+
   createdAt            DateTime @default(now())
   updatedAt            DateTime @updatedAt
   user                 User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
+  @@index([userId], map: "idx_user_preferences_user_id")
+  @@index([theme], map: "idx_user_preferences_theme")
+  @@index([language], map: "idx_user_preferences_language")
   @@map("user_preferences")
 }
 
-/// 用户基本偏好表 - 存储主题、语言等基本设置
-model UserBasicPreferences {
-  id        String   @id @default(cuid())
-  userId    String   @unique
-  theme     String   @default("light")
-  language  String   @default("zh-CN")
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@index([userId], map: "idx_user_basic_preferences_user_id")
-  @@map("user_basic_preferences")
-}
-
-/// 用户AI配置表 - 存储AI相关的所有配置
-model UserAIConfig {
-  id               String   @id @default(cuid())
-  userId           String   @unique
-  enabled          Boolean  @default(true)
-  autoAnalyze      Boolean  @default(true)
-  priorityAnalysis Boolean  @default(true)
-  timeEstimation   Boolean  @default(true)
-  subtaskSplitting Boolean  @default(true)
-  model            String   @default("deepseek-chat")
-  temperature      Float    @default(0.3)
-  maxTokens        Int      @default(1000)
-  createdAt        DateTime @default(now())
-  updatedAt        DateTime @updatedAt
-  user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@index([userId], map: "idx_user_ai_config_user_id")
-  @@map("user_ai_config")
-}
-
-/// 用户搜索配置表 - 存储搜索引擎相关配置
-model UserSearchConfig {
-  id                 String   @id @default(cuid())
-  userId             String   @unique
-  defaultLanguage    String   @default("zh-CN")
-  safeSearch         Boolean  @default(true)
-  defaultResultCount Int      @default(10)
-  engine             String   @default("google")
-  region             String   @default("CN")
-  createdAt          DateTime @default(now())
-  updatedAt          DateTime @updatedAt
-  user               User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@index([userId], map: "idx_user_search_config_user_id")
-  @@map("user_search_config")
-}
-
-/// 用户通知配置表 - 存储通知相关设置
-model UserNotificationConfig {
-  id                   String   @id @default(cuid())
-  userId               String   @unique
-  desktopNotifications Boolean  @default(true)
-  emailNotifications   Boolean  @default(false)
-  dueReminder          Boolean  @default(true)
-  reminderMinutes      Int      @default(30)
-  createdAt            DateTime @default(now())
-  updatedAt            DateTime @updatedAt
-  user                 User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@index([userId], map: "idx_user_notification_config_user_id")
-  @@map("user_notification_config")
-}
-
-/// 用户存储配置表 - 存储数据存储和同步相关配置
-model UserStorageConfig {
-  id                 String   @id @default(cuid())
-  userId             String   @unique
-  mode               String   @default("hybrid")
-  autoSync           Boolean  @default(true)
-  syncInterval       Int      @default(5)
-  offlineMode        Boolean  @default(true)
-  conflictResolution String   @default("merge")
-  retryAttempts      Int      @default(3)
-  requestTimeout     Int      @default(10000)
-  createdAt          DateTime @default(now())
-  updatedAt          DateTime @updatedAt
-  user               User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@index([userId], map: "idx_user_storage_config_user_id")
-  @@map("user_storage_config")
-}
 
 /// 待办事项表 - 存储用户的任务和相关信息
 model Todo {
