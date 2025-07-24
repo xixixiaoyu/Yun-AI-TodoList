@@ -1,7 +1,8 @@
-import { Injectable } from '@nestjs/common'
+import { Injectable, UnauthorizedException } from '@nestjs/common'
 import type { CreateUserDto, UpdateUserDto, User } from '@shared/types'
 import { UtilsService } from '../common/services/utils.service'
 import { PrismaService } from '../database/prisma.service'
+import { ChangePasswordDto } from './dto/change-password.dto'
 
 @Injectable()
 export class UsersService {
@@ -208,6 +209,43 @@ export class UsersService {
     } catch (error) {
       throw new Error(
         `Failed to update password: ${error instanceof Error ? error.message : 'Unknown error'}`
+      )
+    }
+  }
+
+  async changePassword(userId: string, changePasswordDto: ChangePasswordDto): Promise<void> {
+    try {
+      // 获取用户当前密码
+      const user = await this.prisma.user.findUnique({
+        where: { id: userId },
+        select: { password: true },
+      })
+
+      if (!user || !user.password) {
+        throw new UnauthorizedException('用户不存在或密码未设置')
+      }
+
+      // 验证当前密码
+      const isCurrentPasswordValid = await this.utilsService.comparePassword(
+        changePasswordDto.currentPassword,
+        user.password
+      )
+
+      if (!isCurrentPasswordValid) {
+        throw new UnauthorizedException('当前密码错误')
+      }
+
+      // 加密新密码
+      const hashedNewPassword = await this.utilsService.hashPassword(changePasswordDto.newPassword)
+
+      // 更新密码
+      await this.updatePassword(userId, hashedNewPassword)
+    } catch (error) {
+      if (error instanceof UnauthorizedException) {
+        throw error
+      }
+      throw new Error(
+        `Failed to change password: ${error instanceof Error ? error.message : 'Unknown error'}`
       )
     }
   }
