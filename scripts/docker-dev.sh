@@ -57,8 +57,8 @@ create_default_env() {
     cat > .env << 'EOF'
 # 开发环境配置
 NODE_ENV=development
-POSTGRES_DB=yun_ai_todolist_dev
-POSTGRES_USER=postgres
+POSTGRES_DB=yun_todo_db
+POSTGRES_USER=yun_todo_user
 POSTGRES_PASSWORD=postgres123
 REDIS_PASSWORD=
 JWT_SECRET=dev-jwt-secret-key-for-development-only
@@ -123,7 +123,7 @@ build() {
     log_info "使用优化构建策略..."
     local max_retries=3
     local retry_count=0
-    
+
     while [ $retry_count -lt $max_retries ]; do
         if docker-compose -f docker-compose.dev.yml build \
             --parallel \
@@ -140,7 +140,7 @@ build() {
             fi
         fi
     done
-    
+
     log_error "构建失败，已达到最大重试次数"
     return 1
 }

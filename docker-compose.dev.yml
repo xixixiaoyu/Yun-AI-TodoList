@@ -9,19 +9,20 @@ services:
     container_name: yun-todolist-postgres-dev
     restart: unless-stopped
     environment:
-      POSTGRES_DB: yun_ai_todolist_dev
-      POSTGRES_USER: postgres
+      POSTGRES_DB: yun_todo_db
+      POSTGRES_USER: yun_todo_user
       POSTGRES_PASSWORD: postgres123
       PGDATA: /var/lib/postgresql/data/pgdata
+      POSTGRES_INITDB_ARGS: '--encoding=UTF-8 --lc-collate=C --lc-ctype=C'
     volumes:
       - postgres_dev_data:/var/lib/postgresql/data
-      - ./scripts/init-db.sql:/docker-entrypoint-initdb.d/init-db.sql:ro
+      - ./apps/backend/init-scripts:/docker-entrypoint-initdb.d:ro
     ports:
       - '5432:5432'
     networks:
       - todolist-dev-network
     healthcheck:
-      test: ['CMD-SHELL', 'pg_isready -U postgres -d yun_ai_todolist_dev']
+      test: ['CMD-SHELL', 'pg_isready -U yun_todo_user -d yun_todo_db']
       interval: 10s
       timeout: 5s
       retries: 5
@@ -57,11 +58,11 @@ services:
     environment:
       NODE_ENV: development
       PORT: 8888
-      DATABASE_URL: postgresql://postgres:postgres123@postgres-dev:5432/yun_ai_todolist_dev
+      DATABASE_URL: postgresql://yun_todo_user:postgres123@postgres-dev:5432/yun_todo_db
       DATABASE_HOST: postgres-dev
       DATABASE_PORT: 5432
-      DATABASE_NAME: yun_ai_todolist_dev
-      DATABASE_USER: postgres
+      DATABASE_NAME: yun_todo_db
+      DATABASE_USER: yun_todo_user
       DATABASE_PASSWORD: postgres123
       REDIS_HOST: redis-dev
       REDIS_PORT: 6379

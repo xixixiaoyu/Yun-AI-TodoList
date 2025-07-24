@@ -70,9 +70,6 @@ model UserPreferences {
   retryAttempts        Int      @default(3) /// 重试次数
   requestTimeout       Int      @default(10000) /// 请求超时时间（毫秒）
 
-  // 高级配置（JSON格式存储复杂配置）
-  advancedConfig       Json?    /// 高级配置，JSON格式
-
   createdAt            DateTime @default(now())
   updatedAt            DateTime @updatedAt
   user                 User     @relation(fields: [userId], references: [id], onDelete: Cascade)
