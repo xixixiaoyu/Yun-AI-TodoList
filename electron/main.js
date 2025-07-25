@@ -159,11 +159,26 @@ function createWindow() {
     },
     show: false,
     backgroundColor: '#f8f7f6',
-    titleBarStyle: process.platform === 'darwin' ? 'hiddenInset' : 'default',
+    titleBarStyle: process.platform === 'darwin' ? 'default' : 'default',
+    // macOS 特定配置
+    ...(process.platform === 'darwin' && {
+      titleBarOverlay: false, // 禁用标题栏覆盖
+      fullscreenWindowTitle: true, // 全屏时显示标题
+      simpleFullscreen: false, // 使用原生全屏模式
+    }),
     icon: process.platform === 'linux' ? getAppIconPath() : undefined,
   }
 
   mainWindow = new BrowserWindow(windowOptions)
+
+  // macOS 双击标题栏全屏功能
+  if (process.platform === 'darwin') {
+    // 设置窗口可以进入全屏模式
+    mainWindow.setFullScreenable(true)
+
+    // 启用系统偏好设置中的"双击标题栏以缩放窗口"功能
+    // 这是 macOS 的原生行为，应该自动工作
+  }
 
   // 安全：阻止新窗口创建
   mainWindow.webContents.setWindowOpenHandler(({ url }) => {
