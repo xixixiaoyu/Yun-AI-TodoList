@@ -180,7 +180,7 @@ export interface TaskTemplate {
   description: string // 模板描述
   category: string // 模板分类
   keywords: string[] // 关键词，用于匹配用户输入
-  tasks: Omit<GeneratedTask, 'reasoning'>[] // 模板任务
+  tasks: Array<Omit<GeneratedTask, 'reasoning'>> // 模板任务
   usage: number // 使用次数
   rating: number // 用户评分
   createdAt: string
@@ -192,7 +192,7 @@ export interface TodoHistoryItem {
   id: string
   todoId: string
   action: 'created' | 'updated' | 'completed' | 'deleted' | 'analyzed'
-  changes?: Record<string, any>
+  changes?: Record<string, string | number | boolean | null | undefined>
   timestamp: string
   userId?: string
 }

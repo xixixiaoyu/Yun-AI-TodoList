@@ -42,7 +42,7 @@ export function deepClone<T>(obj: T): T {
   if (typeof obj === 'object') {
     const clonedObj = {} as T
     for (const key in obj) {
-      if (obj.hasOwnProperty(key)) {
+      if (Object.prototype.hasOwnProperty.call(obj, key)) {
         clonedObj[key] = deepClone(obj[key])
       }
     }
@@ -52,7 +52,10 @@ export function deepClone<T>(obj: T): T {
 }
 
 // 深度合并对象
-export function deepMerge<T extends Record<string, any>>(target: T, ...sources: Partial<T>[]): T {
+export function deepMerge<T extends Record<string, any>>(
+  target: T,
+  ...sources: Array<Partial<T>>
+): T {
   if (!sources.length) return target
   const source = sources.shift()
 
@@ -110,12 +113,8 @@ export function sleep(ms: number): Promise<void> {
 }
 
 // 重试机制
-export async function retry<T>(
-  fn: () => Promise<T>,
-  maxAttempts: number = 3,
-  delay: number = 1000
-): Promise<T> {
-  let lastError: Error
+export async function retry<T>(fn: () => Promise<T>, maxAttempts = 3, delay = 1000): Promise<T> {
+  let lastError: Error | undefined
 
   for (let attempt = 1; attempt <= maxAttempts; attempt++) {
     try {
@@ -127,7 +126,7 @@ export async function retry<T>(
     }
   }
 
-  throw lastError!
+  throw lastError || new Error('All retry attempts failed')
 }
 
 // 类型守卫
@@ -152,7 +151,7 @@ export function isArray<T>(value: any): value is T[] {
 }
 
 export function isEmpty(value: any): boolean {
-  if (value == null) return true
+  if (value === null || value === undefined) return true
   if (typeof value === 'string') return value.trim().length === 0
   if (Array.isArray(value)) return value.length === 0
   if (typeof value === 'object') return Object.keys(value).length === 0

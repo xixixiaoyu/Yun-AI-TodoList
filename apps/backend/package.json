@@ -125,6 +125,20 @@
       "!src/main.ts"
     ],
     "coverageDirectory": "coverage",
+    "coverageReporters": [
+      "text",
+      "json",
+      "html",
+      "lcov"
+    ],
+    "coverageThreshold": {
+      "global": {
+        "branches": 75,
+        "functions": 75,
+        "lines": 75,
+        "statements": 75
+      }
+    },
     "testEnvironment": "node",
     "moduleNameMapper": {
       "^@/(.*)$": "<rootDir>/src/$1"

@@ -24,7 +24,7 @@ export class UtilsService {
   }
 
   // 生成随机字符串
-  generateRandomString(length: number = 32): string {
+  generateRandomString(length = 32): string {
     return randomBytes(Math.ceil(length / 2))
       .toString('hex')
       .slice(0, length)
@@ -64,14 +64,25 @@ export class UtilsService {
   }
 
   // 清理敏感信息
-  sanitizeUser(user: any): any {
+  sanitizeUser(user: { password?: string; [key: string]: any }): Omit<typeof user, 'password'> {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { password, ...sanitized } = user
     return sanitized
   }
 
   // 分页计算
-  calculatePagination(page: number, limit: number, total: number) {
+  calculatePagination(
+    page: number,
+    limit: number,
+    total: number
+  ): {
+    page: number
+    limit: number
+    total: number
+    totalPages: number
+    hasNext: boolean
+    hasPrev: boolean
+  } {
     const totalPages = Math.ceil(total / limit)
     const hasNext = page < totalPages
     const hasPrev = page > 1
@@ -95,7 +106,11 @@ export class UtilsService {
   }
 
   // 获取客户端 IP
-  getClientIp(request: any): string {
+  getClientIp(request: {
+    headers: Record<string, string | string[]>
+    connection?: { remoteAddress?: string; socket?: { remoteAddress?: string } }
+    socket?: { remoteAddress?: string }
+  }): string {
     return (
       request.headers['x-forwarded-for'] ||
       request.headers['x-real-ip'] ||
@@ -112,8 +127,8 @@ export class UtilsService {
   }
 
   // 重试机制
-  async retry<T>(fn: () => Promise<T>, maxAttempts: number = 3, delay: number = 1000): Promise<T> {
-    let lastError: Error
+  async retry<T>(fn: () => Promise<T>, maxAttempts = 3, delay = 1000): Promise<T> {
+    let lastError: Error | undefined
 
     for (let attempt = 1; attempt <= maxAttempts; attempt++) {
       try {
@@ -125,6 +140,6 @@ export class UtilsService {
       }
     }
 
-    throw lastError!
+    throw lastError || new Error('All retry attempts failed')
   }
 }

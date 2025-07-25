@@ -1,5 +1,4 @@
 import vue from '@vitejs/plugin-vue'
-import vue from '@vitejs/plugin-vue'
 import { fileURLToPath, URL } from 'node:url'
 import { defineConfig } from 'vitest/config'
 
@@ -29,10 +28,10 @@ export default defineConfig({
       ],
       thresholds: {
         global: {
-          branches: 70,
-          functions: 70,
-          lines: 70,
-          statements: 70,
+          branches: 75,
+          functions: 75,
+          lines: 75,
+          statements: 75,
         },
       },
     },

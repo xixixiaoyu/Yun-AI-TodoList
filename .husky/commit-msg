@@ -1,0 +1,36 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+# 验证提交信息格式
+echo "🔍 验证提交信息格式..."
+npx --no -- commitlint --edit "$1"
+
+if [ $? -eq 0 ]; then
+    echo "✅ 提交信息格式正确"
+else
+    echo ""
+    echo "❌ 提交信息格式不符合规范！"
+    echo ""
+    echo "📋 提交信息格式要求："
+    echo "  <type>(<scope>): <subject>"
+    echo ""
+    echo "🏷️  允许的类型："
+    echo "  feat:     新功能"
+    echo "  fix:      修复 bug"
+    echo "  docs:     文档更新"
+    echo "  style:    代码格式化"
+    echo "  refactor: 重构"
+    echo "  perf:     性能优化"
+    echo "  test:     增加测试"
+    echo "  chore:    构建过程或辅助工具的变动"
+    echo "  ci:       CI 配置文件和脚本的变动"
+    echo "  build:    影响构建系统或外部依赖的变动"
+    echo "  revert:   回滚 commit"
+    echo ""
+    echo "💡 示例："
+    echo "  feat: 添加用户登录功能"
+    echo "  fix: 修复登录页面样式问题"
+    echo "  docs: 更新 API 文档"
+    echo ""
+    exit 1
+fi

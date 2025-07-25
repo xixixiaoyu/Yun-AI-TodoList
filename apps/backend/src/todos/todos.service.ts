@@ -99,7 +99,15 @@ export class TodosService {
     const skip = cursor ? 0 : (page - 1) * limit // 使用游标时不需要 skip
 
     // 构建查询条件
-    const where: any = {
+    const where: {
+      userId: string
+      deletedAt: null
+      createdAt?: { lt: Date }
+      id?: { in: string[] }
+      completed?: boolean
+      priority?: { in: number[] }
+      dueDate?: { lte: Date } | { gte: Date; lte: Date }
+    } = {
       userId,
       deletedAt: null, // 排除软删除的待办事项
     }
@@ -124,7 +132,7 @@ export class TodosService {
           ts_rank(to_tsvector('english', title || ' ' || COALESCE(description, '')),
                   plainto_tsquery('english', ${search})) DESC
         LIMIT 100
-      `) as { id: string }[]
+      `) as Array<{ id: string }>
 
       if (searchResults.length > 0) {
         where.id = { in: searchResults.map((r) => r.id) }
@@ -176,7 +184,14 @@ export class TodosService {
     }
 
     // 排序
-    const orderBy: any = {}
+    const orderBy: {
+      createdAt?: 'asc' | 'desc'
+      completedAt?: 'asc' | 'desc'
+      title?: 'asc' | 'desc'
+      priority?: 'asc' | 'desc'
+      dueDate?: 'asc' | 'desc'
+      order?: 'asc' | 'desc'
+    } = {}
     if (sortBy === TodoSortField.CREATED_AT) {
       orderBy.createdAt = sortOrder
     } else if (sortBy === TodoSortField.COMPLETED_AT) {
@@ -244,7 +259,7 @@ export class TodosService {
       total,
       page,
       limit,
-      stats: stats!,
+      stats: stats || { total: 0, completed: 0, active: 0, completionRate: 0 },
       // 游标分页信息
       hasNextPage,
       nextCursor,
@@ -719,7 +734,21 @@ export class TodosService {
     return null
   }
 
-  private mapPrismaTodoToTodo(prismaTodo: any): Todo {
+  private mapPrismaTodoToTodo(prismaTodo: {
+    id: string
+    title: string
+    description: string | null
+    completed: boolean
+    completedAt: Date | null
+    createdAt: Date
+    updatedAt: Date
+    order: number
+    priority: number | null
+    estimatedTime: number | null
+    aiAnalyzed: boolean
+    userId: string
+    dueDate: Date | null
+  }): Todo {
     return {
       id: prismaTodo.id,
       title: prismaTodo.title,

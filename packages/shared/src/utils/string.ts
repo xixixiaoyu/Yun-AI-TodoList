@@ -3,7 +3,7 @@
  */
 
 // 生成随机字符串
-export function generateRandomString(length: number = 8): string {
+export function generateRandomString(length = 8): string {
   const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
   let result = ''
   for (let i = 0; i < length; i++) {
@@ -22,7 +22,7 @@ export function generateUUID(): string {
 }
 
 // 截断字符串
-export function truncate(str: string, length: number, suffix: string = '...'): string {
+export function truncate(str: string, length: number, suffix = '...'): string {
   if (str.length <= length) return str
   return str.substring(0, length - suffix.length) + suffix
 }
@@ -87,7 +87,7 @@ export function unescapeHtml(html: string): string {
 export function highlightSearchTerm(
   text: string,
   searchTerm: string,
-  className: string = 'highlight'
+  className = 'highlight'
 ): string {
   if (!searchTerm) return text
 

@@ -198,7 +198,7 @@ export class AIAnalysisService {
   async createDocumentBasedAnalysis(
     userId: string,
     todoId: string,
-    documentQuery?: string
+    _documentQuery?: string
   ): Promise<AIAnalysis> {
     try {
       // 获取 Todo 信息
@@ -237,7 +237,7 @@ export class AIAnalysisService {
     const text = `${title} ${description || ''}`.toLowerCase()
     let priority = 3
     let estimatedTime = '1小时'
-    let reasoning = '基于任务内容的标准分析'
+    const reasoning = '基于任务内容的标准分析'
 
     // 基于关键词的优先级分析
     if (text.includes('紧急') || text.includes('urgent') || text.includes('asap')) {
@@ -266,7 +266,7 @@ export class AIAnalysisService {
   async batchDocumentBasedAnalysis(
     userId: string,
     todoIds: string[]
-  ): Promise<{ todoId: string; success: boolean; analysis?: AIAnalysis; error?: string }[]> {
+  ): Promise<Array<{ todoId: string; success: boolean; analysis?: AIAnalysis; error?: string }>> {
     const results = []
 
     for (const todoId of todoIds) {
