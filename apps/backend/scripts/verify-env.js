@@ -2,8 +2,11 @@
 
 /**
  * 环境变量验证脚本
- * 用于检查 Render 部署所需的环境变量是否正确配置
+ * 用于检查部署所需的环境变量是否正确配置
  */
+
+// 加载环境变量 - 从根目录的 .env 文件
+require('dotenv').config({ path: '../../.env' })
 
 function validateEnvVars() {
   console.log('🔍 验证环境变量配置...\n')

@@ -71,10 +71,10 @@ pnpm --filter frontend electron:build:mac  # macOS
 pnpm --filter frontend electron:build:win  # Windows
 
 # 生产环境部署
-docker-compose -f docker-compose.prod.yml up -d
+docker-compose up -d
 
-# Cloudflare Workers 部署
-pnpm deploy:cf:prod
+# 或使用开发环境配置进行测试
+docker-compose -f docker-compose.dev.yml up -d
 ```
 
 ## 🛠️ 技术栈
