@@ -1,11 +1,10 @@
 import { Test, TestingModule } from '@nestjs/testing'
-import { UnauthorizedException } from '@nestjs/common'
-import { UsersController } from './users.controller'
-import { UsersService } from './users.service'
-import { UserPreferencesService } from './user-preferences.service'
 import { UtilsService } from '../common/services/utils.service'
 import { ChangePasswordDto } from './dto/change-password.dto'
 import { UpdateUserPreferencesDto } from './dto/user-preferences.dto'
+import { UserPreferencesService } from './user-preferences.service'
+import { UsersController } from './users.controller'
+import { UsersService } from './users.service'
 
 describe('UsersController', () => {
   let controller: UsersController

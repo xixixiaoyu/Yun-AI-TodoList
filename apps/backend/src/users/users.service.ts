@@ -46,7 +46,7 @@ export class UsersService {
       })
 
       return prismaUser ? this.mapPrismaUserToUser(prismaUser) : null
-    } catch (error) {
+    } catch {
       return null
     }
   }
@@ -61,7 +61,7 @@ export class UsersService {
       })
 
       return prismaUser ? this.mapPrismaUserToUser(prismaUser) : null
-    } catch (error) {
+    } catch {
       return null
     }
   }
@@ -76,7 +76,7 @@ export class UsersService {
       })
 
       return prismaUser ? this.mapPrismaUserToUser(prismaUser) : null
-    } catch (error) {
+    } catch {
       return null
     }
   }
@@ -137,11 +137,12 @@ export class UsersService {
           lastActiveAt: new Date(),
         },
       })
-    } catch (error) {
+    } catch {
       // 不抛出错误，因为这不是关键操作
     }
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private mapPrismaUserToUser(prismaUser: any): User {
     const prefs = prismaUser.preferences || {}
 
@@ -149,7 +150,6 @@ export class UsersService {
       id: prismaUser.id,
       email: prismaUser.email,
       username: prismaUser.username,
-      password: prismaUser.password,
       avatarUrl: prismaUser.avatarUrl,
       emailVerified: prismaUser.emailVerified ?? false,
       preferences: {
@@ -250,23 +250,33 @@ export class UsersService {
     }
   }
 
-  async findByGoogleId(googleId: string): Promise<User | null> {
+  async findByGoogleId(_googleId: string): Promise<User | null> {
     // 暂时禁用 OAuth 功能以修复 Prisma 客户端问题
     return null
   }
 
-  async linkGoogleAccount(userId: string, googleId: string, avatarUrl?: string): Promise<User> {
+  async linkGoogleAccount(_userId: string, _googleId: string, _avatarUrl?: string): Promise<User> {
     // 暂时禁用 OAuth 功能以修复 Prisma 客户端问题
     throw new Error('OAuth functionality temporarily disabled')
   }
 
-  async findByGitHubId(githubId: string): Promise<User | null> {
+  async findByGitHubId(_githubId: string): Promise<User | null> {
     // 暂时禁用 OAuth 功能以修复 Prisma 客户端问题
     return null
   }
 
-  async linkGitHubAccount(userId: string, githubId: string, avatarUrl?: string): Promise<User> {
+  async linkGitHubAccount(_userId: string, _githubId: string, _avatarUrl?: string): Promise<User> {
     // 暂时禁用 OAuth 功能以修复 Prisma 客户端问题
     throw new Error('OAuth functionality temporarily disabled')
+  }
+
+  // 添加一个方法来处理包含密码的内部用户类型（仅用于认证服务）
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  mapPrismaUserToInternalUser(prismaUser: any): any {
+    const user = this.mapPrismaUserToUser(prismaUser)
+    return {
+      ...user,
+      password: prismaUser.password,
+    }
   }
 }

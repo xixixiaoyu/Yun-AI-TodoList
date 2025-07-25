@@ -4,7 +4,7 @@
  */
 
 import { Injectable, NotFoundException } from '@nestjs/common'
-import type { AIAnalysis } from '@shared/types'
+import type { AIAnalysis, TodoPriority } from '@shared/types'
 import { PrismaService } from '../database/prisma.service'
 
 export interface CreateAIAnalysisDto {
@@ -106,7 +106,7 @@ export class AIAnalysisService {
     return {
       todoId: updatedTodo.id,
       userId,
-      priority: updatedTodo.priority || undefined,
+      priority: (updatedTodo.priority as TodoPriority) || undefined,
       estimatedTime: this.formatEstimatedTime(updatedTodo.estimatedTime),
       reasoning: updatedTodo.aiReasoning || undefined,
       analyzedAt: updatedTodo.updatedAt.toISOString(),
@@ -133,7 +133,7 @@ export class AIAnalysisService {
     return {
       todoId: todo.id,
       userId,
-      priority: todo.priority || undefined,
+      priority: (todo.priority as TodoPriority) || undefined,
       estimatedTime: this.formatEstimatedTime(todo.estimatedTime),
       reasoning: todo.aiReasoning || undefined,
       analyzedAt: todo.updatedAt?.toISOString() || todo.createdAt.toISOString(),
@@ -155,7 +155,7 @@ export class AIAnalysisService {
     return todos.map((todo) => ({
       todoId: todo.id,
       userId,
-      priority: todo.priority || undefined,
+      priority: (todo.priority as TodoPriority) || undefined,
       estimatedTime: this.formatEstimatedTime(todo.estimatedTime),
       reasoning: todo.aiReasoning || undefined,
       analyzedAt: todo.updatedAt?.toISOString() || todo.createdAt.toISOString(),

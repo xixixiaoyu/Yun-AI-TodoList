@@ -2,11 +2,24 @@
  * 用户相关类型定义
  */
 
+// 后端内部使用的完整用户类型（包含密码）
+export interface InternalUser {
+  id: string
+  email: string
+  username: string
+  password: string // 仅在后端内部使用
+  avatarUrl?: string
+  emailVerified: boolean
+  preferences: UserPreferences
+  createdAt: string
+  updatedAt: string
+}
+
+// 前后端共享的用户类型（不包含密码）
 export interface User {
   id: string
   email: string
   username: string
-  password: string // 仅在后端内部使用，前端不会接收到此字段
   avatarUrl?: string
   emailVerified: boolean
   preferences: UserPreferences

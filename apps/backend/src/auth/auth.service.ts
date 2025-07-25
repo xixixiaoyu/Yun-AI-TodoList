@@ -20,7 +20,6 @@ import { RegisterDto } from './dto/register.dto'
 import { ResetPasswordDto } from './dto/reset-password.dto'
 import { SendVerificationCodeDto } from './dto/send-verification-code.dto'
 import { VerifyEmailCodeDto } from './dto/verify-email-code.dto'
-import { EmailVerificationService } from './email-verification.service'
 
 @Injectable()
 export class AuthService {
@@ -30,7 +29,6 @@ export class AuthService {
     private readonly configService: ConfigService,
     private readonly utilsService: UtilsService,
     private readonly mailService: MailService,
-    private readonly emailVerificationService: EmailVerificationService,
     private readonly verificationService: VerificationService
   ) {}
 
@@ -133,12 +131,20 @@ export class AuthService {
       return null
     }
 
+    // 获取包含密码的内部用户数据进行验证
+    const internalUser = await this.usersService.mapPrismaUserToInternalUser(
+      await this.usersService['prisma'].user.findUnique({
+        where: { email },
+        include: { preferences: true },
+      })
+    )
+
     // Google 登录用户没有密码
-    if (!user.password) {
+    if (!internalUser.password) {
       return null
     }
 
-    const isPasswordValid = await this.utilsService.comparePassword(password, user.password)
+    const isPasswordValid = await this.utilsService.comparePassword(password, internalUser.password)
     if (!isPasswordValid) {
       return null
     }
@@ -346,8 +352,11 @@ export class AuthService {
       await this.usersService.updatePassword(user.id, hashedPassword)
 
       return { message: '密码重置成功' }
-    } catch (error: any) {
-      if (error.name === 'JsonWebTokenError' || error.name === 'TokenExpiredError') {
+    } catch (error: unknown) {
+      if (
+        error instanceof Error &&
+        (error.name === 'JsonWebTokenError' || error.name === 'TokenExpiredError')
+      ) {
         throw new BadRequestException('重置链接无效或已过期')
       }
       throw error
@@ -366,17 +375,28 @@ export class AuthService {
       throw new NotFoundException('用户不存在')
     }
 
+    // 获取包含密码的内部用户数据进行验证
+    const internalUser = await this.usersService.mapPrismaUserToInternalUser(
+      await this.usersService['prisma'].user.findUnique({
+        where: { id: userId },
+        include: { preferences: true },
+      })
+    )
+
     // 验证当前密码
     const isCurrentPasswordValid = await this.utilsService.comparePassword(
       currentPassword,
-      user.password
+      internalUser.password
     )
     if (!isCurrentPasswordValid) {
       throw new UnauthorizedException('当前密码错误')
     }
 
     // 检查新密码是否与当前密码相同
-    const isSamePassword = await this.utilsService.comparePassword(newPassword, user.password)
+    const isSamePassword = await this.utilsService.comparePassword(
+      newPassword,
+      internalUser.password
+    )
     if (isSamePassword) {
       throw new BadRequestException('新密码不能与当前密码相同')
     }
@@ -406,7 +426,7 @@ export class AuthService {
 
       const result = (await response.json()) as { message: string }
       return { message: result.message || '验证码已发送，请查收邮件' }
-    } catch (error) {
+    } catch {
       throw new BadRequestException('发送验证码失败，请稍后重试')
     }
   }

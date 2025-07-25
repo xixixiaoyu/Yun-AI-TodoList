@@ -66,8 +66,18 @@ export function isToday(date: string | Date): boolean {
 export function isThisWeek(date: string | Date): boolean {
   const d = new Date(date)
   const now = new Date()
-  const startOfWeek = new Date(now.setDate(now.getDate() - now.getDay()))
-  const endOfWeek = new Date(now.setDate(now.getDate() - now.getDay() + 6))
+
+  // 创建新的 Date 对象，避免修改原对象
+  const startOfWeek = new Date(now.getFullYear(), now.getMonth(), now.getDate() - now.getDay())
+  const endOfWeek = new Date(
+    now.getFullYear(),
+    now.getMonth(),
+    now.getDate() - now.getDay() + 6,
+    23,
+    59,
+    59,
+    999
+  )
 
   return d >= startOfWeek && d <= endOfWeek
 }
@@ -100,10 +110,14 @@ export function getDateRangeDescription(date: string | Date): string {
 
 // 解析时间估算字符串为分钟数
 export function parseTimeEstimate(estimate: string): number {
-  const match = estimate.match(/(\d+)\s*(分钟|小时|天|minutes?|hours?|days?)/i)
+  if (!estimate || typeof estimate !== 'string') return 0
+
+  const match = estimate.trim().match(/(\d+)\s*(分钟|小时|天|minutes?|hours?|days?)/i)
   if (!match) return 0
 
-  const value = parseInt(match[1])
+  const value = parseInt(match[1], 10)
+  if (isNaN(value) || value <= 0) return 0
+
   const unit = match[2].toLowerCase()
 
   if (unit.includes('分钟') || unit.includes('minute')) {
@@ -119,14 +133,24 @@ export function parseTimeEstimate(estimate: string): number {
 
 // 将分钟数格式化为可读的时间估算
 export function formatTimeEstimate(minutes: number): string {
+  if (!minutes || minutes <= 0) return '0分钟'
+
   if (minutes < 60) {
-    return `${minutes}分钟`
+    return `${Math.round(minutes)}分钟`
   } else if (minutes < 60 * 24) {
-    const hours = Math.round((minutes / 60) * 10) / 10
-    return `${hours}小时`
+    const hours = minutes / 60
+    // 如果是整数小时，不显示小数
+    if (hours % 1 === 0) {
+      return `${Math.round(hours)}小时`
+    }
+    return `${Math.round(hours * 10) / 10}小时`
   } else {
-    const days = Math.round((minutes / (60 * 24)) * 10) / 10
-    return `${days}天`
+    const days = minutes / (60 * 24)
+    // 如果是整数天，不显示小数
+    if (days % 1 === 0) {
+      return `${Math.round(days)}天`
+    }
+    return `${Math.round(days * 10) / 10}天`
   }
 }
 

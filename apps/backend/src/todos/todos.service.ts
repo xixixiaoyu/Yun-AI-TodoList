@@ -1,5 +1,11 @@
 import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common'
-import type { AIAnalysisResult, Todo, TodoListResponse, TodoStats } from '@shared/types'
+import type {
+  AIAnalysisResult,
+  Todo,
+  TodoListResponse,
+  TodoPriority,
+  TodoStats,
+} from '@shared/types'
 // import { AIAnalysisService } from '../ai-analysis/ai-analysis.service'
 import { CacheService } from '../common/cache.service'
 import { UtilsService } from '../common/services/utils.service'
@@ -716,8 +722,9 @@ export class TodosService {
     }
 
     return {
-      priority,
+      priority: priority as TodoPriority,
       estimatedTime,
+      estimatedMinutes: 0, // 添加 estimatedMinutes 字段
       reasoning: `基于关键词分析：优先级 ${priority}/5，预计耗时 ${estimatedTime}`,
     }
   }
@@ -778,7 +785,7 @@ export class TodosService {
       createdAt: prismaTodo.createdAt.toISOString(),
       updatedAt: prismaTodo.updatedAt.toISOString(),
       order: prismaTodo.order,
-      priority: prismaTodo.priority ?? undefined,
+      priority: (prismaTodo.priority as TodoPriority) ?? undefined,
       estimatedTime: prismaTodo.estimatedTime?.toString(),
       aiAnalyzed: prismaTodo.aiAnalyzed,
       userId: prismaTodo.userId,

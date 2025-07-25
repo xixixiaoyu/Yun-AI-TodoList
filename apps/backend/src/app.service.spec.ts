@@ -1,10 +1,9 @@
-import { Test, TestingModule } from '@nestjs/testing'
 import { ConfigService } from '@nestjs/config'
+import { Test, TestingModule } from '@nestjs/testing'
 import { AppService } from './app.service'
 
 describe('AppService', () => {
   let service: AppService
-  let configService: ConfigService
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -25,7 +24,6 @@ describe('AppService', () => {
     }).compile()
 
     service = module.get<AppService>(AppService)
-    configService = module.get<ConfigService>(ConfigService)
   })
 
   it('should be defined', () => {

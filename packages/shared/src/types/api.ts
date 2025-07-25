@@ -107,5 +107,20 @@ export const API_ENDPOINTS = {
   },
 } as const
 
-export type ApiEndpoint =
-  (typeof API_ENDPOINTS)[keyof typeof API_ENDPOINTS][keyof (typeof API_ENDPOINTS)[keyof typeof API_ENDPOINTS]]
+// 简化的 API 端点类型定义
+export type ApiEndpoint = string
+
+// 辅助类型：提取所有端点值
+type ExtractEndpoints<T> =
+  T extends Record<string, infer U>
+    ? U extends Record<string, infer V>
+      ? V extends string
+        ? V
+        : never
+      : U extends string
+        ? U
+        : never
+    : never
+
+// 具体的端点类型（用于类型检查）
+export type SpecificApiEndpoint = ExtractEndpoints<typeof API_ENDPOINTS>

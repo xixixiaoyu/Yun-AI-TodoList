@@ -3,42 +3,54 @@
  * 前后端共享的 Todo 数据结构
  */
 
+// 优先级类型定义
+export type TodoPriority = 1 | 2 | 3 | 4 | 5
+
+// 时间估算类型（支持字符串格式和分钟数）
+export interface TimeEstimate {
+  text: string // 显示文本，如 "30分钟", "2小时", "1天"
+  minutes: number // 对应的分钟数，便于计算
+}
+
 export interface Todo {
-  id: string // 改为 UUID 字符串
-  title: string // 重命名为 title
-  description?: string // 新增描述字段
+  id: string // UUID 字符串
+  title: string
+  description?: string
   completed: boolean
-  completedAt?: string
-  createdAt: string
-  updatedAt: string
+  completedAt?: string // ISO 8601 格式
+  createdAt: string // ISO 8601 格式
+  updatedAt: string // ISO 8601 格式
   order: number
-  priority?: number // 重要等级 (1-5 星)
-  estimatedTime?: string // 时间估算 (如: "30分钟", "2小时", "1天")
+  priority?: TodoPriority // 重要等级 (1-5 星)
+  estimatedTime?: string // 时间估算文本 (如: "30分钟", "2小时", "1天")
+  estimatedMinutes?: number // 时间估算分钟数（便于计算）
   aiAnalyzed?: boolean // 是否已进行 AI 分析
   userId?: string // 用户 ID (后端使用)
-  dueDate?: string // 截止日期
+  dueDate?: string // 截止日期 ISO 8601 格式
   // 双重存储支持
   synced?: boolean // 是否已同步到云端
-  lastSyncTime?: string // 最后同步时间
+  lastSyncTime?: string // 最后同步时间 ISO 8601 格式
   syncError?: string // 同步错误信息
 }
 
 export interface CreateTodoDto {
   title: string
   description?: string
-  priority?: number
+  priority?: TodoPriority
   estimatedTime?: string
-  dueDate?: string
+  estimatedMinutes?: number
+  dueDate?: string // ISO 8601 格式
 }
 
 export interface UpdateTodoDto {
   title?: string
   description?: string
   completed?: boolean
-  completedAt?: string
-  priority?: number
+  completedAt?: string // ISO 8601 格式
+  priority?: TodoPriority
   estimatedTime?: string
-  dueDate?: string
+  estimatedMinutes?: number
+  dueDate?: string // ISO 8601 格式
   order?: number
   aiAnalyzed?: boolean
 }
@@ -79,20 +91,22 @@ export interface BatchTodoOperationDto {
 
 // AI 分析相关类型
 export interface AIAnalysisResult {
-  priority: number // 1-5 星级
-  estimatedTime: string // 时间估算
+  priority: TodoPriority // 1-5 星级
+  estimatedTime: string // 时间估算文本
+  estimatedMinutes: number // 时间估算分钟数
   reasoning?: string // AI 分析理由
 }
 
 export interface AIAnalysis {
   todoId: string // 作为主键，一个 Todo 只有一条分析记录
   userId: string
-  priority?: number
+  priority?: TodoPriority
   estimatedTime?: string
+  estimatedMinutes?: number
   reasoning?: string
-  analyzedAt: string
+  analyzedAt: string // ISO 8601 格式
   synced?: boolean // 是否已同步到云端
-  lastSyncTime?: string // 最后同步时间
+  lastSyncTime?: string // 最后同步时间 ISO 8601 格式
   syncError?: string // 同步错误信息
 }
 

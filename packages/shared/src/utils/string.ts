@@ -12,8 +12,24 @@ export function generateRandomString(length = 8): string {
   return result
 }
 
-// 生成 UUID v4
+// 生成安全的 UUID v4
 export function generateUUID(): string {
+  // 优先使用浏览器原生的安全 UUID 生成
+  if (typeof crypto !== 'undefined' && crypto.randomUUID) {
+    return crypto.randomUUID()
+  }
+
+  // 降级方案：使用加密安全的随机数生成器
+  if (typeof crypto !== 'undefined' && crypto.getRandomValues) {
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+      const r = crypto.getRandomValues(new Uint8Array(1))[0] & 15
+      const v = c === 'x' ? r : (r & 0x3) | 0x8
+      return v.toString(16)
+    })
+  }
+
+  // 最后的降级方案（仅用于不支持 crypto 的环境）
+  console.warn('Using fallback UUID generation - not cryptographically secure')
   return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
     const r = (Math.random() * 16) | 0
     const v = c === 'x' ? r : (r & 0x3) | 0x8

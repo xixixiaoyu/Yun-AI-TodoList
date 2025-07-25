@@ -2,31 +2,32 @@
  * 数据验证工具函数
  */
 
+import { REGEX_PATTERNS } from '../constants'
 import type { CreateTodoDto, CreateUserDto, UpdateTodoDto } from '../types'
 
 // 邮箱验证
 export function isValidEmail(email: string): boolean {
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-  return emailRegex.test(email)
+  if (!email || typeof email !== 'string') return false
+  return REGEX_PATTERNS.EMAIL.test(email.trim())
 }
 
 // 密码强度验证
 export function isValidPassword(password: string): boolean {
-  // 至少8位，包含字母和数字
-  const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d@$!%*#?&]{8,}$/
-  return passwordRegex.test(password)
+  if (!password || typeof password !== 'string') return false
+  return REGEX_PATTERNS.PASSWORD.test(password)
 }
 
 // 用户名验证
 export function isValidUsername(username: string): boolean {
-  // 3-20位，只能包含字母、数字、下划线
-  const usernameRegex = /^[a-zA-Z0-9_]{3,20}$/
-  return usernameRegex.test(username)
+  if (!username || typeof username !== 'string') return false
+  return REGEX_PATTERNS.USERNAME.test(username.trim())
 }
 
 // Todo 标题验证
 export function isValidTodoTitle(title: string): boolean {
-  return title.trim().length > 0 && title.length <= 500
+  if (!title || typeof title !== 'string') return false
+  const trimmed = title.trim()
+  return trimmed.length > 0 && trimmed.length <= 500
 }
 
 // 优先级验证
@@ -36,14 +37,20 @@ export function isValidPriority(priority: number): boolean {
 
 // 时间估算格式验证
 export function isValidTimeEstimate(estimate: string): boolean {
-  const timeRegex = /^\d+\s*(分钟|小时|天|minutes?|hours?|days?)$/i
-  return timeRegex.test(estimate.trim())
+  if (!estimate || typeof estimate !== 'string') return false
+  return REGEX_PATTERNS.TIME_ESTIMATE.test(estimate.trim())
 }
 
 // URL 验证
 export function isValidUrl(url: string): boolean {
+  if (!url || typeof url !== 'string') return false
+
+  // 首先使用正则表达式进行基本验证
+  if (!REGEX_PATTERNS.URL.test(url.trim())) return false
+
+  // 然后使用 URL 构造函数进行更严格的验证
   try {
-    new URL(url)
+    new URL(url.trim())
     return true
   } catch {
     return false
@@ -52,8 +59,20 @@ export function isValidUrl(url: string): boolean {
 
 // UUID 验证
 export function isValidUUID(uuid: string): boolean {
-  const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i
-  return uuidRegex.test(uuid)
+  if (!uuid || typeof uuid !== 'string') return false
+  return REGEX_PATTERNS.UUID.test(uuid.trim())
+}
+
+// ISO 8601 日期格式验证
+export function isValidISODate(date: string): boolean {
+  if (!date || typeof date !== 'string') return false
+
+  // 首先检查格式
+  if (!REGEX_PATTERNS.ISO_DATE.test(date.trim())) return false
+
+  // 然后检查是否是有效日期
+  const parsedDate = new Date(date.trim())
+  return !isNaN(parsedDate.getTime())
 }
 
 // 验证 CreateTodoDto
@@ -76,8 +95,8 @@ export function validateCreateTodoDto(dto: CreateTodoDto): string[] {
     errors.push('时间估算格式不正确')
   }
 
-  if (dto.dueDate && isNaN(Date.parse(dto.dueDate))) {
-    errors.push('截止日期格式不正确')
+  if (dto.dueDate && !isValidISODate(dto.dueDate)) {
+    errors.push('截止日期格式不正确，请使用 ISO 8601 格式')
   }
 
   return errors
@@ -103,8 +122,8 @@ export function validateUpdateTodoDto(dto: UpdateTodoDto): string[] {
     errors.push('时间估算格式不正确')
   }
 
-  if (dto.dueDate !== undefined && isNaN(Date.parse(dto.dueDate))) {
-    errors.push('截止日期格式不正确')
+  if (dto.dueDate !== undefined && !isValidISODate(dto.dueDate)) {
+    errors.push('截止日期格式不正确，请使用 ISO 8601 格式')
   }
 
   return errors
@@ -131,13 +150,16 @@ export function validateCreateUserDto(dto: CreateUserDto): string[] {
 
 // 清理和标准化数据
 export function sanitizeTodoTitle(title: string): string {
+  if (!title || typeof title !== 'string') return ''
   return title.trim().replace(/\s+/g, ' ')
 }
 
 export function sanitizeEmail(email: string): string {
+  if (!email || typeof email !== 'string') return ''
   return email.trim().toLowerCase()
 }
 
 export function sanitizeUsername(username: string): string {
+  if (!username || typeof username !== 'string') return ''
   return username.trim().toLowerCase()
 }
