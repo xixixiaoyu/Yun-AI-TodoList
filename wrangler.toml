@@ -16,23 +16,8 @@ serve_single_page_app = true
 html_handling = "auto-trailing-slash"
 text_compression = "gzip"
 
-# 开发环境配置
-[env.development]
-name = "yun-ai-todolist-dev"
-
-[env.development.vars]
-ENVIRONMENT = "development"
-DEBUG_MODE = "true"
-API_BASE_URL = "http://localhost:3000"
-
-# 生产环境配置
-[env.production]
-name = "yun-ai-todolist-prod"
-
-[env.production.vars]
-ENVIRONMENT = "production"
-DEBUG_MODE = "false"
-API_BASE_URL = "https://api.yourdomain.com"
+# 统一部署配置
+# 所有环境变量在这里配置
 
 # KV 存储配置（如果需要）
 # [[kv_namespaces]]

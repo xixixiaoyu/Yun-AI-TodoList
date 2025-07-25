@@ -33,7 +33,6 @@
     "lint:fix": "pnpm --recursive lint:fix",
     "format": "prettier --cache --write \"**/*.{js,ts,json,css,scss,vue,html,md}\" --ignore-unknown",
     "format:check": "prettier --cache --check \"**/*.{js,ts,json,css,scss,vue,html,md}\" --ignore-unknown",
-    "perf:benchmark": "node scripts/performance-test.js",
     "type-check": "pnpm --recursive type-check",
     "clean": "pnpm --recursive clean && rimraf dist release node_modules/.cache .eslintcache .prettiercache",
     "clean:cache": "./scripts/cache-manager.sh clean",
@@ -48,7 +47,7 @@
     "migration:generate": "pnpm --filter backend migration:generate",
     "migration:run": "pnpm --filter backend migration:run",
     "seed": "pnpm --filter backend seed",
-    "deploy": "./scripts/deploy-cloudflare.sh prod",
+    "deploy:cf": "./scripts/deploy.sh",
     "electron:dev": "pnpm --filter frontend electron:dev",
     "electron:build": "node scripts/build-electron.js"
   },
