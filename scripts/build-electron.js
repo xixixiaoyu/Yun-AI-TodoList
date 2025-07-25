@@ -32,13 +32,25 @@ function checkDependencies() {
     throw new Error('package.json 不存在')
   }
 
-  const criticalDeps = ['electron', 'electron-builder', 'vite']
-  const nodeModulesPath = path.join(rootDir, 'node_modules')
+  // 检查根目录的关键依赖
+  const rootDeps = ['electron', 'electron-builder']
+  const rootNodeModulesPath = path.join(rootDir, 'node_modules')
 
-  for (const dep of criticalDeps) {
-    const depPath = path.join(nodeModulesPath, dep)
+  for (const dep of rootDeps) {
+    const depPath = path.join(rootNodeModulesPath, dep)
     if (!existsSync(depPath)) {
       throw new Error(`缺少关键依赖: ${dep}，请运行 pnpm install`)
+    }
+  }
+
+  // 检查前端依赖
+  const frontendDeps = ['vite']
+  const frontendNodeModulesPath = path.join(rootDir, 'apps/frontend/node_modules')
+
+  for (const dep of frontendDeps) {
+    const depPath = path.join(frontendNodeModulesPath, dep)
+    if (!existsSync(depPath)) {
+      throw new Error(`缺少前端依赖: ${dep}，请运行 pnpm install`)
     }
   }
 }

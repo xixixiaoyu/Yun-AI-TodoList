@@ -120,7 +120,7 @@
 </template>
 
 <script setup lang="ts">
-import { formatFileSize } from '@yun-ai-todolist/shared/utils'
+import { formatFileSize } from '@shared/utils'
 import { useVoiceInput } from '../../composables/useVoiceInput'
 import ChatInputControls from './ChatInputControls.vue'
 import ChatTextarea from './ChatTextarea.vue'
