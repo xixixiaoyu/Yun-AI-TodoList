@@ -9,8 +9,6 @@
     "dev": "wrangler dev --port 8787",
     "dev:remote": "wrangler dev --remote",
     "deploy": "wrangler deploy",
-    "deploy:dev": "wrangler deploy --env development",
-    "deploy:prod": "wrangler deploy --env production",
     "preview": "wrangler dev --local",
     "tail": "wrangler tail",
     "tail:dev": "wrangler tail --env development",
