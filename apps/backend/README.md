@@ -216,11 +216,15 @@ pnpm type-check
 ### Docker 部署
 
 ```bash
-# 构建镜像
-docker build -t yun-ai-todolist-backend .
+# 在项目根目录构建后端镜像
+cd ../../  # 回到项目根目录
+docker build -t yun-ai-todolist-backend --target backend .
 
 # 运行容器
 docker run -p 3000:3000 yun-ai-todolist-backend
+
+# 或者使用 docker-compose 启动完整开发环境
+docker-compose up -d
 ```
 
 ### 生产环境配置

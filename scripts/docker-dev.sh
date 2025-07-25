@@ -78,11 +78,11 @@ EOF
 # 清理旧容器和镜像
 cleanup() {
     log_info "清理旧的开发环境容器..."
-    docker-compose -f docker-compose.dev.yml down --remove-orphans
+    docker-compose down --remove-orphans
 
     if [ "$1" = "--clean" ]; then
         log_info "清理开发环境镜像和卷..."
-        docker-compose -f docker-compose.dev.yml down --volumes --rmi local
+        docker-compose down --volumes --rmi local
         docker system prune -f
     fi
 }
@@ -125,7 +125,7 @@ build() {
     local retry_count=0
 
     while [ $retry_count -lt $max_retries ]; do
-        if docker-compose -f docker-compose.dev.yml build \
+        if docker-compose build \
             --parallel \
             --build-arg BUILDKIT_INLINE_CACHE=1; then
             log_success "镜像构建成功"
@@ -151,18 +151,18 @@ start() {
 
     # 分阶段启动服务
     log_info "启动基础服务（数据库和缓存）..."
-    docker-compose -f docker-compose.dev.yml up -d postgres-dev redis-dev
+    docker-compose up -d postgres redis
 
     log_info "等待基础服务就绪..."
-    wait_for_service "postgres-dev" "PostgreSQL"
-    wait_for_service "redis-dev" "Redis"
+    wait_for_service "postgres" "PostgreSQL"
+    wait_for_service "redis" "Redis"
 
     log_info "启动应用服务..."
-    docker-compose -f docker-compose.dev.yml up -d backend-dev frontend-dev adminer
+    docker-compose up -d backend frontend adminer
 
     log_info "等待应用服务启动..."
-    wait_for_service "backend-dev" "后端服务"
-    wait_for_service "frontend-dev" "前端服务"
+    wait_for_service "backend" "后端服务"
+    wait_for_service "frontend" "前端服务"
 
     # 检查服务状态
     check_services
@@ -178,7 +178,7 @@ wait_for_service() {
     log_info "等待 $display_name 启动..."
 
     while [ $attempt -le $max_attempts ]; do
-        if docker-compose -f docker-compose.dev.yml ps | grep -q "$service_name.*Up"; then
+        if docker-compose ps | grep -q "$service_name.*Up"; then
             log_success "$display_name 已启动"
             return 0
         fi
@@ -196,14 +196,14 @@ wait_for_service() {
 check_services() {
     log_info "检查服务状态..."
 
-    services=("postgres-dev" "redis-dev" "backend-dev" "frontend-dev")
+    services=("postgres" "redis" "backend" "frontend")
 
     for service in "${services[@]}"; do
-        if docker-compose -f docker-compose.dev.yml ps | grep -q "$service.*Up"; then
+        if docker-compose ps | grep -q "$service.*Up"; then
             log_success "$service 服务运行正常"
         else
             log_error "$service 服务启动失败"
-            docker-compose -f docker-compose.dev.yml logs "$service"
+            docker-compose logs "$service"
         fi
     done
 }
@@ -211,9 +211,9 @@ check_services() {
 # 显示日志
 logs() {
     if [ -n "$1" ]; then
-        docker-compose -f docker-compose.dev.yml logs -f "$1"
+        docker-compose logs -f "$1"
     else
-        docker-compose -f docker-compose.dev.yml logs -f
+        docker-compose logs -f
     fi
 }
 
@@ -239,8 +239,8 @@ show_help() {
     echo ""
     echo "示例:"
     echo "  $0 start                    # 启动开发环境"
-    echo "  $0 logs backend-dev         # 查看后端日志"
-    echo "  $0 shell frontend-dev       # 进入前端容器"
+    echo "  $0 logs backend             # 查看后端日志"
+    echo "  $0 shell frontend           # 进入前端容器"
     echo "  $0 clean --clean            # 完全清理"
 }
 
@@ -265,12 +265,12 @@ main() {
             ;;
         stop)
             log_info "停止开发环境..."
-            docker-compose -f docker-compose.dev.yml down
+            docker-compose down
             log_success "开发环境已停止"
             ;;
         restart)
             log_info "重启开发环境..."
-            docker-compose -f docker-compose.dev.yml restart
+            docker-compose restart
             log_success "开发环境已重启"
             ;;
         build)
@@ -285,11 +285,11 @@ main() {
             logs "$2"
             ;;
         status)
-            docker-compose -f docker-compose.dev.yml ps
+            docker-compose ps
             ;;
         shell)
             if [ -n "$2" ]; then
-                docker-compose -f docker-compose.dev.yml exec "$2" sh
+                docker-compose exec "$2" sh
             else
                 log_error "请指定服务名"
                 exit 1

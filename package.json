@@ -39,7 +39,7 @@
     "cache:stats": "./scripts/cache-manager.sh stats",
     "prepare": "husky",
     "docker:dev": "./scripts/docker-dev.sh start",
-    "docker:stop": "docker-compose -f docker-compose.dev.yml down",
+    "docker:stop": "docker-compose down",
     "migration:generate": "pnpm --filter backend migration:generate",
     "migration:run": "pnpm --filter backend migration:run",
     "seed": "pnpm --filter backend seed",

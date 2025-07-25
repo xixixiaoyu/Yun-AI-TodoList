@@ -155,3 +155,85 @@ ENTRYPOINT ["dumb-init", "--"]
 
 # 启动应用
 CMD ["./docker-entrypoint.sh"]
+
+# ===========================================
+# 开发环境 - 前端服务
+# ===========================================
+FROM base AS frontend-dev
+
+# 设置环境变量
+ENV NODE_ENV=development
+ENV ELECTRON_SKIP_BINARY_DOWNLOAD=1
+ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=1
+ENV PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1
+
+# 复制 workspace 配置
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+
+# 复制所有 package.json 文件
+COPY apps/frontend/package.json ./apps/frontend/
+COPY packages/shared/package.json ./packages/shared/
+COPY tools/*/package.json ./tools/*/
+
+# 复制前端配置文件
+COPY apps/frontend/tsconfig*.json ./apps/frontend/
+COPY apps/frontend/vite*.config.ts ./apps/frontend/
+COPY apps/frontend/uno.config.ts ./apps/frontend/
+COPY apps/frontend/eslint.config.js ./apps/frontend/
+COPY tsconfig.json ./
+
+# 安装依赖
+RUN pnpm install --frozen-lockfile
+
+# 创建非 root 用户
+RUN addgroup -g 1001 -S nodejs && \
+    adduser -S developer -u 1001 -G nodejs
+
+# 设置权限
+RUN chown -R developer:nodejs /app
+USER developer
+
+# 暴露端口
+EXPOSE 5173
+
+# 启动开发服务器
+CMD ["pnpm", "--filter", "frontend", "dev", "--host", "0.0.0.0"]
+
+# ===========================================
+# 开发环境 - 后端服务
+# ===========================================
+FROM base AS backend-dev
+
+# 设置环境变量
+ENV NODE_ENV=development
+
+# 复制 workspace 配置
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+
+# 复制所有 package.json 文件
+COPY apps/backend/package.json ./apps/backend/
+COPY packages/shared/package.json ./packages/shared/
+COPY tools/*/package.json ./tools/*/
+
+# 复制后端配置文件
+COPY apps/backend/tsconfig*.json ./apps/backend/
+COPY apps/backend/nest-cli.json ./apps/backend/
+COPY apps/backend/prisma ./apps/backend/prisma
+COPY tsconfig.json ./
+
+# 安装依赖
+RUN pnpm install --frozen-lockfile
+
+# 创建非 root 用户
+RUN addgroup -g 1001 -S nodejs && \
+    adduser -S developer -u 1001 -G nodejs
+
+# 设置权限
+RUN chown -R developer:nodejs /app
+USER developer
+
+# 暴露端口
+EXPOSE 3000 9229
+
+# 启动开发服务器
+CMD ["pnpm", "--filter", "backend", "dev"]

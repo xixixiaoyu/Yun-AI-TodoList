@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   # PostgreSQL 数据库
   postgres:
@@ -7,10 +5,11 @@ services:
     container_name: yun-todolist-postgres
     restart: unless-stopped
     environment:
-      POSTGRES_DB: yun_ai_todolist
-      POSTGRES_USER: postgres
+      POSTGRES_DB: yun_todo_db
+      POSTGRES_USER: yun_todo_user
       POSTGRES_PASSWORD: postgres123
       PGDATA: /var/lib/postgresql/data/pgdata
+      POSTGRES_INITDB_ARGS: '--encoding=UTF-8 --lc-collate=C --lc-ctype=C'
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./scripts/init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
@@ -19,12 +18,12 @@ services:
     networks:
       - todolist-network
     healthcheck:
-      test: ['CMD-SHELL', 'pg_isready -U postgres -d yun_ai_todolist']
+      test: ['CMD-SHELL', 'pg_isready -U yun_todo_user -d yun_todo_db']
       interval: 10s
       timeout: 5s
       retries: 5
 
-  # Redis 缓存 (可选)
+  # Redis 缓存
   redis:
     image: redis:7-alpine
     container_name: yun-todolist-redis
@@ -47,22 +46,40 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-      target: backend
+      target: backend-dev
+      args:
+        BUILDKIT_INLINE_CACHE: 1
     container_name: yun-todolist-backend
     restart: unless-stopped
     environment:
-      NODE_ENV: production
+      NODE_ENV: development
       PORT: 3000
-      DATABASE_URL: postgresql://postgres:postgres123@postgres:5432/yun_ai_todolist
+      DATABASE_URL: postgresql://yun_todo_user:postgres123@postgres:5432/yun_todo_db
+      DATABASE_HOST: postgres
+      DATABASE_PORT: 5432
+      DATABASE_NAME: yun_todo_db
+      DATABASE_USER: yun_todo_user
+      DATABASE_PASSWORD: postgres123
       REDIS_HOST: redis
       REDIS_PORT: 6379
-      REDIS_PASSWORD: redis123
-      JWT_SECRET: your-super-secret-jwt-key-change-in-production
-      JWT_EXPIRES_IN: 1h
-      JWT_REFRESH_SECRET: your-super-secret-refresh-key-change-in-production
-      JWT_REFRESH_EXPIRES_IN: 7d
+      REDIS_PASSWORD:
+      JWT_SECRET: yun-todo-local-jwt-secret-key-2025-very-secure-change-in-production
+      JWT_EXPIRES_IN: 7d
+      JWT_REFRESH_SECRET: yun-todo-local-refresh-secret-key-2025-very-secure-change-in-production
+      JWT_REFRESH_EXPIRES_IN: 30d
       BCRYPT_ROUNDS: 12
       FRONTEND_URL: http://localhost:5173
+      LOG_LEVEL: debug
+      # SMTP 邮件配置
+      SMTP_HOST: smtp.qq.com
+      SMTP_PORT: 587
+      SMTP_SECURE: false
+      SMTP_USER: 1416900346@qq.com
+      SMTP_PASSWORD: pezjeplbzkonidjh
+      SMTP_FROM: 1416900346@qq.com
+      # 开发环境优化
+      CHOKIDAR_USEPOLLING: true
+      WATCHPACK_POLLING: true
     ports:
       - '3000:3000'
     depends_on:
@@ -73,54 +90,77 @@ services:
     networks:
       - todolist-network
     volumes:
+      # 挂载源代码以支持热重载
+      - ./apps/backend/src:/app/apps/backend/src:cached
+      - ./apps/backend/prisma:/app/apps/backend/prisma:cached
+      - ./packages:/app/packages:cached
+      # 挂载 node_modules 以提高性能
+      - backend_node_modules:/app/node_modules
+      # 挂载日志和上传目录
+      - ./apps/backend/logs:/app/apps/backend/logs
       - ./apps/backend/uploads:/app/uploads
-    deploy:
-      resources:
-        limits:
-          memory: 512M
-          cpus: '0.5'
-        reservations:
-          memory: 256M
-          cpus: '0.25'
     healthcheck:
-      test: ['CMD', 'node', 'healthcheck.js']
+      test: ['CMD', 'curl', '-f', 'http://localhost:3000/api/v1/health']
       interval: 30s
-      timeout: 10s
+      timeout: 5s
       retries: 3
-      start_period: 40s
+      start_period: 30s
 
-  # 前端应用 (Nginx)
+  # 前端开发服务
   frontend:
     build:
       context: .
       dockerfile: Dockerfile
-      target: frontend
+      target: frontend-dev
       args:
-        VITE_API_BASE_URL: http://backend:3000/api/v1
+        BUILDKIT_INLINE_CACHE: 1
     container_name: yun-todolist-frontend
     restart: unless-stopped
+    environment:
+      NODE_ENV: development
+      VITE_API_BASE_URL: http://localhost:3000/api/v1
+      DOCKER_ENV: true
+      # 开发环境优化
+      CHOKIDAR_USEPOLLING: true
+      VITE_HMR_PORT: 5173
+    volumes:
+      # 挂载源代码以支持热重载
+      - ./apps/frontend/src:/app/apps/frontend/src:cached
+      - ./apps/frontend/public:/app/apps/frontend/public:cached
+      - ./apps/frontend/index.html:/app/apps/frontend/index.html:cached
+      - ./apps/frontend/vite.config.ts:/app/apps/frontend/vite.config.ts:cached
+      - ./apps/frontend/uno.config.ts:/app/apps/frontend/uno.config.ts:cached
+      - ./packages:/app/packages:cached
+      # 挂载 node_modules 以提高性能
+      - frontend_node_modules:/app/node_modules
     ports:
-      - '80:8080'
-      - '443:8080'
+      - '5173:5173'
     depends_on:
       backend:
         condition: service_healthy
     networks:
       - todolist-network
-    deploy:
-      resources:
-        limits:
-          memory: 128M
-          cpus: '0.25'
-        reservations:
-          memory: 64M
-          cpus: '0.1'
     healthcheck:
-      test: ['CMD', 'curl', '-f', 'http://localhost:8080/health']
+      test: ['CMD', 'curl', '-f', 'http://localhost:5173/']
       interval: 30s
-      timeout: 10s
+      timeout: 5s
       retries: 3
-      start_period: 10s
+      start_period: 30s
+
+  # 数据库管理工具 (可选)
+  adminer:
+    image: adminer:4-standalone
+    container_name: yun-todolist-adminer
+    restart: unless-stopped
+    ports:
+      - '8080:8080'
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - todolist-network
+    environment:
+      ADMINER_DEFAULT_SERVER: postgres
 
 networks:
   todolist-network:
@@ -132,3 +172,7 @@ volumes:
     name: yun-todolist-postgres-data
   redis_data:
     name: yun-todolist-redis-data
+  backend_node_modules:
+    name: yun-todolist-backend-node-modules
+  frontend_node_modules:
+    name: yun-todolist-frontend-node-modules
