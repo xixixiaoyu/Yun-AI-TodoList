@@ -70,9 +70,6 @@ pnpm build
 pnpm --filter frontend electron:build:mac  # macOS
 pnpm --filter frontend electron:build:win  # Windows
 
-# 移动应用构建
-pnpm --filter frontend mobile:build
-
 # 生产环境部署
 docker-compose -f docker-compose.prod.yml up -d
 
@@ -83,16 +80,9 @@ pnpm deploy:cf:prod
 ## 🛠️ 技术栈
 
 **前端**: Vue 3 + TypeScript + Vite + UnoCSS + Chart.js **后端**: NestJS +
-Prisma + PostgreSQL + Redis + JWT **跨平台**: Electron + Capacitor **AI 集成**:
-Google Search CLI + MCP 协议 + Playwright **开发工具**: pnpm + Docker + ESLint +
+Prisma + PostgreSQL + Redis + JWT **跨平台**: Electron **AI 集成**: Google
+Search CLI + MCP 协议 + Playwright **开发工具**: pnpm + Docker + ESLint +
 Prettier
-
-## 📚 文档
-
-- [Docker 部署指南](./docs/DOCKER.md)
-- [Cloudflare 部署指南](./docs/CLOUDFLARE-DEPLOYMENT.md)
-- [后端 API 文档](./apps/backend/docs/API.md)
-- [Google 搜索工具](./google-search/README.md)
 
 ## 📁 项目结构
 
@@ -101,7 +91,6 @@ yun-ai-todolist/
 ├── apps/
 │   ├── backend/                 # NestJS 后端
 │   └── frontend/               # Vue 3 前端
-├── google-search/              # Google 搜索工具
 ├── docs/                       # 项目文档
 ├── scripts/                    # 构建脚本
 └── docker/                     # Docker 配置

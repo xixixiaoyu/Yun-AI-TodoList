@@ -1,18 +1,13 @@
 /**
  * 平台检测工具
- * 用于检测当前运行环境（Web、Electron、Capacitor）
+ * 用于检测当前运行环境（Web、Electron）
  */
-
-import { Capacitor } from '@capacitor/core'
 
 export interface PlatformInfo {
   isWeb: boolean
   isElectron: boolean
-  isCapacitor: boolean
   isMobile: boolean
-  isAndroid: boolean
-  isIOS: boolean
-  platform: 'web' | 'electron' | 'android' | 'ios'
+  platform: 'web' | 'electron'
 }
 
 export function isElectron(): boolean {
@@ -22,38 +17,24 @@ export function isElectron(): boolean {
   )
 }
 
-export function isCapacitor(): boolean {
-  return Capacitor.isNativePlatform()
-}
-
 export function isMobileDevice(): boolean {
   return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
 }
 
 export function getPlatformInfo(): PlatformInfo {
-  const isCapacitorEnv = isCapacitor()
   const isElectronEnv = isElectron()
-  const isMobileEnv = isMobileDevice() || isCapacitorEnv
+  const isMobileEnv = isMobileDevice()
 
   let platform: PlatformInfo['platform'] = 'web'
 
   if (isElectronEnv) {
     platform = 'electron'
-  } else if (isCapacitorEnv) {
-    if (Capacitor.getPlatform() === 'android') {
-      platform = 'android'
-    } else if (Capacitor.getPlatform() === 'ios') {
-      platform = 'ios'
-    }
   }
 
   return {
-    isWeb: !isElectronEnv && !isCapacitorEnv,
+    isWeb: !isElectronEnv,
     isElectron: isElectronEnv,
-    isCapacitor: isCapacitorEnv,
     isMobile: isMobileEnv,
-    isAndroid: isCapacitorEnv && Capacitor.getPlatform() === 'android',
-    isIOS: isCapacitorEnv && Capacitor.getPlatform() === 'ios',
     platform,
   }
 }
@@ -63,10 +44,7 @@ export function getPlatformClasses(): string[] {
   const classes: string[] = []
 
   if (info.isElectron) classes.push('platform-electron')
-  if (info.isCapacitor) classes.push('platform-capacitor')
   if (info.isMobile) classes.push('platform-mobile')
-  if (info.isAndroid) classes.push('platform-android')
-  if (info.isIOS) classes.push('platform-ios')
   if (info.isWeb) classes.push('platform-web')
 
   return classes

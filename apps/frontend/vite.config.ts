@@ -420,7 +420,6 @@ export default defineConfig({
     },
   },
   define: {
-    __CAPACITOR__: JSON.stringify(process.env.CAPACITOR !== undefined),
     __ELECTRON__: JSON.stringify(process.env.ELECTRON !== undefined),
     global: 'globalThis',
     'process.env': {},

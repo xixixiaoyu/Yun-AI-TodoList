@@ -27,9 +27,7 @@ export const commonIgnores = [
   '.husky/**',
   '.vscode/**',
 
-  // 移动端和桌面端构建文件
-  'android/**',
-  'ios/**',
+  // 桌面端构建文件
 
   // 最小化文件和特殊文件
   '*.min.js',
@@ -50,7 +48,7 @@ export const commonIgnores = [
   '**/vite.config.*',
   '**/vitest.config.*',
   '**/uno.config.*',
-  '**/capacitor.config.*',
+
   'electron-builder.config.js',
 ]
 

@@ -47,7 +47,6 @@ import NavigationBar from './components/layout/NavigationBar.vue'
 import { useAISidebar } from './composables/useAISidebar'
 import { useAppState } from './composables/useAppState'
 import { useAuth } from './composables/useAuth'
-import { useMobile } from './composables/useMobile'
 import { useTheme } from './composables/useTheme'
 import { useToast } from './composables/useToast'
 import { getPlatformClasses } from './utils/platform'
@@ -65,8 +64,6 @@ const {
   openSidebar: openAISidebar,
   closeSidebar: closeAISidebar,
 } = useAISidebar()
-
-const { isReady: _mobileReady, platformInfo: _platformInfo } = useMobile()
 
 onErrorCaptured((err, instance, info) => {
   console.error('Captured error:', err, instance, info)
