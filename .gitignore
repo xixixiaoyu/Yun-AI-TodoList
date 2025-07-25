@@ -69,6 +69,9 @@ bundle-analysis.json
 .wrangler
 wrangler.toml.bak
 
+# Vercel
+.vercel
+
 dev-dist/
 # 忽略自动导入的类型定义文件
 auto-imports.d.ts
