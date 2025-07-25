@@ -27,6 +27,35 @@ const DEFAULT_CONFIG: Required<TaskGenerationConfig> = {
 const generationCache = new Map<string, AITaskGenerationResult>()
 const CACHE_EXPIRY = 30 * 60 * 1000 // 30分钟
 
+// 缓存统计
+interface CacheStats {
+  totalRequests: number
+  cacheHits: number
+  cacheMisses: number
+  lastResetTime: number
+}
+
+const cacheStats: CacheStats = {
+  totalRequests: 0,
+  cacheHits: 0,
+  cacheMisses: 0,
+  lastResetTime: Date.now(),
+}
+
+// 服务健康状态
+interface ServiceHealth {
+  isHealthy: boolean
+  lastHealthCheck: number
+  consecutiveFailures: number
+  lastError?: string
+}
+
+const serviceHealth: ServiceHealth = {
+  isHealthy: true,
+  lastHealthCheck: Date.now(),
+  consecutiveFailures: 0,
+}
+
 /**
  * 生成任务的核心函数
  * @param request 任务生成请求
@@ -38,6 +67,9 @@ export async function generateTasksFromDescription(
   const startTime = Date.now()
 
   try {
+    // 更新请求统计
+    cacheStats.totalRequests++
+
     // 检查缓存
     const cacheKey = generateCacheKey(request)
     const cached = generationCache.get(cacheKey)
@@ -45,8 +77,13 @@ export async function generateTasksFromDescription(
       cached &&
       Date.now() - new Date(cached.metadata?.generatedAt || 0).getTime() < CACHE_EXPIRY
     ) {
+      // 缓存命中
+      cacheStats.cacheHits++
       return cached
     }
+
+    // 缓存未命中
+    cacheStats.cacheMisses++
 
     // 合并配置
     const config = { ...DEFAULT_CONFIG, ...request.config }
@@ -63,10 +100,16 @@ export async function generateTasksFromDescription(
     // 缓存结果
     generationCache.set(cacheKey, result)
 
+    // 更新健康状态 - 成功
+    updateServiceHealth(true)
+
     return result
   } catch (error) {
     console.error('AI 任务生成失败:', error)
     handleError(error, 'AI 任务生成失败')
+
+    // 更新健康状态 - 失败
+    updateServiceHealth(false, error instanceof Error ? error.message : '未知错误')
 
     return {
       success: false,
@@ -248,6 +291,45 @@ function createFallbackResult(
 }
 
 /**
+ * 更新服务健康状态
+ */
+function updateServiceHealth(success: boolean, errorMessage?: string): void {
+  serviceHealth.lastHealthCheck = Date.now()
+
+  if (success) {
+    serviceHealth.isHealthy = true
+    serviceHealth.consecutiveFailures = 0
+    delete serviceHealth.lastError
+  } else {
+    serviceHealth.consecutiveFailures++
+    serviceHealth.lastError = errorMessage
+
+    // 连续失败3次以上认为服务不健康
+    if (serviceHealth.consecutiveFailures >= 3) {
+      serviceHealth.isHealthy = false
+    }
+  }
+}
+
+/**
+ * 重置缓存统计
+ */
+function resetCacheStats(): void {
+  cacheStats.totalRequests = 0
+  cacheStats.cacheHits = 0
+  cacheStats.cacheMisses = 0
+  cacheStats.lastResetTime = Date.now()
+}
+
+/**
+ * 计算缓存命中率
+ */
+function calculateCacheHitRate(): number {
+  if (cacheStats.totalRequests === 0) return 0
+  return Math.round((cacheStats.cacheHits / cacheStats.totalRequests) * 100) / 100
+}
+
+/**
  * 生成缓存键
  */
 function generateCacheKey(request: AITaskGenerationRequest): string {
@@ -284,7 +366,9 @@ export function analyzeUserContext(todos: Todo[]): UserTaskPreferences {
   const estimatedTimes = todos.map((t) => t.estimatedTime).filter(Boolean)
 
   // 分析优先级分布
-  const priorities = todos.map((t) => t.priority).filter((p) => p && p > 0)
+  const priorities = todos
+    .map((t) => t.priority)
+    .filter((p): p is number => typeof p === 'number' && p > 0)
 
   const avgPriority =
     priorities.length > 0 ? priorities.reduce((sum, p) => sum + p, 0) / priorities.length : 3
@@ -423,7 +507,7 @@ function extractCommonWords(texts: string[]): string[] {
 function calculateAverageEstimatedTime(todos: Todo[]): number {
   const times = todos
     .map((t) => t.estimatedTime)
-    .filter(Boolean)
+    .filter((time): time is string => Boolean(time))
     .map(parseEstimatedTime)
     .filter((t) => t > 0)
 
@@ -631,7 +715,9 @@ export function validateGeneratedTasks(tasks: GeneratedTask[]): {
   }
 
   // 检查优先级分布
-  const priorities = tasks.map((t) => t.priority).filter((p) => p && p > 0)
+  const priorities = tasks
+    .map((t) => t.priority)
+    .filter((p): p is number => typeof p === 'number' && p > 0)
   const highPriorityCount = priorities.filter((p) => p >= 4).length
   const totalTasks = tasks.length
 
@@ -782,12 +868,35 @@ export async function checkServiceHealth(): Promise<boolean> {
 export function getServiceStatus(): {
   cacheSize: number
   cacheHitRate: number
+  totalRequests: number
+  cacheHits: number
+  cacheMisses: number
   lastError?: string
   isHealthy: boolean
+  consecutiveFailures: number
+  lastHealthCheck: number
+  uptime: number
 } {
   return {
     cacheSize: generationCache.size,
-    cacheHitRate: 0, // TODO: 实现缓存命中率统计
-    isHealthy: true, // TODO: 实现健康状态检查
+    cacheHitRate: calculateCacheHitRate(),
+    totalRequests: cacheStats.totalRequests,
+    cacheHits: cacheStats.cacheHits,
+    cacheMisses: cacheStats.cacheMisses,
+    lastError: serviceHealth.lastError,
+    isHealthy: serviceHealth.isHealthy,
+    consecutiveFailures: serviceHealth.consecutiveFailures,
+    lastHealthCheck: serviceHealth.lastHealthCheck,
+    uptime: Date.now() - cacheStats.lastResetTime,
   }
+}
+
+/**
+ * 重置服务统计
+ */
+export function resetServiceStats(): void {
+  resetCacheStats()
+  serviceHealth.consecutiveFailures = 0
+  serviceHealth.isHealthy = true
+  delete serviceHealth.lastError
 }

@@ -282,9 +282,17 @@ describe('待办事项工作流集成测试', () => {
     })
 
     it('应该处理无效的存储数据', async () => {
-      testEnv.localStorage.store.todos = 'invalid json'
+      // 完全清空 localStorage
+      testEnv.localStorage.clear()
 
-      const { todos, loadTodos, initializeTodos } = useTodos()
+      // 直接使用 setItem 设置无效的 JSON 数据
+      testEnv.localStorage.setItem('local_todos', 'invalid json')
+
+      const { todos, loadTodos, initializeTodos, resetState } = useTodos()
+
+      // 先重置状态
+      await resetState()
+      todos.value = []
 
       // 初始化存储服务
       await initializeTodos()

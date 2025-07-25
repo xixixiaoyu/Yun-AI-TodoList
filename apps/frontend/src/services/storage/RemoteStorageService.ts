@@ -186,6 +186,12 @@ export class RemoteStorageService extends TodoStorageService {
   }
 
   async createTodo(todoData: CreateTodoDto): Promise<StorageOperationResult<Todo>> {
+    // 验证标题不能为空
+    const trimmedTitle = todoData.title.trim()
+    if (!trimmedTitle) {
+      return this.createErrorResult('storage.todoTitleEmpty')
+    }
+
     return this.executeWithRetry(async () => {
       // 添加调用栈信息来调试双重请求
       const stack = new Error().stack

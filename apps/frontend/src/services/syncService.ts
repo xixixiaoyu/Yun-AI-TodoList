@@ -397,6 +397,36 @@ class SyncService {
   }
 
   /**
+   * 单个更新 Todo 到服务器
+   */
+  async updateSingleTodo(
+    todo: LocalTodo
+  ): Promise<{ success: boolean; data?: ServerTodo; error?: string }> {
+    if (!this.isOnline) {
+      return { success: false, error: '网络连接不可用' }
+    }
+
+    try {
+      const updateDto = createUpdateTodoDto(todo)
+      const response = await httpClient.put<{ success: boolean; data: ServerTodo }>(
+        `${this.baseEndpoint}/${todo.id}`,
+        updateDto
+      )
+
+      if (!response.success || !response.data) {
+        throw new Error('服务器响应格式无效')
+      }
+
+      console.log(`成功更新单个 Todo: ${todo.title} (ID: ${todo.id})`)
+      return { success: true, data: response.data }
+    } catch (error) {
+      const errorMsg = error instanceof Error ? error.message : '更新失败'
+      console.error(`更新 Todo 失败: ${todo.title} (ID: ${todo.id})`, error)
+      return { success: false, error: errorMsg }
+    }
+  }
+
+  /**
    * 获取同步状态
    */
   getSyncStatus(): { isOnline: boolean; syncInProgress: boolean } {

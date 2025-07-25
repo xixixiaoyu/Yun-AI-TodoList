@@ -29,6 +29,12 @@ interface SyncState {
   }>
 }
 
+interface ConflictItem {
+  local: Todo
+  server: Todo
+  reason: string
+}
+
 /**
  * 数据同步 Composable
  */
@@ -52,6 +58,10 @@ export function useDataSync() {
   const { isAuthenticated } = useAuth()
   const { isOnline, isSlowConnection, onOnline, onOffline } = useNetworkStatus()
   const { networkOnline, networkOffline, syncSuccess, syncError } = useNotifications()
+
+  // 冲突解决状态
+  const currentConflicts = ref<ConflictItem[]>([])
+  const showConflictModal = ref(false)
 
   // 计算属性
   const canSync = computed(() => {
@@ -224,7 +234,13 @@ export function useDataSync() {
 
       if (result.conflicts && result.conflicts.length > 0) {
         console.warn('同步完成但存在冲突:', result.conflicts)
-        // TODO: 可以在这里触发冲突解决界面
+        // 触发冲突解决界面
+        currentConflicts.value = result.conflicts.map((conflict) => ({
+          local: conflict.local,
+          server: conflict.server,
+          reason: conflict.reason,
+        }))
+        showConflictModal.value = true
       }
     }
 
@@ -376,8 +392,15 @@ export function useDataSync() {
           await syncService.uploadData([operation.data as Todo])
           break
         case 'update':
-          // TODO: 实现单个更新 API
-          console.log('Update operation:', operation.data)
+          // 使用单个更新 API
+          if (operation.data && typeof operation.data === 'object' && 'id' in operation.data) {
+            const result = await syncService.updateSingleTodo(operation.data as Todo)
+            if (result.success) {
+              console.log('成功同步更新操作:', operation.data)
+            } else {
+              throw new Error(result.error || '更新失败')
+            }
+          }
           break
         case 'delete':
           // 实现删除同步
@@ -547,6 +570,62 @@ export function useDataSync() {
   })
 
   /**
+   * 处理冲突解决
+   */
+  const handleConflictResolution = async (
+    resolutions: Array<{ index: number; choice: 'local' | 'server' }>
+  ) => {
+    try {
+      const resolvedTodos: Todo[] = []
+
+      for (const resolution of resolutions) {
+        const conflict = currentConflicts.value[resolution.index]
+        if (!conflict) continue
+
+        const chosenTodo = resolution.choice === 'local' ? conflict.local : conflict.server
+        resolvedTodos.push(chosenTodo)
+
+        // 如果选择了云端版本，需要更新本地数据
+        if (resolution.choice === 'server') {
+          const result = await syncService.updateSingleTodo(chosenTodo)
+          if (!result.success) {
+            console.error('更新冲突解决失败:', result.error)
+          }
+        }
+      }
+
+      // 更新本地 todos 列表
+      const updatedTodos = [...todos.value]
+      for (const resolvedTodo of resolvedTodos) {
+        const index = updatedTodos.findIndex((t) => t.id === resolvedTodo.id)
+        if (index !== -1) {
+          updatedTodos[index] = resolvedTodo
+        }
+      }
+
+      todos.value = updatedTodos.sort((a, b) => a.order - b.order)
+
+      // 清理冲突状态
+      currentConflicts.value = []
+      showConflictModal.value = false
+      syncState.conflictsCount = 0
+
+      console.log(`成功解决 ${resolutions.length} 个冲突`)
+    } catch (error) {
+      console.error('处理冲突解决失败:', error)
+      syncError({ message: '冲突解决失败' })
+    }
+  }
+
+  /**
+   * 关闭冲突解决模态框
+   */
+  const closeConflictModal = () => {
+    showConflictModal.value = false
+    // 可以选择保留冲突数据，让用户稍后处理
+  }
+
+  /**
    * 智能合并本地和云端 Todo 数据
    * 基于 ID 和内容进行去重
    */
@@ -606,6 +685,8 @@ export function useDataSync() {
     syncState: readonly(syncState),
     canSync,
     syncStatusText,
+    currentConflicts: readonly(currentConflicts),
+    showConflictModal: readonly(showConflictModal),
 
     // 方法
     performInitialSync,
@@ -616,6 +697,8 @@ export function useDataSync() {
     resetSyncState,
     toggleRealTimeSync,
     processPendingOperations,
+    handleConflictResolution,
+    closeConflictModal,
     smartMergeTodos, // 导出供测试使用
   }
 }

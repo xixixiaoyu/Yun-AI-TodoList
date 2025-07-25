@@ -4,9 +4,11 @@
  */
 
 import type { NetworkStatus, StorageConfig, StorageMode } from '@shared/types'
+import { computed, reactive, readonly, toRef, watch } from 'vue'
+import { httpClient } from '../services/api'
+import { LocalStorageService } from '../services/storage/LocalStorageService'
 import { RemoteStorageService } from '../services/storage/RemoteStorageService'
 import { TodoStorageService } from '../services/storage/TodoStorageService'
-import { LocalStorageService } from '../services/storage/LocalStorageService'
 import { useAuth } from './useAuth'
 
 // 全局存储状态
@@ -209,6 +211,20 @@ export function useStorageMode() {
   }
 
   /**
+   * 仅用于测试：直接设置网络状态
+   */
+  const setNetworkStatusForTesting = (status: {
+    isOnline?: boolean
+    isServerReachable?: boolean
+    consecutiveFailures?: number
+  }): void => {
+    // 只在测试环境中允许直接设置状态
+    if (typeof process !== 'undefined' && process.env.NODE_ENV === 'test') {
+      Object.assign(storageState.networkStatus, status)
+    }
+  }
+
+  /**
    * 加载存储配置
    */
   const loadStorageConfig = async (): Promise<void> => {
@@ -244,11 +260,43 @@ export function useStorageMode() {
 
       // 如果用户已登录，同步到服务器
       if (isAuthenticated.value) {
-        // TODO: 调用设置 API 更新用户偏好
-        console.log('TODO: Sync cloud storage config to server')
+        await syncStorageConfigToServer()
       }
     } catch (error) {
       console.error('Failed to save storage config:', error)
+    }
+  }
+
+  /**
+   * 同步存储配置到服务器
+   */
+  const syncStorageConfigToServer = async (): Promise<void> => {
+    try {
+      const updateDto = {
+        storageConfig: {
+          mode: storageState.config.mode,
+          autoSync: true, // 默认启用自动同步
+          syncInterval: 5, // 默认同步间隔
+          offlineMode: false, // 云端存储模式下默认不启用离线模式
+          conflictResolution: storageState.config.conflictResolution || 'merge',
+          retryAttempts: storageState.config.retryAttempts,
+          requestTimeout: storageState.config.requestTimeout,
+        },
+      }
+
+      const response = await httpClient.patch<{ success: boolean; message: string }>(
+        '/api/v1/users/preferences',
+        updateDto
+      )
+
+      if (response.success) {
+        console.log('存储配置已同步到服务器')
+      } else {
+        console.warn('同步存储配置到服务器失败')
+      }
+    } catch (error) {
+      console.error('同步存储配置到服务器时发生错误:', error)
+      // 不抛出错误，因为本地保存已经成功
     }
   }
 
@@ -297,5 +345,6 @@ export function useStorageMode() {
     updateNetworkStatus,
     reconnectCloudStorage,
     handleNetworkChange,
+    setNetworkStatusForTesting,
   }
 }

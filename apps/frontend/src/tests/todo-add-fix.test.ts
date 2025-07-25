@@ -48,19 +48,17 @@ describe('Todo Add Fix', () => {
   })
 
   it('should filter out todos with empty titles in filteredTodos', async () => {
-    const { todos } = useTodos()
+    const { todos, addTodo } = useTodos()
     const { filteredTodos } = useTodoManagement()
 
-    // 手动添加一个有效的 Todo 和一个无效的 Todo
-    const validTodo: Todo = {
-      id: 'valid-id',
-      title: 'Valid Todo',
-      completed: false,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-      order: 0,
-    }
+    // 确保初始状态为空
+    expect(todos.value).toHaveLength(0)
+    expect(filteredTodos.value).toHaveLength(0)
 
+    // 先添加一个有效的 Todo
+    await addTodo({ title: 'Valid Todo' })
+
+    // 然后手动添加一个无效的 Todo（绕过验证）
     const invalidTodo: Todo = {
       id: 'invalid-id',
       title: '', // 空标题
@@ -70,9 +68,13 @@ describe('Todo Add Fix', () => {
       order: 1,
     }
 
-    todos.value = [validTodo, invalidTodo]
+    // 直接推入数组（模拟数据损坏情况）
+    todos.value.push(invalidTodo)
 
     await nextTick()
+
+    // 验证原始数组包含两个项目
+    expect(todos.value).toHaveLength(2)
 
     // filteredTodos 应该只包含有效的 Todo
     expect(filteredTodos.value).toHaveLength(1)
@@ -80,10 +82,17 @@ describe('Todo Add Fix', () => {
   })
 
   it('should handle todos with undefined title gracefully', async () => {
-    const { todos } = useTodos()
+    const { todos, addTodo } = useTodos()
     const { filteredTodos } = useTodoManagement()
 
-    // 创建一个 title 为 undefined 的 Todo（模拟数据损坏情况）
+    // 确保初始状态为空
+    expect(todos.value).toHaveLength(0)
+    expect(filteredTodos.value).toHaveLength(0)
+
+    // 先添加一个有效的 Todo
+    await addTodo({ title: 'Valid Todo' })
+
+    // 然后手动添加一个损坏的 Todo（绕过验证）
     const corruptedTodo = {
       id: 'corrupted-id',
       title: undefined as any,
@@ -93,18 +102,13 @@ describe('Todo Add Fix', () => {
       order: 0,
     }
 
-    const validTodo: Todo = {
-      id: 'valid-id',
-      title: 'Valid Todo',
-      completed: false,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-      order: 1,
-    }
-
-    todos.value = [corruptedTodo, validTodo]
+    // 直接推入数组（模拟数据损坏情况）
+    todos.value.push(corruptedTodo)
 
     await nextTick()
+
+    // 验证原始数组包含两个项目
+    expect(todos.value).toHaveLength(2)
 
     // filteredTodos 应该只包含有效的 Todo，过滤掉损坏的数据
     expect(filteredTodos.value).toHaveLength(1)

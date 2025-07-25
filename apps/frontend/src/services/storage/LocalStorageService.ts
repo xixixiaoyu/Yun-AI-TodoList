@@ -111,11 +111,17 @@ export class LocalStorageService extends TodoStorageService {
 
   async createTodo(createDto: CreateTodoDto): Promise<StorageOperationResult<Todo>> {
     try {
+      // 验证标题不能为空
+      const trimmedTitle = createDto.title.trim()
+      if (!trimmedTitle) {
+        return this.createErrorResult('storage.todoTitleEmpty')
+      }
+
       const todos = this.getLocalTodos()
 
       // 检查重复标题（只检查未完成的待办事项）
       const duplicateExists = todos.some(
-        (t) => !t.completed && t.title.toLowerCase().trim() === createDto.title.toLowerCase().trim()
+        (t) => !t.completed && t.title.toLowerCase().trim() === trimmedTitle.toLowerCase()
       )
 
       if (duplicateExists) {
@@ -128,7 +134,7 @@ export class LocalStorageService extends TodoStorageService {
       const now = new Date().toISOString()
       const newTodo: Todo = {
         id: this.generateId(),
-        title: createDto.title.trim(),
+        title: trimmedTitle,
         completed: false,
         createdAt: now,
         updatedAt: now,

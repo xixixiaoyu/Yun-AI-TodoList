@@ -673,10 +673,33 @@ export function useTodos() {
 
     // 测试辅助方法
     resetState: async () => {
+      // 清空所有状态
       globalTodos.value = []
-      isInitialized.value = true // 允许保存操作
-      await saveTodos() // 保存空的待办事项列表
-      isInitialized.value = false // 重置初始化状态
+      isInitialized.value = false
+      storageInitialized.value = false
+
+      // 清空 localStorage（如果在测试环境中）
+      if (typeof process !== 'undefined' && process.env.NODE_ENV === 'test') {
+        try {
+          localStorage.removeItem('local_todos')
+          localStorage.removeItem('todos') // 清理旧的键
+
+          // 如果有测试环境的 localStorage mock，也清理它
+          if (typeof window !== 'undefined' && window.localStorage && window.localStorage.clear) {
+            window.localStorage.clear()
+          }
+        } catch {
+          // 忽略 localStorage 错误
+        }
+      }
+
+      // 强制保存空状态到存储
+      try {
+        const storageService = getCurrentStorageService()
+        await storageService.saveTodos([])
+      } catch {
+        // 忽略存储错误，可能是因为存储服务未初始化
+      }
     },
 
     // 数据清理

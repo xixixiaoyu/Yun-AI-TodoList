@@ -3,9 +3,12 @@
  * 处理离线状态下的数据缓存、同步队列和用户体验
  */
 
+import { computed, onMounted, reactive, readonly, toRef } from 'vue'
+import { httpClient } from '../services/api'
+import { syncService } from '../services/syncService'
 import { useNetworkStatus } from './useNetworkStatus'
 import { useNotifications } from './useNotifications'
-import { useStorageMode } from './useStorageMode'
+import { useTodos } from './useTodos'
 
 export interface OfflineOperation {
   id: string
@@ -34,11 +37,24 @@ const offlineState = reactive<OfflineState>({
 })
 
 /**
+ * 重置离线状态（仅用于测试）
+ */
+export function resetOfflineState(): void {
+  if (typeof process !== 'undefined' && process.env.NODE_ENV === 'test') {
+    offlineState.isOfflineMode = false
+    offlineState.pendingOperations = []
+    offlineState.syncInProgress = false
+    offlineState.autoSyncEnabled = true
+    delete offlineState.lastSyncAttempt
+  }
+}
+
+/**
  * 离线模式管理 Composable
  */
 export function useOfflineMode() {
   const { isOnline, onOnline, onOffline } = useNetworkStatus()
-  const { currentMode, switchStorageMode } = useStorageMode()
+  const { todos } = useTodos()
 
   const {
     info: showInfo,
@@ -67,16 +83,8 @@ export function useOfflineMode() {
     console.log('Entering offline mode')
     offlineState.isOfflineMode = true
 
-    // 离线模式下确保使用本地存储
-    if (currentMode.value === 'hybrid') {
-      try {
-        await switchStorageMode('local')
-        showInfo('已切换到离线模式，数据将保存在本地')
-      } catch (error) {
-        console.error('Failed to switch to local storage:', error)
-        showWarning('切换到离线模式失败，部分功能可能不可用')
-      }
-    }
+    // 离线模式下的提示
+    showInfo('已进入离线模式，数据将保存在本地')
 
     // 保存离线状态到本地存储
     saveOfflineState()
@@ -149,23 +157,28 @@ export function useOfflineMode() {
         } catch (error) {
           console.error('Failed to sync operation:', operation, error)
 
-          // 增加重试次数
-          operation.retryCount++
+          // 增加重试次数 - 直接修改原始状态中的对象
+          const operationIndex = offlineState.pendingOperations.findIndex(
+            (op) => op.id === operation.id
+          )
+          if (operationIndex !== -1) {
+            offlineState.pendingOperations[operationIndex].retryCount++
 
-          if (operation.retryCount >= operation.maxRetries) {
-            // 超过最大重试次数，移除操作
-            const index = offlineState.pendingOperations.findIndex((op) => op.id === operation.id)
-            if (index !== -1) {
-              offlineState.pendingOperations.splice(index, 1)
+            if (
+              offlineState.pendingOperations[operationIndex].retryCount >=
+              offlineState.pendingOperations[operationIndex].maxRetries
+            ) {
+              // 超过最大重试次数，移除操作
+              const failedOperation = offlineState.pendingOperations.splice(operationIndex, 1)[0]
+              failedOperations.push(failedOperation)
             }
-            failedOperations.push(operation)
           }
         }
       }
 
       // 执行完整的数据同步
-      // TODO: 实现同步逻辑
-      const syncResult = { success: true }
+      const syncResult = await syncService.syncData(todos.value)
+      const syncSuccess = syncResult.status === 'success'
 
       if (failedOperations.length > 0) {
         showWarning(`同步完成，但有 ${failedOperations.length} 个操作失败`)
@@ -174,7 +187,7 @@ export function useOfflineMode() {
       }
 
       saveOfflineState()
-      return syncResult
+      return syncSuccess
     } catch (error) {
       console.error('Sync failed:', error)
       showError('同步失败，请稍后重试')
@@ -188,8 +201,57 @@ export function useOfflineMode() {
    * 处理单个离线操作
    */
   const processOfflineOperation = async (operation: OfflineOperation): Promise<void> => {
-    // TODO: 实现离线操作处理逻辑
     console.log('Processing offline operation:', operation)
+
+    try {
+      switch (operation.type) {
+        case 'create': {
+          // 创建新的 Todo
+          const createResponse = await httpClient.post<{ success: boolean; data: unknown }>(
+            '/api/v1/todos',
+            operation.data
+          )
+          if (!createResponse.success) {
+            throw new Error('创建操作失败')
+          }
+          console.log('成功创建 Todo:', createResponse.data)
+          break
+        }
+
+        case 'update':
+          // 更新现有的 Todo
+          if (operation.data && typeof operation.data === 'object' && 'id' in operation.data) {
+            const updateResponse = await httpClient.put<{ success: boolean; data: unknown }>(
+              `/api/v1/todos/${(operation.data as { id: string }).id}`,
+              operation.data
+            )
+            if (!updateResponse.success) {
+              throw new Error('更新操作失败')
+            }
+            console.log('成功更新 Todo:', updateResponse.data)
+          }
+          break
+
+        case 'delete':
+          // 删除 Todo
+          if (operation.data && typeof operation.data === 'object' && 'id' in operation.data) {
+            const deleteResponse = await httpClient.delete<{ success: boolean }>(
+              `/api/v1/todos/${(operation.data as { id: string }).id}`
+            )
+            if (!deleteResponse.success) {
+              throw new Error('删除操作失败')
+            }
+            console.log('成功删除 Todo:', (operation.data as { id: string }).id)
+          }
+          break
+
+        default:
+          throw new Error(`未知的操作类型: ${operation.type}`)
+      }
+    } catch (error) {
+      console.error(`处理离线操作失败 (${operation.type}):`, error)
+      throw error
+    }
   }
 
   /**

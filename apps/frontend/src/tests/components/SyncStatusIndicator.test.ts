@@ -27,6 +27,7 @@ vi.mock('../../composables/useSyncManager', () => ({
   useSyncManager: () => ({
     networkStatusText: mockNetworkStatusText,
     checkServerHealth: mockCheckServerHealth,
+    isInitialized: ref(true),
   }),
 }))
 
@@ -104,13 +105,21 @@ describe('SyncStatusIndicator', () => {
   })
 
   it('should show close button by default when connection is stable', () => {
+    // 设置一个从错误状态恢复的场景，这样组件会显示
     mockNetworkStatus.lastCheckTime = new Date().toISOString()
+    mockNetworkStatus.isOnline = true
+    mockNetworkStatus.isServerReachable = true
+    mockNetworkStatus.consecutiveFailures = 1 // 之前有失败，现在恢复了
     const wrapper = mount(SyncStatusIndicator)
     expect(wrapper.find('.close-button').exists()).toBe(true)
   })
 
   it('should hide close button when showClose is false', () => {
+    // 设置一个从错误状态恢复的场景，这样组件会显示
     mockNetworkStatus.lastCheckTime = new Date().toISOString()
+    mockNetworkStatus.isOnline = true
+    mockNetworkStatus.isServerReachable = true
+    mockNetworkStatus.consecutiveFailures = 1 // 之前有失败，现在恢复了
     const wrapper = mount(SyncStatusIndicator, {
       props: { showClose: false },
     })
@@ -127,8 +136,11 @@ describe('SyncStatusIndicator', () => {
   })
 
   it('should hide after user dismisses and respect silence period', async () => {
-    // 显示成功状态
+    // 设置一个从错误状态恢复的场景，这样组件会显示
     mockNetworkStatus.lastCheckTime = new Date().toISOString()
+    mockNetworkStatus.isOnline = true
+    mockNetworkStatus.isServerReachable = true
+    mockNetworkStatus.consecutiveFailures = 1 // 之前有失败，现在恢复了
     const wrapper = mount(SyncStatusIndicator)
     expect(wrapper.find('.network-indicator').exists()).toBe(true)
 
@@ -141,8 +153,11 @@ describe('SyncStatusIndicator', () => {
   })
 
   it('should show important states even during silence period', async () => {
-    // 用户先关闭了成功状态
+    // 设置一个从错误状态恢复的场景，这样组件会显示
     mockNetworkStatus.lastCheckTime = new Date().toISOString()
+    mockNetworkStatus.isOnline = true
+    mockNetworkStatus.isServerReachable = true
+    mockNetworkStatus.consecutiveFailures = 1 // 之前有失败，现在恢复了
     const wrapper = mount(SyncStatusIndicator)
     expect(wrapper.find('.network-indicator').exists()).toBe(true)
 
@@ -157,9 +172,12 @@ describe('SyncStatusIndicator', () => {
   })
 
   it('should auto-hide after recent check', async () => {
-    // 模拟最近检查（在autoHideDelay时间内）
+    // 设置一个从错误状态恢复的场景，这样组件会显示
     const recentTime = new Date(Date.now() - 1000).toISOString() // 1秒前
     mockNetworkStatus.lastCheckTime = recentTime
+    mockNetworkStatus.isOnline = true
+    mockNetworkStatus.isServerReachable = true
+    mockNetworkStatus.consecutiveFailures = 1 // 之前有失败，现在恢复了
 
     const wrapper = mount(SyncStatusIndicator, {
       props: { autoHideDelay: 2000 }, // 2秒自动隐藏
@@ -198,10 +216,11 @@ describe('SyncStatusIndicator', () => {
     const wrapper2 = mount(SyncStatusIndicator)
     expect(wrapper2.find('.network-indicator').exists()).toBe(true)
 
-    // 测试在线且服务器可达状态 - 可能不显示（除非有最近的检查时间）
+    // 测试在线且服务器可达状态 - 设置从错误状态恢复的场景
     mockNetworkStatus.isOnline = true
     mockNetworkStatus.isServerReachable = true
     mockNetworkStatus.lastCheckTime = new Date().toISOString()
+    mockNetworkStatus.consecutiveFailures = 1 // 之前有失败，现在恢复了
     mockNetworkStatusText.value = '网络连接正常'
     const wrapper3 = mount(SyncStatusIndicator)
     expect(wrapper3.find('.network-indicator').exists()).toBe(true)
