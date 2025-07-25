@@ -239,7 +239,7 @@ export default defineConfig({
     host: true,
     proxy: {
       '/api': {
-        target: 'http://localhost:3000',
+        target: process.env.DOCKER_ENV ? 'http://backend-dev:8888' : 'http://localhost:8888',
         changeOrigin: true,
         secure: false,
       },

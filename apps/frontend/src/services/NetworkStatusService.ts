@@ -49,8 +49,8 @@ export class NetworkStatusService {
    * 获取健康检查端点 URL
    */
   private getHealthEndpoint(): string {
-    const apiBaseUrl = import.meta.env?.VITE_API_BASE_URL || 'http://localhost:8888/api/v1'
-    return `${apiBaseUrl}/health`
+    // 使用相对路径，通过 Vite 代理转发到后端
+    return '/api/v1/health'
   }
 
   /**

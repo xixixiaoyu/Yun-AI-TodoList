@@ -10,8 +10,7 @@ let isRefreshing = false
 let refreshPromise: Promise<string> | null = null
 
 // API 基础配置
-const API_BASE_URL =
-  (import.meta.env && (import.meta.env.VITE_API_BASE_URL as string)) || 'http://localhost:3001'
+const API_BASE_URL = '/api/v1' // 使用相对路径，通过 Vite 代理转发到后端
 const API_TIMEOUT = 10000 // 10秒超时
 
 // 请求重试配置
@@ -293,10 +292,34 @@ class HttpClient {
   }
 
   /**
+   * 构造完整的 URL
+   */
+  private buildUrl(endpoint: string): string {
+    // 如果 endpoint 已经是完整的 URL，直接返回
+    if (endpoint.startsWith('http://') || endpoint.startsWith('https://')) {
+      return endpoint
+    }
+
+    // 如果 endpoint 已经包含 baseURL，直接返回 endpoint
+    if (this.baseURL.startsWith('/') && endpoint.startsWith(this.baseURL)) {
+      return endpoint
+    }
+
+    // 如果 baseURL 是相对路径，直接拼接
+    if (this.baseURL.startsWith('/')) {
+      return this.baseURL + (endpoint.startsWith('/') ? endpoint : '/' + endpoint)
+    }
+
+    // 如果 baseURL 是绝对 URL，使用 URL 构造函数
+    return new URL(endpoint, this.baseURL).toString()
+  }
+
+  /**
    * GET 请求
    */
   async get<T = unknown>(endpoint: string, params?: Record<string, unknown>): Promise<T> {
-    const url = new URL(endpoint, this.baseURL)
+    const baseUrl = this.buildUrl(endpoint)
+    const url = new URL(baseUrl, window.location.origin)
 
     if (params) {
       Object.entries(params).forEach(([key, value]) => {
@@ -320,7 +343,8 @@ class HttpClient {
     data?: unknown,
     customHeaders?: Record<string, string>
   ): Promise<T> {
-    const url = new URL(endpoint, this.baseURL)
+    const baseUrl = this.buildUrl(endpoint)
+    const url = new URL(baseUrl, window.location.origin)
 
     return this.executeRequest(url.toString(), {
       method: 'POST',
@@ -337,7 +361,8 @@ class HttpClient {
     data?: unknown,
     customHeaders?: Record<string, string>
   ): Promise<T> {
-    const url = new URL(endpoint, this.baseURL)
+    const baseUrl = this.buildUrl(endpoint)
+    const url = new URL(baseUrl, window.location.origin)
 
     return this.executeRequest(url.toString(), {
       method: 'PUT',
@@ -354,7 +379,8 @@ class HttpClient {
     data?: unknown,
     customHeaders?: Record<string, string>
   ): Promise<T> {
-    const url = new URL(endpoint, this.baseURL)
+    const baseUrl = this.buildUrl(endpoint)
+    const url = new URL(baseUrl, window.location.origin)
 
     return this.executeRequest(url.toString(), {
       method: 'PATCH',
@@ -367,7 +393,8 @@ class HttpClient {
    * DELETE 请求
    */
   async delete<T = unknown>(endpoint: string): Promise<T> {
-    const url = new URL(endpoint, this.baseURL)
+    const baseUrl = this.buildUrl(endpoint)
+    const url = new URL(baseUrl, window.location.origin)
 
     return this.executeRequest(url.toString(), {
       method: 'DELETE',

@@ -635,11 +635,11 @@ export class TodosService {
         COUNT(*) as total,
         COUNT(*) FILTER (WHERE completed = true) as completed,
         COUNT(*) FILTER (WHERE completed = false) as active,
-        COUNT(*) FILTER (WHERE completed = false AND due_date < NOW()) as overdue,
-        COUNT(*) FILTER (WHERE completed = false AND due_date >= ${todayStart} AND due_date <= ${todayEnd}) as due_today,
-        COUNT(*) FILTER (WHERE completed = false AND due_date >= NOW() AND due_date <= ${weekEnd}) as due_this_week
+        COUNT(*) FILTER (WHERE completed = false AND "dueDate" < NOW()) as overdue,
+        COUNT(*) FILTER (WHERE completed = false AND "dueDate" >= ${todayStart} AND "dueDate" <= ${todayEnd}) as due_today,
+        COUNT(*) FILTER (WHERE completed = false AND "dueDate" >= NOW() AND "dueDate" <= ${weekEnd}) as due_this_week
       FROM todos
-      WHERE user_id = ${userId} AND deleted_at IS NULL
+      WHERE "userId" = ${userId} AND "deletedAt" IS NULL
     `
 
         const result = stats[0]

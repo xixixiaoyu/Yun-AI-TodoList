@@ -97,9 +97,8 @@ export function useSyncManager() {
    */
   const checkServerHealth = async (): Promise<boolean> => {
     try {
-      // 使用正确的后端 API URL
-      const apiBaseUrl = import.meta.env?.VITE_API_BASE_URL || 'http://localhost:8888/api/v1'
-      const healthUrl = `${apiBaseUrl}/health`
+      // 使用相对路径，通过 Vite 代理转发到后端
+      const healthUrl = '/api/v1/health'
 
       const response = await fetch(healthUrl, {
         method: 'HEAD',

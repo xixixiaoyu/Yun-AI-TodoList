@@ -288,12 +288,12 @@ const handleSubmit = async (event?: Event) => {
 // OAuth 登录处理
 const handleGoogleLogin = () => {
   // 重定向到后端的 Google OAuth 端点
-  window.location.href = `${import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000'}/auth/google`
+  window.location.href = '/api/v1/auth/google'
 }
 
 const handleGitHubLogin = () => {
   // 重定向到后端的 GitHub OAuth 端点
-  window.location.href = `${import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000'}/auth/github`
+  window.location.href = '/api/v1/auth/github'
 }
 
 // 组件挂载时加载上次登录的邮箱
