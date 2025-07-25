@@ -2,7 +2,7 @@
  * API 相关类型定义
  */
 
-export interface ApiResponse<T = any> {
+export interface ApiResponse<T = unknown> {
   success: boolean
   data?: T
   message?: string
@@ -10,7 +10,7 @@ export interface ApiResponse<T = any> {
   timestamp: string
 }
 
-export interface PaginatedResponse<T = any> {
+export interface PaginatedResponse<T = unknown> {
   data: T[]
   total: number
   page: number
@@ -23,7 +23,7 @@ export interface PaginatedResponse<T = any> {
 export interface ApiError {
   code: string
   message: string
-  details?: any
+  details?: Record<string, unknown>
   timestamp: string
   path?: string
 }

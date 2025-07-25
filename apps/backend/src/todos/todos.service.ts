@@ -138,10 +138,12 @@ export class TodosService {
         where.id = { in: searchResults.map((r) => r.id) }
       } else {
         // 如果全文搜索没有结果，回退到模糊搜索
-        where.OR = [
-          { title: { contains: search, mode: 'insensitive' } },
-          { description: { contains: search, mode: 'insensitive' } },
-        ]
+        Object.assign(where, {
+          OR: [
+            { title: { contains: search, mode: 'insensitive' } },
+            { description: { contains: search, mode: 'insensitive' } },
+          ],
+        })
       }
     }
 
@@ -156,7 +158,7 @@ export class TodosService {
           break
         case TodoFilterType.OVERDUE:
           where.completed = false
-          where.dueDate = { lt: new Date() }
+          where.dueDate = { lte: new Date() }
           break
         case TodoFilterType.TODAY: {
           const today = new Date()
@@ -255,7 +257,25 @@ export class TodosService {
     }
 
     return {
-      todos: actualTodos.map((todo: any) => this.mapPrismaTodoToTodo(todo)),
+      todos: actualTodos.map((todo) =>
+        this.mapPrismaTodoToTodo(
+          todo as unknown as {
+            id: string
+            title: string
+            description: string | null
+            completed: boolean
+            completedAt: Date | null
+            createdAt: Date
+            updatedAt: Date
+            order: number
+            priority: number | null
+            estimatedTime: number | null
+            aiAnalyzed: boolean
+            userId: string
+            dueDate: Date | null
+          }
+        )
+      ),
       total,
       page,
       limit,
@@ -295,7 +315,7 @@ export class TodosService {
       throw new NotFoundException('Todo 不存在')
     }
 
-    const updateData: any = {
+    const updateData: Record<string, unknown> = {
       ...updateTodoDto,
       version: existingTodo.version + 1, // 版本控制
       updatedAt: new Date(),
@@ -393,7 +413,7 @@ export class TodosService {
     }
 
     // 处理数据类型转换
-    const processedUpdateData: any = { ...updateData }
+    const processedUpdateData: Record<string, unknown> = { ...updateData }
 
     // 处理预估时间类型转换
     if (updateData.estimatedTime !== undefined) {
@@ -520,7 +540,7 @@ export class TodosService {
   async batchAnalyze(
     userId: string,
     batchAnalyzeDto: BatchAnalyzeDto
-  ): Promise<{ success: number; failed: number; results: any[] }> {
+  ): Promise<{ success: number; failed: number; results: Array<Record<string, unknown>> }> {
     const { todoIds, enablePriorityAnalysis, enableTimeEstimation, forceReanalyze } =
       batchAnalyzeDto
 
@@ -639,7 +659,7 @@ export class TodosService {
   private async performAIAnalysis(
     title: string,
     description?: string,
-    _options?: any
+    _options?: Record<string, unknown>
   ): Promise<AIAnalysisResult> {
     // 模拟 AI 分析逻辑
     // 实际项目中这里会调用 DeepSeek 或其他 AI 服务
@@ -752,14 +772,14 @@ export class TodosService {
     return {
       id: prismaTodo.id,
       title: prismaTodo.title,
-      description: prismaTodo.description,
+      description: prismaTodo.description ?? undefined,
       completed: prismaTodo.completed,
       completedAt: prismaTodo.completedAt?.toISOString(),
       createdAt: prismaTodo.createdAt.toISOString(),
       updatedAt: prismaTodo.updatedAt.toISOString(),
       order: prismaTodo.order,
-      priority: prismaTodo.priority,
-      estimatedTime: prismaTodo.estimatedTime,
+      priority: prismaTodo.priority ?? undefined,
+      estimatedTime: prismaTodo.estimatedTime?.toString(),
       aiAnalyzed: prismaTodo.aiAnalyzed,
       userId: prismaTodo.userId,
       dueDate: prismaTodo.dueDate?.toISOString(),

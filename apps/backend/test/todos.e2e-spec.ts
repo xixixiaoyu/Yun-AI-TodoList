@@ -23,7 +23,7 @@ describe('Todos (e2e)', () => {
       if (loginResponse.status === 200) {
         return loginResponse.body.accessToken
       }
-    } catch (error) {
+    } catch {
       // 登录失败，可能用户不存在
     }
 
@@ -52,7 +52,7 @@ describe('Todos (e2e)', () => {
         if (response.status === 200) {
           return { todoId, accessToken: validToken }
         }
-      } catch (error) {
+      } catch {
         // Todo 不存在，需要创建新的
       }
     }
@@ -74,7 +74,7 @@ describe('Todos (e2e)', () => {
 
       todoId = response.body.id
       return { todoId, accessToken: validToken }
-    } catch (error) {
+    } catch {
       // 如果创建失败（可能是 token 无效），重新获取 token 并重试
       validToken = await getValidAccessToken()
       const response = await request(app.getHttpServer())
@@ -185,7 +185,7 @@ describe('Todos (e2e)', () => {
         .set('Authorization', `Bearer ${accessToken}`)
         .expect(200)
         .expect((res) => {
-          expect(res.body.todos.every((todo: any) => !todo.completed)).toBe(true)
+          expect(res.body.todos.every((todo: { completed: boolean }) => !todo.completed)).toBe(true)
         })
     })
   })

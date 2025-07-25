@@ -14,9 +14,9 @@ export { request }
 
 // Jest globals
 declare global {
-  var beforeAll: (fn: () => Promise<void>) => void
-  var afterAll: (fn: () => Promise<void>) => void
-  var beforeEach: (fn: () => Promise<void>) => void
+  const beforeAll: (fn: () => Promise<void>) => void
+  const afterAll: (fn: () => Promise<void>) => void
+  const beforeEach: (fn: () => Promise<void>) => void
 }
 
 export let app: INestApplication
@@ -61,7 +61,7 @@ afterAll(async () => {
 // 移除 beforeEach 清理，让测试套件内的测试可以共享数据
 // 只在测试套件开始前清理一次数据库
 
-async function cleanupDatabase() {
+async function cleanupDatabase(): Promise<void> {
   // For SQLite, we need to delete from tables individually
   try {
     // Delete in order to respect foreign key constraints

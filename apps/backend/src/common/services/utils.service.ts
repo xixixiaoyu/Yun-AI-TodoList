@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
+import type { PublicUser } from '@shared/types'
 import * as bcrypt from 'bcrypt'
 import { randomBytes, randomUUID } from 'crypto'
 
@@ -64,10 +65,10 @@ export class UtilsService {
   }
 
   // 清理敏感信息
-  sanitizeUser(user: { password?: string; [key: string]: any }): Omit<typeof user, 'password'> {
+  sanitizeUser(user: any): PublicUser {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { password, ...sanitized } = user
-    return sanitized
+    return sanitized as PublicUser
   }
 
   // 分页计算
@@ -111,12 +112,19 @@ export class UtilsService {
     connection?: { remoteAddress?: string; socket?: { remoteAddress?: string } }
     socket?: { remoteAddress?: string }
   }): string {
+    const forwardedFor = request.headers['x-forwarded-for']
+    const realIp = request.headers['x-real-ip']
+
+    // 处理 x-forwarded-for 可能是数组的情况
+    const forwardedIp = Array.isArray(forwardedFor) ? forwardedFor[0] : forwardedFor
+    const realIpStr = Array.isArray(realIp) ? realIp[0] : realIp
+
     return (
-      request.headers['x-forwarded-for'] ||
-      request.headers['x-real-ip'] ||
-      request.connection.remoteAddress ||
-      request.socket.remoteAddress ||
-      (request.connection.socket ? request.connection.socket.remoteAddress : null) ||
+      forwardedIp ||
+      realIpStr ||
+      request.connection?.remoteAddress ||
+      request.socket?.remoteAddress ||
+      request.connection?.socket?.remoteAddress ||
       '0.0.0.0'
     )
   }

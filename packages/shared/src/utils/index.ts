@@ -7,7 +7,7 @@ export * from './string'
 export * from './validation'
 
 // 通用工具函数
-export function debounce<T extends (...args: any[]) => any>(
+export function debounce<T extends (...args: unknown[]) => unknown>(
   func: T,
   wait: number
 ): (...args: Parameters<T>) => void {
@@ -19,7 +19,7 @@ export function debounce<T extends (...args: any[]) => any>(
   }
 }
 
-export function throttle<T extends (...args: any[]) => any>(
+export function throttle<T extends (...args: unknown[]) => unknown>(
   func: T,
   limit: number
 ): (...args: Parameters<T>) => void {
@@ -52,7 +52,7 @@ export function deepClone<T>(obj: T): T {
 }
 
 // 深度合并对象
-export function deepMerge<T extends Record<string, any>>(
+export function deepMerge<T extends Record<string, unknown>>(
   target: T,
   ...sources: Array<Partial<T>>
 ): T {
@@ -63,7 +63,7 @@ export function deepMerge<T extends Record<string, any>>(
     for (const key in source) {
       if (isObject(source[key])) {
         if (!target[key]) Object.assign(target, { [key]: {} })
-        deepMerge(target[key] as Record<string, any>, source[key] as Record<string, any>)
+        deepMerge(target[key] as Record<string, unknown>, source[key] as Record<string, unknown>)
       } else {
         Object.assign(target, { [key]: source[key] })
       }
@@ -73,8 +73,8 @@ export function deepMerge<T extends Record<string, any>>(
   return deepMerge(target, ...sources)
 }
 
-function isObject(item: any): item is Record<string, any> {
-  return item && typeof item === 'object' && !Array.isArray(item)
+function isObject(item: unknown): item is Record<string, unknown> {
+  return Boolean(item && typeof item === 'object' && !Array.isArray(item))
 }
 
 // 数组去重
@@ -134,23 +134,23 @@ export function isDefined<T>(value: T | undefined | null): value is T {
   return value !== undefined && value !== null
 }
 
-export function isString(value: any): value is string {
+export function isString(value: unknown): value is string {
   return typeof value === 'string'
 }
 
-export function isNumber(value: any): value is number {
+export function isNumber(value: unknown): value is number {
   return typeof value === 'number' && !isNaN(value)
 }
 
-export function isBoolean(value: any): value is boolean {
+export function isBoolean(value: unknown): value is boolean {
   return typeof value === 'boolean'
 }
 
-export function isArray<T>(value: any): value is T[] {
+export function isArray<T>(value: unknown): value is T[] {
   return Array.isArray(value)
 }
 
-export function isEmpty(value: any): boolean {
+export function isEmpty(value: unknown): boolean {
   if (value === null || value === undefined) return true
   if (typeof value === 'string') return value.trim().length === 0
   if (Array.isArray(value)) return value.length === 0

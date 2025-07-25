@@ -52,13 +52,13 @@ export const TEST_CONFIG = {
 
   COVERAGE: {
     STATEMENTS: 80,
-    BRANCHES: 75,
+    BRANCHES: 80,
     FUNCTIONS: 80,
     LINES: 80,
   },
 }
 
-export const isTestEnvironment = () => {
+export const isTestEnvironment = (): boolean => {
   return (
     process.env.NODE_ENV === 'test' ||
     process.env.VITEST === 'true' ||
@@ -66,7 +66,7 @@ export const isTestEnvironment = () => {
   )
 }
 
-export const getTestType = () => {
+export const getTestType = (): 'unit' | 'integration' | 'e2e' => {
   if (typeof expect === 'undefined') {
     return 'unit'
   }
@@ -81,7 +81,7 @@ export const getTestType = () => {
   }
 }
 
-export const getTestTimeout = () => {
+export const getTestTimeout = (): number => {
   const testType = getTestType()
   return (
     TEST_CONFIG.TIMEOUT[testType.toUpperCase() as keyof typeof TEST_CONFIG.TIMEOUT] ||
@@ -118,7 +118,7 @@ export const TEST_PRIORITY = {
   LOW: 4,
 } as const
 
-export const createTestId = (component: string, element: string) => {
+export const createTestId = (component: string, element: string): string => {
   return `test-${component}-${element}`
 }
 
@@ -126,7 +126,7 @@ export const createTestId = (component: string, element: string) => {
  * 测试数据生成器
  */
 export const TestDataGenerator = {
-  randomString: (length = 10) => {
+  randomString: (length = 10): string => {
     const chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
     let result = ''
     for (let i = 0; i < length; i++) {
@@ -135,24 +135,24 @@ export const TestDataGenerator = {
     return result
   },
 
-  randomNumber: (min = 0, max = 100) => {
+  randomNumber: (min = 0, max = 100): number => {
     return Math.floor(Math.random() * (max - min + 1)) + min
   },
 
-  randomBoolean: () => {
+  randomBoolean: (): boolean => {
     return Math.random() < 0.5
   },
 
   /**
    * 生成随机日期
    */
-  randomDate: (start = new Date(2020, 0, 1), end = new Date()) => {
+  randomDate: (start = new Date(2020, 0, 1), end = new Date()): Date => {
     return new Date(start.getTime() + Math.random() * (end.getTime() - start.getTime()))
   },
 }
 
 export const TestAssertions = {
-  expectArrayToContain: <T>(array: T[], item: T) => {
+  expectArrayToContain: <T>(array: T[], item: T): void => {
     if (typeof expect !== 'undefined') {
       expect(array).toContain(item)
     }
@@ -161,7 +161,11 @@ export const TestAssertions = {
   /**
    * 断言对象具有特定属性
    */
-  expectObjectToHaveProperty: (obj: Record<string, any>, property: string, value?: any) => {
+  expectObjectToHaveProperty: (
+    obj: Record<string, unknown>,
+    property: string,
+    value?: unknown
+  ): void => {
     if (typeof expect !== 'undefined') {
       expect(obj).toHaveProperty(property)
       if (value !== undefined) {
@@ -170,7 +174,10 @@ export const TestAssertions = {
     }
   },
 
-  expectFunctionToBeCalled: (fn: vi.MockedFunction<(...args: any[]) => any>, times?: number) => {
+  expectFunctionToBeCalled: (
+    fn: vi.MockedFunction<(...args: unknown[]) => unknown>,
+    times?: number
+  ): void => {
     if (typeof expect !== 'undefined') {
       expect(fn).toHaveBeenCalled()
       if (times !== undefined) {
@@ -179,7 +186,7 @@ export const TestAssertions = {
     }
   },
 
-  expectAsyncToComplete: async (promise: Promise<unknown>, timeout = 5000) => {
+  expectAsyncToComplete: async (promise: Promise<unknown>, timeout = 5000): Promise<unknown> => {
     const result = await Promise.race([
       promise,
       new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout')), timeout)),
@@ -192,7 +199,7 @@ export const TestUtils = {
   /**
    * 等待条件满足
    */
-  waitFor: async (condition: () => boolean, timeout = 5000, interval = 100) => {
+  waitFor: async (condition: () => boolean, timeout = 5000, interval = 100): Promise<void> => {
     const startTime = Date.now()
     while (!condition() && Date.now() - startTime < timeout) {
       await new Promise((resolve) => setTimeout(resolve, interval))
@@ -202,12 +209,12 @@ export const TestUtils = {
     }
   },
 
-  simulateUserDelay: (min = 50, max = 200) => {
+  simulateUserDelay: (min = 50, max = 200): Promise<void> => {
     const delay = Math.random() * (max - min) + min
     return new Promise((resolve) => setTimeout(resolve, delay))
   },
 
-  createTestPromise: <T>(value: T, delay = 0, shouldReject = false) => {
+  createTestPromise: <T>(value: T, delay = 0, shouldReject = false): Promise<T> => {
     return new Promise<T>((resolve, reject) => {
       setTimeout(() => {
         if (shouldReject) {

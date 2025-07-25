@@ -93,7 +93,7 @@ export interface UserAIAnalysisConfig {
     model: string
     temperature: number
     maxTokens: number
-    [key: string]: any
+    [key: string]: unknown
   }
 }
 
@@ -105,7 +105,7 @@ export interface SearchConfig {
   engineConfig: {
     engine: string
     region: string
-    [key: string]: any
+    [key: string]: unknown
   }
 }
 
@@ -158,5 +158,5 @@ export interface DataImportResult {
   importedCount: number
   skippedCount: number
   errorCount: number
-  errors: Array<{ type: string; message: string; data?: any }>
+  errors: Array<{ type: string; message: string; data?: unknown }>
 }

@@ -7,6 +7,9 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
+# 应用日志
+apps/backend/logs/
+
 node_modules
 dist
 dist-ssr
@@ -48,6 +51,12 @@ release
 # 忽略覆盖率报告
 coverage
 .nyc_output
+
+# 忽略测试结果和报告
+test-results/
+playwright-report/
+performance-results.json
+bundle-analysis.json
 
 # Cloudflare Workers
 .wrangler

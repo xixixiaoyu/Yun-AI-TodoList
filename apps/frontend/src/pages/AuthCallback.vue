@@ -10,10 +10,8 @@
 <script setup lang="ts">
 import { onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { useAuthStore } from '@/stores/auth'
 
 const router = useRouter()
-const authStore = useAuthStore()
 
 onMounted(async () => {
   try {
@@ -23,12 +21,16 @@ onMounted(async () => {
     const refreshToken = urlParams.get('refresh')
 
     if (accessToken && refreshToken) {
-      // 保存令牌到本地存储
-      localStorage.setItem('accessToken', accessToken)
-      localStorage.setItem('refreshToken', refreshToken)
+      // 使用 tokenManager 保存令牌
+      const { tokenManager } = await import('@/utils/tokenManager')
+      tokenManager.saveTokens(accessToken, refreshToken, true)
 
       // 获取用户信息
-      await authStore.fetchUserProfile()
+      const { authApi } = await import('@/services/authApi')
+      const userInfo = await authApi.getCurrentUser()
+
+      // 保存用户信息
+      localStorage.setItem('auth_user', JSON.stringify(userInfo))
 
       // 重定向到主页
       router.push('/')
