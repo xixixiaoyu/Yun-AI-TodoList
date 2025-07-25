@@ -48,6 +48,13 @@ release
 .temp
 .tmp
 
+# 工具缓存文件
+.eslintcache
+.prettiercache
+apps/*/.eslintcache
+apps/*/.prettiercache
+node_modules/.cache
+
 # 忽略覆盖率报告
 coverage
 .nyc_output

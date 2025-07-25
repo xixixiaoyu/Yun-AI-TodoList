@@ -31,11 +31,14 @@
     "lint": "pnpm --recursive lint",
     "lint:check": "pnpm --recursive lint",
     "lint:fix": "pnpm --recursive lint:fix",
-    "format": "prettier --write \"**/*.{js,ts,json,css,scss,vue,html,md}\" --ignore-unknown",
-    "format:check": "prettier --check \"**/*.{js,ts,json,css,scss,vue,html,md}\" --ignore-unknown",
+    "format": "prettier --cache --write \"**/*.{js,ts,json,css,scss,vue,html,md}\" --ignore-unknown",
+    "format:check": "prettier --cache --check \"**/*.{js,ts,json,css,scss,vue,html,md}\" --ignore-unknown",
     "perf:benchmark": "node scripts/performance-test.js",
     "type-check": "pnpm --recursive type-check",
-    "clean": "pnpm --recursive clean && rimraf dist release node_modules/.cache",
+    "clean": "pnpm --recursive clean && rimraf dist release node_modules/.cache .eslintcache .prettiercache",
+    "clean:cache": "./scripts/cache-manager.sh clean",
+    "cache:status": "./scripts/cache-manager.sh status",
+    "cache:stats": "./scripts/cache-manager.sh stats",
     "prepare": "husky",
     "docker:dev": "./scripts/docker-dev.sh start",
     "docker:stop": "docker-compose -f docker-compose.dev.yml down",
@@ -51,14 +54,14 @@
   },
   "lint-staged": {
     "*.{vue,js,jsx,cjs,mjs,ts,tsx,cts,mts}": [
-      "prettier --write --ignore-unknown",
-      "eslint --fix --no-error-on-unmatched-pattern"
+      "prettier --cache --write --ignore-unknown",
+      "eslint --cache --cache-location .eslintcache --fix --no-error-on-unmatched-pattern"
     ],
     "*.{css,less,scss}": [
-      "prettier --write --ignore-unknown"
+      "prettier --cache --write --ignore-unknown"
     ],
     "*.{json,md}": [
-      "prettier --write --ignore-unknown"
+      "prettier --cache --write --ignore-unknown"
     ]
   },
   "devDependencies": {

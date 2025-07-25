@@ -1,12 +1,18 @@
 /**
  * 增强的 ESLint 配置 - 代码质量优化
- * 基于现有配置，添加更严格的质量检查规则
+ * 基于统一的基础配置，添加更严格的质量检查规则
+ * 使用方法: ESLINT_CONFIG=quality pnpm lint
  */
 
-import baseConfig from './eslint.config.js'
+import { baseConfig, commonIgnores } from './eslint.base.config.js'
 
 export default [
-  // 继承现有配置
+  // 忽略文件配置
+  {
+    ignores: commonIgnores,
+  },
+
+  // 继承基础配置
   ...baseConfig,
 
   // 增强的代码质量规则
