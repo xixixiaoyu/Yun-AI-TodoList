@@ -32,7 +32,7 @@ export default {
   ],
   extraResources: [
     {
-      from: 'public/logo.png',
+      from: 'apps/frontend/public/logo.png',
       to: 'logo.png',
     },
   ],
@@ -48,8 +48,15 @@ export default {
     darkModeSupport: true,
     hardenedRuntime: true,
     gatekeeperAssess: false,
-    entitlements: 'build/entitlements.mac.plist',
-    entitlementsInherit: 'build/entitlements.mac.plist',
+    // 根据环境选择不同的 entitlements 文件
+    entitlements:
+      process.env.NODE_ENV === 'production'
+        ? 'build/entitlements.mac.prod.plist'
+        : 'build/entitlements.mac.plist',
+    entitlementsInherit:
+      process.env.NODE_ENV === 'production'
+        ? 'build/entitlements.mac.prod.plist'
+        : 'build/entitlements.mac.plist',
     notarize: false,
   },
   dmg: {

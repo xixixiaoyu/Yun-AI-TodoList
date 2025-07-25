@@ -6,7 +6,7 @@
  */
 
 import { execSync } from 'child_process'
-import { existsSync, mkdirSync } from 'fs'
+import { cpSync, existsSync, mkdirSync, rmSync } from 'fs'
 import path from 'path'
 import { fileURLToPath } from 'url'
 
@@ -119,9 +119,9 @@ function buildElectron(platform = 'all') {
   // 复制前端构建产物到根目录
   const rootDist = path.join(rootDir, 'dist')
   if (existsSync(rootDist)) {
-    execSync(`rm -rf ${rootDist}`, { cwd: rootDir })
+    rmSync(rootDist, { recursive: true, force: true })
   }
-  execSync(`cp -r ${frontendDist} ${rootDist}`, { cwd: rootDir })
+  cpSync(frontendDist, rootDist, { recursive: true })
 
   const platformArgs = buildConfig.platforms[platform] || buildConfig.platforms.all
   const command = `electron-builder --config electron-builder.config.js ${platformArgs.join(' ')}`

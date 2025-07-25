@@ -12,6 +12,24 @@ let mainWindow = null
 // 安全配置
 const isDevelopment = process.env.NODE_ENV === 'development'
 
+// 开发环境配置 (参考 dev-config.js)
+const devSettings = {
+  devServer: { port: 3000, host: 'localhost' },
+  window: { openDevTools: true, x: 100, y: 100 },
+  debug: { verbose: true, performance: true },
+}
+
+// 获取应用图标路径的辅助函数
+function getAppIconPath() {
+  if (app.isPackaged) {
+    // 打包后的路径
+    return path.join(process.resourcesPath, 'logo.png')
+  } else {
+    // 开发环境路径
+    return path.join(__dirname, '../build/icon.png')
+  }
+}
+
 // 设置 IPC 处理器
 function setupIPC() {
   // 应用程序控制
@@ -77,10 +95,21 @@ function setupIPC() {
   // 通知
   ipcMain.handle('notification-show', (_, { title, body, ...options }) => {
     if (Notification.isSupported()) {
+      // 获取正确的图标路径
+      const getIconPath = () => {
+        if (app.isPackaged) {
+          // 打包后的路径
+          return path.join(process.resourcesPath, 'logo.png')
+        } else {
+          // 开发环境路径
+          return path.join(__dirname, '../build/icon.png')
+        }
+      }
+
       const notification = new Notification({
         title,
         body,
-        icon: path.join(__dirname, '../build/icon.png'),
+        icon: getIconPath(),
         ...options,
       })
       notification.show()
@@ -105,26 +134,36 @@ function setupIPC() {
 }
 
 function createWindow() {
-  mainWindow = new BrowserWindow({
+  const windowOptions = {
     width: 1024,
     height: 768,
     minWidth: 800,
     minHeight: 600,
+    // 开发环境下设置窗口位置
+    ...(isDevelopment && {
+      x: devSettings.window.x,
+      y: devSettings.window.y,
+    }),
     webPreferences: {
-      nodeIntegration: false,
-      contextIsolation: true,
-      enableRemoteModule: false,
-      allowRunningInsecureContent: false,
-      experimentalFeatures: false,
-      webSecurity: true,
+      // 安全配置
+      nodeIntegration: false, // 禁用 Node.js 集成
+      contextIsolation: true, // 启用上下文隔离
+      enableRemoteModule: false, // 禁用远程模块
+      allowRunningInsecureContent: false, // 禁止运行不安全内容
+      experimentalFeatures: false, // 禁用实验性功能
+      webSecurity: true, // 启用 Web 安全
       preload: path.join(__dirname, 'preload.js'),
-      sandbox: false, // 如果需要更高安全性，可以设置为 true
+      // 沙箱模式：生产环境可考虑启用以提高安全性
+      // 注意：启用沙箱会限制某些功能，需要确保预加载脚本兼容
+      sandbox: process.env.ENABLE_SANDBOX === 'true' ? true : false,
     },
     show: false,
     backgroundColor: '#f8f7f6',
     titleBarStyle: process.platform === 'darwin' ? 'hiddenInset' : 'default',
-    icon: process.platform === 'linux' ? path.join(__dirname, '../build/icon.png') : undefined,
-  })
+    icon: process.platform === 'linux' ? getAppIconPath() : undefined,
+  }
+
+  mainWindow = new BrowserWindow(windowOptions)
 
   // 安全：阻止新窗口创建
   mainWindow.webContents.setWindowOpenHandler(({ url }) => {
@@ -137,10 +176,30 @@ function createWindow() {
   mainWindow.webContents.on('will-navigate', (event, navigationUrl) => {
     const parsedUrl = new URL(navigationUrl)
 
-    if (parsedUrl.origin !== 'http://localhost:3000' && parsedUrl.origin !== 'file://') {
+    // 允许的域名列表
+    const allowedOrigins = ['http://localhost:3000', 'https://localhost:3000', 'file://']
+
+    if (!allowedOrigins.some((origin) => parsedUrl.origin.startsWith(origin))) {
       event.preventDefault()
       shell.openExternal(navigationUrl)
     }
+  })
+
+  // 安全：设置内容安全策略
+  mainWindow.webContents.session.webRequest.onHeadersReceived((details, callback) => {
+    callback({
+      responseHeaders: {
+        ...details.responseHeaders,
+        'Content-Security-Policy': [
+          "default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob:; " +
+            "connect-src 'self' http://localhost:* https://localhost:* ws://localhost:* wss://localhost:*; " +
+            "img-src 'self' data: blob: https:; " +
+            "media-src 'self' data: blob:; " +
+            "font-src 'self' data:; " +
+            "style-src 'self' 'unsafe-inline';",
+        ],
+      },
+    })
   })
 
   // 优雅地显示窗口
@@ -148,7 +207,7 @@ function createWindow() {
     mainWindow.show()
 
     // 开发环境下打开开发者工具
-    if (isDevelopment) {
+    if (isDevelopment && devSettings.window.openDevTools) {
       mainWindow.webContents.openDevTools()
     }
   })

@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+  <dict>
+    <!-- 生产环境安全配置 - 移除调试相关权限 -->
+    
+    <!-- 网络权限 -->
+    <key>com.apple.security.network.client</key>
+    <true/>
+    <key>com.apple.security.network.server</key>
+    <false/>
+    
+    <!-- 文件访问权限 -->
+    <key>com.apple.security.files.user-selected.read-write</key>
+    <true/>
+    <key>com.apple.security.files.downloads.read-write</key>
+    <true/>
+    
+    <!-- 禁用沙箱以保持兼容性，但移除调试权限 -->
+    <key>com.apple.security.app-sandbox</key>
+    <false/>
+    
+    <!-- 生产环境不需要的调试权限已移除 -->
+    <!-- com.apple.security.cs.allow-jit -->
+    <!-- com.apple.security.cs.allow-unsigned-executable-memory -->
+    <!-- com.apple.security.cs.debugger -->
+    <!-- com.apple.security.cs.disable-library-validation -->
+    <!-- com.apple.security.cs.allow-dyld-environment-variables -->
+  </dict>
+</plist>
