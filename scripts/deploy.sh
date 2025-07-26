@@ -41,26 +41,19 @@ show_help() {
     echo "选项:"
     echo "  -h, --help     显示帮助信息"
     echo "  --dry-run      模拟部署（不实际执行）"
-    echo "  --force        强制部署（跳过确认）"
     echo ""
     echo "示例:"
     echo "  $0"
     echo "  $0 --dry-run"
-    echo "  $0 --force"
 }
 
 # 解析参数
 DRY_RUN=false
-FORCE=false
 
 while [[ $# -gt 0 ]]; do
     case $1 in
         --dry-run)
             DRY_RUN=true
-            shift
-            ;;
-        --force)
-            FORCE=true
             shift
             ;;
         -h|--help)
@@ -137,21 +130,14 @@ else
     log_info "[DRY RUN] 跳过前端构建"
 fi
 
-# 部署确认
-if [[ "$FORCE" != "true" && "$DRY_RUN" != "true" ]]; then
+# 部署信息显示（移除手动确认）
+if [[ "$DRY_RUN" != "true" ]]; then
     echo ""
-    log_warning "⚠️ 即将部署到 Cloudflare Workers"
+    log_info "🚀 准备部署到 Cloudflare Workers"
     log_info "📋 部署信息:"
     log_info "   项目: Yun AI TodoList"
     log_info "   构建产物: apps/frontend/dist"
     echo ""
-
-    read -p "确认继续部署？(y/N): " -n 1 -r
-    echo ""
-    if [[ ! $REPLY =~ ^[Yy]$ ]]; then
-        log_info "部署已取消"
-        exit 0
-    fi
 fi
 
 # 执行部署
