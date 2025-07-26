@@ -42,19 +42,34 @@ function base64urlEscape(str) {
   return str.replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '')
 }
 
-// 生成上传凭证
+// 生成上传凭证（修复版）
 function generateUploadToken(accessKey, secretKey, bucket) {
   const policy = {
     scope: bucket,
     deadline: Math.floor(Date.now() / 1000) + 3600, // 1小时过期
   }
 
-  const encodedPolicy = base64urlEscape(Buffer.from(JSON.stringify(policy)).toString('base64'))
+  // 步骤1: 将上传策略序列化成为JSON格式
+  const policyStr = JSON.stringify(policy)
+
+  // 步骤2: 将JSON序列化后的上传策略进行URL安全的Base64编码
+  const encodedPolicy = base64urlEscape(Buffer.from(policyStr, 'utf8').toString('base64'))
+
+  // 步骤3: 用SecretKey对编码后的上传策略进行HMAC-SHA1加密，并且做URL安全的Base64编码
   const sign = base64urlEscape(
-    crypto.createHmac('sha1', secretKey).update(encodedPolicy).digest('base64')
+    crypto.createHmac('sha1', secretKey).update(encodedPolicy, 'utf8').digest('base64')
   )
 
-  return `${accessKey}:${sign}:${encodedPolicy}`
+  // 步骤4: 将AccessKey、加密结果、编码后的上传策略用":"连接起来
+  const uploadToken = `${accessKey}:${sign}:${encodedPolicy}`
+
+  console.log('🔐 Token 调试信息:')
+  console.log('   Policy:', policyStr)
+  console.log('   EncodedPolicy:', encodedPolicy)
+  console.log('   Sign:', sign)
+  console.log('   Token:', uploadToken.substring(0, 50) + '...')
+
+  return uploadToken
 }
 
 // 获取文件列表
@@ -172,6 +187,55 @@ function uploadFile(file, uploadToken, retries = 2) {
   })
 }
 
+// 验证存储空间是否存在
+async function verifyBucket(accessKey, secretKey, bucket) {
+  return new Promise((resolve, reject) => {
+    const url = `https://rs.qiniu.com/buckets`
+    const data = url.replace('https://rs.qiniu.com', '') + '\n'
+    const sign = base64urlEscape(
+      crypto.createHmac('sha1', secretKey).update(data, 'utf8').digest('base64')
+    )
+    const token = `QBox ${accessKey}:${sign}`
+
+    const options = {
+      hostname: 'rs.qiniu.com',
+      port: 443,
+      path: '/buckets',
+      method: 'GET',
+      headers: {
+        Authorization: token,
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+    }
+
+    const req = https.request(options, (res) => {
+      let data = ''
+      res.on('data', (chunk) => {
+        data += chunk
+      })
+
+      res.on('end', () => {
+        if (res.statusCode === 200) {
+          try {
+            const buckets = JSON.parse(data)
+            resolve(buckets.includes(bucket))
+          } catch (e) {
+            resolve(false)
+          }
+        } else {
+          reject(new Error(`Bucket verification failed: ${res.statusCode} ${data}`))
+        }
+      })
+    })
+
+    req.on('error', (err) => {
+      reject(err)
+    })
+
+    req.end()
+  })
+}
+
 // 主函数
 async function main() {
   try {
@@ -183,6 +247,25 @@ async function main() {
     const accessKey = process.env.QINIU_ACCESS_KEY
     const secretKey = process.env.QINIU_SECRET_KEY
     const bucket = process.env.QINIU_BUCKET
+
+    // 验证存储空间
+    log('blue', '🔍 验证存储空间...')
+    try {
+      const bucketExists = await verifyBucket(accessKey, secretKey, bucket)
+      if (bucketExists) {
+        log('green', `✅ 存储空间 "${bucket}" 验证成功`)
+      } else {
+        log('red', `❌ 存储空间 "${bucket}" 不存在或无权限访问`)
+        log('yellow', '💡 请检查:')
+        log('yellow', '   1. 存储空间名称是否正确')
+        log('yellow', '   2. AccessKey 和 SecretKey 是否正确')
+        log('yellow', '   3. 密钥是否有该存储空间的权限')
+        process.exit(1)
+      }
+    } catch (error) {
+      log('yellow', `⚠️ 存储空间验证失败: ${error.message}`)
+      log('yellow', '💡 继续尝试上传...')
+    }
 
     // 检查构建目录
     const distDir = path.join(process.cwd(), 'apps/frontend/dist')
