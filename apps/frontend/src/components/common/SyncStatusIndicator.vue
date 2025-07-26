@@ -112,7 +112,8 @@ onMounted(() => {
   watch(
     () => networkStatus.value.lastCheckTime,
     (newTime, oldTime) => {
-      if (import.meta.env.DEV) {
+      // 只在开发环境且值真正发生有意义变化时才输出日志
+      if (import.meta.env.DEV && newTime !== oldTime && (newTime || oldTime)) {
         console.warn('[NetworkStatusIndicator] lastCheckTime changed:', {
           old: oldTime,
           new: newTime,
@@ -120,7 +121,9 @@ onMounted(() => {
       }
 
       if (newTime && !isCheckingConnection.value) {
-        console.warn('[NetworkStatusIndicator] Starting update timer for notification auto-hide')
+        if (import.meta.env.DEV) {
+          console.warn('[NetworkStatusIndicator] Starting update timer for notification auto-hide')
+        }
         startUpdateTimer()
       }
     },

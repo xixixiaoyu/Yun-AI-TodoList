@@ -9,7 +9,7 @@ export interface NetworkStatus {
   connectionType: string
   isSlowConnection: boolean
   latency: number
-  lastCheckTime: Date
+  lastCheckTime?: string
   consecutiveFailures: number
 }
 
@@ -27,7 +27,7 @@ export class NetworkStatusService {
     connectionType: 'unknown',
     isSlowConnection: false,
     latency: 0,
-    lastCheckTime: new Date(),
+    lastCheckTime: undefined,
     consecutiveFailures: 0,
   }
 
@@ -130,7 +130,7 @@ export class NetworkStatusService {
 
       this.status.isServerReachable = isReachable
       this.status.latency = latency
-      this.status.lastCheckTime = new Date()
+      this.status.lastCheckTime = new Date().toISOString()
 
       if (isReachable) {
         this.status.consecutiveFailures = 0
@@ -142,7 +142,7 @@ export class NetworkStatusService {
     } catch (error) {
       this.status.isServerReachable = false
       this.status.latency = Date.now() - startTime
-      this.status.lastCheckTime = new Date()
+      this.status.lastCheckTime = new Date().toISOString()
       this.status.consecutiveFailures++
 
       console.warn('Server reachability check failed:', error)

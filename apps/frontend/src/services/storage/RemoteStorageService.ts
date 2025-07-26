@@ -28,6 +28,7 @@ export class RemoteStorageService extends TodoStorageService {
         isOnline: navigator.onLine,
         isServerReachable: false,
         consecutiveFailures: 0,
+        lastCheckTime: undefined,
       },
       pendingOperations: 0,
     })

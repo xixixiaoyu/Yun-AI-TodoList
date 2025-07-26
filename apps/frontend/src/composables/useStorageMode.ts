@@ -23,6 +23,7 @@ const storageState = reactive({
     isOnline: navigator.onLine,
     isServerReachable: false,
     consecutiveFailures: 0,
+    lastCheckTime: undefined,
   } as NetworkStatus,
   isInitialized: false,
 })
