@@ -46,6 +46,7 @@
     "migration:run": "pnpm --filter backend migration:run",
     "seed": "pnpm --filter backend seed",
     "deploy:cf": "./scripts/deploy.sh",
+    "deploy:qiniu": "./scripts/deploy-qiniu.sh",
     "electron:dev": "pnpm --filter frontend electron:dev",
     "electron:build": "node scripts/build-electron.js"
   },

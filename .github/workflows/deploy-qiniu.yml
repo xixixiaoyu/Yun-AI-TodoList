@@ -1,0 +1,151 @@
+name: Deploy to Qiniu Cloud
+
+on:
+  push:
+    branches:
+      - main
+      - master
+  workflow_dispatch: # 允许手动触发
+
+permissions:
+  contents: read
+
+env:
+  NODE_VERSION: '18'
+  PNPM_VERSION: '9.0.0'
+
+jobs:
+  deploy-qiniu:
+    runs-on: ubuntu-latest
+    name: Deploy to Qiniu Cloud
+    
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 📦 Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - name: 🟢 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'pnpm'
+
+      - name: 📥 Install dependencies
+        run: |
+          pnpm config set network-timeout 600000
+          pnpm config set fetch-retries 5
+          pnpm config set fetch-retry-maxtimeout 120000
+          
+          echo "🔄 Installing dependencies..."
+          pnpm install --frozen-lockfile || {
+            echo "⚠️ Frozen lockfile failed, trying regular install..."
+            pnpm install --no-frozen-lockfile
+          }
+
+      - name: 🔍 Type check
+        run: pnpm type-check
+
+      - name: 🔍 Lint check
+        run: pnpm lint:check
+
+      - name: 🏗️ Build project
+        run: |
+          echo "🏗️ Building shared packages..."
+          pnpm --filter shared build
+          echo "🏗️ Building frontend..."
+          pnpm --filter frontend build
+          echo "✅ Build completed successfully"
+
+      - name: 🔍 Verify build output
+        run: |
+          if [ ! -d "./apps/frontend/dist" ]; then
+            echo "❌ Frontend build output not found"
+            exit 1
+          fi
+          echo "✅ Build verification passed"
+          ls -la ./apps/frontend/dist/
+
+      - name: 📦 Install qshell
+        run: |
+          echo "📦 Installing qshell..."
+          curl -L "https://devtools.qiniu.com/qshell-v2.12.1-linux-x64.tar.gz" -o qshell.tar.gz
+          tar -xzf qshell.tar.gz
+          chmod +x qshell
+          sudo mv qshell /usr/local/bin/
+          echo "✅ qshell installed successfully"
+
+      - name: 🔧 Configure qshell
+        run: |
+          echo "🔧 Configuring qshell account..."
+          qshell account "${{ secrets.QINIU_ACCESS_KEY }}" "${{ secrets.QINIU_SECRET_KEY }}" "github-actions"
+          echo "✅ qshell configured successfully"
+
+      - name: 📝 Create upload config
+        run: |
+          echo "📝 Creating upload configuration..."
+          cat > qiniu-upload.json << EOF
+          {
+              "src_dir": "./apps/frontend/dist",
+              "bucket": "${{ secrets.QINIU_BUCKET }}",
+              "key_prefix": "",
+              "overwrite": true,
+              "check_exists": true,
+              "check_hash": true,
+              "check_size": true,
+              "rescan_local": true,
+              "skip_file_prefixes": ".DS_Store,Thumbs.db",
+              "skip_path_prefixes": ".git,.svn",
+              "skip_fixed_strings": ".DS_Store,Thumbs.db",
+              "skip_suffixes": ".tmp,.swp",
+              "log_file": "qiniu-upload.log",
+              "log_level": "info",
+              "log_rotate": 1,
+              "log_stdout": false,
+              "file_type": 0
+          }
+          EOF
+          echo "✅ Upload configuration created"
+
+      - name: 🚀 Deploy to Qiniu
+        run: |
+          echo "🚀 Uploading files to Qiniu Cloud..."
+          echo "📋 Upload info:"
+          echo "   Bucket: ${{ secrets.QINIU_BUCKET }}"
+          echo "   Source: ./apps/frontend/dist"
+          echo "   Files: $(find apps/frontend/dist -type f | wc -l)"
+          echo ""
+          
+          if qshell qupload2 --config qiniu-upload.json; then
+            echo "✅ Upload successful!"
+          else
+            echo "❌ Upload failed"
+            exit 1
+          fi
+
+      - name: 🧹 Cleanup
+        if: always()
+        run: |
+          rm -f qiniu-upload.json
+          rm -f qiniu-upload.log
+
+      - name: 📊 Deployment summary
+        run: |
+          echo "## 🎉 Qiniu Deployment Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "✅ **Frontend Build**: Completed successfully" >> $GITHUB_STEP_SUMMARY
+          echo "✅ **Qiniu Upload**: Deployed to bucket \`${{ secrets.QINIU_BUCKET }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "🔗 **Access your application:**" >> $GITHUB_STEP_SUMMARY
+          if [ -n "${{ secrets.QINIU_DOMAIN }}" ]; then
+            echo "- Custom Domain: https://${{ secrets.QINIU_DOMAIN }}" >> $GITHUB_STEP_SUMMARY
+          fi
+          echo "- Qiniu CDN: Check your Qiniu console for the CDN domain" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "📈 **Next Steps:**" >> $GITHUB_STEP_SUMMARY
+          echo "1. Configure custom domain (if needed)" >> $GITHUB_STEP_SUMMARY
+          echo "2. Set up HTTPS certificate" >> $GITHUB_STEP_SUMMARY
+          echo "3. Configure CDN cache rules" >> $GITHUB_STEP_SUMMARY
