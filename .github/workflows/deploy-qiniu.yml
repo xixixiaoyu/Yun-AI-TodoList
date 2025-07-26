@@ -18,7 +18,7 @@ jobs:
   deploy-qiniu:
     runs-on: ubuntu-latest
     name: Deploy to Qiniu Cloud
-    
+
     steps:
       - name: 📥 Checkout code
         uses: actions/checkout@v4
@@ -39,7 +39,7 @@ jobs:
           pnpm config set network-timeout 600000
           pnpm config set fetch-retries 5
           pnpm config set fetch-retry-maxtimeout 120000
-          
+
           echo "🔄 Installing dependencies..."
           pnpm install --frozen-lockfile || {
             echo "⚠️ Frozen lockfile failed, trying regular install..."
@@ -69,68 +69,26 @@ jobs:
           echo "✅ Build verification passed"
           ls -la ./apps/frontend/dist/
 
-      - name: 📦 Install qshell
+      - name: 🚀 Deploy to Qiniu using Node.js
         run: |
-          echo "📦 Installing qshell..."
-          curl -L "https://devtools.qiniu.com/qshell-v2.12.1-linux-x64.tar.gz" -o qshell.tar.gz
-          tar -xzf qshell.tar.gz
-          chmod +x qshell
-          sudo mv qshell /usr/local/bin/
-          echo "✅ qshell installed successfully"
-
-      - name: 🔧 Configure qshell
-        run: |
-          echo "🔧 Configuring qshell account..."
-          qshell account "${{ secrets.QINIU_ACCESS_KEY }}" "${{ secrets.QINIU_SECRET_KEY }}" "github-actions"
-          echo "✅ qshell configured successfully"
-
-      - name: 📝 Create upload config
-        run: |
-          echo "📝 Creating upload configuration..."
-          cat > qiniu-upload.json << EOF
-          {
-              "src_dir": "./apps/frontend/dist",
-              "bucket": "${{ secrets.QINIU_BUCKET }}",
-              "key_prefix": "",
-              "overwrite": true,
-              "check_exists": true,
-              "check_hash": true,
-              "check_size": true,
-              "rescan_local": true,
-              "skip_file_prefixes": ".DS_Store,Thumbs.db",
-              "skip_path_prefixes": ".git,.svn",
-              "skip_fixed_strings": ".DS_Store,Thumbs.db",
-              "skip_suffixes": ".tmp,.swp",
-              "log_file": "qiniu-upload.log",
-              "log_level": "info",
-              "log_rotate": 1,
-              "log_stdout": false,
-              "file_type": 0
-          }
-          EOF
-          echo "✅ Upload configuration created"
-
-      - name: 🚀 Deploy to Qiniu
-        run: |
-          echo "🚀 Uploading files to Qiniu Cloud..."
+          echo "🚀 Deploying to Qiniu Cloud using Node.js script..."
           echo "📋 Upload info:"
           echo "   Bucket: ${{ secrets.QINIU_BUCKET }}"
           echo "   Source: ./apps/frontend/dist"
           echo "   Files: $(find apps/frontend/dist -type f | wc -l)"
           echo ""
-          
-          if qshell qupload2 --config qiniu-upload.json; then
-            echo "✅ Upload successful!"
-          else
-            echo "❌ Upload failed"
-            exit 1
-          fi
+
+          # 使用我们的 Node.js 部署脚本
+          node scripts/deploy-qiniu-simple.cjs
+        env:
+          QINIU_ACCESS_KEY: ${{ secrets.QINIU_ACCESS_KEY }}
+          QINIU_SECRET_KEY: ${{ secrets.QINIU_SECRET_KEY }}
+          QINIU_BUCKET: ${{ secrets.QINIU_BUCKET }}
 
       - name: 🧹 Cleanup
         if: always()
         run: |
-          rm -f qiniu-upload.json
-          rm -f qiniu-upload.log
+          echo "🧹 Cleanup completed"
 
       - name: 📊 Deployment summary
         run: |
