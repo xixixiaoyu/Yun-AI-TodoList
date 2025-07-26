@@ -19,7 +19,7 @@ interface LogEntry {
 }
 
 class Logger {
-  private isDevelopment = (import.meta as any).env.DEV
+  private isDevelopment = (import.meta as unknown as { env: { DEV: boolean } }).env.DEV
   private minLevel = this.getLogLevel()
 
   // 频繁操作的日志限制
@@ -38,7 +38,8 @@ class Logger {
    */
   private getLogLevel(): LogLevel {
     // 从环境变量获取日志级别
-    const envLogLevel = (import.meta as any).env.VITE_LOG_LEVEL
+    const envLogLevel = (import.meta as unknown as { env: { VITE_LOG_LEVEL?: string } }).env
+      .VITE_LOG_LEVEL
     if (envLogLevel) {
       const level = LogLevel[envLogLevel.toUpperCase() as keyof typeof LogLevel]
       if (level !== undefined) {
@@ -55,7 +56,8 @@ class Logger {
    */
   private getModuleLogLevel(source?: string): LogLevel {
     if (source && this.moduleLogLevels.has(source)) {
-      return this.moduleLogLevels.get(source)!
+      const level = this.moduleLogLevels.get(source)
+      return level !== undefined ? level : this.minLevel
     }
     return this.minLevel
   }

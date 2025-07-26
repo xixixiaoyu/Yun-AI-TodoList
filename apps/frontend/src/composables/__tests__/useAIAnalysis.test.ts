@@ -3,14 +3,25 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 // Mock aiAnalysisService
 vi.mock('@/services/aiAnalysisService', () => ({
-  analyzeTodo: vi.fn(),
+  analyzeTodo: vi.fn().mockResolvedValue({
+    priority: 3,
+    estimatedTime: '30分钟',
+    reasoning: 'Mock analysis result',
+  }),
   batchAnalyzeTodos: vi.fn(),
   reanalyzeTodo: vi.fn(),
+}))
+
+// Mock aiConfigService
+vi.mock('@/services/aiConfigService', () => ({
+  checkAIAvailability: vi.fn().mockReturnValue(true),
+  getAIStatusMessage: vi.fn().mockReturnValue(''),
 }))
 
 // Mock useErrorHandler
 vi.mock('@/composables/useErrorHandler', () => ({
   useErrorHandler: () => ({
+    handleError: vi.fn(),
     showError: vi.fn(),
     showSuccess: vi.fn(),
   }),

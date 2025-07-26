@@ -44,7 +44,11 @@ export async function getVersionInfo() {
 /**
  * 显示系统通知
  */
-export async function showNotification(title: string, body: string, options?: any) {
+export async function showNotification(
+  title: string,
+  body: string,
+  options?: Record<string, unknown>
+) {
   if (!isElectron()) {
     // 回退到 Web Notification API
     if ('Notification' in window) {

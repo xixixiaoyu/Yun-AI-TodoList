@@ -23,6 +23,13 @@ export interface SmartQuestionResult {
  * @returns AI 分析结果
  */
 export async function analyzeTodo(todoText: string): Promise<AIAnalysisResult> {
+  // 检查 AI 功能是否可用
+  const { checkAIAvailability } = await import('./aiConfigService')
+
+  if (!checkAIAvailability()) {
+    throw new Error('AI 功能暂时不可用，请检查 API 密钥配置')
+  }
+
   try {
     const prompt = `作为一个专业的任务管理助手，请分析以下待办事项的重要等级和完成时间估算：
 

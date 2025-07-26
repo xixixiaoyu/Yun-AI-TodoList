@@ -38,6 +38,8 @@
 </template>
 
 <script setup lang="ts">
+import { useWindowSize } from '@vueuse/core'
+import { computed, onErrorCaptured, provide, ref } from 'vue'
 import AISidebar from './components/AISidebar.vue'
 import NotificationContainer from './components/common/NotificationContainer.vue'
 import SimpleToast from './components/common/SimpleToast.vue'

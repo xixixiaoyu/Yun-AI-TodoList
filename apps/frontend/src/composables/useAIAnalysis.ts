@@ -1,4 +1,5 @@
 import { analyzeTodo, batchAnalyzeTodos, reanalyzeTodo } from '@/services/aiAnalysisService'
+import { checkAIAvailability, getAIStatusMessage } from '@/services/aiConfigService'
 import type { AIAnalysisConfig, Todo } from '@/types/todo'
 import { computed, readonly, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
@@ -75,6 +76,14 @@ export function useAIAnalysis() {
     options: { silent?: boolean; showSuccess?: boolean } = {}
   ) => {
     const { silent = false, showSuccess: showSuccessMessage = true } = options
+
+    // 检查 AI 功能是否可用
+    if (!checkAIAvailability()) {
+      if (!silent) {
+        showError(getAIStatusMessage() || 'AI 功能暂时不可用')
+      }
+      return
+    }
 
     // 如果正在进行批量分析，则禁止单个分析
     if (!isAnalysisEnabled.value || isAnalyzing.value || isBatchAnalyzing.value) {

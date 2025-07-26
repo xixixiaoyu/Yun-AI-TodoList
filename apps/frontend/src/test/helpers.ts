@@ -93,7 +93,7 @@ export function mockFetch() {
   return mockFetch
 }
 
-export function createMockResponse(data: any, status = 200) {
+export function createMockResponse(data: unknown, status = 200) {
   return Promise.resolve({
     ok: status >= 200 && status < 300,
     status,
@@ -125,10 +125,18 @@ export function sleep(ms: number) {
 
 export function mockConsole() {
   return {
-    log: vi.spyOn(console, 'log').mockImplementation(() => {}),
-    error: vi.spyOn(console, 'error').mockImplementation(() => {}),
-    warn: vi.spyOn(console, 'warn').mockImplementation(() => {}),
-    info: vi.spyOn(console, 'info').mockImplementation(() => {}),
+    log: vi.spyOn(console, 'log').mockImplementation(() => {
+      // Mock implementation - intentionally empty
+    }),
+    error: vi.spyOn(console, 'error').mockImplementation(() => {
+      // Mock implementation - intentionally empty
+    }),
+    warn: vi.spyOn(console, 'warn').mockImplementation(() => {
+      // Mock implementation - intentionally empty
+    }),
+    info: vi.spyOn(console, 'info').mockImplementation(() => {
+      // Mock implementation - intentionally empty
+    }),
   }
 }
 
@@ -148,10 +156,26 @@ export function setupTestEnvironment() {
 
   const console = mockConsole()
 
+  // 存储需要清理的Vue实例
+  const vueInstances: Array<{ unmount?: () => void }> = []
+
   return {
     localStorage,
     console,
+    vueInstances,
     cleanup: () => {
+      // 清理所有Vue实例
+      vueInstances.forEach((instance) => {
+        if (instance && typeof instance.unmount === 'function') {
+          try {
+            instance.unmount()
+          } catch {
+            // 忽略unmount错误
+          }
+        }
+      })
+      vueInstances.length = 0
+
       clearAllMocks()
       console.log.mockRestore()
       console.error.mockRestore()
