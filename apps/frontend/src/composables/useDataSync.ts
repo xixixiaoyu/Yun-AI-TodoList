@@ -3,7 +3,7 @@
  * 处理登录时的数据合并和持续同步逻辑
  */
 
-import { computed, onMounted, onUnmounted, reactive, readonly, watch } from 'vue'
+import { computed, onMounted, onUnmounted, reactive, readonly, ref, watch } from 'vue'
 import { syncService, SyncStatus, type SyncResult } from '../services/syncService'
 import type { Todo } from '../types/todo'
 import { useAuth } from './useAuth'

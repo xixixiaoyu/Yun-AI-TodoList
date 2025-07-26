@@ -614,6 +614,13 @@ export function clearExpiredCache(): void {
   }
 }
 
+/**
+ * 清除所有缓存（用于测试）
+ */
+export function clearAllCache(): void {
+  generationCache.clear()
+}
+
 // 定期清理缓存
 setInterval(clearExpiredCache, 10 * 60 * 1000) // 每10分钟清理一次
 
@@ -848,9 +855,9 @@ function normalizeTimeEstimates(tasks: GeneratedTask[]): GeneratedTask[] {
  */
 export async function checkServiceHealth(): Promise<boolean> {
   try {
-    // 发送一个简单的测试请求
+    // 发送一个简单的测试请求，使用唯一描述避免缓存
     const testRequest: AITaskGenerationRequest = {
-      description: '测试任务',
+      description: `健康检查-${Date.now()}`,
       config: { maxTasks: 1 },
     }
 

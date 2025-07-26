@@ -17,9 +17,14 @@ vi.mock('@/utils/logger', () => ({
 }))
 
 describe('aiTaskGenerationService - TODO 完成功能测试', () => {
-  beforeEach(() => {
+  beforeEach(async () => {
     vi.clearAllMocks()
     resetServiceStats()
+    // 确保每个测试开始时都有干净的状态
+    vi.resetModules()
+    // 清除缓存以避免测试间的干扰
+    const { clearAllCache } = await import('../aiTaskGenerationService')
+    clearAllCache()
   })
 
   afterEach(() => {
@@ -141,14 +146,14 @@ describe('aiTaskGenerationService - TODO 完成功能测试', () => {
       expect(status.lastError).toBeUndefined()
     })
 
-    it.skip('应该正确跟踪服务健康状态 - 失败情况', async () => {
+    it('应该正确跟踪服务健康状态 - 失败情况', async () => {
       const { getAIResponse } = await import('../deepseekService')
 
       // Mock AI 服务失败
       vi.mocked(getAIResponse).mockRejectedValue(new Error('AI 服务不可用'))
 
       const request: AITaskGenerationRequest = {
-        description: '测试任务',
+        description: '测试任务失败' + Date.now(), // 使用唯一描述避免缓存
         config: { maxTasks: 1 },
       }
 
@@ -162,28 +167,35 @@ describe('aiTaskGenerationService - TODO 完成功能测试', () => {
       expect(status.lastError).toBe('AI 服务不可用')
 
       // 第二次失败
+      request.description = '测试任务失败2' + Date.now() // 避免缓存
       await generateTasksFromDescription(request)
       status = getServiceStatus()
       expect(status.consecutiveFailures).toBe(2)
 
       // 第三次失败 - 服务变为不健康
+      request.description = '测试任务失败3' + Date.now() // 避免缓存
       await generateTasksFromDescription(request)
       status = getServiceStatus()
       expect(status.isHealthy).toBe(false)
       expect(status.consecutiveFailures).toBe(3)
     })
 
-    it.skip('应该在成功后重置失败计数', async () => {
+    it('应该在成功后重置失败计数', async () => {
       const { getAIResponse } = await import('../deepseekService')
-
-      const request: AITaskGenerationRequest = {
-        description: '测试任务',
-        config: { maxTasks: 1 },
-      }
 
       // 先失败两次
       vi.mocked(getAIResponse).mockRejectedValue(new Error('临时错误'))
+
+      let request: AITaskGenerationRequest = {
+        description: '测试任务失败A' + Date.now(),
+        config: { maxTasks: 1 },
+      }
       await generateTasksFromDescription(request)
+
+      request = {
+        description: '测试任务失败B' + Date.now(),
+        config: { maxTasks: 1 },
+      }
       await generateTasksFromDescription(request)
 
       let status = getServiceStatus()
@@ -197,6 +209,10 @@ describe('aiTaskGenerationService - TODO 完成功能测试', () => {
         })
       )
 
+      request = {
+        description: '测试任务成功' + Date.now(),
+        config: { maxTasks: 1 },
+      }
       await generateTasksFromDescription(request)
 
       status = getServiceStatus()
@@ -207,18 +223,22 @@ describe('aiTaskGenerationService - TODO 完成功能测试', () => {
   })
 
   describe('服务状态重置', () => {
-    it.skip('应该正确重置服务统计', async () => {
+    it('应该正确重置服务统计', async () => {
       const { getAIResponse } = await import('../deepseekService')
 
       // 先产生一些统计数据
       vi.mocked(getAIResponse).mockRejectedValue(new Error('测试错误'))
 
-      const request: AITaskGenerationRequest = {
-        description: '测试任务',
+      let request: AITaskGenerationRequest = {
+        description: '测试任务重置A' + Date.now(),
         config: { maxTasks: 1 },
       }
-
       await generateTasksFromDescription(request)
+
+      request = {
+        description: '测试任务重置B' + Date.now(),
+        config: { maxTasks: 1 },
+      }
       await generateTasksFromDescription(request)
 
       let status = getServiceStatus()
@@ -254,7 +274,7 @@ describe('aiTaskGenerationService - TODO 完成功能测试', () => {
       expect(isHealthy).toBe(true)
     })
 
-    it.skip('应该在健康检查失败时返回 false', async () => {
+    it('应该在健康检查失败时返回 false', async () => {
       const { getAIResponse } = await import('../deepseekService')
 
       // Mock 失败响应

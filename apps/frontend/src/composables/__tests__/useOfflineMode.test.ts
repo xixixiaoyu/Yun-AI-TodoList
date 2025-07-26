@@ -164,7 +164,7 @@ describe('useOfflineMode', () => {
       expect(pendingOperations.value[0].retryCount).toBe(1)
     })
 
-    it.skip('应该在达到最大重试次数后移除失败的操作', async () => {
+    it('应该在达到最大重试次数后移除失败的操作', async () => {
       // 先设置 API 失败响应
       const { httpClient } = await import('../../services/api')
       vi.mocked(httpClient.post).mockRejectedValue(new Error('Network error'))
@@ -178,13 +178,22 @@ describe('useOfflineMode', () => {
         data: { title: 'New Todo' },
       })
 
-      // 设置操作已经重试了最大次数-1（因为 syncPendingOperations 会再增加1）
-      pendingOperations.value[0].retryCount = 2
-      pendingOperations.value[0].maxRetries = 3
+      // 验证操作已添加
+      expect(pendingOperations.value).toHaveLength(1)
+      expect(pendingOperations.value[0].retryCount).toBe(0)
 
+      // 第一次同步失败，重试次数应该增加到 1
       await syncPendingOperations()
+      expect(pendingOperations.value).toHaveLength(1)
+      expect(pendingOperations.value[0].retryCount).toBe(1)
 
-      // 操作应该被移除（retryCount 从 2 增加到 3，达到 maxRetries 3）
+      // 第二次同步失败，重试次数应该增加到 2
+      await syncPendingOperations()
+      expect(pendingOperations.value).toHaveLength(1)
+      expect(pendingOperations.value[0].retryCount).toBe(2)
+
+      // 第三次同步失败，重试次数应该增加到 3，操作应该被移除
+      await syncPendingOperations()
       expect(pendingOperations.value).toHaveLength(0)
     })
   })

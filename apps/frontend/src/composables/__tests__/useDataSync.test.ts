@@ -46,7 +46,10 @@ vi.mock('../../services/syncService', () => ({
     updateSingleTodo: vi.fn(),
     syncData: vi.fn(),
     uploadData: vi.fn(),
-    downloadData: vi.fn(),
+    downloadData: vi.fn().mockResolvedValue({
+      error: null,
+      todos: [],
+    }),
   },
   SyncStatus: {
     SUCCESS: 'success',
@@ -61,7 +64,7 @@ describe('useDataSync', () => {
   })
 
   describe('冲突解决功能', () => {
-    it.skip('应该正确处理冲突解决', async () => {
+    it('应该正确处理冲突解决', async () => {
       const mockTodo1: Todo = {
         id: '1',
         title: 'Test Todo 1',
@@ -89,22 +92,33 @@ describe('useDataSync', () => {
         data: mockTodo2,
       })
 
-      const { handleConflictResolution, currentConflicts, showConflictModal } = useDataSync()
+      // Mock syncService.syncData to simulate conflicts
+      const mockSyncData = vi.mocked(syncService.syncData)
+      mockSyncData.mockResolvedValue({
+        status: 'conflict',
+        message: '同步完成但存在冲突',
+        timestamp: new Date(),
+        stats: { totalItems: 1, uploaded: 0, downloaded: 0, conflicts: 1, errors: 0 },
+        conflicts: [
+          {
+            local: mockTodo1,
+            server: mockTodo2,
+            reason: 'Both versions modified',
+          },
+        ],
+      })
 
-      // 直接设置冲突到数组中，而不是重新赋值
-      const mockConflict = {
-        local: mockTodo1,
-        server: mockTodo2,
-        reason: 'Both versions modified',
-      }
+      const { handleConflictResolution, currentConflicts, showConflictModal, manualSync } =
+        useDataSync()
 
-      // 清空并添加冲突
-      currentConflicts.value.splice(0, currentConflicts.value.length, mockConflict)
-      showConflictModal.value = true
+      // 触发同步以产生冲突
+      await manualSync()
 
       // 验证冲突已设置
       expect(currentConflicts.value).toHaveLength(1)
-      expect(currentConflicts.value[0]).toEqual(mockConflict)
+      expect(currentConflicts.value[0].local).toEqual(mockTodo1)
+      expect(currentConflicts.value[0].server).toEqual(mockTodo2)
+      expect(showConflictModal.value).toBe(true)
 
       // 解决冲突 - 选择服务器版本
       const resolutions = [{ index: 0, choice: 'server' as const }]
