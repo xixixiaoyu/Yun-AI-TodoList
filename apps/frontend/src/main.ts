@@ -10,7 +10,6 @@ import './styles/enhancements.css'
 import './styles/variables.css'
 import { logger } from './utils/logger.ts'
 import { initPWA } from './utils/pwa'
-import './utils/todoAssistantDebug'
 
 const updateSW = registerSW({
   onNeedRefresh() {
@@ -22,8 +21,6 @@ const updateSW = registerSW({
   },
   onOfflineReady() {
     logger.info('应用已准备好离线使用', undefined, 'PWA')
-    // 可以在这里显示离线就绪的通知
-    logger.info('应用已支持离线使用', undefined, 'PWA')
   },
   onRegisterError(error: Error) {
     logger.error('Service Worker 注册失败', error, 'PWA')

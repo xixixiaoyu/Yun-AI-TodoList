@@ -12,6 +12,7 @@ import { useStorageMode } from './useStorageMode'
 // 全局单例状态
 const globalTodos = ref<Todo[]>([])
 const isInitialized = ref(false)
+const isLoading = ref(false) // 添加全局加载状态
 
 export function useTodos() {
   const {
@@ -31,16 +32,24 @@ export function useTodos() {
     }
   }
 
-  // 初始化方法
+  // 初始化方法 - 简单的防重复调用
   const initializeTodos = async () => {
-    if (!isInitialized.value) {
-      // 所有用户都需要加载数据（已登录用户从云端，未登录用户从本地）
-      await loadTodos()
+    if (isInitialized.value || isLoading.value) {
+      return // 已初始化或正在加载中，直接返回
     }
+    await loadTodos()
   }
 
   const loadTodos = async () => {
+    // 防止并发加载
+    if (isLoading.value) {
+      logger.debug('Todos loading already in progress, skipping', undefined, 'useTodos')
+      return
+    }
+
     try {
+      isLoading.value = true
+
       // 确保存储模式已初始化（仅对已登录用户）
       if (!storageInitialized.value && isAuthenticated.value) {
         await initializeStorageMode()
@@ -81,6 +90,8 @@ export function useTodos() {
       // 初始化为空数组
       todos.value = []
       isInitialized.value = true
+    } finally {
+      isLoading.value = false
     }
   }
 
@@ -179,9 +190,16 @@ export function useTodos() {
    * 清理 todos 数据（用户登出时调用）
    */
   const clearTodosOnLogout = () => {
+    // 防止重复清理
+    if (todos.value.length === 0 && !isInitialized.value) {
+      logger.debug('Todos already cleared, skipping', undefined, 'useTodos')
+      return
+    }
+
     logger.info('Clearing todos data on logout', undefined, 'useTodos')
     todos.value = []
     isInitialized.value = false
+    isLoading.value = false // 重置加载状态
   }
 
   const addTodo = async (createDto: CreateTodoDto): Promise<Todo | null> => {
@@ -266,7 +284,7 @@ export function useTodos() {
     }
   }
 
-  const addMultipleTodos = async (newTodos: { title: string }[]): Promise<string[]> => {
+  const addMultipleTodos = async (newTodos: Array<{ title: string }>): Promise<string[]> => {
     const duplicates: string[] = []
     const createDtos: CreateTodoDto[] = []
 
@@ -509,7 +527,7 @@ export function useTodos() {
       const storageService = getCurrentStorageService()
 
       // 过滤掉不属于 UpdateTodoDto 的字段，确保与后端 DTO 一致
-      const allowedFields: (keyof UpdateTodoDto)[] = [
+      const allowedFields: Array<keyof UpdateTodoDto> = [
         'title',
         'description',
         'completed',
@@ -574,10 +592,10 @@ export function useTodos() {
    * 更新 Todo 的 AI 分析状态
    * 专门用于 AI 分析完成后更新相关字段
    */
-  const updateTodoAIAnalysis = async (
+  const updateTodoAIAnalysis: (
     id: string,
     analysisData: { priority?: number; estimatedTime?: string; aiAnalyzed?: boolean }
-  ): Promise<boolean> => {
+  ) => Promise<boolean> = async (id, analysisData) => {
     try {
       // 验证 ID 参数
       if (!id || id === 'undefined') {
@@ -586,7 +604,7 @@ export function useTodos() {
       }
 
       const updates: UpdateTodoDto = {
-        priority: analysisData.priority,
+        priority: analysisData.priority as 1 | 2 | 3 | 4 | 5,
         estimatedTime: analysisData.estimatedTime,
         aiAnalyzed: analysisData.aiAnalyzed ?? true,
       }
@@ -676,7 +694,7 @@ export function useTodos() {
       // 清空所有状态
       globalTodos.value = []
       isInitialized.value = false
-      storageInitialized.value = false
+      // 注意：storageInitialized 是只读的，不能直接赋值
 
       // 清空 localStorage（如果在测试环境中）
       if (typeof process !== 'undefined' && process.env.NODE_ENV === 'test') {
@@ -729,13 +747,13 @@ export function useTodos() {
     clearTodosOnLogout,
   }
 
-  // 监听认证状态变化，用户登出时清理数据并重新加载本地数据
+  // 监听认证状态变化 - 简化版本
   watch(
     isAuthenticated,
-    async (authenticated) => {
-      if (!authenticated) {
+    async (authenticated, oldAuthenticated) => {
+      // 只在真正登出时处理（从 true 变为 false）
+      if (oldAuthenticated === true && authenticated === false) {
         clearTodosOnLogout()
-        // 用户登出后，立即从本地存储重新加载数据
         try {
           await loadTodos()
         } catch (error) {
@@ -743,8 +761,8 @@ export function useTodos() {
         }
       }
     },
-    { immediate: true }
-  ) // 立即执行一次，确保页面加载时也会检查
+    { immediate: false }
+  )
 
   // 组件卸载时自动清理
   onUnmounted(() => {

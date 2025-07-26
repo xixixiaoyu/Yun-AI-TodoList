@@ -24,7 +24,7 @@ class Logger {
 
   // 频繁操作的日志限制
   private logThrottle = new Map<string, number>()
-  private readonly THROTTLE_INTERVAL = 1000 // 1秒内相同日志只记录一次
+  private readonly THROTTLE_INTERVAL = 2000 // 2秒内相同日志只记录一次
 
   debug(message: string, data?: unknown, source?: string) {
     // 对频繁的调试日志进行节流
@@ -35,6 +35,10 @@ class Logger {
   }
 
   info(message: string, data?: unknown, source?: string) {
+    // 对重复的 useTodos 操作进行简单的防重复记录
+    if (this.shouldThrottle(message, source)) {
+      return
+    }
     this.log(LogLevel.INFO, message, data, source)
   }
 
