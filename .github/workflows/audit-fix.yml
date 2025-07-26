@@ -33,14 +33,15 @@ jobs:
         # 临时切换到官方 registry 进行 audit
         pnpm config set registry https://registry.npmjs.org
 
-        # 设置更长的超时时间
-        export PNPM_FETCH_TIMEOUT=300000
-        export PNPM_FETCH_RETRIES=3
+        # 设置更长的超时时间和重试次数
+        pnpm config set network-timeout 600000
+        pnpm config set fetch-retries 5
+        pnpm config set fetch-retry-maxtimeout 120000
 
         echo "🔄 Installing dependencies..."
-        pnpm install --network-timeout 300000 || {
+        pnpm install || {
           echo "⚠️ Install failed, trying with force..."
-          pnpm install --force --network-timeout 300000
+          pnpm install --force
         }
 
     - name: Run security audit

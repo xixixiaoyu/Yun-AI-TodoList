@@ -40,16 +40,17 @@ jobs:
 
       - name: 📥 Install dependencies
         run: |
-          # 设置更长的超时时间
-          export PNPM_FETCH_TIMEOUT=300000
-          export PNPM_FETCH_RETRIES=3
+          # 设置更长的超时时间和重试次数
+          pnpm config set network-timeout 600000
+          pnpm config set fetch-retries 5
+          pnpm config set fetch-retry-maxtimeout 120000
 
           echo "🔄 Installing dependencies with frozen lockfile..."
-          pnpm install --frozen-lockfile --network-timeout 300000 || {
+          pnpm install --frozen-lockfile || {
             echo "⚠️ Frozen lockfile failed, trying regular install..."
-            pnpm install --network-timeout 300000 || {
+            pnpm install || {
               echo "⚠️ Regular install failed, trying with force..."
-              pnpm install --force --network-timeout 300000
+              pnpm install --force
             }
           }
 
@@ -103,16 +104,17 @@ jobs:
 
       - name: 📥 Install dependencies
         run: |
-          # 设置更长的超时时间
-          export PNPM_FETCH_TIMEOUT=300000
-          export PNPM_FETCH_RETRIES=3
+          # 设置更长的超时时间和重试次数
+          pnpm config set network-timeout 600000
+          pnpm config set fetch-retries 5
+          pnpm config set fetch-retry-maxtimeout 120000
 
           echo "🔄 Installing dependencies with frozen lockfile..."
-          pnpm install --frozen-lockfile --network-timeout 300000 || {
+          pnpm install --frozen-lockfile || {
             echo "⚠️ Frozen lockfile failed, trying regular install..."
-            pnpm install --network-timeout 300000 || {
+            pnpm install || {
               echo "⚠️ Regular install failed, trying with force..."
-              pnpm install --force --network-timeout 300000
+              pnpm install --force
             }
           }
 
@@ -171,16 +173,17 @@ jobs:
 
       - name: 📥 Install dependencies
         run: |
-          # 设置更长的超时时间
-          export PNPM_FETCH_TIMEOUT=300000
-          export PNPM_FETCH_RETRIES=3
+          # 设置更长的超时时间和重试次数
+          pnpm config set network-timeout 600000
+          pnpm config set fetch-retries 5
+          pnpm config set fetch-retry-maxtimeout 120000
 
           echo "🔄 Installing dependencies with frozen lockfile..."
-          pnpm install --frozen-lockfile --network-timeout 300000 || {
+          pnpm install --frozen-lockfile || {
             echo "⚠️ Frozen lockfile failed, trying regular install..."
-            pnpm install --network-timeout 300000 || {
+            pnpm install || {
               echo "⚠️ Regular install failed, trying with force..."
-              pnpm install --force --network-timeout 300000
+              pnpm install --force
             }
           }
 
@@ -232,16 +235,17 @@ jobs:
 
       - name: 📥 Install dependencies
         run: |
-          # 设置更长的超时时间
-          export PNPM_FETCH_TIMEOUT=300000
-          export PNPM_FETCH_RETRIES=3
+          # 设置更长的超时时间和重试次数
+          pnpm config set network-timeout 600000
+          pnpm config set fetch-retries 5
+          pnpm config set fetch-retry-maxtimeout 120000
 
           echo "🔄 Installing dependencies with frozen lockfile..."
-          pnpm install --frozen-lockfile --network-timeout 300000 || {
+          pnpm install --frozen-lockfile || {
             echo "⚠️ Frozen lockfile failed, trying regular install..."
-            pnpm install --network-timeout 300000 || {
+            pnpm install || {
               echo "⚠️ Regular install failed, trying with force..."
-              pnpm install --force --network-timeout 300000
+              pnpm install --force
             }
           }
 
@@ -330,16 +334,17 @@ jobs:
 
       - name: 📥 Install dependencies
         run: |
-          # 设置更长的超时时间
-          export PNPM_FETCH_TIMEOUT=300000
-          export PNPM_FETCH_RETRIES=3
+          # 设置更长的超时时间和重试次数
+          pnpm config set network-timeout 600000
+          pnpm config set fetch-retries 5
+          pnpm config set fetch-retry-maxtimeout 120000
 
           echo "🔄 Installing dependencies with frozen lockfile..."
-          pnpm install --frozen-lockfile --network-timeout 300000 || {
+          pnpm install --frozen-lockfile || {
             echo "⚠️ Frozen lockfile failed, trying regular install..."
-            pnpm install --network-timeout 300000 || {
+            pnpm install || {
               echo "⚠️ Regular install failed, trying with force..."
-              pnpm install --force --network-timeout 300000
+              pnpm install --force
             }
           }
 
