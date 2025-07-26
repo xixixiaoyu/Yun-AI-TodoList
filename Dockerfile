@@ -175,6 +175,12 @@ COPY apps/frontend/package.json ./apps/frontend/
 COPY packages/shared/package.json ./packages/shared/
 COPY tools/*/package.json ./tools/*/
 
+# 复制 TypeScript 配置文件
+COPY tools/typescript-config ./tools/typescript-config
+
+# 复制 TypeScript 配置文件
+COPY tools/typescript-config ./tools/typescript-config
+
 # 复制前端配置文件
 COPY apps/frontend/tsconfig*.json ./apps/frontend/
 COPY apps/frontend/vite*.config.ts ./apps/frontend/

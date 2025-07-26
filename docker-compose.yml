@@ -134,14 +134,14 @@ services:
       # 挂载 node_modules 以提高性能
       - frontend_node_modules:/app/node_modules
     ports:
-      - '5173:5173'
+      - '5173:3000'
     depends_on:
       backend:
         condition: service_healthy
     networks:
       - todolist-network
     healthcheck:
-      test: ['CMD', 'curl', '-f', 'http://localhost:5173/']
+      test: ['CMD', 'curl', '-f', 'http://localhost:3000/']
       interval: 30s
       timeout: 5s
       retries: 3
