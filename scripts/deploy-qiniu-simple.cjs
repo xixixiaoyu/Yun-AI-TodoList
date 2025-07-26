@@ -84,8 +84,8 @@ function getFileList(dir) {
   return files
 }
 
-// 上传单个文件
-function uploadFile(file, uploadToken) {
+// 上传单个文件（带超时和重试）
+function uploadFile(file, uploadToken, retries = 2) {
   return new Promise((resolve, reject) => {
     const boundary = '----formdata-qiniu-' + Math.random().toString(36)
     const fileContent = fs.readFileSync(file.localPath)
@@ -113,6 +113,7 @@ function uploadFile(file, uploadToken) {
       port: 443,
       path: '/',
       method: 'POST',
+      timeout: 30000, // 30秒超时
       headers: {
         'Content-Type': `multipart/form-data; boundary=${boundary}`,
         'Content-Length': formDataBuffer.length,
@@ -138,8 +139,32 @@ function uploadFile(file, uploadToken) {
       })
     })
 
+    // 设置超时
+    req.setTimeout(30000, () => {
+      req.destroy()
+      if (retries > 0) {
+        console.log(`⚠️ 超时重试: ${file.key} (剩余: ${retries})`)
+        setTimeout(() => {
+          uploadFile(file, uploadToken, retries - 1)
+            .then(resolve)
+            .catch(reject)
+        }, 1000)
+      } else {
+        reject(new Error(`Upload timeout: ${file.key}`))
+      }
+    })
+
     req.on('error', (err) => {
-      reject(err)
+      if (retries > 0) {
+        console.log(`⚠️ 错误重试: ${file.key} - ${err.message} (剩余: ${retries})`)
+        setTimeout(() => {
+          uploadFile(file, uploadToken, retries - 1)
+            .then(resolve)
+            .catch(reject)
+        }, 1000)
+      } else {
+        reject(err)
+      }
     })
 
     req.write(formDataBuffer)
@@ -175,21 +200,28 @@ async function main() {
     const files = getFileList(distDir)
     log('blue', `📁 找到 ${files.length} 个文件需要上传`)
 
-    // 上传文件
+    // 上传文件（并发控制）
     let successCount = 0
     let failCount = 0
+    const concurrency = 3 // 并发数限制
 
-    for (let i = 0; i < files.length; i++) {
-      const file = files[i]
-      try {
-        process.stdout.write(`\r上传进度: ${i + 1}/${files.length} - ${file.key}`)
-        await uploadFile(file, uploadToken)
-        successCount++
-      } catch (error) {
-        console.log('') // 换行
-        log('red', `❌ 上传失败: ${file.key} - ${error.message}`)
-        failCount++
-      }
+    // 分批上传
+    for (let i = 0; i < files.length; i += concurrency) {
+      const batch = files.slice(i, i + concurrency)
+      const promises = batch.map(async (file) => {
+        try {
+          console.log(`📤 上传: ${file.key}`)
+          await uploadFile(file, uploadToken)
+          successCount++
+          console.log(`✅ 完成: ${file.key}`)
+        } catch (error) {
+          failCount++
+          console.log(`❌ 失败: ${file.key} - ${error.message}`)
+        }
+      })
+
+      await Promise.all(promises)
+      console.log(`📊 进度: ${Math.min(i + concurrency, files.length)}/${files.length}`)
     }
 
     console.log('') // 换行
