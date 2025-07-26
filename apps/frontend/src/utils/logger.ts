@@ -19,12 +19,46 @@ interface LogEntry {
 }
 
 class Logger {
-  private isDevelopment = import.meta.env.DEV
-  private minLevel = this.isDevelopment ? LogLevel.INFO : LogLevel.WARN
+  private isDevelopment = (import.meta as any).env.DEV
+  private minLevel = this.getLogLevel()
 
   // 频繁操作的日志限制
   private logThrottle = new Map<string, number>()
   private readonly THROTTLE_INTERVAL = 2000 // 2秒内相同日志只记录一次
+
+  // 模块级日志控制
+  private moduleLogLevels = new Map<string, LogLevel>([
+    ['PWA', LogLevel.WARN], // PWA 相关日志默认只显示警告和错误
+    ['useTodos', LogLevel.WARN], // 数据操作日志默认只显示警告和错误
+  ])
+
+  /**
+   * 获取日志级别
+   * 优先级：环境变量 > 开发/生产环境默认值
+   */
+  private getLogLevel(): LogLevel {
+    // 从环境变量获取日志级别
+    const envLogLevel = (import.meta as any).env.VITE_LOG_LEVEL
+    if (envLogLevel) {
+      const level = LogLevel[envLogLevel.toUpperCase() as keyof typeof LogLevel]
+      if (level !== undefined) {
+        return level
+      }
+    }
+
+    // 默认值：开发环境 INFO，生产环境 WARN
+    return this.isDevelopment ? LogLevel.INFO : LogLevel.WARN
+  }
+
+  /**
+   * 获取模块的日志级别
+   */
+  private getModuleLogLevel(source?: string): LogLevel {
+    if (source && this.moduleLogLevels.has(source)) {
+      return this.moduleLogLevels.get(source)!
+    }
+    return this.minLevel
+  }
 
   debug(message: string, data?: unknown, source?: string) {
     // 对频繁的调试日志进行节流
@@ -64,7 +98,9 @@ class Logger {
   }
 
   private log(level: LogLevel, message: string, data?: unknown, source?: string) {
-    if (level < this.minLevel) {
+    // 使用模块级日志控制
+    const moduleLevel = this.getModuleLogLevel(source)
+    if (level < moduleLevel) {
       return
     }
 

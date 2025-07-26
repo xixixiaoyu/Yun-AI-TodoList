@@ -197,8 +197,6 @@ export function useSyncManager() {
       consecutiveFailures: 0,
       lastCheckTime: undefined,
     }
-
-    console.log('网络管理器已销毁')
   }
 
   // 清理资源
