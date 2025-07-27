@@ -38,9 +38,9 @@
     "test:coverage": "echo 'No tests defined for shared package' && exit 0"
   },
   "devDependencies": {
-    "@types/node": "^24.0.3",
+    "@types/node": "24.0.3",
     "@yun-ai-todolist/typescript-config": "workspace:*",
-    "rimraf": "^6.0.1",
-    "typescript": "^5.8.3"
+    "rimraf": "6.0.1",
+    "typescript": "5.8.3"
   }
 }
