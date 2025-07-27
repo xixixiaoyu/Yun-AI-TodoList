@@ -41,7 +41,7 @@
 
     <!-- 日期详情弹窗 -->
     <DayTodosModal
-      v-if="showDayModal"
+      v-if="showDayModal && selectedDate"
       :date="selectedDate"
       :todos="selectedDateTodos"
       @close="closeDayModal"
