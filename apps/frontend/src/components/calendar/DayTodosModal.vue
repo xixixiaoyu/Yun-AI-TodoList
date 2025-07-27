@@ -10,16 +10,16 @@
       @keydown.esc="handleClose"
     >
       <div ref="modalRef" class="modal-content" role="document" @click.stop>
-        <!-- 增强的模态框头部 -->
+        <!-- 优雅的模态框头部 -->
         <header class="modal-header">
-          <div class="date-info">
-            <h2 :id="headerId" class="date-title">{{ formattedDate }}</h2>
-            <div class="date-subtitle">
-              <span class="weekday">{{ formattedWeekday }}</span>
-              <span v-if="isToday" class="today-badge">{{ t('today') }}</span>
+          <div class="header-content">
+            <div class="date-info">
+              <h2 :id="headerId" class="date-title">{{ formattedDate }}</h2>
+              <div class="date-subtitle">
+                <span class="weekday">{{ formattedWeekday }}</span>
+                <span v-if="isToday" class="today-badge">{{ t('today') }}</span>
+              </div>
             </div>
-          </div>
-          <div class="header-actions">
             <button ref="closeButtonRef" class="close-btn" :title="t('close')" @click="handleClose">
               <i class="i-carbon-close"></i>
             </button>
@@ -427,29 +427,39 @@ defineOptions({
 </script>
 
 <style scoped>
-/* 模态框基础样式 */
+/* 优雅的模态框基础样式 */
 .modal-overlay {
   @apply fixed inset-0 flex items-center justify-center z-50;
-  background: rgba(0, 0, 0, 0.25);
-  backdrop-filter: blur(12px);
-  animation: fadeIn 0.2s ease-out;
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(20px);
+  animation: fadeIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .modal-content {
-  @apply w-full mx-4 max-h-[85vh] flex flex-col overflow-hidden;
-  max-width: 680px;
+  @apply w-full mx-6 max-h-[90vh] flex flex-col overflow-hidden;
+  max-width: 720px;
   background: var(--card-bg-color);
-  border: 1px solid var(--input-border-color);
-  border-radius: var(--border-radius);
-  box-shadow: var(--card-shadow);
-  animation: slideUp 0.3s ease-out;
+  border: none;
+  border-radius: 24px;
+  box-shadow:
+    0 25px 50px -12px rgba(0, 0, 0, 0.25),
+    0 4px 20px rgba(0, 0, 0, 0.1);
+  animation: slideUp 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* 头部样式 */
+/* 优雅的头部样式 */
 .modal-header {
-  @apply flex items-center justify-between p-5 border-b;
-  border-color: var(--input-border-color);
-  background: var(--card-bg-color);
+  @apply relative p-6 pb-4;
+  background: linear-gradient(
+    135deg,
+    var(--card-bg-color) 0%,
+    rgba(var(--primary-color-rgb), 0.02) 100%
+  );
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.header-content {
+  @apply flex items-start justify-between;
 }
 
 .date-info {
@@ -457,12 +467,16 @@ defineOptions({
 }
 
 .date-title {
-  @apply text-xl font-semibold;
+  @apply text-2xl font-bold mb-2;
   color: var(--text-color);
+  background: linear-gradient(135deg, var(--text-color) 0%, var(--primary-color) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 .date-subtitle {
-  @apply flex items-center gap-2 mt-1;
+  @apply flex items-center gap-3;
 }
 
 .weekday {
@@ -490,41 +504,46 @@ defineOptions({
   background: var(--hover-bg-color);
 }
 
-/* 统计区域样式 */
+/* 优雅的统计区域样式 */
 .stats-section {
-  @apply p-4 border-b;
-  border-color: var(--input-border-color);
-  background: var(--card-bg-color);
+  @apply p-6 border-b;
+  border-color: rgba(255, 255, 255, 0.08);
+  background: linear-gradient(
+    135deg,
+    var(--card-bg-color) 0%,
+    rgba(var(--primary-color-rgb), 0.01) 100%
+  );
 }
 
 .stats-grid {
-  @apply grid grid-cols-1 md:grid-cols-2 gap-4;
+  @apply grid grid-cols-1 md:grid-cols-2 gap-6;
 }
 
 .progress-circle-container {
-  @apply flex justify-center;
+  @apply flex justify-center items-center;
 }
 
 .progress-circle {
-  @apply relative w-24 h-24;
+  @apply relative w-28 h-28;
 }
 
 .circular-chart {
   @apply w-full h-full transform -rotate-90;
+  filter: drop-shadow(0 4px 8px rgba(var(--primary-color-rgb), 0.2));
 }
 
 .circle-bg {
   fill: none;
-  stroke: var(--input-border-color);
-  stroke-width: 2;
+  stroke: rgba(var(--primary-color-rgb), 0.1);
+  stroke-width: 3;
 }
 
 .circle {
   fill: none;
   stroke: var(--primary-color);
-  stroke-width: 2;
+  stroke-width: 3;
   stroke-linecap: round;
-  transition: stroke-dasharray 0.3s ease;
+  transition: stroke-dasharray 0.6s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .percentage-text {
@@ -532,39 +551,49 @@ defineOptions({
 }
 
 .percentage {
-  @apply text-base font-semibold;
+  @apply text-lg font-bold;
   color: var(--text-color);
 }
 
 .percentage-text .label {
-  @apply text-xs;
+  @apply text-xs font-medium mt-1;
   color: var(--text-secondary-color);
 }
 
 .stats-data {
-  @apply grid grid-cols-3 gap-3;
+  @apply grid grid-cols-3 gap-4;
 }
 
 .stat-item {
-  @apply flex items-center gap-2 p-3 rounded-lg transition-all duration-200;
-  background: var(--input-bg-color);
-  border: 1px solid var(--input-border-color);
+  @apply flex items-center gap-3 p-4 rounded-xl transition-all duration-300;
+  background: rgba(255, 255, 255, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
 }
 
 .stat-item:hover {
-  background: var(--hover-bg-color);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+  background: rgba(255, 255, 255, 0.7);
 }
 
 .stat-item.total .stat-icon {
   color: var(--primary-color);
+  background: rgba(var(--primary-color-rgb), 0.1);
+  @apply p-2 rounded-lg;
 }
 
 .stat-item.completed .stat-icon {
   color: #10b981;
+  background: rgba(16, 185, 129, 0.1);
+  @apply p-2 rounded-lg;
 }
 
 .stat-item.pending .stat-icon {
   color: #f59e0b;
+  background: rgba(245, 158, 11, 0.1);
+  @apply p-2 rounded-lg;
 }
 
 .stat-icon {
@@ -572,43 +601,56 @@ defineOptions({
 }
 
 .stat-content {
-  @apply flex flex-col min-w-0;
+  @apply flex flex-col min-w-0 flex-1;
 }
 
 .stat-value {
-  @apply text-base font-semibold;
+  @apply text-xl font-bold;
   color: var(--text-color);
 }
 
 .stat-label {
-  @apply text-xs;
+  @apply text-xs font-medium mt-1;
   color: var(--text-secondary-color);
+  white-space: nowrap;
 }
 
-/* 快速操作区域样式 */
+/* 优雅的快速操作区域样式 */
 .quick-actions-section {
-  @apply p-4 border-b;
-  border-color: var(--input-border-color);
+  @apply p-6 border-b;
+  border-color: rgba(255, 255, 255, 0.08);
+  background: linear-gradient(
+    135deg,
+    var(--card-bg-color) 0%,
+    rgba(var(--primary-color-rgb), 0.01) 100%
+  );
 }
 
 .quick-add-container {
-  @apply mb-3;
+  @apply mb-4;
 }
 
 .quick-add-form {
-  @apply space-y-2;
+  @apply space-y-3;
 }
 
 .input-group {
-  @apply flex gap-2;
+  @apply flex gap-3;
 }
 
 .quick-add-input {
-  @apply flex-1 px-3 py-2 rounded-lg border transition-all duration-200;
-  background: var(--input-bg-color);
-  border-color: var(--input-border-color);
+  @apply flex-1 px-4 py-3 rounded-xl border transition-all duration-300;
+  background: rgba(255, 255, 255, 0.7);
+  border-color: rgba(255, 255, 255, 0.2);
   color: var(--text-color);
-  @apply focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  @apply focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary;
+}
+
+.quick-add-input:focus {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
 }
 
 .quick-add-input::placeholder {
@@ -616,15 +658,21 @@ defineOptions({
 }
 
 .add-btn {
-  @apply px-4 py-2 rounded-lg font-medium transition-colors duration-200;
+  @apply px-6 py-3 rounded-xl font-semibold transition-all duration-300;
   @apply flex items-center justify-center;
-  background: var(--primary-color);
+  background: linear-gradient(
+    135deg,
+    var(--primary-color) 0%,
+    rgba(var(--primary-color-rgb), 0.8) 100%
+  );
   color: white;
+  box-shadow: 0 4px 12px rgba(var(--primary-color-rgb), 0.3);
   @apply disabled:opacity-50 disabled:cursor-not-allowed;
 }
 
 .add-btn:hover:not(:disabled) {
-  background: var(--button-hover-bg-color);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(var(--primary-color-rgb), 0.4);
 }
 
 .error-message {
@@ -632,31 +680,40 @@ defineOptions({
   color: var(--error-color);
 }
 
-/* 批量操作样式 */
+/* 优雅的批量操作样式 */
 .bulk-actions {
-  @apply flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3;
+  @apply flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4;
 }
 
 .filter-controls {
-  @apply flex gap-2;
+  @apply flex gap-3;
 }
 
 .filter-btn {
-  @apply px-3 py-2 text-sm rounded-lg border transition-all duration-200;
-  background: var(--input-bg-color);
-  border-color: var(--input-border-color);
+  @apply px-4 py-2 text-sm font-medium rounded-xl border transition-all duration-300;
+  background: rgba(255, 255, 255, 0.5);
+  border-color: rgba(255, 255, 255, 0.2);
   color: var(--text-secondary-color);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
 .filter-btn:hover {
-  background: var(--hover-bg-color);
+  transform: translateY(-1px);
+  background: rgba(255, 255, 255, 0.7);
   color: var(--text-color);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 .filter-btn.active {
-  background: var(--primary-color);
+  background: linear-gradient(
+    135deg,
+    var(--primary-color) 0%,
+    rgba(var(--primary-color-rgb), 0.8) 100%
+  );
   border-color: var(--primary-color);
   color: white;
+  box-shadow: 0 4px 12px rgba(var(--primary-color-rgb), 0.3);
 }
 
 .sort-controls {
@@ -671,45 +728,116 @@ defineOptions({
   @apply focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary;
 }
 
-/* 列表区域样式 */
+/* 优雅的列表区域样式 */
 .todos-list-section {
   @apply flex-1 overflow-hidden;
+  background: linear-gradient(
+    135deg,
+    var(--card-bg-color) 0%,
+    rgba(var(--primary-color-rgb), 0.005) 100%
+  );
 }
 
 .empty-state {
-  @apply flex flex-col items-center justify-center py-12 text-center;
+  @apply flex flex-col items-center justify-center py-16 text-center;
 }
 
 .empty-filtered-state {
-  @apply flex flex-col items-center justify-center py-8 text-center;
+  @apply flex flex-col items-center justify-center py-12 text-center;
 }
 
 .empty-icon {
-  @apply mb-3;
+  @apply mb-4 text-4xl;
   color: var(--text-secondary-color);
+  opacity: 0.6;
 }
 
 .empty-title {
-  @apply text-base font-semibold mb-2;
+  @apply text-lg font-bold mb-3;
   color: var(--text-color);
 }
 
 .empty-description {
-  @apply text-sm;
+  @apply text-sm leading-relaxed;
   color: var(--text-secondary-color);
 }
 
 .todos-container {
-  @apply p-4;
+  @apply p-6;
 }
 
 .todos-list {
-  @apply space-y-2 max-h-80 overflow-y-auto;
-  padding-top: 4px; /* 为第一个 todo 的 hover 效果预留空间 */
+  @apply space-y-3 max-h-96 overflow-y-auto;
+  padding: 8px 0;
+  /* 自定义滚动条 */
+  scrollbar-width: thin;
+  scrollbar-color: rgba(var(--primary-color-rgb), 0.3) transparent;
+}
+
+.todos-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+.todos-list::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.todos-list::-webkit-scrollbar-thumb {
+  background: rgba(var(--primary-color-rgb), 0.3);
+  border-radius: 3px;
+}
+
+.todos-list::-webkit-scrollbar-thumb:hover {
+  background: rgba(var(--primary-color-rgb), 0.5);
 }
 
 .todo-item-enhanced {
-  @apply transform transition-all duration-200;
+  @apply transform transition-all duration-300;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.4);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  /* 确保宽度约束正确传递 */
+  width: 100%;
+  max-width: 100%;
+  overflow: hidden;
+}
+
+/* 优化模态框中 TodoItem 的内部布局 */
+.todo-item-enhanced :deep(.todo-content) {
+  @apply min-w-0 flex-1;
+}
+
+.todo-item-enhanced :deep(.todo-text-wrapper) {
+  @apply min-w-0 flex-1;
+}
+
+.todo-item-enhanced :deep(.todo-main-content) {
+  @apply min-w-0;
+  /* 改为 flex-start 避免文字被过度压缩 */
+  justify-content: flex-start;
+  gap: 0.75rem;
+}
+
+.todo-item-enhanced :deep(.todo-text) {
+  @apply min-w-0 flex-1;
+  max-width: calc(100% - 120px); /* 为右侧元素预留空间 */
+}
+
+.todo-item-enhanced :deep(.text-content) {
+  @apply min-w-0;
+  /* 强化文字溢出处理 */
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 100%;
+}
+
+.todo-item-enhanced:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+  background: rgba(255, 255, 255, 0.6);
 }
 
 /* 列表动画 */
@@ -929,7 +1057,7 @@ defineOptions({
   @apply border-border;
 }
 
-/* 动画效果 */
+/* 优雅的动画效果 */
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -942,11 +1070,32 @@ defineOptions({
 @keyframes slideUp {
   from {
     opacity: 0;
-    transform: translateY(20px) scale(0.95);
+    transform: translateY(30px) scale(0.9);
+    filter: blur(10px);
   }
   to {
     opacity: 1;
     transform: translateY(0) scale(1);
+    filter: blur(0);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200px 0;
+  }
+  100% {
+    background-position: calc(200px + 100%) 0;
+  }
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
   }
 }
 

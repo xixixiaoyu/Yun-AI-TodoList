@@ -98,7 +98,19 @@ describe('useTodoManagement', () => {
       const { handleAddTodo } = useTodoManagement()
       handleAddTodo('新的待办事项')
 
-      expect(mockAddTodo).toHaveBeenCalledWith({ title: '新的待办事项' })
+      // 验证调用参数包含 title 和 dueDate（默认为今天）
+      expect(mockAddTodo).toHaveBeenCalledWith(
+        expect.objectContaining({
+          title: '新的待办事项',
+          dueDate: expect.any(String), // 应该是 ISO 格式的日期字符串
+        })
+      )
+
+      // 验证 dueDate 是今天的日期（时间设置为 00:00:00）
+      const callArgs = mockAddTodo.mock.calls[0][0]
+      const expectedDate = new Date()
+      expectedDate.setHours(0, 0, 0, 0)
+      expect(callArgs.dueDate).toBe(expectedDate.toISOString())
     })
 
     it('应该正确处理切换待办事项状态', () => {
