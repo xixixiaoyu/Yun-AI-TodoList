@@ -69,6 +69,51 @@ jobs:
           echo "✅ Build verification passed"
           ls -la ./apps/frontend/dist/
 
+      - name: 🔐 Verify Qiniu environment variables
+        run: |
+          echo "🔍 验证七牛云环境变量..."
+
+          # 检查必要的环境变量是否存在（不显示实际值）
+          check_var() {
+            if [ -z "${!1}" ]; then
+              echo "❌ 环境变量 $1 未设置"
+              return 1
+            else
+              echo "✅ 环境变量 $1 已设置"
+              return 0
+            fi
+          }
+
+          all_set=true
+          check_var "QINIU_ACCESS_KEY" || all_set=false
+          check_var "QINIU_SECRET_KEY" || all_set=false
+          check_var "QINIU_BUCKET" || all_set=false
+          check_var "QINIU_REGION" || all_set=false
+          check_var "QINIU_ENDPOINT" || all_set=false
+          check_var "QINIU_DOMAIN" || all_set=false
+
+          if [ "$all_set" = false ]; then
+            echo ""
+            echo "❌ 部分环境变量未设置，请检查 GitHub Secrets 配置"
+            echo "💡 需要在 GitHub 仓库的 Settings > Secrets and variables > Actions 中设置："
+            echo "   - QINIU_ACCESS_KEY"
+            echo "   - QINIU_SECRET_KEY"
+            echo "   - QINIU_BUCKET"
+            echo "   - QINIU_REGION"
+            echo "   - QINIU_ENDPOINT"
+            echo "   - QINIU_DOMAIN"
+            exit 1
+          fi
+
+          echo "✅ 所有七牛云环境变量验证通过"
+        env:
+          QINIU_ACCESS_KEY: ${{ secrets.QINIU_ACCESS_KEY }}
+          QINIU_SECRET_KEY: ${{ secrets.QINIU_SECRET_KEY }}
+          QINIU_BUCKET: ${{ secrets.QINIU_BUCKET }}
+          QINIU_REGION: ${{ secrets.QINIU_REGION }}
+          QINIU_ENDPOINT: ${{ secrets.QINIU_ENDPOINT }}
+          QINIU_DOMAIN: ${{ secrets.QINIU_DOMAIN }}
+
       - name: 🚀 Deploy to Qiniu using S3 API
         run: |
           echo "🚀 Deploying to Qiniu Cloud using S3 compatible API..."
@@ -94,6 +139,22 @@ jobs:
         if: always()
         run: |
           echo "🧹 Cleanup completed"
+
+      - name: 🔍 Verify deployment
+        run: |
+          echo "🔍 验证部署结果..."
+
+          # 检查 CDN 域名是否可访问
+          if [ -n "${{ secrets.QINIU_DOMAIN }}" ]; then
+            echo "📡 测试 CDN 域名连通性..."
+            if curl -s --head "https://${{ secrets.QINIU_DOMAIN }}" | head -n 1 | grep -q "200 OK"; then
+              echo "✅ CDN 域名可正常访问"
+            else
+              echo "⚠️ CDN 域名暂时无法访问，可能需要等待缓存刷新"
+            fi
+          fi
+
+          echo "✅ 部署验证完成"
 
       - name: 📊 Deployment summary
         run: |

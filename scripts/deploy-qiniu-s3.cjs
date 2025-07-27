@@ -214,12 +214,36 @@ async function uploadFile(file, signer, bucket, endpoint) {
 
 // 检查环境变量
 function checkEnv() {
-  const required = ['QINIU_ACCESS_KEY', 'QINIU_SECRET_KEY', 'QINIU_BUCKET']
+  const required = [
+    'QINIU_ACCESS_KEY',
+    'QINIU_SECRET_KEY',
+    'QINIU_BUCKET',
+    'QINIU_REGION',
+    'QINIU_ENDPOINT',
+  ]
+
+  log('blue', '🔍 检查环境变量...')
+
+  // 显示当前环境变量状态（不显示敏感信息的完整值）
+  required.forEach((key) => {
+    const value = process.env[key]
+    if (value) {
+      const maskedValue = key.includes('KEY') ? `${value.substring(0, 8)}...` : value
+      log('cyan', `   ✅ ${key}: ${maskedValue}`)
+    } else {
+      log('red', `   ❌ ${key}: 未设置`)
+    }
+  })
+
   const missing = required.filter((key) => !process.env[key])
 
   if (missing.length > 0) {
     log('red', `❌ 缺少环境变量: ${missing.join(', ')}`)
-    log('yellow', '💡 请设置以下环境变量:')
+    log('yellow', '💡 请检查以下配置:')
+    log('yellow', '   1. GitHub Secrets 是否已正确设置')
+    log('yellow', '   2. 本地 .env.local 文件是否存在')
+    log('yellow', '   3. 环境变量名称是否正确')
+    log('yellow', '   4. GitHub Actions 工作流是否正确引用了 secrets')
     missing.forEach((key) => {
       log('yellow', `   export ${key}=your_value_here`)
     })
