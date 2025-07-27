@@ -26,62 +26,28 @@
           </div>
         </header>
 
-        <!-- 增强的统计信息区域 -->
-        <section v-if="todos.length > 0" class="stats-section">
-          <div class="stats-grid">
-            <!-- 进度环形图 -->
-            <div class="progress-circle-container">
-              <div class="progress-circle">
-                <svg viewBox="0 0 36 36" class="circular-chart">
-                  <path
-                    class="circle-bg"
-                    d="M18 2.0845
-                      a 15.9155 15.9155 0 0 1 0 31.831
-                      a 15.9155 15.9155 0 0 1 0 -31.831"
-                  />
-                  <path
-                    class="circle"
-                    :stroke-dasharray="`${completionPercentage}, 100`"
-                    d="M18 2.0845
-                      a 15.9155 15.9155 0 0 1 0 31.831
-                      a 15.9155 15.9155 0 0 1 0 -31.831"
-                  />
-                </svg>
-                <div class="percentage-text">
-                  <span class="percentage">{{ Math.round(completionPercentage) }}%</span>
-                  <span class="label">{{ t('completed') }}</span>
-                </div>
-              </div>
-            </div>
-
-            <!-- 统计数据 -->
-            <div class="stats-data">
-              <div class="stat-item total">
-                <div class="stat-icon">
-                  <i class="i-carbon-task"></i>
-                </div>
-                <div class="stat-content">
-                  <span class="stat-value">{{ todos.length }}</span>
-                  <span class="stat-label">{{ t('totalTasks') }}</span>
-                </div>
-              </div>
-              <div class="stat-item completed">
-                <div class="stat-icon">
-                  <i class="i-carbon-checkmark"></i>
-                </div>
-                <div class="stat-content">
-                  <span class="stat-value">{{ completedCount }}</span>
-                  <span class="stat-label">{{ t('completed') }}</span>
-                </div>
-              </div>
-              <div class="stat-item pending">
-                <div class="stat-icon">
-                  <i class="i-carbon-time"></i>
-                </div>
-                <div class="stat-content">
-                  <span class="stat-value">{{ pendingCount }}</span>
-                  <span class="stat-label">{{ t('pending') }}</span>
-                </div>
+        <!-- 简洁的进度展示区域 -->
+        <section v-if="todos.length > 0" class="progress-section">
+          <div class="progress-container">
+            <div class="progress-circle">
+              <svg viewBox="0 0 36 36" class="circular-chart">
+                <path
+                  class="circle-bg"
+                  d="M18 2.0845
+                    a 15.9155 15.9155 0 0 1 0 31.831
+                    a 15.9155 15.9155 0 0 1 0 -31.831"
+                />
+                <path
+                  class="circle"
+                  :stroke-dasharray="`${completionPercentage}, 100`"
+                  d="M18 2.0845
+                    a 15.9155 15.9155 0 0 1 0 31.831
+                    a 15.9155 15.9155 0 0 1 0 -31.831"
+                />
+              </svg>
+              <div class="percentage-text">
+                <span class="percentage">{{ Math.round(completionPercentage) }}%</span>
+                <span class="label">{{ t('completed') }}</span>
               </div>
             </div>
           </div>
@@ -504,9 +470,9 @@ defineOptions({
   background: var(--hover-bg-color);
 }
 
-/* 优雅的统计区域样式 */
-.stats-section {
-  @apply p-6 border-b;
+/* 简洁的进度展示区域样式 */
+.progress-section {
+  @apply p-6 border-b flex justify-center;
   border-color: rgba(255, 255, 255, 0.08);
   background: linear-gradient(
     135deg,
@@ -515,11 +481,7 @@ defineOptions({
   );
 }
 
-.stats-grid {
-  @apply grid grid-cols-1 md:grid-cols-2 gap-6;
-}
-
-.progress-circle-container {
+.progress-container {
   @apply flex justify-center items-center;
 }
 
@@ -529,12 +491,12 @@ defineOptions({
 
 .circular-chart {
   @apply w-full h-full transform -rotate-90;
-  filter: drop-shadow(0 4px 8px rgba(var(--primary-color-rgb), 0.2));
+  filter: drop-shadow(0 4px 12px rgba(var(--primary-color-rgb), 0.25));
 }
 
 .circle-bg {
   fill: none;
-  stroke: rgba(var(--primary-color-rgb), 0.1);
+  stroke: rgba(var(--primary-color-rgb), 0.12);
   stroke-width: 3;
 }
 
@@ -543,7 +505,7 @@ defineOptions({
   stroke: var(--primary-color);
   stroke-width: 3;
   stroke-linecap: round;
-  transition: stroke-dasharray 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: stroke-dasharray 0.8s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .percentage-text {
@@ -551,68 +513,17 @@ defineOptions({
 }
 
 .percentage {
-  @apply text-lg font-bold;
+  @apply text-xl font-bold;
   color: var(--text-color);
+  background: linear-gradient(135deg, var(--text-color) 0%, var(--primary-color) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 .percentage-text .label {
-  @apply text-xs font-medium mt-1;
+  @apply text-sm font-medium mt-1;
   color: var(--text-secondary-color);
-}
-
-.stats-data {
-  @apply grid grid-cols-3 gap-4;
-}
-
-.stat-item {
-  @apply flex items-center gap-3 p-4 rounded-xl transition-all duration-300;
-  background: rgba(255, 255, 255, 0.5);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  backdrop-filter: blur(10px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-}
-
-.stat-item:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
-  background: rgba(255, 255, 255, 0.7);
-}
-
-.stat-item.total .stat-icon {
-  color: var(--primary-color);
-  background: rgba(var(--primary-color-rgb), 0.1);
-  @apply p-2 rounded-lg;
-}
-
-.stat-item.completed .stat-icon {
-  color: #10b981;
-  background: rgba(16, 185, 129, 0.1);
-  @apply p-2 rounded-lg;
-}
-
-.stat-item.pending .stat-icon {
-  color: #f59e0b;
-  background: rgba(245, 158, 11, 0.1);
-  @apply p-2 rounded-lg;
-}
-
-.stat-icon {
-  @apply text-lg flex-shrink-0;
-}
-
-.stat-content {
-  @apply flex flex-col min-w-0 flex-1;
-}
-
-.stat-value {
-  @apply text-xl font-bold;
-  color: var(--text-color);
-}
-
-.stat-label {
-  @apply text-xs font-medium mt-1;
-  color: var(--text-secondary-color);
-  white-space: nowrap;
 }
 
 /* 优雅的快速操作区域样式 */
@@ -909,20 +820,16 @@ defineOptions({
     @apply text-xl;
   }
 
-  .stats-section {
+  .progress-section {
     @apply p-4;
   }
 
-  .stats-grid {
-    @apply grid-cols-1 gap-4;
+  .progress-circle {
+    @apply w-24 h-24;
   }
 
-  .stats-data {
-    @apply grid-cols-1 gap-2;
-  }
-
-  .stat-item {
-    @apply p-2;
+  .percentage {
+    @apply text-lg;
   }
 
   .quick-actions-section {
@@ -968,22 +875,10 @@ defineOptions({
   }
 
   .progress-circle {
-    @apply w-22 h-22;
+    @apply w-20 h-20;
   }
 
   .percentage {
-    @apply text-base;
-  }
-
-  .stat-item {
-    @apply flex-col gap-1 p-2;
-  }
-
-  .stat-icon {
-    @apply text-lg;
-  }
-
-  .stat-value {
     @apply text-base;
   }
 
@@ -1031,10 +926,6 @@ defineOptions({
 
 [data-theme='dark'] .stats-section {
   @apply border-border;
-}
-
-[data-theme='dark'] .stat-item {
-  @apply bg-bg border-border;
 }
 
 [data-theme='dark'] .circle-bg {
@@ -1155,8 +1046,9 @@ defineOptions({
     border: 2px solid var(--text-color);
   }
 
-  .stat-item {
+  .stat-card {
     border: 2px solid var(--input-border-color);
+    background: var(--card-bg-color);
   }
 
   .filter-btn.active {
