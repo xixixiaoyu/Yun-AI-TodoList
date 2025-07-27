@@ -60,7 +60,7 @@ function generateAccessToken(url, body) {
 
 // 刷新CDN缓存
 async function refreshCDNCache() {
-  const url = 'http://fusion.qiniuapi.com/v2/tune/refresh'
+  const url = 'https://fusion.qiniuapi.com/v2/tune/refresh'
   const body = JSON.stringify({
     urls: [
       `https://${process.env.QINIU_DOMAIN}/index.html`,

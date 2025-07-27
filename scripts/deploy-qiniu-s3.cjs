@@ -76,6 +76,7 @@ class AWSV4Signer {
 
   sign(method, url, headers, payload) {
     const urlObj = new URL(url)
+    console.log(`[DEBUG] AWSV4Signer.sign url: ${url}, protocol: ${urlObj.protocol}`)
     const host = urlObj.hostname
     const path = urlObj.pathname
 
@@ -438,17 +439,7 @@ async function deployToQiniu() {
 if (require.main === module) {
   deployToQiniu()
     .then(() => {
-      // 部署成功后刷新 CDN 缓存
-      const config = {
-        accessKey: process.env.QINIU_ACCESS_KEY,
-        secretKey: process.env.QINIU_SECRET_KEY,
-        bucket: process.env.QINIU_BUCKET,
-        region: process.env.QINIU_REGION || 'cn-east-1',
-        endpoint: process.env.QINIU_ENDPOINT || 's3-cn-east-1.qiniucs.com',
-        cdnDomain: process.env.QINIU_DOMAIN || 'your-cdn-domain.com',
-      }
-      const signer = new AWSV4Signer(config.accessKey, config.secretKey, config.region, 's3')
-      return refreshCDNCache(signer, config)
+      log('green', '✅ 部署完成，已跳过CDN缓存刷新')
     })
     .catch((error) => {
       log('red', `❌ 部署过程中发生错误: ${error.message}`)
