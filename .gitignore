@@ -73,6 +73,14 @@ wrangler.toml.bak
 qiniu-upload.json
 qiniu-upload.log
 
+# 调试和临时文件
+test-*.txt
+qiniu-*.txt
+curl-*.txt
+debug-*.log
+upload-*.log
+*-test.txt
+
 # Vercel
 .vercel
 

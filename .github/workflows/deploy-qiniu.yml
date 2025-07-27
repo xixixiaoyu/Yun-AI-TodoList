@@ -69,21 +69,26 @@ jobs:
           echo "✅ Build verification passed"
           ls -la ./apps/frontend/dist/
 
-      - name: 🚀 Deploy to Qiniu using Node.js
+      - name: 🚀 Deploy to Qiniu using S3 API
         run: |
-          echo "🚀 Deploying to Qiniu Cloud using Node.js script..."
+          echo "🚀 Deploying to Qiniu Cloud using S3 compatible API..."
           echo "📋 Upload info:"
           echo "   Bucket: ${{ secrets.QINIU_BUCKET }}"
+          echo "   Region: ${{ secrets.QINIU_REGION }}"
+          echo "   Endpoint: ${{ secrets.QINIU_ENDPOINT }}"
           echo "   Source: ./apps/frontend/dist"
           echo "   Files: $(find apps/frontend/dist -type f | wc -l)"
           echo ""
 
-          # 使用我们的 Node.js 部署脚本
-          node scripts/deploy-qiniu-simple.cjs
+          # 使用 S3 兼容 API 部署脚本（更稳定）
+          node scripts/deploy-qiniu-s3.cjs
         env:
           QINIU_ACCESS_KEY: ${{ secrets.QINIU_ACCESS_KEY }}
           QINIU_SECRET_KEY: ${{ secrets.QINIU_SECRET_KEY }}
           QINIU_BUCKET: ${{ secrets.QINIU_BUCKET }}
+          QINIU_REGION: ${{ secrets.QINIU_REGION }}
+          QINIU_ENDPOINT: ${{ secrets.QINIU_ENDPOINT }}
+          QINIU_DOMAIN: ${{ secrets.QINIU_DOMAIN }}
 
       - name: 🧹 Cleanup
         if: always()
