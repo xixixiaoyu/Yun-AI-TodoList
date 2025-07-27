@@ -184,7 +184,16 @@ async function uploadFile(file, signer, bucket, endpoint, retries = 5) {
       log('yellow', `⚠️  上传失败，第 ${attempt} 次重试: ${file.key} - ${error.message}`)
       // 增加重试间隔时间，特别是对于大文件
       const baseDelay = 1000 * attempt
-      const sizeBasedDelay = Math.min(10000, (file.size / 1024 / 1024) * 500) // 每 MB 增加 500ms，最多 10 秒
+      // 对于大文件增加更长的重试间隔时间
+      let sizeBasedDelay
+      if (file.size > 15 * 1024 * 1024) {
+        // 大于 15MB 的文件
+        // 每 MB 增加 2 秒，最多 60 秒
+        sizeBasedDelay = Math.min(60000, (file.size / 1024 / 1024) * 2000)
+      } else {
+        // 每 MB 增加 500ms，最多 10 秒
+        sizeBasedDelay = Math.min(10000, (file.size / 1024 / 1024) * 500)
+      }
       const delay = Math.max(baseDelay, sizeBasedDelay)
       // 等待一段时间后重试
       await new Promise((resolve) => setTimeout(resolve, delay))
@@ -244,12 +253,21 @@ async function uploadFileOnce(file, signer, bucket, endpoint) {
 
     // 根据文件大小动态设置超时时间
     const baseTimeout = 60000 // 基础超时 60 秒
-    const sizeBasedTimeout = Math.max(baseTimeout, (file.size / 1024) * 100) // 每 KB 100ms，最少 60 秒
-    const maxTimeout = 300000 // 最大超时 5 分钟
+    // 对于大文件调整超时时间计算公式
+    let sizeBasedTimeout
+    if (file.size > 15 * 1024 * 1024) {
+      // 大于 15MB 的文件
+      // 每 MB 2 秒，最少 60 秒
+      sizeBasedTimeout = Math.max(baseTimeout, (file.size / (1024 * 1024)) * 2000)
+    } else {
+      // 每 KB 100ms，最少 60 秒
+      sizeBasedTimeout = Math.max(baseTimeout, (file.size / 1024) * 100)
+    }
+    const maxTimeout = 600000 // 最大超时 10 分钟
     const timeout = Math.min(sizeBasedTimeout, maxTimeout)
 
     // 增加超时时间，特别是对于大文件
-    const extendedTimeout = Math.min(maxTimeout * 2, timeout * 1.5) // 增加 50% 的超时时间，但不超过最大值的 2 倍
+    const extendedTimeout = Math.min(maxTimeout, timeout * 1.5) // 增加 50% 的超时时间
 
     req.setTimeout(extendedTimeout, () => {
       req.destroy()
@@ -364,7 +382,9 @@ async function deployToQiniu() {
   }
 
   // 并行上传文件，控制并发数
-  const concurrency = 5 // 最大并发数
+  // 根据是否有大文件动态调整并发数
+  const hasLargeFiles = files.some((file) => file.size > 15 * 1024 * 1024)
+  const concurrency = hasLargeFiles ? 3 : 5 // 如果有大文件，减少并发数以提高成功率
   const results = []
 
   // 显示上传进度
