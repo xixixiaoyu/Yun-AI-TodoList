@@ -176,6 +176,7 @@ defineOptions({
     backdrop-filter: blur(10px);
     box-sizing: border-box;
     z-index: 1000;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   }
 
   .nav-button {
@@ -186,6 +187,15 @@ defineOptions({
     min-width: 70px;
     border-radius: 8px;
     font-weight: 600;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+  }
+
+  .nav-button i {
+    font-size: 16px;
+    margin: 0;
   }
 
   .nav-button:hover {
@@ -193,15 +203,43 @@ defineOptions({
   }
 }
 
-@media (max-width: 360px) {
+/* 极小屏幕优化 (320px-375px) */
+@media (max-width: 375px) {
   .nav-bar {
     gap: 0.15rem;
+    padding: 0.4rem;
   }
 
   .nav-button {
     font-size: 11px;
-    padding: 8px 4px;
+    padding: 10px 4px;
     min-width: 50px;
+    gap: 1px;
+  }
+
+  .nav-button i {
+    font-size: 14px;
+  }
+
+  /* 用户菜单在极小屏幕下的优化 */
+  .user-dropdown {
+    @apply w-56 right-0;
+  }
+
+  .user-info {
+    @apply p-3;
+  }
+
+  .user-name {
+    @apply text-xs;
+  }
+
+  .user-email {
+    @apply text-xs;
+  }
+
+  .menu-item {
+    @apply py-2.5 text-xs;
   }
 }
 

@@ -118,12 +118,12 @@ defineOptions({
 }
 
 .hero-content {
-  @apply grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center min-h-[80vh];
+  @apply grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 lg:gap-16 items-center min-h-[80vh];
 }
 
 /* 文本区域 */
 .hero-text {
-  @apply space-y-8 lg:space-y-10;
+  @apply space-y-6 md:space-y-8 lg:space-y-10;
 }
 
 .hero-title-section {
@@ -135,7 +135,7 @@ defineOptions({
 }
 
 .title-main {
-  @apply block text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-bold leading-tight;
+  @apply block text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold leading-tight;
   background: linear-gradient(135deg, var(--text-color) 0%, #79b4a6 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -144,7 +144,7 @@ defineOptions({
 }
 
 .title-subtitle {
-  @apply block text-xl sm:text-2xl lg:text-3xl font-medium;
+  @apply block text-lg sm:text-xl md:text-2xl lg:text-3xl font-medium;
   color: var(--text-secondary-color);
 }
 
@@ -153,7 +153,7 @@ defineOptions({
 }
 
 .hero-description {
-  @apply text-lg lg:text-xl leading-relaxed;
+  @apply text-base md:text-lg lg:text-xl leading-relaxed;
   color: var(--text-secondary-color);
 }
 
@@ -223,11 +223,11 @@ defineOptions({
 
 /* 视觉展示区域 */
 .hero-visual {
-  @apply relative flex justify-center lg:justify-end;
+  @apply relative flex justify-center md:justify-end;
 }
 
 .hero-image-container {
-  @apply relative max-w-lg lg:max-w-xl;
+  @apply relative max-w-sm sm:max-w-md md:max-w-lg lg:max-w-xl;
 }
 
 .hero-image {
@@ -358,6 +358,63 @@ defineOptions({
 
   .scroll-text {
     @apply text-xs;
+  }
+}
+
+/* 极小屏幕优化 (320px-375px) */
+@media (max-width: 375px) {
+  .hero-section {
+    @apply py-12;
+  }
+
+  .hero-container {
+    @apply px-3 py-12;
+  }
+
+  .hero-content {
+    @apply gap-6 min-h-[60vh];
+  }
+
+  .hero-text {
+    @apply space-y-4;
+  }
+
+  .hero-title-section {
+    @apply space-y-2;
+  }
+
+  .title-main {
+    @apply text-2xl leading-tight;
+  }
+
+  .title-subtitle {
+    @apply text-base;
+  }
+
+  .hero-description {
+    @apply text-sm leading-relaxed;
+  }
+
+  .hero-actions {
+    @apply gap-2;
+  }
+
+  .btn-primary,
+  .btn-secondary {
+    @apply px-6 py-3 text-sm;
+    min-height: 44px;
+  }
+
+  .feature-tags {
+    @apply gap-2;
+  }
+
+  .feature-tag {
+    @apply text-xs px-2 py-1;
+  }
+
+  .hero-image-container {
+    @apply max-w-xs;
   }
 }
 </style>

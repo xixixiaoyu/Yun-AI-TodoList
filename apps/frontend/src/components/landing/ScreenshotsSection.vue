@@ -245,6 +245,13 @@ defineOptions({
   aspect-ratio: 16 / 10;
 }
 
+/* 移动端优化截图比例 */
+@media (max-width: 640px) {
+  .screenshot-image-container {
+    aspect-ratio: 4 / 3;
+  }
+}
+
 .screenshot-image {
   @apply w-full h-full object-cover transition-all-300;
 }
@@ -572,6 +579,54 @@ defineOptions({
   .lightbox-tag {
     font-size: 0.75rem;
     padding: 0.375rem 0.75rem;
+  }
+}
+
+/* 极小屏幕优化 (320px-375px) */
+@media (max-width: 375px) {
+  .screenshots-section {
+    @apply py-12;
+  }
+
+  .section-header {
+    @apply mb-8;
+  }
+
+  .section-title {
+    @apply text-xl;
+  }
+
+  .section-description {
+    @apply text-sm;
+  }
+
+  .screenshots-grid {
+    @apply gap-3;
+  }
+
+  .screenshot-info {
+    @apply p-3;
+  }
+
+  .screenshot-title {
+    @apply text-base;
+  }
+
+  .screenshot-description {
+    @apply text-xs;
+  }
+
+  .screenshot-image-container {
+    aspect-ratio: 3 / 2;
+  }
+
+  .overlay-icon {
+    width: 1.25rem;
+    height: 1.25rem;
+  }
+
+  .overlay-text {
+    font-size: 0.7rem;
   }
 }
 

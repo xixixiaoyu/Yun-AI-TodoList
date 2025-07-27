@@ -138,6 +138,24 @@ onMounted(async () => {
   .landing-page {
     @apply px-4;
   }
+
+  /* Landing 页面导航栏优化 */
+  :global(.nav-bar) {
+    background-color: rgba(var(--card-bg-color), 0.95);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid rgba(121, 180, 166, 0.1);
+  }
+}
+
+/* 极小屏幕优化 */
+@media (max-width: 375px) {
+  .landing-page {
+    @apply px-3;
+  }
+
+  :global(.nav-bar) {
+    padding: 0.4rem;
+  }
 }
 
 /* 动画性能优化 */

@@ -278,6 +278,53 @@ defineOptions({
   }
 }
 
+/* 极小屏幕优化 (320px-375px) */
+@media (max-width: 375px) {
+  .features-section {
+    @apply py-12;
+  }
+
+  .section-header {
+    @apply mb-8;
+  }
+
+  .section-title {
+    @apply text-xl;
+  }
+
+  .section-description {
+    @apply text-sm;
+  }
+
+  .features-grid {
+    @apply gap-3;
+  }
+
+  .feature-card {
+    @apply p-4;
+  }
+
+  .feature-icon {
+    @apply w-10 h-10 text-xl mb-3;
+  }
+
+  .feature-title {
+    @apply text-base;
+  }
+
+  .feature-description {
+    @apply text-xs;
+  }
+
+  .feature-item {
+    @apply text-xs;
+  }
+
+  .feature-check-icon {
+    @apply w-3 h-3;
+  }
+}
+
 /* 深色主题适配 */
 [data-theme='dark'] .feature-card-1,
 [data-theme='dark'] .feature-card-2,
