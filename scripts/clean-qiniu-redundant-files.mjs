@@ -5,7 +5,7 @@
  * 该脚本会列出并删除七牛云存储空间中带哈希值且上传时间超过指定天数的文件
  */
 
-const qiniu = require('qiniu')
+import qiniu from 'qiniu'
 const path = require('path')
 
 // 配置信息

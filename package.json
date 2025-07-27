@@ -32,7 +32,7 @@
     "lint": "pnpm --recursive lint",
     "lint:check": "pnpm --recursive lint:check",
     "lint:fix": "pnpm --recursive lint:fix",
-    "clean:qiniu": "node scripts/clean-qiniu-redundant-files.cjs",
+    "clean:qiniu": "node scripts/clean-qiniu-redundant-files.mjs",
     "format": "prettier --cache --write \"**/*.{js,ts,json,css,scss,vue,html,md}\" --ignore-unknown",
     "format:check": "prettier --cache --check \"**/*.{js,ts,json,css,scss,vue,html,md}\" --ignore-unknown",
     "type-check": "pnpm --recursive type-check",
