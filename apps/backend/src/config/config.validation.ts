@@ -8,11 +8,6 @@ export const configValidationSchema = Joi.object({
 
   // 数据库配置
   DATABASE_URL: Joi.string().required(),
-  DATABASE_HOST: Joi.string().default('localhost'),
-  DATABASE_PORT: Joi.number().default(5432),
-  DATABASE_NAME: Joi.string().required(),
-  DATABASE_USER: Joi.string().required(),
-  DATABASE_PASSWORD: Joi.string().required(),
 
   // Redis 配置
   REDIS_HOST: Joi.string().default('localhost'),
@@ -52,6 +47,4 @@ export const configValidationSchema = Joi.object({
 
   // 安全配置
   BCRYPT_ROUNDS: Joi.number().default(12),
-  RATE_LIMIT_TTL: Joi.number().default(60),
-  RATE_LIMIT_MAX: Joi.number().default(100),
 })

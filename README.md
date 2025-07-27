@@ -60,6 +60,17 @@ cp .env.example .env
 pnpm dev:all
 ```
 
+### 环境变量配置说明
+
+项目现在使用精简版的环境变量配置。主要变化包括：
+
+1. 移除了重复的数据库配置项（DATABASE_HOST,
+   DATABASE_PORT 等），现在只使用 DATABASE_URL
+2. 移除了限流相关配置（RATE_LIMIT_TTL,
+   RATE_LIMIT_MAX），因为实际代码中使用的是硬编码值
+3. 移除了文件上传相关配置（UPLOAD_MAX_SIZE, UPLOAD_DEST），因为代码中未实际使用
+4. 保留了所有核心必需的配置项
+
 ### 构建部署
 
 ```bash

@@ -19,6 +19,21 @@ function validateEnvVars() {
     'JWT_EXPIRES_IN',
     'JWT_REFRESH_EXPIRES_IN',
     'BCRYPT_ROUNDS',
+    'REDIS_HOST',
+    'REDIS_PORT',
+    'REDIS_PASSWORD',
+    'REDIS_DB',
+    'OPENAI_API_KEY',
+    'DEEPSEEK_API_KEY',
+    'GOOGLE_SEARCH_API_KEY',
+    'GOOGLE_SEARCH_ENGINE_ID',
+    'SMTP_HOST',
+    'SMTP_PORT',
+    'SMTP_USER',
+    'SMTP_PASSWORD',
+    'MAIL_FROM_NAME',
+    'MAIL_FROM_ADDRESS',
+    'LOG_LEVEL',
   ]
 
   let hasErrors = false

@@ -75,9 +75,6 @@ cp .env.example .env
 配置环境变量：
 
 ```env
-# 数据库配置
-DATABASE_URL="postgresql://username:password@localhost:5432/yun_ai_todolist"
-
 # JWT 配置
 JWT_SECRET="your-super-secret-jwt-key"
 JWT_EXPIRES_IN="1h"
@@ -89,6 +86,9 @@ NODE_ENV="development"
 PORT=3000
 FRONTEND_URL="http://localhost:5173"
 
+# 数据库配置 (使用 DATABASE_URL 即可)
+DATABASE_URL="postgresql://yun_todo_user:postgres123@localhost:5432/yun_todo_db"
+
 # 密码加密
 BCRYPT_ROUNDS=12
 
@@ -96,6 +96,23 @@ BCRYPT_ROUNDS=12
 REDIS_HOST="localhost"
 REDIS_PORT=6379
 REDIS_PASSWORD=""
+
+# AI 服务配置 (可选)
+OPENAI_API_KEY=your-openai-api-key
+DEEPSEEK_API_KEY=your-deepseek-api-key
+GOOGLE_SEARCH_API_KEY=your-google-search-api-key
+GOOGLE_SEARCH_ENGINE_ID=your-search-engine-id
+
+# 邮件服务配置 (可选)
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=587
+SMTP_SECURE=false
+SMTP_USER=your-email@gmail.com
+SMTP_PASS=your-email-password
+
+# 发件人信息
+MAIL_FROM_NAME=Yun AI TodoList
+MAIL_FROM_ADDRESS=noreply@yourdomain.com
 ```
 
 ### 数据库设置
