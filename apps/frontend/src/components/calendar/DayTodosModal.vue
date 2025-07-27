@@ -20,14 +20,6 @@
             </div>
           </div>
           <div class="header-actions">
-            <button
-              v-if="todos.length > 0"
-              class="action-btn"
-              :title="allCompleted ? t('markAllIncomplete') : t('markAllComplete')"
-              @click="toggleAllTodos"
-            >
-              <i :class="allCompleted ? 'i-carbon-checkbox-checked' : 'i-carbon-checkbox'"></i>
-            </button>
             <button ref="closeButtonRef" class="close-btn" :title="t('close')" @click="handleClose">
               <i class="i-carbon-close"></i>
             </button>
@@ -219,7 +211,6 @@ const MAX_TODO_LENGTH = 200
 // 响应式数据
 const modalRef = ref<HTMLElement>()
 const closeButtonRef = ref<HTMLElement>()
-const _footerCloseButtonRef = ref<HTMLElement>()
 const quickAddInputRef = ref<HTMLInputElement>()
 
 const quickAddText = ref('')
@@ -258,10 +249,6 @@ const pendingCount = computed(() => {
 const completionPercentage = computed(() => {
   if (props.todos.length === 0) return 0
   return (completedCount.value / props.todos.length) * 100
-})
-
-const allCompleted = computed(() => {
-  return props.todos.length > 0 && completedCount.value === props.todos.length
 })
 
 const filteredTodos = computed(() => {
@@ -359,22 +346,6 @@ const handleRemoveTodo = (id: string) => {
   emit('removeTodo', id)
 }
 
-const toggleAllTodos = () => {
-  const shouldComplete = !allCompleted.value
-  props.todos.forEach((todo) => {
-    if (todo.completed !== shouldComplete) {
-      emit('updateTodo', todo.id, { completed: shouldComplete })
-    }
-  })
-}
-
-const _clearCompleted = () => {
-  const completedTodos = props.todos.filter((todo) => todo.completed)
-  completedTodos.forEach((todo) => {
-    emit('removeTodo', todo.id)
-  })
-}
-
 const setFilter = (newFilter: 'pending' | 'completed') => {
   if (filter.value === newFilter) return
   filter.value = newFilter
@@ -445,7 +416,7 @@ watch(
   () => props.todos.length,
   (newLength) => {
     if (newLength === 0) {
-      filter.value = 'all'
+      filter.value = 'pending'
     }
   }
 )
@@ -507,16 +478,6 @@ defineOptions({
 
 .header-actions {
   @apply flex items-center gap-2;
-}
-
-.action-btn {
-  @apply p-2 rounded-lg transition-colors duration-200;
-  color: var(--text-secondary-color);
-}
-
-.action-btn:hover {
-  color: var(--text-color);
-  background: var(--hover-bg-color);
 }
 
 .close-btn {

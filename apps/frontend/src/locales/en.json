@@ -97,8 +97,6 @@
   "pending": "Pending",
   "completed": "Completed",
   "totalTasks": "Total Tasks",
-  "markAllComplete": "Mark All Complete",
-  "markAllIncomplete": "Mark All Incomplete",
   "clearCompleted": "Clear Completed",
   "addTodoForThisDate": "Add todo for this date...",
   "noTodosForThisDate": "No todos for this date",
