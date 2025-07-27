@@ -1,0 +1,53 @@
+name: Deploy to GitHub Pages (Reusable)
+
+on:
+  workflow_call:
+    inputs:
+      artifact-name:
+        description: 'Name of the build artifact to deploy'
+        required: true
+        type: string
+      environment:
+        description: 'Environment to deploy to'
+        required: false
+        type: string
+        default: 'github-pages'
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+jobs:
+  deploy-github-pages:
+    runs-on: ubuntu-latest
+    name: Deploy to GitHub Pages
+    environment:
+      name: ${{ inputs.environment }}
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: 📥 Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ inputs.artifact-name }}
+          path: ./dist
+
+      - name: 📄 Setup Pages
+        uses: actions/configure-pages@v4
+
+      - name: 📤 Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: './dist'
+
+      - name: 🚀 Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+
+      - name: 📊 Deployment summary
+        run: |
+          echo "## 🎉 GitHub Pages Deployment Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "✅ **Deployment**: Completed successfully" >> $GITHUB_STEP_SUMMARY
+          echo "🔗 **URL**: ${{ steps.deployment.outputs.page_url }}" >> $GITHUB_STEP_SUMMARY

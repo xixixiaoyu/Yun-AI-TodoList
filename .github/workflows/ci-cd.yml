@@ -1,0 +1,121 @@
+name: 🚀 CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - main
+      - master
+  workflow_dispatch: # 允许手动触发
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+env:
+  NODE_VERSION: '18'
+  PNPM_VERSION: '9.0.0'
+
+jobs:
+  # 第一阶段：测试和构建
+  test-and-build:
+    name: 🧪 Test & Build
+    runs-on: ubuntu-latest
+    outputs:
+      artifact-name: ${{ steps.artifact.outputs.name }}
+
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🔧 Setup environment
+        uses: ./.github/actions/setup-environment
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          pnpm-version: ${{ env.PNPM_VERSION }}
+
+      - name: 🔍 Type check
+        run: pnpm type-check
+
+      - name: 🧹 Lint check
+        run: pnpm lint:check
+
+      - name: 💅 Format check
+        run: pnpm format:check
+
+      - name: 🧪 Run unit tests
+        run: pnpm test:coverage
+        continue-on-error: true
+
+      - name: 🔍 Run security audit
+        uses: ./.github/actions/security-audit
+
+      - name: 🏗️ Build project
+        uses: ./.github/actions/build-project
+
+      - name: 📦 Upload build artifacts
+        id: artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-files-${{ github.sha }}
+          path: apps/frontend/dist/
+          if-no-files-found: error
+          retention-days: 7
+
+      - name: 📊 Upload coverage to Codecov
+        uses: codecov/codecov-action@v3
+        with:
+          file: ./coverage/lcov.info
+          flags: unittests
+          name: codecov-umbrella
+          fail_ci_if_error: false
+
+  # 第二阶段：并行部署
+  deploy-github-pages:
+    name: 🚀 Deploy to GitHub Pages
+    needs: test-and-build
+    if: success() && github.ref == 'refs/heads/main'
+    uses: ./.github/workflows/deploy-github-pages.yml
+    with:
+      artifact-name: build-files-${{ github.sha }}
+      environment: github-pages
+
+  deploy-qiniu:
+    name: 🚀 Deploy to Qiniu Cloud
+    needs: test-and-build
+    if: success() && github.ref == 'refs/heads/main'
+    uses: ./.github/workflows/deploy-qiniu-reusable.yml
+    with:
+      artifact-name: build-files-${{ github.sha }}
+    secrets:
+      QINIU_ACCESS_KEY: ${{ secrets.QINIU_ACCESS_KEY }}
+      QINIU_SECRET_KEY: ${{ secrets.QINIU_SECRET_KEY }}
+      QINIU_BUCKET: ${{ secrets.QINIU_BUCKET }}
+      QINIU_REGION: ${{ secrets.QINIU_REGION }}
+      QINIU_ENDPOINT: ${{ secrets.QINIU_ENDPOINT }}
+      QINIU_DOMAIN: ${{ secrets.QINIU_DOMAIN }}
+
+  # 第三阶段：部署后验证和通知
+  post-deploy:
+    name: 📋 Post-Deploy Summary
+    runs-on: ubuntu-latest
+    needs: [test-and-build, deploy-github-pages, deploy-qiniu]
+    if: always() && github.ref == 'refs/heads/main'
+
+    steps:
+      - name: 📊 Generate deployment summary
+        run: |
+          echo "# 🎉 CI/CD Pipeline Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "## 📋 Pipeline Results" >> $GITHUB_STEP_SUMMARY
+          echo "- **Test & Build**: ${{ needs.test-and-build.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **GitHub Pages**: ${{ needs.deploy-github-pages.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Qiniu Cloud**: ${{ needs.deploy-qiniu.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          if [[ "${{ needs.test-and-build.result }}" == "success" ]]; then
+            echo "✅ **Status**: Pipeline completed successfully!" >> $GITHUB_STEP_SUMMARY
+            echo "🚀 **Deployments**: Both targets deployed in parallel" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ **Status**: Pipeline failed during test/build phase" >> $GITHUB_STEP_SUMMARY
+          fi

@@ -1,13 +1,14 @@
-name: 🧪 Tests & Security
+name: 🧪 Tests & Security (Comprehensive)
 
 on:
   push:
-    branches: [ main, develop ]
+    branches: [ develop ]  # 主分支由 ci-cd.yml 处理
   pull_request:
     branches: [ main, develop ]
   schedule:
     # 每天凌晨 2 点运行回归测试和安全审计
     - cron: '0 2 * * *'
+  workflow_dispatch: # 允许手动触发完整测试套件
 
 env:
   NODE_VERSION: '18'
@@ -82,10 +83,10 @@ jobs:
       - name: 📦 Upload build artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: build-files
+          name: build-files-${{ github.sha }}
           path: apps/frontend/dist/
           if-no-files-found: error
-          retention-days: 1
+          retention-days: 7  # 增加保留时间以供部署工作流使用
 
   # 性能测试
   performance:
@@ -107,7 +108,7 @@ jobs:
       - name: 📥 Download build artifacts
         uses: actions/download-artifact@v4
         with:
-          name: build-files
+          name: build-files-${{ github.sha }}
           path: dist/
 
       - name: ⚡ Run performance benchmarks

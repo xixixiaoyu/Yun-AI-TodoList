@@ -1,11 +1,12 @@
-name: Deploy to GitHub Pages
+name: 🔧 Deploy to GitHub Pages (Manual)
 
 on:
-  push:
-    branches:
-      - main
-      - master
-  workflow_dispatch: # 允许手动触发
+  workflow_dispatch: # 仅手动触发（主CI/CD流水线已包含自动部署）
+    inputs:
+      reason:
+        description: 'Reason for manual deployment'
+        required: false
+        default: 'Manual deployment'
 
 permissions:
   contents: read
@@ -37,27 +38,21 @@ jobs:
         uses: ./.github/actions/build-project
 
       - name: 📄 Setup Pages
-        if: github.ref == 'refs/heads/main'
         uses: actions/configure-pages@v4
 
       - name: 📤 Upload Pages artifact
-        if: github.ref == 'refs/heads/main'
         uses: actions/upload-pages-artifact@v3
         with:
           path: './apps/frontend/dist'
 
       - name: 🚀 Deploy to GitHub Pages
-        if: github.ref == 'refs/heads/main'
         id: pages-deployment
         uses: actions/deploy-pages@v4
 
       - name: 📊 Deployment summary
-        if: github.ref == 'refs/heads/main'
         run: |
-          echo "## 🎉 GitHub Pages Deployment Summary" >> $GITHUB_STEP_SUMMARY
+          echo "## 🎉 Manual GitHub Pages Deployment" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "✅ **Frontend Build**: Completed successfully" >> $GITHUB_STEP_SUMMARY
-          echo "✅ **GitHub Pages**: Deployed" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "🔗 **Access your application:**" >> $GITHUB_STEP_SUMMARY
-          echo "- GitHub Pages: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}" >> $GITHUB_STEP_SUMMARY
+          echo "✅ **Reason**: ${{ github.event.inputs.reason }}" >> $GITHUB_STEP_SUMMARY
+          echo "✅ **Status**: Deployed successfully" >> $GITHUB_STEP_SUMMARY
+          echo "🔗 **URL**: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}" >> $GITHUB_STEP_SUMMARY
