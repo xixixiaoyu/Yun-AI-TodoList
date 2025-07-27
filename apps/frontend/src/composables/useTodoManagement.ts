@@ -37,7 +37,7 @@ export function useTodoManagement() {
     isAnalyzing.value = true
     try {
       // 添加重试机制提高 AI 分析的可靠性
-      const _result = await withRetry(
+      await withRetry(
         () =>
           analyzeSingleTodo(todo, (id: string, updates: Partial<Todo>) => {
             // 使用专门的 AI 分析更新函数
@@ -453,7 +453,7 @@ ${todoTexts}
     }
   }
 
-  const handleAddTodo = async (text: string, skipSplitAnalysis: boolean = false) => {
+  const handleAddTodo = async (text: string, skipSplitAnalysis = false) => {
     // 添加调用栈信息来调试双重请求
     const stack = new Error().stack
     logger.info(
@@ -498,7 +498,17 @@ ${todoTexts}
     logger.info('Adding todo with text', { text }, 'TodoManagement')
 
     try {
-      const result = await addTodo({ title: text })
+      // 创建 todo 数据，默认设置 dueDate 为今天
+      const today = new Date()
+      today.setHours(0, 0, 0, 0) // 设置为今天的开始时间
+      const todayISO = today.toISOString()
+
+      const todoData = {
+        title: text,
+        dueDate: todayISO, // 默认设置为今天
+      }
+
+      const result = await addTodo(todoData)
 
       if (!result) {
         logger.error('Failed to add todo - duplicate detected', { text }, 'TodoManagement')

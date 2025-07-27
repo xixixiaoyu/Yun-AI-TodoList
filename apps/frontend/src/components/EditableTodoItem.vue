@@ -149,7 +149,10 @@ const startEdit = () => {
 const adjustTextareaHeight = () => {
   if (textareaRef.value) {
     textareaRef.value.style.height = 'auto'
-    textareaRef.value.style.height = `${textareaRef.value.scrollHeight}px`
+    // 设置最小高度为 32px（约一行文本的高度）
+    const minHeight = 32
+    const scrollHeight = Math.max(textareaRef.value.scrollHeight, minHeight)
+    textareaRef.value.style.height = `${scrollHeight}px`
   }
 }
 
@@ -252,12 +255,12 @@ defineExpose({
 }
 
 .edit-textarea {
-  @apply w-full min-h-12 max-h-32 px-3 py-2 text-sm resize-none;
+  @apply w-full min-h-6 max-h-32 px-2 py-1 text-sm resize-none;
   @apply bg-input-bg border border-input-border rounded-lg;
   @apply focus:outline-none focus:border-input-focus focus:ring-2 focus:ring-primary focus:ring-opacity-20;
   @apply transition-all duration-200;
   font-family: 'LXGW WenKai Lite Medium', sans-serif;
-  line-height: 1.5;
+  line-height: 1.4;
 }
 
 .edit-textarea:focus {
@@ -352,7 +355,7 @@ defineExpose({
   }
 
   .edit-textarea {
-    @apply text-sm px-2 py-1.5;
+    @apply text-sm px-2 py-1 min-h-5;
   }
 }
 
