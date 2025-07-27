@@ -120,6 +120,7 @@ jobs:
           path: ./apps/frontend/dist
 
       - name: 🚀 Deploy to Qiniu using S3 API
+        timeout-minutes: 15  # 设置步骤超时时间为 15 分钟
         run: |
           echo "🚀 Deploying to Qiniu Cloud..."
           echo "📋 Files to upload: $(find apps/frontend/dist -type f | wc -l)"

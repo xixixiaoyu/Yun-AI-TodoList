@@ -68,7 +68,7 @@ class AWSV4Signer {
 
     const now = new Date()
     const amzDate = now.toISOString().replace(/[:-]|\.\d{3}/g, '')
-    const dateStamp = amzDate.substr(0, 8)
+    const dateStamp = amzDate.substring(0, 8)
 
     headers['Host'] = host
     headers['X-Amz-Date'] = amzDate
@@ -159,8 +159,24 @@ function getFileList(distDir) {
   return files
 }
 
-// 上传单个文件
-async function uploadFile(file, signer, bucket, endpoint) {
+// 上传单个文件（带重试机制）
+async function uploadFile(file, signer, bucket, endpoint, retries = 3) {
+  for (let attempt = 1; attempt <= retries; attempt++) {
+    try {
+      return await uploadFileOnce(file, signer, bucket, endpoint)
+    } catch (error) {
+      if (attempt === retries) {
+        throw error
+      }
+      log('yellow', `⚠️  上传失败，第 ${attempt} 次重试: ${file.key} - ${error.message}`)
+      // 等待一段时间后重试
+      await new Promise((resolve) => setTimeout(resolve, 1000 * attempt))
+    }
+  }
+}
+
+// 上传单个文件（单次尝试）
+async function uploadFileOnce(file, signer, bucket, endpoint) {
   return new Promise((resolve, reject) => {
     const content = fs.readFileSync(file.localPath)
     const url = `https://${endpoint}/${bucket}/${file.key}`
@@ -202,9 +218,16 @@ async function uploadFile(file, signer, bucket, endpoint) {
     })
 
     req.on('error', reject)
-    req.setTimeout(30000, () => {
+
+    // 根据文件大小动态设置超时时间
+    const baseTimeout = 60000 // 基础超时 60 秒
+    const sizeBasedTimeout = Math.max(baseTimeout, (file.size / 1024) * 100) // 每 KB 100ms，最少 60 秒
+    const maxTimeout = 300000 // 最大超时 5 分钟
+    const timeout = Math.min(sizeBasedTimeout, maxTimeout)
+
+    req.setTimeout(timeout, () => {
       req.destroy()
-      reject(new Error('Upload timeout'))
+      reject(new Error(`Upload timeout after ${timeout / 1000}s`))
     })
 
     req.write(content)
@@ -305,15 +328,25 @@ async function deployToQiniu() {
 
   log('blue', '\n📤 开始上传文件...')
 
+  // 格式化文件大小
+  function formatFileSize(bytes) {
+    if (bytes === 0) return '0 B'
+    const k = 1024
+    const sizes = ['B', 'KB', 'MB', 'GB']
+    const i = Math.floor(Math.log(bytes) / Math.log(k))
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i]
+  }
+
   for (let i = 0; i < files.length; i++) {
     const file = files[i]
+    const sizeInfo = formatFileSize(file.size)
     try {
-      process.stdout.write(`\r上传进度: ${i + 1}/${files.length} - ${file.key}`)
+      process.stdout.write(`\r上传进度: ${i + 1}/${files.length} - ${file.key} (${sizeInfo})`)
       await uploadFile(file, signer, config.bucket, config.endpoint)
       successCount++
     } catch (error) {
       console.log('') // 换行
-      log('red', `❌ 上传失败: ${file.key} - ${error.message}`)
+      log('red', `❌ 上传失败: ${file.key} (${sizeInfo}) - ${error.message}`)
       failCount++
     }
   }
