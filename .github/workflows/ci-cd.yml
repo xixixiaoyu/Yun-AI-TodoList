@@ -70,30 +70,67 @@ jobs:
           name: codecov-umbrella
           fail_ci_if_error: false
 
-  # 第二阶段：并行部署
+  # 第二阶段：部署（暂时内联，避免可重用工作流的语法问题）
   deploy-github-pages:
     name: 🚀 Deploy to GitHub Pages
+    runs-on: ubuntu-latest
     needs: test-and-build
     if: success() && github.ref == 'refs/heads/main'
-    uses: ./.github/workflows/deploy-github-pages.yml
-    with:
-      artifact-name: build-files-${{ github.sha }}
-      environment: github-pages
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+
+    steps:
+      - name: 📥 Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: build-files-${{ github.sha }}
+          path: ./dist
+
+      - name: 📄 Setup Pages
+        uses: actions/configure-pages@v4
+
+      - name: 📤 Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: './dist'
+
+      - name: 🚀 Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
 
   deploy-qiniu:
     name: 🚀 Deploy to Qiniu Cloud
+    runs-on: ubuntu-latest
     needs: test-and-build
     if: success() && github.ref == 'refs/heads/main'
-    uses: ./.github/workflows/deploy-qiniu-reusable.yml
-    with:
-      artifact-name: build-files-${{ github.sha }}
-    secrets:
-      QINIU_ACCESS_KEY: ${{ secrets.QINIU_ACCESS_KEY }}
-      QINIU_SECRET_KEY: ${{ secrets.QINIU_SECRET_KEY }}
-      QINIU_BUCKET: ${{ secrets.QINIU_BUCKET }}
-      QINIU_REGION: ${{ secrets.QINIU_REGION }}
-      QINIU_ENDPOINT: ${{ secrets.QINIU_ENDPOINT }}
-      QINIU_DOMAIN: ${{ secrets.QINIU_DOMAIN }}
+
+    steps:
+      - name: 📥 Checkout code (for deploy script)
+        uses: actions/checkout@v4
+
+      - name: 📥 Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: build-files-${{ github.sha }}
+          path: ./apps/frontend/dist
+
+      - name: 🚀 Deploy to Qiniu using S3 API
+        run: |
+          echo "🚀 Deploying to Qiniu Cloud..."
+          echo "📋 Files to upload: $(find apps/frontend/dist -type f | wc -l)"
+          node scripts/deploy-qiniu-s3.cjs
+        env:
+          QINIU_ACCESS_KEY: ${{ secrets.QINIU_ACCESS_KEY }}
+          QINIU_SECRET_KEY: ${{ secrets.QINIU_SECRET_KEY }}
+          QINIU_BUCKET: ${{ secrets.QINIU_BUCKET }}
+          QINIU_REGION: ${{ secrets.QINIU_REGION }}
+          QINIU_ENDPOINT: ${{ secrets.QINIU_ENDPOINT }}
+          QINIU_DOMAIN: ${{ secrets.QINIU_DOMAIN }}
 
   # 第三阶段：部署后验证和通知
   post-deploy:
@@ -112,7 +149,7 @@ jobs:
           echo "- **GitHub Pages**: ${{ needs.deploy-github-pages.result }}" >> $GITHUB_STEP_SUMMARY
           echo "- **Qiniu Cloud**: ${{ needs.deploy-qiniu.result }}" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          
+
           if [[ "${{ needs.test-and-build.result }}" == "success" ]]; then
             echo "✅ **Status**: Pipeline completed successfully!" >> $GITHUB_STEP_SUMMARY
             echo "🚀 **Deployments**: Both targets deployed in parallel" >> $GITHUB_STEP_SUMMARY

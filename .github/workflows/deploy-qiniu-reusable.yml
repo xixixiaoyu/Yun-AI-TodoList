@@ -42,21 +42,12 @@ jobs:
       - name: 🔐 Verify Qiniu environment variables
         run: |
           echo "🔍 验证七牛云环境变量..."
-          
-          required_vars=("QINIU_ACCESS_KEY" "QINIU_SECRET_KEY" "QINIU_BUCKET" "QINIU_REGION" "QINIU_ENDPOINT")
-          missing_vars=()
-          
-          for var in "${required_vars[@]}"; do
-            if [ -z "${!var}" ]; then
-              missing_vars+=("$var")
-            fi
-          done
-          
-          if [ ${#missing_vars[@]} -gt 0 ]; then
-            echo "❌ 缺少环境变量: ${missing_vars[*]}"
+
+          if [ -z "$QINIU_ACCESS_KEY" ] || [ -z "$QINIU_SECRET_KEY" ] || [ -z "$QINIU_BUCKET" ] || [ -z "$QINIU_REGION" ] || [ -z "$QINIU_ENDPOINT" ]; then
+            echo "❌ 缺少必要的环境变量"
             exit 1
           fi
-          
+
           echo "✅ 所有七牛云环境变量验证通过"
         env:
           QINIU_ACCESS_KEY: ${{ secrets.QINIU_ACCESS_KEY }}
@@ -79,21 +70,29 @@ jobs:
           QINIU_DOMAIN: ${{ secrets.QINIU_DOMAIN }}
 
       - name: 🔍 Verify deployment
-        if: secrets.QINIU_DOMAIN != ''
         run: |
           echo "🔍 验证部署结果..."
-          if curl -s --head "https://${{ secrets.QINIU_DOMAIN }}" | head -n 1 | grep -q "200 OK"; then
-            echo "✅ CDN 域名可正常访问"
+          if [ -n "$QINIU_DOMAIN" ]; then
+            if curl -s --head "https://$QINIU_DOMAIN" | head -n 1 | grep -q "200 OK"; then
+              echo "✅ CDN 域名可正常访问"
+            else
+              echo "⚠️ CDN 域名暂时无法访问，可能需要等待缓存刷新"
+            fi
           else
-            echo "⚠️ CDN 域名暂时无法访问，可能需要等待缓存刷新"
+            echo "ℹ️ 未配置自定义域名，跳过域名验证"
           fi
+        env:
+          QINIU_DOMAIN: ${{ secrets.QINIU_DOMAIN }}
 
       - name: 📊 Deployment summary
         run: |
           echo "## 🎉 Qiniu Deployment Summary" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "✅ **Deployment**: Completed successfully" >> $GITHUB_STEP_SUMMARY
-          echo "✅ **Bucket**: \`${{ secrets.QINIU_BUCKET }}\`" >> $GITHUB_STEP_SUMMARY
-          if [ -n "${{ secrets.QINIU_DOMAIN }}" ]; then
-            echo "🔗 **URL**: https://${{ secrets.QINIU_DOMAIN }}" >> $GITHUB_STEP_SUMMARY
+          echo "✅ **Bucket**: \`$QINIU_BUCKET\`" >> $GITHUB_STEP_SUMMARY
+          if [ -n "$QINIU_DOMAIN" ]; then
+            echo "🔗 **URL**: https://$QINIU_DOMAIN" >> $GITHUB_STEP_SUMMARY
           fi
+        env:
+          QINIU_BUCKET: ${{ secrets.QINIU_BUCKET }}
+          QINIU_DOMAIN: ${{ secrets.QINIU_DOMAIN }}
