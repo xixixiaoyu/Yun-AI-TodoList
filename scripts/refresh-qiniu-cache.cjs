@@ -62,8 +62,11 @@ function generateAccessToken(url, body) {
 async function refreshCDNCache() {
   const url = 'http://fusion.qiniuapi.com/v2/tune/refresh'
   const body = JSON.stringify({
-    urls: [`https://${process.env.QINIU_DOMAIN}/index.html`],
-    dirs: [`https://${process.env.QINIU_DOMAIN}/`],
+    urls: [
+      `https://${process.env.QINIU_DOMAIN}/index.html`,
+      `https://${process.env.QINIU_DOMAIN}/favicon.ico`,
+    ],
+    dirs: [`https://${process.env.QINIU_DOMAIN}/`, `https://${process.env.QINIU_DOMAIN}/assets/`],
   })
 
   const token = generateAccessToken(url, body)

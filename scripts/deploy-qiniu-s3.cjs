@@ -8,6 +8,7 @@ const fs = require('fs')
 const path = require('path')
 const crypto = require('crypto')
 const https = require('https')
+const { refreshCDNCache } = require('./refresh-qiniu-cache.cjs')
 
 // 加载环境变量文件
 function loadEnvFile() {
@@ -170,7 +171,7 @@ function getFileList(distDir) {
 }
 
 // 上传单个文件（带重试机制）
-async function uploadFile(file, signer, bucket, endpoint, retries = 3) {
+async function uploadFile(file, signer, bucket, endpoint, retries = 5) {
   for (let attempt = 1; attempt <= retries; attempt++) {
     try {
       return await uploadFileOnce(file, signer, bucket, endpoint)
@@ -179,8 +180,12 @@ async function uploadFile(file, signer, bucket, endpoint, retries = 3) {
         throw error
       }
       log('yellow', `⚠️  上传失败，第 ${attempt} 次重试: ${file.key} - ${error.message}`)
+      // 增加重试间隔时间，特别是对于大文件
+      const baseDelay = 1000 * attempt
+      const sizeBasedDelay = Math.min(10000, (file.size / 1024 / 1024) * 500) // 每 MB 增加 500ms，最多 10 秒
+      const delay = Math.max(baseDelay, sizeBasedDelay)
       // 等待一段时间后重试
-      await new Promise((resolve) => setTimeout(resolve, 1000 * attempt))
+      await new Promise((resolve) => setTimeout(resolve, delay))
     }
   }
 }
@@ -196,11 +201,17 @@ async function uploadFileOnce(file, signer, bucket, endpoint) {
       'Content-Length': content.length.toString(),
     }
 
-    // 为 HTML 文件设置缓存控制
+    // 为不同类型的文件设置不同的缓存控制
     if (file.key.endsWith('.html')) {
       headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
-    } else if (file.key.match(/\.(js|css|png|jpg|jpeg|gif|svg|ico|woff|woff2|ttf|eot)$/)) {
+    } else if (file.key.match(/\.(css|js)$/)) {
       headers['Cache-Control'] = 'public, max-age=31536000' // 1年
+    } else if (file.key.match(/\.(png|jpg|jpeg|gif|svg|webp)$/)) {
+      headers['Cache-Control'] = 'public, max-age=2592000' // 1个月
+    } else if (file.key.match(/\.(woff|woff2|ttf|eot)$/)) {
+      headers['Cache-Control'] = 'public, max-age=31536000' // 1年
+    } else {
+      headers['Cache-Control'] = 'public, max-age=86400' // 1天
     }
 
     const authorization = signer.sign('PUT', url, headers, content)
@@ -235,9 +246,12 @@ async function uploadFileOnce(file, signer, bucket, endpoint) {
     const maxTimeout = 300000 // 最大超时 5 分钟
     const timeout = Math.min(sizeBasedTimeout, maxTimeout)
 
-    req.setTimeout(timeout, () => {
+    // 增加超时时间，特别是对于大文件
+    const extendedTimeout = Math.min(maxTimeout * 2, timeout * 1.5) // 增加 50% 的超时时间，但不超过最大值的 2 倍
+
+    req.setTimeout(extendedTimeout, () => {
       req.destroy()
-      reject(new Error(`Upload timeout after ${timeout / 1000}s`))
+      reject(new Error(`Upload timeout after ${extendedTimeout / 1000}s`))
     })
 
     req.write(content)
@@ -347,18 +361,36 @@ async function deployToQiniu() {
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i]
   }
 
-  for (let i = 0; i < files.length; i++) {
-    const file = files[i]
-    const sizeInfo = formatFileSize(file.size)
-    try {
-      process.stdout.write(`\r上传进度: ${i + 1}/${files.length} - ${file.key} (${sizeInfo})`)
-      await uploadFile(file, signer, config.bucket, config.endpoint)
-      successCount++
-    } catch (error) {
-      console.log('') // 换行
-      log('red', `❌ 上传失败: ${file.key} (${sizeInfo}) - ${error.message}`)
-      failCount++
-    }
+  // 并行上传文件，控制并发数
+  const concurrency = 5 // 最大并发数
+  const results = []
+
+  // 显示上传进度
+  function showProgress(completed, total) {
+    const percentage = Math.round((completed / total) * 100)
+    process.stdout.write(`\r上传进度: ${completed}/${total} (${percentage}%)`)
+  }
+
+  // 分批处理文件上传
+  for (let i = 0; i < files.length; i += concurrency) {
+    const batch = files.slice(i, i + concurrency)
+    const batchPromises = batch.map((file) => {
+      return uploadFile(file, signer, config.bucket, config.endpoint)
+        .then((result) => {
+          successCount++
+          showProgress(successCount + failCount, files.length)
+          return result
+        })
+        .catch((error) => {
+          failCount++
+          showProgress(successCount + failCount, files.length)
+          log('red', `❌ 上传失败: ${file.key} (${formatFileSize(file.size)}) - ${error.message}`)
+          return null
+        })
+    })
+
+    const batchResults = await Promise.all(batchPromises)
+    results.push(...batchResults)
   }
 
   console.log('') // 换行
@@ -380,69 +412,24 @@ async function deployToQiniu() {
   }
 }
 
-// 刷新 CDN 缓存
-async function refreshCDNCache(signer, config) {
-  log('blue', '\n🔄 正在刷新 CDN 缓存...')
-
-  const refreshId = generateRandomString(16)
-  const url = `https://${config.endpoint}/2016-09-01/refresh/urls`
-
-  const payload = JSON.stringify({
-    urls: [`https://${config.cdnDomain}/`],
-    refreshId: refreshId,
-  })
-
-  const headers = {
-    'Content-Type': 'application/json',
-    'Content-Length': Buffer.byteLength(payload).toString(),
-  }
-
-  const authorization = signer.sign('POST', url, headers, payload)
-  headers['Authorization'] = authorization
-
-  return new Promise((resolve, reject) => {
-    const urlObj = new URL(url)
-    const options = {
-      hostname: urlObj.hostname,
-      port: 443,
-      path: urlObj.pathname,
-      method: 'POST',
-      headers: headers,
-    }
-
-    const req = https.request(options, (res) => {
-      let data = ''
-      res.on('data', (chunk) => (data += chunk))
-      res.on('end', () => {
-        if (res.statusCode === 200 || res.statusCode === 204) {
-          log('green', '✅ CDN 缓存刷新请求已提交')
-          resolve()
-        } else {
-          log('red', `❌ CDN 缓存刷新失败: ${res.statusCode} ${data}`)
-          reject(new Error(`CDN refresh failed: ${res.statusCode} ${data}`))
-        }
-      })
-    })
-
-    req.on('error', (error) => {
-      log('red', `❌ CDN 缓存刷新请求错误: ${error.message}`)
-      reject(error)
-    })
-
-    req.setTimeout(30000, () => {
-      req.destroy()
-      reject(new Error('CDN refresh timeout after 30s'))
-    })
-
-    req.write(payload)
-    req.end()
-  })
-}
-
 // 执行部署
 if (require.main === module) {
-  deployToQiniu().catch((error) => {
-    log('red', `❌ 部署过程中发生错误: ${error.message}`)
-    process.exit(1)
-  })
+  deployToQiniu()
+    .then(() => {
+      // 部署成功后刷新 CDN 缓存
+      const config = {
+        accessKey: process.env.QINIU_ACCESS_KEY,
+        secretKey: process.env.QINIU_SECRET_KEY,
+        bucket: process.env.QINIU_BUCKET,
+        region: process.env.QINIU_REGION || 'cn-east-1',
+        endpoint: process.env.QINIU_ENDPOINT || 's3-cn-east-1.qiniucs.com',
+        cdnDomain: process.env.QINIU_DOMAIN || 'your-cdn-domain.com',
+      }
+      const signer = new AWSV4Signer(config.accessKey, config.secretKey, config.region, 's3')
+      return refreshCDNCache(signer, config)
+    })
+    .catch((error) => {
+      log('red', `❌ 部署过程中发生错误: ${error.message}`)
+      process.exit(1)
+    })
 }

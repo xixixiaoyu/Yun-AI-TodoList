@@ -63,7 +63,7 @@ jobs:
           QINIU_DOMAIN: ${{ secrets.QINIU_DOMAIN }}
 
       - name: 🚀 Deploy to Qiniu using S3 API
-        timeout-minutes: 15  # 设置步骤超时时间为 15 分钟
+        timeout-minutes: 30  # 增加步骤超时时间为 30 分钟，以适应大文件上传
         run: |
           echo "🚀 Deploying to Qiniu Cloud..."
           echo "📋 Files to upload: $(find apps/frontend/dist -type f | wc -l)"
@@ -74,6 +74,16 @@ jobs:
           QINIU_BUCKET: ${{ secrets.QINIU_BUCKET }}
           QINIU_REGION: ${{ secrets.QINIU_REGION }}
           QINIU_ENDPOINT: ${{ secrets.QINIU_ENDPOINT }}
+          QINIU_DOMAIN: ${{ secrets.QINIU_DOMAIN }}
+
+      - name: 🧹 Clean up redundant files on Qiniu
+        run: |
+          echo "🧹 Cleaning up redundant files on Qiniu Cloud..."
+          node scripts/clean-qiniu-redundant-files.cjs
+        env:
+          QINIU_ACCESS_KEY: ${{ secrets.QINIU_ACCESS_KEY }}
+          QINIU_SECRET_KEY: ${{ secrets.QINIU_SECRET_KEY }}
+          QINIU_BUCKET: ${{ secrets.QINIU_BUCKET }}
           QINIU_DOMAIN: ${{ secrets.QINIU_DOMAIN }}
 
       - name: 🧹 Refresh Qiniu CDN cache
