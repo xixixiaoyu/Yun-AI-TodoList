@@ -1,4 +1,4 @@
-name: Deploy
+name: Deploy to GitHub Pages
 
 on:
   push:
@@ -22,87 +22,39 @@ jobs:
     name: Build and Deploy
 
     steps:
-      - name: Checkout repository
+      - name: 📥 Checkout repository
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: ${{ env.PNPM_VERSION }}
-          run_install: false
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - name: 🔧 Setup environment
+        uses: ./.github/actions/setup-environment
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: 'pnpm'
+          pnpm-version: ${{ env.PNPM_VERSION }}
 
-      - name: Get pnpm store directory
-        shell: bash
-        run: |
-          echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
+      - name: 🏗️ Build project
+        uses: ./.github/actions/build-project
 
-      - name: Setup pnpm cache
-        uses: actions/cache@v4
-        with:
-          path: ${{ env.STORE_PATH }}
-          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
-          restore-keys: |
-            ${{ runner.os }}-pnpm-store-
-
-      - name: Install dependencies
-        run: |
-          pnpm install --frozen-lockfile || {
-            echo "⚠️ Frozen lockfile failed, trying regular install..."
-            pnpm install --no-frozen-lockfile
-          }
-
-      - name: Type check
-        run: pnpm type-check
-
-      - name: Lint check
-        run: pnpm lint:check
-
-      - name: Build project
-        run: |
-          echo "🏗️ Building shared packages..."
-          pnpm --filter shared build
-          echo "🏗️ Building frontend..."
-          pnpm --filter frontend build
-          echo "✅ Build completed successfully"
-
-      - name: Verify build output
-        run: |
-          if [ ! -d "./apps/frontend/dist" ]; then
-            echo "❌ Frontend build output not found"
-            exit 1
-          fi
-          echo "✅ Build verification passed"
-          ls -la ./apps/frontend/dist/
-
-      - name: Setup Pages (if deploying to GitHub Pages)
+      - name: 📄 Setup Pages
         if: github.ref == 'refs/heads/main'
         uses: actions/configure-pages@v4
 
-      - name: Upload Pages artifact
+      - name: 📤 Upload Pages artifact
         if: github.ref == 'refs/heads/main'
         uses: actions/upload-pages-artifact@v3
         with:
           path: './apps/frontend/dist'
 
-      - name: Deploy to GitHub Pages
+      - name: 🚀 Deploy to GitHub Pages
         if: github.ref == 'refs/heads/main'
         id: pages-deployment
         uses: actions/deploy-pages@v4
 
-
-
-      - name: Deployment summary
+      - name: 📊 Deployment summary
         if: github.ref == 'refs/heads/main'
         run: |
-          echo "## 🎉 Deployment Summary" >> $GITHUB_STEP_SUMMARY
+          echo "## 🎉 GitHub Pages Deployment Summary" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "✅ **Frontend Build**: Completed successfully" >> $GITHUB_STEP_SUMMARY
           echo "✅ **GitHub Pages**: Deployed" >> $GITHUB_STEP_SUMMARY

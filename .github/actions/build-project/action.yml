@@ -1,0 +1,48 @@
+name: 'Build Project'
+description: 'Run type check, lint check and build the project'
+
+inputs:
+  skip-type-check:
+    description: 'Skip type checking'
+    required: false
+    default: 'false'
+  skip-lint-check:
+    description: 'Skip lint checking'
+    required: false
+    default: 'false'
+
+outputs:
+  build-path:
+    description: 'Path to the build output'
+    value: './apps/frontend/dist'
+
+runs:
+  using: 'composite'
+  steps:
+    - name: 🔍 Type check
+      if: inputs.skip-type-check != 'true'
+      shell: bash
+      run: pnpm type-check
+
+    - name: 🧹 Lint check
+      if: inputs.skip-lint-check != 'true'
+      shell: bash
+      run: pnpm lint:check
+
+    - name: 🏗️ Build project
+      shell: bash
+      run: |
+        echo "🏗️ Building shared packages..."
+        pnpm --filter shared build
+        echo "🏗️ Building frontend..."
+        pnpm --filter frontend build
+        echo "✅ Build completed successfully"
+
+    - name: 🔍 Verify build output
+      shell: bash
+      run: |
+        if [ ! -d "./apps/frontend/dist" ]; then
+          echo "❌ Frontend build output not found"
+          exit 1
+        fi
+        echo "✅ Build verification passed"

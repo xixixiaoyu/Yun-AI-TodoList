@@ -1,4 +1,4 @@
-name: 🧪 Tests
+name: 🧪 Tests & Security
 
 on:
   push:
@@ -6,7 +6,7 @@ on:
   pull_request:
     branches: [ main, develop ]
   schedule:
-    # 每天凌晨 2 点运行回归测试
+    # 每天凌晨 2 点运行回归测试和安全审计
     - cron: '0 2 * * *'
 
 env:
@@ -27,44 +27,23 @@ jobs:
       - name: 📥 Checkout code
         uses: actions/checkout@v4
 
-      - name: 🔧 Setup pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: 9.0.0
-
-      - name: 🔧 Setup Node.js
-        uses: actions/setup-node@v4
+      - name: 🔧 Setup environment
+        uses: ./.github/actions/setup-environment
         with:
           node-version: ${{ matrix.node-version }}
-          cache: 'pnpm'
-
-      - name: 📥 Install dependencies
-        run: |
-          # 设置更长的超时时间和重试次数
-          pnpm config set network-timeout 600000
-          pnpm config set fetch-retries 5
-          pnpm config set fetch-retry-maxtimeout 120000
-
-          echo "🔄 Installing dependencies with frozen lockfile..."
-          pnpm install --frozen-lockfile || {
-            echo "⚠️ Frozen lockfile failed, trying regular install..."
-            pnpm install || {
-              echo "⚠️ Regular install failed, trying with force..."
-              pnpm install --force
-            }
-          }
+          pnpm-version: ${{ env.PNPM_VERSION }}
 
       - name: 🔍 Type check
-        run: pnpm run type-check
+        run: pnpm type-check
 
       - name: 🧹 Lint check
-        run: pnpm run lint:check
+        run: pnpm lint:check
 
       - name: 💅 Format check
-        run: pnpm run format:check
+        run: pnpm format:check
 
       - name: 🧪 Run unit tests
-        run: pnpm run test:coverage
+        run: pnpm test:coverage
         continue-on-error: true
 
       - name: 📊 Upload coverage to Codecov
@@ -91,55 +70,14 @@ jobs:
       - name: 📥 Checkout code
         uses: actions/checkout@v4
 
-      - name: 📦 Setup pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: ${{ env.PNPM_VERSION }}
-
-      - name: 🟢 Setup Node.js
-        uses: actions/setup-node@v4
+      - name: 🔧 Setup environment
+        uses: ./.github/actions/setup-environment
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: 'pnpm'
+          pnpm-version: ${{ env.PNPM_VERSION }}
 
-      - name: 📥 Install dependencies
-        run: |
-          # 设置更长的超时时间和重试次数
-          pnpm config set network-timeout 600000
-          pnpm config set fetch-retries 5
-          pnpm config set fetch-retry-maxtimeout 120000
-
-          echo "🔄 Installing dependencies with frozen lockfile..."
-          pnpm install --frozen-lockfile || {
-            echo "⚠️ Frozen lockfile failed, trying regular install..."
-            pnpm install || {
-              echo "⚠️ Regular install failed, trying with force..."
-              pnpm install --force
-            }
-          }
-
-      - name: 🏗️ Build application
-        run: pnpm run build
-
-      - name: 🔍 Verify build output
-        run: |
-          if [ ! -d "apps/frontend/dist" ]; then
-            echo "❌ Build failed: frontend dist directory not found"
-            echo "Available dist directories:"
-            find . -name "dist" -type d 2>/dev/null || echo "No dist directories found"
-            exit 1
-          fi
-          echo "✅ Build successful: apps/frontend/dist directory exists"
-          ls -la apps/frontend/dist/
-
-          # Create symlink for compatibility
-          if [ -L "dist" ]; then
-            rm dist
-          elif [ -d "dist" ] && [ ! -L "dist" ]; then
-            rm -rf dist
-          fi
-          ln -sf apps/frontend/dist dist
-          echo "✅ Created symlink: dist -> apps/frontend/dist"
+      - name: 🏗️ Build project
+        uses: ./.github/actions/build-project
 
       - name: 📦 Upload build artifacts
         uses: actions/upload-artifact@v4
@@ -160,51 +98,20 @@ jobs:
       - name: 📥 Checkout code
         uses: actions/checkout@v4
 
-      - name: 📦 Setup pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: ${{ env.PNPM_VERSION }}
-
-      - name: 🟢 Setup Node.js
-        uses: actions/setup-node@v4
+      - name: 🔧 Setup environment
+        uses: ./.github/actions/setup-environment
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: 'pnpm'
-
-      - name: 📥 Install dependencies
-        run: |
-          # 设置更长的超时时间和重试次数
-          pnpm config set network-timeout 600000
-          pnpm config set fetch-retries 5
-          pnpm config set fetch-retry-maxtimeout 120000
-
-          echo "🔄 Installing dependencies with frozen lockfile..."
-          pnpm install --frozen-lockfile || {
-            echo "⚠️ Frozen lockfile failed, trying regular install..."
-            pnpm install || {
-              echo "⚠️ Regular install failed, trying with force..."
-              pnpm install --force
-            }
-          }
+          pnpm-version: ${{ env.PNPM_VERSION }}
 
       - name: 📥 Download build artifacts
         uses: actions/download-artifact@v4
         with:
           name: build-files
           path: dist/
-        continue-on-error: false
-
-      - name: 🔍 Verify downloaded artifacts
-        run: |
-          if [ ! -d "dist" ] || [ -z "$(ls -A dist)" ]; then
-            echo "❌ Build artifacts not found or empty"
-            exit 1
-          fi
-          echo "✅ Build artifacts verified"
-          ls -la dist/
 
       - name: ⚡ Run performance benchmarks
-        run: pnpm run perf:benchmark
+        run: pnpm perf:benchmark
         continue-on-error: true
 
       - name: 📊 Upload performance results
@@ -213,96 +120,23 @@ jobs:
           name: performance-results
           path: performance-results.json
 
-  # 安全扫描
+  # 安全扫描（合并了原 audit-fix.yml 的功能）
   security:
-    name: 🔒 Security Scan
+    name: 🔒 Security Scan & Audit
     runs-on: ubuntu-latest
 
     steps:
       - name: 📥 Checkout code
         uses: actions/checkout@v4
 
-      - name: 📦 Setup pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: 9.0.0
-
-      - name: 🟢 Setup Node.js
-        uses: actions/setup-node@v4
+      - name: 🔧 Setup environment
+        uses: ./.github/actions/setup-environment
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: 'pnpm'
-
-      - name: 📥 Install dependencies
-        run: |
-          # 设置更长的超时时间和重试次数
-          pnpm config set network-timeout 600000
-          pnpm config set fetch-retries 5
-          pnpm config set fetch-retry-maxtimeout 120000
-
-          echo "🔄 Installing dependencies with frozen lockfile..."
-          pnpm install --frozen-lockfile || {
-            echo "⚠️ Frozen lockfile failed, trying regular install..."
-            pnpm install || {
-              echo "⚠️ Regular install failed, trying with force..."
-              pnpm install --force
-            }
-          }
+          pnpm-version: ${{ env.PNPM_VERSION }}
 
       - name: 🔍 Run security audit
-        run: |
-          # 临时切换到官方 registry 进行 audit
-          pnpm config set registry https://registry.npmjs.org
-
-          echo "🔍 Running security audit with known CVE exceptions..."
-          echo "📋 Ignoring xlsx CVEs: CVE-2024-22363, GHSA-4r6h-8v6p-xvw6, GHSA-5pgg-2g8v-p4x9"
-          echo "💡 Reason: Low risk in our controlled environment - only parsing user-uploaded files with size limits"
-
-          # 运行 audit 并获取结果
-          audit_exit_code=0
-          pnpm audit --audit-level moderate --json > audit-results.json || audit_exit_code=$?
-
-          # 检查 audit 结果
-          if [ -f "audit-results.json" ] && [ -s "audit-results.json" ]; then
-            echo "📋 Audit results found, analyzing..."
-
-            # 检查是否有漏洞数据
-            vulnerabilities_count=$(cat audit-results.json | jq -r '.metadata.vulnerabilities.total // 0' 2>/dev/null || echo "0")
-
-            if [ "$vulnerabilities_count" -gt 0 ]; then
-              echo "⚠️ Found $vulnerabilities_count vulnerabilities, filtering known exceptions..."
-
-              # 提取漏洞信息并过滤掉已知的 xlsx 漏洞
-              cat audit-results.json | jq -r '
-                .vulnerabilities // {} |
-                to_entries[] |
-                select(.value.via[0].source // .value.via[0] |
-                  test("CVE-2024-22363|GHSA-4r6h-8v6p-xvw6|GHSA-5pgg-2g8v-p4x9") | not
-                ) |
-                .value
-              ' > filtered-vulnerabilities.json 2>/dev/null || echo "[]" > filtered-vulnerabilities.json
-
-              # 检查过滤后是否还有漏洞
-              if [ -s "filtered-vulnerabilities.json" ] && [ "$(cat filtered-vulnerabilities.json | jq -r '. | length' 2>/dev/null || echo "0")" -gt 0 ]; then
-                echo "❌ Found security vulnerabilities after filtering:"
-                cat filtered-vulnerabilities.json | jq -r '.' 2>/dev/null || cat filtered-vulnerabilities.json
-                exit 1
-              else
-                echo "✅ All vulnerabilities are in the known exceptions list"
-              fi
-            else
-              echo "✅ No security vulnerabilities found"
-            fi
-          else
-            if [ $audit_exit_code -eq 0 ]; then
-              echo "✅ No security vulnerabilities found"
-            else
-              echo "⚠️ Audit command failed but no results file generated, treating as no vulnerabilities"
-            fi
-          fi
-
-          # 恢复原始 registry 配置
-          pnpm config set registry https://registry.npmmirror.com
+        uses: ./.github/actions/security-audit
 
       - name: 🔒 Run CodeQL Analysis
         uses: github/codeql-action/init@v2
@@ -321,32 +155,11 @@ jobs:
       - name: 📥 Checkout code
         uses: actions/checkout@v4
 
-      - name: 📦 Setup pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: 9.0.0
-
-      - name: 🟢 Setup Node.js
-        uses: actions/setup-node@v4
+      - name: 🔧 Setup environment
+        uses: ./.github/actions/setup-environment
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: 'pnpm'
-
-      - name: 📥 Install dependencies
-        run: |
-          # 设置更长的超时时间和重试次数
-          pnpm config set network-timeout 600000
-          pnpm config set fetch-retries 5
-          pnpm config set fetch-retry-maxtimeout 120000
-
-          echo "🔄 Installing dependencies with frozen lockfile..."
-          pnpm install --frozen-lockfile || {
-            echo "⚠️ Frozen lockfile failed, trying regular install..."
-            pnpm install || {
-              echo "⚠️ Regular install failed, trying with force..."
-              pnpm install --force
-            }
-          }
+          pnpm-version: ${{ env.PNPM_VERSION }}
 
       - name: 🔍 Check for outdated dependencies
         run: pnpm outdated || true
@@ -363,7 +176,7 @@ jobs:
           name: dependency-report
           path: dependency-report.json
 
-  # 测试报告汇总
+  # 简化的测试报告汇总
   test-summary:
     name: 📋 Test Summary
     runs-on: ubuntu-latest
@@ -371,38 +184,10 @@ jobs:
     if: always()
 
     steps:
-      - name: 📥 Download all artifacts
-        uses: actions/download-artifact@v4
-        continue-on-error: true
-
-      - name: 📋 List available artifacts
-        run: |
-          echo "Available artifacts:"
-          ls -la . || echo "No artifacts found"
-
       - name: 📊 Generate test summary
         run: |
           echo "# 🧪 Test Results Summary" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-
-          if [ -d "coverage-reports-18" ]; then
-            echo "## 📈 Coverage Report (Node 18)" >> $GITHUB_STEP_SUMMARY
-            echo "Coverage reports generated successfully" >> $GITHUB_STEP_SUMMARY
-            echo "" >> $GITHUB_STEP_SUMMARY
-          fi
-
-          if [ -f "build-files/index.html" ]; then
-            echo "## ✅ Build Status" >> $GITHUB_STEP_SUMMARY
-            echo "Application built successfully" >> $GITHUB_STEP_SUMMARY
-            echo "" >> $GITHUB_STEP_SUMMARY
-          fi
-
-          if [ -f "performance-results.json" ]; then
-            echo "## ⚡ Performance Results" >> $GITHUB_STEP_SUMMARY
-            echo "Performance benchmarks completed" >> $GITHUB_STEP_SUMMARY
-            echo "" >> $GITHUB_STEP_SUMMARY
-          fi
-
           echo "## 🎯 Test Matrix Results" >> $GITHUB_STEP_SUMMARY
           echo "- Unit Tests: ${{ needs.test.result }}" >> $GITHUB_STEP_SUMMARY
           echo "- Build Test: ${{ needs.build.result }}" >> $GITHUB_STEP_SUMMARY
@@ -410,23 +195,9 @@ jobs:
           echo "- Security: ${{ needs.security.result }}" >> $GITHUB_STEP_SUMMARY
           echo "- Dependencies: ${{ needs.dependency-check.result }}" >> $GITHUB_STEP_SUMMARY
 
-  # 通知
-  notify:
-    name: 📢 Notify Results
-    runs-on: ubuntu-latest
-    needs: [test-summary]
-    if: always() && github.event_name == 'push' && github.ref == 'refs/heads/main'
-
-    steps:
-      - name: 📢 Notify on success
-        if: needs.test-summary.result == 'success'
-        run: |
-          echo "✅ All tests passed successfully!"
-          echo "Ready for deployment 🚀"
-
-      - name: 📢 Notify on failure
-        if: needs.test-summary.result == 'failure'
-        run: |
-          echo "❌ Some tests failed!"
-          echo "Please check the test results and fix issues before merging."
-          exit 1
+          # 简单的成功/失败判断
+          if [[ "${{ needs.test.result }}" == "success" && "${{ needs.build.result }}" == "success" && "${{ needs.security.result }}" == "success" ]]; then
+            echo "✅ All critical tests passed - Ready for deployment 🚀" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ Some tests failed - Please check and fix issues" >> $GITHUB_STEP_SUMMARY
+          fi

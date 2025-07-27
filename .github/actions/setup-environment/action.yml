@@ -1,0 +1,55 @@
+name: 'Setup Development Environment'
+description: 'Setup pnpm, Node.js and install dependencies with caching'
+
+inputs:
+  node-version:
+    description: 'Node.js version to use'
+    required: false
+    default: '18'
+  pnpm-version:
+    description: 'pnpm version to use'
+    required: false
+    default: '9.0.0'
+
+runs:
+  using: 'composite'
+  steps:
+    - name: 📦 Setup pnpm
+      uses: pnpm/action-setup@v4
+      with:
+        version: ${{ inputs.pnpm-version }}
+
+    - name: 🟢 Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ inputs.node-version }}
+        cache: 'pnpm'
+
+    - name: 🗂️ Get pnpm store directory
+      shell: bash
+      run: echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
+
+    - name: 📦 Setup pnpm cache
+      uses: actions/cache@v4
+      with:
+        path: ${{ env.STORE_PATH }}
+        key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+        restore-keys: |
+          ${{ runner.os }}-pnpm-store-
+
+    - name: 📥 Install dependencies
+      shell: bash
+      run: |
+        # 优化 pnpm 配置
+        pnpm config set network-timeout 600000
+        pnpm config set fetch-retries 5
+        pnpm config set fetch-retry-maxtimeout 120000
+
+        echo "🔄 Installing dependencies..."
+        pnpm install --frozen-lockfile || {
+          echo "⚠️ Frozen lockfile failed, trying regular install..."
+          pnpm install --no-frozen-lockfile || {
+            echo "⚠️ Regular install failed, trying with force..."
+            pnpm install --force
+          }
+        }

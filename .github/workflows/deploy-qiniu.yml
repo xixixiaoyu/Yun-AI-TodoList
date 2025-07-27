@@ -23,85 +23,32 @@ jobs:
       - name: 📥 Checkout code
         uses: actions/checkout@v4
 
-      - name: 📦 Setup pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: ${{ env.PNPM_VERSION }}
-
-      - name: 🟢 Setup Node.js
-        uses: actions/setup-node@v4
+      - name: 🔧 Setup environment
+        uses: ./.github/actions/setup-environment
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: 'pnpm'
-
-      - name: 📥 Install dependencies
-        run: |
-          pnpm config set network-timeout 600000
-          pnpm config set fetch-retries 5
-          pnpm config set fetch-retry-maxtimeout 120000
-
-          echo "🔄 Installing dependencies..."
-          pnpm install --frozen-lockfile || {
-            echo "⚠️ Frozen lockfile failed, trying regular install..."
-            pnpm install --no-frozen-lockfile
-          }
-
-      - name: 🔍 Type check
-        run: pnpm type-check
-
-      - name: 🔍 Lint check
-        run: pnpm lint:check
+          pnpm-version: ${{ env.PNPM_VERSION }}
 
       - name: 🏗️ Build project
-        run: |
-          echo "🏗️ Building shared packages..."
-          pnpm --filter shared build
-          echo "🏗️ Building frontend..."
-          pnpm --filter frontend build
-          echo "✅ Build completed successfully"
-
-      - name: 🔍 Verify build output
-        run: |
-          if [ ! -d "./apps/frontend/dist" ]; then
-            echo "❌ Frontend build output not found"
-            exit 1
-          fi
-          echo "✅ Build verification passed"
-          ls -la ./apps/frontend/dist/
+        uses: ./.github/actions/build-project
 
       - name: 🔐 Verify Qiniu environment variables
         run: |
           echo "🔍 验证七牛云环境变量..."
 
-          # 检查必要的环境变量是否存在（不显示实际值）
-          check_var() {
-            if [ -z "${!1}" ]; then
-              echo "❌ 环境变量 $1 未设置"
-              return 1
-            else
-              echo "✅ 环境变量 $1 已设置"
-              return 0
+          # 简化的环境变量检查
+          required_vars=("QINIU_ACCESS_KEY" "QINIU_SECRET_KEY" "QINIU_BUCKET" "QINIU_REGION" "QINIU_ENDPOINT" "QINIU_DOMAIN")
+          missing_vars=()
+
+          for var in "${required_vars[@]}"; do
+            if [ -z "${!var}" ]; then
+              missing_vars+=("$var")
             fi
-          }
+          done
 
-          all_set=true
-          check_var "QINIU_ACCESS_KEY" || all_set=false
-          check_var "QINIU_SECRET_KEY" || all_set=false
-          check_var "QINIU_BUCKET" || all_set=false
-          check_var "QINIU_REGION" || all_set=false
-          check_var "QINIU_ENDPOINT" || all_set=false
-          check_var "QINIU_DOMAIN" || all_set=false
-
-          if [ "$all_set" = false ]; then
-            echo ""
-            echo "❌ 部分环境变量未设置，请检查 GitHub Secrets 配置"
-            echo "💡 需要在 GitHub 仓库的 Settings > Secrets and variables > Actions 中设置："
-            echo "   - QINIU_ACCESS_KEY"
-            echo "   - QINIU_SECRET_KEY"
-            echo "   - QINIU_BUCKET"
-            echo "   - QINIU_REGION"
-            echo "   - QINIU_ENDPOINT"
-            echo "   - QINIU_DOMAIN"
+          if [ ${#missing_vars[@]} -gt 0 ]; then
+            echo "❌ 缺少环境变量: ${missing_vars[*]}"
+            echo "💡 请在 GitHub Secrets 中设置这些变量"
             exit 1
           fi
 
@@ -116,16 +63,8 @@ jobs:
 
       - name: 🚀 Deploy to Qiniu using S3 API
         run: |
-          echo "🚀 Deploying to Qiniu Cloud using S3 compatible API..."
-          echo "📋 Upload info:"
-          echo "   Bucket: ${{ secrets.QINIU_BUCKET }}"
-          echo "   Region: ${{ secrets.QINIU_REGION }}"
-          echo "   Endpoint: ${{ secrets.QINIU_ENDPOINT }}"
-          echo "   Source: ./apps/frontend/dist"
-          echo "   Files: $(find apps/frontend/dist -type f | wc -l)"
-          echo ""
-
-          # 使用 S3 兼容 API 部署脚本（更稳定）
+          echo "🚀 Deploying to Qiniu Cloud..."
+          echo "📋 Files to upload: $(find apps/frontend/dist -type f | wc -l)"
           node scripts/deploy-qiniu-s3.cjs
         env:
           QINIU_ACCESS_KEY: ${{ secrets.QINIU_ACCESS_KEY }}
@@ -135,26 +74,16 @@ jobs:
           QINIU_ENDPOINT: ${{ secrets.QINIU_ENDPOINT }}
           QINIU_DOMAIN: ${{ secrets.QINIU_DOMAIN }}
 
-      - name: 🧹 Cleanup
-        if: always()
-        run: |
-          echo "🧹 Cleanup completed"
-
       - name: 🔍 Verify deployment
         run: |
           echo "🔍 验证部署结果..."
-
-          # 检查 CDN 域名是否可访问
           if [ -n "${{ secrets.QINIU_DOMAIN }}" ]; then
-            echo "📡 测试 CDN 域名连通性..."
             if curl -s --head "https://${{ secrets.QINIU_DOMAIN }}" | head -n 1 | grep -q "200 OK"; then
               echo "✅ CDN 域名可正常访问"
             else
               echo "⚠️ CDN 域名暂时无法访问，可能需要等待缓存刷新"
             fi
           fi
-
-          echo "✅ 部署验证完成"
 
       - name: 📊 Deployment summary
         run: |
@@ -167,9 +96,3 @@ jobs:
           if [ -n "${{ secrets.QINIU_DOMAIN }}" ]; then
             echo "- Custom Domain: https://${{ secrets.QINIU_DOMAIN }}" >> $GITHUB_STEP_SUMMARY
           fi
-          echo "- Qiniu CDN: Check your Qiniu console for the CDN domain" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "📈 **Next Steps:**" >> $GITHUB_STEP_SUMMARY
-          echo "1. Configure custom domain (if needed)" >> $GITHUB_STEP_SUMMARY
-          echo "2. Set up HTTPS certificate" >> $GITHUB_STEP_SUMMARY
-          echo "3. Configure CDN cache rules" >> $GITHUB_STEP_SUMMARY
