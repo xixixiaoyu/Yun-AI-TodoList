@@ -52,6 +52,16 @@ function log(level, message) {
   console.log(`${color}[${level.toUpperCase()}]${colors.reset} ${message}`)
 }
 
+// 生成随机字符串
+function generateRandomString(length) {
+  const chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
+  let result = ''
+  for (let i = 0; i < length; i++) {
+    result += chars.charAt(Math.floor(Math.random() * chars.length))
+  }
+  return result
+}
+
 // AWS Signature V4 签名算法
 class AWSV4Signer {
   constructor(accessKey, secretKey, region, service) {
@@ -364,14 +374,69 @@ async function deployToQiniu() {
     log('blue', '\n🎉 部署完成！')
     log('green', `🌐 访问地址: https://${config.cdnDomain}`)
     log('green', `📋 管理控制台: https://portal.qiniu.com`)
-
-    log('blue', '\n💡 提示:')
-    log('yellow', '   - 如果页面显示异常，请等待 CDN 缓存刷新')
-    log('yellow', '   - 可以在七牛控制台手动刷新 CDN 缓存')
   } else {
     log('red', '\n❌ 部署失败，没有文件上传成功')
     process.exit(1)
   }
+}
+
+// 刷新 CDN 缓存
+async function refreshCDNCache(signer, config) {
+  log('blue', '\n🔄 正在刷新 CDN 缓存...')
+
+  const refreshId = generateRandomString(16)
+  const url = `https://${config.endpoint}/2016-09-01/refresh/urls`
+
+  const payload = JSON.stringify({
+    urls: [`https://${config.cdnDomain}/`],
+    refreshId: refreshId,
+  })
+
+  const headers = {
+    'Content-Type': 'application/json',
+    'Content-Length': Buffer.byteLength(payload).toString(),
+  }
+
+  const authorization = signer.sign('POST', url, headers, payload)
+  headers['Authorization'] = authorization
+
+  return new Promise((resolve, reject) => {
+    const urlObj = new URL(url)
+    const options = {
+      hostname: urlObj.hostname,
+      port: 443,
+      path: urlObj.pathname,
+      method: 'POST',
+      headers: headers,
+    }
+
+    const req = https.request(options, (res) => {
+      let data = ''
+      res.on('data', (chunk) => (data += chunk))
+      res.on('end', () => {
+        if (res.statusCode === 200 || res.statusCode === 204) {
+          log('green', '✅ CDN 缓存刷新请求已提交')
+          resolve()
+        } else {
+          log('red', `❌ CDN 缓存刷新失败: ${res.statusCode} ${data}`)
+          reject(new Error(`CDN refresh failed: ${res.statusCode} ${data}`))
+        }
+      })
+    })
+
+    req.on('error', (error) => {
+      log('red', `❌ CDN 缓存刷新请求错误: ${error.message}`)
+      reject(error)
+    })
+
+    req.setTimeout(30000, () => {
+      req.destroy()
+      reject(new Error('CDN refresh timeout after 30s'))
+    })
+
+    req.write(payload)
+    req.end()
+  })
 }
 
 // 执行部署

@@ -266,6 +266,35 @@ export default defineConfig({
         'cross-spawn',
       ],
       output: {
+        assetFileNames: (assetInfo) => {
+          // 根据文件类型分组资源
+          const names = assetInfo.names || (assetInfo.name ? [assetInfo.name] : [])
+          if (names.length > 0) {
+            const name = names[0]
+            const info = name.split('.')
+            const ext = info[info.length - 1]
+            if (/png|jpe?g|svg|gif|tiff|bmp|ico/i.test(ext)) {
+              return `assets/images/[name]-[hash][extname]`
+            }
+            if (/woff2?|eot|ttf|otf/i.test(ext)) {
+              return `assets/fonts/[name]-[hash][extname]`
+            }
+            return `assets/[name]-[hash][extname]`
+          }
+          return `assets/[name]-[hash][extname]`
+        },
+        chunkFileNames: 'assets/[name]-[hash].js',
+        entryFileNames: 'assets/[name]-[hash].js',
+        format: 'es',
+        // 确保模块导出兼容性
+        exports: 'named',
+        // 避免变量名冲突
+        generatedCode: {
+          constBindings: true,
+          arrowFunctions: true,
+          objectShorthand: true,
+          reservedNamesAsProps: false,
+        },
         // 优化代码分割策略
         manualChunks: (id) => {
           // 第三方库分组
@@ -357,32 +386,6 @@ export default defineConfig({
           if (id.includes('/src/utils/')) {
             return 'utils'
           }
-        },
-        // 确保文件名和模块格式兼容性
-        entryFileNames: 'assets/[name]-[hash].js',
-        chunkFileNames: 'assets/[name]-[hash].js',
-        format: 'es',
-        // 确保模块导出兼容性
-        exports: 'named',
-        // 避免变量名冲突
-        generatedCode: {
-          constBindings: true,
-          arrowFunctions: true,
-          objectShorthand: true,
-          reservedNamesAsProps: false,
-        },
-        assetFileNames: (assetInfo) => {
-          // 根据文件类型分组资源
-          const name = assetInfo.name || 'asset'
-          const info = name.split('.')
-          const ext = info[info.length - 1]
-          if (/png|jpe?g|svg|gif|tiff|bmp|ico/i.test(ext)) {
-            return `assets/images/[name]-[hash][extname]`
-          }
-          if (/woff2?|eot|ttf|otf/i.test(ext)) {
-            return `assets/fonts/[name]-[hash][extname]`
-          }
-          return `assets/[name]-[hash][extname]`
         },
       },
     },
