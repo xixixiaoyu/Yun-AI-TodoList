@@ -175,6 +175,7 @@
                 @toggle="handleToggleTodo"
                 @remove="handleRemoveTodo"
                 @update-todo="handleUpdateTodo"
+                @update-text="handleUpdateTodoText"
               />
             </div>
           </div>
@@ -205,6 +206,7 @@ const emit = defineEmits<{
   close: []
   addTodo: [text: string]
   updateTodo: [id: string, updates: Partial<Todo>]
+  updateTodoText: [id: string, text: string]
   removeTodo: [id: string]
 }>()
 
@@ -347,6 +349,10 @@ const handleToggleTodo = (todoId: string) => {
 
 const handleUpdateTodo = (id: string, updates: Partial<Todo>) => {
   emit('updateTodo', id, updates)
+}
+
+const handleUpdateTodoText = (id: string, text: string) => {
+  emit('updateTodoText', id, text)
 }
 
 const handleRemoveTodo = (id: string) => {
@@ -738,6 +744,7 @@ defineOptions({
 
 .todos-list {
   @apply space-y-2 max-h-80 overflow-y-auto;
+  padding-top: 4px; /* 为第一个 todo 的 hover 效果预留空间 */
 }
 
 .todo-item-enhanced {

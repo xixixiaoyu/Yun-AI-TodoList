@@ -5,11 +5,17 @@
 
 /**
  * 检查 AI 功能是否可用
- * 简单检查是否有 API 密钥配置
+ * 检查本地存储的 API 密钥配置
  */
 export function checkAIAvailability(): boolean {
   try {
-    // 检查是否有 API 密钥配置
+    // 首先检查本地存储的 API 密钥
+    const localDeepseekKey = localStorage.getItem('deepseek_api_key')
+    if (localDeepseekKey && localDeepseekKey.trim() !== '') {
+      return true
+    }
+
+    // 然后检查环境变量中的 API 密钥（作为备选）
     const deepseekKey = import.meta.env.VITE_DEEPSEEK_API_KEY
     const openaiKey = import.meta.env.VITE_OPENAI_API_KEY
 
@@ -24,7 +30,7 @@ export function checkAIAvailability(): boolean {
  */
 export function getAIStatusMessage(): string {
   if (!checkAIAvailability()) {
-    return 'AI 功能需要配置 API 密钥'
+    return 'AI 功能需要配置 API 密钥，请前往设置页面配置'
   }
   return ''
 }

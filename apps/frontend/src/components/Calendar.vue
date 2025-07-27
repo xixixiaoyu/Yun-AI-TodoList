@@ -47,6 +47,7 @@
       @close="closeDayModal"
       @add-todo="handleAddTodoForDate"
       @update-todo="handleUpdateTodo"
+      @update-todo-text="handleUpdateTodoText"
       @remove-todo="handleRemoveTodo"
     />
 
@@ -89,7 +90,8 @@ const { isSmallScreen } = useUIState()
 
 // 待办事项管理
 const { todos, loadTodos } = useTodos()
-const { handleAddTodo, updateTodo, removeTodo, MAX_TODO_LENGTH } = useTodoManagement()
+const { handleAddTodo, updateTodo, updateTodoText, removeTodo, MAX_TODO_LENGTH } =
+  useTodoManagement()
 
 // 节假日管理
 const { isHolidayEnabled: _isHolidayEnabled } = useHolidays()
@@ -212,8 +214,8 @@ const handleQuickAddTodo = async (text: string) => {
   try {
     isLoading.value = true
 
-    // 使用 handleAddTodo 来确保正确的验证和处理
-    const result = await handleAddTodo(text.trim(), true) // 跳过拆分分析
+    // 使用 handleAddTodo 来确保正确的验证和处理，启用 AI 分析
+    const result = await handleAddTodo(text.trim(), false) // 不跳过拆分分析，启用 AI 评估
 
     if (result && !result.needsSplitting) {
       // 如果成功添加，更新其截止日期（使用本地日期避免时区问题）
@@ -237,8 +239,8 @@ const handleAddTodoForDate = async (text: string) => {
   if (!selectedDate.value || !text.trim()) return
 
   try {
-    // 使用 handleAddTodo 来确保正确的验证和处理
-    const result = await handleAddTodo(text.trim(), true) // 跳过拆分分析
+    // 使用 handleAddTodo 来确保正确的验证和处理，启用 AI 分析
+    const result = await handleAddTodo(text.trim(), false) // 不跳过拆分分析，启用 AI 评估
 
     if (result && !result.needsSplitting) {
       // 如果成功添加，更新其截止日期（使用本地日期避免时区问题）
@@ -259,6 +261,14 @@ const handleUpdateTodo = async (id: string, updates: Partial<Todo>) => {
     await updateTodo(id, updates)
   } catch (error) {
     console.error('Failed to update todo:', error)
+  }
+}
+
+const handleUpdateTodoText = async (id: string, text: string) => {
+  try {
+    await updateTodoText(id, text)
+  } catch (error) {
+    console.error('Failed to update todo text:', error)
   }
 }
 

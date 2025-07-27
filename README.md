@@ -110,5 +110,5 @@ yun-ai-todolist/
 ---
 
 <div align="center">
-  <p>如果这个项目对你有帮助，请给我们一个 ⭐️ Star！</p>
+  <p>如果这个项目对你有帮助，请给我一个 ⭐️ Star！</p>
 </div>
