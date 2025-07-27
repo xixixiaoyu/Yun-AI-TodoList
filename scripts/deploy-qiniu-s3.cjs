@@ -35,10 +35,12 @@ function loadEnvFile() {
     }
   }
 
-  log('yellow', '⚠️  未找到环境变量文件 (.env.local 或 .env)')
+  if (!process.env.CI) {
+    log('yellow', '⚠️  未找到环境变量文件 (.env.local 或 .env)')
+  }
 }
 
-// 颜色输出
+// 检查环境变量颜色输出
 const colors = {
   red: '\x1b[31m',
   green: '\x1b[32m',
