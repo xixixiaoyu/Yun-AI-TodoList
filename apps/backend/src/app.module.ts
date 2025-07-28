@@ -5,7 +5,6 @@ import { APP_GUARD } from '@nestjs/core'
 import { ScheduleModule } from '@nestjs/schedule'
 import { ThrottlerModule } from '@nestjs/throttler'
 
-// import { AIAnalysisModule } from './ai-analysis/ai-analysis.module'
 import { AuthModule } from './auth/auth.module'
 import { JwtAuthGuard } from './auth/guards/jwt-auth.guard'
 import { CommonModule } from './common/common.module'
