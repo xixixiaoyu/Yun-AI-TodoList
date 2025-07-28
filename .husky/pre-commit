@@ -1,5 +1,3 @@
-#!/usr/bin/env sh
-. "$(dirname -- "$0")/_/husky.sh"
 
 # 使用智能 pre-commit 脚本
 ./scripts/smart-pre-commit.sh
