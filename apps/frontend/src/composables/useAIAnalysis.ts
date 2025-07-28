@@ -43,11 +43,17 @@ export function useAIAnalysis() {
 
   // AI 配置
   const analysisConfig = ref<AIAnalysisConfig>({
-    autoAnalyzeNewTodos: false,
+    autoAnalyzeNewTodos: true, // 修复：默认值应为 true
     enablePriorityAnalysis: true,
     enableTimeEstimation: true,
     enableSubtaskSplitting: false,
   })
+
+  // 分析功能开关
+  const isAnalysisEnabled = ref(true)
+
+  // 批量分析总数
+  const analysisTotal = ref(0)
 
   /**
    * 更新 AI 可用性状态
@@ -206,18 +212,54 @@ export function useAIAnalysis() {
     }
   }
 
+  /**
+   * 获取优先级星级显示
+   * @param priority - 优先级 (1-5)
+   * @returns 对应的星级字符串
+   */
+  const getPriorityStars = (priority?: number): string => {
+    if (!priority || priority < 1 || priority > 5) return ''
+    return '⭐'.repeat(priority)
+  }
+
+  /**
+   * 获取优先级颜色类
+   * @param priority - 优先级 (1-5)
+   * @returns 对应的颜色类名
+   */
+  const getPriorityColorClass = (priority: number): string => {
+    switch (priority) {
+      case 1:
+        return 'text-gray-500'
+      case 2:
+        return 'text-blue-500'
+      case 3:
+        return 'text-green-500'
+      case 4:
+        return 'text-yellow-500'
+      case 5:
+        return 'text-red-500'
+      default:
+        return 'text-gray-500'
+    }
+  }
+
   return {
     isAnalyzing: readonly(isAnalyzing),
     isBatchAnalyzing: readonly(isBatchAnalyzing),
     analysisProgress: readonly(analysisProgress),
+    analysisTotal: readonly(analysisTotal), // 添加缺失的变量
     analysisError: readonly(analysisError),
     isAIAvailable: readonly(isAIAvailable),
     aiStatusMessage: readonly(aiStatusMessage),
     analysisConfig: readonly(analysisConfig),
+    isAnalysisEnabled: readonly(isAnalysisEnabled), // 添加缺失的变量
     updateAIAvailability,
     setAnalysisConfig,
     analyzeSingleTodo,
     batchAnalyzeTodosAction,
     reanalyzeTodoAction,
+    getPriorityStars, // 添加工具函数
+    getPriorityColorClass, // 添加工具函数
   }
 }
