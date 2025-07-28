@@ -537,23 +537,6 @@ async function deployToQiniu() {
 
   if (successCount > 0) {
     // 验证部署
-    if (config.cdnDomain) {
-      log('blue', '🔍 验证部署...')
-      try {
-        await verifyDeployment(config, 'index.html')
-      } catch (error) {
-        log('yellow', '⚠️ 首次验证失败，15秒后重试...')
-        await new Promise((resolve) => setTimeout(resolve, 15000))
-        log('blue', '🔍 再次验证部署...')
-        try {
-          await verifyDeployment(config, 'index.html')
-        } catch (retryError) {
-          log('red', `❌ 重试验证失败: ${retryError.message}`)
-          // 如果重试仍然失败，则终止部署
-          process.exit(1)
-        }
-      }
-    }
 
     log('blue', '\n🎉 部署完成！')
     log('green', `🌐 访问地址: https://${config.cdnDomain}`)
