@@ -90,14 +90,11 @@ model Todo {
   completed     Boolean   @default(false) /// 是否已完成
   completedAt   DateTime? /// 完成时间
   priority      Int?      /// 优先级 (1-5，5为最高)
-  estimatedTime Int?      /// 预估时间（分钟）
-  aiAnalyzed    Boolean   @default(false)
   order         Int       @default(0)
   dueDate       DateTime?
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
   userId        String
-  aiReasoning   String?
   deletedAt     DateTime?
   version       Int       @default(1)
   user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
