@@ -87,6 +87,7 @@
 
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n'
+import { useAuth } from '../composables/useAuth'
 import { useSettingsState } from '../composables/useSettingsState'
 import { useStorageMode } from '../composables/useStorageMode'
 import AIAnalysisSection from './settings/AIAnalysisSection.vue'
@@ -100,6 +101,7 @@ import SystemPromptsSection from './settings/SystemPromptsSection.vue'
 import ThemeSection from './settings/ThemeSection.vue'
 
 const { t } = useI18n()
+const { isAuthenticated } = useAuth()
 const { initializeStorageMode } = useStorageMode()
 
 const { showApiKey, showApiKeyPopover, localApiKey, showSuccessMessage, showSuccessToast } =
@@ -107,7 +109,7 @@ const { showApiKey, showApiKeyPopover, localApiKey, showSuccessMessage, showSucc
 
 // Initialize storage mode on component mount
 onMounted(async () => {
-  await initializeStorageMode()
+  if (isAuthenticated.value) await initializeStorageMode()
 })
 
 defineOptions({
