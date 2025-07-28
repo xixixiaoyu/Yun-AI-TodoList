@@ -238,41 +238,56 @@ async function uploadFileOnce(file, signer, bucket, endpoint) {
       headers: headers,
     }
 
-    const req = https.request(options, (res) => {
+    // 添加连接超时处理
+    const connectionTimeout = 30000 // 30秒连接超时
+    const connectionTimer = setTimeout(() => {
+      req.destroy()
+      reject(new Error(`Connection timeout after ${connectionTimeout / 1000}s for ${file.key}`))
+    }, connectionTimeout)
+
+    req.on('socket', (socket) => {
+      socket.on('connect', () => {
+        clearTimeout(connectionTimer)
+        // 连接建立后设置数据传输超时
+        const baseTimeout = 60000 // 基础超时 60 秒
+        // 对于大文件调整超时时间计算公式
+        let sizeBasedTimeout
+        if (file.size > 15 * 1024 * 1024) {
+          // 大于 15MB 的文件
+          // 每 MB 2 秒，最少 60 秒
+          sizeBasedTimeout = Math.max(baseTimeout, (file.size / (1024 * 1024)) * 2000)
+        } else {
+          // 每 KB 100ms，最少 60 秒
+          sizeBasedTimeout = Math.max(baseTimeout, (file.size / 1024) * 100)
+        }
+        const maxTimeout = 600000 // 最大超时 10 分钟
+        const timeout = Math.min(sizeBasedTimeout, maxTimeout)
+
+        // 增加超时时间，特别是对于大文件
+        const extendedTimeout = Math.min(maxTimeout, timeout * 1.5) // 增加 50% 的超时时间
+
+        req.setTimeout(extendedTimeout, () => {
+          req.destroy()
+          reject(new Error(`Upload timeout after ${extendedTimeout / 1000}s for ${file.key}`))
+        })
+      })
+    })
+
+    req.on('error', (error) => {
+      clearTimeout(connectionTimer)
+      reject(new Error(`Upload error for ${file.key}: ${error.message}`))
+    })
+
+    req.on('response', (res) => {
       let data = ''
       res.on('data', (chunk) => (data += chunk))
       res.on('end', () => {
         if (res.statusCode === 200 || res.statusCode === 204) {
           resolve({ success: true, file: file.key })
         } else {
-          reject(new Error(`Upload failed: ${res.statusCode} ${data}`))
+          reject(new Error(`Upload failed with status ${res.statusCode} for ${file.key}: ${data}`))
         }
       })
-    })
-
-    req.on('error', reject)
-
-    // 根据文件大小动态设置超时时间
-    const baseTimeout = 60000 // 基础超时 60 秒
-    // 对于大文件调整超时时间计算公式
-    let sizeBasedTimeout
-    if (file.size > 15 * 1024 * 1024) {
-      // 大于 15MB 的文件
-      // 每 MB 2 秒，最少 60 秒
-      sizeBasedTimeout = Math.max(baseTimeout, (file.size / (1024 * 1024)) * 2000)
-    } else {
-      // 每 KB 100ms，最少 60 秒
-      sizeBasedTimeout = Math.max(baseTimeout, (file.size / 1024) * 100)
-    }
-    const maxTimeout = 600000 // 最大超时 10 分钟
-    const timeout = Math.min(sizeBasedTimeout, maxTimeout)
-
-    // 增加超时时间，特别是对于大文件
-    const extendedTimeout = Math.min(maxTimeout, timeout * 1.5) // 增加 50% 的超时时间
-
-    req.setTimeout(extendedTimeout, () => {
-      req.destroy()
-      reject(new Error(`Upload timeout after ${extendedTimeout / 1000}s`))
     })
 
     req.write(content)
@@ -383,9 +398,11 @@ async function deployToQiniu() {
   }
 
   // 并行上传文件，控制并发数
-  // 根据是否有大文件动态调整并发数
-  const hasLargeFiles = files.some((file) => file.size > 15 * 1024 * 1024)
-  const concurrency = hasLargeFiles ? 3 : 5 // 如果有大文件，减少并发数以提高成功率
+  // 根据文件大小动态调整并发数，优先上传小文件
+  const sortedFiles = [...files].sort((a, b) => a.size - b.size)
+  // 对于大文件减少并发数以提高成功率
+  const largeFiles = sortedFiles.filter((file) => file.size > 15 * 1024 * 1024)
+  const concurrency = largeFiles.length > 5 ? 2 : largeFiles.length > 0 ? 3 : 5
   const results = []
 
   // 显示上传进度
@@ -395,8 +412,8 @@ async function deployToQiniu() {
   }
 
   // 分批处理文件上传
-  for (let i = 0; i < files.length; i += concurrency) {
-    const batch = files.slice(i, i + concurrency)
+  for (let i = 0; i < sortedFiles.length; i += concurrency) {
+    const batch = sortedFiles.slice(i, i + concurrency)
     const batchPromises = batch.map((file) => {
       return uploadFile(file, signer, config.bucket, config.endpoint)
         .then((result) => {

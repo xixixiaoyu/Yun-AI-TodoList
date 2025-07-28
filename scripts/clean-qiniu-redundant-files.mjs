@@ -5,8 +5,7 @@
  * 该脚本会列出并删除七牛云存储空间中带哈希值且上传时间超过指定天数的文件
  */
 
-import qiniu from 'qiniu'
-const path = require('path')
+import path from 'path'
 
 // 配置信息
 const CONFIG = {
@@ -31,6 +30,7 @@ function checkEnv() {
 
 // 获取七牛云存储中的文件列表
 async function listQiniuFiles() {
+  const qiniu = await import('qiniu')
   const mac = new qiniu.auth.digest.Mac(CONFIG.accessKey, CONFIG.secretKey)
   const config = new qiniu.conf.Config()
   const bucketManager = new qiniu.rs.BucketManager(mac, config)
@@ -70,6 +70,7 @@ function isHashedFile(filename) {
 
 // 删除七牛云上的文件
 async function deleteQiniuFiles(files) {
+  const qiniu = await import('qiniu')
   const mac = new qiniu.auth.digest.Mac(CONFIG.accessKey, CONFIG.secretKey)
   const config = new qiniu.conf.Config()
   const bucketManager = new qiniu.rs.BucketManager(mac, config)
@@ -161,7 +162,7 @@ async function main() {
 }
 
 // 运行主函数
-if (require.main === module) {
+if (import.meta.url === `file://${process.argv[1]}`) {
   main()
 }
 
