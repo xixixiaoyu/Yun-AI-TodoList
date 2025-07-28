@@ -89,10 +89,17 @@ jobs:
         run: |
           echo "🔍 验证部署结果..."
           if [ -n "${{ secrets.QINIU_DOMAIN }}" ]; then
-            if curl -s --head "https://${{ secrets.QINIU_DOMAIN }}" | head -n 1 | grep -q "200 OK"; then
+            # 使用带超时的curl命令验证部署
+            if curl -s --head --connect-timeout 10 --max-time 30 "https://${{ secrets.QINIU_DOMAIN }}" | head -n 1 | grep -q "200 OK"; then
               echo "✅ CDN 域名可正常访问"
             else
               echo "⚠️ CDN 域名暂时无法访问，可能需要等待缓存刷新"
+              # 检查index.html文件是否可访问
+              if curl -s --head --connect-timeout 10 --max-time 30 "https://${{ secrets.QINIU_DOMAIN }}/index.html" | head -n 1 | grep -q "200 OK"; then
+                echo "✅ index.html 文件可正常访问"
+              else
+                echo "⚠️ index.html 文件暂时无法访问"
+              fi
             fi
           fi
 

@@ -41,8 +41,35 @@ runs:
     - name: 🔍 Verify build output
       shell: bash
       run: |
-        if [ ! -d "./apps/frontend/dist" ]; then
-          echo "❌ Frontend build output not found"
+        BUILD_DIR="./apps/frontend/dist"
+        
+        if [ ! -d "$BUILD_DIR" ]; then
+          echo "❌ 构建产物目录不存在，请检查构建过程。"
           exit 1
         fi
-        echo "✅ Build verification passed"
+        
+        if [ -z "$(ls -A $BUILD_DIR)" ]; then
+          echo "❌ 构建产物目录为空，请检查构建过程。"
+          exit 1
+        fi
+        
+        # 检查关键文件
+        if [ ! -f "$BUILD_DIR/index.html" ]; then
+          echo "❌ 关键文件 index.html 不存在，请检查构建过程。"
+          exit 1
+        fi
+        
+        # 检查构建时间
+        BUILD_TIME=$(stat -f %m "$BUILD_DIR/index.html" 2>/dev/null || stat -c %Y "$BUILD_DIR/index.html")
+        CURRENT_TIME=$(date +%s)
+        TIME_DIFF=$((CURRENT_TIME - BUILD_TIME))
+        
+        # 如果构建时间超过1小时，发出警告
+        if [ $TIME_DIFF -gt 3600 ]; then
+          echo "⚠️  构建产物可能不是最新的，index.html 构建于 $(date -r $BUILD_TIME)"
+        else
+          echo "✅ 构建产物验证通过"
+        fi
+        
+        echo "\n📁 构建产物目录结构:"
+        ls -la "$BUILD_DIR"

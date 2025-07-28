@@ -285,7 +285,7 @@ async function uploadFileOnce(file, signer, bucket, endpoint) {
       res.on('data', (chunk) => (data += chunk))
       res.on('end', () => {
         if (res.statusCode === 200 || res.statusCode === 204) {
-          resolve({ success: true, file: file.key })
+          resolve({ success: true, file: file.key, statusCode: res.statusCode })
         } else {
           reject(new Error(`Upload failed with status ${res.statusCode} for ${file.key}: ${data}`))
         }
@@ -338,6 +338,80 @@ function checkEnv() {
   log('green', '✅ 环境变量检查通过')
 }
 
+// 验证构建产物
+function verifyBuildArtifacts(distDir) {
+  log('blue', '🔍 验证构建产物...')
+
+  // 检查关键文件
+  const criticalFiles = ['index.html']
+  for (const file of criticalFiles) {
+    const filePath = path.join(distDir, file)
+    if (!fs.existsSync(filePath)) {
+      log('red', `❌ 关键文件缺失: ${file}`)
+      process.exit(1)
+    }
+
+    // 检查文件修改时间
+    const stats = fs.statSync(filePath)
+    const now = new Date()
+    const fileTime = new Date(stats.mtime)
+    const diffMinutes = (now - fileTime) / (1000 * 60)
+
+    // 如果文件超过1小时未更新，发出警告
+    if (diffMinutes > 60) {
+      log('yellow', `⚠️  文件可能不是最新的: ${file} (${Math.round(diffMinutes)} 分钟前修改)`)
+    } else {
+      log('green', `✅ 关键文件验证通过: ${file}`)
+    }
+  }
+
+  log('green', '✅ 构建产物验证通过')
+}
+
+// 验证部署结果
+async function verifyDeployment(config, testFileKey) {
+  return new Promise((resolve, reject) => {
+    const url = `https://${config.endpoint}/${config.bucket}/${testFileKey}?timestamp=${Date.now()}`
+
+    log('blue', `🔍 验证部署结果: ${url}`)
+
+    const urlObj = new URL(url)
+    const options = {
+      hostname: urlObj.hostname,
+      port: 443,
+      path: urlObj.pathname + urlObj.search,
+      method: 'GET',
+    }
+
+    const req = https.request(options, (res) => {
+      let data = ''
+      res.on('data', (chunk) => (data += chunk))
+      res.on('end', () => {
+        if (res.statusCode === 200) {
+          log('green', '✅ 部署验证通过')
+          resolve(true)
+        } else {
+          log('red', `❌ 部署验证失败，状态码: ${res.statusCode}`)
+          reject(new Error(`Deployment verification failed with status ${res.statusCode}`))
+        }
+      })
+    })
+
+    req.on('error', (error) => {
+      log('red', `❌ 部署验证请求失败: ${error.message}`)
+      reject(error)
+    })
+
+    req.setTimeout(30000, () => {
+      req.destroy()
+      log('red', '❌ 部署验证超时')
+      reject(new Error('Deployment verification timeout'))
+    })
+
+    req.end()
+  })
+}
+
 // 主部署函数
 async function deployToQiniu() {
   log('blue', '🚀 开始使用七牛云 S3 API 部署...')
@@ -376,6 +450,9 @@ async function deployToQiniu() {
     log('yellow', '   请先运行: pnpm build')
     process.exit(1)
   }
+
+  // 验证构建产物
+  verifyBuildArtifacts(distDir)
 
   // 获取文件列表
   let files = getFileList(distDir)
@@ -432,6 +509,13 @@ async function deployToQiniu() {
           failCount++
           showProgress(successCount + failCount, files.length)
           log('red', `❌ 上传失败: ${file.key} (${formatFileSize(file.size)}) - ${error.message}`)
+          // 提供更详细的错误信息
+          if (error.code) {
+            log('red', `   错误代码: ${error.code}`)
+          }
+          if (error.statusCode) {
+            log('red', `   HTTP状态码: ${error.statusCode}`)
+          }
           return null
         })
     })
@@ -450,9 +534,18 @@ async function deployToQiniu() {
   }
 
   if (successCount > 0) {
-    log('blue', '\n🎉 部署完成！')
-    log('green', `🌐 访问地址: https://${config.cdnDomain}`)
-    log('green', `📋 管理控制台: https://portal.qiniu.com`)
+    // 选择一个测试文件进行部署验证
+    const testFile = files.find((file) => file.key === 'index.html') || files[0]
+
+    try {
+      await verifyDeployment(config, testFile.key)
+      log('blue', '\n🎉 部署完成！')
+      log('green', `🌐 访问地址: https://${config.cdnDomain}`)
+      log('green', `📋 管理控制台: https://portal.qiniu.com`)
+    } catch (error) {
+      log('red', `\n❌ 部署验证失败: ${error.message}`)
+      process.exit(1)
+    }
   } else {
     log('red', '\n❌ 部署失败，没有文件上传成功')
     process.exit(1)

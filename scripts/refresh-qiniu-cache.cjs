@@ -79,6 +79,11 @@ async function refreshCDNCache() {
     },
   }
 
+  log('blue', `🔄 正在刷新CDN缓存...`)
+  log('cyan', `   请求URL: ${url}`)
+  log('cyan', `   刷新URLs: ${body.urls ? body.urls.join(', ') : 'N/A'}`)
+  log('cyan', `   刷新目录: ${body.dirs ? body.dirs.join(', ') : 'N/A'}`)
+
   return new Promise((resolve, reject) => {
     const req = https.request(url, options, (res) => {
       let data = ''
@@ -88,13 +93,29 @@ async function refreshCDNCache() {
       })
 
       res.on('end', () => {
-        if (res.statusCode === 200) {
-          log('green', '✅ CDN缓存刷新成功')
-          resolve(JSON.parse(data))
-        } else {
-          log('red', `❌ CDN缓存刷新失败: ${res.statusCode}`)
-          log('red', data)
-          reject(new Error(`HTTP ${res.statusCode}: ${data}`))
+        try {
+          if (res.statusCode === 200) {
+            const result = JSON.parse(data)
+            log('green', '✅ CDN缓存刷新成功')
+            log('cyan', `   刷新请求ID: ${result.requestId || 'N/A'}`)
+            log(
+              'cyan',
+              `   刷新URL数量: ${result.urlQuotaDay || 'N/A'}/${result.urlSurplusDay || 'N/A'}`
+            )
+            log(
+              'cyan',
+              `   刷新目录数量: ${result.dirQuotaDay || 'N/A'}/${result.dirSurplusDay || 'N/A'}`
+            )
+            resolve(result)
+          } else {
+            log('red', `❌ CDN缓存刷新失败: ${res.statusCode}`)
+            log('red', `   响应数据: ${data}`)
+            reject(new Error(`HTTP ${res.statusCode}: ${data}`))
+          }
+        } catch (parseError) {
+          log('red', `❌ 解析响应数据失败: ${parseError.message}`)
+          log('red', `   原始响应: ${data}`)
+          reject(parseError)
         }
       })
     })
@@ -102,6 +123,12 @@ async function refreshCDNCache() {
     req.on('error', (error) => {
       log('red', `❌ 请求失败: ${error.message}`)
       reject(error)
+    })
+
+    req.setTimeout(30000, () => {
+      req.destroy()
+      log('red', '❌ 请求超时')
+      reject(new Error('Request timeout'))
     })
 
     req.write(body)

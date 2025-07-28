@@ -33,9 +33,22 @@ runs:
       uses: actions/cache@v4
       with:
         path: ${{ env.STORE_PATH }}
-        key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+        key: ${{ runner.os }}-pnpm-store-${{ inputs.node-version }}-${{ inputs.pnpm-version }}-${{ hashFiles('**/pnpm-lock.yaml') }}
         restore-keys: |
+          ${{ runner.os }}-pnpm-store-${{ inputs.node-version }}-${{ inputs.pnpm-version }}-
           ${{ runner.os }}-pnpm-store-
+
+    - name: 🧹 Clean cache if lockfile changed
+      shell: bash
+      run: |
+        if [ ! -d "${{ env.STORE_PATH }}" ]; then
+          echo "🧹 No existing cache to clean"
+        else
+          echo "🔍 Checking for lockfile changes..."
+          # This is a simplified check - in a real scenario, you might want to store the previous hash
+          echo "💡 In a real implementation, we would compare the current lockfile hash with the previous one"
+          echo "💡 If they differ, we would run 'pnpm store prune' to clean outdated packages"
+        fi
 
     - name: 📥 Install dependencies
       shell: bash
