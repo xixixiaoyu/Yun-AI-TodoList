@@ -378,8 +378,13 @@ async function deployToQiniu() {
   }
 
   // 获取文件列表
-  const files = getFileList(distDir)
-  log('blue', `📁 找到 ${files.length} 个文件需要上传`)
+  let files = getFileList(distDir)
+
+  // 过滤掉需要跳过的文件
+  const skipFiles = ['LXGWWenKai-Medium.ttf']
+  files = files.filter((file) => !skipFiles.includes(path.basename(file.key)))
+
+  log('blue', `📁 找到 ${files.length} 个文件需要上传 (已跳过 ${skipFiles.length} 个文件)`)
 
   // 创建签名器
   const signer = new AWSV4Signer(config.accessKey, config.secretKey, config.region, 's3')
