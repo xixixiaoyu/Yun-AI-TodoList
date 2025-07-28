@@ -382,6 +382,7 @@ async function verifyDeployment(config, testFileKey) {
       port: 443,
       path: urlObj.pathname + urlObj.search,
       method: 'GET',
+      rejectUnauthorized: false, // 跳过证书验证
     }
 
     const req = https.request(options, (res) => {
