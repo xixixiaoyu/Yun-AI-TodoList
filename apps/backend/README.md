@@ -259,18 +259,6 @@ docker-compose up -d
 - JWT 令牌有效期：1 小时
 - 刷新令牌有效期：7 天
 
-## 🤝 贡献
-
-1. Fork 项目
-2. 创建特性分支 (`git checkout -b feature/AmazingFeature`)
-3. 提交更改 (`git commit -m 'Add some AmazingFeature'`)
-4. 推送到分支 (`git push origin feature/AmazingFeature`)
-5. 打开 Pull Request
-
-## 📄 许可证
-
-本项目采用 GPL-3.0 许可证 - 查看 [LICENSE](LICENSE) 文件了解详情。
-
 ## 🔗 相关链接
 
 - [前端应用](../frontend)
