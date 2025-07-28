@@ -861,7 +861,6 @@ ${todoTexts}
       suggestedTodos.value = []
       showSuggestedTodos.value = false
       duplicateError.value = ''
-      logger.info('useTodoManagement cleanup completed', undefined, 'TodoManagement')
     },
   }
 
