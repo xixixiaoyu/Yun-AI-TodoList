@@ -79,7 +79,7 @@ jobs:
       - name: 🧹 Clean up redundant files on Qiniu
         run: |
           echo "🧹 Cleaning up redundant files on Qiniu Cloud..."
-          node scripts/clean-qiniu-redundant-files.cjs
+          node scripts/clean-qiniu-redundant-files.mjs
         env:
           QINIU_ACCESS_KEY: ${{ secrets.QINIU_ACCESS_KEY }}
           QINIU_SECRET_KEY: ${{ secrets.QINIU_SECRET_KEY }}
