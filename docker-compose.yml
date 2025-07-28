@@ -62,7 +62,7 @@ services:
       DATABASE_PASSWORD: postgres123
       REDIS_HOST: redis
       REDIS_PORT: 6379
-      REDIS_PASSWORD:
+      REDIS_PASSWORD: redis123
       JWT_SECRET: yun-todo-local-jwt-secret-key-2025-very-secure-change-in-production
       JWT_EXPIRES_IN: 7d
       JWT_REFRESH_SECRET: yun-todo-local-refresh-secret-key-2025-very-secure-change-in-production
@@ -93,9 +93,7 @@ services:
       # 挂载源代码以支持热重载
       - ./apps/backend/src:/app/apps/backend/src:cached
       - ./apps/backend/prisma:/app/apps/backend/prisma:cached
-      - ./packages:/app/packages:cached
-      # 挂载 node_modules 以提高性能
-      - backend_node_modules:/app/node_modules
+      - ./packages/shared/src:/app/packages/shared/src:cached
       # 挂载日志和上传目录
       - ./apps/backend/logs:/app/apps/backend/logs
       - ./apps/backend/uploads:/app/uploads
@@ -130,9 +128,7 @@ services:
       - ./apps/frontend/index.html:/app/apps/frontend/index.html:cached
       - ./apps/frontend/vite.config.ts:/app/apps/frontend/vite.config.ts:cached
       - ./apps/frontend/uno.config.ts:/app/apps/frontend/uno.config.ts:cached
-      - ./packages:/app/packages:cached
-      # 挂载 node_modules 以提高性能
-      - frontend_node_modules:/app/node_modules
+      - ./packages/shared/src:/app/packages/shared/src:cached
     ports:
       - '5173:3000'
     depends_on:
@@ -172,7 +168,3 @@ volumes:
     name: yun-todolist-postgres-data
   redis_data:
     name: yun-todolist-redis-data
-  backend_node_modules:
-    name: yun-todolist-backend-node-modules
-  frontend_node_modules:
-    name: yun-todolist-frontend-node-modules

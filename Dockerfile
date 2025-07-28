@@ -191,6 +191,10 @@ COPY tsconfig.json ./
 # 安装依赖
 RUN pnpm install --frozen-lockfile
 
+# 构建共享模块
+COPY packages/shared ./packages/shared
+RUN pnpm --filter @yun-ai-todolist/shared build
+
 # 创建非 root 用户
 RUN addgroup -g 1001 -S nodejs && \
     adduser -S developer -u 1001 -G nodejs
@@ -229,6 +233,10 @@ COPY tsconfig.json ./
 
 # 安装依赖
 RUN pnpm install --frozen-lockfile
+
+# 构建共享模块
+COPY packages/shared ./packages/shared
+RUN pnpm --filter @yun-ai-todolist/shared build
 
 # 创建非 root 用户
 RUN addgroup -g 1001 -S nodejs && \
