@@ -551,10 +551,18 @@ async function deployToQiniu() {
 if (require.main === module) {
   deployToQiniu()
     .then(() => {
-      log('green', '✅ 部署完成，已跳过CDN缓存刷新')
+      log('green', '✅ 文件上传成功，准备刷新CDN缓存...')
+      return refreshCDNCache()
+    })
+    .then(() => {
+      log('green', '🎉 部署成功完成，CDN缓存已刷新！')
     })
     .catch((error) => {
       log('red', `❌ 部署过程中发生错误: ${error.message}`)
+      // 如果错误对象中有更详细的信息，也打印出来
+      if (error.response) {
+        log('red', `   响应: ${error.response}`)
+      }
       process.exit(1)
     })
 }
