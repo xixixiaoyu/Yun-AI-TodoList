@@ -238,6 +238,8 @@ async function uploadFileOnce(file, signer, bucket, endpoint) {
       headers: headers,
     }
 
+    const req = https.request(options)
+
     // 添加连接超时处理
     const connectionTimeout = 30000 // 30秒连接超时
     const connectionTimer = setTimeout(() => {
