@@ -91,8 +91,16 @@ export function validateCreateTodoDto(dto: CreateTodoDto): string[] {
     errors.push('优先级必须是1-5之间的整数')
   }
 
-  if (dto.estimatedTime && !isValidTimeEstimate(dto.estimatedTime)) {
-    errors.push('时间估算格式不正确')
+  if (dto.estimatedTime) {
+    if (
+      typeof dto.estimatedTime.text !== 'string' ||
+      !isValidTimeEstimate(dto.estimatedTime.text)
+    ) {
+      errors.push('时间估算文本格式不正确')
+    }
+    if (typeof dto.estimatedTime.minutes !== 'number' || dto.estimatedTime.minutes < 0) {
+      errors.push('时间估算分钟数必须为非负数')
+    }
   }
 
   if (dto.dueDate && !isValidISODate(dto.dueDate)) {
@@ -118,8 +126,17 @@ export function validateUpdateTodoDto(dto: UpdateTodoDto): string[] {
     errors.push('优先级必须是1-5之间的整数')
   }
 
-  if (dto.estimatedTime !== undefined && !isValidTimeEstimate(dto.estimatedTime)) {
-    errors.push('时间估算格式不正确')
+  if (dto.estimatedTime) {
+    // Can be null to reset
+    if (
+      typeof dto.estimatedTime.text !== 'string' ||
+      !isValidTimeEstimate(dto.estimatedTime.text)
+    ) {
+      errors.push('时间估算文本格式不正确')
+    }
+    if (typeof dto.estimatedTime.minutes !== 'number' || dto.estimatedTime.minutes < 0) {
+      errors.push('时间估算分钟数必须为非负数')
+    }
   }
 
   if (dto.dueDate !== undefined && !isValidISODate(dto.dueDate)) {

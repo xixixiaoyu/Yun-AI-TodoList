@@ -35,6 +35,7 @@ export interface CreateTodoDto {
   description?: string
   priority?: TodoPriority
   dueDate?: string // ISO 8601 格式
+  estimatedTime?: TimeEstimate
 }
 
 export interface UpdateTodoDto {
@@ -45,6 +46,7 @@ export interface UpdateTodoDto {
   priority?: TodoPriority
   dueDate?: string // ISO 8601 格式
   order?: number
+  estimatedTime?: TimeEstimate
 }
 
 export interface TodoStats {
