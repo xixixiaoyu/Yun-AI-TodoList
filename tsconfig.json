@@ -1,6 +1,9 @@
 {
   "files": [],
-  "references": [{ "path": "./tsconfig.app.json" }, { "path": "./tsconfig.node.json" }],
+  "references": [
+    { "path": "./apps/frontend/tsconfig.app.json" },
+    { "path": "./apps/frontend/tsconfig.node.json" }
+  ],
   "compilerOptions": {
     "moduleResolution": "node",
     "types": ["vite/client", "vue-router"]

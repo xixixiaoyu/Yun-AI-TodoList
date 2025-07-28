@@ -539,10 +539,19 @@ async function deployToQiniu() {
     // 验证部署
     if (config.cdnDomain) {
       log('blue', '🔍 验证部署...')
-      const verificationResult = await verifyDeployment(config, 'index.html')
-      if (!verificationResult) {
-        // 可选：如果验证失败，可以决定是否抛出错误
-        // throw new Error('Deployment verification failed.')
+      try {
+        await verifyDeployment(config, 'index.html')
+      } catch (error) {
+        log('yellow', '⚠️ 首次验证失败，15秒后重试...')
+        await new Promise((resolve) => setTimeout(resolve, 15000))
+        log('blue', '🔍 再次验证部署...')
+        try {
+          await verifyDeployment(config, 'index.html')
+        } catch (retryError) {
+          log('red', `❌ 重试验证失败: ${retryError.message}`)
+          // 如果重试仍然失败，则终止部署
+          process.exit(1)
+        }
       }
     }
 
