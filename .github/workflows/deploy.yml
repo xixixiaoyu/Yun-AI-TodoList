@@ -1,58 +1,19 @@
 name: 🔧 Deploy to GitHub Pages (Manual)
 
 on:
-  workflow_dispatch: # 仅手动触发（主CI/CD流水线已包含自动部署）
+  workflow_dispatch:
     inputs:
+      artifact-name:
+        description: 'The name of the build artifact to deploy (e.g., build-files-COMMIT_SHA)'
+        required: true
       reason:
         description: 'Reason for manual deployment'
         required: false
         default: 'Manual deployment'
 
-permissions:
-  contents: read
-  pages: write
-  id-token: write
-
-env:
-  NODE_VERSION: '18'
-  PNPM_VERSION: '9.0.0'
-
 jobs:
-  build-and-deploy:
-    runs-on: ubuntu-latest
-    name: Build and Deploy
-
-    steps:
-      - name: 📥 Checkout repository
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: 🔧 Setup environment
-        uses: ./.github/actions/setup-environment
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          pnpm-version: ${{ env.PNPM_VERSION }}
-
-      - name: 🏗️ Build project
-        uses: ./.github/actions/build-project
-
-      - name: 📄 Setup Pages
-        uses: actions/configure-pages@v4
-
-      - name: 📤 Upload Pages artifact
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: './apps/frontend/dist'
-
-      - name: 🚀 Deploy to GitHub Pages
-        id: pages-deployment
-        uses: actions/deploy-pages@v4
-
-      - name: 📊 Deployment summary
-        run: |
-          echo "## 🎉 Manual GitHub Pages Deployment" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "✅ **Reason**: ${{ github.event.inputs.reason }}" >> $GITHUB_STEP_SUMMARY
-          echo "✅ **Status**: Deployed successfully" >> $GITHUB_STEP_SUMMARY
-          echo "🔗 **URL**: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}" >> $GITHUB_STEP_SUMMARY
+  deploy-github-pages-manual:
+    name: 🚀 Deploy to GitHub Pages (Manual)
+    uses: ./.github/workflows/deploy-github-pages.yml
+    with:
+      artifact-name: ${{ github.event.inputs.artifact-name }}

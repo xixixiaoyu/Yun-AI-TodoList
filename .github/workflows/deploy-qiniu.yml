@@ -1,115 +1,26 @@
 name: 🔧 Deploy to Qiniu Cloud (Manual)
 
 on:
-  workflow_dispatch: # 仅手动触发（主CI/CD流水线已包含自动部署）
+  workflow_dispatch:
     inputs:
+      artifact-name:
+        description: 'The name of the build artifact to deploy (e.g., build-files-COMMIT_SHA)'
+        required: true
       reason:
         description: 'Reason for manual deployment'
         required: false
         default: 'Manual deployment'
 
-permissions:
-  contents: read
-
-env:
-  NODE_VERSION: '18'
-  PNPM_VERSION: '9.0.0'
-
 jobs:
-  deploy-qiniu:
-    runs-on: ubuntu-latest
-    name: Deploy to Qiniu Cloud
-
-    steps:
-      - name: 📥 Checkout code
-        uses: actions/checkout@v4
-
-      - name: 🔧 Setup environment
-        uses: ./.github/actions/setup-environment
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          pnpm-version: ${{ env.PNPM_VERSION }}
-
-      - name: 🏗️ Build project
-        uses: ./.github/actions/build-project
-
-      - name: 🔐 Verify Qiniu environment variables
-        run: |
-          echo "🔍 验证七牛云环境变量..."
-
-          # 简化的环境变量检查
-          required_vars=("QINIU_ACCESS_KEY" "QINIU_SECRET_KEY" "QINIU_BUCKET" "QINIU_REGION" "QINIU_ENDPOINT" "QINIU_DOMAIN")
-          missing_vars=()
-
-          for var in "${required_vars[@]}"; do
-            if [ -z "${!var}" ]; then
-              missing_vars+=("$var")
-            fi
-          done
-
-          if [ ${#missing_vars[@]} -gt 0 ]; then
-            echo "❌ 缺少环境变量: ${missing_vars[*]}"
-            echo "💡 请在 GitHub Secrets 中设置这些变量"
-            exit 1
-          fi
-
-          echo "✅ 所有七牛云环境变量验证通过"
-        env:
-          QINIU_ACCESS_KEY: ${{ secrets.QINIU_ACCESS_KEY }}
-          QINIU_SECRET_KEY: ${{ secrets.QINIU_SECRET_KEY }}
-          QINIU_BUCKET: ${{ secrets.QINIU_BUCKET }}
-          QINIU_REGION: ${{ secrets.QINIU_REGION }}
-          QINIU_ENDPOINT: ${{ secrets.QINIU_ENDPOINT }}
-          QINIU_DOMAIN: ${{ secrets.QINIU_DOMAIN }}
-
-      - name: 🚀 Deploy to Qiniu using S3 API
-        timeout-minutes: 30  # 增加步骤超时时间为 30 分钟，以适应大文件上传
-        run: |
-          echo "🚀 Deploying to Qiniu Cloud..."
-          echo "📋 Files to upload: $(find apps/frontend/dist -type f | wc -l)"
-          node scripts/deploy-qiniu-s3.cjs
-        env:
-          QINIU_ACCESS_KEY: ${{ secrets.QINIU_ACCESS_KEY }}
-          QINIU_SECRET_KEY: ${{ secrets.QINIU_SECRET_KEY }}
-          QINIU_BUCKET: ${{ secrets.QINIU_BUCKET }}
-          QINIU_REGION: ${{ secrets.QINIU_REGION }}
-          QINIU_ENDPOINT: ${{ secrets.QINIU_ENDPOINT }}
-          QINIU_DOMAIN: ${{ secrets.QINIU_DOMAIN }}
-
-      - name: 🧹 Refresh Qiniu CDN cache
-        run: |
-          echo "🧹 刷新七牛云CDN缓存..."
-          node scripts/refresh-qiniu-cache.cjs
-        env:
-          QINIU_ACCESS_KEY: ${{ secrets.QINIU_ACCESS_KEY }}
-          QINIU_SECRET_KEY: ${{ secrets.QINIU_SECRET_KEY }}
-          QINIU_DOMAIN: ${{ secrets.QINIU_DOMAIN }}
-
-      - name: 🔍 Verify deployment
-        run: |
-          echo "🔍 验证部署结果..."
-          if [ -n "${{ secrets.QINIU_DOMAIN }}" ]; then
-            # 使用带超时的curl命令验证部署
-            if curl -s --head --connect-timeout 10 --max-time 30 "https://${{ secrets.QINIU_DOMAIN }}" | head -n 1 | grep -q "200 OK"; then
-              echo "✅ CDN 域名可正常访问"
-            else
-              echo "⚠️ CDN 域名暂时无法访问，可能需要等待缓存刷新"
-              # 检查index.html文件是否可访问
-              if curl -s --head --connect-timeout 10 --max-time 30 "https://${{ secrets.QINIU_DOMAIN }}/index.html" | head -n 1 | grep -q "200 OK"; then
-                echo "✅ index.html 文件可正常访问"
-              else
-                echo "⚠️ index.html 文件暂时无法访问"
-              fi
-            fi
-          fi
-
-      - name: 📊 Deployment summary
-        run: |
-          echo "## 🎉 Manual Qiniu Deployment" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "✅ **Reason**: ${{ github.event.inputs.reason }}" >> $GITHUB_STEP_SUMMARY
-          echo "✅ **Status**: Deployed to bucket \`${{ secrets.QINIU_BUCKET }}\`" >> $GITHUB_STEP_SUMMARY
-          if [ -n "${{ secrets.QINIU_DOMAIN }}" ]; then
-            echo "🔗 **URL**: https://${{ secrets.QINIU_DOMAIN }}" >> $GITHUB_STEP_SUMMARY
-          fi
-          echo "🧹 **Cache**: CDN cache refreshed" >> $GITHUB_STEP_SUMMARY
+  deploy-qiniu-manual:
+    name: 🚀 Deploy to Qiniu Cloud (Manual)
+    uses: ./.github/workflows/deploy-qiniu-reusable.yml
+    with:
+      artifact-name: ${{ github.event.inputs.artifact-name }}
+    secrets:
+      QINIU_ACCESS_KEY: ${{ secrets.QINIU_ACCESS_KEY }}
+      QINIU_SECRET_KEY: ${{ secrets.QINIU_SECRET_KEY }}
+      QINIU_BUCKET: ${{ secrets.QINIU_BUCKET }}
+      QINIU_REGION: ${{ secrets.QINIU_REGION }}
+      QINIU_ENDPOINT: ${{ secrets.QINIU_ENDPOINT }}
+      QINIU_DOMAIN: ${{ secrets.QINIU_DOMAIN }}

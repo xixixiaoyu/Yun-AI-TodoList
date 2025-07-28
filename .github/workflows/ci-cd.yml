@@ -73,65 +73,26 @@ jobs:
   # 第二阶段：部署（暂时内联，避免可重用工作流的语法问题）
   deploy-github-pages:
     name: 🚀 Deploy to GitHub Pages
-    runs-on: ubuntu-latest
+    uses: ./.github/workflows/deploy-github-pages.yml
     needs: test-and-build
     if: success() && github.ref == 'refs/heads/main'
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    permissions:
-      contents: read
-      pages: write
-      id-token: write
-
-    steps:
-      - name: 📥 Download build artifacts
-        uses: actions/download-artifact@v4
-        with:
-          name: build-files-${{ github.sha }}
-          path: ./dist
-
-      - name: 📄 Setup Pages
-        uses: actions/configure-pages@v4
-
-      - name: 📤 Upload Pages artifact
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: './dist'
-
-      - name: 🚀 Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+    with:
+      artifact-name: build-files-${{ github.sha }}
 
   deploy-qiniu:
     name: 🚀 Deploy to Qiniu Cloud
-    runs-on: ubuntu-latest
+    uses: ./.github/workflows/deploy-qiniu-reusable.yml
     needs: test-and-build
     if: success() && github.ref == 'refs/heads/main'
-
-    steps:
-      - name: 📥 Checkout code (for deploy script)
-        uses: actions/checkout@v4
-
-      - name: 📥 Download build artifacts
-        uses: actions/download-artifact@v4
-        with:
-          name: build-files-${{ github.sha }}
-          path: ./apps/frontend/dist
-
-      - name: 🚀 Deploy to Qiniu using S3 API
-        timeout-minutes: 30  # 增加步骤超时时间为 30 分钟，以适应大文件上传
-        run: |
-          echo "🚀 Deploying to Qiniu Cloud..."
-          echo "📋 Files to upload: $(find apps/frontend/dist -type f | wc -l)"
-          node scripts/deploy-qiniu-s3.cjs
-        env:
-          QINIU_ACCESS_KEY: ${{ secrets.QINIU_ACCESS_KEY }}
-          QINIU_SECRET_KEY: ${{ secrets.QINIU_SECRET_KEY }}
-          QINIU_BUCKET: ${{ secrets.QINIU_BUCKET }}
-          QINIU_REGION: ${{ secrets.QINIU_REGION }}
-          QINIU_ENDPOINT: ${{ secrets.QINIU_ENDPOINT }}
-          QINIU_DOMAIN: ${{ secrets.QINIU_DOMAIN }}
+    with:
+      artifact-name: build-files-${{ github.sha }}
+    secrets:
+      QINIU_ACCESS_KEY: ${{ secrets.QINIU_ACCESS_KEY }}
+      QINIU_SECRET_KEY: ${{ secrets.QINIU_SECRET_KEY }}
+      QINIU_BUCKET: ${{ secrets.QINIU_BUCKET }}
+      QINIU_REGION: ${{ secrets.QINIU_REGION }}
+      QINIU_ENDPOINT: ${{ secrets.QINIU_ENDPOINT }}
+      QINIU_DOMAIN: ${{ secrets.QINIU_DOMAIN }}
 
   # 第三阶段：部署后验证和通知
   post-deploy:
