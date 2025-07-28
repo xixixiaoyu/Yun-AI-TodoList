@@ -133,16 +133,6 @@ jobs:
           QINIU_ENDPOINT: ${{ secrets.QINIU_ENDPOINT }}
           QINIU_DOMAIN: ${{ secrets.QINIU_DOMAIN }}
 
-      - name: 🧹 Clean up redundant files on Qiniu
-        run: |
-          echo "🧹 Cleaning up redundant files on Qiniu Cloud..."
-          node scripts/clean-qiniu-redundant-files.mjs
-        env:
-          QINIU_ACCESS_KEY: ${{ secrets.QINIU_ACCESS_KEY }}
-          QINIU_SECRET_KEY: ${{ secrets.QINIU_SECRET_KEY }}
-          QINIU_BUCKET: ${{ secrets.QINIU_BUCKET }}
-          QINIU_DOMAIN: ${{ secrets.QINIU_DOMAIN }}
-
   # 第三阶段：部署后验证和通知
   post-deploy:
     name: 📋 Post-Deploy Summary

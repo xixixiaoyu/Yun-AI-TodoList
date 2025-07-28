@@ -18,10 +18,7 @@ overrides:
 importers:
 
   .:
-    dependencies:
-      qiniu:
-        specifier: 7.14.0
-        version: 7.14.0
+    dependencies: {}
     devDependencies:
       '@commitlint/cli':
         specifier: 19.8.1
@@ -6658,10 +6655,6 @@ packages:
 
   pure-rand@6.1.0:
     resolution: {integrity: sha512-bVWawvoZoBYpp6yIoQtQXHZjmz35RSVHnUOTefl8Vcjr8snTPY1wnpSPMWekcFwbxI6gtmT7rSYPFvz71ldiOA==}
-
-  qiniu@7.14.0:
-    resolution: {integrity: sha512-3q7nIQQjqR69k7hbDPfM+hx52BmUxt8J/n9LrmjxypWVEeNK5PTaPS2pnxqaxs0tL9utNOPVfjFiBr18mHOFqQ==}
-    engines: {node: '>= 6'}
 
   qs@6.13.0:
     resolution: {integrity: sha512-+38qI9SOr8tfZ4QmJNplMUxqjbe7LKvvZgWdExBOmd+egZTtjLB67Gu0HRX3u/XOq7UU2Nx6nsjvS16Z9uwfpg==}
@@ -15403,24 +15396,6 @@ snapshots:
   punycode@2.3.1: {}
 
   pure-rand@6.1.0: {}
-
-  qiniu@7.14.0:
-    dependencies:
-      agentkeepalive: 4.6.0
-      before: 0.0.1
-      block-stream2: 2.1.0
-      crc32: 0.2.2
-      destroy: 1.2.0
-      encodeurl: 1.0.2
-      formstream: 1.5.1
-      mime: 2.6.0
-      mkdirp: 0.5.6
-      mockdate: 3.0.5
-      tunnel-agent: 0.6.0
-      typescript: 4.9.5
-      urllib: 2.44.0
-    transitivePeerDependencies:
-      - proxy-agent
 
   qs@6.13.0:
     dependencies:

@@ -69,13 +69,8 @@ bundle-analysis.json
 .wrangler
 wrangler.toml.bak
 
-# 七牛云配置文件
-qiniu-upload.json
-qiniu-upload.log
-
 # 调试和临时文件
 test-*.txt
-qiniu-*.txt
 curl-*.txt
 debug-*.log
 upload-*.log

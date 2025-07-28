@@ -76,18 +76,6 @@ jobs:
           QINIU_ENDPOINT: ${{ secrets.QINIU_ENDPOINT }}
           QINIU_DOMAIN: ${{ secrets.QINIU_DOMAIN }}
 
-      - name: 🧹 Clean up redundant files on Qiniu
-        run: |
-          echo "🧹 Cleaning up redundant files on Qiniu Cloud..."
-          # 确保 qiniu 包已安装
-          pnpm add qiniu@7.14.0
-          node scripts/clean-qiniu-redundant-files.mjs
-        env:
-          QINIU_ACCESS_KEY: ${{ secrets.QINIU_ACCESS_KEY }}
-          QINIU_SECRET_KEY: ${{ secrets.QINIU_SECRET_KEY }}
-          QINIU_BUCKET: ${{ secrets.QINIU_BUCKET }}
-          QINIU_DOMAIN: ${{ secrets.QINIU_DOMAIN }}
-
       - name: 🧹 Refresh Qiniu CDN cache
         run: |
           echo "🧹 刷新七牛云CDN缓存..."
