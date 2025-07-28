@@ -1,11 +1,5 @@
 import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common'
-import type {
-  AIAnalysisResult,
-  Todo,
-  TodoListResponse,
-  TodoPriority,
-  TodoStats,
-} from '@shared/types'
+import type { Todo, TodoListResponse, TodoPriority, TodoStats } from '@shared/types'
 import { CacheService } from '../common/cache.service'
 import { UtilsService } from '../common/services/utils.service'
 import { ValidationService } from '../common/validation.service'
@@ -38,22 +32,19 @@ export class TodosService {
     private readonly utilsService: UtilsService,
     private readonly validationService: ValidationService,
     private readonly cacheService: CacheService
-    // private readonly aiAnalysisService: AIAnalysisService
   ) {}
 
   async create(userId: string, createTodoDto: CreateTodoDto): Promise<Todo> {
-    // 验证输入数据
     this.validationService.validateTodoData(createTodoDto)
 
-    // 检查是否存在相同标题的未完成待办事项
     const existingTodo = await this.prisma.todo.findFirst({
       where: {
         userId,
         title: {
           equals: createTodoDto.title.trim(),
-          mode: 'insensitive', // 忽略大小写
+          mode: 'insensitive',
         },
-        completed: false, // 只检查未完成的待办事项
+        completed: false,
       },
     })
 
@@ -61,7 +52,6 @@ export class TodosService {
       throw new ForbiddenException('该待办事项已存在')
     }
 
-    // 获取当前用户的最大排序值
     const maxOrder = await this.prisma.todo.aggregate({
       where: { userId },
       _max: { order: true },
@@ -74,15 +64,11 @@ export class TodosService {
         title: createTodoDto.title.trim(),
         description: createTodoDto.description,
         priority: createTodoDto.priority,
-        estimatedTime: createTodoDto.estimatedTime
-          ? this.parseEstimatedTime(createTodoDto.estimatedTime)
-          : null,
         dueDate: createTodoDto.dueDate ? new Date(createTodoDto.dueDate) : null,
         order: (maxOrder._max.order || 0) + 1,
       },
     })
 
-    // 清除相关缓存
     this.cacheService.deletePattern(CacheKeyGenerator.todo(userId, '*'))
     this.cacheService.delete(CacheKeyGenerator.stats(userId))
 
@@ -99,32 +85,20 @@ export class TodosService {
       sortBy,
       sortOrder,
       includeStats,
-      cursor, // 添加游标支持
+      cursor,
     } = queryDto
-    const skip = cursor ? 0 : (page - 1) * limit // 使用游标时不需要 skip
+    const skip = cursor ? 0 : (page - 1) * limit
 
-    // 构建查询条件
-    const where: {
-      userId: string
-      deletedAt: null
-      createdAt?: { lt: Date }
-      id?: { in: string[] }
-      completed?: boolean
-      priority?: { in: number[] }
-      dueDate?: { lte: Date } | { gte: Date; lte: Date }
-    } = {
+    const where: any = {
       userId,
-      deletedAt: null, // 排除软删除的待办事项
+      deletedAt: null,
     }
 
-    // 游标分页支持
     if (cursor) {
       where.createdAt = { lt: new Date(cursor) }
     }
 
-    // 搜索条件 - 优化为全文搜索
     if (search) {
-      // 使用 PostgreSQL 全文搜索提升性能
       const searchResults = (await this.prisma.$queryRaw`
         SELECT id FROM todos
         WHERE "userId" = ${userId}
@@ -142,7 +116,6 @@ export class TodosService {
       if (searchResults.length > 0) {
         where.id = { in: searchResults.map((r) => r.id) }
       } else {
-        // 如果全文搜索没有结果，回退到模糊搜索
         Object.assign(where, {
           OR: [
             { title: { contains: search, mode: 'insensitive' } },
@@ -152,7 +125,6 @@ export class TodosService {
       }
     }
 
-    // 类型过滤
     if (type && type !== TodoFilterType.ALL) {
       switch (type) {
         case TodoFilterType.ACTIVE:
@@ -185,20 +157,11 @@ export class TodosService {
       }
     }
 
-    // 优先级过滤
     if (priority && priority.length > 0) {
       where.priority = { in: priority }
     }
 
-    // 排序
-    const orderBy: {
-      createdAt?: 'asc' | 'desc'
-      completedAt?: 'asc' | 'desc'
-      title?: 'asc' | 'desc'
-      priority?: 'asc' | 'desc'
-      dueDate?: 'asc' | 'desc'
-      order?: 'asc' | 'desc'
-    } = {}
+    const orderBy: any = {}
     if (sortBy === TodoSortField.CREATED_AT) {
       orderBy.createdAt = sortOrder
     } else if (sortBy === TodoSortField.COMPLETED_AT) {
@@ -213,16 +176,14 @@ export class TodosService {
       orderBy.order = sortOrder
     }
 
-    // 执行查询 - 优化为游标分页
-    const take = cursor ? limit + 1 : limit // 游标分页时多取一个判断是否有下一页
+    const take = cursor ? limit + 1 : limit
 
     const [todos, total] = await Promise.all([
       this.prisma.todo.findMany({
         where,
         orderBy,
-        skip: cursor ? 0 : skip, // 游标分页不使用 skip
+        skip: cursor ? 0 : skip,
         take,
-        // 优化：只选择必要字段
         select: {
           id: true,
           title: true,
@@ -230,62 +191,38 @@ export class TodosService {
           completed: true,
           completedAt: true,
           priority: true,
-          estimatedTime: true,
-          aiAnalyzed: true,
           order: true,
           dueDate: true,
           createdAt: true,
           updatedAt: true,
-          aiReasoning: true,
+          userId: true,
           version: true,
         },
       }),
-      // 只在非游标分页时计算总数（游标分页通常不需要总数）
       cursor ? Promise.resolve(0) : this.prisma.todo.count({ where }),
     ])
 
-    // 处理游标分页结果
     let hasNextPage = false
     let nextCursor: string | undefined
     let actualTodos = todos
 
     if (cursor && todos.length > limit) {
       hasNextPage = true
-      actualTodos = todos.slice(0, -1) // 移除多取的一个
+      actualTodos = todos.slice(0, -1)
       nextCursor = actualTodos[actualTodos.length - 1]?.createdAt.toISOString()
     }
 
-    // 获取统计信息
     let stats: TodoStats | undefined
     if (includeStats) {
       stats = await this.getStats(userId)
     }
 
     return {
-      todos: actualTodos.map((todo) =>
-        this.mapPrismaTodoToTodo(
-          todo as unknown as {
-            id: string
-            title: string
-            description: string | null
-            completed: boolean
-            completedAt: Date | null
-            createdAt: Date
-            updatedAt: Date
-            order: number
-            priority: number | null
-            estimatedTime: number | null
-            aiAnalyzed: boolean
-            userId: string
-            dueDate: Date | null
-          }
-        )
-      ),
+      todos: actualTodos.map(this.mapPrismaTodoToTodo),
       total,
       page,
       limit,
       stats: stats || { total: 0, completed: 0, active: 0, completionRate: 0 },
-      // 游标分页信息
       hasNextPage,
       nextCursor,
     }
@@ -296,7 +233,7 @@ export class TodosService {
       where: {
         id,
         userId,
-        deletedAt: null, // 排除软删除的待办事项
+        deletedAt: null,
       },
     })
 
@@ -312,7 +249,7 @@ export class TodosService {
       where: {
         id,
         userId,
-        deletedAt: null, // 排除软删除的待办事项
+        deletedAt: null,
       },
     })
 
@@ -322,37 +259,25 @@ export class TodosService {
 
     const updateData: Record<string, unknown> = {
       ...updateTodoDto,
-      version: existingTodo.version + 1, // 版本控制
+      version: existingTodo.version + 1,
       updatedAt: new Date(),
     }
 
-    // 处理截止日期
     if (updateTodoDto.dueDate !== undefined) {
       updateData.dueDate = updateTodoDto.dueDate ? new Date(updateTodoDto.dueDate) : null
     }
 
-    // 处理预估时间（从字符串转换为分钟数）
-    if (updateTodoDto.estimatedTime !== undefined) {
-      updateData.estimatedTime = updateTodoDto.estimatedTime
-        ? this.parseEstimatedTime(updateTodoDto.estimatedTime)
-        : null
-    }
-
-    // 处理完成状态和完成时间
     if (updateTodoDto.completed !== undefined) {
       updateData.completed = updateTodoDto.completed
 
-      // 如果前端提供了 completedAt，使用前端的值；否则使用默认逻辑
       if (updateTodoDto.completedAt !== undefined) {
         updateData.completedAt = updateTodoDto.completedAt
           ? new Date(updateTodoDto.completedAt)
           : null
       } else {
-        // 如果前端没有提供 completedAt，使用默认逻辑
         updateData.completedAt = updateTodoDto.completed ? new Date() : null
       }
     } else if (updateTodoDto.completedAt !== undefined) {
-      // 如果只更新 completedAt 而不更新 completed 状态
       updateData.completedAt = updateTodoDto.completedAt
         ? new Date(updateTodoDto.completedAt)
         : null
@@ -371,7 +296,7 @@ export class TodosService {
       where: {
         id,
         userId,
-        deletedAt: null, // 排除已软删除的待办事项
+        deletedAt: null,
       },
     })
 
@@ -379,7 +304,6 @@ export class TodosService {
       throw new NotFoundException('Todo 不存在')
     }
 
-    // 软删除待办事项
     await this.prisma.todo.update({
       where: { id },
       data: {
@@ -389,7 +313,6 @@ export class TodosService {
     })
   }
 
-  // 硬删除方法（管理员使用）
   async hardDelete(userId: string, id: string): Promise<void> {
     const existingTodo = await this.prisma.todo.findFirst({
       where: { id, userId },
@@ -404,37 +327,22 @@ export class TodosService {
     })
   }
 
-  /**
-   * 批量更新待办事项 - 性能优化版本
-   */
   async batchUpdate(
     userId: string,
     todoIds: string[],
     updateData: Partial<UpdateTodoDto>
   ): Promise<void> {
-    // 验证输入数据
-    if (updateData.title || updateData.priority || updateData.estimatedTime) {
+    if (updateData.title || updateData.priority) {
       this.validationService.validateTodoData(updateData)
     }
 
-    // 处理数据类型转换
     const processedUpdateData: Record<string, unknown> = { ...updateData }
 
-    // 处理预估时间类型转换
-    if (updateData.estimatedTime !== undefined) {
-      processedUpdateData.estimatedTime = updateData.estimatedTime
-        ? this.parseEstimatedTime(updateData.estimatedTime)
-        : null
-    }
-
-    // 处理截止日期
     if (updateData.dueDate !== undefined) {
       processedUpdateData.dueDate = updateData.dueDate ? new Date(updateData.dueDate) : null
     }
 
-    // 使用事务确保数据一致性
     await this.prisma.$transaction(async (tx) => {
-      // 先验证所有 todos 都属于该用户
       const count = await tx.todo.count({
         where: {
           id: { in: todoIds },
@@ -447,7 +355,6 @@ export class TodosService {
         throw new NotFoundException('部分待办事项不存在或无权访问')
       }
 
-      // 批量更新
       await tx.todo.updateMany({
         where: {
           id: { in: todoIds },
@@ -461,12 +368,8 @@ export class TodosService {
     })
   }
 
-  /**
-   * 批量删除待办事项（软删除）
-   */
   async batchDelete(userId: string, todoIds: string[]): Promise<void> {
     await this.prisma.$transaction(async (tx) => {
-      // 验证权限
       const count = await tx.todo.count({
         where: {
           id: { in: todoIds },
@@ -479,7 +382,6 @@ export class TodosService {
         throw new NotFoundException('部分待办事项不存在或无权访问')
       }
 
-      // 批量软删除
       await tx.todo.updateMany({
         where: {
           id: { in: todoIds },
@@ -492,13 +394,12 @@ export class TodosService {
     })
   }
 
-  // 恢复软删除的待办事项
   async restore(userId: string, id: string): Promise<Todo> {
     const existingTodo = await this.prisma.todo.findFirst({
       where: {
         id,
         userId,
-        deletedAt: { not: null }, // 只能恢复已软删除的待办事项
+        deletedAt: { not: null },
       },
     })
 
@@ -520,7 +421,6 @@ export class TodosService {
   async reorder(userId: string, reorderDto: ReorderTodosDto): Promise<void> {
     const { items } = reorderDto
 
-    // 验证所有 Todo 都属于当前用户
     const todoIds = items.map((item) => item.todoId)
     const todos = await this.prisma.todo.findMany({
       where: { id: { in: todoIds }, userId },
@@ -531,7 +431,6 @@ export class TodosService {
       throw new ForbiddenException('部分 Todo 不存在或无权限访问')
     }
 
-    // 批量更新排序
     const updatePromises = items.map((item) =>
       this.prisma.todo.update({
         where: { id: item.todoId },
@@ -546,10 +445,8 @@ export class TodosService {
     userId: string,
     batchAnalyzeDto: BatchAnalyzeDto
   ): Promise<{ success: number; failed: number; results: Array<Record<string, unknown>> }> {
-    const { todoIds, enablePriorityAnalysis, enableTimeEstimation, forceReanalyze } =
-      batchAnalyzeDto
+    const { todoIds, forceReanalyze } = batchAnalyzeDto
 
-    // 验证所有 Todo 都属于当前用户
     const todos = await this.prisma.todo.findMany({
       where: { id: { in: todoIds }, userId },
     })
@@ -564,8 +461,7 @@ export class TodosService {
 
     for (const todo of todos) {
       try {
-        // 如果已经分析过且不强制重新分析，跳过
-        if (todo.aiAnalyzed && !forceReanalyze) {
+        if (!forceReanalyze) {
           results.push({
             todoId: todo.id,
             status: 'skipped',
@@ -574,19 +470,7 @@ export class TodosService {
           continue
         }
 
-        // 执行 AI 分析
-        const analysis = await this.performAIAnalysis(todo.title, todo.description || undefined, {
-          enablePriorityAnalysis,
-          enableTimeEstimation,
-        })
-
-        // 创建 AI 分析记录
-        // await this.aiAnalysisService.createAnalysis(userId, {
-        //   todoId: todo.id,
-        //   priority: enablePriorityAnalysis ? analysis.priority : undefined,
-        //   estimatedTime: enableTimeEstimation ? analysis.estimatedTime : undefined,
-        //   reasoning: analysis.reasoning,
-        // })
+        const analysis = await this.performAIAnalysis(todo.title, todo.description || undefined)
 
         results.push({
           todoId: todo.id,
@@ -608,13 +492,11 @@ export class TodosService {
   }
 
   async getStats(userId: string): Promise<TodoStats> {
-    // 使用缓存优化统计查询
     const cacheKey = CacheKeyGenerator.stats(userId)
 
     return this.cacheService.getOrSet(
       cacheKey,
       async () => {
-        // 优化：使用单个查询获取所有统计信息
         const now = new Date()
         const todayStart = new Date(now.setHours(0, 0, 0, 0))
         const todayEnd = new Date(now.setHours(23, 59, 59, 999))
@@ -630,16 +512,16 @@ export class TodosService {
             due_this_week: bigint
           }>
         >`
-      SELECT
-        COUNT(*) as total,
-        COUNT(*) FILTER (WHERE completed = true) as completed,
-        COUNT(*) FILTER (WHERE completed = false) as active,
-        COUNT(*) FILTER (WHERE completed = false AND "dueDate" < NOW()) as overdue,
-        COUNT(*) FILTER (WHERE completed = false AND "dueDate" >= ${todayStart} AND "dueDate" <= ${todayEnd}) as due_today,
-        COUNT(*) FILTER (WHERE completed = false AND "dueDate" >= NOW() AND "dueDate" <= ${weekEnd}) as due_this_week
-      FROM todos
-      WHERE "userId" = ${userId} AND "deletedAt" IS NULL
-    `
+          SELECT
+            COUNT(*) as total,
+            COUNT(*) FILTER (WHERE completed = true) as completed,
+            COUNT(*) FILTER (WHERE completed = false) as active,
+            COUNT(*) FILTER (WHERE completed = false AND "dueDate" < NOW()) as overdue,
+            COUNT(*) FILTER (WHERE completed = false AND "dueDate" >= ${todayStart} AND "dueDate" <= ${todayEnd}) as due_today,
+            COUNT(*) FILTER (WHERE completed = false AND "dueDate" >= NOW() AND "dueDate" <= ${weekEnd}) as due_this_week
+          FROM todos
+          WHERE "userId" = ${userId} AND "deletedAt" IS NULL
+        `
 
         const result = stats[0]
         const total = Number(result.total)
@@ -657,21 +539,13 @@ export class TodosService {
           dueThisWeek: Number(result.due_this_week),
         }
       },
-      2 * 60 * 1000 // 缓存2分钟
+      2 * 60 * 1000
     )
   }
 
-  private async performAIAnalysis(
-    title: string,
-    description?: string,
-    _options?: Record<string, unknown>
-  ): Promise<AIAnalysisResult> {
-    // 模拟 AI 分析逻辑
-    // 实际项目中这里会调用 DeepSeek 或其他 AI 服务
-
+  private async performAIAnalysis(title: string, description?: string): Promise<Partial<Todo>> {
     const text = `${title} ${description || ''}`.toLowerCase()
 
-    // 简单的优先级分析
     let priority = 3 // 默认优先级
     if (
       text.includes('紧急') ||
@@ -688,76 +562,9 @@ export class TodosService {
       priority = 1
     }
 
-    // 简单的时间估算
-    let estimatedTime = '30分钟' // 默认时间
-    if (
-      text.includes('项目') ||
-      text.includes('project') ||
-      text.includes('开发') ||
-      text.includes('develop')
-    ) {
-      estimatedTime = '2小时'
-    } else if (
-      text.includes('文档') ||
-      text.includes('document') ||
-      text.includes('写') ||
-      text.includes('write')
-    ) {
-      estimatedTime = '1小时'
-    } else if (
-      text.includes('会议') ||
-      text.includes('meeting') ||
-      text.includes('讨论') ||
-      text.includes('discuss')
-    ) {
-      estimatedTime = '45分钟'
-    } else if (
-      text.includes('学习') ||
-      text.includes('learn') ||
-      text.includes('研究') ||
-      text.includes('research')
-    ) {
-      estimatedTime = '1.5小时'
-    }
-
     return {
       priority: priority as TodoPriority,
-      estimatedTime,
-      estimatedMinutes: 0, // 添加 estimatedMinutes 字段
-      reasoning: `基于关键词分析：优先级 ${priority}/5，预计耗时 ${estimatedTime}`,
     }
-  }
-
-  /**
-   * 解析预估时间字符串为分钟数
-   * 支持格式：'30分钟', '2小时', '1.5小时', '90分钟' 等
-   */
-  private parseEstimatedTime(timeStr: string): number | null {
-    if (!timeStr || typeof timeStr !== 'string') {
-      return null
-    }
-
-    const str = timeStr.trim().toLowerCase()
-
-    // 匹配小时格式：1小时、1.5小时、2h等
-    const hourMatch = str.match(/(\d+(?:\.\d+)?)\s*(?:小时|hour|h)/)
-    if (hourMatch) {
-      return Math.round(parseFloat(hourMatch[1]) * 60)
-    }
-
-    // 匹配分钟格式：30分钟、45min等
-    const minuteMatch = str.match(/(\d+)\s*(?:分钟|minute|min|m)/)
-    if (minuteMatch) {
-      return parseInt(minuteMatch[1], 10)
-    }
-
-    // 如果只是数字，默认为分钟
-    const numberMatch = str.match(/^(\d+)$/)
-    if (numberMatch) {
-      return parseInt(numberMatch[1], 10)
-    }
-
-    return null
   }
 
   private mapPrismaTodoToTodo(prismaTodo: {
@@ -770,8 +577,6 @@ export class TodosService {
     updatedAt: Date
     order: number
     priority: number | null
-    estimatedTime: number | null
-    aiAnalyzed: boolean
     userId: string
     dueDate: Date | null
   }): Todo {
@@ -785,8 +590,6 @@ export class TodosService {
       updatedAt: prismaTodo.updatedAt.toISOString(),
       order: prismaTodo.order,
       priority: (prismaTodo.priority as TodoPriority) ?? undefined,
-      estimatedTime: prismaTodo.estimatedTime?.toString(),
-      aiAnalyzed: prismaTodo.aiAnalyzed,
       userId: prismaTodo.userId,
       dueDate: prismaTodo.dueDate?.toISOString(),
     }

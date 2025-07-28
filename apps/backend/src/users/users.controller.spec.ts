@@ -17,10 +17,10 @@ describe('UsersController', () => {
     email: 'test@example.com',
     username: 'testuser',
     password: 'hashedpassword',
-    avatarUrl: null,
+    avatarUrl: undefined,
     emailVerified: true,
     preferences: {
-      theme: 'light',
+      theme: 'auto' as const,
       language: 'zh-CN',
       aiConfig: {
         enabled: true,
@@ -50,11 +50,11 @@ describe('UsersController', () => {
         reminderMinutes: 30,
       },
       storageConfig: {
-        mode: 'hybrid',
+        mode: 'hybrid' as const,
         autoSync: true,
         syncInterval: 5,
         offlineMode: true,
-        conflictResolution: 'merge',
+        conflictResolution: 'merge' as const,
         retryAttempts: 3,
         requestTimeout: 10000,
       },
@@ -110,7 +110,7 @@ describe('UsersController', () => {
   describe('getProfile', () => {
     it('should return user profile', async () => {
       const sanitizedUser = { ...mockUser }
-      delete sanitizedUser.password
+      delete (sanitizedUser as any).password
 
       mockUsersService.findById.mockResolvedValue(mockUser)
       mockUtilsService.sanitizeUser.mockReturnValue(sanitizedUser)
@@ -136,7 +136,7 @@ describe('UsersController', () => {
       const updateDto = { username: 'newusername' }
       const updatedUser = { ...mockUser, username: 'newusername' }
       const sanitizedUser = { ...updatedUser }
-      delete sanitizedUser.password
+      delete (sanitizedUser as any).password
 
       mockUsersService.update.mockResolvedValue(updatedUser)
       mockUtilsService.sanitizeUser.mockReturnValue(sanitizedUser)
@@ -208,7 +208,7 @@ describe('UsersController', () => {
   describe('getUserById', () => {
     it('should return user by id', async () => {
       const sanitizedUser = { ...mockUser }
-      delete sanitizedUser.password
+      delete (sanitizedUser as any).password
 
       mockUsersService.findById.mockResolvedValue(mockUser)
       mockUtilsService.sanitizeUser.mockReturnValue(sanitizedUser)

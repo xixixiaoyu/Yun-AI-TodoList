@@ -47,7 +47,7 @@ describe('AuthService', () => {
 
   const mockConfigService = {
     get: jest.fn().mockImplementation((key: string) => {
-      const config = {
+      const config: { [key: string]: string } = {
         JWT_SECRET: 'test-secret',
         JWT_EXPIRES_IN: '1h',
         JWT_REFRESH_SECRET: 'test-refresh-secret',

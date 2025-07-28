@@ -60,8 +60,6 @@ describe('TodosService', () => {
     updatedAt: new Date(),
     order: 1,
     priority: 3,
-    estimatedTime: 60,
-    aiAnalyzed: false,
     dueDate: null,
     deletedAt: null,
   }
@@ -103,7 +101,6 @@ describe('TodosService', () => {
       title: '新待办事项',
       description: '描述',
       priority: 3,
-      estimatedTime: '1小时',
     }
 
     it('应该成功创建待办事项', async () => {

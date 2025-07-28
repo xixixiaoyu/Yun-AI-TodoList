@@ -1,4 +1,26 @@
 import { Injectable } from '@nestjs/common'
+
+interface AppInfo {
+  name: string
+  version: string
+  description: string
+  author: string
+  environment: string
+  timestamp: string
+}
+
+interface HealthStatus {
+  status: string
+  timestamp: string
+  uptime: number
+  database: {
+    status: string
+    type: string
+  }
+  memory: NodeJS.MemoryUsage
+  version: string
+  environment: string
+}
 import { ConfigService } from '@nestjs/config'
 
 const APP_CONFIG = {
@@ -12,7 +34,7 @@ const APP_CONFIG = {
 export class AppService {
   constructor(private readonly configService: ConfigService) {}
 
-  getAppInfo(): object {
+  getAppInfo(): AppInfo {
     return {
       name: APP_CONFIG.NAME,
       version: APP_CONFIG.VERSION,
@@ -23,7 +45,7 @@ export class AppService {
     }
   }
 
-  getHealthStatus(): object {
+  getHealthStatus(): HealthStatus {
     return {
       status: 'ok',
       timestamp: new Date().toISOString(),
