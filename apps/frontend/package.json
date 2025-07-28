@@ -31,6 +31,7 @@
     "@vueuse/core": "13.3.0",
     "@vueuse/integrations": "13.3.0",
     "@yun-ai-todolist/shared": "workspace:*",
+    "axios": "^1.11.0",
     "canvas-confetti": "1.9.3",
     "chart.js": "4.4.9",
     "date-fns": "4.1.0",

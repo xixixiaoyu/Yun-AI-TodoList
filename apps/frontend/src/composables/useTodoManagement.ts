@@ -1,8 +1,9 @@
 import { AI_RETRY_OPTIONS, withRetry } from '@/utils/retryHelper'
+import type { Todo, UpdateTodoDto } from '@shared/types/todo'
+import axios from 'axios'
 import { computed, nextTick, onUnmounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { getAIResponse } from '../services/deepseekService'
-import type { Todo, UpdateTodoDto } from '../types/todo'
 import { handleError, logger } from '../utils/logger'
 import { useAIAnalysis } from './useAIAnalysis'
 import { useErrorHandler } from './useErrorHandler'
@@ -43,7 +44,7 @@ export function useTodoManagement() {
             // 使用专门的 AI 分析更新函数
             updateTodoAIAnalysis(id, {
               priority: updates.priority,
-              estimatedTime: updates.estimatedTime,
+              estimatedTime: updates.estimatedTime ? updates.estimatedTime.text : undefined,
               aiAnalyzed: updates.aiAnalyzed,
             })
           }),
@@ -118,7 +119,7 @@ export function useTodoManagement() {
         // 如果有历史记录，结合历史记录生成个性化建议
         const completedTodosList = completedTodos
           .slice(-10) // 只取最近的10个已完成任务
-          .map((todo) => `- ${todo.text}`)
+          .map((todo) => `- ${todo.title}`)
           .join('\n')
 
         const template = t('generateSuggestionsWithHistoryPrompt')
@@ -244,7 +245,9 @@ export function useTodoManagement() {
             updates.forEach(({ id, updates: todoUpdates }) => {
               updateTodoAIAnalysis(id, {
                 priority: todoUpdates.priority,
-                estimatedTime: todoUpdates.estimatedTime,
+                estimatedTime: todoUpdates.estimatedTime
+                  ? todoUpdates.estimatedTime.text
+                  : undefined,
                 aiAnalyzed: todoUpdates.aiAnalyzed,
               })
             })
@@ -521,14 +524,12 @@ ${todoTexts}
       logger.error('Error adding todo', { text, error }, 'TodoManagement')
 
       // 检查是否是重复错误
-      if (
-        error?.message?.includes('该待办事项已存在') ||
-        error?.message?.includes('already exists') ||
-        error?.response?.data?.message?.includes('该待办事项已存在')
-      ) {
+      if (axios.isAxiosError(error) && error.response && error.response.status === 409) {
         showError(t('duplicateError', '该待办事项已存在'))
+      } else if (error instanceof Error && error.message.includes('aborted')) {
+        showError(t('aiRequestAborted', 'AI 请求已取消'))
       } else {
-        showError(t('addTodoError', '添加待办事项失败，请重试'))
+        showError(t('addError', '添加失败，请重试'))
       }
 
       return { needsSplitting: false }
@@ -578,7 +579,7 @@ ${todoTexts}
                   // 使用专门的 AI 分析更新函数
                   updateTodoAIAnalysis(id, {
                     priority: updates.priority,
-                    estimatedTime: updates.estimatedTime,
+                    estimatedTime: updates.estimatedTime ? updates.estimatedTime.text : undefined,
                     aiAnalyzed: updates.aiAnalyzed,
                   })
                 },
@@ -693,7 +694,9 @@ ${todoTexts}
                       // 使用专门的 AI 分析更新函数
                       updateTodoAIAnalysis(id, {
                         priority: todoUpdates.priority,
-                        estimatedTime: todoUpdates.estimatedTime,
+                        estimatedTime: todoUpdates.estimatedTime
+                          ? todoUpdates.estimatedTime.text
+                          : undefined,
                         aiAnalyzed: todoUpdates.aiAnalyzed,
                       })
                     })
@@ -785,7 +788,9 @@ ${todoTexts}
                       // 使用专门的 AI 分析更新函数
                       updateTodoAIAnalysis(id, {
                         priority: updates.priority,
-                        estimatedTime: updates.estimatedTime,
+                        estimatedTime: updates.estimatedTime
+                          ? updates.estimatedTime.text
+                          : undefined,
                         aiAnalyzed: updates.aiAnalyzed,
                       })
                     },

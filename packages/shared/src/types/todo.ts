@@ -24,6 +24,8 @@ export interface Todo {
   priority?: TodoPriority // 重要等级 (1-5 星)
   userId?: string // 用户 ID (后端使用)
   dueDate?: string // 截止日期 ISO 8601 格式
+  estimatedTime?: TimeEstimate // AI 估算的时间
+  aiAnalyzed?: boolean // 是否经过 AI 分析
   // 双重存储支持
   synced?: boolean // 是否已同步到云端
   lastSyncTime?: string // 最后同步时间 ISO 8601 格式
@@ -47,6 +49,7 @@ export interface UpdateTodoDto {
   dueDate?: string // ISO 8601 格式
   order?: number
   estimatedTime?: TimeEstimate
+  aiAnalyzed?: boolean // 是否经过 AI 分析
 }
 
 export interface TodoStats {
