@@ -4,9 +4,14 @@ on:
   workflow_call:
     inputs:
       artifact-name:
-        description: 'Name of the build artifact to deploy'
-        required: true
+        description: 'Name of the build artifact to deploy (used by CI)'
+        required: false
         type: string
+      deploy-latest-from-main:
+        description: 'Set to true to deploy the latest artifact from the main branch'
+        required: false
+        type: boolean
+        default: false
     secrets:
       QINIU_ACCESS_KEY:
         required: true
@@ -33,11 +38,22 @@ jobs:
       - name: 📥 Checkout code (for deploy script)
         uses: actions/checkout@v4
 
-      - name: 📥 Download build artifacts
+      - name: 📥 Download specific build artifact (CI)
+        if: ${{ !inputs.deploy-latest-from-main }}
         uses: actions/download-artifact@v4
         with:
           name: ${{ inputs.artifact-name }}
           path: ./apps/frontend/dist
+
+      - name: 📥 Download latest build artifact from main (Manual Deploy)
+        if: ${{ inputs.deploy-latest-from-main }}
+        uses: dawidd6/action-download-artifact@v6
+        with:
+          workflow: ci-cd.yml
+          branch: main
+          name: build-files-.*
+          path: ./apps/frontend/dist
+          if_no_artifact_found: fail
 
       - name: 🔐 Verify Qiniu environment variables
         run: |

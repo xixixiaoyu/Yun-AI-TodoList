@@ -2,21 +2,13 @@ name: 🔧 Deploy to Qiniu Cloud (Manual)
 
 on:
   workflow_dispatch:
-    inputs:
-      artifact-name:
-        description: 'The name of the build artifact to deploy (e.g., build-files-COMMIT_SHA)'
-        required: true
-      reason:
-        description: 'Reason for manual deployment'
-        required: false
-        default: 'Manual deployment'
 
 jobs:
   deploy-qiniu-manual:
     name: 🚀 Deploy to Qiniu Cloud (Manual)
     uses: ./.github/workflows/deploy-qiniu-reusable.yml
     with:
-      artifact-name: ${{ github.event.inputs.artifact-name }}
+      deploy-latest-from-main: true
     secrets:
       QINIU_ACCESS_KEY: ${{ secrets.QINIU_ACCESS_KEY }}
       QINIU_SECRET_KEY: ${{ secrets.QINIU_SECRET_KEY }}
