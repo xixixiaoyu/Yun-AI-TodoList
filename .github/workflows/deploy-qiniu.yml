@@ -79,6 +79,8 @@ jobs:
       - name: 🧹 Clean up redundant files on Qiniu
         run: |
           echo "🧹 Cleaning up redundant files on Qiniu Cloud..."
+          # 确保 qiniu 包已安装
+          pnpm add qiniu@7.14.0
           node scripts/clean-qiniu-redundant-files.mjs
         env:
           QINIU_ACCESS_KEY: ${{ secrets.QINIU_ACCESS_KEY }}
