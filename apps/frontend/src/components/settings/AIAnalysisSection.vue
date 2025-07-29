@@ -67,26 +67,6 @@
         </div>
       </div>
 
-      <!-- 自动分析新待办事项 -->
-      <div class="setting-item">
-        <div class="setting-info">
-          <label class="setting-label">{{ t('autoAnalyzeNewTodos') }}</label>
-          <p class="setting-description">{{ t('autoAnalyzeNewTodosDesc') }}</p>
-        </div>
-        <div class="setting-control">
-          <label class="toggle-switch">
-            <input
-              type="checkbox"
-              :checked="analysisConfig.autoAnalyzeNewTodos"
-              @change="
-                updateConfig({ autoAnalyzeNewTodos: ($event.target as HTMLInputElement).checked })
-              "
-            />
-            <span class="toggle-slider"></span>
-          </label>
-        </div>
-      </div>
-
       <!-- 启用 AI 拆分子任务 -->
       <div class="setting-item">
         <div class="setting-info">
@@ -210,12 +190,12 @@
 </template>
 
 <script setup lang="ts">
-import { reactive } from 'vue'
 import { useAIAnalysis } from '@/composables/useAIAnalysis'
+import { reactive } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 const { t } = useI18n()
-const { analysisConfig, updateAnalysisConfig } = useAIAnalysis()
+const { analysisConfig, setAnalysisConfig } = useAIAnalysis()
 
 // 任务生成配置
 const taskGenerationConfig = reactive({
@@ -257,7 +237,7 @@ const updateTaskGenerationConfig = (updates: Partial<typeof taskGenerationConfig
 loadTaskGenerationConfig()
 
 const updateConfig = (config: Record<string, unknown>) => {
-  updateAnalysisConfig(config)
+  setAnalysisConfig(config)
 }
 
 defineOptions({

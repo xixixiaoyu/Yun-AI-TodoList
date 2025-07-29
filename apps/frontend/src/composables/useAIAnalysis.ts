@@ -43,11 +43,36 @@ export function useAIAnalysis() {
 
   // AI 配置
   const analysisConfig = ref<AIAnalysisConfig>({
-    autoAnalyzeNewTodos: true, // 修复：默认值应为 true
+    autoAnalyzeNewTodos: true,
     enablePriorityAnalysis: true,
     enableTimeEstimation: true,
     enableSubtaskSplitting: false,
   })
+
+  // 从 localStorage 加载配置
+  const loadAnalysisConfig = () => {
+    try {
+      const saved = localStorage.getItem('aiAnalysisConfig')
+      if (saved) {
+        const config = JSON.parse(saved)
+        analysisConfig.value = { ...analysisConfig.value, ...config }
+      }
+    } catch (error) {
+      console.warn('Failed to load AI analysis config:', error)
+    }
+  }
+
+  // 保存配置到 localStorage
+  const saveAnalysisConfig = () => {
+    try {
+      localStorage.setItem('aiAnalysisConfig', JSON.stringify(analysisConfig.value))
+    } catch (error) {
+      console.warn('Failed to save AI analysis config:', error)
+    }
+  }
+
+  // 初始化时加载配置
+  loadAnalysisConfig()
 
   // 分析功能开关
   const isAnalysisEnabled = ref(true)
@@ -69,6 +94,7 @@ export function useAIAnalysis() {
    */
   const setAnalysisConfig = (config: Partial<AIAnalysisConfig>) => {
     analysisConfig.value = { ...analysisConfig.value, ...config }
+    saveAnalysisConfig()
   }
 
   /**
