@@ -1,7 +1,7 @@
 services:
   # PostgreSQL 数据库
   postgres:
-    image: postgres:15-alpine
+    image: docker.m.daocloud.io/library/postgres:15-alpine
     container_name: yun-todolist-postgres
     restart: unless-stopped
     environment:
@@ -25,7 +25,7 @@ services:
 
   # Redis 缓存
   redis:
-    image: redis:7-alpine
+    image: docker.m.daocloud.io/library/redis:7-alpine
     container_name: yun-todolist-redis
     restart: unless-stopped
     command: redis-server --appendonly yes --requirepass redis123
@@ -145,7 +145,7 @@ services:
 
   # 数据库管理工具 (可选)
   adminer:
-    image: adminer:4-standalone
+    image: docker.m.daocloud.io/library/adminer:4-standalone
     container_name: yun-todolist-adminer
     restart: unless-stopped
     ports:
