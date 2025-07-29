@@ -141,50 +141,6 @@
           </select>
         </div>
       </div>
-
-      <!-- 默认启用优先级分析 -->
-      <div v-if="taskGenerationConfig.enabled" class="setting-item">
-        <div class="setting-info">
-          <label class="setting-label">{{ t('defaultEnablePriorityAnalysis') }}</label>
-          <p class="setting-description">{{ t('defaultEnablePriorityAnalysisDesc') }}</p>
-        </div>
-        <div class="setting-control">
-          <label class="toggle-switch">
-            <input
-              type="checkbox"
-              :checked="taskGenerationConfig.defaultEnablePriorityAnalysis"
-              @change="
-                updateTaskGenerationConfig({
-                  defaultEnablePriorityAnalysis: ($event.target as HTMLInputElement).checked,
-                })
-              "
-            />
-            <span class="toggle-slider"></span>
-          </label>
-        </div>
-      </div>
-
-      <!-- 默认启用时间估算 -->
-      <div v-if="taskGenerationConfig.enabled" class="setting-item">
-        <div class="setting-info">
-          <label class="setting-label">{{ t('defaultEnableTimeEstimation') }}</label>
-          <p class="setting-description">{{ t('defaultEnableTimeEstimationDesc') }}</p>
-        </div>
-        <div class="setting-control">
-          <label class="toggle-switch">
-            <input
-              type="checkbox"
-              :checked="taskGenerationConfig.defaultEnableTimeEstimation"
-              @change="
-                updateTaskGenerationConfig({
-                  defaultEnableTimeEstimation: ($event.target as HTMLInputElement).checked,
-                })
-              "
-            />
-            <span class="toggle-slider"></span>
-          </label>
-        </div>
-      </div>
     </div>
   </div>
 </template>
@@ -201,8 +157,6 @@ const { analysisConfig, setAnalysisConfig } = useAIAnalysis()
 const taskGenerationConfig = reactive({
   enabled: true,
   defaultMaxTasks: 5,
-  defaultEnablePriorityAnalysis: true,
-  defaultEnableTimeEstimation: true,
 })
 
 // 从 localStorage 加载配置

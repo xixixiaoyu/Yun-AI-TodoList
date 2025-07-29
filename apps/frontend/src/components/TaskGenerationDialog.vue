@@ -219,10 +219,11 @@
 </template>
 
 <script setup lang="ts">
+import { useAIAnalysis } from '@/composables/useAIAnalysis'
+import { useTaskGeneration } from '@/composables/useTaskGeneration'
+import type { GeneratedTask, Todo } from '@/types/todo'
 import { computed, nextTick, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
-import type { GeneratedTask, Todo } from '@/types/todo'
-import { useTaskGeneration } from '@/composables/useTaskGeneration'
 import TaskPreviewCard from './TaskPreviewCard.vue'
 
 interface Props {
@@ -262,13 +263,16 @@ const {
   updateConfig,
 } = useTaskGeneration()
 
+// 引入 AI 分析配置
+const { analysisConfig } = useAIAnalysis()
+
 // 本地状态
 const inputDescription = ref('')
 const textareaRef = ref<HTMLTextAreaElement>()
 const localConfig = ref({
   maxTasks: 0, // 0 表示自动判断
-  enablePriorityAnalysis: true,
-  enableTimeEstimation: true,
+  enablePriorityAnalysis: analysisConfig.value.enablePriorityAnalysis,
+  enableTimeEstimation: analysisConfig.value.enableTimeEstimation,
 })
 
 // 计算属性
@@ -288,6 +292,19 @@ watch(
   { deep: true }
 )
 
+// 监听全局AI分析配置变化，更新本地配置的默认值
+watch(
+  analysisConfig,
+  (newConfig) => {
+    // 只在对话框关闭时更新默认值，避免干扰用户当前的设置
+    if (!props.show) {
+      localConfig.value.enablePriorityAnalysis = newConfig.enablePriorityAnalysis
+      localConfig.value.enableTimeEstimation = newConfig.enableTimeEstimation
+    }
+  },
+  { deep: true }
+)
+
 // 监听对话框显示状态
 watch(
   () => props.show,
@@ -302,8 +319,8 @@ watch(
       inputDescription.value = ''
       localConfig.value = {
         maxTasks: 0, // 0 表示自动判断
-        enablePriorityAnalysis: true,
-        enableTimeEstimation: true,
+        enablePriorityAnalysis: analysisConfig.value.enablePriorityAnalysis,
+        enableTimeEstimation: analysisConfig.value.enableTimeEstimation,
       }
     }
   }
