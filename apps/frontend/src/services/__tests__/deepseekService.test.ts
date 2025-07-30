@@ -310,13 +310,13 @@ describe('deepseekService', () => {
       }
       mockFetchFn.mockResolvedValue(createMockResponse(mockResponseData))
 
-      await getAIResponse('Test message', 0.7)
+      await getAIResponse('Test message', 0.3)
 
       const callArgs = mockFetchFn.mock.calls[0][1]
       const requestBody = JSON.parse(callArgs.body)
 
       expect(requestBody.model).toBe('deepseek-chat')
-      expect(requestBody.temperature).toBe(0.7)
+      expect(requestBody.temperature).toBe(0.3)
       expect(requestBody.stream).toBe(false)
       expect(requestBody.messages).toHaveLength(2)
       expect(requestBody.messages[1].content).toBe('Test message')

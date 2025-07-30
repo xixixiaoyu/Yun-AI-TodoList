@@ -92,7 +92,7 @@ export async function generateTasksFromDescription(
     const prompt = buildTaskGenerationPrompt(request, config)
 
     // 调用 AI 服务
-    const response = await getAIResponse(prompt, 0.7)
+    const response = await getAIResponse(prompt, 0.3)
 
     // 解析响应
     const result = parseAIResponse(response, request, startTime)

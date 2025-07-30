@@ -48,28 +48,11 @@
 
             <!-- 配置选项 -->
             <div class="config-section">
-              <h4 class="config-title">{{ t('generationOptions') }}</h4>
-              <div class="config-grid">
-                <label class="config-item">
-                  <input
-                    v-model="localConfig.enablePriorityAnalysis"
-                    type="checkbox"
-                    :disabled="isGenerating"
-                  />
-                  <span>{{ t('enablePriorityAnalysis') }}</span>
-                </label>
-                <label class="config-item">
-                  <input
-                    v-model="localConfig.enableTimeEstimation"
-                    type="checkbox"
-                    :disabled="isGenerating"
-                  />
-                  <span>{{ t('enableTimeEstimation') }}</span>
-                </label>
-              </div>
-
               <div class="config-row">
-                <label class="config-label">{{ t('maxTasks') }}</label>
+                <div class="config-label-group">
+                  <label class="config-label">{{ t('maxTasks') }}</label>
+                  <span class="config-hint">{{ t('maxTasksHint') }}</span>
+                </div>
                 <select
                   v-model="localConfig.maxTasks"
                   :disabled="isGenerating"
@@ -271,8 +254,6 @@ const inputDescription = ref('')
 const textareaRef = ref<HTMLTextAreaElement>()
 const localConfig = ref({
   maxTasks: 0, // 0 表示自动判断
-  enablePriorityAnalysis: analysisConfig.value.enablePriorityAnalysis,
-  enableTimeEstimation: analysisConfig.value.enableTimeEstimation,
 })
 
 // 计算属性
@@ -292,19 +273,6 @@ watch(
   { deep: true }
 )
 
-// 监听全局AI分析配置变化，更新本地配置的默认值
-watch(
-  analysisConfig,
-  (newConfig) => {
-    // 只在对话框关闭时更新默认值，避免干扰用户当前的设置
-    if (!props.show) {
-      localConfig.value.enablePriorityAnalysis = newConfig.enablePriorityAnalysis
-      localConfig.value.enableTimeEstimation = newConfig.enableTimeEstimation
-    }
-  },
-  { deep: true }
-)
-
 // 监听对话框显示状态
 watch(
   () => props.show,
@@ -319,8 +287,6 @@ watch(
       inputDescription.value = ''
       localConfig.value = {
         maxTasks: 0, // 0 表示自动判断
-        enablePriorityAnalysis: analysisConfig.value.enablePriorityAnalysis,
-        enableTimeEstimation: analysisConfig.value.enableTimeEstimation,
       }
     }
   }
@@ -346,7 +312,10 @@ const handleKeydown = (event: KeyboardEvent) => {
 const handleGenerate = async () => {
   if (!canGenerate.value || isGenerating.value) return
 
-  await generateTasks(inputDescription.value, props.existingTodos, localConfig.value)
+  // 使用本地配置
+  const config = { ...localConfig.value }
+
+  await generateTasks(inputDescription.value, props.existingTodos, config)
 }
 
 // 处理确认
@@ -386,7 +355,7 @@ defineOptions({
 /* 对话框基础样式 */
 .dialog-overlay {
   @apply fixed inset-0 z-50 flex items-center justify-center p-4;
-  background: linear-gradient(135deg, rgba(0, 0, 0, 0.4) 0%, rgba(0, 0, 0, 0.6) 100%);
+  background: rgba(0, 0, 0, 0.6);
   backdrop-filter: blur(8px);
 }
 
@@ -395,14 +364,17 @@ defineOptions({
 }
 
 .dialog-container {
-  @apply relative bg-white dark:bg-gray-800 rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden;
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  @apply relative rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden;
+  background: var(--card-bg-color);
+  border: 1px solid var(--input-border-color);
+  box-shadow: var(--card-shadow);
 }
 
 /* 头部样式 */
 .dialog-header {
-  @apply flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700;
-  background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(168, 85, 247, 0.1) 100%);
+  @apply flex items-center justify-between p-6 border-b;
+  border-color: var(--input-border-color);
+  background: linear-gradient(135deg, var(--card-bg-color) 0%, rgba(121, 180, 166, 0.02) 100%);
 }
 
 .header-content {
@@ -410,7 +382,8 @@ defineOptions({
 }
 
 .dialog-title {
-  @apply text-xl font-semibold text-gray-900 dark:text-white flex items-center gap-2;
+  @apply text-xl font-semibold flex items-center gap-2;
+  color: var(--text-color);
 }
 
 .title-icon {
@@ -457,6 +430,7 @@ defineOptions({
   background: var(--input-bg-color);
   border: 1px solid var(--input-border-color);
   color: var(--text-color);
+  transition: all 0.2s ease;
 }
 
 .task-input:focus {
@@ -493,9 +467,18 @@ defineOptions({
   @apply flex items-center justify-between;
 }
 
+.config-label-group {
+  @apply flex flex-col;
+}
+
 .config-label {
   @apply text-sm font-medium;
   color: var(--text-color);
+}
+
+.config-hint {
+  @apply text-xs;
+  color: var(--text-secondary-color);
 }
 
 .config-select {
@@ -503,6 +486,40 @@ defineOptions({
   background: var(--input-bg-color);
   border: 1px solid var(--input-border-color);
   color: var(--text-color);
+  transition: all 0.2s ease;
+}
+
+.config-select:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 2px rgba(var(--primary-color-rgb), 0.2);
+}
+
+/* 切换开关样式 */
+.toggle-switch {
+  @apply relative inline-block w-12 h-6 cursor-pointer;
+}
+
+.toggle-switch input {
+  @apply opacity-0 w-0 h-0;
+}
+
+.toggle-slider {
+  @apply absolute inset-0 rounded-full transition-all duration-300 ease-in-out;
+  background: var(--settings-input-border);
+}
+
+.toggle-slider:before {
+  @apply absolute content-[''] h-5 w-5 left-0.5 bottom-0.5 bg-white rounded-full transition-all duration-300 ease-in-out;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.toggle-switch input:checked + .toggle-slider {
+  background: var(--settings-primary);
+}
+
+.toggle-switch input:checked + .toggle-slider:before {
+  @apply transform translate-x-6;
 }
 
 /* 预览阶段样式 */
@@ -511,19 +528,29 @@ defineOptions({
 }
 
 .validation-alert {
-  @apply bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4;
+  @apply rounded-lg p-4;
+  background: rgba(255, 255, 255, 0.8);
+  border: 1px solid var(--input-border-color);
+  box-shadow: var(--card-shadow);
+}
+
+[data-theme='dark'] .validation-alert {
+  background: rgba(37, 43, 50, 0.8);
 }
 
 .alert-header {
-  @apply flex items-center gap-2 text-yellow-800 dark:text-yellow-200 font-medium mb-2;
+  @apply flex items-center gap-2 font-medium mb-2;
+  color: var(--text-color);
 }
 
 .alert-icon {
   @apply w-5 h-5;
+  color: var(--primary-color);
 }
 
 .alert-list {
-  @apply text-sm text-yellow-700 dark:text-yellow-300 space-y-1 ml-7;
+  @apply text-sm space-y-1 ml-7;
+  color: var(--text-secondary-color);
 }
 
 /* 任务列表样式 */
@@ -536,11 +563,14 @@ defineOptions({
 }
 
 .tasks-title h4 {
-  @apply text-lg font-semibold text-gray-900 dark:text-white;
+  @apply text-lg font-semibold;
+  color: var(--text-color);
 }
 
 .task-count {
-  @apply px-2 py-1 bg-indigo-100 dark:bg-indigo-900 text-indigo-800 dark:text-indigo-200 text-sm rounded-full;
+  @apply px-2 py-1 text-sm rounded-full;
+  background: var(--settings-primary-ultra-light);
+  color: var(--primary-color);
 }
 
 .tasks-actions {
@@ -549,10 +579,17 @@ defineOptions({
 
 .action-btn {
   @apply px-3 py-2 text-sm font-medium rounded-lg transition-colors flex items-center gap-2;
+  background: var(--settings-button-secondary-bg);
+  color: var(--settings-button-secondary-text);
 }
 
-.action-btn.secondary {
-  @apply bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600;
+.action-btn:hover {
+  background: var(--settings-button-secondary-hover);
+}
+
+.action-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 .btn-icon {
@@ -563,9 +600,14 @@ defineOptions({
   @apply space-y-3 max-h-96 overflow-y-auto;
 }
 
-/* 加载样式 */
+/* 加载状态样式 */
 .loading-overlay {
-  @apply absolute inset-0 bg-white/80 dark:bg-gray-800/80 flex items-center justify-center;
+  @apply absolute inset-0 flex items-center justify-center z-10;
+  background: rgba(255, 255, 255, 0.8);
+}
+
+[data-theme='dark'] .loading-overlay {
+  background: rgba(37, 43, 50, 0.8);
 }
 
 .loading-content {
@@ -574,37 +616,133 @@ defineOptions({
 
 .loading-spinner {
   @apply w-8 h-8 border-4 rounded-full animate-spin mx-auto mb-3;
-  border-color: var(--settings-primary-soft);
+  border-color: var(--input-border-color);
   border-top-color: var(--primary-color);
 }
 
 .loading-text {
+  @apply text-sm;
   color: var(--text-secondary-color);
 }
 
 /* 底部样式 */
 .dialog-footer {
-  @apply flex items-center justify-end gap-3 p-6;
-  border-top: 1px solid var(--input-border-color);
-  background: var(--settings-primary-ultra-light);
+  @apply flex items-center justify-end gap-3 p-6 border-t;
+  border-color: var(--settings-input-border);
+  background: linear-gradient(180deg, var(--card-bg-color) 0%, var(--bg-color) 100%);
+}
+
+.footer-actions {
+  @apply flex items-center gap-3;
 }
 
 .btn {
-  @apply px-4 py-2 font-medium rounded-lg transition-colors flex items-center gap-2;
+  @apply px-6 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 flex items-center gap-2;
 }
 
-.btn-secondary {
-  background: var(--settings-button-secondary-bg);
-  color: var(--settings-button-secondary-text);
-}
-
-.btn-secondary:hover {
-  background: var(--settings-button-secondary-hover);
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 .btn-primary {
-  background: var(--settings-button-primary-bg);
-  color: white;
+  background: var(--button-primary-bg);
+  color: var(--button-primary-text);
+}
+
+.btn-primary:hover:not(:disabled) {
+  background: var(--button-primary-hover);
+  box-shadow: var(--button-primary-shadow);
+}
+
+.btn-primary:focus:not(:disabled) {
+  box-shadow: 0 0 0 2px rgba(var(--primary-color-rgb), 0.2);
+}
+
+.btn-secondary {
+  background: var(--button-secondary-bg);
+  color: var(--button-secondary-text);
+}
+
+.btn-secondary:hover:not(:disabled) {
+  background: var(--button-secondary-hover);
+  box-shadow: var(--button-secondary-shadow);
+}
+
+.btn-secondary:focus:not(:disabled) {
+  box-shadow: 0 0 0 2px rgba(var(--text-color-rgb), 0.1);
+}
+
+.btn-icon {
+  @apply w-4 h-4;
+}
+
+/* 任务项样式 */
+.tasks-list {
+  @apply space-y-3 max-h-96 overflow-y-auto;
+}
+
+.task-item {
+  @apply p-4 rounded-lg border transition-all duration-200;
+  background: var(--card-bg-color);
+  border-color: var(--card-border-color);
+  box-shadow: var(--card-shadow);
+}
+
+.task-item:hover {
+  box-shadow: var(--card-hover-shadow);
+  border-color: var(--card-hover-border-color);
+}
+
+.task-item-header {
+  @apply flex items-start justify-between gap-3 mb-3;
+}
+
+.task-main {
+  @apply flex-1 min-w-0;
+}
+
+.task-title {
+  @apply font-medium mb-2;
+  color: var(--text-color);
+}
+
+.task-details {
+  @apply flex flex-wrap items-center gap-4 text-sm;
+}
+
+.detail-item {
+  @apply flex items-center gap-1.5;
+  color: var(--text-secondary-color);
+}
+
+.detail-icon {
+  @apply w-4 h-4 flex-shrink-0;
+}
+
+.detail-text {
+  @apply truncate;
+}
+
+.task-actions {
+  @apply flex flex-col gap-2 flex-shrink-0;
+}
+
+.task-actions button {
+  @apply p-2 rounded-lg transition-colors;
+}
+
+.task-actions button:hover {
+  background: var(--settings-primary-ultra-light);
+}
+
+.task-actions button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.task-actions svg {
+  @apply w-4 h-4;
 }
 
 .btn-primary:hover {

@@ -88,107 +88,16 @@
           </label>
         </div>
       </div>
-
-      <!-- 分隔线 -->
-      <div class="setting-divider">
-        <div class="divider-line"></div>
-        <span class="divider-text">{{ t('taskGenerationSettings') }}</span>
-        <div class="divider-line"></div>
-      </div>
-
-      <!-- 启用 AI 任务生成 -->
-      <div class="setting-item">
-        <div class="setting-info">
-          <label class="setting-label">{{ t('enableTaskGeneration') }}</label>
-          <p class="setting-description">{{ t('enableTaskGenerationDesc') }}</p>
-        </div>
-        <div class="setting-control">
-          <label class="toggle-switch">
-            <input
-              type="checkbox"
-              :checked="taskGenerationConfig.enabled"
-              @change="
-                updateTaskGenerationConfig({
-                  enabled: ($event.target as HTMLInputElement).checked,
-                })
-              "
-            />
-            <span class="toggle-slider"></span>
-          </label>
-        </div>
-      </div>
-
-      <!-- 默认最大任务数 -->
-      <div v-if="taskGenerationConfig.enabled" class="setting-item">
-        <div class="setting-info">
-          <label class="setting-label">{{ t('defaultMaxTasks') }}</label>
-          <p class="setting-description">{{ t('defaultMaxTasksDesc') }}</p>
-        </div>
-        <div class="setting-control">
-          <select
-            :value="taskGenerationConfig.defaultMaxTasks"
-            class="setting-select"
-            @change="
-              updateTaskGenerationConfig({
-                defaultMaxTasks: parseInt(($event.target as HTMLSelectElement).value),
-              })
-            "
-          >
-            <option value="3">3 {{ t('tasks') }}</option>
-            <option value="5">5 {{ t('tasks') }}</option>
-            <option value="8">8 {{ t('tasks') }}</option>
-            <option value="10">10 {{ t('tasks') }}</option>
-          </select>
-        </div>
-      </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import { useAIAnalysis } from '@/composables/useAIAnalysis'
-import { reactive } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 const { t } = useI18n()
 const { analysisConfig, setAnalysisConfig } = useAIAnalysis()
-
-// 任务生成配置
-const taskGenerationConfig = reactive({
-  enabled: true,
-  defaultMaxTasks: 5,
-})
-
-// 从 localStorage 加载配置
-const loadTaskGenerationConfig = () => {
-  try {
-    const saved = localStorage.getItem('taskGenerationConfig')
-    if (saved) {
-      const config = JSON.parse(saved)
-      Object.assign(taskGenerationConfig, config)
-    }
-  } catch (error) {
-    console.warn('Failed to load task generation config:', error)
-  }
-}
-
-// 保存配置到 localStorage
-const saveTaskGenerationConfig = () => {
-  try {
-    localStorage.setItem('taskGenerationConfig', JSON.stringify(taskGenerationConfig))
-  } catch (error) {
-    console.warn('Failed to save task generation config:', error)
-  }
-}
-
-// 更新任务生成配置
-const updateTaskGenerationConfig = (updates: Partial<typeof taskGenerationConfig>) => {
-  Object.assign(taskGenerationConfig, updates)
-  saveTaskGenerationConfig()
-}
-
-// 初始化时加载配置
-loadTaskGenerationConfig()
 
 const updateConfig = (config: Record<string, unknown>) => {
   setAnalysisConfig(config)

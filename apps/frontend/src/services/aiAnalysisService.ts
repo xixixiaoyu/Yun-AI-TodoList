@@ -561,7 +561,7 @@ ${completedSamples
   "reasoning": "为什么提出这个问题的理由"
 }`
 
-    const response = await getAIResponse(prompt, 0.7)
+    const response = await getAIResponse(prompt, 0.3)
 
     // 尝试解析 JSON 响应
     try {
