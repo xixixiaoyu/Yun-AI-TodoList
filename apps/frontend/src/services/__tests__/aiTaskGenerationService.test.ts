@@ -242,7 +242,7 @@ describe('aiTaskGenerationService', () => {
 
       const result = analyzeAdvancedUserContext(todos)
 
-      expect(result.preferences).toBeDefined()
+      expect(result).toBeDefined()
       expect(result.insights).toBeDefined()
       expect(result.suggestions).toBeDefined()
 

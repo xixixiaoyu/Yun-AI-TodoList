@@ -415,11 +415,7 @@ export function analyzeAdvancedUserContext(todos: Todo[]): UserTaskPreferences {
   const oneMonthAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000)
 
   // 基础分析
-  const basePreferences: UserTaskPreferences = {
-    preferredTopics: [],
-    difficulty: 'medium',
-    autoGenerateSubtasks: true,
-    defaultTaskCount: 5, // 确保 defaultTaskCount 属性始终有值
+  const basePreferences: Partial<UserTaskPreferences> = {
     ...analyzeUserContext(todos),
   }
 
@@ -459,6 +455,10 @@ export function analyzeAdvancedUserContext(todos: Todo[]): UserTaskPreferences {
   )
 
   return {
+    defaultTaskCount: 5, // 确保 defaultTaskCount 属性始终有值
+    preferredTopics: [],
+    difficulty: 'medium',
+    autoGenerateSubtasks: true,
     ...basePreferences,
     insights: {
       completionRate: Math.round(completionRate * 100) / 100,
@@ -469,7 +469,7 @@ export function analyzeAdvancedUserContext(todos: Todo[]): UserTaskPreferences {
       workloadTrend,
     },
     suggestions,
-  }
+  } as UserTaskPreferences
 }
 
 /**
@@ -899,7 +899,7 @@ export async function checkServiceHealth(): Promise<boolean> {
   try {
     // 发送一个简单的测试请求，使用唯一描述避免缓存
     const testRequest: AITaskGenerationRequest = {
-      description: `健康检查-${Date.now()}`,
+      description: `健康检查-${Date.now()}-${Math.random()}`, // 添加随机数确保唯一性
       config: {
         maxTasks: 1,
         enablePriorityAnalysis: true,
@@ -913,6 +913,8 @@ export async function checkServiceHealth(): Promise<boolean> {
     return result.success
   } catch (error) {
     console.warn('AI 任务生成服务健康检查失败:', error)
+    // 即使是单次失败，健康检查也应该返回 false
+    updateServiceHealth(false, error instanceof Error ? error.message : '未知错误')
     return false
   }
 }
