@@ -403,6 +403,9 @@ ${todoTexts}
       }
     }
 
+    // 设置加载状态
+    isGenerating.value = true
+
     logger.info('Adding todo with text', { text }, 'TodoManagement')
 
     try {
@@ -438,6 +441,9 @@ ${todoTexts}
       }
 
       return { needsSplitting: false }
+    } finally {
+      // 重置加载状态
+      isGenerating.value = false
     }
   }
 

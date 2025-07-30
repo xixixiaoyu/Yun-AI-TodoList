@@ -10,7 +10,7 @@ const AI_MODEL_STORAGE_KEY = 'deepseek_ai_model'
 
 export const apiKey = ref<string>(localStorage.getItem(API_KEY_STORAGE_KEY) || '')
 export const aiModel = ref<AIModel>(
-  (localStorage.getItem(AI_MODEL_STORAGE_KEY) as AIModel) || 'deepseek-chat'
+  (localStorage.getItem(AI_MODEL_STORAGE_KEY) as AIModel | null) || 'deepseek-chat'
 )
 
 export function getApiKey(): string {

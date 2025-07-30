@@ -8,7 +8,29 @@
         />
       </div>
 
-      <LoadingOverlay :show="isLoading" :message="t('sorting')" />
+      <LoadingOverlay
+        :show="
+          isLoading ||
+          isAnalyzing ||
+          isBatchAnalyzing ||
+          isSorting ||
+          isSplittingTask ||
+          isGenerating
+        "
+        :message="
+          isBatchAnalyzing
+            ? t('batchAnalyzing')
+            : isAnalyzing
+              ? t('analyzing')
+              : isSorting
+                ? t('sorting')
+                : isSplittingTask
+                  ? t('splittingTask')
+                  : isGenerating
+                    ? t('generating')
+                    : t('loading')
+        "
+      />
 
       <TodoListHeader
         :show-charts="showCharts"
@@ -205,7 +227,6 @@ const handleAddTodo = async (text: string) => {
     subtaskConfig.showDialog = true
     subtaskConfig.originalTask = result.splitResult.originalTask
     subtaskConfig.subtasks = [...result.splitResult.subtasks]
-    subtaskConfig.reasoning = result.splitResult.reasoning
   }
 }
 
@@ -231,12 +252,12 @@ const handleSubtaskConfirm = async (selectedSubtasks: string[]) => {
 
 // 处理子任务选择取消
 const handleSubtaskCancel = () => {
-  hideSubtaskDialog()
-
   // 添加原始任务
   if (subtaskConfig.originalTask) {
     originalHandleAddTodo(subtaskConfig.originalTask, true) // 跳过拆分分析
   }
+
+  hideSubtaskDialog()
 }
 
 // 处理 Todo 文本更新

@@ -3,7 +3,9 @@ import type {
   AITaskGenerationResult,
   GeneratedTask,
   TaskGenerationConfig,
+  TimeEstimate,
   Todo,
+  TodoPriority,
   UserTaskPreferences,
 } from '@/types/todo'
 import { handleError } from '@/utils/logger'
@@ -15,12 +17,19 @@ import { getAIResponse } from './deepseekService'
  */
 
 // 默认配置
-const DEFAULT_CONFIG: Required<TaskGenerationConfig> = {
+const DEFAULT_CONFIG: Required<TaskGenerationConfig> & {
+  model: string
+  temperature: number
+  maxTokens: number
+} = {
   maxTasks: 0, // 0 表示自动判断
   enablePriorityAnalysis: true,
   enableTimeEstimation: true,
   includeSubtasks: false,
   taskComplexity: 'medium',
+  model: 'deepseek',
+  temperature: 0.3,
+  maxTokens: 2000,
 }
 
 // 任务生成缓存
@@ -71,11 +80,12 @@ export async function generateTasksFromDescription(
     cacheStats.totalRequests++
 
     // 检查缓存
-    const cacheKey = generateCacheKey(request)
+    const cacheKey = generateCacheKey(request.description, request.config)
     const cached = generationCache.get(cacheKey)
     if (
       cached &&
-      Date.now() - new Date(cached.metadata?.generatedAt || 0).getTime() < CACHE_EXPIRY
+      cached.metadata &&
+      Date.now() - new Date(cached.metadata.generatedAt).getTime() < CACHE_EXPIRY
     ) {
       // 缓存命中
       cacheStats.cacheHits++
@@ -92,7 +102,7 @@ export async function generateTasksFromDescription(
     const prompt = buildTaskGenerationPrompt(request, config)
 
     // 调用 AI 服务
-    const response = await getAIResponse(prompt, 0.3)
+    const response = await getAIResponse(prompt, config.temperature)
 
     // 解析响应
     const result = parseAIResponse(response, request, startTime)
@@ -111,19 +121,8 @@ export async function generateTasksFromDescription(
     // 更新健康状态 - 失败
     updateServiceHealth(false, error instanceof Error ? error.message : '未知错误')
 
-    return {
-      success: false,
-      tasks: [],
-      originalDescription: request.description,
-      totalTasks: 0,
-      processingTime: Date.now() - startTime,
-      error: error instanceof Error ? error.message : '未知错误',
-      metadata: {
-        generatedAt: new Date().toISOString(),
-        model: 'deepseek',
-        version: '1.0.0',
-      },
-    }
+    // 返回降级结果
+    return createFallbackResult(request, startTime)
   }
 }
 
@@ -139,7 +138,7 @@ function buildTaskGenerationPrompt(
   // 处理任务数量限制
   const taskCountInstruction =
     config.maxTasks === 0
-      ? '根据任务复杂度自动判断合适的任务数量（通常3-8个）'
+      ? '根据任务复杂度自动判断合适的任务数量，简单任务2-3个，中等复杂任务4-6个，复杂任务7-9个'
       : `将复杂任务分解为${config.maxTasks}个以内的具体可执行步骤`
 
   let prompt = `作为一个专业的任务管理助手，请将以下描述分解为具体可执行的待办任务：
@@ -166,11 +165,15 @@ function buildTaskGenerationPrompt(
   // 添加用户偏好
   if (context?.userPreferences) {
     const prefs = context.userPreferences
-    if (prefs.preferredTaskDuration) {
-      prompt += `用户偏好任务时长：${prefs.preferredTaskDuration}\n`
+    // 根据用户偏好调整提示词
+    if (prefs.defaultTaskCount) {
+      prompt += `\n用户偏好任务数量: ${prefs.defaultTaskCount}个\n`
     }
-    if (prefs.priorityStyle) {
-      prompt += `优先级风格：${prefs.priorityStyle}\n`
+    if (prefs.preferredTopics?.length) {
+      prompt += `\n用户感兴趣的领域: ${prefs.preferredTopics.join(', ')}\n`
+    }
+    if (prefs.difficulty) {
+      prompt += `\n用户偏好的任务难度: ${prefs.difficulty}\n`
     }
   }
 
@@ -224,7 +227,18 @@ function parseAIResponse(
 
     // 验证和清理数据
     const tasks: GeneratedTask[] = (parsed.tasks || []).map(
-      (task: Record<string, unknown>, index: number) => ({
+      (
+        task: {
+          title?: unknown
+          description?: unknown
+          priority?: unknown
+          estimatedTime?: unknown
+          category?: unknown
+          tags?: unknown[]
+          reasoning?: unknown
+        },
+        index: number
+      ): GeneratedTask => ({
         title: String(task.title || `任务 ${index + 1}`),
         description: task.description ? String(task.description) : undefined,
         priority: typeof task.priority === 'number' ? Math.max(1, Math.min(5, task.priority)) : 3,
@@ -271,6 +285,7 @@ function createFallbackResult(
       description: '请手动细化此任务的具体步骤',
       priority: 3,
       estimatedTime: '待评估',
+      tags: [],
       reasoning: 'AI 分析失败，使用原始描述作为任务',
     },
   ]
@@ -332,11 +347,10 @@ function calculateCacheHitRate(): number {
 /**
  * 生成缓存键
  */
-function generateCacheKey(request: AITaskGenerationRequest): string {
+function generateCacheKey(description: string, config?: TaskGenerationConfig): string {
   const key = {
-    description: request.description,
-    config: request.config,
-    contextHash: request.context ? JSON.stringify(request.context).slice(0, 100) : '',
+    description: description,
+    config: config,
   }
 
   // 使用简单的哈希函数替代 btoa，支持 Unicode 字符
@@ -357,18 +371,20 @@ function generateCacheKey(request: AITaskGenerationRequest): string {
  * @param todos 用户的待办事项列表
  * @returns 用户偏好分析结果
  */
-export function analyzeUserContext(todos: Todo[]): UserTaskPreferences {
+export function analyzeUserContext(todos: Todo[]): Partial<UserTaskPreferences> {
   if (!todos.length) {
     return {}
   }
 
   // 分析任务时长偏好
-  const estimatedTimes = todos.map((t) => t.estimatedTime).filter(Boolean)
+  const estimatedTimes = todos
+    .map((t) => t.estimatedTime)
+    .filter((time): time is TimeEstimate => Boolean(time))
 
   // 分析优先级分布
   const priorities = todos
     .map((t) => t.priority)
-    .filter((p): p is number => typeof p === 'number' && p > 0)
+    .filter((p): p is TodoPriority => typeof p === 'number' && p > 0)
 
   const avgPriority =
     priorities.length > 0 ? priorities.reduce((sum, p) => sum + p, 0) / priorities.length : 3
@@ -393,28 +409,19 @@ export function analyzeUserContext(todos: Todo[]): UserTaskPreferences {
  * @param todos 用户的待办事项列表
  * @returns 详细的上下文分析结果
  */
-export function analyzeAdvancedUserContext(todos: Todo[]): {
-  preferences: UserTaskPreferences
-  insights: {
-    completionRate: number
-    averageTaskDuration: string
-    mostProductiveTimeframe: string
-    commonTaskPatterns: string[]
-    recommendedTaskSize: 'small' | 'medium' | 'large'
-    workloadTrend: 'increasing' | 'stable' | 'decreasing'
-  }
-  suggestions: {
-    taskBreakdown: string
-    priorityStrategy: string
-    timeManagement: string
-  }
-} {
+export function analyzeAdvancedUserContext(todos: Todo[]): UserTaskPreferences {
   const now = new Date()
   const oneWeekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000)
   const oneMonthAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000)
 
   // 基础分析
-  const preferences = analyzeUserContext(todos)
+  const basePreferences: UserTaskPreferences = {
+    preferredTopics: [],
+    difficulty: 'medium',
+    autoGenerateSubtasks: true,
+    defaultTaskCount: 5, // 确保 defaultTaskCount 属性始终有值
+    ...analyzeUserContext(todos),
+  }
 
   // 完成率分析
   const completedTodos = todos.filter((t) => t.completed)
@@ -448,11 +455,11 @@ export function analyzeAdvancedUserContext(todos: Todo[]): {
     completionRate,
     workloadTrend,
     recommendedTaskSize,
-    preferences.priorityStyle || 'balanced'
+    basePreferences.priorityStyle || 'balanced'
   )
 
   return {
-    preferences,
+    ...basePreferences,
     insights: {
       completionRate: Math.round(completionRate * 100) / 100,
       averageTaskDuration: formatDuration(avgEstimatedTime),
@@ -507,8 +514,8 @@ function extractCommonWords(texts: string[]): string[] {
 function calculateAverageEstimatedTime(todos: Todo[]): number {
   const times = todos
     .map((t) => t.estimatedTime)
-    .filter((time): time is string => Boolean(time))
-    .map(parseEstimatedTime)
+    .filter((time): time is TimeEstimate => Boolean(time))
+    .map((timeStr) => parseEstimatedTime(timeStr))
     .filter((t) => t > 0)
 
   return times.length > 0 ? times.reduce((sum, t) => sum + t, 0) / times.length : 120
@@ -517,7 +524,17 @@ function calculateAverageEstimatedTime(todos: Todo[]): number {
 /**
  * 解析预估时间字符串为分钟数
  */
-function parseEstimatedTime(timeStr: string): number {
+function parseEstimatedTime(timeEstimate: TimeEstimate | string): number {
+  // 处理 undefined 情况
+  if (!timeEstimate) return 0
+
+  // 如果是 TimeEstimate 对象，直接返回分钟数
+  if (typeof timeEstimate === 'object' && timeEstimate.minutes) {
+    return timeEstimate.minutes
+  }
+
+  // 如果是字符串，解析字符串
+  const timeStr = typeof timeEstimate === 'string' ? timeEstimate : timeEstimate.text
   const hourMatch = timeStr.match(/(\d+(?:\.\d+)?)\s*[小时|hour|h]/i)
   const minuteMatch = timeStr.match(/(\d+)\s*[分钟|minute|min|m]/i)
   const dayMatch = timeStr.match(/(\d+(?:\.\d+)?)\s*[天|day|d]/i)
@@ -544,7 +561,7 @@ function formatDuration(minutes: number): string {
 function determineMostProductiveTime(completedTodos: Todo[]): string {
   const completionTimes = completedTodos
     .filter((t) => t.completedAt)
-    .map((t) => new Date(t.completedAt as string).getHours())
+    .map((t) => new Date(t.completedAt!).getHours())
 
   if (completionTimes.length === 0) return '全天'
 
@@ -607,7 +624,16 @@ function generateContextualSuggestions(
 export function clearExpiredCache(): void {
   const now = Date.now()
   for (const [key, result] of generationCache.entries()) {
-    const generatedAt = new Date(result.metadata?.generatedAt || 0).getTime()
+    // 正确处理不同的时间格式
+    let generatedAt: number
+    if (typeof result.metadata?.generatedAt === 'string') {
+      generatedAt = new Date(result.metadata.generatedAt).getTime()
+    } else if (typeof result.metadata?.generatedAt === 'number') {
+      generatedAt = result.metadata.generatedAt
+    } else {
+      generatedAt = 0
+    }
+
     if (now - generatedAt > CACHE_EXPIRY) {
       generationCache.delete(key)
     }
@@ -622,7 +648,12 @@ export function clearAllCache(): void {
 }
 
 // 定期清理缓存
-setInterval(clearExpiredCache, 10 * 60 * 1000) // 每10分钟清理一次
+setInterval(
+  () => {
+    clearExpiredCache()
+  },
+  10 * 60 * 1000
+) // 每10分钟清理一次
 
 /**
  * 重试配置
@@ -724,7 +755,7 @@ export function validateGeneratedTasks(tasks: GeneratedTask[]): {
   // 检查优先级分布
   const priorities = tasks
     .map((t) => t.priority)
-    .filter((p): p is number => typeof p === 'number' && p > 0)
+    .filter((p): p is TodoPriority => typeof p === 'number' && p > 0)
   const highPriorityCount = priorities.filter((p) => p >= 4).length
   const totalTasks = tasks.length
 
@@ -734,7 +765,7 @@ export function validateGeneratedTasks(tasks: GeneratedTask[]): {
   }
 
   // 检查时间估算
-  const withTimeEstimate = tasks.filter((t) => t.estimatedTime).length
+  const withTimeEstimate = tasks.filter((t) => t.estimatedTime !== undefined).length
   if (withTimeEstimate < totalTasks * 0.5) {
     suggestions.push('建议为更多任务添加时间估算')
   }
@@ -807,25 +838,33 @@ function optimizeTaskOrder(tasks: GeneratedTask[]): GeneratedTask[] {
  * 平衡优先级分布
  */
 function balancePriorities(tasks: GeneratedTask[]): GeneratedTask[] {
-  const totalTasks = tasks.length
-  const targetHighPriority = Math.ceil(totalTasks * 0.3) // 30% 高优先级
-  const targetMediumPriority = Math.ceil(totalTasks * 0.5) // 50% 中优先级
+  // 只对没有设置优先级或优先级不合理的任务进行调整
+  return tasks.map((task) => {
+    // 如果任务已有合理优先级(1-5)，则保留
+    if (task.priority !== undefined && task.priority >= 1 && task.priority <= 5) {
+      return task
+    }
 
-  // 按当前优先级排序
-  const sortedTasks = tasks.sort((a, b) => (b.priority || 3) - (a.priority || 3))
-
-  // 重新分配优先级
-  sortedTasks.forEach((task, index) => {
-    if (index < targetHighPriority) {
-      task.priority = Math.max(4, task.priority || 3)
-    } else if (index < targetHighPriority + targetMediumPriority) {
-      task.priority = 3
+    // 否则根据任务描述长度设置优先级
+    const descriptionLength = task.description?.length || 0
+    let priority: number
+    if (descriptionLength > 200) {
+      priority = 5 // 很长的描述通常是重要任务
+    } else if (descriptionLength > 100) {
+      priority = 4
+    } else if (descriptionLength > 50) {
+      priority = 3
     } else {
-      task.priority = Math.min(2, task.priority || 3)
+      priority = 2
+    }
+
+    // 确保优先级在 1-5 范围内
+    const validPriority = Math.max(1, Math.min(5, priority))
+    return {
+      ...task,
+      priority: validPriority,
     }
   })
-
-  return sortedTasks
 }
 
 /**
@@ -843,7 +882,10 @@ function normalizeTimeEstimates(tasks: GeneratedTask[]): GeneratedTask[] {
       if (complexity > 200) minutes = 240 // 4小时
       if (priority >= 4) minutes = Math.max(30, minutes * 0.8) // 高优先级任务通常更紧急，时间更短
 
-      task.estimatedTime = formatDuration(minutes)
+      return {
+        ...task,
+        estimatedTime: formatDuration(minutes),
+      }
     }
     return task
   })
@@ -858,7 +900,13 @@ export async function checkServiceHealth(): Promise<boolean> {
     // 发送一个简单的测试请求，使用唯一描述避免缓存
     const testRequest: AITaskGenerationRequest = {
       description: `健康检查-${Date.now()}`,
-      config: { maxTasks: 1 },
+      config: {
+        maxTasks: 1,
+        enablePriorityAnalysis: true,
+        enableTimeEstimation: true,
+        includeSubtasks: false,
+        taskComplexity: 'medium',
+      },
     }
 
     const result = await generateTasksFromDescription(testRequest)
@@ -884,6 +932,8 @@ export function getServiceStatus(): {
   lastHealthCheck: number
   uptime: number
 } {
+  // 确保 lastResetTime 有默认值
+  const lastResetTime = cacheStats.lastResetTime || Date.now()
   return {
     cacheSize: generationCache.size,
     cacheHitRate: calculateCacheHitRate(),
@@ -894,7 +944,7 @@ export function getServiceStatus(): {
     isHealthy: serviceHealth.isHealthy,
     consecutiveFailures: serviceHealth.consecutiveFailures,
     lastHealthCheck: serviceHealth.lastHealthCheck,
-    uptime: Date.now() - cacheStats.lastResetTime,
+    uptime: Date.now() - lastResetTime,
   }
 }
 

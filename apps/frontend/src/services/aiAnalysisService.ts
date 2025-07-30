@@ -1,7 +1,31 @@
 import i18n from '@/i18n'
 import type { AIAnalysisResult, AISubtaskResult, Todo } from '@/types/todo'
+import { cacheResponse, getCachedResponse } from '@/utils/aiCache'
 import { handleError } from '@/utils/logger'
+import { handleAIResponse, logAIResponseError } from './aiResponseHandler'
 import { getAIResponse } from './deepseekService'
+
+/**
+ * 清除所有 AI 任务拆分缓存
+ */
+export function clearTaskSplittingCache(): void {
+  try {
+    const keysToRemove: string[] = []
+
+    // 找到所有相关的缓存键
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i)
+      if (key && key.startsWith('task-splitting:')) {
+        keysToRemove.push(key)
+      }
+    }
+
+    // 删除所有相关的缓存项
+    keysToRemove.forEach((key) => localStorage.removeItem(key))
+  } catch (error) {
+    console.warn('清除 AI 任务拆分缓存失败:', error)
+  }
+}
 
 /**
  * 智能提问结果接口
@@ -66,7 +90,7 @@ export async function analyzeTodo(todoText: string): Promise<AIAnalysisResult> {
         throw new Error('未找到有效的JSON格式')
       }
 
-      const result = JSON.parse(jsonMatch[0]) as AIAnalysisResult
+      const result: AIAnalysisResult = JSON.parse(jsonMatch[0])
 
       // 验证结果格式
       if (!result.priority || !result.estimatedTime) {
@@ -287,8 +311,7 @@ export function estimateTimeByKeywords(todoText: string): string {
  * @returns AI 拆分分析结果
  */
 export async function analyzeTaskSplitting(todoText: string): Promise<AISubtaskResult> {
-  try {
-    const prompt = `作为一个专业的任务管理助手，请分析以下待办事项是否可以拆分成多个更小的子任务：
+  const prompt = `作为一个专业的任务管理助手，请分析以下待办事项是否可以拆分成多个更小的子任务：
 
 任务：${todoText}
 
@@ -314,26 +337,30 @@ export async function analyzeTaskSplitting(todoText: string): Promise<AISubtaskR
   "originalTask": "${todoText}"
 }`
 
-    const response = await getAIResponse(prompt, 0.3)
-
-    // 尝试解析 JSON 响应
+  // 首先检查缓存
+  const cachedResponse = getCachedResponse(prompt)
+  if (cachedResponse) {
+    console.info('使用缓存的 AI 任务拆分分析结果')
     try {
-      // 提取 JSON 部分
-      const jsonMatch = response.match(/\{[\s\S]*\}/)
-      if (!jsonMatch) {
-        throw new Error('未找到有效的JSON格式')
+      // 定义必需字段
+      const requiredFields = ['canSplit', 'subtasks', 'reasoning', 'originalTask']
+
+      // 定义非标准响应的提取规则
+      const extractionRules = {
+        canSplit: /"?canSplit"?\s*:\s*(true|false)/i,
+        reasoning: /"?reasoning"?\s*:\s*"([^"]+)"/i,
+        originalTask: /"?originalTask"?\s*:\s*"([^"]+)"/i,
       }
 
-      const result = JSON.parse(jsonMatch[0]) as AISubtaskResult
+      // 处理 AI 响应
+      const data = handleAIResponse(cachedResponse, requiredFields, extractionRules)
 
-      // 验证结果格式
-      if (
-        typeof result.canSplit !== 'boolean' ||
-        !Array.isArray(result.subtasks) ||
-        typeof result.reasoning !== 'string' ||
-        typeof result.originalTask !== 'string'
-      ) {
-        throw new Error('AI返回的数据格式不正确')
+      // 转换数据类型
+      const result: AISubtaskResult = {
+        canSplit: typeof data.canSplit === 'boolean' ? data.canSplit : false,
+        subtasks: Array.isArray(data.subtasks) ? (data.subtasks as string[]) : [],
+        reasoning: typeof data.reasoning === 'string' ? data.reasoning : '',
+        originalTask: typeof data.originalTask === 'string' ? data.originalTask : todoText,
       }
 
       // 如果不能拆分，确保子任务数组为空
@@ -342,29 +369,58 @@ export async function analyzeTaskSplitting(todoText: string): Promise<AISubtaskR
       }
 
       return result
-    } catch (parseError) {
-      console.warn('解析AI拆分分析响应失败:', parseError)
-      console.warn('原始响应:', response)
-
-      // 返回默认结果
-      return {
-        canSplit: false,
-        subtasks: [],
-        reasoning: '无法解析AI分析结果，建议手动拆分',
-        originalTask: todoText,
-      }
+    } catch (error) {
+      console.warn('解析缓存的 AI 响应失败:', error)
+      // 缓存解析失败时继续执行正常的 AI 分析
     }
+  }
+
+  try {
+    const response = await getAIResponse(prompt, 0.3)
+
+    // 定义必需字段
+    const requiredFields = ['canSplit', 'subtasks', 'reasoning', 'originalTask']
+
+    // 定义非标准响应的提取规则
+    const extractionRules = {
+      canSplit: /"?canSplit"?\s*:\s*(true|false)/i,
+      reasoning: /"?reasoning"?\s*:\s*"([^"]+)"/i,
+      originalTask: /"?originalTask"?\s*:\s*"([^"]+)"/i,
+    }
+
+    // 处理 AI 响应
+    const data = handleAIResponse(response, requiredFields, extractionRules)
+
+    // 转换数据类型
+    const result: AISubtaskResult = {
+      canSplit: typeof data.canSplit === 'boolean' ? data.canSplit : false,
+      subtasks: Array.isArray(data.subtasks) ? (data.subtasks as string[]) : [],
+      reasoning: typeof data.reasoning === 'string' ? data.reasoning : '',
+      originalTask: typeof data.originalTask === 'string' ? data.originalTask : todoText,
+    }
+
+    // 如果不能拆分，确保子任务数组为空
+    if (!result.canSplit) {
+      result.subtasks = []
+    }
+
+    // 缓存结果
+    cacheResponse(prompt, response)
+
+    return result
   } catch (error) {
     console.error('AI任务拆分分析失败:', error)
-    handleError(error, 'AI任务拆分分析失败')
+    logAIResponseError(error, 'AI任务拆分分析')
 
     // 返回默认结果
-    return {
+    const defaultResult: AISubtaskResult = {
       canSplit: false,
       subtasks: [],
       reasoning: 'AI分析服务暂时不可用',
       originalTask: todoText,
     }
+
+    return defaultResult
   }
 }
 
@@ -426,10 +482,10 @@ export function generateTodoSystemPrompt(todos: Todo[]): string {
     .map((todo, index) => {
       const priority = todo.priority ? `${todo.priority}星` : '无'
       const estimation = todo.estimatedTime || '未估算'
-      const todoWithTags = todo as Todo & { tags?: string[] }
+      // 检查todo对象是否有tags属性
       const tags =
-        todoWithTags.tags && todoWithTags.tags.length > 0
-          ? `[标签:${todoWithTags.tags.join(',')}]`
+        'tags' in todo && Array.isArray(todo.tags) && todo.tags.length > 0
+          ? `[标签:${todo.tags.join(',')}]`
           : ''
       return `${index + 1}. ${todo.title} [优先级:${priority}] [时间:${estimation}]${tags ? ' ' + tags : ''}`
     })
@@ -570,7 +626,7 @@ ${completedSamples
         throw new Error('未找到有效的JSON格式')
       }
 
-      const result = JSON.parse(jsonMatch[0]) as SmartQuestionResult
+      const result: SmartQuestionResult = JSON.parse(jsonMatch[0])
 
       // 验证结果格式
       if (

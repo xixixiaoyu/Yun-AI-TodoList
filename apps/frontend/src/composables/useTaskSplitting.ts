@@ -1,5 +1,5 @@
 import { ref, reactive } from 'vue'
-import type { SubtaskSelectionConfig, AISubtaskResult } from '@/types/todo'
+import type { OmitReasoningSubtaskSelectionConfig, AISubtaskResult } from '@/types/todo'
 import { analyzeTaskSplitting } from '@/services/aiAnalysisService'
 import { handleError } from '@/utils/logger'
 
@@ -9,11 +9,10 @@ import { handleError } from '@/utils/logger'
  */
 export function useTaskSplitting() {
   // 拆分对话框配置
-  const subtaskConfig = reactive<SubtaskSelectionConfig>({
+  const subtaskConfig = reactive<OmitReasoningSubtaskSelectionConfig>({
     showDialog: false,
     originalTask: '',
     subtasks: [],
-    reasoning: '',
   })
 
   // 加载状态
@@ -54,7 +53,6 @@ export function useTaskSplitting() {
       subtaskConfig.showDialog = true
       subtaskConfig.originalTask = result.originalTask
       subtaskConfig.subtasks = [...result.subtasks]
-      subtaskConfig.reasoning = result.reasoning
     }
   }
 
@@ -65,7 +63,6 @@ export function useTaskSplitting() {
     subtaskConfig.showDialog = false
     subtaskConfig.originalTask = ''
     subtaskConfig.subtasks = []
-    subtaskConfig.reasoning = ''
   }
 
   /**

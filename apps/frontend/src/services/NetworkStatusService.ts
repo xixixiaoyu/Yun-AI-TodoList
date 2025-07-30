@@ -72,33 +72,46 @@ export class NetworkStatusService {
 
     // 监听连接类型变化
     if ('connection' in navigator) {
-      const connection = (navigator as Record<string, unknown>).connection as EventTarget & {
+      const connection = navigator.connection as EventTarget & {
         effectiveType?: string
         type?: string
+        downlink?: number
       }
-      connection.addEventListener('change', () => {
-        this.updateConnectionInfo()
-        this.notifyListeners()
-      })
+      if (connection) {
+        connection.addEventListener('change', () => {
+          this.updateConnectionInfo()
+          this.notifyListeners()
+        })
+      }
     }
+
+    // 监听页面可见性变化，页面可见时更新网络状态
+    document.addEventListener('visibilitychange', () => {
+      if (!document.hidden) {
+        this.checkServerReachability()
+      }
+    })
   }
 
   /**
    * 更新连接信息
    */
   private updateConnectionInfo() {
-    const connection = (navigator as Record<string, unknown>).connection as {
-      effectiveType?: string
-      type?: string
-    }
-    if (connection) {
-      this.status.connectionType = connection.effectiveType || connection.type || 'unknown'
+    if ('connection' in navigator) {
+      const connection = navigator.connection as {
+        effectiveType?: string
+        type?: string
+        downlink?: number
+      }
+      if (connection) {
+        this.status.connectionType = connection.effectiveType || connection.type || 'unknown'
 
-      // 判断是否为慢速连接
-      const slowTypes = ['slow-2g', '2g', '3g']
-      this.status.isSlowConnection =
-        slowTypes.includes(connection.effectiveType) ||
-        (connection.downlink && connection.downlink < 1.5)
+        // 判断是否为慢速连接
+        const slowTypes = ['slow-2g', '2g', '3g']
+        this.status.isSlowConnection =
+          slowTypes.includes(connection.effectiveType || '') ||
+          (connection.downlink !== undefined && connection.downlink < 1.5)
+      }
     }
   }
 
@@ -120,13 +133,16 @@ export class NetworkStatusService {
         headers: {
           'Cache-Control': 'no-cache',
           Pragma: 'no-cache',
+          // 添加 User-Agent 以避免某些服务器的拒绝
+          'User-Agent': 'Yun-AI-TodoList/1.0',
         },
       })
 
       clearTimeout(timeoutId)
 
       const latency = Date.now() - startTime
-      const isReachable = response.ok || response.status < 500
+      // 更严格的可达性检查，只认为 2xx 状态码为可达
+      const isReachable = response.ok && response.status >= 200 && response.status < 300
 
       this.status.isServerReachable = isReachable
       this.status.latency = latency
@@ -145,7 +161,13 @@ export class NetworkStatusService {
       this.status.lastCheckTime = new Date().toISOString()
       this.status.consecutiveFailures++
 
-      console.warn('Server reachability check failed:', error)
+      // 区分超时错误和其他网络错误
+      if (error instanceof Error && error.name === 'AbortError') {
+        console.warn('Server reachability check timed out')
+      } else {
+        console.warn('Server reachability check failed:', error)
+      }
+
       return false
     }
   }
@@ -185,7 +207,10 @@ export class NetworkStatusService {
 
     // 立即执行一次检查
     if (this.status.isOnline) {
-      this.checkServerReachability()
+      // 延迟1秒执行，避免在应用启动时阻塞
+      setTimeout(() => {
+        this.checkServerReachability()
+      }, 1000)
     }
   }
 
@@ -232,29 +257,35 @@ export class NetworkStatusService {
 
     let score = 100
 
-    // 根据延迟扣分
-    if (this.status.latency > 1000) score -= 30
+    // 根据延迟扣分，使用更平滑的计算方式
+    if (this.status.latency > 2000) score -= 50
+    else if (this.status.latency > 1000) score -= 30
     else if (this.status.latency > 500) score -= 15
     else if (this.status.latency > 200) score -= 5
 
     // 根据连接类型扣分
     switch (this.status.connectionType) {
       case 'slow-2g':
-        score -= 50
+        score -= 60
         break
       case '2g':
-        score -= 40
+        score -= 50
         break
       case '3g':
-        score -= 20
+        score -= 30
         break
       case '4g':
-        score -= 5
+        score -= 10
+        break
+      case '5g':
+        // 5g 网络加分
+        score += 10
         break
     }
 
-    // 根据连续失败次数扣分
-    score -= this.status.consecutiveFailures * 10
+    // 根据连续失败次数扣分，但设置上限
+    const failurePenalty = Math.min(this.status.consecutiveFailures * 15, 50)
+    score -= failurePenalty
 
     return Math.max(0, Math.min(100, score))
   }
@@ -313,8 +344,8 @@ export class NetworkStatusService {
     this.stopPeriodicCheck()
     this.listeners = []
 
-    window.removeEventListener('online', this.setupEventListeners)
-    window.removeEventListener('offline', this.setupEventListeners)
+    window.removeEventListener('online', this.setupEventListeners.bind(this))
+    window.removeEventListener('offline', this.setupEventListeners.bind(this))
   }
 
   /**

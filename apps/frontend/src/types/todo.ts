@@ -1,21 +1,14 @@
 // Re-export shared types to ensure consistency across the frontend
 export type {
-  // AI 任务生成相关类型
-  AITaskGenerationRequest,
-  AITaskGenerationResult,
   CreateTodoDto,
-  GeneratedTask,
-  SortDirection,
-  TaskGenerationConfig,
-  TaskGenerationHistory,
-  TaskTemplate,
   Todo,
   TodoFilter,
   TodoSortField,
   TodoSortOptions,
   TodoStats,
   UpdateTodoDto,
-  UserTaskPreferences,
+  TimeEstimate,
+  TodoPriority,
 } from '@shared/types/todo'
 
 // Import Todo type for use in interfaces
@@ -27,6 +20,89 @@ export interface HistoryItem {
   todos: Todo[]
   timestamp: string
   action: string
+}
+
+// AI 任务生成相关类型
+export interface AITaskGenerationRequest {
+  description: string
+  context?: {
+    existingTodos?: Todo[]
+    userPreferences?: UserTaskPreferences
+    timeframe?: string
+  }
+  config?: TaskGenerationConfig
+}
+
+export interface GeneratedTask {
+  title: string
+  description?: string
+  priority?: number
+  estimatedTime?: string
+  category?: string
+  tags?: string[]
+  reasoning?: string
+}
+
+export interface AITaskGenerationResult {
+  success: boolean
+  tasks: GeneratedTask[]
+  originalDescription: string
+  totalTasks: number
+  processingTime: number
+  suggestions?: Record<string, unknown>
+  error?: string
+  metadata?: {
+    generatedAt: string
+    model: string
+    version: string
+  }
+}
+
+export type SortDirection = 'asc' | 'desc'
+
+export interface TaskGenerationConfig {
+  maxTasks: number // 0 表示自动判断
+  enablePriorityAnalysis: boolean
+  enableTimeEstimation: boolean
+  includeSubtasks: boolean
+  taskComplexity: 'simple' | 'medium' | 'complex'
+}
+
+export interface TaskGenerationHistory {
+  id: string
+  config: TaskGenerationConfig
+  result: AITaskGenerationResult
+  timestamp: string
+}
+
+export interface TaskTemplate {
+  id: string
+  name: string
+  description: string
+  config: TaskGenerationConfig
+}
+
+export interface UserTaskPreferences {
+  defaultTaskCount: number
+  preferredTopics: string[]
+  difficulty: string
+  autoGenerateSubtasks: boolean
+  preferredTaskDuration?: string
+  priorityStyle?: 'urgent-first' | 'important-first' | 'balanced'
+  taskCategories?: string[]
+  insights?: {
+    completionRate: number
+    averageTaskDuration: string
+    mostProductiveTimeframe: string
+    commonTaskPatterns: string[]
+    recommendedTaskSize: 'small' | 'medium' | 'large'
+    workloadTrend: 'increasing' | 'stable' | 'decreasing'
+  }
+  suggestions?: {
+    taskBreakdown: string
+    priorityStrategy: string
+    timeManagement: string
+  }
 }
 
 // AI 分析相关类型
@@ -57,3 +133,5 @@ export interface SubtaskSelectionConfig {
   subtasks: string[] // 建议的子任务
   reasoning: string // AI 分析理由
 }
+
+export type OmitReasoningSubtaskSelectionConfig = Omit<SubtaskSelectionConfig, 'reasoning'>

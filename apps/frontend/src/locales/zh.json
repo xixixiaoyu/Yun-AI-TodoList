@@ -53,6 +53,7 @@
   "addNewSuggestion": "添加新建议",
   "generating": "正在生成...",
   "sorting": "AI 正在排序中，请稍候...",
+  "splittingTask": "AI 正在拆分任务，请稍候...",
   "duplicateError": "该待办事项已存在，请勿重复添加",
   "emptyTodoError": "待办事项不能为空",
   "maxLengthError": "待办事项不能超过 {maxLength} 个字符",

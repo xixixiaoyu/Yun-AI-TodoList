@@ -54,6 +54,7 @@
   "addNewSuggestion": "Add New Suggestion",
   "generating": "Generating...",
   "sorting": "AI is sorting, please wait...",
+  "splittingTask": "AI is splitting task, please wait...",
   "duplicateError": "This todo already exists, please do not add it again.",
   "emptyTodoError": "Todo cannot be empty",
   "maxLengthError": "Todo cannot exceed {maxLength} characters",

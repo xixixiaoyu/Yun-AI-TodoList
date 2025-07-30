@@ -25,14 +25,6 @@
             </div>
           </section>
 
-          <!-- AI 分析 -->
-          <section class="content-section">
-            <h4 class="section-title">AI 分析</h4>
-            <div class="analysis-content">
-              {{ config.reasoning }}
-            </div>
-          </section>
-
           <!-- 子任务列表 -->
           <section class="content-section">
             <div class="section-header">
@@ -56,11 +48,6 @@
               </label>
             </div>
           </section>
-
-          <!-- 操作提示 -->
-          <div class="help-text">
-            💡 选择需要的子任务，点击「使用拆分」添加到待办列表，或点击「保持原样」使用原始任务
-          </div>
         </main>
 
         <!-- 底部操作 -->
@@ -76,16 +63,16 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue'
 import type { SubtaskSelectionConfig } from '@/types/todo'
+import { computed, ref, watch } from 'vue'
 
 interface Props {
-  config: SubtaskSelectionConfig
+  config: Omit<SubtaskSelectionConfig, 'reasoning'>
 }
 
 interface Emits {
   confirm: [subtasks: string[]]
-  cancel: []
+  cancel: [originalTask: string]
 }
 
 const props = defineProps<Props>()
@@ -130,7 +117,7 @@ function handleConfirm() {
 }
 
 function handleCancel() {
-  emit('cancel')
+  emit('cancel', props.config.originalTask)
 }
 </script>
 
@@ -274,16 +261,6 @@ function handleCancel() {
   font-size: 0.9rem;
 }
 
-.analysis-content {
-  padding: 1rem;
-  background: var(--ai-message-bg);
-  border: 1px solid var(--ai-message-border);
-  border-radius: 8px;
-  color: var(--text-color);
-  line-height: 1.6;
-  font-size: 0.875rem;
-}
-
 /* 子任务列表 */
 .subtasks-list {
   display: flex;
@@ -351,17 +328,6 @@ function handleCancel() {
   color: var(--text-color);
   line-height: 1.5;
   font-size: 0.875rem;
-}
-
-/* 帮助文本 */
-.help-text {
-  padding: 0.875rem 1rem;
-  background: var(--ai-message-bg-secondary);
-  border: 1px solid var(--ai-message-border);
-  border-radius: 8px;
-  font-size: 0.875rem;
-  color: var(--text-secondary-color);
-  line-height: 1.5;
 }
 
 /* 底部操作 */

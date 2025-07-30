@@ -34,18 +34,30 @@ export class ApiError extends Error {
 }
 
 // 网络错误检测
-const isNetworkError = (error: {
-  response?: unknown
-  code?: string
-  message?: string
-}): boolean => {
-  return (
-    !error.response &&
-    (error.code === 'NETWORK_ERROR' ||
-      error.code === 'ECONNABORTED' ||
+const isNetworkError = (error: unknown): boolean => {
+  if (error instanceof Error) {
+    return (
+      error.name === 'NetworkError' ||
       error.message?.includes('Network Error') ||
-      false)
-  )
+      error.message?.includes('Failed to fetch') ||
+      false
+    )
+  }
+
+  // 处理可能的对象形式错误
+  if (typeof error === 'object' && error !== null) {
+    const err = error as { response?: unknown; code?: string; message?: string }
+    return (
+      !err.response &&
+      (err.code === 'NETWORK_ERROR' ||
+        err.code === 'ECONNABORTED' ||
+        err.message?.includes('Network Error') ||
+        err.message?.includes('Failed to fetch') ||
+        false)
+    )
+  }
+
+  return false
 }
 
 // 延迟函数
@@ -106,8 +118,13 @@ class HttpClient {
     let data: unknown
     try {
       data = isJson ? await response.json() : await response.text()
-    } catch {
-      throw new ApiError('Failed to parse response', response.status)
+    } catch (error) {
+      // 如果解析响应体失败，抛出原始错误
+      if (!response.ok) {
+        throw new ApiError(`HTTP Error: ${response.status}`, response.status)
+      }
+      // 如果响应成功但解析失败，重新抛出解析错误
+      throw error
     }
 
     if (!response.ok) {
@@ -129,11 +146,13 @@ class HttpClient {
         }
       }
 
-      const errorData = data as Record<string, unknown>
+      const errorData = data as { message?: string; error?: string; code?: string | number }
       const message = errorData?.message || errorData?.error || `HTTP ${response.status}`
-      const code = errorData?.code || response.status.toString()
+      const code =
+        (errorData?.code !== undefined ? errorData.code.toString() : undefined) ||
+        response.status.toString()
 
-      throw new ApiError(message, response.status, code, errorData as Record<string, unknown>)
+      throw new ApiError(message, response.status, code, errorData)
     }
 
     return data
@@ -257,12 +276,10 @@ class HttpClient {
     } catch (error: unknown) {
       clearTimeout(timeoutId)
 
-      const errorObj = error as Record<string, unknown>
-
       // 检查是否需要重试
       const shouldRetry =
         retryCount < RETRY_CONFIG.maxRetries &&
-        (isNetworkError(errorObj) ||
+        (isNetworkError(error) ||
           (error instanceof ApiError && RETRY_CONFIG.retryableStatuses.includes(error.status || 0)))
 
       if (shouldRetry) {
@@ -270,7 +287,7 @@ class HttpClient {
           console.log('🔄 Retrying request', {
             url,
             retryCount: retryCount + 1,
-            error: errorObj?.message || error,
+            error: error instanceof Error ? error.message : String(error),
           })
         }
         const delayMs = RETRY_CONFIG.retryDelay * Math.pow(2, retryCount) // 指数退避
@@ -279,11 +296,11 @@ class HttpClient {
       }
 
       // 处理特定错误
-      if (errorObj?.name === 'AbortError') {
+      if (error instanceof Error && error.name === 'AbortError') {
         throw new ApiError('Request timeout', 408, 'TIMEOUT')
       }
 
-      if (isNetworkError(errorObj)) {
+      if (isNetworkError(error)) {
         throw new ApiError('Network error, please check your connection', 0, 'NETWORK_ERROR')
       }
 
@@ -294,7 +311,10 @@ class HttpClient {
   /**
    * 构造完整的 URL
    */
-  private buildUrl(endpoint: string): string {
+  private buildUrl(
+    endpoint: string,
+    params?: Record<string, string | number | boolean | string[] | undefined>
+  ): string {
     // 如果 endpoint 已经是完整的 URL，直接返回
     if (endpoint.startsWith('http://') || endpoint.startsWith('https://')) {
       return endpoint
@@ -311,25 +331,36 @@ class HttpClient {
     }
 
     // 如果 baseURL 是绝对 URL，使用 URL 构造函数
-    return new URL(endpoint, this.baseURL).toString()
+    const url = new URL(endpoint, this.baseURL)
+
+    if (params) {
+      Object.keys(params).forEach((key) => {
+        const value = params[key]
+        if (value !== undefined && value !== null) {
+          // 正确处理数组参数
+          if (Array.isArray(value)) {
+            value.forEach((item) => {
+              url.searchParams.append(key, String(item))
+            })
+          } else {
+            url.searchParams.append(key, String(value))
+          }
+        }
+      })
+    }
+
+    return url.toString()
   }
 
   /**
    * GET 请求
    */
-  async get<T = unknown>(endpoint: string, params?: Record<string, unknown>): Promise<T> {
-    const baseUrl = this.buildUrl(endpoint)
-    const url = new URL(baseUrl, window.location.origin)
-
-    if (params) {
-      Object.entries(params).forEach(([key, value]) => {
-        if (value !== undefined && value !== null) {
-          url.searchParams.append(key, String(value))
-        }
-      })
-    }
-
-    return this.executeRequest(url.toString(), {
+  async get<T = unknown>(
+    endpoint: string,
+    params?: Record<string, string | number | boolean | string[] | undefined>
+  ): Promise<T> {
+    const url = this.buildUrl(endpoint, params)
+    return this.executeRequest(url, {
       method: 'GET',
       headers: this.buildHeaders(),
     }) as Promise<T>
@@ -343,10 +374,9 @@ class HttpClient {
     data?: unknown,
     customHeaders?: Record<string, string>
   ): Promise<T> {
-    const baseUrl = this.buildUrl(endpoint)
-    const url = new URL(baseUrl, window.location.origin)
+    const url = this.buildUrl(endpoint)
 
-    return this.executeRequest(url.toString(), {
+    return this.executeRequest(url, {
       method: 'POST',
       headers: this.buildHeaders(customHeaders),
       body: data ? JSON.stringify(data) : undefined,
@@ -361,10 +391,9 @@ class HttpClient {
     data?: unknown,
     customHeaders?: Record<string, string>
   ): Promise<T> {
-    const baseUrl = this.buildUrl(endpoint)
-    const url = new URL(baseUrl, window.location.origin)
+    const url = this.buildUrl(endpoint)
 
-    return this.executeRequest(url.toString(), {
+    return this.executeRequest(url, {
       method: 'PUT',
       headers: this.buildHeaders(customHeaders),
       body: data ? JSON.stringify(data) : undefined,
@@ -379,10 +408,9 @@ class HttpClient {
     data?: unknown,
     customHeaders?: Record<string, string>
   ): Promise<T> {
-    const baseUrl = this.buildUrl(endpoint)
-    const url = new URL(baseUrl, window.location.origin)
+    const url = this.buildUrl(endpoint)
 
-    return this.executeRequest(url.toString(), {
+    return this.executeRequest(url, {
       method: 'PATCH',
       headers: this.buildHeaders(customHeaders),
       body: data ? JSON.stringify(data) : undefined,
@@ -393,10 +421,9 @@ class HttpClient {
    * DELETE 请求
    */
   async delete<T = unknown>(endpoint: string): Promise<T> {
-    const baseUrl = this.buildUrl(endpoint)
-    const url = new URL(baseUrl, window.location.origin)
+    const url = this.buildUrl(endpoint)
 
-    return this.executeRequest(url.toString(), {
+    return this.executeRequest(url, {
       method: 'DELETE',
       headers: this.buildHeaders(),
     }) as Promise<T>
