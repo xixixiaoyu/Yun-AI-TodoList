@@ -45,7 +45,6 @@
             <select
               :value="config.activePromptId || ''"
               class="select-input"
-              :disabled="!config.enabled"
               @change="handleActivePromptChange"
             >
               <option value="">{{ t('noSystemPrompt') }}</option>
@@ -242,11 +241,8 @@ const handleToggleEnabled = async (event: Event) => {
 
   try {
     await updateConfig({ enabled })
-
-    // 如果禁用系统提示词，同时清除激活的提示词
-    if (!enabled && config.value.activePromptId) {
-      await setActivePrompt(null)
-    }
+    // 不再自动清除激活的提示词，让用户保持选择状态
+    // 这样当重新启用时，之前的选择仍然有效
   } catch (error) {
     console.error('切换系统提示词开关失败:', error)
   }

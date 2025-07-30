@@ -1,4 +1,4 @@
-import { analyzeTodo, batchAnalyzeTodos, reanalyzeTodo } from '@/services/aiAnalysisService'
+import { analyzeTodo, reanalyzeTodo } from '@/services/aiAnalysisService'
 import { checkAIAvailability, getAIStatusMessage } from '@/services/aiConfigService'
 import type { AIAnalysisConfig } from '@/types/todo'
 import type { TimeEstimate, Todo, TodoPriority } from '@shared/types/todo'
@@ -33,8 +33,6 @@ export function useAIAnalysis() {
 
   // 分析状态
   const isAnalyzing = ref(false)
-  const isBatchAnalyzing = ref(false)
-  const analysisProgress = ref(0)
   const analysisError = ref<string | null>(null)
 
   // AI 可用性
@@ -76,9 +74,6 @@ export function useAIAnalysis() {
 
   // 分析功能开关
   const isAnalysisEnabled = ref(true)
-
-  // 批量分析总数
-  const analysisTotal = ref(0)
 
   /**
    * 更新 AI 可用性状态
@@ -142,57 +137,6 @@ export function useAIAnalysis() {
       }
     } finally {
       isAnalyzing.value = false
-    }
-  }
-
-  /**
-   * 批量分析 Todos
-   * @param todos - 要分析的 Todo 列表
-   * @param updateCallback - 批量更新 Todos 的回调函数
-   */
-  const batchAnalyzeTodosAction = async (
-    todos: Todo[],
-    updateCallback: (updates: Array<{ id: string; updates: Partial<Todo> }>) => void
-  ) => {
-    if (isBatchAnalyzing.value) return
-    isBatchAnalyzing.value = true
-    analysisProgress.value = 0
-    analysisError.value = null
-
-    try {
-      const results = await batchAnalyzeTodos(todos)
-
-      const updates: Array<{ id: string; updates: Partial<Todo> }> = []
-      results.forEach((result, id) => {
-        const todoUpdates: Partial<Todo> = {
-          aiAnalyzed: true,
-          updatedAt: new Date().toISOString(),
-        }
-
-        if (analysisConfig.value.enablePriorityAnalysis && result.priority) {
-          todoUpdates.priority = result.priority as TodoPriority
-        }
-
-        if (analysisConfig.value.enableTimeEstimation && result.estimatedTime) {
-          todoUpdates.estimatedTime = parseEstimatedTime(result.estimatedTime)
-        }
-
-        updates.push({ id, updates: todoUpdates })
-      })
-
-      if (updates.length > 0) {
-        updateCallback(updates)
-      }
-
-      showSuccess(t('ai.batchAnalysisSuccess', { count: updates.length }))
-    } catch (error: unknown) {
-      analysisError.value = error instanceof Error ? error.message : String(error)
-      showError(
-        `${t('ai.batchAnalysisFailed')}: ${error instanceof Error ? error.message : String(error)}`
-      )
-    } finally {
-      isBatchAnalyzing.value = false
-      analysisProgress.value = 0
     }
   }
 
@@ -272,9 +216,6 @@ export function useAIAnalysis() {
 
   return {
     isAnalyzing: readonly(isAnalyzing),
-    isBatchAnalyzing: readonly(isBatchAnalyzing),
-    analysisProgress: readonly(analysisProgress),
-    analysisTotal: readonly(analysisTotal), // 添加缺失的变量
     analysisError: readonly(analysisError),
     isAIAvailable: readonly(isAIAvailable),
     aiStatusMessage: readonly(aiStatusMessage),
@@ -283,7 +224,6 @@ export function useAIAnalysis() {
     updateAIAvailability,
     setAnalysisConfig,
     analyzeSingleTodo,
-    batchAnalyzeTodosAction,
     reanalyzeTodoAction,
     getPriorityStars, // 添加工具函数
     getPriorityColorClass, // 添加工具函数

@@ -67,7 +67,6 @@
             <select
               :value="config.enabled ? config.activePromptId || '' : ''"
               class="w-full md:w-auto px-3 py-1.5 pr-8 text-sm bg-white/10 text-white border border-white/20 rounded-lg cursor-pointer transition-all duration-200 hover:bg-white/15 focus:bg-white/15 focus:border-white/40 focus:outline-none backdrop-blur-sm min-w-[140px] md:min-w-[120px] md:text-xs appearance-none"
-              :disabled="!config.enabled"
               @change="handlePromptChange"
             >
               <option value="" class="text-gray-800">{{ t('noSystemPrompt') }}</option>
@@ -134,21 +133,19 @@
         :uploaded-file-size="uploadedFileSize"
         @toggle-drawer="isDrawerOpen = !isDrawerOpen"
         @update:is-drawer-open="isDrawerOpen = $event"
-        @switch-conversation="(id: string) => switchConversation(id)"
-        @delete-conversation="(id: string) => deleteConversation(id)"
-        @clear-conversations="clearConversations"
+        @switch-conversation="handleSwitchConversation"
+        @delete-conversation="handleDeleteConversation"
+        @clear-conversations="clearAllConversations"
         @new-conversation="newConversation"
         @optimize="optimizeMessage"
         @retry="retry"
         @send="sendMessage"
         @stop="stopGenerating"
         @scroll="handleScroll"
-        @update:user-message="userMessage = $event"
-        @generate-chart="(content: string) => handleGenerateChart(content)"
-        @edit-message="
-          (messageIndex: number, newContent: string) => handleEditMessage(messageIndex, newContent)
-        "
-        @file-upload="(payload: { file: File; content: string }) => handleFileUpload(payload)"
+        @update:user-message="updateUserMessage"
+        @generate-chart="handleGenerateChart"
+        @edit-message="handleEditMessage"
+        @file-upload="handleFileUploadWrapper"
         @clear-file="clearFileUpload"
       />
     </div>
@@ -247,7 +244,8 @@ const handleScroll = () => {
   // 自动滚动逻辑现在由 ChatMessageList 内部处理
 }
 
-const handleGenerateChart = async (content: string) => {
+const handleGenerateChart = async (...args: unknown[]) => {
+  const [content] = args as [string]
   // 构造生成图表的提示词
   const chartPrompt = `请根据以下内容生成一个或多个 mermaid 格式的图表，要求：
 1. 使用标准的 mermaid 语法
@@ -276,12 +274,38 @@ const handleGenerateChart = async (content: string) => {
 }
 
 // 重试函数
-const retry = () => {
-  retryLastMessage()
+const retry = (...args: unknown[]) => {
+  const [messageIndex] = args as [number?]
+  retryLastMessage(messageIndex)
+}
+
+// 更新用户消息
+const updateUserMessage = (...args: unknown[]) => {
+  const [value] = args as [string]
+  userMessage.value = value
+}
+
+// 切换对话包装函数
+const handleSwitchConversation = (...args: unknown[]) => {
+  const [id] = args as [string]
+  switchConversation(id)
+}
+
+// 删除对话包装函数
+const handleDeleteConversation = (...args: unknown[]) => {
+  const [id] = args as [string]
+  deleteConversation(id)
+}
+
+// 文件上传包装函数
+const handleFileUploadWrapper = (...args: unknown[]) => {
+  const [payload] = args as [{ file: File; content: string }]
+  handleFileUpload(payload)
 }
 
 // 编辑消息函数
-const handleEditMessage = (messageIndex: number, newContent: string) => {
+const handleEditMessage = (...args: unknown[]) => {
+  const [messageIndex, newContent] = args as [number, string]
   editMessage(messageIndex, newContent)
 }
 
@@ -291,7 +315,7 @@ const newConversation = () => {
 }
 
 // 清空所有对话函数
-const clearConversations = () => {
+const _clearConversations = () => {
   clearAllConversations()
 }
 

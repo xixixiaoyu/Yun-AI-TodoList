@@ -274,9 +274,9 @@ export default [
     },
   },
 
-  ...vue.configs['flat/recommended'],
   {
     files: ['**/*.vue'],
+    ...vue.configs['flat/recommended'][1],
     languageOptions: {
       parser: vueParser,
       parserOptions: {

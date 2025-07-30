@@ -3,7 +3,7 @@
     class="editable-todo-item"
     :class="{
       'is-editing': isEditing,
-      'is-disabled': isBatchAnalyzing,
+      // 批量分析禁用状态已移除
     }"
   >
     <!-- 编辑模式 -->
@@ -91,7 +91,7 @@
 </template>
 
 <script setup lang="ts">
-import { useAIAnalysis } from '@/composables/useAIAnalysis'
+import { useAIAnalysis as _useAIAnalysis } from '@/composables/useAIAnalysis'
 import { useErrorHandler } from '@/composables/useErrorHandler'
 import type { Todo } from '@/types/todo'
 
@@ -113,7 +113,7 @@ const emit = defineEmits<Emits>()
 
 const { t } = useI18n()
 const { showError } = useErrorHandler()
-const { isBatchAnalyzing } = useAIAnalysis()
+// isBatchAnalyzing 导入已移除
 
 // 编辑状态
 const isEditing = ref(false)
@@ -128,9 +128,7 @@ const canSave = computed(() => {
 
 // 开始编辑
 const startEdit = () => {
-  if (isBatchAnalyzing.value) {
-    return
-  }
+  // 批量分析检查已移除
 
   isEditing.value = true
   editText.value = props.todo.title
@@ -319,10 +317,11 @@ defineExpose({
   @apply hover:bg-gray-100 hover:bg-opacity-30 hover:text-primary;
   @apply focus:outline-none focus:ring-2 focus:ring-primary focus:ring-opacity-30;
   @apply transition-all duration-200;
+  pointer-events: none;
 }
 
 .display-mode:hover .edit-btn {
-  @apply opacity-100;
+  @apply opacity-0;
 }
 
 .edit-btn:hover {
@@ -345,7 +344,8 @@ defineExpose({
   }
 
   .edit-btn {
-    @apply opacity-70 w-8 h-8;
+    @apply opacity-0 w-8 h-8;
+    pointer-events: none;
   }
 }
 

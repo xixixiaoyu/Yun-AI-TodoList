@@ -49,7 +49,7 @@ export function useTodoDragSort(
     bubbleScroll: true,
 
     // 拖拽开始事件
-    onStart: (evt: any) => {
+    onStart: (evt: { item: HTMLElement & { dataset: { todoId?: string } } }) => {
       console.warn('拖拽开始:', evt)
       isDragging.value = true
       const todoId = parseInt(evt.item.dataset.todoId || '0')
@@ -61,7 +61,7 @@ export function useTodoDragSort(
     },
 
     // 拖拽结束事件
-    onEnd: (evt: any) => {
+    onEnd: (evt: { item: HTMLElement }) => {
       console.warn('拖拽结束:', evt)
       isDragging.value = false
       draggedItem.value = null
@@ -69,7 +69,7 @@ export function useTodoDragSort(
     },
 
     // 自定义更新处理
-    onUpdate: (evt: any) => {
+    onUpdate: (evt: { oldIndex?: number; newIndex?: number }) => {
       console.warn('拖拽更新:', evt)
       // 确保索引存在
       if (typeof evt.oldIndex === 'number' && typeof evt.newIndex === 'number') {

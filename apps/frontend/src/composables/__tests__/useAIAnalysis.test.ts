@@ -8,7 +8,7 @@ vi.mock('@/services/aiAnalysisService', () => ({
     estimatedTime: '30分钟',
     reasoning: 'Mock analysis result',
   }),
-  batchAnalyzeTodos: vi.fn(),
+  // batchAnalyzeTodos mock 已移除
   reanalyzeTodo: vi.fn(),
 }))
 
@@ -60,12 +60,10 @@ describe('useAIAnalysis', () => {
 
   describe('状态管理', () => {
     it('应该正确管理分析状态', () => {
-      const { isAnalyzing, isBatchAnalyzing, analysisProgress, analysisTotal } = useAIAnalysis()
+      const { isAnalyzing } = useAIAnalysis()
 
       expect(isAnalyzing.value).toBe(false)
-      expect(isBatchAnalyzing.value).toBe(false)
-      expect(analysisProgress.value).toBe(0)
-      expect(analysisTotal.value).toBe(0)
+      // 批量分析测试已移除
     })
   })
 

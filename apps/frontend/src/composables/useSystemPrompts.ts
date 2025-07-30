@@ -293,7 +293,6 @@ export function useSystemPrompts() {
       // 如果删除的是当前激活的提示词，清除激活状态
       if (config.value.activePromptId === id) {
         config.value.activePromptId = null
-        config.value.enabled = false // 同时禁用系统提示词功能
         saveConfig()
       }
 
@@ -322,7 +321,6 @@ export function useSystemPrompts() {
       // 如果禁用的是当前激活的提示词，清除激活状态
       if (!prompt.isActive && config.value.activePromptId === id) {
         config.value.activePromptId = null
-        config.value.enabled = false // 同时禁用系统提示词功能
         saveConfig()
       }
     } catch (error) {
@@ -338,9 +336,9 @@ export function useSystemPrompts() {
         throw new Error('系统提示词不存在或未启用')
       }
 
-      // 设置激活的提示词ID，同时更新enabled状态
+      // 只设置激活的提示词ID，不自动修改enabled状态
+      // enabled状态应该由用户通过总开关手动控制
       config.value.activePromptId = id
-      config.value.enabled = id !== null // 有激活提示词时启用，否则禁用
       saveConfig()
 
       logger.info(

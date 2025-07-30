@@ -25,7 +25,7 @@ export function useTodoListState() {
   const { loadTodos, updateTodosOrder, updateTodosOrderByArray } = useTodos()
 
   // AI 分析功能
-  const { analyzeSingleTodo, batchAnalyzeTodosAction, isBatchAnalyzing } = useAIAnalysis()
+  const { analyzeSingleTodo } = useAIAnalysis()
 
   const {
     todos,
@@ -50,7 +50,7 @@ export function useTodoListState() {
     toggleTodo,
     removeTodo,
     updateTodo,
-    batchUpdateTodos,
+
     duplicateError,
     isLoading,
     isAnalyzing,
@@ -135,14 +135,7 @@ export function useTodoListState() {
     }
   }
 
-  const handleBatchAnalyze = async () => {
-    try {
-      await batchAnalyzeTodosAction(todos.value, batchUpdateTodos)
-    } catch (error) {
-      logError(error, 'Error in batch analysis', 'TodoListState')
-      showError(t('batchAnalysisError', '批量分析失败'))
-    }
-  }
+  // handleBatchAnalyze 函数已移除
 
   const handleError = (error: Error) => {
     logError(error, 'TodoList error', 'TodoListState')
@@ -219,8 +212,6 @@ export function useTodoListState() {
     // AI 分析功能
     handleUpdateTodo,
     handleAnalyzeTodo,
-    handleBatchAnalyze,
-    isBatchAnalyzing,
 
     showCharts,
     showSearch,

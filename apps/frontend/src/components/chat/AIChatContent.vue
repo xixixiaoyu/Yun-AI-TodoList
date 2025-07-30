@@ -122,7 +122,7 @@ interface Emits {
 }
 
 defineProps<Props>()
-defineEmits<Emits>()
+const _emit = defineEmits<Emits>()
 
 const messageListRef = ref<InstanceType<typeof ChatMessageList> | null>(null)
 const inputRef = ref<InstanceType<typeof ChatInput> | null>(null)

@@ -561,7 +561,7 @@ function formatDuration(minutes: number): string {
 function determineMostProductiveTime(completedTodos: Todo[]): string {
   const completionTimes = completedTodos
     .filter((t) => t.completedAt)
-    .map((t) => new Date(t.completedAt!).getHours())
+    .map((t) => new Date(t.completedAt as string).getHours())
 
   if (completionTimes.length === 0) return '全天'
 

@@ -517,16 +517,14 @@
 
   "aiAnalysis": "AI 智能分析",
   "aiAnalysisDescription": "使用 AI 自动分析待办事项的重要等级和时间估算",
-  "batchAiAnalysis": "批量 AI 分析",
+
   "reanalyze": "重新分析",
   "analyzing": "分析中...",
   "aiAnalyzing": "AI 分析中...",
-  "batchAnalyzing": "批量分析中...",
+
   "aiAnalysisSuccess": "AI 分析完成",
   "aiAnalysisError": "AI 分析失败，请重试",
-  "batchAnalysisSuccess": "批量分析完成，成功分析了 {count} 个待办事项",
-  "batchAnalysisError": "批量分析失败，请重试",
-  "batchAnalysisNoResults": "批量分析未获得有效结果",
+
   "reanalysisSuccess": "重新分析完成",
   "reanalysisError": "重新分析失败，请重试",
   "noTodosToAnalyze": "没有需要分析的待办事项",

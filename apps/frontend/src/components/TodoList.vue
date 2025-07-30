@@ -12,23 +12,21 @@
         :show="
           isLoading ||
           isAnalyzing ||
-          isBatchAnalyzing ||
+          // 批量分析加载状态已移除
           isSorting ||
           isSplittingTask ||
           isGenerating
         "
         :message="
-          isBatchAnalyzing
-            ? t('batchAnalyzing')
-            : isAnalyzing
-              ? t('analyzing')
-              : isSorting
-                ? t('sorting')
-                : isSplittingTask
-                  ? t('splittingTask')
-                  : isGenerating
-                    ? t('generating')
-                    : t('loading')
+          isAnalyzing
+            ? t('analyzing')
+            : isSorting
+              ? t('sorting')
+              : isSplittingTask
+                ? t('splittingTask')
+                : isGenerating
+                  ? t('generating')
+                  : t('loading')
         "
       />
 
@@ -109,10 +107,8 @@
         :has-active-todos="hasActiveTodos"
         :is-generating="isGenerating"
         :is-sorting="isSorting"
-        :is-batch-analyzing="isBatchAnalyzing"
         :is-analyzing="isAnalyzing"
         @sort-with-a-i="sortActiveTodosWithAI"
-        @batch-analyze="handleBatchAnalyze"
       />
 
       <ConfirmDialog
@@ -191,8 +187,7 @@ const {
   isAnalyzing,
   handleUpdateTodo,
   handleAnalyzeTodo,
-  handleBatchAnalyze,
-  isBatchAnalyzing,
+  // 批量分析相关已移除
   showCharts,
   showSearch,
   isSmallScreen,
@@ -215,7 +210,7 @@ const isDragEnabled = computed(
     filteredTodos.value.length > 1 &&
     !isSorting.value &&
     !isGenerating.value &&
-    !isBatchAnalyzing.value
+    true
 )
 
 // 处理任务添加，包含拆分逻辑

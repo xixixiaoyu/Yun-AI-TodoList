@@ -5,7 +5,7 @@
       completed: isCompleted,
       'todo-draggable': isDraggable,
       'todo-dragging': isDragging,
-      'is-disabled': isBatchAnalyzing,
+      // 批量分析禁用状态已移除
     }"
     :data-todo-id="todo.id"
   >
@@ -46,139 +46,68 @@
         <div class="todo-main-content">
           <!-- 可编辑的 Todo 文本 -->
           <EditableTodoItem
+            ref="editableTodoItem"
             :todo="todo"
             :max-length="500"
             @update="handleTextUpdate"
             @cancel="handleEditCancel"
           />
-
-          <!-- AI 分析信息 - 水平布局 -->
-          <div v-if="showAIAnalysis" class="ai-analysis-info">
-            <!-- 重要等级星级 -->
-            <div
-              v-if="todo.priority"
-              class="priority-stars"
-              :class="[getPriorityColorClass(todo.priority), { 'is-disabled': isBatchAnalyzing }]"
-              :title="isBatchAnalyzing ? t('batchAnalyzing') : getPriorityTitle(todo.priority)"
-              @click.stop="handlePriorityClick"
-            >
-              {{ getPriorityStars(todo.priority) }}
-            </div>
-
-            <!-- 时间估算 -->
-            <div
-              v-if="todo.estimatedTime"
-              class="estimated-time"
-              :class="{ 'is-disabled': isBatchAnalyzing }"
-              :title="isBatchAnalyzing ? t('batchAnalyzing') : t('estimatedTime')"
-              @click.stop="handleTimeClick"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="12"
-                height="12"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              >
-                <circle cx="12" cy="12" r="10" />
-                <polyline points="12,6 12,12 16,14" />
-              </svg>
-              <span class="time-text">{{ todo.estimatedTime }}</span>
-            </div>
-
-            <!-- AI 分析按钮 -->
-            <button
-              v-if="!todo.aiAnalyzed && !isCompleted"
-              class="ai-analyze-btn"
-              :class="{ 'is-disabled': isBatchAnalyzing || isAnalyzing }"
-              :disabled="isBatchAnalyzing || isAnalyzing"
-              :title="
-                isBatchAnalyzing
-                  ? t('batchAnalyzing')
-                  : isAnalyzing
-                    ? t('analyzing')
-                    : t('aiAnalysis')
-              "
-              @click.stop="handleAnalyzeClick"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="12"
-                height="12"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              >
-                <path
-                  d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"
-                />
-              </svg>
-            </button>
-
-            <!-- 分析中状态指示 -->
-            <div
-              v-if="isAnalyzing && !todo.aiAnalyzed"
-              class="analyzing-indicator"
-              :title="t('analyzing')"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="12"
-                height="12"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                class="animate-spin"
-              >
-                <path d="M21 12a9 9 0 11-6.219-8.56" />
-              </svg>
-            </div>
-          </div>
         </div>
       </div>
     </div>
-    <button
-      class="delete-btn"
-      :class="{ 'is-disabled': isBatchAnalyzing }"
-      :disabled="isBatchAnalyzing"
-      :title="isBatchAnalyzing ? t('batchAnalyzing') : t('delete')"
-      :aria-label="t('delete')"
-      @click.stop="removeTodo"
-    >
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        width="16"
-        height="16"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="2"
-        stroke-linecap="round"
-        stroke-linejoin="round"
+    <div class="todo-actions">
+      <button
+        class="edit-btn"
+        :title="t('editTodo', '编辑待办事项')"
+        :aria-label="t('editTodo', '编辑待办事项')"
+        @click.stop="handleEdit"
       >
-        <path d="M3 6h18" />
-        <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
-        <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
-        <line x1="10" y1="11" x2="10" y2="17" />
-        <line x1="14" y1="11" x2="14" y2="17" />
-      </svg>
-    </button>
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="16"
+          height="16"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+          <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+        </svg>
+      </button>
+      <button
+        class="delete-btn"
+        :title="t('delete')"
+        :aria-label="t('delete')"
+        @click.stop="removeTodo"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="16"
+          height="16"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <path d="M3 6h18" />
+          <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
+          <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
+          <line x1="10" y1="11" x2="10" y2="17" />
+          <line x1="14" y1="11" x2="14" y2="17" />
+        </svg>
+      </button>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import confetti from 'canvas-confetti'
-import { useAIAnalysis } from '../composables/useAIAnalysis'
+
 import { useErrorHandler } from '../composables/useErrorHandler'
 import type { Todo } from '../types/todo'
 import EditableTodoItem from './EditableTodoItem.vue'
@@ -188,31 +117,26 @@ const props = withDefaults(
     todo: Todo
     isDraggable?: boolean
     isDragging?: boolean
-    showAIAnalysis?: boolean
   }>(),
   {
     isDraggable: false,
     isDragging: false,
-    showAIAnalysis: true,
   }
 )
 
 const { showError } = useErrorHandler()
 const { t } = useI18n()
-const { getPriorityStars, getPriorityColorClass, isAnalyzing, isBatchAnalyzing } = useAIAnalysis()
 
-const emit = defineEmits(['toggle', 'remove', 'updateTodo', 'analyze', 'updateText'])
+const emit = defineEmits(['toggle', 'remove', 'updateTodo', 'updateText'])
 const isCompleted = ref(false)
+const editableTodoItem = ref<InstanceType<typeof EditableTodoItem> | null>(null)
 
 watchEffect(() => {
   isCompleted.value = props.todo.completed
 })
 
 const toggleTodo = () => {
-  // 在批量分析期间禁止切换完成状态
-  if (isBatchAnalyzing.value) {
-    return
-  }
+  // 批量分析检查已移除
 
   try {
     // 在切换前显示庆祝动画（如果当前是未完成状态）
@@ -237,10 +161,7 @@ const toggleTodo = () => {
 }
 
 const removeTodo = () => {
-  // 在批量分析期间禁止删除任务
-  if (isBatchAnalyzing.value) {
-    return
-  }
+  // 批量分析检查已移除
 
   try {
     emit('remove', props.todo.id)
@@ -250,42 +171,9 @@ const removeTodo = () => {
   }
 }
 
-// AI 分析相关方法
-const getPriorityTitle = (priority: number): string => {
-  const priorityKeys = ['', 'priority1', 'priority2', 'priority3', 'priority4', 'priority5']
-  return t(priorityKeys[priority] || 'priority3')
-}
-
-const handlePriorityClick = () => {
-  // 在批量分析期间禁止编辑优先级
-  if (isBatchAnalyzing.value) {
-    return
-  }
-
-  // 触发优先级编辑
-  const newPriority = window.prompt(t('clickToSetPriority'), props.todo.priority?.toString() || '3')
-  if (newPriority !== null) {
-    const priority = Math.max(1, Math.min(5, parseInt(newPriority) || 3))
-    emit('updateTodo', props.todo.id, { priority })
-  }
-}
-
-const handleTimeClick = () => {
-  // 在批量分析期间禁止编辑时间估算
-  if (isBatchAnalyzing.value) {
-    return
-  }
-
-  // 触发时间估算编辑
-  const newTime = window.prompt(t('enterEstimatedTime'), props.todo.estimatedTime || '')
-  if (newTime !== null && newTime.trim()) {
-    emit('updateTodo', props.todo.id, { estimatedTime: newTime.trim() })
-  }
-}
-
-const handleAnalyzeClick = () => {
-  // 触发单个 Todo 的 AI 分析
-  emit('analyze', props.todo.id)
+// 处理编辑
+const handleEdit = () => {
+  editableTodoItem.value?.startEdit()
 }
 
 // 处理文本更新
@@ -391,113 +279,73 @@ onErrorCaptured(handleError)
 
 .todo-main-content {
   @apply flex items-center gap-3 min-w-0;
-  justify-content: space-between;
 }
 
 .todo-main-content .todo-text {
   @apply flex-1 min-w-0;
 }
 
-/* AI 分析信息样式 - 水平布局 */
-.ai-analysis-info {
-  @apply flex items-center gap-2 text-xs opacity-80 flex-shrink-0;
+/* 操作按钮容器 */
+.todo-actions {
+  @apply flex items-center gap-1 ml-2;
 }
 
-.priority-stars {
-  @apply cursor-pointer transition-all duration-200 hover:opacity-100 hover:scale-110;
-  font-size: 10px;
-  line-height: 1;
+/* 编辑按钮样式 */
+.edit-btn {
+  @apply flex items-center justify-center w-8 h-8 opacity-60;
+  @apply bg-transparent text-gray-500 rounded-md;
+  @apply hover:bg-gray-100 hover:bg-opacity-30 hover:text-primary hover:opacity-100;
+  @apply focus:outline-none focus:ring-2 focus:ring-primary focus:ring-opacity-30;
+  @apply transition-all duration-200;
+  min-width: 2rem;
 }
 
-.priority-stars.is-disabled {
-  @apply opacity-50 cursor-not-allowed;
-  pointer-events: none;
+.edit-btn:hover {
+  @apply transform scale-105;
 }
 
-.priority-stars.is-disabled:hover {
-  @apply transform-none opacity-50;
+/* 删除按钮样式 */
+.delete-btn {
+  @apply flex items-center justify-center w-8 h-8 opacity-60;
+  @apply bg-transparent text-gray-500 rounded-md;
+  @apply hover:bg-red-50 hover:bg-opacity-10 hover:text-error hover:opacity-100;
+  @apply focus:outline-none focus:ring-2 focus:ring-error focus:ring-opacity-30;
+  @apply transition-all duration-200;
+  min-width: 2rem;
 }
 
-.estimated-time {
-  @apply flex items-center gap-1 cursor-pointer transition-all duration-200 hover:opacity-100 text-gray-500;
+.delete-btn:hover {
+  @apply transform scale-105;
 }
 
-.estimated-time.is-disabled {
-  @apply opacity-50 cursor-not-allowed;
-  pointer-events: none;
-}
-
-.estimated-time.is-disabled:hover {
-  @apply opacity-50;
-}
-
-.time-text {
-  @apply text-xs;
-}
-
-.ai-analyze-btn {
-  @apply flex items-center justify-center w-5 h-5 rounded-full bg-blue-100 bg-opacity-20 text-blue-500 hover:bg-blue-200 hover:bg-opacity-30 transition-all duration-200 cursor-pointer;
-}
-
-.ai-analyze-btn:hover {
-  @apply transform scale-110;
-}
-
-.ai-analyze-btn.is-disabled {
-  @apply opacity-50 cursor-not-allowed;
-  pointer-events: none;
-}
-
-.ai-analyze-btn.is-disabled:hover {
-  @apply transform-none;
-}
-
-.analyzing-indicator {
-  @apply flex items-center justify-center w-5 h-5 text-blue-500;
-}
-
-.analyzing-indicator svg {
-  @apply animate-spin;
+.card-todo:hover .edit-btn,
+.card-todo:hover .delete-btn {
+  @apply opacity-100;
 }
 
 /* 移动端优化 */
 @media (max-width: 768px) {
   .todo-main-content {
     @apply flex items-center gap-3 min-w-0;
-    justify-content: space-between;
   }
 
-  .ai-analysis-info {
-    @apply flex items-center gap-2 text-xs opacity-80 flex-shrink-0;
+  .todo-actions {
+    @apply gap-2 ml-3;
   }
 }
 
 /* 小屏幕优化 */
 @media (max-width: 480px) {
-  /* 默认垂直布局 */
   .todo-main-content {
-    @apply flex-col items-start gap-2 min-w-0;
+    @apply flex items-center gap-3 min-w-0;
   }
 
   .todo-text {
-    @apply w-full;
+    @apply flex-1 min-w-0;
   }
 
-  .ai-analysis-info {
-    @apply self-end;
-  }
-
-  /* 当存在 AI 分析按钮时，保持水平布局 */
-  .todo-main-content:has(.ai-analyze-btn) {
-    @apply flex-row items-center justify-between;
-  }
-
-  .todo-main-content:has(.ai-analyze-btn) .todo-text {
-    @apply w-auto flex-1 min-w-0;
-  }
-
-  .todo-main-content:has(.ai-analyze-btn) .ai-analysis-info {
-    @apply self-center;
+  .todo-actions {
+    @apply gap-1 ml-2;
   }
 }
 
@@ -539,27 +387,6 @@ onErrorCaptured(handleError)
   font-weight: bold;
   transform: scale(1.2);
   transition: transform 0.2s ease;
-}
-
-.delete-btn {
-  @apply bg-transparent text-completed border border-input-border rounded-md p-1.5 text-sm cursor-pointer transition-all duration-200 opacity-60 transform translate-x-1.25 ml-2 flex items-center justify-center min-w-8 h-8;
-}
-
-.delete-btn.is-disabled {
-  @apply opacity-50 cursor-not-allowed;
-  pointer-events: none;
-}
-
-.delete-btn.is-disabled:hover {
-  @apply text-red-500 bg-transparent;
-}
-
-.card-todo:hover .delete-btn {
-  @apply opacity-100 transform translate-x-0 text-error;
-}
-
-.delete-btn:hover {
-  @apply bg-red-50 bg-opacity-10 text-error transform scale-105;
 }
 
 /* 拖拽手柄样式 */
@@ -635,15 +462,6 @@ onErrorCaptured(handleError)
     align-self: center;
   }
 
-  .delete-btn {
-    @apply opacity-80 transform translate-x-0 ml-3 relative;
-    align-self: center;
-  }
-
-  .delete-btn:active {
-    @apply transform scale-95;
-  }
-
   .todo-drag-handle {
     @apply opacity-60;
     min-width: 20px;
@@ -676,11 +494,6 @@ onErrorCaptured(handleError)
     @apply flex flex-col flex-grow min-w-0;
     align-self: center;
     justify-content: center;
-  }
-
-  .delete-btn {
-    @apply opacity-80 transform translate-x-0 ml-2 relative;
-    align-self: center;
   }
 
   .todo-drag-handle {

@@ -25,11 +25,10 @@ export function useTodoManagement() {
   const { showError, showSuccess, error: duplicateError } = useErrorHandler()
 
   // AI 分析功能
-  const { analyzeSingleTodo, analysisConfig, batchAnalyzeTodosAction } = useAIAnalysis()
+  const { analyzeSingleTodo, analysisConfig } = useAIAnalysis()
 
   // 本地状态管理（避免只读属性赋值问题）
   const isAnalyzing = ref(false)
-  const isBatchAnalyzing = ref(false)
   const analysisProgress = ref(0)
 
   const analyzeTodoAction = async (todo: Todo): Promise<void> => {
@@ -142,22 +141,7 @@ export function useTodoManagement() {
     // 如果成功添加了待办事项，进行批量 AI 分析
     if (successfullyAdded > 0) {
       try {
-        // 获取最新添加的待办事项（未分析的）
-        const newTodos = todos.value.filter((todo) => !todo.aiAnalyzed && !todo.completed)
-        if (newTodos.length > 0) {
-          await batchAnalyzeTodosAction(newTodos, (updates) => {
-            // 批量更新待办事项，使用专门的 AI 分析更新函数
-            updates.forEach(({ id, updates: todoUpdates }) => {
-              updateTodoAIAnalysis(id, {
-                priority: todoUpdates.priority,
-                estimatedTime: todoUpdates.estimatedTime
-                  ? todoUpdates.estimatedTime.text
-                  : undefined,
-                aiAnalyzed: todoUpdates.aiAnalyzed,
-              })
-            })
-          })
-        }
+        // 批量分析功能已移除
       } catch (error) {
         console.warn('批量 AI 分析失败:', error)
         // 不显示错误，因为添加待办事项已经成功了
@@ -183,8 +167,8 @@ export function useTodoManagement() {
   }
 
   const sortActiveTodosWithAI = async () => {
-    // 如果正在进行单个分析或批量分析，则禁止 AI 排序
-    if (isSorting.value || isAnalyzing.value || isBatchAnalyzing.value) {
+    // 如果正在进行单个分析，则禁止 AI 排序
+    if (isSorting.value || isAnalyzing.value) {
       return
     }
 
@@ -588,42 +572,12 @@ ${todoTexts}
             .slice(0, successCount)
 
           if (newTodos.length > 0) {
-            logger.info(
-              'Starting batch analysis for new subtasks',
-              { count: newTodos.length },
-              'TodoManagement'
-            )
-
-            // 使用批量分析功能统一处理所有新添加的子任务
-            withRetry(
-              () =>
-                batchAnalyzeTodosAction(
-                  newTodos,
-                  (updates: Array<{ id: string; updates: Partial<Todo> }>) => {
-                    // 批量更新所有分析结果
-                    updates.forEach(({ id, updates: todoUpdates }) => {
-                      // 使用专门的 AI 分析更新函数
-                      updateTodoAIAnalysis(id, {
-                        priority: todoUpdates.priority,
-                        estimatedTime: todoUpdates.estimatedTime
-                          ? todoUpdates.estimatedTime.text
-                          : undefined,
-                        aiAnalyzed: todoUpdates.aiAnalyzed,
-                      })
-                    })
-                  }
-                ),
-              AI_RETRY_OPTIONS
-            ).catch((error) => {
-              logger.warn(
-                'Batch AI analysis failed for subtasks after retries',
-                error,
-                'TodoManagement'
-              )
-            })
+            // 批量分析日志已移除
+            // 批量分析功能已移除
           }
         } catch (error) {
-          logger.warn('Error in batch AI analysis for subtasks', error, 'TodoManagement')
+          // 批量分析错误日志已移除
+          logger.error('Batch analysis failed', { error }, 'TodoManagement')
         }
       }
     }
@@ -740,7 +694,6 @@ ${todoTexts}
     isSorting,
     isLoading,
     isAnalyzing,
-    isBatchAnalyzing,
     analysisProgress,
     suggestedTodos,
     showSuggestedTodos,
@@ -759,7 +712,7 @@ ${todoTexts}
     updateTodo,
     updateTodoText,
     batchUpdateTodos,
-    batchAnalyzeTodos: batchAnalyzeTodosAction,
+
     analyzeTodo: analyzeTodoAction,
 
     // 清理机制
@@ -771,7 +724,6 @@ ${todoTexts}
       isSplittingTask.value = false
       isSorting.value = false
       isAnalyzing.value = false
-      isBatchAnalyzing.value = false
       analysisProgress.value = 0
       suggestedTodos.value = []
       showSuggestedTodos.value = false

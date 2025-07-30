@@ -3,14 +3,10 @@
     <button
       v-if="filter === 'active' && hasActiveTodos"
       class="ai-action-btn ai-sort-btn"
-      :class="{ 'is-loading': isSorting, 'is-disabled': isAnalyzing || isBatchAnalyzing }"
-      :disabled="isSorting || isAnalyzing || isBatchAnalyzing"
+      :class="{ 'is-loading': isSorting, 'is-disabled': isAnalyzing }"
+      :disabled="isSorting || isAnalyzing"
       :title="
-        isSorting
-          ? '正在排序...'
-          : isAnalyzing || isBatchAnalyzing
-            ? '正在进行 AI 分析，请稍候...'
-            : 'AI 优先级排序'
+        isSorting ? '正在排序...' : isAnalyzing ? '正在进行 AI 分析，请稍候...' : 'AI 优先级排序'
       "
       @click="handleSortClick"
     >
@@ -28,33 +24,7 @@
       <div class="btn-shine" />
     </button>
 
-    <button
-      v-if="filter === 'active' && hasActiveTodos"
-      class="ai-action-btn ai-analysis-btn"
-      :class="{ 'is-loading': isBatchAnalyzing, 'is-disabled': isAnalyzing }"
-      :disabled="isBatchAnalyzing || isAnalyzing"
-      :title="
-        isBatchAnalyzing
-          ? '正在批量分析...'
-          : isAnalyzing
-            ? '正在进行单个分析，请稍候...'
-            : '批量 AI 分析'
-      "
-      @click="handleAnalysisClick"
-    >
-      <div class="btn-content">
-        <div v-if="isBatchAnalyzing" class="loading-spinner" />
-        <svg v-else class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-          <path
-            d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"
-          />
-        </svg>
-        <span class="btn-text">
-          {{ isBatchAnalyzing ? t('batchAnalyzing') : t('batchAiAnalysis') }}
-        </span>
-      </div>
-      <div class="btn-shine" />
-    </button>
+    <!-- 批量 AI 分析按钮已移除 -->
   </div>
 </template>
 
@@ -66,13 +36,13 @@ interface Props {
   hasActiveTodos: boolean
   isGenerating: boolean
   isSorting: boolean
-  isBatchAnalyzing?: boolean
+  // isBatchAnalyzing 属性已移除
   isAnalyzing?: boolean
 }
 
 interface Emits {
   (e: 'sortWithAI'): void
-  (e: 'batchAnalyze'): void
+  // batchAnalyze 事件已移除
 }
 
 defineProps<Props>()
@@ -84,9 +54,7 @@ const handleSortClick = () => {
   emit('sortWithAI')
 }
 
-const handleAnalysisClick = () => {
-  emit('batchAnalyze')
-}
+// handleAnalysisClick 函数已移除
 
 defineOptions({
   name: 'TodoActions',

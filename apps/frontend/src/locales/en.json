@@ -477,16 +477,14 @@
 
   "aiAnalysis": "AI Smart Analysis",
   "aiAnalysisDescription": "Use AI to automatically analyze the priority level and time estimation of todos",
-  "batchAiAnalysis": "Batch AI Analysis",
+
   "reanalyze": "Re-analyze",
   "analyzing": "Analyzing...",
   "aiAnalyzing": "AI Analyzing...",
-  "batchAnalyzing": "Batch analyzing...",
+
   "aiAnalysisSuccess": "AI analysis completed",
   "aiAnalysisError": "AI analysis failed, please try again",
-  "batchAnalysisSuccess": "Batch analysis completed, successfully analyzed {count} todos",
-  "batchAnalysisError": "Batch analysis failed, please try again",
-  "batchAnalysisNoResults": "Batch analysis did not get valid results",
+
   "reanalysisSuccess": "Re-analysis completed",
   "reanalysisError": "Re-analysis failed, please try again",
   "noTodosToAnalyze": "No todos to analyze",
