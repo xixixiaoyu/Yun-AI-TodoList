@@ -1,5 +1,5 @@
-import type { ChatMessage, Conversation } from '@/services/types'
-import type { Todo } from '@/types/todo'
+import type { ChatMessage, Conversation } from '../services/types'
+import type { Todo } from '../types/todo'
 import { vi } from 'vitest'
 import { createI18n } from 'vue-i18n'
 import en from '../locales/en.json'

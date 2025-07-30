@@ -1,5 +1,5 @@
-import { aiModel, apiKey, saveAIModel } from '@/services/configService'
-import { getAIResponse, getAIStreamResponse } from '@/services/deepseekService'
+import { aiModel, apiKey, saveAIModel } from '../../services/configService'
+import { getAIResponse, getAIStreamResponse } from '../../services/deepseekService'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 const mockFetch = vi.fn()

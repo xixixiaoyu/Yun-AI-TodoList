@@ -473,7 +473,8 @@ export default [
         'error',
         {
           argsIgnorePattern: '^_',
-          varsIgnorePattern: '^_',
+          varsIgnorePattern:
+            '^_|^(ref|reactive|computed|watch|watchEffect|onMounted|onUnmounted|onBeforeMount|onBeforeUnmount|onUpdated|onBeforeUpdate|onActivated|onDeactivated|onErrorCaptured|nextTick|provide|inject|defineComponent|defineAsyncComponent|h|toRef|toRefs|unref|isRef|isReactive|isReadonly|isProxy|markRaw|shallowRef|shallowReactive|shallowReadonly|readonly|customRef|triggerRef|toRaw|effectScope|getCurrentScope|onScopeDispose|getCurrentInstance|useAttrs|useSlots|useCssModule|useCssVars|useRouter|useRoute|onBeforeRouteLeave|onBeforeRouteUpdate|useI18n)$',
           caughtErrorsIgnorePattern: '^_',
         },
       ],

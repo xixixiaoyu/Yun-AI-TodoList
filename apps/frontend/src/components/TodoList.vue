@@ -89,7 +89,6 @@
         :is-sorting="isSorting"
         :is-batch-analyzing="isBatchAnalyzing"
         :is-analyzing="isAnalyzing"
-        @generate-suggestions="generateSuggestedTodos"
         @sort-with-a-i="sortActiveTodosWithAI"
         @batch-analyze="handleBatchAnalyze"
       />
@@ -102,14 +101,6 @@
         :cancel-text="confirmDialogConfig.cancelText"
         @confirm="handleConfirm"
         @cancel="handleCancel"
-      />
-
-      <!-- AI 任务生成对话框 -->
-      <TaskGenerationDialog
-        :show="showTaskGenerationDialog"
-        :existing-todos="todos"
-        @close="closeTaskGenerationDialog"
-        @confirm="handleTaskGenerationConfirm"
       />
 
       <SubtaskSelectionDialog
@@ -125,20 +116,21 @@
 
 <script setup lang="ts">
 import { computed, nextTick, onUnmounted, ref, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
 import SubtaskSelectionDialog from './SubtaskSelectionDialog.vue'
 import TodoFilters from './TodoFilters.vue'
 import TodoInput from './TodoInput.vue'
 import TodoItem from './TodoItem.vue'
 import TodoSearch from './TodoSearch.vue'
 
-import type { GeneratedTask, Todo } from '@/types/todo'
+import type { Todo } from '@/types/todo'
 import { useTaskSplitting } from '../composables/useTaskSplitting'
 import { useTodoDragSort } from '../composables/useTodoDragSort'
 import { useTodoListState } from '../composables/useTodoListState'
 import { useTodoManagement } from '../composables/useTodoManagement'
 import ConfirmDialog from './ConfirmDialog.vue'
 import PomodoroTimer from './PomodoroTimer.vue'
-import TaskGenerationDialog from './TaskGenerationDialog.vue'
+
 import LoadingOverlay from './common/LoadingOverlay.vue'
 import { ChartsDialog, TodoActions, TodoListHeader } from './todo'
 
@@ -194,9 +186,6 @@ const {
 // 从 useTodoManagement 获取任务拆分相关功能
 const { handleAddSubtasks, updateTodoText } = useTodoManagement()
 
-// AI 任务生成对话框状态
-const showTaskGenerationDialog = ref(false)
-
 // 拖拽排序功能 - 在 AI 排序过程中和批量分析期间禁用拖拽
 const isDragEnabled = computed(
   () =>
@@ -247,63 +236,6 @@ const handleSubtaskCancel = () => {
   // 添加原始任务
   if (subtaskConfig.originalTask) {
     originalHandleAddTodo(subtaskConfig.originalTask, true) // 跳过拆分分析
-  }
-}
-
-// 处理 AI 任务生成
-const generateSuggestedTodos = () => {
-  showTaskGenerationDialog.value = true
-}
-
-// 关闭任务生成对话框
-const closeTaskGenerationDialog = () => {
-  showTaskGenerationDialog.value = false
-}
-
-// 处理任务生成确认
-const handleTaskGenerationConfirm = async (generatedTasks: GeneratedTask[]) => {
-  closeTaskGenerationDialog()
-
-  if (generatedTasks.length === 0) {
-    return
-  }
-
-  try {
-    // 批量添加生成的任务
-    for (const generatedTask of generatedTasks) {
-      const todoData = {
-        title: generatedTask.title,
-        description: generatedTask.description,
-        priority: generatedTask.priority,
-        estimatedTime: generatedTask.estimatedTime,
-        dueDate: generatedTask.dueDate,
-      }
-
-      await originalHandleAddTodo(todoData.title, true) // 跳过拆分分析
-
-      // 如果有额外的属性，更新最新添加的任务
-      if (todos.value.length > 0) {
-        const latestTodo = todos.value[todos.value.length - 1]
-        if (
-          todoData.description ||
-          todoData.priority ||
-          todoData.estimatedTime ||
-          todoData.dueDate
-        ) {
-          await handleUpdateTodo(latestTodo.id, {
-            description: todoData.description,
-            priority: todoData.priority,
-            estimatedTime: todoData.estimatedTime,
-            dueDate: todoData.dueDate,
-          })
-        }
-      }
-    }
-
-    success(`成功添加 ${generatedTasks.length} 个任务`)
-  } catch (error) {
-    console.error('批量添加任务失败:', error)
-    // 错误处理已在 originalHandleAddTodo 中处理
   }
 }
 

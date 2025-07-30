@@ -1,9 +1,9 @@
-import { useTodoManagement } from '@/composables/useTodoManagement'
-import { useTodos } from '@/composables/useTodos'
-import { setupTestEnvironment } from '@/test/helpers'
+import { useTodoManagement } from '../../composables/useTodoManagement'
+import { useTodos } from '../../composables/useTodos'
+import { setupTestEnvironment } from '../helpers'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
-vi.mock('@/services/deepseekService', () => ({
+vi.mock('../../services/deepseekService', () => ({
   getAIResponse: vi.fn(() => Promise.resolve('1. 学习新技能\n2. 锻炼身体\n3. 阅读书籍')),
   streamAIResponse: vi.fn(),
 }))
@@ -191,74 +191,6 @@ describe('待办事项工作流集成测试', () => {
     })
   })
 
-  describe('AI 辅助功能', () => {
-    it('应该生成和确认建议的待办事项', async () => {
-      const { getAIResponse } = await import('@/services/deepseekService')
-      const mockGetAIResponse = getAIResponse as vi.MockedFunction<typeof getAIResponse>
-
-      mockGetAIResponse.mockResolvedValue('1. 学习 TypeScript\n2. 编写单元测试\n3. 优化性能')
-
-      const { todos, initializeTodos } = useTodos()
-      const { generateSuggestedTodos, confirmSuggestedTodos, suggestedTodos, showSuggestedTodos } =
-        useTodoManagement()
-
-      // 初始化存储服务
-      await initializeTodos()
-
-      // 清空现有的 todos
-      todos.value = []
-
-      // 设置 API Key 以避免错误
-      testEnv.localStorage.setItem('deepseek_api_key', 'test-key')
-
-      const initialTodoCount = todos.value.length
-
-      await generateSuggestedTodos()
-
-      // 等待异步操作完成
-      await new Promise((resolve) => setTimeout(resolve, 50))
-
-      expect(suggestedTodos.value.length).toBeGreaterThan(0)
-      expect(showSuggestedTodos.value).toBe(true)
-
-      confirmSuggestedTodos()
-
-      // 等待异步操作完成
-      await new Promise((resolve) => setTimeout(resolve, 50))
-
-      expect(todos.value.length).toBeGreaterThan(initialTodoCount)
-      expect(showSuggestedTodos.value).toBe(false)
-      expect(suggestedTodos.value).toHaveLength(0)
-    })
-
-    it('应该取消建议的待办事项', async () => {
-      const { getAIResponse } = await import('@/services/deepseekService')
-      const mockGetAIResponse = getAIResponse as vi.MockedFunction<typeof getAIResponse>
-
-      mockGetAIResponse.mockResolvedValue('1. 任务 1\n2. 任务 2')
-
-      const { todos, initializeTodos } = useTodos()
-      const { generateSuggestedTodos, cancelSuggestedTodos, suggestedTodos, showSuggestedTodos } =
-        useTodoManagement()
-
-      // 初始化存储服务
-      await initializeTodos()
-
-      // 清空现有的 todos
-      todos.value = []
-
-      const initialTodoCount = todos.value.length
-
-      await generateSuggestedTodos()
-      expect(suggestedTodos.value.length).toBeGreaterThan(0)
-
-      cancelSuggestedTodos()
-      expect(todos.value).toHaveLength(initialTodoCount)
-      expect(showSuggestedTodos.value).toBe(false)
-      expect(suggestedTodos.value).toHaveLength(0)
-    })
-  })
-
   describe('数据持久化', () => {
     it('应该保存和加载待办事项', async () => {
       const { todos, addTodo, loadTodos, saveTodos, initializeTodos } = useTodos()
@@ -300,21 +232,6 @@ describe('待办事项工作流集成测试', () => {
       await loadTodos()
 
       expect(todos.value).toEqual([])
-    })
-  })
-
-  describe('错误处理', () => {
-    it('应该处理 AI 服务错误', async () => {
-      const { getAIResponse } = await import('@/services/deepseekService')
-      const mockGetAIResponse = getAIResponse as vi.MockedFunction<typeof getAIResponse>
-
-      mockGetAIResponse.mockRejectedValue(new Error('API 错误'))
-
-      const { generateSuggestedTodos, isGenerating } = useTodoManagement()
-
-      await generateSuggestedTodos()
-
-      expect(isGenerating.value).toBe(false)
     })
   })
 })

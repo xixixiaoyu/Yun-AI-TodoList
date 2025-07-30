@@ -4,7 +4,7 @@ import axios from 'axios'
 import { computed, nextTick, onUnmounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { getAIResponse } from '../services/deepseekService'
-import { handleError, logger } from '../utils/logger'
+import { logger } from '../utils/logger'
 import { useAIAnalysis } from './useAIAnalysis'
 import { useErrorHandler } from './useErrorHandler'
 import { useTodos } from './useTodos'
@@ -106,102 +106,7 @@ export function useTodoManagement() {
     return filter.value === 'active' && todos.value.some((todo) => todo && !todo.completed)
   })
 
-  const generateSuggestedTodos = async () => {
-    isGenerating.value = true
-    try {
-      // 获取已完成的历史 todo 项
-      const completedTodos = todos.value.filter((todo) => todo.completed)
-
-      // 构建通用的提示词
-      let prompt = ''
-
-      if (completedTodos.length > 0) {
-        // 如果有历史记录，结合历史记录生成个性化建议
-        const completedTodosList = completedTodos
-          .slice(-10) // 只取最近的10个已完成任务
-          .map((todo) => `- ${todo.title}`)
-          .join('\n')
-
-        const template = t('generateSuggestionsWithHistoryPrompt')
-        prompt = template.replace('{completedTodos}', completedTodosList)
-
-        // 验证替换结果
-        const replacementSuccessful =
-          prompt.includes(completedTodosList) && !prompt.includes('{completedTodos}')
-
-        if (!replacementSuccessful) {
-          prompt = `请为我生成5个待办事项建议。\n\n我已完成的相关任务：\n${completedTodosList}\n\n请按以下要求生成：\n1. 从我的历史记录中分析我的兴趣和需求\n2. 生成5个实用的待办事项建议\n\n每个建议应该简洁明了，不超过50个字符。请直接返回建议列表，每行一个建议，总共5个建议。`
-        }
-      } else {
-        // 没有历史记录时，使用通用提示词
-        const template = t('generateSuggestionsPrompt')
-        prompt = template
-
-        // 如果翻译失败，使用默认提示词
-        if (!prompt || prompt.includes('{')) {
-          prompt = `请为我生成5个实用的待办事项建议，涵盖工作、学习、生活等不同方面。每个建议应该简洁明了，不超过50个字符。请直接返回建议列表，每行一个建议。`
-        }
-      }
-
-      logger.info(
-        'Generating AI suggestions',
-        { hasHistory: completedTodos.length > 0 },
-        'TodoManagement'
-      )
-
-      const { getAIResponse } = await import('@/services/deepseekService')
-      const response = await getAIResponse(prompt)
-
-      if (!response || response.trim() === '') {
-        throw new Error(t('aiEmptyResponseError'))
-      }
-
-      // 解析 AI 响应
-      let parsedTodos: string[] = []
-
-      const lines = response.split('\n').filter((line) => line.trim() !== '')
-
-      if (lines.length >= 2) {
-        parsedTodos = lines
-          .map((line) => {
-            return line.replace(/^\s*[\d\-•*]+\.?\s*/, '').trim()
-          })
-          .filter((todo) => todo !== '' && todo.length > 0)
-      } else {
-        parsedTodos = response
-          .split(/[,，]/)
-          .map((todo) => todo.trim())
-          .filter((todo) => todo !== '')
-      }
-
-      if (parsedTodos.length === 0) {
-        parsedTodos = [response.trim()]
-      }
-
-      suggestedTodos.value = parsedTodos
-        .filter((todo) => todo.length > 0 && todo.length <= MAX_TODO_LENGTH)
-        .slice(0, 5)
-
-      if (suggestedTodos.value.length > 0) {
-        showSuggestedTodos.value = true
-        logger.info(
-          'AI suggestions generated successfully',
-          {
-            count: suggestedTodos.value.length,
-            suggestions: suggestedTodos.value,
-          },
-          'TodoManagement'
-        )
-      } else {
-        throw new Error('No valid suggestions generated')
-      }
-    } catch (error) {
-      handleError(error, t('generateSuggestionsError'), 'TodoManagement')
-      showError(error instanceof Error ? error.message : t('generateSuggestionsError'))
-    } finally {
-      isGenerating.value = false
-    }
-  }
+  // generateSuggestedTodos 方法已移除
 
   // 计算是否有已完成的历史记录
   const hasCompletedHistory = computed(() => {
@@ -835,7 +740,6 @@ ${todoTexts}
     showSuggestedTodos,
     MAX_TODO_LENGTH,
     duplicateError,
-    generateSuggestedTodos,
     confirmSuggestedTodos,
     cancelSuggestedTodos,
     updateSuggestedTodo,

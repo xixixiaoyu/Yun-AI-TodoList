@@ -6,13 +6,13 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { ref } from 'vue'
 
-vi.mock('@/services/deepseekService', () => ({
+vi.mock('../../services/deepseekService', () => ({
   getAIResponse: vi.fn(),
   streamAIResponse: vi.fn(),
   optimizeText: vi.fn(),
 }))
 
-import { getAIResponse } from '@/services/deepseekService'
+import { getAIResponse } from '../../services/deepseekService'
 
 describe('正确的测试模式示例', () => {
   beforeEach(() => {

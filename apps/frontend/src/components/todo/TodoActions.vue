@@ -1,26 +1,6 @@
 <template>
   <div v-if="filter === 'active' || filter === 'completed'" class="ai-actions-container">
     <button
-      class="ai-action-btn ai-generate-btn"
-      :class="{ 'is-loading': isGenerating }"
-      :disabled="isGenerating"
-      @click="$emit('generateSuggestions')"
-    >
-      <div class="btn-content">
-        <div v-if="isGenerating" class="loading-spinner" />
-        <svg v-else class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-          <path d="M12 2L2 7l10 5 10-5-10-5z" />
-          <path d="M2 17l10 5 10-5" />
-          <path d="M2 12l10 5 10-5" />
-        </svg>
-        <span class="btn-text">
-          {{ isGenerating ? t('generating') : t('generateSuggestions') }}
-        </span>
-      </div>
-      <div class="btn-shine" />
-    </button>
-
-    <button
       v-if="filter === 'active' && hasActiveTodos"
       class="ai-action-btn ai-sort-btn"
       :class="{ 'is-loading': isSorting, 'is-disabled': isAnalyzing || isBatchAnalyzing }"
@@ -91,7 +71,6 @@ interface Props {
 }
 
 interface Emits {
-  (e: 'generateSuggestions'): void
   (e: 'sortWithAI'): void
   (e: 'batchAnalyze'): void
 }

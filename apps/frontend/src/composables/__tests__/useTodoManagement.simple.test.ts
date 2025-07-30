@@ -61,7 +61,6 @@ describe('useTodoManagement - 简化测试', () => {
     expect(typeof result.handleAddTodo).toBe('function')
     expect(typeof result.toggleTodo).toBe('function')
     expect(typeof result.removeTodo).toBe('function')
-    expect(typeof result.generateSuggestedTodos).toBe('function')
   })
 
   it('应该正确处理筛选', () => {

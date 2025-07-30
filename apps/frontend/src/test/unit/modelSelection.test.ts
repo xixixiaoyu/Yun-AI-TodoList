@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
-import { getAIModel, saveAIModel, aiModel } from '@/services/configService'
-import type { AIModel } from '@/services/types'
+import { getAIModel, saveAIModel, aiModel } from '../../services/configService'
+import type { AIModel } from '../../services/types'
 
 const localStorageMock = {
   getItem: vi.fn(),

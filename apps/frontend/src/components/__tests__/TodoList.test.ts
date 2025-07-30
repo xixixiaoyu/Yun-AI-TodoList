@@ -38,7 +38,6 @@ vi.mock('@/composables/useTodoListState', () => ({
     suggestedTodos: ref([]),
     showSuggestedTodos: ref(false),
     MAX_TODO_LENGTH: 200,
-    generateSuggestedTodos: vi.fn(),
     confirmSuggestedTodos: vi.fn(),
     cancelSuggestedTodos: vi.fn(),
     updateSuggestedTodo: vi.fn(),

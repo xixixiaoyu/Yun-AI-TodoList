@@ -145,50 +145,7 @@ describe('useTodoManagement', () => {
   })
 
   describe('AI 功能', () => {
-    it('应该生成建议的待办事项', async () => {
-      mockGetAIResponse.mockResolvedValue(
-        '1. 学习 Vue 3\n2. 编写单元测试\n3. 部署应用\n4. 代码重构\n5. 文档更新'
-      )
-
-      const { generateSuggestedTodos, suggestedTodos, isGenerating } = useTodoManagement()
-
-      const promise = generateSuggestedTodos()
-      expect(isGenerating.value).toBe(true)
-
-      await promise
-
-      expect(isGenerating.value).toBe(false)
-      expect(suggestedTodos.value.length).toBe(5)
-      expect(suggestedTodos.value[0]).toBe('学习 Vue 3')
-      expect(suggestedTodos.value[1]).toBe('编写单元测试')
-    })
-
-    it('应该处理逗号分隔的建议格式', async () => {
-      mockGetAIResponse.mockResolvedValue('学习 Vue,写测试,部署应用')
-
-      const { generateSuggestedTodos, suggestedTodos } = useTodoManagement()
-
-      await generateSuggestedTodos()
-
-      expect(suggestedTodos.value.length).toBe(3)
-      expect(suggestedTodos.value[0]).toBe('学习 Vue')
-      expect(suggestedTodos.value[1]).toBe('写测试')
-    })
-
-    it('应该处理 AI 生成失败', async () => {
-      mockGetAIResponse.mockRejectedValue(new Error('API 错误'))
-      const mockShowError = vi.fn()
-      mockUseErrorHandler.mockReturnValue({
-        showError: mockShowError,
-      })
-
-      const { generateSuggestedTodos, isGenerating } = useTodoManagement()
-
-      await generateSuggestedTodos()
-
-      expect(isGenerating.value).toBe(false)
-      expect(mockShowError).toHaveBeenCalled()
-    })
+    // generateSuggestedTodos 功能已移除，相关测试用例已删除
 
     it('应该排序活跃的待办事项', async () => {
       // Mock localStorage to have API key

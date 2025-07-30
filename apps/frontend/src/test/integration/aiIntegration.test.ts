@@ -1,7 +1,6 @@
-import { useChat } from '@/composables/useChat'
-import { useTodoManagement } from '@/composables/useTodoManagement'
-import { createTestChatMessage, createTestConversation, setupTestEnvironment } from '@/test/helpers'
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { useChat } from '../../composables/useChat'
+import { createTestChatMessage, createTestConversation, setupTestEnvironment } from '../helpers'
+import { afterEach, beforeEach, describe, expect, it, vi, type MockedFunction } from 'vitest'
 
 vi.mock('vue-i18n', () => ({
   createI18n: vi.fn(() => ({
@@ -53,8 +52,8 @@ describe('AI 集成测试', () => {
 
   describe('聊天功能集成', () => {
     it('应该能够发送消息并接收响应', async () => {
-      const { getAIStreamResponse } = await import('@/services/deepseekService')
-      const mockGetAIStreamResponse = getAIStreamResponse as vi.MockedFunction<
+      const { getAIStreamResponse } = await import('../../services/deepseekService')
+      const mockGetAIStreamResponse = getAIStreamResponse as MockedFunction<
         typeof getAIStreamResponse
       >
 
@@ -81,8 +80,8 @@ describe('AI 集成测试', () => {
     })
 
     it('应该处理流式响应错误', async () => {
-      const { getAIStreamResponse } = await import('@/services/deepseekService')
-      const mockGetAIStreamResponse = getAIStreamResponse as vi.MockedFunction<
+      const { getAIStreamResponse } = await import('../../services/deepseekService')
+      const mockGetAIStreamResponse = getAIStreamResponse as MockedFunction<
         typeof getAIStreamResponse
       >
 
@@ -93,38 +92,6 @@ describe('AI 集成测试', () => {
       userMessage.value = '测试消息'
 
       await sendMessage()
-
-      expect(isGenerating.value).toBe(false)
-    })
-  })
-
-  describe('待办事项 AI 功能集成', () => {
-    it('应该生成建议的待办事项', async () => {
-      const { getAIResponse } = await import('@/services/deepseekService')
-      const mockGetAIResponse = getAIResponse as vi.MockedFunction<typeof getAIResponse>
-
-      mockGetAIResponse.mockResolvedValue('1. 学习 Vue 3\n2. 编写测试\n3. 部署应用')
-
-      const { generateSuggestedTodos, suggestedTodos, isGenerating } = useTodoManagement()
-
-      await generateSuggestedTodos()
-
-      // 等待异步操作完成
-      await new Promise((resolve) => setTimeout(resolve, 100))
-
-      expect(isGenerating.value).toBe(false)
-      expect(suggestedTodos.value.length).toBeGreaterThan(0)
-    })
-
-    it('应该处理 AI 生成失败', async () => {
-      const { getAIResponse } = await import('@/services/deepseekService')
-      const mockGetAIResponse = getAIResponse as vi.MockedFunction<typeof getAIResponse>
-
-      mockGetAIResponse.mockRejectedValue(new Error('API 错误'))
-
-      const { generateSuggestedTodos, isGenerating } = useTodoManagement()
-
-      await generateSuggestedTodos()
 
       expect(isGenerating.value).toBe(false)
     })
@@ -205,8 +172,8 @@ describe('AI 集成测试', () => {
 
   describe('错误处理集成', () => {
     it('应该正确处理网络错误', async () => {
-      const { getAIStreamResponse } = await import('@/services/deepseekService')
-      const mockGetAIStreamResponse = getAIStreamResponse as vi.MockedFunction<
+      const { getAIStreamResponse } = await import('../../services/deepseekService')
+      const mockGetAIStreamResponse = getAIStreamResponse as MockedFunction<
         typeof getAIStreamResponse
       >
 
