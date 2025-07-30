@@ -275,6 +275,7 @@ export default defineConfig({
     ['h-10.5', { height: '42px' }],
     ['w-75', { width: '300px' }],
     ['max-w-150', { 'max-width': '600px' }],
+    ['max-w-screen-xl-plus', { 'max-width': '1360px' }],
     ['min-w-15', { 'min-width': '60px' }],
     ['min-w-12.5', { 'min-width': '50px' }],
     ['min-w-20', { 'min-width': '80px' }],
@@ -383,7 +384,7 @@ export default defineConfig({
     // 布局快捷方式
     ['flex-center', 'flex items-center justify-center'],
     ['flex-between', 'flex items-center justify-between'],
-    ['container-responsive', 'w-full max-w-screen-xl mx-auto px-4'],
+    ['container-responsive', 'w-full max-w-screen-2xl mx-auto px-4'],
 
     // 响应式容器
     [
@@ -450,7 +451,7 @@ export default defineConfig({
     ['settings-card', 'min-h-64 flex flex-col'],
 
     // 响应式容器样式
-    ['responsive-container', 'w-full max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8'],
+    ['responsive-container', 'w-full max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8'],
     [
       'responsive-grid',
       'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6',
