@@ -3,6 +3,7 @@ import { computed, readonly, toRef, onMounted, onUnmounted, reactive } from 'vue
 interface NetworkConnection {
   effectiveType?: string
   type?: string
+  downlink?: number
   addEventListener?: (event: string, handler: () => void) => void
   removeEventListener?: (event: string, handler: () => void) => void
 }
@@ -55,9 +56,10 @@ export function useNetworkStatus() {
 
       // 判断是否为慢速连接
       const slowTypes = ['slow-2g', '2g', '3g']
-      networkState.isSlowConnection =
+      networkState.isSlowConnection = !!(
         slowTypes.includes(connection.effectiveType || '') ||
         (connection.downlink && connection.downlink < 1.5)
+      )
     }
   }
 
@@ -238,7 +240,7 @@ export function useNetworkStatus() {
 
     // 监听连接信息变化
     const connection = (navigator as unknown as { connection?: NetworkConnection }).connection
-    if (connection) {
+    if (connection && connection.addEventListener) {
       connection.addEventListener('change', detectConnectionInfo)
     }
 
@@ -265,7 +267,7 @@ export function useNetworkStatus() {
       window.removeEventListener('online', handleOnline)
       window.removeEventListener('offline', handleOffline)
 
-      if (connection) {
+      if (connection && connection.removeEventListener) {
         connection.removeEventListener('change', detectConnectionInfo)
       }
 

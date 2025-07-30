@@ -120,19 +120,6 @@ export function useAuth() {
   }
 
   /**
-   * 检查令牌是否有效
-   */
-  const _isTokenValid = (token: string): boolean => {
-    try {
-      const payload = JSON.parse(atob(token.split('.')[1]))
-      const currentTime = Math.floor(Date.now() / 1000)
-      return payload.exp > currentTime
-    } catch {
-      return false
-    }
-  }
-
-  /**
    * 刷新访问令牌
    */
   const refreshAccessToken = async (): Promise<boolean> => {

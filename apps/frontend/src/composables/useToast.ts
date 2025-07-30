@@ -146,7 +146,7 @@ export function useToast() {
 }
 
 // 类型声明
-declare module '@vue/runtime-core' {
+declare module 'vue' {
   interface ComponentCustomProperties {
     $toast: ReturnType<typeof useToast>
   }

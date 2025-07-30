@@ -111,7 +111,7 @@ export function useTodoListState() {
   }
 
   // AI 分析处理函数
-  const handleUpdateTodo = (id: number, updates: Partial<Todo>) => {
+  const handleUpdateTodo = (id: string, updates: Partial<Todo>) => {
     try {
       const success = updateTodo(id, updates)
       if (!success) {
@@ -123,7 +123,7 @@ export function useTodoListState() {
     }
   }
 
-  const handleAnalyzeTodo = async (id: number) => {
+  const handleAnalyzeTodo = async (id: string) => {
     try {
       const todo = todos.value.find((t) => t.id === id)
       if (todo) {

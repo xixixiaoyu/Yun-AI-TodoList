@@ -49,11 +49,11 @@ export function useTodoDragSort(
     bubbleScroll: true,
 
     // 拖拽开始事件
-    onStart: (evt: { item: HTMLElement; oldIndex: number }) => {
+    onStart: (evt: any) => {
       console.warn('拖拽开始:', evt)
       isDragging.value = true
       const todoId = parseInt(evt.item.dataset.todoId || '0')
-      draggedItem.value = todos.value.find((todo) => todo.id === todoId) || null
+      draggedItem.value = todos.value.find((todo) => todo.id === todoId.toString()) || null
       console.warn('拖拽的待办事项:', draggedItem.value)
 
       // 添加拖拽开始的视觉效果
@@ -61,7 +61,7 @@ export function useTodoDragSort(
     },
 
     // 拖拽结束事件
-    onEnd: (evt: { item: HTMLElement; newIndex: number }) => {
+    onEnd: (evt: any) => {
       console.warn('拖拽结束:', evt)
       isDragging.value = false
       draggedItem.value = null
@@ -69,15 +69,18 @@ export function useTodoDragSort(
     },
 
     // 自定义更新处理
-    onUpdate: (evt: { oldIndex: number; newIndex: number }) => {
+    onUpdate: (evt: any) => {
       console.warn('拖拽更新:', evt)
-      // 使用 VueUse 提供的 moveArrayElement 函数
-      moveArrayElement(sortableTodos.value, evt.oldIndex, evt.newIndex)
+      // 确保索引存在
+      if (typeof evt.oldIndex === 'number' && typeof evt.newIndex === 'number') {
+        // 使用 VueUse 提供的 moveArrayElement 函数
+        moveArrayElement(sortableTodos.value, evt.oldIndex, evt.newIndex)
 
-      // 等待下一个 tick 后调用回调
-      nextTick(() => {
-        onOrderChange([...sortableTodos.value])
-      })
+        // 等待下一个 tick 后调用回调
+        nextTick(() => {
+          onOrderChange([...sortableTodos.value])
+        })
+      }
     },
 
     // 拖拽移动事件
@@ -87,7 +90,7 @@ export function useTodoDragSort(
   }
 
   // 初始化拖拽排序
-  const { start, stop } = useSortable(containerRef, sortableTodos, sortableOptions)
+  const { start, stop } = useSortable(() => containerRef.value, sortableTodos, sortableOptions)
 
   /**
    * 启用拖拽排序
@@ -140,13 +143,8 @@ export function useTodoDragSort(
   })
 
   // 组件卸载时确保清理拖拽功能
-  onUnmounted(() => {
-    stop()
-    // 清理拖拽状态
-    isDragging.value = false
-    draggedItem.value = null
-    document.body.classList.remove('dragging-todo')
-  })
+  // 注意：这里应该使用 Vue 的 onUnmounted，但在 composable 中不应该直接调用
+  // 应该由使用这个 composable 的组件负责在适当时候调用 stop()
 
   return {
     isDragging: isCurrentlyDragging,

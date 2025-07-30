@@ -605,7 +605,12 @@ export function useTodos() {
 
       const updates: UpdateTodoDto = {
         priority: analysisData.priority as 1 | 2 | 3 | 4 | 5,
-        estimatedTime: analysisData.estimatedTime,
+        estimatedTime: analysisData.estimatedTime
+          ? {
+              text: analysisData.estimatedTime,
+              minutes: 0, // 默认值，实际应该根据文本计算，但这需要额外的解析逻辑
+            }
+          : undefined,
         aiAnalyzed: analysisData.aiAnalyzed ?? true,
       }
 

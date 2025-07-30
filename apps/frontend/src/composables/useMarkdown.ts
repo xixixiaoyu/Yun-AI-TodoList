@@ -450,15 +450,7 @@ export function useMarkdown() {
   // 自定义渲染器
   const renderer = new marked.Renderer()
 
-  renderer.code = function ({
-    text,
-    lang,
-    _escaped,
-  }: {
-    text: string
-    lang?: string
-    _escaped?: boolean
-  }) {
+  renderer.code = function ({ text, lang }: { text: string; lang?: string }) {
     // Mermaid 图表已在预处理阶段处理，这里不再特殊处理
 
     // 处理普通代码块
