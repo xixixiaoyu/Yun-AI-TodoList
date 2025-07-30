@@ -709,5 +709,6 @@
   "conflictResolution": "冲突解决",
   "conflictResolutionDesc": "当数据冲突时的处理方式",
   "lastSyncTime": "上次同步时间",
-  "failedOperations": "失败操作"
+  "failedOperations": "失败操作",
+  "aiAssistantLoading": "AI 助手正在准备回复..."
 }

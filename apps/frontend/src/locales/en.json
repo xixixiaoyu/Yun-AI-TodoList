@@ -668,5 +668,6 @@
   "conflictResolution": "Conflict resolution",
   "conflictResolutionDesc": "How to handle data conflicts",
   "lastSyncTime": "Last sync time",
-  "failedOperations": "Failed operations"
+  "failedOperations": "Failed operations",
+  "aiAssistantLoading": "AI assistant is preparing a response..."
 }

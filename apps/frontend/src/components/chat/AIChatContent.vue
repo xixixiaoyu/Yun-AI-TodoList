@@ -16,6 +16,7 @@
       :messages="chatHistory"
       :current-response="currentAiResponse || ''"
       :current-thinking="currentThinkingContent || ''"
+      :is-generating="isGenerating"
       :is-retrying="isRetrying"
       :retry-count="retryCount"
       :has-error="hasError"
