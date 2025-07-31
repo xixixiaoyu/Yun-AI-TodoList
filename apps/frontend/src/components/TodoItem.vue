@@ -383,7 +383,7 @@ onErrorCaptured(handleError)
 
 /* AI 分析结果样式 - 右侧显示 */
 .todo-ai-info-right {
-  @apply flex flex-col items-end gap-1 text-xs;
+  @apply flex flex-row items-center gap-2 text-xs;
   opacity: 0.9;
   margin-left: auto;
   margin-right: 0.5rem;
@@ -400,7 +400,7 @@ onErrorCaptured(handleError)
 }
 
 .priority-indicator {
-  @apply flex items-center gap-1 px-2 py-1 rounded-full;
+  @apply flex items-center gap-1 px-1.5 py-0.5 rounded-full;
   background-color: rgba(var(--primary-rgb), 0.1);
   border: 1px solid rgba(var(--primary-rgb), 0.2);
   min-width: fit-content;
@@ -459,7 +459,7 @@ onErrorCaptured(handleError)
 }
 
 .time-estimate {
-  @apply flex items-center gap-1 px-2 py-1 rounded-full;
+  @apply flex items-center gap-1 px-1.5 py-0.5 rounded-full;
   background-color: rgba(var(--secondary-rgb), 0.1);
   border: 1px solid rgba(var(--secondary-rgb), 0.2);
   min-width: fit-content;
