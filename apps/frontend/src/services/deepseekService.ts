@@ -1,6 +1,6 @@
 import i18n from '../i18n'
 import { logger } from '../utils/logger'
-import { getAIModel, getApiKey } from './configService'
+import { getAIModel, getApiKey, getBaseUrl } from './configService'
 import { AIStreamResponse, Message, SystemPrompt } from './types'
 
 // 获取系统提示词配置
@@ -109,7 +109,11 @@ function handleError(error: unknown, context: string, source: string) {
   logger.error(`${context}: ${errorMessage}`, error, source)
 }
 
-const API_URL = 'https://api.deepseek.com/chat/completions'
+// 动态获取 API URL
+const getApiUrl = () => {
+  const baseUrl = getBaseUrl()
+  return `${baseUrl}/chat/completions`
+}
 
 let abortController: AbortController | null = null
 
@@ -158,7 +162,7 @@ export async function getAIStreamResponse(
       'DeepSeekService'
     )
 
-    const response = await fetch(API_URL, {
+    const response = await fetch(getApiUrl(), {
       method: 'POST',
       headers: getHeaders(),
       body: JSON.stringify({
@@ -252,7 +256,7 @@ export async function getAIResponse(userMessage: string, temperature = 0.3): Pro
       'DeepSeekService'
     )
 
-    const response = await fetch(API_URL, {
+    const response = await fetch(getApiUrl(), {
       method: 'POST',
       headers: getHeaders(),
       body: JSON.stringify({
@@ -294,7 +298,7 @@ export async function getAIResponse(userMessage: string, temperature = 0.3): Pro
 export async function optimizeText(text: string): Promise<string> {
   try {
     // 文本优化使用专门的系统提示词，不受用户自定义系统提示词影响
-    const response = await fetch(API_URL, {
+    const response = await fetch(getApiUrl(), {
       method: 'POST',
       headers: getHeaders(),
       body: JSON.stringify({

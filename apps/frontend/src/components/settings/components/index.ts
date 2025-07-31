@@ -1,2 +1,2 @@
-export { default as ApiKeyCard } from './ApiKeyCard.vue'
-export { default as ApiKeyPopover } from './ApiKeyPopover.vue'
+export { default as AIProviderCard } from './AIProviderCard.vue'
+export { default as AIProviderPopover } from './AIProviderPopover.vue'

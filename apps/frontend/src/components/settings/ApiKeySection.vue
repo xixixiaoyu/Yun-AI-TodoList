@@ -12,34 +12,41 @@
           </svg>
         </div>
         <h3 class="text-base font-semibold text-text">
-          {{ t('apiKeyConfiguration') }}
+          {{ t('aiProviderConfiguration') }}
         </h3>
       </div>
       <p class="text-xs text-text-secondary leading-snug">
-        {{ t('configureDeepSeekApiKey') }}
+        {{ t('configureAIProvider') }}
       </p>
     </div>
 
     <div class="flex-1">
-      <ApiKeyCard :local-api-key="localApiKey" @show-popover="showApiKeyPopover = true" />
+      <AIProviderCard
+        :local-api-key="localApiKey"
+        :local-base-url="localBaseUrl"
+        :local-model="localModel"
+        :local-provider="localProvider"
+        @show-popover="showApiKeyPopover = true"
+      />
     </div>
 
     <!-- 使用 Teleport 将弹窗渲染到 body 根部，避免父容器样式影响 -->
     <Teleport to="body">
-      <div
-        v-if="showApiKeyPopover"
-        class="fixed inset-0 bg-black/50 backdrop-blur-sm z-[9998] animate-[overlayIn_0.3s_ease]"
-        @click="showApiKeyPopover = false"
-      />
-      <ApiKeyPopover
+      <AIProviderPopover
         v-if="showApiKeyPopover"
         :local-api-key="localApiKey"
+        :local-base-url="localBaseUrl"
+        :local-model="localModel"
+        :local-provider="localProvider"
         :show-api-key="showApiKey"
         @update:local-api-key="localApiKey = $event"
+        @update:local-base-url="localBaseUrl = $event"
+        @update:local-model="localModel = $event"
+        @update:local-provider="localProvider = $event"
         @update:show-api-key="showApiKey = $event"
         @close="showApiKeyPopover = false"
         @save="saveAndClosePopover"
-        @clear="clearKey"
+        @clear="clearAll"
       />
     </Teleport>
   </div>
@@ -48,18 +55,32 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { clearApiKey, saveApiKey } from '../../services/configService'
-import ApiKeyCard from './components/ApiKeyCard.vue'
-import ApiKeyPopover from './components/ApiKeyPopover.vue'
+import {
+  clearApiKey,
+  clearBaseUrl,
+  saveApiKey,
+  saveBaseUrl,
+  saveAIModel,
+  saveAIProvider,
+} from '../../services/configService'
+import type { AIModel } from '../../services/types'
+import AIProviderCard from './components/AIProviderCard.vue'
+import AIProviderPopover from './components/AIProviderPopover.vue'
 
 interface Props {
   localApiKey: string
+  localBaseUrl: string
+  localModel: string
+  localProvider: string
   showApiKey: boolean
   showApiKeyPopover: boolean
 }
 
 interface Emits {
   (e: 'update:localApiKey', value: string): void
+  (e: 'update:localBaseUrl', value: string): void
+  (e: 'update:localModel', value: string): void
+  (e: 'update:localProvider', value: string): void
   (e: 'update:showApiKey', value: boolean): void
   (e: 'update:showApiKeyPopover', value: boolean): void
   (e: 'showSuccessToast'): void
@@ -75,6 +96,21 @@ const localApiKey = computed({
   set: (value) => emit('update:localApiKey', value),
 })
 
+const localBaseUrl = computed({
+  get: () => props.localBaseUrl,
+  set: (value) => emit('update:localBaseUrl', value),
+})
+
+const localModel = computed({
+  get: () => props.localModel,
+  set: (value) => emit('update:localModel', value),
+})
+
+const localProvider = computed({
+  get: () => props.localProvider,
+  set: (value) => emit('update:localProvider', value),
+})
+
 const showApiKey = computed({
   get: () => props.showApiKey,
   set: (value) => emit('update:showApiKey', value),
@@ -86,17 +122,22 @@ const showApiKeyPopover = computed({
 })
 
 /**
- * 保存 API 密钥并关闭弹窗
+ * 保存所有配置并关闭弹窗
  */
 const saveAndClosePopover = () => {
   saveApiKey(localApiKey.value)
+  saveBaseUrl(localBaseUrl.value)
+  saveAIModel(localModel.value as AIModel)
+  saveAIProvider(localProvider.value)
   emit('showSuccessToast')
   showApiKeyPopover.value = false
 }
 
-const clearKey = () => {
+const clearAll = () => {
   clearApiKey()
+  clearBaseUrl()
   localApiKey.value = ''
+  localBaseUrl.value = ''
 }
 
 defineOptions({

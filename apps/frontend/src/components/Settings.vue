@@ -36,21 +36,20 @@
         <div class="settings-card settings-card-primary" data-category="core">
           <ApiKeySection
             v-model:local-api-key="localApiKey"
+            v-model:local-base-url="localBaseUrl"
+            v-model:local-model="localModel"
+            v-model:local-provider="localProvider"
             v-model:show-api-key="showApiKey"
             v-model:show-api-key-popover="showApiKeyPopover"
             @show-success-toast="showSuccessToast"
           />
         </div>
 
-        <div class="settings-card settings-card-secondary" data-category="core">
-          <ModelSelectionSection />
-        </div>
-
         <div class="settings-card settings-card-accent" data-category="core">
           <ThemeSection />
         </div>
 
-        <!-- 第二行：语言、AI分析、存储并排展示 -->
+        <!-- 第二行：语言和 AI 分析 -->
         <div class="settings-card settings-card-language" data-category="featured">
           <LanguageSection />
         </div>
@@ -59,11 +58,15 @@
           <AIAnalysisSection />
         </div>
 
-        <div class="settings-card settings-card-storage" data-category="featured">
+        <!-- 第三行：存储设置 -->
+        <div
+          class="settings-card settings-card-storage settings-card-full"
+          data-category="featured"
+        >
           <StorageSection />
         </div>
 
-        <!-- 第三行：系统提示词 -->
+        <!-- 第四行：系统提示词 -->
         <div
           class="settings-card settings-card-prompts settings-card-full"
           data-category="advanced"
@@ -94,7 +97,6 @@ import AIAnalysisSection from './settings/AIAnalysisSection.vue'
 import ApiKeySection from './settings/ApiKeySection.vue'
 
 import LanguageSection from './settings/LanguageSection.vue'
-import ModelSelectionSection from './settings/ModelSelectionSection.vue'
 import SettingsToast from './settings/SettingsToast.vue'
 import StorageSection from './settings/StorageSection.vue'
 import SystemPromptsSection from './settings/SystemPromptsSection.vue'
@@ -104,8 +106,16 @@ const { t } = useI18n()
 const { isAuthenticated } = useAuth()
 const { initializeStorageMode } = useStorageMode()
 
-const { showApiKey, showApiKeyPopover, localApiKey, showSuccessMessage, showSuccessToast } =
-  useSettingsState()
+const {
+  showApiKey,
+  showApiKeyPopover,
+  localApiKey,
+  localBaseUrl,
+  localModel,
+  localProvider,
+  showSuccessMessage,
+  showSuccessToast,
+} = useSettingsState()
 
 // Initialize storage mode on component mount
 onMounted(async () => {
@@ -292,7 +302,7 @@ defineOptions({
 /* 设置网格 */
 .settings-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(2, 1fr);
   gap: 2rem;
   width: 100%;
 }

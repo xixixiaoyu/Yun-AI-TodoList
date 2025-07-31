@@ -1,14 +1,20 @@
 import { onMounted, ref } from 'vue'
-import { apiKey } from '../services/configService'
+import { apiKey, baseUrl, aiModel, aiProvider } from '../services/configService'
 
 export function useSettingsState() {
   const showApiKey = ref(false)
   const showApiKeyPopover = ref(false)
   const localApiKey = ref('')
+  const localBaseUrl = ref('')
+  const localModel = ref('')
+  const localProvider = ref('deepseek')
   const showSuccessMessage = ref(false)
 
   const initializeSettings = () => {
     localApiKey.value = apiKey.value
+    localBaseUrl.value = baseUrl.value
+    localModel.value = aiModel.value
+    localProvider.value = aiProvider.value
 
     localStorage.removeItem('systemPrompt')
     localStorage.removeItem('lastSelectedTemplate')
@@ -36,6 +42,9 @@ export function useSettingsState() {
     showApiKey,
     showApiKeyPopover,
     localApiKey,
+    localBaseUrl,
+    localModel,
+    localProvider,
     showSuccessMessage,
     initializeSettings,
     showSuccessToast,
