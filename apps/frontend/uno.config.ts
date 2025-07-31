@@ -415,7 +415,7 @@ export default defineConfig({
     ['ai-message-container', 'relative overflow-hidden transition-all duration-400 ease-out'],
     [
       'ai-message-prose',
-      'max-w-none text-text leading-7 sm:leading-8 font-sans [&>*]:mb-3 sm:[&>*]:mb-4 [&>*:last-child]:mb-0 [&_strong]:font-bold',
+      'max-w-none text-text leading-7 sm:leading-8 font-sans [&>*]:mb-3 sm:[&>*]:mb-4 [&>*:last-child]:mb-0',
     ],
     [
       'ai-message-headings',
