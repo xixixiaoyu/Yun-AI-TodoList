@@ -67,6 +67,15 @@ export default defineConfig({
     'i-carbon-timer',
     'i-carbon-task',
     'i-carbon-settings',
+    'completed',
+    'small-screen',
+    'is-loading',
+    'dark',
+    'light',
+    'status-loading',
+    'status-success',
+    'status-error',
+    'status-info',
   ],
   // 预设配置
   presets: [
@@ -406,7 +415,7 @@ export default defineConfig({
     ['ai-message-container', 'relative overflow-hidden transition-all duration-400 ease-out'],
     [
       'ai-message-prose',
-      'max-w-none text-text leading-7 sm:leading-8 font-sans [&>*]:mb-3 sm:[&>*]:mb-4 [&>*:last-child]:mb-0',
+      'max-w-none text-text leading-7 sm:leading-8 font-sans [&>*]:mb-3 sm:[&>*]:mb-4 [&>*:last-child]:mb-0 [&_strong]:font-bold',
     ],
     [
       'ai-message-headings',
@@ -515,17 +524,4 @@ export default defineConfig({
       ],
     },
   },
-
-  // 安全列表 - 确保这些类名始终被包含
-  safelist: [
-    'completed',
-    'small-screen',
-    'is-loading',
-    'dark',
-    'light',
-    'status-loading',
-    'status-success',
-    'status-error',
-    'status-info',
-  ],
 })
