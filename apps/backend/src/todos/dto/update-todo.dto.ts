@@ -17,12 +17,12 @@ export class UpdateTodoDto {
     example: '完成项目文档',
     required: false,
     minLength: 1,
-    maxLength: 500,
+    maxLength: 50,
   })
   @IsOptional()
   @IsString({ message: '标题必须是字符串' })
   @MinLength(1, { message: '标题不能为空' })
-  @MaxLength(500, { message: '标题长度不能超过500字符' })
+  @MaxLength(50, { message: '标题长度不能超过50字符' })
   title?: string
 
   @ApiProperty({

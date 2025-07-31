@@ -23,7 +23,7 @@ export class ValidationService {
    * 验证待办事项标题
    */
   validateTodoTitle(title: string): boolean {
-    return Boolean(title && title.trim().length >= 1 && title.trim().length <= 200)
+    return Boolean(title && title.trim().length >= 1 && title.trim().length <= 50)
   }
 
   /**
@@ -114,7 +114,7 @@ export class ValidationService {
    */
   validateTodoData(data: any): void {
     if (!this.validateTodoTitle(data.title)) {
-      throw new BadRequestException('待办事项标题必须在1-200字符之间')
+      throw new BadRequestException('待办事项标题必须在1-50字符之间')
     }
 
     if (!this.validatePriority(data.priority)) {

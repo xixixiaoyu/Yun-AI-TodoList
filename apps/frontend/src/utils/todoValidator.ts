@@ -243,7 +243,7 @@ export class TodoValidator {
    * 清理和标准化 Todo 标题
    */
   static sanitizeTitle(title: string): string {
-    return title.trim().replace(/\s+/g, ' ').substring(0, 500)
+    return title.trim().replace(/\s+/g, ' ').substring(0, 50)
   }
 
   static isTitleSafe(title: string): boolean {

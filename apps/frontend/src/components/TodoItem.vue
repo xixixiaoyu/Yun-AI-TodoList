@@ -48,7 +48,7 @@
           <EditableTodoItem
             ref="editableTodoItem"
             :todo="todo"
-            :max-length="500"
+            :max-length="50"
             @update="handleTextUpdate"
             @cancel="handleEditCancel"
           />

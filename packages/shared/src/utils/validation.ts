@@ -27,7 +27,7 @@ export function isValidUsername(username: string): boolean {
 export function isValidTodoTitle(title: string): boolean {
   if (!title || typeof title !== 'string') return false
   const trimmed = title.trim()
-  return trimmed.length > 0 && trimmed.length <= 500
+  return trimmed.length > 0 && trimmed.length <= 50
 }
 
 // 优先级验证
@@ -80,7 +80,7 @@ export function validateCreateTodoDto(dto: CreateTodoDto): string[] {
   const errors: string[] = []
 
   if (!dto.title || !isValidTodoTitle(dto.title)) {
-    errors.push('标题不能为空且长度不能超过500字符')
+    errors.push('标题不能为空且长度不能超过50字符')
   }
 
   if (dto.description && dto.description.length > 2000) {
@@ -115,15 +115,15 @@ export function validateUpdateTodoDto(dto: UpdateTodoDto): string[] {
   const errors: string[] = []
 
   if (dto.title !== undefined && !isValidTodoTitle(dto.title)) {
-    errors.push('标题不能为空且长度不能超过500字符')
+    errors.push('标题不能为空且长度不能超过 50 字符')
   }
 
   if (dto.description !== undefined && dto.description.length > 2000) {
-    errors.push('描述长度不能超过2000字符')
+    errors.push('描述长度不能超过 2000 字符')
   }
 
   if (dto.priority !== undefined && !isValidPriority(dto.priority)) {
-    errors.push('优先级必须是1-5之间的整数')
+    errors.push('优先级必须是 1-5 之间的整数')
   }
 
   if (dto.estimatedTime) {
@@ -155,11 +155,11 @@ export function validateCreateUserDto(dto: CreateUserDto): string[] {
   }
 
   if (!dto.username || !isValidUsername(dto.username)) {
-    errors.push('用户名必须是3-20位字母、数字或下划线')
+    errors.push('用户名必须是 3-20 位字母、数字或下划线')
   }
 
   if (!dto.password || !isValidPassword(dto.password)) {
-    errors.push('密码必须至少8位，包含字母和数字')
+    errors.push('密码必须至少 8 位，包含字母和数字')
   }
 
   return errors

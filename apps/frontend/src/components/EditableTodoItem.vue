@@ -106,7 +106,7 @@ interface Emits {
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  maxLength: 500,
+  maxLength: 50,
 })
 
 const emit = defineEmits<Emits>()
@@ -147,10 +147,12 @@ const startEdit = () => {
 const adjustTextareaHeight = () => {
   if (textareaRef.value) {
     textareaRef.value.style.height = 'auto'
-    // 设置最小高度为 32px（约一行文本的高度）
+    // 设置最小高度为 32px，最大高度为 192px（max-h-48）
     const minHeight = 32
+    const maxHeight = 192
     const scrollHeight = Math.max(textareaRef.value.scrollHeight, minHeight)
-    textareaRef.value.style.height = `${scrollHeight}px`
+    const finalHeight = Math.min(scrollHeight, maxHeight)
+    textareaRef.value.style.height = `${finalHeight}px`
   }
 }
 
@@ -253,12 +255,13 @@ defineExpose({
 }
 
 .edit-textarea {
-  @apply w-full min-h-6 max-h-32 px-2 py-1 text-sm resize-none;
+  @apply w-full min-h-8 max-h-48 px-2 py-1 text-sm resize-none;
   @apply bg-input-bg border border-input-border rounded-lg;
   @apply focus:outline-none focus:border-input-focus focus:ring-2 focus:ring-primary focus:ring-opacity-20;
   @apply transition-all duration-200;
   font-family: 'LXGW WenKai Lite Medium', sans-serif;
   line-height: 1.4;
+  overflow-y: auto;
 }
 
 .edit-textarea:focus {
