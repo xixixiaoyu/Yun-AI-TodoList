@@ -81,6 +81,23 @@ export function useTaskSplitting() {
     return false
   }
 
+  /**
+   * 重新生成任务拆分
+   * @param todoText 待办事项文本
+   * @returns 是否成功重新生成
+   */
+  async function regenerateTaskSplitting(todoText: string): Promise<boolean> {
+    const result = await analyzeTask(todoText)
+
+    if (result.canSplit && result.subtasks.length > 0) {
+      // 更新现有对话框的子任务
+      subtaskConfig.subtasks = [...result.subtasks]
+      return true
+    }
+
+    return false
+  }
+
   return {
     // 状态
     subtaskConfig,
@@ -91,5 +108,6 @@ export function useTaskSplitting() {
     showSubtaskDialog,
     hideSubtaskDialog,
     analyzeAndShowDialog,
+    regenerateTaskSplitting,
   }
 }

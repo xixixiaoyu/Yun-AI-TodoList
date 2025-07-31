@@ -1,31 +1,11 @@
 import i18n from '@/i18n'
 import type { AIAnalysisResult, AISubtaskResult, Todo } from '@/types/todo'
-import { cacheResponse, getCachedResponse } from '@/utils/aiCache'
+// 缓存功能已移除
 import { handleError } from '@/utils/logger'
 import { handleAIResponse, logAIResponseError } from './aiResponseHandler'
 import { getAIResponse } from './deepseekService'
 
-/**
- * 清除所有 AI 任务拆分缓存
- */
-export function clearTaskSplittingCache(): void {
-  try {
-    const keysToRemove: string[] = []
-
-    // 找到所有相关的缓存键
-    for (let i = 0; i < localStorage.length; i++) {
-      const key = localStorage.key(i)
-      if (key && key.startsWith('task-splitting:')) {
-        keysToRemove.push(key)
-      }
-    }
-
-    // 删除所有相关的缓存项
-    keysToRemove.forEach((key) => localStorage.removeItem(key))
-  } catch (error) {
-    console.warn('清除 AI 任务拆分缓存失败:', error)
-  }
-}
+// clearTaskSplittingCache 函数已移除，因为缓存功能已被删除
 
 /**
  * 智能提问结果接口
@@ -234,43 +214,7 @@ export async function analyzeTaskSplitting(todoText: string): Promise<AISubtaskR
   "originalTask": "${todoText}"
 }`
 
-  // 首先检查缓存
-  const cachedResponse = getCachedResponse(prompt)
-  if (cachedResponse) {
-    console.info('使用缓存的 AI 任务拆分分析结果')
-    try {
-      // 定义必需字段
-      const requiredFields = ['canSplit', 'subtasks', 'reasoning', 'originalTask']
-
-      // 定义非标准响应的提取规则
-      const extractionRules = {
-        canSplit: /"?canSplit"?\s*:\s*(true|false)/i,
-        reasoning: /"?reasoning"?\s*:\s*"([^"]+)"/i,
-        originalTask: /"?originalTask"?\s*:\s*"([^"]+)"/i,
-      }
-
-      // 处理 AI 响应
-      const data = handleAIResponse(cachedResponse, requiredFields, extractionRules)
-
-      // 转换数据类型
-      const result: AISubtaskResult = {
-        canSplit: typeof data.canSplit === 'boolean' ? data.canSplit : false,
-        subtasks: Array.isArray(data.subtasks) ? (data.subtasks as string[]) : [],
-        reasoning: typeof data.reasoning === 'string' ? data.reasoning : '',
-        originalTask: typeof data.originalTask === 'string' ? data.originalTask : todoText,
-      }
-
-      // 如果不能拆分，确保子任务数组为空
-      if (!result.canSplit) {
-        result.subtasks = []
-      }
-
-      return result
-    } catch (error) {
-      console.warn('解析缓存的 AI 响应失败:', error)
-      // 缓存解析失败时继续执行正常的 AI 分析
-    }
-  }
+  // 缓存功能已移除，直接进行 AI 分析
 
   try {
     const response = await getAIResponse(prompt, 0.3)
@@ -301,8 +245,7 @@ export async function analyzeTaskSplitting(todoText: string): Promise<AISubtaskR
       result.subtasks = []
     }
 
-    // 缓存结果
-    cacheResponse(prompt, response)
+    // 缓存功能已移除
 
     return result
   } catch (error) {

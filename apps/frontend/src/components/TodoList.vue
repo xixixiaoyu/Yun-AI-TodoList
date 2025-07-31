@@ -130,6 +130,7 @@
         :config="subtaskConfig"
         @confirm="handleSubtaskConfirm"
         @cancel="handleSubtaskCancel"
+        @regenerate="handleSubtaskRegenerate"
       />
     </div>
 
@@ -165,7 +166,7 @@ defineEmits<{
 }>()
 
 // 任务拆分功能
-const { subtaskConfig, hideSubtaskDialog } = useTaskSplitting()
+const { subtaskConfig, hideSubtaskDialog, regenerateTaskSplitting } = useTaskSplitting()
 
 const {
   todoListRef,
@@ -258,12 +259,17 @@ const handleSubtaskConfirm = async (selectedSubtasks: string[]) => {
 
 // 处理子任务选择取消
 const handleSubtaskCancel = () => {
-  // 添加原始任务
-  if (subtaskConfig.originalTask) {
-    originalHandleAddTodo(subtaskConfig.originalTask, true) // 跳过拆分分析
-  }
-
+  // 直接关闭对话框，不添加任何任务
   hideSubtaskDialog()
+}
+
+// 处理子任务重新生成
+const handleSubtaskRegenerate = async (originalTask: string) => {
+  try {
+    await regenerateTaskSplitting(originalTask)
+  } catch (err) {
+    error.value = '重新生成任务拆分失败，请重试'
+  }
 }
 
 // 处理 Todo 文本更新

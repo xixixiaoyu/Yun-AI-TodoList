@@ -9,8 +9,8 @@
         <!-- 头部 -->
         <header class="dialog-header">
           <div class="header-content">
-            <h3 class="dialog-title">AI 任务拆分建议</h3>
-            <p class="dialog-subtitle">智能分析您的任务，提供最佳拆分方案</p>
+            <h3 class="dialog-title">{{ t('subtaskSelectionDialog.aiTaskSplittingTitle') }}</h3>
+            <p class="dialog-subtitle">{{ t('subtaskSelectionDialog.aiTaskSplittingSubtitle') }}</p>
           </div>
           <button class="close-button" @click="handleCancel">×</button>
         </header>
@@ -19,7 +19,7 @@
         <main class="dialog-content">
           <!-- 原始任务 -->
           <section class="content-section">
-            <h4 class="section-title">原始任务</h4>
+            <h4 class="section-title">{{ t('subtaskSelectionDialog.originalTask') }}</h4>
             <div class="task-content">
               {{ config.originalTask }}
             </div>
@@ -28,13 +28,16 @@
           <!-- 子任务列表 -->
           <section class="content-section">
             <div class="section-header">
-              <h4 class="section-title">建议子任务</h4>
-              <span class="subtask-count"
-                >已选择 {{ selectedCount }}/{{ selectedSubtasks.length }}</span
-              >
+              <h4 class="section-title">{{ t('subtaskSelectionDialog.suggestedSubtasks') }}</h4>
+              <span class="subtask-count">{{
+                t('subtaskSelectionDialog.selectedCount', {
+                  selected: selectedCount,
+                  total: selectedSubtasks.length,
+                })
+              }}</span>
             </div>
             <div class="subtasks-list">
-              <label
+              <div
                 v-for="(subtask, index) in selectedSubtasks"
                 :key="index"
                 class="subtask-item"
@@ -43,19 +46,49 @@
                 <input v-model="subtask.selected" type="checkbox" class="subtask-checkbox" />
                 <div class="subtask-content">
                   <span class="subtask-number">{{ index + 1 }}</span>
-                  <span class="subtask-text">{{ subtask.text }}</span>
+                  <div class="subtask-text-container">
+                    <textarea
+                      v-model="subtask.text"
+                      class="subtask-text-input"
+                      :placeholder="
+                        t('subtaskSelectionDialog.subtaskPlaceholder', { index: index + 1 })
+                      "
+                      @input="adjustTextareaHeight"
+                      @focus="adjustTextareaHeight"
+                    ></textarea>
+                  </div>
                 </div>
-              </label>
+              </div>
             </div>
           </section>
         </main>
 
         <!-- 底部操作 -->
         <footer class="dialog-footer">
-          <button class="btn btn-secondary" @click="handleCancel">保持原样</button>
-          <button :disabled="!hasSelectedSubtasks" class="btn btn-primary" @click="handleConfirm">
-            使用拆分 ({{ selectedCount }})
-          </button>
+          <div class="footer-left">
+            <button
+              class="btn btn-regenerate"
+              @click="handleRegenerate"
+              :disabled="isRegenerating"
+              :title="t('subtaskSelectionDialog.regenerateTaskSplitting')"
+            >
+              <span v-if="!isRegenerating" class="regenerate-icon">🔄</span>
+              <span v-else class="regenerate-icon spinning">⏳</span>
+              {{
+                isRegenerating
+                  ? t('subtaskSelectionDialog.regenerating')
+                  : t('subtaskSelectionDialog.regenerate')
+              }}
+            </button>
+          </div>
+          <div class="footer-right">
+            <button class="btn btn-secondary" @click="handleCancel">
+              {{ t('subtaskSelectionDialog.keepOriginal') }}
+            </button>
+            <button :disabled="!hasSelectedSubtasks" class="btn btn-primary" @click="handleConfirm">
+              {{ t('subtaskSelectionDialog.useSplitting', { count: selectedCount }) }}
+            </button>
+          </div>
         </footer>
       </div>
     </div>
@@ -64,7 +97,8 @@
 
 <script setup lang="ts">
 import type { SubtaskSelectionConfig } from '@/types/todo'
-import { computed, ref, watch } from 'vue'
+import { computed, nextTick, ref, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
 
 interface Props {
   config: Omit<SubtaskSelectionConfig, 'reasoning'>
@@ -73,10 +107,12 @@ interface Props {
 interface Emits {
   confirm: [subtasks: string[]]
   cancel: [originalTask: string]
+  regenerate: [originalTask: string]
 }
 
 const props = defineProps<Props>()
 const emit = defineEmits<Emits>()
+const { t } = useI18n()
 
 // 子任务选择状态
 interface SelectableSubtask {
@@ -85,15 +121,25 @@ interface SelectableSubtask {
 }
 
 const selectedSubtasks = ref<SelectableSubtask[]>([])
+const isRegenerating = ref(false)
 
 // 监听配置变化，初始化选择状态
 watch(
   () => props.config.subtasks,
-  (newSubtasks) => {
+  async (newSubtasks, oldSubtasks) => {
     selectedSubtasks.value = newSubtasks.map((text) => ({
       text,
       selected: true, // 默认全选
     }))
+
+    // 如果是重新生成导致的变化（子任务数组内容发生变化），重置重新生成状态
+    if (isRegenerating.value && oldSubtasks && newSubtasks.length > 0) {
+      isRegenerating.value = false
+    }
+
+    // 等待 DOM 更新后调整文本框高度
+    await nextTick()
+    initTextareaHeights()
   },
   { immediate: true }
 )
@@ -118,6 +164,28 @@ function handleConfirm() {
 
 function handleCancel() {
   emit('cancel', props.config.originalTask)
+}
+
+function handleRegenerate() {
+  isRegenerating.value = true
+  emit('regenerate', props.config.originalTask)
+}
+
+// 自动调整文本框高度
+function adjustTextareaHeight(event: Event) {
+  const target = event.target as HTMLTextAreaElement
+  target.style.height = 'auto'
+  target.style.height = target.scrollHeight + 'px'
+}
+
+// 初始化所有文本框高度
+function initTextareaHeights() {
+  const textareas = document.querySelectorAll('.subtask-text-input')
+  textareas.forEach((textarea) => {
+    const element = textarea as HTMLTextAreaElement
+    element.style.height = 'auto'
+    element.style.height = element.scrollHeight + 'px'
+  })
 }
 </script>
 
@@ -324,20 +392,56 @@ function handleCancel() {
   background: var(--primary-color);
 }
 
-.subtask-text {
+.subtask-text-input {
+  width: 100%;
+  min-height: 2rem;
+  padding: 0.5rem;
+  border: 1px solid var(--input-border-color);
+  border-radius: 6px;
+  background: var(--card-bg-color);
   color: var(--text-color);
-  line-height: 1.5;
-  font-size: 0.875rem;
+  font-size: 0.8125rem;
+  line-height: 1.3;
+  resize: none;
+  overflow: hidden;
+  font-family: inherit;
+  transition: all 0.2s ease;
+}
+
+.subtask-text-input:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
+  background: var(--bg-color);
+}
+
+.subtask-text-input:hover {
+  border-color: var(--primary-color);
+}
+
+.subtask-text-container {
+  flex: 1;
 }
 
 /* 底部操作 */
 .dialog-footer {
   display: flex;
   align-items: center;
-  justify-content: flex-end;
+  justify-content: space-between;
   gap: 0.75rem;
   padding: 1rem 1.5rem 1.5rem;
   border-top: 1px solid var(--input-border-color);
+}
+
+.footer-left {
+  display: flex;
+  align-items: center;
+}
+
+.footer-right {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
 }
 
 .btn {
@@ -376,6 +480,44 @@ function handleCancel() {
   cursor: not-allowed;
 }
 
+.btn-regenerate {
+  background: var(--bg-color);
+  color: var(--text-color);
+  border-color: var(--input-border-color);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.btn-regenerate:hover:not(:disabled) {
+  background: var(--hover-bg-color);
+  border-color: var(--primary-color);
+  color: var(--primary-color);
+}
+
+.btn-regenerate:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.regenerate-icon {
+  font-size: 0.875rem;
+  line-height: 1;
+}
+
+.regenerate-icon.spinning {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 /* 响应式设计 */
 @media (max-width: 768px) {
   .dialog-container {
@@ -393,6 +535,13 @@ function handleCancel() {
 
   .dialog-footer {
     padding: 0.75rem 1rem 1rem;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .footer-left,
+  .footer-right {
+    width: 100%;
     flex-direction: column;
     gap: 0.5rem;
   }
