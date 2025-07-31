@@ -2,6 +2,15 @@ import { Injectable } from '@nestjs/common'
 import { PassportStrategy } from '@nestjs/passport'
 import { Strategy } from 'passport-github2'
 import { AuthService } from '../auth.service'
+
+export interface GitHubProfile {
+  id: string
+  username: string
+  displayName: string
+  emails: Array<{ value: string; verified?: boolean }>
+  photos: Array<{ value: string }>
+  provider: string
+}
 // import { User } from '@prisma/client'
 
 @Injectable()
@@ -22,15 +31,16 @@ export class GitHubStrategy extends PassportStrategy(Strategy, 'github') {
   async validate(
     accessToken: string,
     refreshToken: string,
-    profile: any,
-    done: Function
-  ): Promise<any> {
+    profile: GitHubProfile,
+    done: (error: Error | null, user?: unknown) => void
+  ): Promise<unknown> {
     try {
       const { id, username, displayName, emails, photos } = profile
       const email = emails?.[0]?.value
 
       if (!email) {
-        return done(new Error('No email found in GitHub profile'), false)
+        done(new Error('No email found in GitHub profile'), undefined)
+        return
       }
 
       const user = await this.authService.validateGitHubUser({
@@ -40,9 +50,9 @@ export class GitHubStrategy extends PassportStrategy(Strategy, 'github') {
         avatarUrl: photos?.[0]?.value,
       })
 
-      return done(null, user)
+      done(null, user)
     } catch (error) {
-      return done(error, false)
+      done(error instanceof Error ? error : new Error(String(error)), undefined)
     }
   }
 }

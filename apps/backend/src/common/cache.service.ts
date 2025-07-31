@@ -9,7 +9,7 @@ interface CacheItem<T> {
 @Injectable()
 export class CacheService {
   private readonly logger = new Logger(CacheService.name)
-  private cache = new Map<string, CacheItem<any>>()
+  private cache = new Map<string, CacheItem<unknown>>()
   private readonly defaultTTL = 5 * 60 * 1000 // 5分钟
 
   /**
@@ -44,7 +44,7 @@ export class CacheService {
     }
 
     this.logger.debug(`Cache hit: ${key}`)
-    return item.data
+    return item.data as T
   }
 
   /**

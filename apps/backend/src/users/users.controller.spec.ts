@@ -110,7 +110,7 @@ describe('UsersController', () => {
   describe('getProfile', () => {
     it('should return user profile', async () => {
       const sanitizedUser = { ...mockUser }
-      delete (sanitizedUser as any).password
+      delete (sanitizedUser as Record<string, unknown>).password
 
       mockUsersService.findById.mockResolvedValue(mockUser)
       mockUtilsService.sanitizeUser.mockReturnValue(sanitizedUser)
@@ -136,7 +136,7 @@ describe('UsersController', () => {
       const updateDto = { username: 'newusername' }
       const updatedUser = { ...mockUser, username: 'newusername' }
       const sanitizedUser = { ...updatedUser }
-      delete (sanitizedUser as any).password
+      delete (sanitizedUser as Record<string, unknown>).password
 
       mockUsersService.update.mockResolvedValue(updatedUser)
       mockUtilsService.sanitizeUser.mockReturnValue(sanitizedUser)
@@ -208,7 +208,7 @@ describe('UsersController', () => {
   describe('getUserById', () => {
     it('should return user by id', async () => {
       const sanitizedUser = { ...mockUser }
-      delete (sanitizedUser as any).password
+      delete (sanitizedUser as Record<string, unknown>).password
 
       mockUsersService.findById.mockResolvedValue(mockUser)
       mockUtilsService.sanitizeUser.mockReturnValue(sanitizedUser)

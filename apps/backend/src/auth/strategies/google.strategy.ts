@@ -50,7 +50,7 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
     refreshToken: string,
     profile: GoogleProfile,
     done: VerifyCallback
-  ): Promise<any> {
+  ): Promise<unknown> {
     try {
       const { id, emails, name, photos } = profile
 

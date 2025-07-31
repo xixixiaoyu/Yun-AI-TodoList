@@ -28,7 +28,7 @@ export class UsersService {
         },
       })
 
-      return this.mapPrismaUserToUser(prismaUser)
+      return this.mapPrismaUserToUser(prismaUser as any)
     } catch (error) {
       throw new Error(
         `Failed to create user: ${error instanceof Error ? error.message : 'Unknown error'}`
@@ -45,7 +45,7 @@ export class UsersService {
         },
       })
 
-      return prismaUser ? this.mapPrismaUserToUser(prismaUser) : null
+      return prismaUser ? this.mapPrismaUserToUser(prismaUser as any) : null
     } catch {
       return null
     }
@@ -60,7 +60,7 @@ export class UsersService {
         },
       })
 
-      return prismaUser ? this.mapPrismaUserToUser(prismaUser) : null
+      return prismaUser ? this.mapPrismaUserToUser(prismaUser as any) : null
     } catch {
       return null
     }
@@ -75,7 +75,7 @@ export class UsersService {
         },
       })
 
-      return prismaUser ? this.mapPrismaUserToUser(prismaUser) : null
+      return prismaUser ? this.mapPrismaUserToUser(prismaUser as any) : null
     } catch {
       return null
     }
@@ -105,7 +105,7 @@ export class UsersService {
         },
       })
 
-      return this.mapPrismaUserToUser(prismaUser)
+      return this.mapPrismaUserToUser(prismaUser as any)
     } catch (error) {
       throw new Error(
         `Failed to update user: ${error instanceof Error ? error.message : 'Unknown error'}`
@@ -142,58 +142,59 @@ export class UsersService {
     }
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private mapPrismaUserToUser(prismaUser: any): User {
+  private mapPrismaUserToUser(
+    prismaUser: Record<string, unknown> & { preferences?: Record<string, unknown> | null }
+  ): User {
     const prefs = prismaUser.preferences || {}
 
     return {
-      id: prismaUser.id,
-      email: prismaUser.email,
-      username: prismaUser.username,
-      avatarUrl: prismaUser.avatarUrl,
-      emailVerified: prismaUser.emailVerified ?? false,
+      id: prismaUser.id as string,
+      email: prismaUser.email as string,
+      username: prismaUser.username as string,
+      avatarUrl: prismaUser.avatarUrl as string | undefined,
+      emailVerified: (prismaUser.emailVerified as boolean) ?? false,
       preferences: {
-        theme: prefs.theme || 'light',
-        language: prefs.language || 'zh-CN',
+        theme: (prefs.theme as any) || 'light',
+        language: (prefs.language as string) || 'zh-CN',
         aiConfig: {
-          enabled: prefs.aiEnabled ?? true,
-          autoAnalyze: prefs.autoAnalyze ?? true,
-          priorityAnalysis: prefs.priorityAnalysis ?? true,
-          timeEstimation: prefs.timeEstimation ?? true,
-          subtaskSplitting: prefs.subtaskSplitting ?? true,
+          enabled: (prefs.aiEnabled as boolean) ?? true,
+          autoAnalyze: (prefs.autoAnalyze as boolean) ?? true,
+          priorityAnalysis: (prefs.priorityAnalysis as boolean) ?? true,
+          timeEstimation: (prefs.timeEstimation as boolean) ?? true,
+          subtaskSplitting: (prefs.subtaskSplitting as boolean) ?? true,
           modelConfig: {
-            model: prefs.aiModel || 'deepseek-chat',
-            temperature: prefs.aiTemperature ?? 0.3,
-            maxTokens: prefs.aiMaxTokens || 1000,
+            model: (prefs.aiModel as string) || 'deepseek-chat',
+            temperature: (prefs.aiTemperature as number) ?? 0.3,
+            maxTokens: (prefs.aiMaxTokens as number) || 1000,
           },
         },
         searchConfig: {
-          defaultLanguage: prefs.searchLanguage || 'zh-CN',
-          safeSearch: prefs.safeSearch ?? true,
-          defaultResultCount: prefs.defaultResultCount || 10,
+          defaultLanguage: (prefs.searchLanguage as string) || 'zh-CN',
+          safeSearch: (prefs.safeSearch as boolean) ?? true,
+          defaultResultCount: (prefs.defaultResultCount as number) || 10,
           engineConfig: {
-            engine: prefs.searchEngine || 'google',
-            region: prefs.searchRegion || 'CN',
+            engine: (prefs.searchEngine as string) || 'google',
+            region: (prefs.searchRegion as string) || 'CN',
           },
         },
         notifications: {
-          desktop: prefs.desktopNotifications ?? true,
-          email: prefs.emailNotifications ?? false,
-          dueReminder: prefs.dueReminder ?? true,
-          reminderMinutes: prefs.reminderMinutes || 30,
+          desktop: (prefs.desktopNotifications as boolean) ?? true,
+          email: (prefs.emailNotifications as boolean) ?? false,
+          dueReminder: (prefs.dueReminder as boolean) ?? true,
+          reminderMinutes: (prefs.reminderMinutes as number) || 30,
         },
         storageConfig: {
-          mode: prefs.storageMode || 'hybrid',
-          autoSync: prefs.autoSync ?? true,
-          syncInterval: prefs.syncInterval || 5,
-          offlineMode: prefs.offlineMode ?? true,
-          conflictResolution: prefs.conflictResolution || 'merge',
-          retryAttempts: prefs.retryAttempts || 3,
-          requestTimeout: prefs.requestTimeout || 10000,
+          mode: (prefs.storageMode as any) || 'hybrid',
+          autoSync: (prefs.autoSync as boolean | undefined) ?? true,
+          syncInterval: (prefs.syncInterval as number) || 5,
+          offlineMode: (prefs.offlineMode as boolean | undefined) ?? true,
+          conflictResolution: (prefs.conflictResolution as any) || 'merge',
+          retryAttempts: (prefs.retryAttempts as number) || 3,
+          requestTimeout: (prefs.requestTimeout as number) || 10000,
         },
       },
-      createdAt: prismaUser.createdAt.toISOString(),
-      updatedAt: prismaUser.updatedAt.toISOString(),
+      createdAt: (prismaUser.createdAt as Date).toISOString(),
+      updatedAt: (prismaUser.updatedAt as Date).toISOString(),
     }
   }
 
@@ -271,8 +272,12 @@ export class UsersService {
   }
 
   // 添加一个方法来处理包含密码的内部用户类型（仅用于认证服务）
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  mapPrismaUserToInternalUser(prismaUser: any): any {
+  mapPrismaUserToInternalUser(
+    prismaUser: Record<string, unknown> & {
+      preferences?: Record<string, unknown> | null
+      password?: string | null
+    }
+  ): Record<string, unknown> {
     const user = this.mapPrismaUserToUser(prismaUser)
     return {
       ...user,

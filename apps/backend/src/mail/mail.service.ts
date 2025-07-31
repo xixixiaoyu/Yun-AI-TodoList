@@ -70,12 +70,17 @@ export class MailService {
       this.configService.get<string>('SMTP_USER') ||
       'noreply@example.com'
 
-    const mailOptions = {
+    const mailOptions: {
+      from: string
+      to: string
+      subject: string
+      html: string
+    } = {
       from: fromAddress,
       to: email,
       subject: '重置您的密码 - Yun AI TodoList',
       html: this.getPasswordResetEmailTemplate(resetUrl),
-    } as any
+    }
 
     try {
       await this.transporter.sendMail(mailOptions)
@@ -242,12 +247,17 @@ export class MailService {
     const subject = this.getVerificationEmailSubject(type)
     const html = this.getVerificationEmailTemplate(code, type, username)
 
-    const mailOptions = {
+    const mailOptions: {
+      from: string
+      to: string
+      subject: string
+      html: string
+    } = {
       from: fromAddress,
       to: email,
       subject,
       html,
-    } as any
+    }
 
     try {
       await this.transporter.sendMail(mailOptions)

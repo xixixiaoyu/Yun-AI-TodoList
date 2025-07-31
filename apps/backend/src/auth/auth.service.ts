@@ -104,7 +104,9 @@ export class AuthService {
     const tokens = await this.generateTokens(user)
 
     return {
-      user: this.utilsService.sanitizeUser(user),
+      user: this.utilsService.sanitizeUser(
+        user as unknown as Record<string, unknown> & { password?: unknown }
+      ),
       ...tokens,
     }
   }
@@ -120,7 +122,9 @@ export class AuthService {
     const tokens = await this.generateTokens(user)
 
     return {
-      user: this.utilsService.sanitizeUser(user),
+      user: this.utilsService.sanitizeUser(
+        user as unknown as Record<string, unknown> & { password?: unknown }
+      ),
       ...tokens,
     }
   }
@@ -132,19 +136,26 @@ export class AuthService {
     }
 
     // 获取包含密码的内部用户数据进行验证
-    const internalUser = await this.usersService.mapPrismaUserToInternalUser(
-      await this.usersService['prisma'].user.findUnique({
-        where: { email },
-        include: { preferences: true },
-      })
-    )
+    const prismaUser = await this.usersService['prisma'].user.findUnique({
+      where: { email },
+      include: { preferences: true },
+    })
+
+    if (!prismaUser) {
+      return null
+    }
+
+    const internalUser = await this.usersService.mapPrismaUserToInternalUser(prismaUser)
 
     // Google 登录用户没有密码
     if (!internalUser.password) {
       return null
     }
 
-    const isPasswordValid = await this.utilsService.comparePassword(password, internalUser.password)
+    const isPasswordValid = await this.utilsService.comparePassword(
+      password,
+      internalUser.password as string
+    )
     if (!isPasswordValid) {
       return null
     }
@@ -263,7 +274,9 @@ export class AuthService {
       const tokens = await this.generateTokens(user)
 
       return {
-        user: this.utilsService.sanitizeUser(user),
+        user: this.utilsService.sanitizeUser(
+          user as unknown as Record<string, unknown> & { password?: unknown }
+        ),
         ...tokens,
       }
     } catch {
@@ -376,17 +389,21 @@ export class AuthService {
     }
 
     // 获取包含密码的内部用户数据进行验证
-    const internalUser = await this.usersService.mapPrismaUserToInternalUser(
-      await this.usersService['prisma'].user.findUnique({
-        where: { id: userId },
-        include: { preferences: true },
-      })
-    )
+    const prismaUser = await this.usersService['prisma'].user.findUnique({
+      where: { id: userId },
+      include: { preferences: true },
+    })
+
+    if (!prismaUser) {
+      throw new NotFoundException('用户不存在')
+    }
+
+    const internalUser = await this.usersService.mapPrismaUserToInternalUser(prismaUser)
 
     // 验证当前密码
     const isCurrentPasswordValid = await this.utilsService.comparePassword(
       currentPassword,
-      internalUser.password
+      internalUser.password as string
     )
     if (!isCurrentPasswordValid) {
       throw new UnauthorizedException('当前密码错误')
@@ -395,7 +412,7 @@ export class AuthService {
     // 检查新密码是否与当前密码相同
     const isSamePassword = await this.utilsService.comparePassword(
       newPassword,
-      internalUser.password
+      internalUser.password as string
     )
     if (isSamePassword) {
       throw new BadRequestException('新密码不能与当前密码相同')

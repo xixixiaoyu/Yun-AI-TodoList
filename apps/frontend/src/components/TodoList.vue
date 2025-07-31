@@ -267,7 +267,7 @@ const handleSubtaskCancel = () => {
 const handleSubtaskRegenerate = async (originalTask: string) => {
   try {
     await regenerateTaskSplitting(originalTask)
-  } catch (err) {
+  } catch (_err) {
     error.value = '重新生成任务拆分失败，请重试'
   }
 }

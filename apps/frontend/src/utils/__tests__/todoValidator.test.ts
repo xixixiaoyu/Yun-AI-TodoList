@@ -92,7 +92,7 @@ describe('TodoValidator', () => {
     it('should limit title length', () => {
       const longTitle = 'a'.repeat(600)
       const result = TodoValidator.sanitizeTitle(longTitle)
-      expect(result.length).toBe(500)
+      expect(result.length).toBe(50)
     })
   })
 

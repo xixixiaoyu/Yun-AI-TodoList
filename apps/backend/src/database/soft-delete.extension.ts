@@ -1,5 +1,5 @@
 // Prisma 软删除扩展
-import { Prisma } from '@prisma/client'
+import { Prisma, PrismaClient } from '@prisma/client'
 
 // 软删除中间件
 export const softDeleteMiddleware: Prisma.Middleware = async (params, next) => {
@@ -86,24 +86,24 @@ UPDATE users SET deleted_at = NOW() WHERE id = OLD.id;
 
 // 使用示例
 export class SoftDeleteService {
-  constructor(private prisma: any) {
+  constructor(private prisma: PrismaClient) {
     // 应用中间件
     this.prisma.$use(softDeleteMiddleware)
   }
 
   // 硬删除方法（管理员使用）
-  async hardDelete(model: string, where: any) {
-    return this.prisma[model].deleteMany({
+  async hardDelete(model: string, where: Record<string, unknown>): Promise<unknown> {
+    return (this.prisma as any)[model].deleteMany({
       where: {
         ...where,
-        deletedAt: { not: null }, // 只删除已软删除的记录
+        deletedAt: { not: null },
       },
     })
   }
 
   // 恢复软删除的记录
-  async restore(model: string, where: any) {
-    return this.prisma[model].updateMany({
+  async restore(model: string, where: Record<string, unknown>): Promise<unknown> {
+    return (this.prisma as any)[model].updateMany({
       where: {
         ...where,
         deletedAt: { not: null },
@@ -115,11 +115,11 @@ export class SoftDeleteService {
   }
 
   // 清理过期的软删除记录
-  async cleanupExpiredSoftDeletes(model: string, daysOld = 30) {
+  async cleanupExpiredSoftDeletes(model: string, daysOld = 30): Promise<unknown> {
     const cutoffDate = new Date()
     cutoffDate.setDate(cutoffDate.getDate() - daysOld)
 
-    return this.prisma[model].deleteMany({
+    return (this.prisma as any)[model].deleteMany({
       where: {
         deletedAt: {
           lt: cutoffDate,

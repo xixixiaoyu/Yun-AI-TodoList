@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
-import type { PublicUser } from '@shared/types'
+import type { PublicUser, User } from '@shared/types'
 import * as bcrypt from 'bcrypt'
 import { randomBytes, randomUUID } from 'crypto'
 
@@ -65,10 +65,10 @@ export class UtilsService {
   }
 
   // 清理敏感信息
-  sanitizeUser(user: any): PublicUser {
+  sanitizeUser(user: (Record<string, unknown> & { password?: unknown }) | User): PublicUser {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { password, ...sanitized } = user
-    return sanitized as PublicUser
+    const { password, ...sanitized } = user as Record<string, unknown> & { password?: unknown }
+    return sanitized as unknown as PublicUser
   }
 
   // 分页计算

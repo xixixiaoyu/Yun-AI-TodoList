@@ -39,7 +39,9 @@ export class UsersController {
       throw new Error('用户不存在')
     }
     return {
-      user: this.utilsService.sanitizeUser(userProfile),
+      user: this.utilsService.sanitizeUser(
+        userProfile as unknown as Record<string, unknown> & { password?: unknown }
+      ),
     }
   }
 
@@ -50,7 +52,9 @@ export class UsersController {
   async updateProfile(@CurrentUser() user: User, @Body() updateUserDto: UpdateUserDto) {
     const updatedUser = await this.usersService.update(user.id, updateUserDto)
     return {
-      user: this.utilsService.sanitizeUser(updatedUser),
+      user: this.utilsService.sanitizeUser(
+        updatedUser as unknown as Record<string, unknown> & { password?: unknown }
+      ),
       message: '用户信息更新成功',
     }
   }
@@ -106,7 +110,9 @@ export class UsersController {
       throw new Error('用户不存在')
     }
     return {
-      user: this.utilsService.sanitizeUser(user),
+      user: this.utilsService.sanitizeUser(
+        user as unknown as Record<string, unknown> & { password?: unknown }
+      ),
     }
   }
 }

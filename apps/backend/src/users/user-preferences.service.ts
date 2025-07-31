@@ -133,7 +133,7 @@ export class UserPreferencesService {
     try {
       this.logger.debug(`批量更新用户主题和语言设置: ${userId}`, themePrefs)
 
-      const updateData: any = {}
+      const updateData: Record<string, unknown> = {}
       if (themePrefs.theme !== undefined) updateData.theme = themePrefs.theme
       if (themePrefs.language !== undefined) updateData.language = themePrefs.language
 
@@ -388,45 +388,47 @@ export class UserPreferencesService {
     return this.mapPrismaPreferencesToUserPreferences(preferences)
   }
 
-  private mapPrismaPreferencesToUserPreferences(prismaPrefs: any): UserPreferences {
+  private mapPrismaPreferencesToUserPreferences(
+    prismaPrefs: Record<string, unknown>
+  ): UserPreferences {
     return {
-      theme: prismaPrefs.theme,
-      language: prismaPrefs.language,
+      theme: prismaPrefs.theme as any,
+      language: prismaPrefs.language as string,
       aiConfig: {
-        enabled: prismaPrefs.aiEnabled,
-        autoAnalyze: prismaPrefs.autoAnalyze,
-        priorityAnalysis: prismaPrefs.priorityAnalysis,
-        timeEstimation: prismaPrefs.timeEstimation,
-        subtaskSplitting: prismaPrefs.subtaskSplitting,
+        enabled: prismaPrefs.aiEnabled as boolean,
+        autoAnalyze: prismaPrefs.autoAnalyze as boolean,
+        priorityAnalysis: prismaPrefs.priorityAnalysis as boolean,
+        timeEstimation: prismaPrefs.timeEstimation as boolean,
+        subtaskSplitting: prismaPrefs.subtaskSplitting as boolean,
         modelConfig: {
-          model: prismaPrefs.aiModel,
-          temperature: prismaPrefs.aiTemperature,
-          maxTokens: prismaPrefs.aiMaxTokens,
+          model: prismaPrefs.aiModel as string,
+          temperature: prismaPrefs.aiTemperature as number,
+          maxTokens: prismaPrefs.aiMaxTokens as number,
         },
       },
       searchConfig: {
-        defaultLanguage: prismaPrefs.searchLanguage,
-        safeSearch: prismaPrefs.safeSearch,
-        defaultResultCount: prismaPrefs.defaultResultCount,
+        defaultLanguage: prismaPrefs.searchLanguage as string,
+        safeSearch: prismaPrefs.safeSearch as boolean,
+        defaultResultCount: prismaPrefs.defaultResultCount as number,
         engineConfig: {
-          engine: prismaPrefs.searchEngine,
-          region: prismaPrefs.searchRegion,
+          engine: prismaPrefs.searchEngine as string,
+          region: prismaPrefs.searchRegion as string,
         },
       },
       notifications: {
-        desktop: prismaPrefs.desktopNotifications,
-        email: prismaPrefs.emailNotifications,
-        dueReminder: prismaPrefs.dueReminder,
-        reminderMinutes: prismaPrefs.reminderMinutes,
+        desktop: prismaPrefs.desktopNotifications as boolean,
+        email: prismaPrefs.emailNotifications as boolean,
+        dueReminder: prismaPrefs.dueReminder as boolean,
+        reminderMinutes: prismaPrefs.reminderMinutes as number,
       },
       storageConfig: {
-        mode: prismaPrefs.storageMode,
-        autoSync: prismaPrefs.autoSync,
-        syncInterval: prismaPrefs.syncInterval,
-        offlineMode: prismaPrefs.offlineMode,
-        conflictResolution: prismaPrefs.conflictResolution,
-        retryAttempts: prismaPrefs.retryAttempts,
-        requestTimeout: prismaPrefs.requestTimeout,
+        mode: prismaPrefs.storageMode as any,
+        autoSync: prismaPrefs.autoSync as boolean,
+        syncInterval: prismaPrefs.syncInterval as number,
+        offlineMode: prismaPrefs.offlineMode as boolean,
+        conflictResolution: prismaPrefs.conflictResolution as any,
+        retryAttempts: prismaPrefs.retryAttempts as number,
+        requestTimeout: prismaPrefs.requestTimeout as number,
       },
     }
   }

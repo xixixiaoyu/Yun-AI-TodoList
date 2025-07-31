@@ -37,23 +37,28 @@ export class LoggerService implements NestLoggerService {
     }
   }
 
-  log(message: any, context?: string): void {
-    this.logger.info(message, { context })
+  log(message: string | object, context?: string): void {
+    const msg = typeof message === 'string' ? message : JSON.stringify(message)
+    this.logger.info(msg, { context })
   }
 
-  error(message: any, trace?: string, context?: string): void {
-    this.logger.error(message, { trace, context })
+  error(message: string | object, trace?: string, context?: string): void {
+    const msg = typeof message === 'string' ? message : JSON.stringify(message)
+    this.logger.error(msg, { trace, context })
   }
 
-  warn(message: any, context?: string): void {
-    this.logger.warn(message, { context })
+  warn(message: string | object, context?: string): void {
+    const msg = typeof message === 'string' ? message : JSON.stringify(message)
+    this.logger.warn(msg, { context })
   }
 
-  debug(message: any, context?: string): void {
-    this.logger.debug(message, { context })
+  debug(message: string | object, context?: string): void {
+    const msg = typeof message === 'string' ? message : JSON.stringify(message)
+    this.logger.debug(msg, { context })
   }
 
-  verbose(message: any, context?: string): void {
-    this.logger.verbose(message, { context })
+  verbose(message: string | object, context?: string): void {
+    const msg = typeof message === 'string' ? message : JSON.stringify(message)
+    this.logger.verbose(msg, { context })
   }
 }

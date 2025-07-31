@@ -1,4 +1,5 @@
 import { BadRequestException, Injectable } from '@nestjs/common'
+import { CreateTodoDto } from '../todos/dto/create-todo.dto'
 
 @Injectable()
 export class ValidationService {
@@ -98,30 +99,30 @@ export class ValidationService {
   /**
    * 验证邮箱验证码格式
    */
-  validateVerificationCode(code: string): boolean {
+  validateVerificationCode(code: string | null | undefined): boolean {
     return Boolean(code && code.length === 6 && /^\d{6}$/.test(code))
   }
 
   /**
    * 验证尝试次数
    */
-  validateAttempts(attempts: number): boolean {
-    return attempts >= 0 && attempts <= 10
+  validateAttempts(attempts: number | null | undefined): boolean {
+    return attempts !== null && attempts !== undefined && attempts >= 0 && attempts <= 10
   }
 
   /**
    * 综合验证待办事项数据
    */
-  validateTodoData(data: any): void {
-    if (!this.validateTodoTitle(data.title)) {
+  validateTodoData(data: Record<string, unknown> | CreateTodoDto): void {
+    if (!this.validateTodoTitle(data.title as string)) {
       throw new BadRequestException('待办事项标题必须在1-50字符之间')
     }
 
-    if (!this.validatePriority(data.priority)) {
+    if (!this.validatePriority(data.priority as number | undefined)) {
       throw new BadRequestException('优先级必须在1-5之间')
     }
 
-    if (!this.validateEstimatedTime(data.estimatedTime)) {
+    if (!this.validateEstimatedTime(data.estimatedTime as number | undefined)) {
       throw new BadRequestException('预估时间必须为正数且不超过一周')
     }
   }
@@ -129,16 +130,16 @@ export class ValidationService {
   /**
    * 综合验证用户数据
    */
-  validateUserData(data: any): void {
-    if (!this.validateEmail(data.email)) {
+  validateUserData(data: Record<string, unknown>): void {
+    if (!this.validateEmail(data.email as string)) {
       throw new BadRequestException('邮箱格式不正确')
     }
 
-    if (!this.validateUsername(data.username)) {
+    if (!this.validateUsername(data.username as string)) {
       throw new BadRequestException('用户名必须为3-20字符，只能包含字母、数字、下划线')
     }
 
-    if (data.accountStatus && !this.validateAccountStatus(data.accountStatus)) {
+    if (data.accountStatus && !this.validateAccountStatus(data.accountStatus as string)) {
       throw new BadRequestException('账户状态不正确')
     }
   }
@@ -146,16 +147,22 @@ export class ValidationService {
   /**
    * 综合验证用户偏好数据
    */
-  validateUserPreferencesData(data: any): void {
-    if (data.aiTemperature !== undefined && !this.validateAITemperature(data.aiTemperature)) {
+  validateUserPreferencesData(data: Record<string, unknown>): void {
+    if (
+      data.aiTemperature !== undefined &&
+      !this.validateAITemperature(data.aiTemperature as number)
+    ) {
       throw new BadRequestException('AI温度参数必须在0.0-2.0之间')
     }
 
-    if (data.aiMaxTokens !== undefined && !this.validateAIMaxTokens(data.aiMaxTokens)) {
+    if (data.aiMaxTokens !== undefined && !this.validateAIMaxTokens(data.aiMaxTokens as number)) {
       throw new BadRequestException('AI最大令牌数必须在100-8000之间')
     }
 
-    if (data.reminderMinutes !== undefined && !this.validateReminderMinutes(data.reminderMinutes)) {
+    if (
+      data.reminderMinutes !== undefined &&
+      !this.validateReminderMinutes(data.reminderMinutes as number)
+    ) {
       throw new BadRequestException('提醒时间必须为正数且不超过一周')
     }
   }
@@ -163,12 +170,12 @@ export class ValidationService {
   /**
    * 综合验证文档数据
    */
-  validateDocumentData(data: any): void {
-    if (!this.validateFilename(data.filename)) {
+  validateDocumentData(data: Record<string, unknown>): void {
+    if (!this.validateFilename(data.filename as string)) {
       throw new BadRequestException('文件名必须在1-255字符之间')
     }
 
-    if (!this.validateFileSize(data.fileSize)) {
+    if (!this.validateFileSize(data.fileSize as number)) {
       throw new BadRequestException('文件大小不能超过50MB')
     }
   }
@@ -176,20 +183,23 @@ export class ValidationService {
   /**
    * 综合验证邮箱验证码数据
    */
-  validateEmailVerificationData(data: any): void {
-    if (!this.validateEmail(data.email)) {
+  validateEmailVerificationData(data: Record<string, unknown>): void {
+    if (!this.validateEmail(data.email as string)) {
       throw new BadRequestException('邮箱格式不正确')
     }
 
-    if (!this.validateVerificationType(data.type)) {
+    if (!this.validateVerificationType(data.type as string)) {
       throw new BadRequestException('验证类型不正确')
     }
 
-    if (data.code && !this.validateVerificationCode(data.code)) {
+    if (data.code && !this.validateVerificationCode(data.code as string | null | undefined)) {
       throw new BadRequestException('验证码必须为6位数字')
     }
 
-    if (data.attempts !== undefined && !this.validateAttempts(data.attempts)) {
+    if (
+      data.attempts !== undefined &&
+      !this.validateAttempts(data.attempts as number | null | undefined)
+    ) {
       throw new BadRequestException('尝试次数不能超过10次')
     }
   }

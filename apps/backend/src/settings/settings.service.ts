@@ -190,7 +190,9 @@ export class SettingsService {
     }
 
     // 验证导入的偏好设置格式
-    const validatedPreferences = this.validatePreferences(preferences)
+    const validatedPreferences = this.validatePreferences(
+      preferences as unknown as Record<string, unknown>
+    )
 
     await this.prisma.userPreferences.upsert({
       where: { userId },
@@ -334,28 +336,28 @@ export class SettingsService {
     }
   }
 
-  private validatePreferences(preferences: any): UserPreferences {
+  private validatePreferences(preferences: Record<string, unknown>): UserPreferences {
     const defaultPreferences = this.getDefaultPreferences()
 
     // 基本验证和默认值填充
     return {
-      theme: preferences.theme || defaultPreferences.theme,
-      language: preferences.language || defaultPreferences.language,
+      theme: (preferences.theme as UserPreferences['theme']) || defaultPreferences.theme,
+      language: (preferences.language as string) || defaultPreferences.language,
       aiConfig: {
         ...defaultPreferences.aiConfig,
-        ...(preferences.aiConfig || {}),
+        ...((preferences.aiConfig as Partial<UserPreferences['aiConfig']>) || {}),
       },
       searchConfig: {
         ...defaultPreferences.searchConfig,
-        ...(preferences.searchConfig || {}),
+        ...((preferences.searchConfig as Partial<UserPreferences['searchConfig']>) || {}),
       },
       notifications: {
         ...defaultPreferences.notifications,
-        ...(preferences.notifications || {}),
+        ...((preferences.notifications as Partial<UserPreferences['notifications']>) || {}),
       },
       storageConfig: {
         ...defaultPreferences.storageConfig,
-        ...(preferences.storageConfig || {}),
+        ...((preferences.storageConfig as Partial<UserPreferences['storageConfig']>) || {}),
       },
     }
   }

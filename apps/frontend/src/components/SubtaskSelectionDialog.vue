@@ -68,9 +68,9 @@
           <div class="footer-left">
             <button
               class="btn btn-regenerate"
-              @click="handleRegenerate"
               :disabled="isRegenerating"
               :title="t('subtaskSelectionDialog.regenerateTaskSplitting')"
+              @click="handleRegenerate"
             >
               <span v-if="!isRegenerating" class="regenerate-icon">🔄</span>
               <span v-else class="regenerate-icon spinning">⏳</span>

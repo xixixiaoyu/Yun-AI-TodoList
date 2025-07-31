@@ -12,8 +12,8 @@ describe('AppService', () => {
         {
           provide: ConfigService,
           useValue: {
-            get: jest.fn((key: string, defaultValue?: any) => {
-              const config: { [key: string]: any } = {
+            get: jest.fn((key: string, defaultValue?: unknown) => {
+              const config: { [key: string]: unknown } = {
                 NODE_ENV: 'test',
               }
               return config[key] || defaultValue
