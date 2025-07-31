@@ -3,53 +3,31 @@
  * 用于配置测试环境中的全局 mock 和设置
  */
 
-import { afterEach, beforeEach, vi } from 'vitest'
+import { afterEach, vi } from 'vitest'
 import * as Vue from 'vue'
-import { createApp } from 'vue'
 import { createI18n } from 'vue-i18n'
 
 // 全局注册 Vue API
-Object.assign(global, Vue)
+Object.assign(global as Record<string, unknown>, Vue)
 
-// 全局应用实例管理
-let currentApp: any = null
-
-// 在每个测试前创建新的应用实例
-beforeEach(() => {
-  if (currentApp) {
-    try {
-      currentApp.unmount()
-    } catch (_error) {
-      // 忽略卸载错误
-    }
-  }
-  currentApp = createApp({})
-})
-
-// 在每个测试后清理应用实例
+// 清理 DOM 和全局状态
 afterEach(() => {
-  if (currentApp) {
-    try {
-      currentApp.unmount()
-    } catch (_error) {
-      // 忽略卸载错误
-    }
-    currentApp = null
-  }
+  // 清理 DOM
+  document.body.innerHTML = ''
+
+  // 清理全局状态
+  vi.clearAllMocks()
 })
 
 // Mock Worker for tests
-global.Worker = class Worker {
-  constructor(url: string | URL) {
-    this.url = url
-  }
+;(global as Record<string, unknown>).Worker = class MockWorker {
+  constructor(public url: string | URL) {}
 
-  url: string | URL
-  onmessage: ((this: Worker, ev: MessageEvent) => any) | null = null
-  onerror: ((this: Worker, ev: ErrorEvent) => any) | null = null
-  onmessageerror: ((this: Worker, ev: MessageEvent) => any) | null = null
+  onmessage: ((this: Worker, ev: MessageEvent) => unknown) | null = null
+  onerror: ((this: Worker, ev: ErrorEvent) => unknown) | null = null
+  onmessageerror: ((this: Worker, ev: MessageEvent) => unknown) | null = null
 
-  postMessage(_message: any): void {
+  postMessage(_message: unknown): void {
     // Mock implementation - do nothing
   }
 
@@ -125,8 +103,8 @@ const i18n = createI18n({
   },
 })
 
-// 全局注册 useI18n
-global.useI18n = () => ({
+// 全局 useI18n mock
+;(global as Record<string, unknown>).useI18n = () => ({
   t: (key: string) => i18n.global.t(key),
   locale: i18n.global.locale,
 })
@@ -177,9 +155,9 @@ const messages: Record<string, string> = {
 }
 
 vi.mock('vue-i18n', async (importOriginal) => {
-  const actual = await importOriginal()
+  const actual = await importOriginal<typeof import('vue-i18n')>()
   return {
-    ...(actual as any),
+    ...actual,
     createI18n: vi.fn(() => ({
       global: {
         t: (key: string) => messages[key] || key,
@@ -223,10 +201,10 @@ Object.defineProperty(HTMLCanvasElement.prototype, 'getContext', {
 
     createLinearGradient: vi.fn(() => ({
       addColorStop: vi.fn(),
-    })),
+    })) as () => CanvasGradient,
     createRadialGradient: vi.fn(() => ({
       addColorStop: vi.fn(),
-    })),
+    })) as () => CanvasGradient,
     getLineDash: vi.fn(() => []),
     setLineDash: vi.fn(),
     lineDashOffset: 0,
@@ -332,7 +310,7 @@ vi.mock('@/composables/useStorageMode', () => {
 
       // 检查重复标题（只检查未完成的待办事项）
       const duplicateExists = globalTodos.some(
-        (t) => !t.completed && t.title.toLowerCase() === dto.title.toLowerCase()
+        (t: any) => !t.completed && t.title.toLowerCase() === dto.title.toLowerCase()
       )
       if (duplicateExists) {
         return { success: false, error: 'storage.todoAlreadyExists' }
@@ -344,7 +322,7 @@ vi.mock('@/composables/useStorageMode', () => {
         const testKey = `test-${Date.now()}-${Math.random()}`
         localStorage.setItem(testKey, 'test')
         localStorage.removeItem(testKey)
-      } catch (_error) {
+      } catch {
         // 如果 localStorage 抛出错误，返回失败结果
         return { success: false, error: 'Storage quota exceeded' }
       }
@@ -362,7 +340,7 @@ vi.mock('@/composables/useStorageMode', () => {
       return { success: true, data: newTodo }
     },
     async createTodos(dtos: any[]) {
-      const createdTodos = dtos.map((dto) => {
+      const createdTodos = dtos.map((dto: any) => {
         const newTodo = {
           id: `todo-${globalNextId++}`,
           title: dto.title,
@@ -378,7 +356,7 @@ vi.mock('@/composables/useStorageMode', () => {
       return { success: true, data: createdTodos, successCount: createdTodos.length }
     },
     async updateTodo(id: string, data: any) {
-      const index = globalTodos.findIndex((t) => t.id === id)
+      const index = globalTodos.findIndex((t: any) => t.id === id)
       if (index !== -1) {
         globalTodos[index] = { ...globalTodos[index], ...data, updatedAt: new Date().toISOString() }
         return { success: true, data: globalTodos[index] }
@@ -386,7 +364,7 @@ vi.mock('@/composables/useStorageMode', () => {
       return { success: false, error: 'Todo not found' }
     },
     async deleteTodo(id: string) {
-      const index = globalTodos.findIndex((t) => t.id === id)
+      const index = globalTodos.findIndex((t: any) => t.id === id)
       if (index !== -1) {
         globalTodos.splice(index, 1)
         return { success: true }
@@ -399,7 +377,7 @@ vi.mock('@/composables/useStorageMode', () => {
     async reorderTodos(todoIds: string[]) {
       const reorderedTodos = todoIds
         .map((id, index) => {
-          const todo = globalTodos.find((t) => t.id === id)
+          const todo = globalTodos.find((t: any) => t.id === id)
           if (todo) {
             return { ...todo, order: index }
           }
@@ -454,16 +432,16 @@ vi.mock('@/composables/useStorageMode', () => {
   }
 })
 
-// Mock useNotifications
+// Mock @/composables/useNotifications
 vi.mock('@/composables/useNotifications', () => {
-  const mockNotifications = ref([])
-  const mockTimers = new Map()
+  const mockNotifications = ref([] as any[])
+  const mockTimers = new Map<string, any>()
 
   const mockUseNotifications = () => ({
     notifications: readonly(mockNotifications),
     config: readonly({ maxNotifications: 5, defaultDuration: 4000, position: 'top-right' }),
 
-    addNotification: vi.fn((notification) => {
+    addNotification: vi.fn((notification: any) => {
       const id = `notification_${Date.now()}_${Math.random().toString(36).substring(2, 11)}`
       const newNotification = {
         id,
@@ -476,7 +454,7 @@ vi.mock('@/composables/useNotifications', () => {
       // 模拟自动移除
       if (!newNotification.persistent && newNotification.duration > 0) {
         const timerId = setTimeout(() => {
-          const index = mockNotifications.value.findIndex((n) => n.id === id)
+          const index = mockNotifications.value.findIndex((n: any) => n.id === id)
           if (index > -1) {
             mockNotifications.value.splice(index, 1)
             mockTimers.delete(id)
@@ -488,8 +466,8 @@ vi.mock('@/composables/useNotifications', () => {
       return id
     }),
 
-    removeNotification: vi.fn((id) => {
-      const index = mockNotifications.value.findIndex((n) => n.id === id)
+    removeNotification: vi.fn((id: string) => {
+      const index = mockNotifications.value.findIndex((n: any) => n.id === id)
       if (index > -1) {
         mockNotifications.value.splice(index, 1)
         const timerId = mockTimers.get(id)
@@ -501,12 +479,12 @@ vi.mock('@/composables/useNotifications', () => {
     }),
 
     clearNotifications: vi.fn(() => {
-      mockTimers.forEach((timerId) => clearTimeout(timerId))
+      mockTimers.forEach((timerId: any) => clearTimeout(timerId))
       mockTimers.clear()
       mockNotifications.value = []
     }),
 
-    success: vi.fn((title, message, options = {}) => {
+    success: vi.fn((title: string, message: string, options: any = {}) => {
       const id = `notification_${Date.now()}_${Math.random().toString(36).substring(2, 11)}`
       const notification = {
         id,
@@ -520,7 +498,7 @@ vi.mock('@/composables/useNotifications', () => {
 
       // 检查重复通知
       const isDuplicate = mockNotifications.value.some(
-        (n) => n.title === title && n.message === message && n.type === 'success'
+        (n: any) => n.title === title && n.message === message && n.type === 'success'
       )
       if (isDuplicate) {
         return ''
@@ -530,7 +508,7 @@ vi.mock('@/composables/useNotifications', () => {
 
       if (!notification.persistent && notification.duration > 0) {
         const timerId = setTimeout(() => {
-          const index = mockNotifications.value.findIndex((n) => n.id === id)
+          const index = mockNotifications.value.findIndex((n: any) => n.id === id)
           if (index > -1) {
             mockNotifications.value.splice(index, 1)
             mockTimers.delete(id)
@@ -542,7 +520,7 @@ vi.mock('@/composables/useNotifications', () => {
       return id
     }),
 
-    error: vi.fn((title, message, options = {}) => {
+    error: vi.fn((title: string, message: string, options: any = {}) => {
       const id = `notification_${Date.now()}_${Math.random().toString(36).substring(2, 11)}`
       const notification = {
         id,
@@ -557,7 +535,7 @@ vi.mock('@/composables/useNotifications', () => {
       return id
     }),
 
-    warning: vi.fn((title, message, options = {}) => {
+    warning: vi.fn((title: string, message: string, options: any = {}) => {
       const id = `notification_${Date.now()}_${Math.random().toString(36).substring(2, 11)}`
       const notification = {
         id,
@@ -572,7 +550,7 @@ vi.mock('@/composables/useNotifications', () => {
       return id
     }),
 
-    info: vi.fn((title, message, options = {}) => {
+    info: vi.fn((title: string, message: string, options: any = {}) => {
       const id = `notification_${Date.now()}_${Math.random().toString(36).substring(2, 11)}`
       const notification = {
         id,
@@ -588,7 +566,7 @@ vi.mock('@/composables/useNotifications', () => {
     }),
 
     getDebugInfo: vi.fn(() => ({
-      notifications: mockNotifications.value.map((n) => ({
+      notifications: mockNotifications.value.map((n: any) => ({
         id: n.id.slice(-8),
         title: n.title,
         type: n.type,

@@ -63,8 +63,8 @@
         v-if="todo.priority"
         class="priority-indicator clickable"
         :class="`priority-${todo.priority}`"
-        @click.stop="editPriority"
         :title="t('clickToEditPriority', '点击编辑优先级')"
+        @click.stop="editPriority"
       >
         <span class="priority-stars">{{ '★'.repeat(todo.priority) }}</span>
         <span class="priority-text">{{ todo.priority }}星</span>
@@ -73,8 +73,8 @@
       <div
         v-if="todo.estimatedTime"
         class="time-estimate clickable"
-        @click.stop="editTimeEstimate"
         :title="t('clickToEditTime', '点击编辑时间估算')"
+        @click.stop="editTimeEstimate"
       >
         <svg
           class="time-icon"

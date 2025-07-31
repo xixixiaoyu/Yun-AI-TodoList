@@ -10,7 +10,7 @@
     leave-to-class="opacity-0"
   >
     <div
-      v-if="isOpen"
+      v-show="isOpen"
       class="fixed inset-0 bg-black/40 backdrop-blur-sm z-[1000]"
       @click="$emit('update:isOpen', false)"
     />

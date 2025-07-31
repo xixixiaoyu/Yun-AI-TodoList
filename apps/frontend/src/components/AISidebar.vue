@@ -13,7 +13,7 @@
     leave-to-class="transform -translate-x-full"
   >
     <div
-      v-if="isOpen"
+      v-show="isOpen"
       ref="sidebarRef"
       class="fixed top-0 left-0 h-full bg-bg/95 backdrop-blur-xl border-r border-input-border shadow-2xl z-[10000] flex flex-col"
       :style="sidebarStyle"

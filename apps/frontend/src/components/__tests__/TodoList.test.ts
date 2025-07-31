@@ -1,6 +1,5 @@
-import { setupTestEnvironment } from '@/test/helpers'
 import { mount } from '@vue/test-utils'
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { ref } from 'vue'
 import { createI18n } from 'vue-i18n'
 import TodoList from '../TodoList.vue'
@@ -29,11 +28,14 @@ vi.mock('@/composables/useTodoListState', () => ({
     confirmDialogConfig: ref({}),
     handleConfirm: vi.fn(),
     handleCancel: vi.fn(),
+    todos: ref([]),
+    handleDragOrderChange: vi.fn(),
     filter: ref('all'),
     searchQuery: ref(''),
     filteredTodos: ref([]),
     hasActiveTodos: ref(false),
     isGenerating: ref(false),
+    isSplittingTask: ref(false),
     isSorting: ref(false),
     suggestedTodos: ref([]),
     showSuggestedTodos: ref(false),
@@ -47,6 +49,9 @@ vi.mock('@/composables/useTodoListState', () => ({
     removeTodo: vi.fn(),
     duplicateError: ref(''),
     isLoading: ref(false),
+    isAnalyzing: ref(false),
+    handleUpdateTodo: vi.fn(),
+    handleAnalyzeTodo: vi.fn(),
     showCharts: ref(false),
     showSearch: ref(false),
     isSmallScreen: ref(false),
@@ -55,6 +60,37 @@ vi.mock('@/composables/useTodoListState', () => ({
     closeCharts: vi.fn(),
     collapseSearch: vi.fn(),
     handlePomodoroComplete: vi.fn(),
+    error: vi.fn(),
+    success: vi.fn(),
+  }),
+}))
+
+vi.mock('@/composables/useTodoManagement', () => ({
+  useTodoManagement: () => ({
+    handleAddSubtasks: vi.fn(),
+    updateTodoText: vi.fn(),
+    isBatchAnalyzing: ref(false),
+    batchAnalyzeUnanalyzedTodos: vi.fn(),
+  }),
+}))
+
+vi.mock('@/composables/useTaskSplitting', () => ({
+  useTaskSplitting: () => ({
+    subtaskConfig: {
+      showDialog: false,
+      originalTask: '',
+      subtasks: [],
+    },
+    hideSubtaskDialog: vi.fn(),
+  }),
+}))
+
+vi.mock('@/composables/useTodoDragSort', () => ({
+  useTodoDragSort: () => ({
+    isDragging: ref(false),
+    draggedItem: ref(null),
+    enableDragSort: vi.fn(),
+    disableDragSort: vi.fn(),
   }),
 }))
 
@@ -75,15 +111,8 @@ const i18n = createI18n({
 })
 
 describe('TodoList', () => {
-  let testEnv: ReturnType<typeof setupTestEnvironment>
-
   beforeEach(() => {
-    testEnv = setupTestEnvironment()
     vi.clearAllMocks()
-  })
-
-  afterEach(() => {
-    testEnv.cleanup()
   })
 
   it('应该正确渲染组件', () => {
