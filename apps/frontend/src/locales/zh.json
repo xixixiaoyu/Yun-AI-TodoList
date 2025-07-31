@@ -520,6 +520,12 @@
 
   "analyzeTodo": "AI 分析",
   "reanalyze": "重新分析",
+  "batchAnalyze": "一键分析",
+  "batchAnalyzing": "批量分析中...",
+  "noTodosToAnalyze": "没有需要分析的待办事项",
+  "batchAnalysisSuccess": "批量分析成功完成！",
+  "batchAnalysisPartialSuccess": "批量分析部分成功",
+  "batchAnalysisFailed": "批量分析失败",
   "analyzing": "分析中...",
   "aiAnalyzing": "AI 分析中...",
 

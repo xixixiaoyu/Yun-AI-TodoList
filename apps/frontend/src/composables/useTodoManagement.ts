@@ -30,6 +30,7 @@ export function useTodoManagement() {
   // 本地状态管理（避免只读属性赋值问题）
   const isAnalyzing = ref(false)
   const analysisProgress = ref(0)
+  const isBatchAnalyzing = ref(false)
 
   const analyzeTodoAction = async (todo: Todo): Promise<void> => {
     if (isAnalyzing.value) return
@@ -55,6 +56,112 @@ export function useTodoManagement() {
       logger.error('Error analyzing todo', error, 'useTodoManagement')
     } finally {
       isAnalyzing.value = false
+    }
+  }
+
+  /**
+   * 批量分析未分析的 todo 项目
+   */
+  const batchAnalyzeUnanalyzedTodos = async (): Promise<void> => {
+    if (isBatchAnalyzing.value || isAnalyzing.value) return
+
+    // 获取未分析的活跃 todo
+    const unanalyzedTodos = todos.value.filter((todo) => !todo.completed && !todo.aiAnalyzed)
+
+    if (unanalyzedTodos.length === 0) {
+      showError(t('noTodosToAnalyze', '没有需要分析的待办事项'))
+      return
+    }
+
+    logger.info(
+      'Starting batch analysis for unanalyzed todos',
+      { count: unanalyzedTodos.length },
+      'TodoManagement'
+    )
+
+    isBatchAnalyzing.value = true
+    analysisProgress.value = 0
+
+    try {
+      // 检查 API Key 配置
+      const apiKey = localStorage.getItem('deepseek_api_key')
+      if (!apiKey || apiKey.trim() === '') {
+        showError(t('configureApiKey', '请先在设置中配置 DeepSeek API Key'))
+        return
+      }
+
+      let successCount = 0
+      let failureCount = 0
+
+      // 逐个分析，避免并发过多导致 API 限制
+      for (let i = 0; i < unanalyzedTodos.length; i++) {
+        const todo = unanalyzedTodos[i]
+        analysisProgress.value = Math.round(((i + 1) / unanalyzedTodos.length) * 100)
+
+        try {
+          await withRetry(
+            () =>
+              analyzeSingleTodo(
+                todo,
+                (id: string, updates: Partial<Todo>) => {
+                  updateTodoAIAnalysis(id, {
+                    priority: updates.priority,
+                    estimatedTime: updates.estimatedTime ? updates.estimatedTime.text : undefined,
+                    aiAnalyzed: updates.aiAnalyzed,
+                  })
+                },
+                { silent: true, showSuccess: false }
+              ),
+            AI_RETRY_OPTIONS
+          )
+          successCount++
+          logger.info(
+            'Todo analyzed successfully in batch',
+            { todoId: todo.id, progress: `${i + 1}/${unanalyzedTodos.length}` },
+            'TodoManagement'
+          )
+        } catch (error) {
+          failureCount++
+          logger.warn(
+            'Failed to analyze todo in batch',
+            { todoId: todo.id, error },
+            'TodoManagement'
+          )
+        }
+
+        // 添加小延迟避免 API 频率限制
+        if (i < unanalyzedTodos.length - 1) {
+          await new Promise((resolve) => setTimeout(resolve, 500))
+        }
+      }
+
+      // 显示结果
+      if (successCount > 0) {
+        if (failureCount === 0) {
+          showSuccess(t('batchAnalysisSuccess', `成功分析了 ${successCount} 个待办事项！`))
+        } else {
+          showSuccess(
+            t(
+              'batchAnalysisPartialSuccess',
+              `成功分析了 ${successCount} 个待办事项，${failureCount} 个失败`
+            )
+          )
+        }
+      } else {
+        showError(t('batchAnalysisFailed', '批量分析失败，请检查网络连接和 API 配置'))
+      }
+
+      logger.info(
+        'Batch analysis completed',
+        { successCount, failureCount, total: unanalyzedTodos.length },
+        'TodoManagement'
+      )
+    } catch (error) {
+      logger.error('Batch analysis error', error, 'TodoManagement')
+      showError(t('batchAnalysisFailed', '批量分析失败，请重试'))
+    } finally {
+      isBatchAnalyzing.value = false
+      analysisProgress.value = 0
     }
   }
 
@@ -693,6 +800,7 @@ ${todoTexts}
     isSorting,
     isLoading,
     isAnalyzing,
+    isBatchAnalyzing,
     analysisProgress,
     suggestedTodos,
     showSuggestedTodos,
@@ -713,6 +821,7 @@ ${todoTexts}
     batchUpdateTodos,
 
     analyzeTodo: analyzeTodoAction,
+    batchAnalyzeUnanalyzedTodos,
 
     // 清理机制
     cleanup: () => {
@@ -723,6 +832,7 @@ ${todoTexts}
       isSplittingTask.value = false
       isSorting.value = false
       isAnalyzing.value = false
+      isBatchAnalyzing.value = false
       analysisProgress.value = 0
       suggestedTodos.value = []
       showSuggestedTodos.value = false

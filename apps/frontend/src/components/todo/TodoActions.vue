@@ -1,12 +1,47 @@
 <template>
   <div v-if="filter === 'active' || filter === 'completed'" class="ai-actions-container">
+    <!-- 批量 AI 分析按钮 -->
+    <button
+      v-if="filter === 'active' && hasUnanalyzedTodos"
+      class="ai-action-btn ai-analysis-btn"
+      :class="{ 'is-loading': isBatchAnalyzing, 'is-disabled': isAnalyzing || isSorting }"
+      :disabled="isBatchAnalyzing || isAnalyzing || isSorting"
+      :title="
+        isBatchAnalyzing
+          ? '正在批量分析...'
+          : isAnalyzing || isSorting
+            ? '正在进行其他操作，请稍候...'
+            : '一键分析未分析的待办事项'
+      "
+      @click="handleBatchAnalysisClick"
+    >
+      <div class="btn-content">
+        <div v-if="isBatchAnalyzing" class="loading-spinner" />
+        <svg v-else class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+          <path d="M9 12l2 2 4-4" />
+          <path d="M21 12c-1 0-3-1-3-3s2-3 3-3 3 1 3 3-2 3-3 3" />
+          <path d="M3 12c1 0 3-1 3-3s-2-3-3-3-3 1-3 3 2 3 3 3" />
+        </svg>
+        <span class="btn-text">
+          {{
+            isBatchAnalyzing ? t('batchAnalyzing', '批量分析中...') : t('batchAnalyze', '一键分析')
+          }}
+        </span>
+      </div>
+      <div class="btn-shine" />
+    </button>
+
     <button
       v-if="filter === 'active' && hasActiveTodos"
       class="ai-action-btn ai-sort-btn"
-      :class="{ 'is-loading': isSorting, 'is-disabled': isAnalyzing }"
-      :disabled="isSorting || isAnalyzing"
+      :class="{ 'is-loading': isSorting, 'is-disabled': isAnalyzing || isBatchAnalyzing }"
+      :disabled="isSorting || isAnalyzing || isBatchAnalyzing"
       :title="
-        isSorting ? '正在排序...' : isAnalyzing ? '正在进行 AI 分析，请稍候...' : 'AI 优先级排序'
+        isSorting
+          ? '正在排序...'
+          : isAnalyzing || isBatchAnalyzing
+            ? '正在进行 AI 分析，请稍候...'
+            : 'AI 优先级排序'
       "
       @click="handleSortClick"
     >
@@ -23,8 +58,6 @@
       </div>
       <div class="btn-shine" />
     </button>
-
-    <!-- 批量 AI 分析按钮已移除 -->
   </div>
 </template>
 
@@ -34,15 +67,16 @@ import { useI18n } from 'vue-i18n'
 interface Props {
   filter: string
   hasActiveTodos: boolean
+  hasUnanalyzedTodos: boolean
   isGenerating: boolean
   isSorting: boolean
-  // isBatchAnalyzing 属性已移除
+  isBatchAnalyzing: boolean
   isAnalyzing?: boolean
 }
 
 interface Emits {
   (e: 'sortWithAI'): void
-  // batchAnalyze 事件已移除
+  (e: 'batchAnalyze'): void
 }
 
 defineProps<Props>()
@@ -54,7 +88,9 @@ const handleSortClick = () => {
   emit('sortWithAI')
 }
 
-// handleAnalysisClick 函数已移除
+const handleBatchAnalysisClick = () => {
+  emit('batchAnalyze')
+}
 
 defineOptions({
   name: 'TodoActions',

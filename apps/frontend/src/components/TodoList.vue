@@ -12,7 +12,7 @@
         :show="
           isLoading ||
           isAnalyzing ||
-          // 批量分析加载状态已移除
+          isBatchAnalyzing ||
           isSorting ||
           isSplittingTask ||
           isGenerating
@@ -20,13 +20,15 @@
         :message="
           isAnalyzing
             ? t('analyzing')
-            : isSorting
-              ? t('sorting')
-              : isSplittingTask
-                ? t('splittingTask')
-                : isGenerating
-                  ? t('generating')
-                  : t('loading')
+            : isBatchAnalyzing
+              ? t('batchAnalyzing', '批量分析中...')
+              : isSorting
+                ? t('sorting')
+                : isSplittingTask
+                  ? t('splittingTask')
+                  : isGenerating
+                    ? t('generating')
+                    : t('loading')
         "
       />
 
@@ -105,10 +107,13 @@
       <TodoActions
         :filter="filter"
         :has-active-todos="hasActiveTodos"
+        :has-unanalyzed-todos="hasUnanalyzedTodos"
         :is-generating="isGenerating"
         :is-sorting="isSorting"
+        :is-batch-analyzing="isBatchAnalyzing"
         :is-analyzing="isAnalyzing"
         @sort-with-a-i="sortActiveTodosWithAI"
+        @batch-analyze="handleBatchAnalyze"
       />
 
       <ConfirmDialog
@@ -200,8 +205,14 @@ const {
   success,
 } = useTodoListState()
 
-// 从 useTodoManagement 获取任务拆分相关功能
-const { handleAddSubtasks, updateTodoText } = useTodoManagement()
+// 从 useTodoManagement 获取任务拆分相关功能和批量分析功能
+const { handleAddSubtasks, updateTodoText, isBatchAnalyzing, batchAnalyzeUnanalyzedTodos } =
+  useTodoManagement()
+
+// 计算是否有未分析的待办事项
+const hasUnanalyzedTodos = computed(() => {
+  return todos.value.some((todo) => !todo.completed && !todo.aiAnalyzed)
+})
 
 // 拖拽排序功能 - 在 AI 排序过程中和批量分析期间禁用拖拽
 const isDragEnabled = computed(
@@ -210,7 +221,7 @@ const isDragEnabled = computed(
     filteredTodos.value.length > 1 &&
     !isSorting.value &&
     !isGenerating.value &&
-    true
+    !isBatchAnalyzing.value
 )
 
 // 处理任务添加，包含拆分逻辑
@@ -258,6 +269,11 @@ const handleSubtaskCancel = () => {
 // 处理 Todo 文本更新
 const handleUpdateTodoText = async (id: string, newText: string) => {
   await updateTodoText(id, newText)
+}
+
+// 处理批量分析
+const handleBatchAnalyze = async () => {
+  await batchAnalyzeUnanalyzedTodos()
 }
 
 // 清除重复错误

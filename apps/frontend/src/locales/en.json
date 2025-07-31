@@ -479,7 +479,13 @@
   "aiAnalysisDescription": "Use AI to automatically analyze the importance level and time estimation of todo items",
 
   "analyzeTodo": "AI Analysis",
-  "reanalyze": "Re-analyze",
+  "reAnalyze": "Re-analyze",
+  "batchAnalyze": "Batch Analyze",
+  "batchAnalyzing": "Batch Analyzing...",
+  "noTodosToAnalyze": "No todos to analyze",
+  "batchAnalysisSuccess": "Batch analysis completed successfully!",
+  "batchAnalysisPartialSuccess": "Batch analysis partially successful",
+  "batchAnalysisFailed": "Batch analysis failed",
   "analyzing": "Analyzing...",
   "aiAnalyzing": "AI Analyzing...",
 
