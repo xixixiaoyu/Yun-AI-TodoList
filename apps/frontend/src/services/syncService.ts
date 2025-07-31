@@ -291,10 +291,8 @@ class SyncService {
         )
 
         if (isRecent) {
-          console.log(`🚫 跳过最近创建的 Todo "${todo.title}"，避免双重上传`)
           return false
         }
-        console.log(`✅ 允许上传 Todo "${todo.title}"`)
         return true
       })
 

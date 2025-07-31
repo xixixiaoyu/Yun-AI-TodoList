@@ -59,8 +59,27 @@ export class TodoValidator {
     }
 
     if (todoObj.estimatedTime !== undefined && todoObj.estimatedTime !== null) {
-      if (typeof todoObj.estimatedTime !== 'string' || todoObj.estimatedTime.trim() === '') {
-        errors.push('Invalid estimatedTime: must be a non-empty string')
+      // 支持字符串格式（旧数据）和对象格式（新数据）
+      if (typeof todoObj.estimatedTime === 'string') {
+        // 字符串格式，需要转换为对象格式
+        if ((todoObj.estimatedTime as string).trim() === '') {
+          errors.push('Invalid estimatedTime: string cannot be empty')
+        }
+      } else if (typeof todoObj.estimatedTime === 'object') {
+        // 对象格式，验证结构
+        const estimatedTimeObj = todoObj.estimatedTime as Record<string, unknown>
+        if (
+          typeof estimatedTimeObj.text !== 'string' ||
+          (estimatedTimeObj.text as string).trim() === '' ||
+          typeof estimatedTimeObj.minutes !== 'number' ||
+          (estimatedTimeObj.minutes as number) < 0
+        ) {
+          errors.push(
+            'Invalid estimatedTime: must be an object with text (non-empty string) and minutes (non-negative number)'
+          )
+        }
+      } else {
+        errors.push('Invalid estimatedTime: must be a string or an object with text and minutes')
       }
     }
 
@@ -128,11 +147,26 @@ export class TodoValidator {
 
       // 添加 AI 分析字段（跳过 null 值）
       if (todoObj.priority !== undefined && todoObj.priority !== null) {
-        sanitizedData.priority = todoObj.priority as number
+        sanitizedData.priority = todoObj.priority as 1 | 2 | 3 | 4 | 5
       }
 
       if (todoObj.estimatedTime !== undefined && todoObj.estimatedTime !== null) {
-        sanitizedData.estimatedTime = (todoObj.estimatedTime as string).trim()
+        if (typeof todoObj.estimatedTime === 'string') {
+          // 字符串格式，转换为对象格式
+          const timeText = (todoObj.estimatedTime as string).trim()
+          const minutes = TodoValidator.parseTimeToMinutes(timeText)
+          sanitizedData.estimatedTime = {
+            text: timeText,
+            minutes: minutes,
+          }
+        } else {
+          // 对象格式，直接使用
+          const estimatedTime = todoObj.estimatedTime as Record<string, unknown>
+          sanitizedData.estimatedTime = {
+            text: (estimatedTime.text as string).trim(),
+            minutes: estimatedTime.minutes as number,
+          }
+        }
       }
 
       if (todoObj.aiAnalyzed !== undefined && todoObj.aiAnalyzed !== null) {
@@ -222,5 +256,42 @@ export class TodoValidator {
     ]
 
     return !dangerousPatterns.some((pattern) => pattern.test(title))
+  }
+
+  /**
+   * 解析时间文本为分钟数
+   * @param timeText 时间文本，如 "30分钟", "2小时", "1天"
+   * @returns 对应的分钟数
+   */
+  static parseTimeToMinutes(timeText: string): number {
+    const text = timeText.toLowerCase()
+
+    const hourMatch = text.match(/(\d+(?:\.\d+)?)\s*[小时时h]/i)
+    const minuteMatch = text.match(/(\d+(?:\.\d+)?)\s*[分钟分m]/i)
+    const dayMatch = text.match(/(\d+(?:\.\d+)?)\s*[天日d]/i)
+
+    let totalMinutes = 0
+
+    if (dayMatch) {
+      totalMinutes += parseFloat(dayMatch[1]) * 24 * 60
+    }
+
+    if (hourMatch) {
+      totalMinutes += parseFloat(hourMatch[1]) * 60
+    }
+
+    if (minuteMatch) {
+      totalMinutes += parseFloat(minuteMatch[1])
+    }
+
+    // 如果没有匹配到任何时间单位，尝试解析纯数字（默认为分钟）
+    if (totalMinutes === 0) {
+      const numberMatch = text.match(/^(\d+(?:\.\d+)?)$/)
+      if (numberMatch) {
+        totalMinutes = parseFloat(numberMatch[1])
+      }
+    }
+
+    return Math.max(0, Math.round(totalMinutes))
   }
 }

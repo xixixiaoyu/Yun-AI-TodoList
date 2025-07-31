@@ -85,11 +85,6 @@ export function useSystemPrompts() {
     return prompts
   })
 
-  // 生成唯一 ID
-  // const _generateId = (): string => {
-  //   return `prompt_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
-  // } // 暂时未使用
-
   // 错误处理
   const handleError = (error: unknown, context: string) => {
     const errorMessage = error instanceof Error ? error.message : String(error)

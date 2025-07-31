@@ -17,7 +17,7 @@ export function useTodoSystemPrompt() {
     activateTodoAssistant,
     deactivateTodoAssistant,
     isTodoAssistantActive,
-    todoAssistantPrompt,
+    // todoAssistantPrompt,
   } = useSystemPrompts()
 
   // 状态管理
@@ -25,22 +25,18 @@ export function useTodoSystemPrompt() {
 
   /**
    * 激活 Todo 系统提示词（不再需要预生成内容）
-   * @param todos 待办事项列表
+   * @param _todos 待办事项列表
    * @returns 是否成功激活
    */
-  const generateAndActivateTodoPrompt = async (todos: Todo[]): Promise<boolean> => {
+  const generateAndActivateTodoPrompt = async (_todos: Todo[]): Promise<boolean> => {
     if (isGenerating.value) {
-      console.debug('Todo助手: 正在激活中，跳过请求')
       return false
     }
 
     isGenerating.value = true
     try {
-      console.debug('Todo助手: 开始激活流程', { todosCount: todos.length })
-
       // 直接激活 Todo 助手（内容将在每次发送消息时动态生成）
       await activateTodoAssistant()
-      console.debug('Todo助手: 激活完成')
 
       // 显示成功提示
       showSuccess(t('todoPromptActivated', 'Todo 任务助手已激活，现在可以询问关于您任务的任何问题'))
@@ -62,7 +58,6 @@ export function useTodoSystemPrompt() {
     try {
       // 停用 Todo 助手
       await deactivateTodoAssistant()
-      console.debug('Todo助手停用成功')
 
       showSuccess(t('todoPromptDeactivated', 'Todo 任务助手已停用'))
       return true
@@ -78,10 +73,6 @@ export function useTodoSystemPrompt() {
    */
   const isTodoPromptActive = computed(() => {
     const isActive = isTodoAssistantActive.value
-    console.debug('Todo助手状态检查:', {
-      isTodoAssistantActive: isActive,
-      hasTodoPrompt: !!todoAssistantPrompt.value,
-    })
     return isActive
   })
 

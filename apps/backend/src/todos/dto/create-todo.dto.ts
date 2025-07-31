@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger'
 import {
+  IsBoolean,
   IsDateString,
   IsInt,
   IsOptional,
@@ -54,6 +55,25 @@ export class CreateTodoDto {
   @IsOptional()
   @IsString({ message: '时间估算必须是字符串' })
   estimatedTime?: string
+
+  @ApiProperty({
+    description: '时间估算（分钟）',
+    example: 120,
+    required: false,
+  })
+  @IsOptional()
+  @IsInt({ message: '时间估算分钟数必须是整数' })
+  @Min(0, { message: '时间估算分钟数不能小于0' })
+  estimatedMinutes?: number
+
+  @ApiProperty({
+    description: '是否已进行 AI 分析',
+    example: false,
+    required: false,
+  })
+  @IsOptional()
+  @IsBoolean({ message: 'AI 分析状态必须是布尔值' })
+  aiAnalyzed?: boolean
 
   @ApiProperty({
     description: '截止日期',

@@ -377,8 +377,6 @@ export function useNotifications() {
     config.maxNotifications = 5
     config.defaultDuration = 4000
     config.position = 'top-right'
-
-    console.log('[Notification] Reset all state for testing')
   }
 
   /**

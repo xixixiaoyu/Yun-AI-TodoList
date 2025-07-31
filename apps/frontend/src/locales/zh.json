@@ -708,5 +708,9 @@
   "conflictResolutionDesc": "当数据冲突时的处理方式",
   "lastSyncTime": "上次同步时间",
   "failedOperations": "失败操作",
-  "aiAssistantLoading": "AI 助手正在准备回复..."
+  "aiAssistantLoading": "AI 助手正在准备回复...",
+  "clickToEditPriority": "点击编辑优先级",
+  "clickToEditTime": "点击编辑时间估算",
+  "enterNewPriority": "请输入新的优先级 (1-5):",
+  "enterNewTimeEstimate": "请输入新的时间估算 (如: 30分钟, 2小时):"
 }

@@ -104,7 +104,6 @@ export function useDataSync() {
    */
   const performInitialSync = async (): Promise<SyncResult> => {
     if (DISABLE_OLD_SYNC) {
-      console.log('🚫 旧同步系统已禁用，使用新的 HybridTodoStorageService')
       return {
         status: SyncStatus.SUCCESS,
         message: '使用新的混合存储系统',
@@ -459,7 +458,6 @@ export function useDataSync() {
           const isRecent = timeDiff < recentlyCreatedThreshold
 
           if (isRecent) {
-            console.log(`🚫 跳过最近创建的 Todo "${todo.title}"，避免实时同步重复上传`)
             return false
           }
           return true

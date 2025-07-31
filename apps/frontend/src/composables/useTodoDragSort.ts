@@ -50,19 +50,16 @@ export function useTodoDragSort(
 
     // 拖拽开始事件
     onStart: (evt: { item: HTMLElement & { dataset: { todoId?: string } } }) => {
-      console.warn('拖拽开始:', evt)
       isDragging.value = true
       const todoId = parseInt(evt.item.dataset.todoId || '0')
       draggedItem.value = todos.value.find((todo) => todo.id === todoId.toString()) || null
-      console.warn('拖拽的待办事项:', draggedItem.value)
 
       // 添加拖拽开始的视觉效果
       document.body.classList.add('dragging-todo')
     },
 
     // 拖拽结束事件
-    onEnd: (evt: { item: HTMLElement }) => {
-      console.warn('拖拽结束:', evt)
+    onEnd: (_evt: { item: HTMLElement }) => {
       isDragging.value = false
       draggedItem.value = null
       document.body.classList.remove('dragging-todo')
@@ -70,7 +67,6 @@ export function useTodoDragSort(
 
     // 自定义更新处理
     onUpdate: (evt: { oldIndex?: number; newIndex?: number }) => {
-      console.warn('拖拽更新:', evt)
       // 确保索引存在
       if (typeof evt.oldIndex === 'number' && typeof evt.newIndex === 'number') {
         // 使用 VueUse 提供的 moveArrayElement 函数
@@ -84,7 +80,7 @@ export function useTodoDragSort(
     },
 
     // 拖拽移动事件
-    onMove: () => {
+    onMove: (_evt: { dragged: HTMLElement; related: HTMLElement }) => {
       return true
     },
   }

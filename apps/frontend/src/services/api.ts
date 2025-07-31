@@ -252,16 +252,6 @@ class HttpClient {
     options: RequestInit,
     retryCount = 0
   ): Promise<unknown> {
-    // 添加调试信息来追踪重试
-    if (options.method === 'POST' && url.includes('/todos')) {
-      console.log('🔍 executeRequest called', {
-        url,
-        method: options.method,
-        retryCount,
-        body: options.body,
-      })
-    }
-
     const controller = new AbortController()
     const timeoutId = setTimeout(() => controller.abort(), this.timeout)
 

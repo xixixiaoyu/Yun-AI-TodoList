@@ -77,6 +77,16 @@ export class UpdateTodoDto {
   estimatedTime?: string
 
   @ApiProperty({
+    description: '时间估算（分钟）',
+    example: 120,
+    required: false,
+  })
+  @IsOptional()
+  @IsInt({ message: '时间估算分钟数必须是整数' })
+  @Min(0, { message: '时间估算分钟数不能小于0' })
+  estimatedMinutes?: number
+
+  @ApiProperty({
     description: '截止日期',
     example: '2024-12-31T23:59:59.000Z',
     required: false,

@@ -55,6 +55,45 @@
         </div>
       </div>
     </div>
+
+    <!-- AI 分析结果显示在右侧 -->
+    <div v-if="todo.aiAnalyzed && (todo.priority || todo.estimatedTime)" class="todo-ai-info-right">
+      <!-- 优先级显示 -->
+      <div
+        v-if="todo.priority"
+        class="priority-indicator clickable"
+        :class="`priority-${todo.priority}`"
+        @click.stop="editPriority"
+        :title="t('clickToEditPriority', '点击编辑优先级')"
+      >
+        <span class="priority-stars">{{ '★'.repeat(todo.priority) }}</span>
+        <span class="priority-text">{{ todo.priority }}星</span>
+      </div>
+      <!-- 时间估算显示 -->
+      <div
+        v-if="todo.estimatedTime"
+        class="time-estimate clickable"
+        @click.stop="editTimeEstimate"
+        :title="t('clickToEditTime', '点击编辑时间估算')"
+      >
+        <svg
+          class="time-icon"
+          xmlns="http://www.w3.org/2000/svg"
+          width="14"
+          height="14"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <circle cx="12" cy="12" r="10" />
+          <polyline points="12,6 12,12 16,14" />
+        </svg>
+        <span class="time-text">{{ todo.estimatedTime.text }}</span>
+      </div>
+    </div>
     <div class="todo-actions">
       <button
         class="edit-btn"
@@ -131,6 +170,12 @@ const emit = defineEmits(['toggle', 'remove', 'updateTodo', 'updateText'])
 const isCompleted = ref(false)
 const editableTodoItem = ref<InstanceType<typeof EditableTodoItem> | null>(null)
 
+// 编辑状态
+// const isEditingPriority = ref(false)
+// const isEditingTime = ref(false)
+// const editPriorityValue = ref(1)
+// const editTimeValue = ref('')
+
 watchEffect(() => {
   isCompleted.value = props.todo.completed
 })
@@ -187,6 +232,65 @@ const handleTextUpdate = (newText: string) => {
 // 处理编辑取消
 const handleEditCancel = () => {
   // 编辑取消时不需要特殊处理
+}
+
+// 编辑优先级
+const editPriority = () => {
+  const newPriority = window.prompt(
+    t('enterNewPriority', '请输入新的优先级 (1-5):'),
+    props.todo.priority?.toString() || '1'
+  )
+  if (newPriority && /^[1-5]$/.test(newPriority)) {
+    const priority = parseInt(newPriority) as 1 | 2 | 3 | 4 | 5
+    emit('updateTodo', props.todo.id, { priority })
+  }
+}
+
+// 编辑时间估算
+const editTimeEstimate = () => {
+  const currentTime = props.todo.estimatedTime?.text || ''
+  const newTime = window.prompt(
+    t('enterNewTimeEstimate', '请输入新的时间估算 (如: 30分钟, 2小时):'),
+    currentTime
+  )
+  if (newTime && newTime.trim()) {
+    // 解析时间文本为分钟数
+    const minutes = parseTimeToMinutes(newTime.trim())
+    if (minutes > 0) {
+      emit('updateTodo', props.todo.id, {
+        estimatedTime: {
+          text: newTime.trim(),
+          minutes,
+        },
+      })
+    }
+  }
+}
+
+// 解析时间文本为分钟数
+const parseTimeToMinutes = (timeText: string): number => {
+  const hourMatch = timeText.match(/(\d+(?:\.\d+)?)\s*[小时时h]/i)
+  const minuteMatch = timeText.match(/(\d+(?:\.\d+)?)\s*[分钟分m]/i)
+
+  let totalMinutes = 0
+
+  if (hourMatch) {
+    totalMinutes += parseFloat(hourMatch[1]) * 60
+  }
+
+  if (minuteMatch) {
+    totalMinutes += parseFloat(minuteMatch[1])
+  }
+
+  // 如果没有匹配到任何时间单位，尝试解析纯数字（默认为分钟）
+  if (totalMinutes === 0) {
+    const numberMatch = timeText.match(/^(\d+(?:\.\d+)?)$/)
+    if (numberMatch) {
+      totalMinutes = parseFloat(numberMatch[1])
+    }
+  }
+
+  return Math.max(0, Math.round(totalMinutes))
 }
 
 let renderStartTime = 0
@@ -275,6 +379,102 @@ onErrorCaptured(handleError)
 
 .todo-text-wrapper {
   @apply flex flex-col flex-grow min-w-0;
+}
+
+/* AI 分析结果样式 - 右侧显示 */
+.todo-ai-info-right {
+  @apply flex flex-col items-end gap-1 text-xs;
+  opacity: 0.9;
+  margin-left: auto;
+  margin-right: 0.5rem;
+}
+
+/* 可点击样式 */
+.clickable {
+  @apply cursor-pointer transition-all duration-200;
+}
+
+.clickable:hover {
+  @apply transform scale-105 shadow-sm;
+  opacity: 1;
+}
+
+.priority-indicator {
+  @apply flex items-center gap-1 px-2 py-1 rounded-full;
+  background-color: rgba(var(--primary-rgb), 0.1);
+  border: 1px solid rgba(var(--primary-rgb), 0.2);
+  min-width: fit-content;
+}
+
+.priority-stars {
+  @apply text-yellow-500;
+  font-size: 10px;
+  line-height: 1;
+}
+
+.priority-text {
+  @apply text-gray-600;
+  font-size: 10px;
+  font-weight: 500;
+}
+
+.priority-1 {
+  @apply bg-gray-50 border-gray-200;
+}
+
+.priority-1 .priority-text {
+  @apply text-gray-500;
+}
+
+.priority-2 {
+  @apply bg-blue-50 border-blue-200;
+}
+
+.priority-2 .priority-text {
+  @apply text-blue-600;
+}
+
+.priority-3 {
+  @apply bg-green-50 border-green-200;
+}
+
+.priority-3 .priority-text {
+  @apply text-green-600;
+}
+
+.priority-4 {
+  @apply bg-orange-50 border-orange-200;
+}
+
+.priority-4 .priority-text {
+  @apply text-orange-600;
+}
+
+.priority-5 {
+  @apply bg-red-50 border-red-200;
+}
+
+.priority-5 .priority-text {
+  @apply text-red-600;
+}
+
+.time-estimate {
+  @apply flex items-center gap-1 px-2 py-1 rounded-full;
+  background-color: rgba(var(--secondary-rgb), 0.1);
+  border: 1px solid rgba(var(--secondary-rgb), 0.2);
+  min-width: fit-content;
+}
+
+.time-icon {
+  @apply text-gray-500;
+  width: 12px;
+  height: 12px;
+}
+
+.time-text {
+  @apply text-gray-600;
+  font-size: 10px;
+  font-weight: 500;
 }
 
 .todo-main-content {
@@ -469,6 +669,21 @@ onErrorCaptured(handleError)
     margin-right: 6px;
     align-self: center;
   }
+
+  .todo-ai-info-right {
+    @apply flex flex-col items-end gap-1;
+    margin-right: 0.25rem;
+  }
+
+  .priority-indicator,
+  .time-estimate {
+    @apply text-xs px-1.5 py-0.5;
+  }
+
+  .priority-text,
+  .time-text {
+    font-size: 9px;
+  }
 }
 
 /* 小屏幕优化 */
@@ -502,6 +717,30 @@ onErrorCaptured(handleError)
     height: 18px;
     margin-right: 4px;
     align-self: center;
+  }
+
+  .todo-ai-info-right {
+    @apply flex flex-col items-end gap-0.5;
+    margin-right: 0.125rem;
+  }
+
+  .priority-indicator,
+  .time-estimate {
+    @apply text-xs px-1 py-0.5;
+  }
+
+  .priority-text,
+  .time-text {
+    font-size: 8px;
+  }
+
+  .priority-stars {
+    font-size: 8px;
+  }
+
+  .time-icon {
+    width: 10px;
+    height: 10px;
   }
 }
 </style>

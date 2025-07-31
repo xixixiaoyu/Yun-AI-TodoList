@@ -92,6 +92,9 @@ model Todo {
   priority      Int?      /// 优先级 (1-5，5为最高)
   order         Int       @default(0)
   dueDate       DateTime?
+  estimatedTime String?   /// AI 估算时间文本 (如 "30分钟", "2小时")
+  estimatedMinutes Int?   /// AI 估算时间分钟数
+  aiAnalyzed    Boolean   @default(false) /// 是否经过 AI 分析
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
   userId        String

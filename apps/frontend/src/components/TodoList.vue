@@ -268,8 +268,6 @@ const clearDuplicateError = () => {
 
 // 创建专门的拖拽顺序更新函数
 const handleDragReorder = (reorderedTodos: Todo[]) => {
-  console.warn('处理拖拽重排序:', reorderedTodos)
-
   try {
     // 由于我们只对 filteredTodos 进行拖拽，需要将重新排序的结果合并回完整的 todos 数组
     if (filter.value === 'active') {
@@ -290,7 +288,6 @@ const handleDragReorder = (reorderedTodos: Todo[]) => {
         })),
       ].sort((a, b) => a.order - b.order)
 
-      console.warn('合并后的所有待办事项:', allTodos)
       handleDragOrderChange(allTodos)
     } else {
       // 如果不是 active 筛选状态，直接更新

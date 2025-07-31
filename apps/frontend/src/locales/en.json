@@ -667,5 +667,9 @@
   "conflictResolutionDesc": "How to handle data conflicts",
   "lastSyncTime": "Last sync time",
   "failedOperations": "Failed operations",
-  "aiAssistantLoading": "AI assistant is preparing a response..."
+  "aiAssistantLoading": "AI assistant is preparing a response...",
+  "clickToEditPriority": "Click to edit priority",
+  "clickToEditTime": "Click to edit time estimate",
+  "enterNewPriority": "Enter new priority (1-5):",
+  "enterNewTimeEstimate": "Enter new time estimate (e.g., 30 minutes, 2 hours):"
 }

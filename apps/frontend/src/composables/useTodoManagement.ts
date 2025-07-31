@@ -215,7 +215,6 @@ ${todoTexts}
 
       logger.info('Sending AI request for sorting', {}, 'TodoManagement')
       const aiResponse = await getAIResponse(prompt)
-      console.warn('📥 AI 响应:', aiResponse)
 
       // 改进的解析逻辑，支持多种格式
       let sortedIndices: number[] = []

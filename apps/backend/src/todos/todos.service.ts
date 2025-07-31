@@ -65,6 +65,13 @@ export class TodosService {
         description: createTodoDto.description,
         priority: createTodoDto.priority,
         dueDate: createTodoDto.dueDate ? new Date(createTodoDto.dueDate) : null,
+        estimatedTime: createTodoDto.estimatedTime,
+        estimatedMinutes:
+          createTodoDto.estimatedMinutes ||
+          (createTodoDto.estimatedTime
+            ? this.parseEstimatedTimeToMinutes(createTodoDto.estimatedTime)
+            : null),
+        aiAnalyzed: createTodoDto.aiAnalyzed ?? false,
         order: (maxOrder._max.order || 0) + 1,
       },
     })
@@ -193,6 +200,9 @@ export class TodosService {
           priority: true,
           order: true,
           dueDate: true,
+          estimatedTime: true,
+          estimatedMinutes: true,
+          aiAnalyzed: true,
           createdAt: true,
           updatedAt: true,
           userId: true,
@@ -340,6 +350,17 @@ export class TodosService {
 
     if (updateData.dueDate !== undefined) {
       processedUpdateData.dueDate = updateData.dueDate ? new Date(updateData.dueDate) : null
+    }
+
+    if (updateData.estimatedTime !== undefined) {
+      processedUpdateData.estimatedTime = updateData.estimatedTime
+      processedUpdateData.estimatedMinutes = updateData.estimatedTime
+        ? this.parseEstimatedTimeToMinutes(updateData.estimatedTime)
+        : null
+    }
+
+    if (updateData.aiAnalyzed !== undefined) {
+      processedUpdateData.aiAnalyzed = updateData.aiAnalyzed
     }
 
     await this.prisma.$transaction(async (tx) => {
@@ -567,6 +588,23 @@ export class TodosService {
     }
   }
 
+  /**
+   * 解析时间估算字符串为分钟数
+   */
+  private parseEstimatedTimeToMinutes(timeStr: string): number {
+    if (!timeStr) return 0
+
+    const hourMatch = timeStr.match(/(\d+(?:\.\d+)?)\s*[小时|hour|h]/i)
+    const minuteMatch = timeStr.match(/(\d+)\s*[分钟|minute|min|m]/i)
+    const dayMatch = timeStr.match(/(\d+(?:\.\d+)?)\s*[天|day|d]/i)
+
+    if (dayMatch) return parseFloat(dayMatch[1]) * 8 * 60 // 假设一天工作8小时
+    if (hourMatch) return parseFloat(hourMatch[1]) * 60
+    if (minuteMatch) return parseInt(minuteMatch[1])
+
+    return 0
+  }
+
   private mapPrismaTodoToTodo(prismaTodo: {
     id: string
     title: string
@@ -579,6 +617,9 @@ export class TodosService {
     priority: number | null
     userId: string
     dueDate: Date | null
+    estimatedTime?: string | null
+    estimatedMinutes?: number | null
+    aiAnalyzed?: boolean
   }): Todo {
     return {
       id: prismaTodo.id,
@@ -592,6 +633,14 @@ export class TodosService {
       priority: (prismaTodo.priority as TodoPriority) ?? undefined,
       userId: prismaTodo.userId,
       dueDate: prismaTodo.dueDate?.toISOString(),
+      estimatedTime:
+        prismaTodo.estimatedTime && prismaTodo.estimatedMinutes
+          ? {
+              text: prismaTodo.estimatedTime,
+              minutes: prismaTodo.estimatedMinutes,
+            }
+          : undefined,
+      aiAnalyzed: prismaTodo.aiAnalyzed ?? false,
     }
   }
 }

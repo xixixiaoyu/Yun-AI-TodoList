@@ -589,6 +589,26 @@ export function useTodos() {
   }
 
   /**
+   * 解析时间估算字符串为分钟数
+   */
+  const parseEstimatedTimeToMinutes = (timeString: string): number => {
+    if (!timeString) return 0
+    const match = timeString.match(/([0-9.]+)\s*(分钟|小时|天|minute|hour|day)/i)
+    if (match) {
+      const value = parseFloat(match[1])
+      const unit = match[2].toLowerCase()
+      let minutes = value
+      if (unit.startsWith('h') || unit === '小时') {
+        minutes = value * 60
+      } else if (unit.startsWith('d') || unit === '天') {
+        minutes = value * 60 * 24
+      }
+      return Math.round(minutes)
+    }
+    return 0
+  }
+
+  /**
    * 更新 Todo 的 AI 分析状态
    * 专门用于 AI 分析完成后更新相关字段
    */
@@ -608,11 +628,22 @@ export function useTodos() {
         estimatedTime: analysisData.estimatedTime
           ? {
               text: analysisData.estimatedTime,
-              minutes: 0, // 默认值，实际应该根据文本计算，但这需要额外的解析逻辑
+              minutes: parseEstimatedTimeToMinutes(analysisData.estimatedTime),
             }
           : undefined,
         aiAnalyzed: analysisData.aiAnalyzed ?? true,
       }
+
+      logger.info(
+        'Updating todo with AI analysis results',
+        {
+          id,
+          priority: updates.priority,
+          estimatedTime: updates.estimatedTime,
+          aiAnalyzed: updates.aiAnalyzed,
+        },
+        'useTodos'
+      )
 
       return await updateTodo(id, updates)
     } catch (error) {

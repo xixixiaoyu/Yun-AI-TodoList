@@ -193,13 +193,6 @@ export class RemoteStorageService extends TodoStorageService {
     }
 
     return this.executeWithRetry(async () => {
-      // 添加调用栈信息来调试双重请求
-      const stack = new Error().stack
-      console.log('🔍 RemoteStorageService.createTodo called', {
-        title: todoData.title,
-        caller: stack?.split('\n')[2]?.trim() || 'unknown',
-      })
-
       this.setStatus({ pendingOperations: this._status.pendingOperations + 1 })
 
       try {
@@ -364,7 +357,7 @@ export class RemoteStorageService extends TodoStorageService {
     reorders: Array<{ id: string; order: number }>
   ): Promise<StorageOperationResult<void>> {
     try {
-      if (!this._status.isOnline) {
+      if (!this._status.networkStatus.isOnline) {
         return this.createErrorResult('storage.networkUnavailable', true)
       }
 
@@ -380,14 +373,16 @@ export class RemoteStorageService extends TodoStorageService {
 
       this.setStatus({
         pendingOperations: Math.max(0, this._status.pendingOperations - 1),
-        lastSyncTime: new Date(),
       })
 
       return this.createSuccessResult(undefined)
     } catch (error: unknown) {
       this.setStatus({ pendingOperations: Math.max(0, this._status.pendingOperations - 1) })
       console.error('Failed to reorder todos on server:', error)
-      return this.createErrorResult(this.getErrorMessage(error), this.isRetryableError(error))
+      return this.createErrorResult(
+        this.getErrorMessage(error),
+        this.isRetryableError(error as Error)
+      )
     }
   }
 
@@ -412,7 +407,7 @@ export class RemoteStorageService extends TodoStorageService {
 
   async clearAll(): Promise<StorageOperationResult<void>> {
     try {
-      if (!this._status.isOnline) {
+      if (!this._status.networkStatus.isOnline) {
         return this.createErrorResult('storage.networkUnavailable', true)
       }
 
@@ -458,7 +453,7 @@ export class RemoteStorageService extends TodoStorageService {
 
   async saveTodos(todos: Todo[]): Promise<StorageOperationResult<void>> {
     try {
-      if (!this._status.isOnline) {
+      if (!this._status.networkStatus.isOnline) {
         return this.createErrorResult('storage.networkUnavailable', true)
       }
 
@@ -484,7 +479,10 @@ export class RemoteStorageService extends TodoStorageService {
       }
     } catch (error: unknown) {
       console.error('Failed to save todos to server:', error)
-      return this.createErrorResult(this.getErrorMessage(error), this.isRetryableError(error))
+      return this.createErrorResult(
+        this.getErrorMessage(error),
+        this.isRetryableError(error as Error)
+      )
     }
   }
 
