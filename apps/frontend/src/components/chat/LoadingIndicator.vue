@@ -32,13 +32,6 @@
         />
       </svg>
     </div>
-
-    <!-- 打字机点点 (保留这个简洁的指示器) -->
-    <div class="typing-dots">
-      <span class="dot dot-1"></span>
-      <span class="dot dot-2"></span>
-      <span class="dot dot-3"></span>
-    </div>
   </div>
 </template>
 
@@ -116,38 +109,6 @@ defineOptions({
   animation-delay: 1s;
 }
 
-/* 打字机点点 */
-.typing-dots {
-  position: absolute;
-  bottom: -8px;
-  display: flex;
-  gap: 2px;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-}
-
-.dot {
-  width: 3px;
-  height: 3px;
-  border-radius: 50%;
-  background: var(--primary-color);
-  opacity: 0.4;
-  animation: typing 1.4s ease-in-out infinite;
-}
-
-.dot-1 {
-  animation-delay: 0s;
-}
-
-.dot-2 {
-  animation-delay: 0.2s;
-}
-
-.dot-3 {
-  animation-delay: 0.4s;
-}
-
 /* 动画定义 */
 @keyframes pulse {
   0% {
@@ -192,19 +153,6 @@ defineOptions({
   50% {
     opacity: 1;
     transform: scale(1.2);
-  }
-}
-
-@keyframes typing {
-  0%,
-  60%,
-  100% {
-    opacity: 0.4;
-    transform: translateY(0);
-  }
-  30% {
-    opacity: 1;
-    transform: translateY(-4px);
   }
 }
 
