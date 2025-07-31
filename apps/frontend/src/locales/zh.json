@@ -518,6 +518,7 @@
   "aiAnalysis": "AI 智能分析",
   "aiAnalysisDescription": "使用 AI 自动分析待办事项的重要等级和时间估算",
 
+  "analyzeTodo": "AI 分析",
   "reanalyze": "重新分析",
   "analyzing": "分析中...",
   "aiAnalyzing": "AI 分析中...",

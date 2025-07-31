@@ -95,6 +95,35 @@
       </div>
     </div>
     <div class="todo-actions">
+      <!-- AI 分析按钮 -->
+      <button
+        v-if="!todo.aiAnalyzed || (!todo.priority && !todo.estimatedTime)"
+        class="ai-analyze-btn"
+        :class="{ 'is-analyzing': isAnalyzing }"
+        :disabled="isAnalyzing"
+        :title="todo.aiAnalyzed ? t('reAnalyzeTodo', '重新分析') : t('analyzeTodo', 'AI 分析')"
+        :aria-label="todo.aiAnalyzed ? t('reAnalyzeTodo', '重新分析') : t('analyzeTodo', 'AI 分析')"
+        @click.stop="handleAnalyze"
+      >
+        <div v-if="isAnalyzing" class="loading-spinner" />
+        <svg
+          v-else
+          xmlns="http://www.w3.org/2000/svg"
+          width="16"
+          height="16"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <path
+            d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"
+          />
+        </svg>
+      </button>
+
       <button
         class="edit-btn"
         :title="t('editTodo', '编辑待办事项')"
@@ -156,17 +185,19 @@ const props = withDefaults(
     todo: Todo
     isDraggable?: boolean
     isDragging?: boolean
+    isAnalyzing?: boolean
   }>(),
   {
     isDraggable: false,
     isDragging: false,
+    isAnalyzing: false,
   }
 )
 
 const { showError } = useErrorHandler()
 const { t } = useI18n()
 
-const emit = defineEmits(['toggle', 'remove', 'updateTodo', 'updateText'])
+const emit = defineEmits(['toggle', 'remove', 'updateTodo', 'updateText', 'analyze'])
 const isCompleted = ref(false)
 const editableTodoItem = ref<InstanceType<typeof EditableTodoItem> | null>(null)
 
@@ -232,6 +263,11 @@ const handleTextUpdate = (newText: string) => {
 // 处理编辑取消
 const handleEditCancel = () => {
   // 编辑取消时不需要特殊处理
+}
+
+// 处理 AI 分析
+const handleAnalyze = () => {
+  emit('analyze', props.todo.id)
 }
 
 // 编辑优先级
@@ -488,6 +524,47 @@ onErrorCaptured(handleError)
 /* 操作按钮容器 */
 .todo-actions {
   @apply flex items-center gap-1 ml-2;
+}
+
+/* AI 分析按钮样式 */
+.ai-analyze-btn {
+  @apply flex items-center justify-center w-8 h-8 opacity-60;
+  @apply bg-transparent text-blue-500 rounded-md;
+  @apply hover:bg-blue-50 hover:bg-opacity-30 hover:text-blue-600 hover:opacity-100;
+  @apply focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-30;
+  @apply transition-all duration-200;
+  min-width: 2rem;
+}
+
+.ai-analyze-btn:hover {
+  @apply transform scale-105;
+}
+
+.ai-analyze-btn.is-analyzing {
+  @apply opacity-100 cursor-not-allowed;
+}
+
+.ai-analyze-btn:disabled {
+  @apply opacity-50 cursor-not-allowed;
+}
+
+.ai-analyze-btn:disabled:hover {
+  @apply transform scale-100;
+}
+
+/* 加载动画 */
+.loading-spinner {
+  @apply w-4 h-4 border-2 border-blue-500 border-t-transparent rounded-full;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 /* 编辑按钮样式 */

@@ -476,8 +476,9 @@
   "reason": "Reason",
 
   "aiAnalysis": "AI Smart Analysis",
-  "aiAnalysisDescription": "Use AI to automatically analyze the priority level and time estimation of todos",
+  "aiAnalysisDescription": "Use AI to automatically analyze the importance level and time estimation of todo items",
 
+  "analyzeTodo": "AI Analysis",
   "reanalyze": "Re-analyze",
   "analyzing": "Analyzing...",
   "aiAnalyzing": "AI Analyzing...",
@@ -496,6 +497,28 @@
   "priority3": "3 Stars - Important tasks",
   "priority4": "4 Stars - High priority",
   "priority5": "5 Stars - Urgent & Important",
+
+  "aiAnalysis": "AI Smart Analysis",
+  "aiAnalysisDescription": "Use AI to automatically analyze the priority level and time estimation of todos",
+
+  "reanalyze": "Re-analyze",
+  "analyzing": "Analyzing...",
+  "aiAnalyzing": "AI Analyzing...",
+
+  "aiAnalysisSuccess": "AI analysis completed",
+  "aiAnalysisError": "AI analysis failed, please try again",
+
+  "reanalysisSuccess": "Re-analysis completed",
+  "reanalysisError": "Re-analysis failed, please try again",
+  "noTodosToAnalyze": "No todos to analyze",
+
+  "priorityLevel": "Priority Level",
+  "estimatedTime": "Estimated Time",
+  "priority1": "1 Star - Daily Tasks",
+  "priority2": "2 Stars - General Tasks",
+  "priority3": "3 Stars - Important Tasks",
+  "priority4": "4 Stars - High Priority",
+  "priority5": "5 Stars - Urgent Important",
 
   "autoAnalyzeNewTodos": "Auto-analyze new todos",
   "autoAnalyzeNewTodosDesc": "Automatically perform AI analysis when adding new todos",
