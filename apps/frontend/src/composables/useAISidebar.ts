@@ -12,6 +12,9 @@ export function useAISidebar() {
   // 是否正在执行动画
   const isAnimating = ref(false)
 
+  // 全屏沉浸模式状态
+  const isFullscreen = ref(false)
+
   // 响应式宽度配置
   const getResponsiveConfig = () => {
     const screenWidth = window.innerWidth
@@ -63,11 +66,25 @@ export function useAISidebar() {
   const isDragging = ref(false)
 
   // 计算侧边栏样式
-  const sidebarStyle = computed(() => ({
-    width: `${sidebarWidth.value}px`,
-    minWidth: `${minWidth.value}px`,
-    maxWidth: `${maxWidth.value}px`,
-  }))
+  const sidebarStyle = computed(() => {
+    if (isFullscreen.value) {
+      return {
+        width: '100vw',
+        height: '100vh',
+        minWidth: '100vw',
+        maxWidth: '100vw',
+        position: 'fixed' as const,
+        top: '0',
+        left: '0',
+        zIndex: '9999',
+      }
+    }
+    return {
+      width: `${sidebarWidth.value}px`,
+      minWidth: `${minWidth.value}px`,
+      maxWidth: `${maxWidth.value}px`,
+    }
+  })
 
   // 从 localStorage 加载保存的宽度
   const loadSavedWidth = () => {
@@ -137,11 +154,51 @@ export function useAISidebar() {
   }
 
   /**
+   * 进入全屏沉浸模式
+   */
+  const enterFullscreen = () => {
+    if (!isOpen.value) {
+      openSidebar()
+    }
+    isFullscreen.value = true
+    // 隐藏页面滚动条和其他元素
+    document.documentElement.style.overflow = 'hidden'
+    document.body.style.overflow = 'hidden'
+  }
+
+  /**
+   * 退出全屏沉浸模式
+   */
+  const exitFullscreen = () => {
+    isFullscreen.value = false
+    // 恢复页面滚动
+    document.documentElement.style.overflow = ''
+    document.body.style.overflow = ''
+  }
+
+  /**
+   * 切换全屏沉浸模式
+   */
+  const toggleFullscreen = () => {
+    if (isFullscreen.value) {
+      exitFullscreen()
+    } else {
+      enterFullscreen()
+    }
+  }
+
+  /**
    * ESC 键监听处理
    */
   const handleKeydown = (event: KeyboardEvent) => {
-    if (event.key === 'Escape' && isOpen.value) {
-      closeSidebar()
+    if (event.key === 'Escape') {
+      if (isFullscreen.value) {
+        // 如果在全屏模式，先退出全屏
+        exitFullscreen()
+      } else if (isOpen.value) {
+        // 如果侧边栏打开但不在全屏模式，关闭侧边栏
+        closeSidebar()
+      }
     }
   }
 
@@ -227,6 +284,7 @@ export function useAISidebar() {
     document.removeEventListener('keydown', handleKeydown)
     window.removeEventListener('resize', handleResize)
     // 确保恢复背景滚动和拖拽状态
+    document.documentElement.style.overflow = ''
     document.body.style.overflow = ''
     document.body.style.cursor = ''
     document.body.style.userSelect = ''
@@ -239,6 +297,11 @@ export function useAISidebar() {
     closeSidebar,
     toggleSidebar,
     createOverlayClickHandler,
+    // 全屏模式
+    isFullscreen,
+    enterFullscreen,
+    exitFullscreen,
+    toggleFullscreen,
     // 宽度管理
     sidebarWidth,
     sidebarStyle,

@@ -15,11 +15,15 @@
     <div
       v-show="isOpen"
       ref="sidebarRef"
-      class="fixed top-0 left-0 h-full bg-bg/95 backdrop-blur-xl border-r border-input-border shadow-2xl z-[10000] flex flex-col"
+      :class="[
+        'fixed top-0 left-0 h-full bg-bg/95 backdrop-blur-xl border-r border-input-border shadow-2xl z-[10000] flex flex-col',
+        { 'fullscreen-mode': isFullscreen },
+      ]"
       :style="sidebarStyle"
     >
       <!-- 拖拽调整手柄 -->
       <div
+        v-show="!isFullscreen"
         class="resize-handle"
         :class="{ 'resize-handle-dragging': isDragging }"
         :title="t('dragToResize', '拖拽调整宽度，双击重置')"
@@ -38,27 +42,61 @@
             {{ t('aiAssistant') }}
           </h2>
 
-          <!-- 关闭按钮 - 移动端时显示在标题旁 -->
-          <button
-            class="close-btn-mobile md:hidden p-2 text-white/80 hover:text-white hover:bg-white/10 rounded-lg transition-all duration-200"
-            :title="t('close')"
-            @click="closeSidebar"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              width="20"
-              height="20"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
+          <!-- 移动端按钮组 -->
+          <div class="md:hidden flex items-center gap-2">
+            <!-- 全屏模式切换按钮 - 移动端 -->
+            <button
+              class="fullscreen-btn-mobile p-2 text-white/80 hover:text-white hover:bg-white/10 rounded-lg transition-all duration-200 group"
+              :title="
+                isFullscreen ? t('exitFullscreen', '退出全屏') : t('enterFullscreen', '进入全屏')
+              "
+              @click="toggleFullscreen"
             >
-              <line x1="18" y1="6" x2="6" y2="18"></line>
-              <line x1="6" y1="6" x2="18" y2="18"></line>
-            </svg>
-          </button>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                width="18"
+                height="18"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                class="group-hover:scale-110 transition-transform duration-200"
+              >
+                <path
+                  v-if="!isFullscreen"
+                  d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"
+                />
+                <path
+                  v-else
+                  d="M8 3v3a2 2 0 0 1-2 2H3m18 0h-3a2 2 0 0 1-2-2V3m0 18v-3a2 2 0 0 1 2-2h3M3 16h3a2 2 0 0 1 2 2v3"
+                />
+              </svg>
+            </button>
+
+            <!-- 关闭按钮 - 移动端 -->
+            <button
+              class="close-btn-mobile p-2 text-white/80 hover:text-white hover:bg-white/10 rounded-lg transition-all duration-200"
+              :title="t('close')"
+              @click="closeSidebar"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                width="20"
+                height="20"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+              </svg>
+            </button>
+          </div>
         </div>
 
         <!-- 系统提示词选择器和桌面端关闭按钮 -->
@@ -106,6 +144,37 @@
               </svg>
             </div>
           </div>
+
+          <!-- 全屏模式切换按钮 -->
+          <button
+            class="fullscreen-btn flex items-center justify-center p-2 text-white/80 hover:text-white hover:bg-white/10 rounded-lg transition-all duration-200 group"
+            :title="
+              isFullscreen ? t('exitFullscreen', '退出全屏') : t('enterFullscreen', '进入全屏')
+            "
+            @click="toggleFullscreen"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              width="16"
+              height="16"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              class="group-hover:scale-110 transition-transform duration-200"
+            >
+              <path
+                v-if="!isFullscreen"
+                d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"
+              />
+              <path
+                v-else
+                d="M8 3v3a2 2 0 0 1-2 2H3m18 0h-3a2 2 0 0 1-2-2V3m0 18v-3a2 2 0 0 1 2-2h3M3 16h3a2 2 0 0 1 2 2v3"
+              />
+            </svg>
+          </button>
 
           <!-- 桌面端关闭按钮 -->
           <button
@@ -183,8 +252,15 @@ const props = defineProps<Props>()
 const emit = defineEmits<Emits>()
 
 // 使用 AI 侧边栏状态管理（包含宽度调整功能）
-const { sidebarStyle, isDragging, startDrag, resetWidth, createOverlayClickHandler } =
-  useAISidebar()
+const {
+  sidebarStyle,
+  isDragging,
+  startDrag,
+  resetWidth,
+  createOverlayClickHandler,
+  isFullscreen,
+  toggleFullscreen,
+} = useAISidebar()
 
 const {
   chatHistory,
@@ -751,6 +827,23 @@ defineOptions({
   .resize-handle-line {
     transition: none;
   }
+}
+
+/* 全屏模式样式 */
+.fullscreen-mode {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  z-index: 9999 !important;
+  border: none !important;
+  border-radius: 0 !important;
+}
+
+/* 全屏模式下的头部样式调整 */
+.fullscreen-mode .sidebar-header {
+  border-radius: 0;
 }
 
 /* 触摸设备优化 */
