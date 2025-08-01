@@ -153,6 +153,7 @@
         @edit-message="handleEditMessage"
         @file-upload="handleFileUploadWrapper"
         @clear-file="clearFileUpload"
+        @clear-error="clearError"
       />
     </div>
   </Transition>
@@ -187,17 +188,19 @@ const { sidebarStyle, isDragging, startDrag, resetWidth, createOverlayClickHandl
 
 const {
   chatHistory,
-  userMessage,
+  currentAIResponse,
+  currentThinkingContent,
   isGenerating,
+  userMessage,
   isOptimizing,
+  isLoading,
   error,
   conversationHistory,
   currentConversationId,
-  currentAIResponse,
-  currentThinkingContent,
-  hasUploadedFile,
+  uploadedFileContent,
   uploadedFileName,
   uploadedFileSize,
+  hasUploadedFile,
   loadConversationHistory,
   createNewConversation,
   switchConversation,
@@ -206,6 +209,7 @@ const {
   sendMessage,
   stopGenerating,
   optimizeMessage,
+  clearError,
   // 重试相关
   retryLastMessage,
   isRetrying,

@@ -89,7 +89,7 @@ export function useChat() {
     }
   }
 
-  const createNewConversation = (title: string = t('newConversation'), force: boolean = false) => {
+  const createNewConversation = (title: string = t('newConversation'), force = false) => {
     // 如果当前对话没有消息且不是强制创建，则不创建新对话
     if (!force && chatHistory.value.length === 0) {
       return
@@ -392,7 +392,7 @@ export function useChat() {
     }
 
     let targetMessage: ChatMessage | undefined
-    let targetIndex: number = -1
+    let targetIndex = -1
 
     if (messageIndex !== undefined) {
       // 按索引重试：删除指定索引及之后的所有消息
@@ -463,6 +463,11 @@ export function useChat() {
     }
   }
 
+  // 清除错误信息
+  const clearError = () => {
+    error.value = ''
+  }
+
   return {
     chatHistory,
     currentAIResponse,
@@ -489,6 +494,7 @@ export function useChat() {
     stopGenerating,
     optimizeMessage,
     showError,
+    clearError,
     handleFileUpload,
     clearFileUpload,
     // 重试相关功能
