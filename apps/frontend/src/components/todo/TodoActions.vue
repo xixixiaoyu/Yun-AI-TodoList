@@ -75,7 +75,7 @@ interface Props {
 }
 
 interface Emits {
-  (e: 'sortWithAI'): void
+  (e: 'sort-with-ai'): void
   (e: 'batchAnalyze'): void
 }
 
@@ -85,7 +85,7 @@ const emit = defineEmits<Emits>()
 const { t } = useI18n()
 
 const handleSortClick = () => {
-  emit('sortWithAI')
+  emit('sort-with-ai')
 }
 
 const handleBatchAnalysisClick = () => {

@@ -112,7 +112,7 @@
         :is-sorting="isSorting"
         :is-batch-analyzing="isBatchAnalyzing"
         :is-analyzing="isAnalyzing"
-        @sort-with-a-i="sortActiveTodosWithAI"
+        @sort-with-ai="sortActiveTodosWithAI"
         @batch-analyze="handleBatchAnalyze"
       />
 

@@ -1,5 +1,5 @@
 import { AI_RETRY_OPTIONS, withRetry } from '@/utils/retryHelper'
-import type { Todo, UpdateTodoDto, TodoPriority } from '@shared/types/todo'
+import type { Todo, TodoPriority, UpdateTodoDto } from '@shared/types/todo'
 import axios from 'axios'
 import { computed, nextTick, onUnmounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
@@ -21,6 +21,7 @@ export function useTodoManagement() {
     updateTodoAIAnalysis,
     batchUpdateTodos,
     saveTodos,
+    updateTodosOrder,
   } = useTodos()
   const { showError, showSuccess, error: duplicateError } = useErrorHandler()
 
@@ -318,37 +319,90 @@ export function useTodoManagement() {
 待办事项列表：
 ${todoTexts}
 
-请返回排序后的序号列表，格式为：1,3,2,4（用逗号分隔，不要包含其他文字）`
+请严格按照以下格式返回排序结果：
+只返回排序后的序号列表，用逗号分隔，不要包含其他任何文字。
+例如：对于3个任务，返回格式应为：3,1,2
+
+请确保：
+1. 返回的数字数量与任务数量相同
+2. 每个数字都在1到${activeTodos.length}之间
+3. 没有重复的数字
+4. 只包含数字和逗号，不要包含其他字符`
 
       logger.info('Sending AI request for sorting', {}, 'TodoManagement')
       const aiResponse = await getAIResponse(prompt)
+
+      // 添加调试日志，查看 AI 实际返回的内容
+      logger.info('AI response received', { response: aiResponse }, 'TodoManagement')
 
       // 改进的解析逻辑，支持多种格式
       let sortedIndices: number[] = []
 
       // 尝试多种解析方式
-      const cleanResponse = aiResponse.replace(/[^\d,，\s]/g, '').trim()
+      // 方式1：提取所有数字并验证是否符合要求
+      const allNumbers = aiResponse.match(/\d+/g)?.map((num) => parseInt(num)) || []
+      const validNumbers = allNumbers.filter((num) => num >= 1 && num <= activeTodos.length)
 
-      // 方式1：直接匹配数字序列
-      const directMatch = cleanResponse.match(/^[\d,，\s]+$/)
-      if (directMatch) {
-        sortedIndices = cleanResponse
-          .split(/[,，\s]+/)
-          .map((num) => parseInt(num.trim()))
-          .filter((num) => !isNaN(num) && num >= 1 && num <= activeTodos.length)
-          .map((num) => num - 1)
+      // 添加调试日志，查看方式1解析过程
+      logger.info('Method 1 parsing process', { allNumbers, validNumbers }, 'TodoManagement')
+
+      // 检查是否有足够的有效数字，并且没有重复
+      if (
+        validNumbers.length === activeTodos.length &&
+        new Set(validNumbers).size === activeTodos.length
+      ) {
+        sortedIndices = validNumbers.map((num) => num - 1)
       }
 
-      // 方式2：从响应中提取所有数字
+      // 添加调试日志，查看方式1解析结果
+      logger.info('Method 1 parsing result', { sortedIndices }, 'TodoManagement')
+
+      // 方式2：清理响应后直接匹配数字序列
+      if (sortedIndices.length === 0) {
+        const cleanResponse = aiResponse.replace(/[^\d,，\s]/g, '').trim()
+
+        // 添加调试日志，查看清理后的响应
+        logger.info(
+          'Cleaned AI response',
+          { cleanResponse, originalLength: aiResponse.length, cleanLength: cleanResponse.length },
+          'TodoManagement'
+        )
+
+        const directMatch = cleanResponse.match(/^[\d,，\s]+$/)
+        logger.info(
+          'Direct match result',
+          { directMatch, hasMatch: !!directMatch },
+          'TodoManagement'
+        )
+
+        if (directMatch) {
+          sortedIndices = cleanResponse
+            .split(/[,，\s]+/)
+            .map((num) => parseInt(num.trim()))
+            .filter((num) => !isNaN(num) && num >= 1 && num <= activeTodos.length)
+            .map((num) => num - 1)
+
+          // 添加调试日志，查看方式2解析结果
+          logger.info('Method 2 parsing result', { sortedIndices }, 'TodoManagement')
+        }
+      }
+
+      // 方式3：从响应中提取所有数字（作为后备方案）
       if (sortedIndices.length === 0) {
         const allNumbers = aiResponse.match(/\d+/g)?.map((num) => parseInt(num)) || []
         const validNumbers = allNumbers.filter((num) => num >= 1 && num <= activeTodos.length)
+
+        // 添加调试日志，查看方式3解析过程
+        logger.info('Method 3 parsing process', { allNumbers, validNumbers }, 'TodoManagement')
 
         // 去重并保持顺序
         const uniqueNumbers = [...new Set(validNumbers)]
         if (uniqueNumbers.length === activeTodos.length) {
           sortedIndices = uniqueNumbers.map((num) => num - 1)
         }
+
+        // 添加调试日志，查看方式3解析结果
+        logger.info('Method 3 parsing result', { sortedIndices, uniqueNumbers }, 'TodoManagement')
       }
 
       // 验证排序结果
@@ -365,49 +419,37 @@ ${todoTexts}
           { sortedTodos: sortedTodos.map((t) => t.title) },
           'TodoManagement'
         )
-        const todoMap = new Map(todos.value.map((todo) => [todo.id, todo]))
 
-        // 更新排序，保持已完成任务的位置不变
-        let orderCounter = 0
-        sortedTodos.forEach((sortedTodo) => {
-          const originalTodo = todoMap.get(sortedTodo.id)
-          if (originalTodo && !originalTodo.completed) {
-            originalTodo.order = orderCounter++
-          }
-        })
+        // 构建新的排序数组，只包含活跃任务的 ID，按 AI 返回的顺序排列
+        const newOrder = sortedTodos.map((todo) => todo.id)
 
-        // 确保已完成的任务排在最后
-        todos.value
-          .filter((todo) => todo.completed)
-          .forEach((todo) => {
-            todo.order = orderCounter++
-          })
+        // 获取所有已完成任务的 ID，保持它们在列表末尾
+        const completedTodoIds = todos.value.filter((todo) => todo.completed).map((todo) => todo.id)
 
-        // 重新排序 todos 数组以触发响应式更新
-        const sortedTodosArray = todos.value.sort((a, b) => a.order - b.order)
+        // 合并排序后的活跃任务 ID 和已完成任务 ID
+        const finalOrder = [...newOrder, ...completedTodoIds]
 
-        // 强制触发响应式更新：创建新的数组引用
-        todos.value = [...sortedTodosArray]
+        // 使用 updateTodosOrder 方法更新排序
+        const updateResult = await updateTodosOrder(finalOrder)
 
-        saveTodos()
+        if (updateResult) {
+          logger.info(
+            'AI sorting completed, todos array updated',
+            { todos: todos.value.map((t) => ({ id: t.id, title: t.title, order: t.order })) },
+            'TodoManagement'
+          )
 
-        // 使用 nextTick 确保 DOM 更新后再显示成功消息
-        await nextTick()
-
-        logger.info(
-          'AI sorting completed, todos array updated',
-          { todos: todos.value.map((t) => ({ id: t.id, title: t.title, order: t.order })) },
-          'TodoManagement'
-        )
-
-        // AI 排序成功完成
-        showSuccess(t('aiSortSuccess', 'AI 优先级排序完成！'))
+          // AI 排序成功完成
+          showSuccess(t('aiSortSuccess', 'AI 优先级排序完成！'))
+        } else {
+          logger.error('Failed to update todos order', {}, 'TodoManagement')
+          showError(t('aiSortFailed', 'AI 排序失败，请重试'))
+        }
       } else {
         logger.warn(
           'AI sorting parse failed',
           {
             response: aiResponse,
-            cleanResponse,
             sortedIndices,
             expectedLength: activeTodos.length,
           },
