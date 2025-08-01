@@ -3,6 +3,11 @@ import type { CreateUserDto, UpdateUserDto, User } from '@shared/types'
 import { UtilsService } from '../common/services/utils.service'
 import { PrismaService } from '../database/prisma.service'
 import { ChangePasswordDto } from './dto/change-password.dto'
+import {
+  Theme,
+  StorageMode,
+  ConflictResolutionStrategy,
+} from '../settings/dto/update-preferences.dto'
 
 @Injectable()
 export class UsersService {
@@ -28,7 +33,9 @@ export class UsersService {
         },
       })
 
-      return this.mapPrismaUserToUser(prismaUser as any)
+      return this.mapPrismaUserToUser(
+        prismaUser as Record<string, unknown> & { preferences?: Record<string, unknown> | null }
+      )
     } catch (error) {
       throw new Error(
         `Failed to create user: ${error instanceof Error ? error.message : 'Unknown error'}`
@@ -45,7 +52,11 @@ export class UsersService {
         },
       })
 
-      return prismaUser ? this.mapPrismaUserToUser(prismaUser as any) : null
+      return prismaUser
+        ? this.mapPrismaUserToUser(
+            prismaUser as Record<string, unknown> & { preferences?: Record<string, unknown> | null }
+          )
+        : null
     } catch {
       return null
     }
@@ -60,7 +71,11 @@ export class UsersService {
         },
       })
 
-      return prismaUser ? this.mapPrismaUserToUser(prismaUser as any) : null
+      return prismaUser
+        ? this.mapPrismaUserToUser(
+            prismaUser as Record<string, unknown> & { preferences?: Record<string, unknown> | null }
+          )
+        : null
     } catch {
       return null
     }
@@ -75,7 +90,11 @@ export class UsersService {
         },
       })
 
-      return prismaUser ? this.mapPrismaUserToUser(prismaUser as any) : null
+      return prismaUser
+        ? this.mapPrismaUserToUser(
+            prismaUser as Record<string, unknown> & { preferences?: Record<string, unknown> | null }
+          )
+        : null
     } catch {
       return null
     }
@@ -105,7 +124,9 @@ export class UsersService {
         },
       })
 
-      return this.mapPrismaUserToUser(prismaUser as any)
+      return this.mapPrismaUserToUser(
+        prismaUser as Record<string, unknown> & { preferences?: Record<string, unknown> | null }
+      )
     } catch (error) {
       throw new Error(
         `Failed to update user: ${error instanceof Error ? error.message : 'Unknown error'}`
@@ -154,7 +175,7 @@ export class UsersService {
       avatarUrl: prismaUser.avatarUrl as string | undefined,
       emailVerified: (prismaUser.emailVerified as boolean) ?? false,
       preferences: {
-        theme: (prefs.theme as any) || 'light',
+        theme: (prefs.theme as Theme) || 'light',
         language: (prefs.language as string) || 'zh-CN',
         aiConfig: {
           enabled: (prefs.aiEnabled as boolean) ?? true,
@@ -184,11 +205,11 @@ export class UsersService {
           reminderMinutes: (prefs.reminderMinutes as number) || 30,
         },
         storageConfig: {
-          mode: (prefs.storageMode as any) || 'hybrid',
+          mode: (prefs.storageMode as StorageMode) || 'hybrid',
           autoSync: (prefs.autoSync as boolean | undefined) ?? true,
           syncInterval: (prefs.syncInterval as number) || 5,
           offlineMode: (prefs.offlineMode as boolean | undefined) ?? true,
-          conflictResolution: (prefs.conflictResolution as any) || 'merge',
+          conflictResolution: (prefs.conflictResolution as ConflictResolutionStrategy) || 'merge',
           retryAttempts: (prefs.retryAttempts as number) || 3,
           requestTimeout: (prefs.requestTimeout as number) || 10000,
         },

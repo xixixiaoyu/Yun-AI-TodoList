@@ -321,7 +321,14 @@ ${subtasks.map((task, index) => `${index + 1}. ${task}`).join('\n')}
 
     // 验证和转换数据
     if (Array.isArray(data.subtasks)) {
-      return (data.subtasks as any[]).map((subtask, index) => {
+      return (
+        data.subtasks as Array<{
+          title?: string
+          priority?: number
+          estimatedTime?: string
+          estimatedMinutes?: number
+        }>
+      ).map((subtask, index) => {
         // 确保每个子任务都有必需的字段
         const title = typeof subtask.title === 'string' ? subtask.title : subtasks[index] || ''
         const priority =

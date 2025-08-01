@@ -86,7 +86,7 @@ export class AIConfigDto {
   })
   @IsOptional()
   @IsObject({ message: '模型配置必须是对象' })
-  modelConfig?: Record<string, any>
+  modelConfig?: Record<string, unknown>
 }
 
 export class SearchConfigDto {
@@ -132,7 +132,7 @@ export class SearchConfigDto {
   })
   @IsOptional()
   @IsObject({ message: '搜索引擎配置必须是对象' })
-  engineConfig?: Record<string, any>
+  engineConfig?: Record<string, unknown>
 }
 
 export class NotificationConfigDto {

@@ -93,7 +93,12 @@ export class SoftDeleteService {
 
   // 硬删除方法（管理员使用）
   async hardDelete(model: string, where: Record<string, unknown>): Promise<unknown> {
-    return (this.prisma as any)[model].deleteMany({
+    return (
+      this.prisma as unknown as Record<
+        string,
+        { deleteMany: (args: { where: Record<string, unknown> }) => Promise<{ count: number }> }
+      >
+    )[model].deleteMany({
       where: {
         ...where,
         deletedAt: { not: null },
@@ -103,7 +108,17 @@ export class SoftDeleteService {
 
   // 恢复软删除的记录
   async restore(model: string, where: Record<string, unknown>): Promise<unknown> {
-    return (this.prisma as any)[model].updateMany({
+    return (
+      this.prisma as unknown as Record<
+        string,
+        {
+          updateMany: (args: {
+            where: Record<string, unknown>
+            data: Record<string, unknown>
+          }) => Promise<{ count: number }>
+        }
+      >
+    )[model].updateMany({
       where: {
         ...where,
         deletedAt: { not: null },
@@ -119,7 +134,12 @@ export class SoftDeleteService {
     const cutoffDate = new Date()
     cutoffDate.setDate(cutoffDate.getDate() - daysOld)
 
-    return (this.prisma as any)[model].deleteMany({
+    return (
+      this.prisma as unknown as Record<
+        string,
+        { deleteMany: (args: { where: Record<string, unknown> }) => Promise<{ count: number }> }
+      >
+    )[model].deleteMany({
       where: {
         deletedAt: {
           lt: cutoffDate,

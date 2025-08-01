@@ -96,7 +96,7 @@ export class TodosService {
     } = queryDto
     const skip = cursor ? 0 : (page - 1) * limit
 
-    const where: any = {
+    const where: Record<string, unknown> = {
       userId,
       deletedAt: null,
     }
@@ -168,7 +168,7 @@ export class TodosService {
       where.priority = { in: priority }
     }
 
-    const orderBy: any = {}
+    const orderBy: Record<string, unknown> = {}
     if (sortBy === TodoSortField.CREATED_AT) {
       orderBy.createdAt = sortOrder
     } else if (sortBy === TodoSortField.COMPLETED_AT) {

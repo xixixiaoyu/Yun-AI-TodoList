@@ -1,5 +1,5 @@
 import { AI_RETRY_OPTIONS, withRetry } from '@/utils/retryHelper'
-import type { Todo, UpdateTodoDto } from '@shared/types/todo'
+import type { Todo, UpdateTodoDto, TodoPriority } from '@shared/types/todo'
 import axios from 'axios'
 import { computed, nextTick, onUnmounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
@@ -670,12 +670,16 @@ ${todoTexts}
         }
 
         // 构建包含重要等级和时间估算的 todo 数据
-        const todoData: any = { title: trimmedSubtask }
+        const todoData: {
+          title: string
+          priority?: TodoPriority
+          estimatedTime?: { text: string; minutes: number }
+        } = { title: trimmedSubtask }
 
         // 如果有 AI 分析结果，添加重要等级和时间估算
         if (subtaskDetails.length > 0 && subtaskDetails[i]) {
           const detail = subtaskDetails[i]
-          todoData.priority = detail.priority
+          todoData.priority = detail.priority as TodoPriority
           todoData.estimatedTime = {
             text: detail.estimatedTime,
             minutes: detail.estimatedMinutes,

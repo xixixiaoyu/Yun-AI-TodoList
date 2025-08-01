@@ -34,7 +34,7 @@ export class OptimizedTodosService {
    * 使用游标分页优化大数据量查询
    */
   async getTodosCursorPagination(userId: string, cursor?: string, limit = 20, completed?: boolean) {
-    const where: any = {
+    const where: Record<string, unknown> = {
       userId,
       deletedAt: null,
     }
@@ -69,7 +69,7 @@ export class OptimizedTodosService {
   /**
    * 批量操作优化
    */
-  async batchUpdateTodos(userId: string, todoIds: string[], updateData: any) {
+  async batchUpdateTodos(userId: string, todoIds: string[], updateData: Record<string, unknown>) {
     // 使用事务和批量更新
     return this.prisma.$transaction(async (tx) => {
       // 先验证所有 todos 都属于该用户

@@ -1,5 +1,10 @@
 import { Injectable, Logger } from '@nestjs/common'
 import type { UserPreferences } from '@shared/types'
+import {
+  Theme,
+  StorageMode,
+  ConflictResolutionStrategy,
+} from '../settings/dto/update-preferences.dto'
 import { UtilsService } from '../common/services/utils.service'
 import { PrismaService } from '../database/prisma.service'
 import {
@@ -158,7 +163,7 @@ export class UserPreferencesService {
     try {
       this.logger.debug(`更新用户 AI 配置: ${userId}`, aiConfig)
 
-      const updateData: any = {}
+      const updateData: Record<string, unknown> = {}
       if (aiConfig.enabled !== undefined) updateData.aiEnabled = aiConfig.enabled
       if (aiConfig.autoAnalyze !== undefined) updateData.autoAnalyze = aiConfig.autoAnalyze
       if (aiConfig.priorityAnalysis !== undefined)
@@ -194,7 +199,7 @@ export class UserPreferencesService {
     try {
       this.logger.debug(`更新用户搜索配置: ${userId}`, searchConfig)
 
-      const updateData: any = {}
+      const updateData: Record<string, unknown> = {}
       if (searchConfig.defaultLanguage !== undefined)
         updateData.searchLanguage = searchConfig.defaultLanguage
       if (searchConfig.safeSearch !== undefined) updateData.safeSearch = searchConfig.safeSearch
@@ -227,7 +232,7 @@ export class UserPreferencesService {
     try {
       this.logger.debug(`更新用户通知配置: ${userId}`, notificationConfig)
 
-      const updateData: any = {}
+      const updateData: Record<string, unknown> = {}
       if (notificationConfig.desktop !== undefined)
         updateData.desktopNotifications = notificationConfig.desktop
       if (notificationConfig.email !== undefined)
@@ -261,7 +266,7 @@ export class UserPreferencesService {
     try {
       this.logger.debug(`更新用户存储配置: ${userId}`, storageConfig)
 
-      const updateData: any = {}
+      const updateData: Record<string, unknown> = {}
       if (storageConfig.mode !== undefined) updateData.storageMode = storageConfig.mode
       if (storageConfig.autoSync !== undefined) updateData.autoSync = storageConfig.autoSync
       if (storageConfig.syncInterval !== undefined)
@@ -299,7 +304,7 @@ export class UserPreferencesService {
     try {
       this.logger.debug(`批量更新用户偏好设置: ${userId}`, updateDto)
 
-      const updateData: any = {}
+      const updateData: Record<string, unknown> = {}
 
       // 主题和语言
       if (updateDto.theme?.theme !== undefined) updateData.theme = updateDto.theme.theme
@@ -371,7 +376,10 @@ export class UserPreferencesService {
   /**
    * 核心的偏好设置更新方法
    */
-  private async updatePreferences(userId: string, updateData: any): Promise<UserPreferences> {
+  private async updatePreferences(
+    userId: string,
+    updateData: Record<string, unknown>
+  ): Promise<UserPreferences> {
     const preferences = await this.prisma.userPreferences.upsert({
       where: { userId },
       update: {
@@ -392,7 +400,7 @@ export class UserPreferencesService {
     prismaPrefs: Record<string, unknown>
   ): UserPreferences {
     return {
-      theme: prismaPrefs.theme as any,
+      theme: prismaPrefs.theme as Theme,
       language: prismaPrefs.language as string,
       aiConfig: {
         enabled: prismaPrefs.aiEnabled as boolean,
@@ -422,11 +430,11 @@ export class UserPreferencesService {
         reminderMinutes: prismaPrefs.reminderMinutes as number,
       },
       storageConfig: {
-        mode: prismaPrefs.storageMode as any,
+        mode: prismaPrefs.storageMode as StorageMode,
         autoSync: prismaPrefs.autoSync as boolean,
         syncInterval: prismaPrefs.syncInterval as number,
         offlineMode: prismaPrefs.offlineMode as boolean,
-        conflictResolution: prismaPrefs.conflictResolution as any,
+        conflictResolution: prismaPrefs.conflictResolution as ConflictResolutionStrategy,
         retryAttempts: prismaPrefs.retryAttempts as number,
         requestTimeout: prismaPrefs.requestTimeout as number,
       },
