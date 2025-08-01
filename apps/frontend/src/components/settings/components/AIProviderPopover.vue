@@ -1,7 +1,8 @@
 <template>
   <div class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
     <div
-      class="bg-bg-card rounded-2xl border border-input-border/30 w-full max-w-md shadow-2xl transform transition-all duration-300 ease-out scale-100 opacity-100"
+      class="bg-settings-card-bg rounded-2xl border border-settings-card-border w-full max-w-md transform transition-all duration-300 ease-out scale-100 opacity-100"
+      style="box-shadow: var(--settings-card-shadow)"
     >
       <!-- 头部 -->
       <div class="p-6 pb-4">
@@ -18,11 +19,16 @@
 
         <!-- 安全提示 -->
         <div
-          class="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-3 mb-6"
+          class="rounded-lg p-3 mb-6"
+          style="
+            background-color: var(--settings-primary-ultra-light);
+            border: 1px solid var(--settings-primary-soft);
+          "
         >
           <div class="flex items-start gap-2">
             <svg
-              class="w-4 h-4 text-green-600 dark:text-green-400 mt-0.5 flex-shrink-0"
+              class="w-4 h-4 mt-0.5 flex-shrink-0"
+              style="color: var(--settings-primary)"
               fill="currentColor"
               viewBox="0 0 20 20"
             >
@@ -32,7 +38,9 @@
                 clip-rule="evenodd"
               />
             </svg>
-            <p class="text-sm text-green-700 dark:text-green-300">{{ t('apiKeyStoredLocally') }}</p>
+            <p class="text-sm" style="color: var(--settings-primary)">
+              {{ t('apiKeyStoredLocally') }}
+            </p>
           </div>
         </div>
       </div>
@@ -46,9 +54,26 @@
             <input
               :type="showApiKey ? 'text' : 'password'"
               :value="localApiKey"
-              class="w-full px-3 py-2 pr-10 bg-bg-input border border-input-border rounded-lg text-text placeholder-text-secondary focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all"
+              class="w-full px-3 py-2 pr-10 rounded-lg transition-all focus:outline-none focus:ring-2 focus:ring-opacity-50"
+              :style="{
+                backgroundColor: 'var(--settings-input-bg)',
+                borderColor: 'var(--settings-input-border)',
+                color: 'var(--text-color)',
+                '--placeholder-color': 'var(--text-secondary-color)',
+                'box-shadow': 'var(--settings-input-focus-shadow)',
+                '--tw-ring-color': 'var(--settings-primary)',
+                border: '1px solid var(--settings-input-border)',
+              }"
               :placeholder="t('enterApiKey')"
               @input="$emit('update:localApiKey', ($event.target as HTMLInputElement).value)"
+              @focus="
+                ($event.target as HTMLInputElement).style.borderColor =
+                  'var(--settings-input-focus-border)'
+              "
+              @blur="
+                ($event.target as HTMLInputElement).style.borderColor =
+                  'var(--settings-input-border)'
+              "
             />
             <button
               type="button"
@@ -82,8 +107,23 @@
           <label class="block text-sm font-medium text-text mb-2">AI 提供商</label>
           <select
             :value="localProvider"
-            class="w-full px-3 py-2 bg-bg-input border border-input-border rounded-lg text-text focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all"
+            class="w-full px-3 py-2 rounded-lg transition-all focus:outline-none focus:ring-2 focus:ring-opacity-50"
+            :style="{
+              backgroundColor: 'var(--settings-input-bg)',
+              borderColor: 'var(--settings-input-border)',
+              color: 'var(--text-color)',
+              '--tw-ring-color': 'var(--settings-primary)',
+              border: '1px solid var(--settings-input-border)',
+            }"
             @change="handleProviderChange(($event.target as HTMLSelectElement).value)"
+            @focus="
+              ($event.target as HTMLSelectElement).style.borderColor =
+                'var(--settings-input-focus-border)'
+            "
+            @blur="
+              ($event.target as HTMLSelectElement).style.borderColor =
+                'var(--settings-input-border)'
+            "
           >
             <option value="deepseek">DeepSeek</option>
             <option value="openai">OpenAI</option>
@@ -101,9 +141,23 @@
           <input
             type="url"
             :value="localBaseUrl"
-            class="w-full px-3 py-2 bg-bg-input border border-input-border rounded-lg text-text placeholder-text-secondary focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all"
+            class="w-full px-3 py-2 rounded-lg transition-all focus:outline-none focus:ring-2 focus:ring-opacity-50"
+            :style="{
+              backgroundColor: 'var(--settings-input-bg)',
+              borderColor: 'var(--settings-input-border)',
+              color: 'var(--text-color)',
+              '--tw-ring-color': 'var(--settings-primary)',
+              border: '1px solid var(--settings-input-border)',
+            }"
             :placeholder="getBaseUrlPlaceholder()"
             @input="$emit('update:localBaseUrl', ($event.target as HTMLInputElement).value)"
+            @focus="
+              ($event.target as HTMLInputElement).style.borderColor =
+                'var(--settings-input-focus-border)'
+            "
+            @blur="
+              ($event.target as HTMLInputElement).style.borderColor = 'var(--settings-input-border)'
+            "
           />
           <p class="text-xs text-text-secondary mt-1">API 服务器地址，留空使用默认地址</p>
         </div>
@@ -116,9 +170,24 @@
               type="text"
               :value="localModel"
               :list="`models-${localProvider}`"
-              class="w-full px-3 py-2 bg-bg-input border border-input-border rounded-lg text-text placeholder-text-secondary focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all"
+              class="w-full px-3 py-2 rounded-lg transition-all focus:outline-none focus:ring-2 focus:ring-opacity-50"
+              :style="{
+                backgroundColor: 'var(--settings-input-bg)',
+                borderColor: 'var(--settings-input-border)',
+                color: 'var(--text-color)',
+                '--tw-ring-color': 'var(--settings-primary)',
+                border: '1px solid var(--settings-input-border)',
+              }"
               :placeholder="getModelPlaceholder()"
               @input="$emit('update:localModel', ($event.target as HTMLInputElement).value)"
+              @focus="
+                ($event.target as HTMLInputElement).style.borderColor =
+                  'var(--settings-input-focus-border)'
+              "
+              @blur="
+                ($event.target as HTMLInputElement).style.borderColor =
+                  'var(--settings-input-border)'
+              "
             />
             <datalist :id="`models-${localProvider}`">
               <option v-for="model in getAvailableModels()" :key="model.value" :value="model.value">
@@ -152,21 +221,59 @@
       <!-- 底部按钮 -->
       <div class="p-6 pt-0 flex gap-3">
         <button
-          class="flex-1 px-4 py-2 text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg transition-all font-medium"
+          class="flex-1 px-4 py-2 rounded-lg transition-all font-medium"
+          style="
+            color: var(--error-color);
+            border: 1px solid var(--error-color);
+            background-color: transparent;
+          "
           @click="$emit('clear')"
+          @mouseenter="
+            ($event.target as HTMLButtonElement).style.backgroundColor =
+              'var(--settings-primary-ultra-light)'
+          "
+          @mouseleave="($event.target as HTMLButtonElement).style.backgroundColor = 'transparent'"
         >
           清除配置
         </button>
         <button
-          class="flex-1 px-4 py-2 text-text-secondary hover:text-text hover:bg-bg-hover border border-input-border rounded-lg transition-all font-medium"
+          class="flex-1 px-4 py-2 rounded-lg transition-all font-medium"
+          style="
+            color: var(--text-secondary-color);
+            border: 1px solid var(--settings-input-border);
+            background-color: var(--settings-button-secondary-bg);
+          "
           @click="$emit('close')"
+          @mouseenter="
+            ($event.target as HTMLButtonElement).style.backgroundColor =
+              'var(--settings-button-secondary-hover)'
+          "
+          @mouseleave="
+            ($event.target as HTMLButtonElement).style.backgroundColor =
+              'var(--settings-button-secondary-bg)'
+          "
         >
           {{ t('cancel') }}
         </button>
         <button
           :disabled="!localApiKey.trim()"
-          class="flex-1 px-4 py-2 bg-primary text-white rounded-lg transition-all font-medium hover:bg-primary-hover disabled:opacity-50 disabled:cursor-not-allowed"
+          class="flex-1 px-4 py-2 rounded-lg transition-all font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+          style="
+            background-color: var(--settings-button-primary-bg);
+            color: var(--text-color);
+            border: none;
+          "
           @click="$emit('save')"
+          @mouseenter="
+            !($event.target as HTMLButtonElement).disabled &&
+            (($event.target as HTMLButtonElement).style.backgroundColor =
+              'var(--settings-button-primary-hover)')
+          "
+          @mouseleave="
+            !($event.target as HTMLButtonElement).disabled &&
+            (($event.target as HTMLButtonElement).style.backgroundColor =
+              'var(--settings-button-primary-bg)')
+          "
         >
           {{ t('confirm') }}
         </button>
@@ -337,6 +444,32 @@ defineOptions({
 .v-leave-to {
   opacity: 0;
   transform: scale(0.9);
+}
+
+/* 输入框占位符样式 */
+input::placeholder,
+select::placeholder {
+  color: var(--text-secondary-color) !important;
+  opacity: 0.7;
+}
+
+/* 确保输入框在暗色模式下的文本颜色 */
+input,
+select {
+  color: var(--text-color) !important;
+}
+
+/* 选择框选项样式 */
+select option {
+  background-color: var(--settings-input-bg);
+  color: var(--text-color);
+}
+
+/* 聚焦状态样式 */
+input:focus,
+select:focus {
+  border-color: var(--settings-input-focus-border) !important;
+  box-shadow: var(--settings-input-focus-shadow) !important;
 }
 
 /* 响应式调整 */
