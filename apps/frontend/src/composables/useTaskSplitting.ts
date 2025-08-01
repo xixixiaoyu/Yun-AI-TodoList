@@ -1,7 +1,7 @@
-import { ref, reactive } from 'vue'
-import type { OmitReasoningSubtaskSelectionConfig, AISubtaskResult } from '@/types/todo'
 import { analyzeTaskSplitting } from '@/services/aiAnalysisService'
+import type { AISubtaskResult, OmitReasoningSubtaskSelectionConfig } from '@/types/todo'
 import { handleError } from '@/utils/logger'
+import { reactive, ref } from 'vue'
 
 /**
  * 任务拆分管理组合式函数

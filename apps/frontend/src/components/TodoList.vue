@@ -129,7 +129,8 @@
       <SubtaskSelectionDialog
         :config="subtaskConfig"
         @confirm="handleSubtaskConfirm"
-        @cancel="handleSubtaskCancel"
+        @cancel="hideSubtaskDialog"
+        @keepOriginal="handleSubtaskKeepOriginal"
         @regenerate="handleSubtaskRegenerate"
       />
     </div>
@@ -139,7 +140,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, nextTick, onUnmounted, ref, watch } from 'vue'
+import { computed, nextTick, onUnmounted, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import SubtaskSelectionDialog from './SubtaskSelectionDialog.vue'
 import TodoFilters from './TodoFilters.vue'
@@ -266,10 +267,21 @@ const handleSubtaskConfirm = async (selectedSubtasks: string[]) => {
   }
 }
 
-// 处理子任务选择取消
-const handleSubtaskCancel = () => {
-  // 直接关闭对话框，不添加任何任务
+// 处理保持原始任务
+const handleSubtaskKeepOriginal: (originalTask: string) => Promise<void> = async (
+  originalTask: string
+) => {
+  // 关闭对话框
   hideSubtaskDialog()
+
+  // 添加原始任务（跳过拆分分析）
+  if (originalTask && originalTask.trim()) {
+    try {
+      await originalHandleAddTodo(originalTask, true) // 第二个参数 skipSplitAnalysis = true
+    } catch (_err) {
+      error.value = '添加原始任务失败，请重试'
+    }
+  }
 }
 
 // 处理子任务重新生成

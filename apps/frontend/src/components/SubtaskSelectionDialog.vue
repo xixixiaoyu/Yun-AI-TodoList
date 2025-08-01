@@ -82,7 +82,7 @@
             </button>
           </div>
           <div class="footer-right">
-            <button class="btn btn-secondary" @click="handleCancel">
+            <button class="btn btn-secondary" @click="handleKeepOriginal">
               {{ t('subtaskSelectionDialog.keepOriginal') }}
             </button>
             <button :disabled="!hasSelectedSubtasks" class="btn btn-primary" @click="handleConfirm">
@@ -106,7 +106,8 @@ interface Props {
 
 interface Emits {
   confirm: [subtasks: string[]]
-  cancel: [originalTask: string]
+  cancel: []
+  keepOriginal: [originalTask: string]
   regenerate: [originalTask: string]
 }
 
@@ -163,7 +164,11 @@ function handleConfirm() {
 }
 
 function handleCancel() {
-  emit('cancel', props.config.originalTask)
+  emit('cancel')
+}
+
+function handleKeepOriginal() {
+  emit('keepOriginal', props.config.originalTask)
 }
 
 function handleRegenerate() {
