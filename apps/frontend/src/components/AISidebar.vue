@@ -66,7 +66,13 @@
           <div class="relative flex-1 md:flex-none">
             <select
               :value="config.enabled ? config.activePromptId || '' : ''"
-              class="w-full md:w-auto px-3 py-1.5 pr-8 text-sm bg-white/10 text-white border border-white/20 rounded-lg cursor-pointer transition-all duration-200 hover:bg-white/15 focus:bg-white/15 focus:border-white/40 focus:outline-none backdrop-blur-sm min-w-[140px] md:min-w-[120px] md:text-xs appearance-none"
+              :disabled="!config.enabled"
+              :class="[
+                'w-full md:w-auto px-3 py-1.5 pr-8 text-sm border rounded-lg transition-all duration-200 focus:outline-none backdrop-blur-sm min-w-[140px] md:min-w-[120px] md:text-xs appearance-none',
+                config.enabled
+                  ? 'bg-white/10 text-white border-white/20 cursor-pointer hover:bg-white/15 focus:bg-white/15 focus:border-white/40'
+                  : 'bg-white/5 text-white/50 border-white/10 cursor-not-allowed',
+              ]"
               @change="handlePromptChange"
             >
               <option value="" class="text-gray-800">{{ t('noSystemPrompt') }}</option>
@@ -217,6 +223,7 @@ const {
   config,
   enabledPrompts,
   setActivePrompt,
+  updateConfig,
   initialize: initializeSystemPrompts,
 } = useSystemPrompts()
 
@@ -225,6 +232,10 @@ const handlePromptChange = async (event: Event) => {
   const target = event.target as HTMLSelectElement
   const promptId = target.value || null
   try {
+    // 如果选择了具体的系统提示词，自动启用系统提示词功能
+    if (promptId && !config.value.enabled) {
+      await updateConfig({ enabled: true })
+    }
     await setActivePrompt(promptId)
   } catch (error) {
     console.error('切换系统提示词失败:', error)

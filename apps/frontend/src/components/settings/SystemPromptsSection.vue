@@ -44,6 +44,7 @@
           <div class="setting-control">
             <select
               :value="config.activePromptId || ''"
+              :disabled="!config.enabled"
               class="select-input"
               @change="handleActivePromptChange"
             >
@@ -216,7 +217,16 @@ const deletingPrompt = ref<SystemPrompt | null>(null)
 const handleActivePromptChange = async (event: Event) => {
   const target = event.target as HTMLSelectElement
   const promptId = target.value || null
-  await setActivePrompt(promptId)
+
+  try {
+    // 如果选择了具体的系统提示词，自动启用系统提示词功能
+    if (promptId && !config.value.enabled) {
+      await updateConfig({ enabled: true })
+    }
+    await setActivePrompt(promptId)
+  } catch (error) {
+    console.error('切换系统提示词失败:', error)
+  }
 }
 
 // 处理提示词点击切换
@@ -226,7 +236,10 @@ const handlePromptClick = async (prompt: SystemPrompt) => {
     if (config.value.activePromptId === prompt.id) {
       await setActivePrompt(null)
     } else {
-      // 否则激活该提示词
+      // 否则激活该提示词，并自动启用系统提示词功能
+      if (!config.value.enabled) {
+        await updateConfig({ enabled: true })
+      }
       await setActivePrompt(prompt.id)
     }
   } catch (error) {
