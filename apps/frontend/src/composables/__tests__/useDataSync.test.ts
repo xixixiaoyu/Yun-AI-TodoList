@@ -1,5 +1,5 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { ref } from 'vue'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { createApp, ref } from 'vue'
 import { syncService } from '../../services/syncService'
 import type { Todo } from '../../types/todo'
 import { useDataSync } from '../useDataSync'
@@ -7,14 +7,14 @@ import { useDataSync } from '../useDataSync'
 // Mock dependencies
 vi.mock('../useAuth', () => ({
   useAuth: () => ({
-    isAuthenticated: { value: true },
+    isAuthenticated: ref(true),
   }),
 }))
 
 vi.mock('../useNetworkStatus', () => ({
   useNetworkStatus: () => ({
-    isOnline: { value: true },
-    isSlowConnection: { value: false },
+    isOnline: ref(true),
+    isSlowConnection: ref(false),
     onOnline: vi.fn(() => vi.fn()),
     onOffline: vi.fn(() => vi.fn()),
   }),
@@ -59,8 +59,23 @@ vi.mock('../../services/syncService', () => ({
 }))
 
 describe('useDataSync', () => {
+  let app: any
+  let mountedDiv: HTMLDivElement
+
   beforeEach(() => {
     vi.clearAllMocks()
+    // 创建 Vue 应用实例以避免 onMounted 警告
+    mountedDiv = document.createElement('div')
+    document.body.appendChild(mountedDiv)
+    app = createApp({})
+    app.mount(mountedDiv)
+  })
+
+  afterEach(() => {
+    if (app && mountedDiv) {
+      app.unmount()
+      document.body.removeChild(mountedDiv)
+    }
   })
 
   describe('冲突解决功能', () => {

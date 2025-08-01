@@ -8,6 +8,9 @@ export default defineConfig({
     environment: 'jsdom',
     globals: true,
     setupFiles: ['./src/test/setup.ts'],
+    // 静默控制台输出中的 Vue 警告
+    silent: false,
+    outputFile: undefined,
     coverage: {
       provider: 'v8',
       reporter: ['text', 'json', 'html'],

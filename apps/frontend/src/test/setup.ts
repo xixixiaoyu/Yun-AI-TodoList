@@ -10,6 +10,21 @@ import { createI18n } from 'vue-i18n'
 // 全局注册 Vue API
 Object.assign(global as Record<string, unknown>, Vue)
 
+// 抑制 Vue 警告信息
+const originalWarn = console.warn
+console.warn = (...args: any[]) => {
+  const message = args[0]
+  if (typeof message === 'string') {
+    if (
+      message.includes('onMounted is called when there is no active instance') ||
+      message.includes('Invalid watch source')
+    ) {
+      return
+    }
+  }
+  originalWarn.apply(console, args)
+}
+
 // 清理 DOM 和全局状态
 afterEach(() => {
   // 清理 DOM

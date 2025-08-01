@@ -1,10 +1,4 @@
-import {
-  createMockErrorResponse,
-  createMockResponse,
-  mockFetch,
-  setupTestEnvironment,
-} from '@/test/helpers'
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi, type MockedFunction } from 'vitest'
 import {
   abortCurrentRequest,
   getAIResponse,
@@ -12,9 +6,53 @@ import {
   optimizeText,
 } from '../deepseekService'
 
+// Mock test helpers
+const createMockResponse = (data: any) => ({
+  ok: true,
+  json: () => Promise.resolve(data),
+})
+
+const createMockErrorResponse = (status: number, statusText = 'Error') => ({
+  ok: false,
+  status,
+  statusText,
+})
+
+const mockFetch = () => {
+  const mockFn = vi.fn()
+  global.fetch = mockFn
+  return mockFn
+}
+
+const setupTestEnvironment = () => {
+  const localStorage = {
+    data: {} as Record<string, string>,
+    setItem: (key: string, value: string) => {
+      localStorage.data[key] = value
+    },
+    getItem: (key: string) => localStorage.data[key] || null,
+    clear: () => {
+      localStorage.data = {}
+    },
+  }
+
+  Object.defineProperty(global, 'localStorage', {
+    value: localStorage,
+    writable: true,
+  })
+
+  return {
+    localStorage,
+    cleanup: () => {
+      localStorage.clear()
+    },
+  }
+}
+
 vi.mock('../configService', () => ({
   getApiKey: vi.fn().mockReturnValue('test-api-key'),
   getAIModel: vi.fn().mockReturnValue('deepseek-chat'),
+  getBaseUrl: vi.fn().mockReturnValue('https://api.deepseek.com'),
 }))
 
 vi.mock('@/i18n', () => ({
@@ -116,7 +154,7 @@ describe('deepseekService', () => {
 
     it('应该处理 API Key 缺失', async () => {
       const { getApiKey } = await import('../configService')
-      const mockGetApiKey = getApiKey as vi.MockedFunction<typeof getApiKey>
+      const mockGetApiKey = getApiKey as MockedFunction<typeof getApiKey>
       mockGetApiKey.mockReturnValueOnce('')
 
       await expect(getAIResponse('Test message')).rejects.toThrow('请先配置 API Key')
