@@ -327,15 +327,15 @@ form {
   ) !important;
   border: 1px solid rgba(226, 232, 240, 0.6);
   /* border-radius: 0 0 4px 4px; */
-  padding: 20px 24px;
+  padding: 16px 20px;
   /* margin: 2px 0; */
   overflow-x: auto;
   box-shadow:
     inset 0 1px 3px rgba(0, 0, 0, 0.05),
     0 2px 8px rgba(0, 0, 0, 0.04);
   font-family: 'Fira Code', 'Consolas', monospace;
-  font-size: 14px;
-  line-height: 1.6;
+  font-size: 13px;
+  line-height: 1.5;
   backdrop-filter: blur(8px);
 }
 
@@ -487,41 +487,42 @@ form {
   color: var(--text-color);
   font-weight: 600;
   line-height: 1.4;
-  margin-top: 24px;
-  margin-bottom: 16px;
+  margin-top: 20px;
+  margin-bottom: 12px;
 }
 
 .ai-message-container h1 {
-  font-size: 1.5rem;
+  font-size: 1.25rem;
   border-bottom: 2px solid rgba(121, 180, 166, 0.2);
-  padding-bottom: 8px;
+  padding-bottom: 6px;
 }
 
 .ai-message-container h2 {
-  font-size: 1.25rem;
-}
-
-.ai-message-container h3 {
   font-size: 1.125rem;
 }
 
+.ai-message-container h3 {
+  font-size: 1rem;
+}
+
 .ai-message-container p {
-  line-height: 1.7;
-  margin-bottom: 16px;
+  line-height: 1.6;
+  margin-bottom: 12px;
   color: var(--text-color);
-  font-size: 15px;
+  font-size: 14px;
 }
 
 .ai-message-container ul,
 .ai-message-container ol {
-  margin: 16px 0;
-  padding-left: 24px;
+  margin: 12px 0;
+  padding-left: 20px;
 }
 
 .ai-message-container li {
-  margin: 8px 0;
-  line-height: 1.6;
+  margin: 6px 0;
+  line-height: 1.5;
   color: var(--text-color);
+  font-size: 14px;
 }
 
 .ai-message-container li::marker {
@@ -531,9 +532,9 @@ form {
 .ai-message-container code:not(pre code) {
   background: rgba(121, 180, 166, 0.1);
   color: rgba(121, 180, 166, 0.9);
-  padding: 2px 6px;
-  border-radius: 6px;
-  font-size: 0.9em;
+  padding: 2px 5px;
+  border-radius: 5px;
+  font-size: 0.85em;
   font-family: 'Fira Code', 'Consolas', monospace;
   border: 1px solid rgba(121, 180, 166, 0.15);
 }
@@ -547,27 +548,35 @@ form {
 /* 响应式优化 */
 @media (max-width: 768px) {
   .ai-message-container {
-    padding: 20px 16px;
-    margin: 12px 0;
-    border-radius: 20px;
+    padding: 16px 12px;
+    margin: 10px 0;
+    border-radius: 16px;
   }
 
   .ai-message-container pre {
-    padding: 16px;
-    margin: 16px 0;
-    border-radius: 12px;
-    font-size: 13px;
+    padding: 12px;
+    margin: 12px 0;
+    border-radius: 10px;
+    font-size: 12px;
   }
 
   .ai-message-container h1 {
-    font-size: 1.25rem;
-  }
-
-  .ai-message-container h2 {
     font-size: 1.125rem;
   }
 
+  .ai-message-container h2 {
+    font-size: 1rem;
+  }
+
+  .ai-message-container h3 {
+    font-size: 0.9rem;
+  }
+
   .ai-message-container p {
-    font-size: 14px;
+    font-size: 13px;
+  }
+
+  .ai-message-container li {
+    font-size: 13px;
   }
 }

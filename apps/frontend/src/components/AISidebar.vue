@@ -34,7 +34,7 @@
       >
         <!-- 标题和关闭按钮容器 -->
         <div class="header-title-row flex items-center justify-between w-full">
-          <h2 class="m-0 text-lg md:text-base font-semibold text-white leading-tight">
+          <h2 class="m-0 text-base md:text-sm font-semibold text-white leading-tight">
             {{ t('aiAssistant') }}
           </h2>
 
@@ -68,7 +68,7 @@
               :value="config.enabled ? config.activePromptId || '' : ''"
               :disabled="!config.enabled"
               :class="[
-                'w-full md:w-auto px-3 py-1.5 pr-8 text-sm border rounded-lg transition-all duration-200 focus:outline-none backdrop-blur-sm min-w-[140px] md:min-w-[120px] md:text-xs appearance-none',
+                'w-full md:w-auto px-3 py-1.5 pr-8 text-xs border rounded-lg transition-all duration-200 focus:outline-none backdrop-blur-sm min-w-[140px] md:min-w-[120px] md:text-xs appearance-none',
                 config.enabled
                   ? 'bg-white/10 text-white border-white/20 cursor-pointer hover:bg-white/15 focus:bg-white/15 focus:border-white/40'
                   : 'bg-white/5 text-white/50 border-white/10 cursor-not-allowed',

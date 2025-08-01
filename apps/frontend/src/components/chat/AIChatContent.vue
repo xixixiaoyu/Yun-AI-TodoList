@@ -10,7 +10,7 @@
             <ExclamationIcon class="w-5 h-5 flex-shrink-0" />
           </div>
           <div class="flex-1 min-w-0">
-            <p class="error-message text-sm font-medium leading-relaxed">{{ error }}</p>
+            <p class="error-message text-xs font-medium leading-relaxed">{{ error }}</p>
           </div>
           <button
             class="error-close-btn flex-shrink-0 p-1.5 rounded-full transition-all duration-300 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-1"

@@ -9,7 +9,7 @@
     <div
       class="rounded-xl leading-6 ltr relative transition-all duration-300 tracking-[0.2px] word-break-break-word"
       :class="{
-        'bg-button-bg text-white spacing-responsive-sm shadow-[0_2px_8px_rgba(121,180,166,0.3)] hover:shadow-[0_4px_12px_rgba(121,180,166,0.4)] leading-[1.4] font-medium text-responsive-base':
+        'bg-button-bg text-white spacing-responsive-sm shadow-[0_2px_8px_rgba(121,180,166,0.3)] hover:shadow-[0_4px_12px_rgba(121,180,166,0.4)] leading-[1.3] font-medium text-responsive-sm':
           message.role === 'user',
         'ai-message-container': message.role === 'assistant',
       }"
