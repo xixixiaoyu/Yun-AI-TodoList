@@ -265,6 +265,138 @@ export async function analyzeTaskSplitting(todoText: string): Promise<AISubtaskR
 }
 
 /**
+ * 为子任务分析重要等级和时间估算
+ * @param subtasks 子任务文本数组
+ * @param originalTask 原始任务文本
+ * @returns 包含重要等级和时间估算的子任务分析结果
+ */
+export async function analyzeSubtasksDetails(
+  subtasks: string[],
+  originalTask: string
+): Promise<
+  Array<{ title: string; priority: number; estimatedTime: string; estimatedMinutes: number }>
+> {
+  const prompt = `作为一个专业的任务管理助手，请为以下子任务分析重要等级和时间估算：
+
+原始任务：${originalTask}
+
+子任务列表：
+${subtasks.map((task, index) => `${index + 1}. ${task}`).join('\n')}
+
+请为每个子任务分析：
+1. 重要等级（1-5星，5星最重要）
+2. 时间估算（如：30分钟、2小时、1天等）
+
+分析标准：
+- 重要等级基于：对整体目标的影响、紧急程度、依赖关系
+- 时间估算基于：任务复杂度、所需技能、预期工作量
+- 考虑子任务在整个项目中的相对重要性
+
+请严格按照以下JSON格式返回结果，不要包含任何其他文字：
+{
+  "subtasks": [
+    {
+      "title": "子任务1",
+      "priority": 3,
+      "estimatedTime": "1小时",
+      "estimatedMinutes": 60
+    },
+    {
+      "title": "子任务2",
+      "priority": 4,
+      "estimatedTime": "30分钟",
+      "estimatedMinutes": 30
+    }
+  ]
+}`
+
+  try {
+    const response = await getAIResponse(prompt, 0.3)
+
+    // 定义必需字段
+    const requiredFields = ['subtasks']
+
+    // 处理 AI 响应
+    const data = handleAIResponse(response, requiredFields, {})
+
+    // 验证和转换数据
+    if (Array.isArray(data.subtasks)) {
+      return (data.subtasks as any[]).map((subtask, index) => {
+        // 确保每个子任务都有必需的字段
+        const title = typeof subtask.title === 'string' ? subtask.title : subtasks[index] || ''
+        const priority =
+          typeof subtask.priority === 'number' && subtask.priority >= 1 && subtask.priority <= 5
+            ? subtask.priority
+            : suggestPriorityByKeywords(title)
+        const estimatedTime =
+          typeof subtask.estimatedTime === 'string'
+            ? subtask.estimatedTime
+            : estimateTimeByKeywords(title)
+        const estimatedMinutes =
+          typeof subtask.estimatedMinutes === 'number' && subtask.estimatedMinutes > 0
+            ? subtask.estimatedMinutes
+            : parseTimeToMinutes(estimatedTime)
+
+        return {
+          title,
+          priority,
+          estimatedTime,
+          estimatedMinutes,
+        }
+      })
+    }
+
+    // 如果 AI 响应格式不正确，使用关键词分析作为后备
+    return subtasks.map((title) => ({
+      title,
+      priority: suggestPriorityByKeywords(title),
+      estimatedTime: estimateTimeByKeywords(title),
+      estimatedMinutes: parseTimeToMinutes(estimateTimeByKeywords(title)),
+    }))
+  } catch (error) {
+    console.error('AI子任务详情分析失败:', error)
+    logAIResponseError(error, 'AI子任务详情分析')
+
+    // 返回使用关键词分析的默认结果
+    return subtasks.map((title) => ({
+      title,
+      priority: suggestPriorityByKeywords(title),
+      estimatedTime: estimateTimeByKeywords(title),
+      estimatedMinutes: parseTimeToMinutes(estimateTimeByKeywords(title)),
+    }))
+  }
+}
+
+/**
+ * 解析时间文本为分钟数
+ * @param timeText 时间文本，如 "30分钟"、"2小时"、"1天"
+ * @returns 对应的分钟数
+ */
+function parseTimeToMinutes(timeText: string): number {
+  const text = timeText.toLowerCase().trim()
+
+  // 匹配数字
+  const numberMatch = text.match(/\d+/)
+  if (!numberMatch) return 30 // 默认30分钟
+
+  const number = parseInt(numberMatch[0])
+
+  // 根据单位转换
+  if (text.includes('分钟') || text.includes('分') || text.includes('min')) {
+    return number
+  } else if (text.includes('小时') || text.includes('时') || text.includes('hour')) {
+    return number * 60
+  } else if (text.includes('天') || text.includes('日') || text.includes('day')) {
+    return number * 8 * 60 // 假设一天工作8小时
+  } else if (text.includes('周') || text.includes('week')) {
+    return number * 5 * 8 * 60 // 假设一周工作5天
+  }
+
+  // 默认按分钟处理
+  return number
+}
+
+/**
  * 生成包含待办事项信息的系统提示词
  * @param todos 待办事项列表
  * @returns 系统提示词内容

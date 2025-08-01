@@ -239,17 +239,26 @@ const handleAddTodo = async (text: string) => {
 
 // 处理子任务选择确认
 const handleSubtaskConfirm = async (selectedSubtasks: string[]) => {
+  const originalTask = subtaskConfig.originalTask // 获取原始任务文本
   hideSubtaskDialog()
 
   if (selectedSubtasks.length > 0) {
     try {
-      // 添加选中的子任务
-      const result = await handleAddSubtasks(selectedSubtasks)
+      // 添加选中的子任务，传递原始任务文本用于 AI 分析
+      const result = await handleAddSubtasks(selectedSubtasks, originalTask)
 
       if (result.successCount > 0) {
         // 强制触发响应式更新
         await nextTick()
         await nextTick()
+
+        // 强制重新排序以确保新任务显示
+        todos.value = [...todos.value.sort((a, b) => a.order - b.order)]
+
+        // 再次等待 DOM 更新
+        await nextTick()
+
+        // 成功添加子任务，不显示通知消息
       }
     } catch (_err) {
       error.value = '添加子任务失败，请重试'

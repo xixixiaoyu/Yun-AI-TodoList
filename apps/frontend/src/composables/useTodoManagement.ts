@@ -613,12 +613,45 @@ ${todoTexts}
   /**
    * 批量添加子任务
    * @param subtasks 子任务文本数组
+   * @param originalTask 原始任务文本（用于 AI 分析上下文）
    */
-  const handleAddSubtasks = async (subtasks: string[]) => {
+  const handleAddSubtasks = async (subtasks: string[], originalTask?: string) => {
     let successCount = 0
     let duplicateCount = 0
 
-    for (const subtask of subtasks) {
+    // 如果提供了原始任务，使用 AI 分析为子任务生成重要等级和时间估算
+    let subtaskDetails: Array<{
+      title: string
+      priority: number
+      estimatedTime: string
+      estimatedMinutes: number
+    }> = []
+
+    if (originalTask && analysisConfig.value.autoAnalyzeNewTodos) {
+      try {
+        const { analyzeSubtasksDetails } = await import('@/services/aiAnalysisService')
+        subtaskDetails = await analyzeSubtasksDetails(subtasks, originalTask)
+        logger.info('AI 子任务详情分析完成', { subtaskDetails }, 'TodoManagement')
+      } catch (error) {
+        console.warn('AI 子任务详情分析失败，使用默认值:', error)
+        // 如果 AI 分析失败，使用关键词分析作为后备
+        const { suggestPriorityByKeywords, estimateTimeByKeywords } = await import(
+          '@/services/aiAnalysisService'
+        )
+        subtaskDetails = subtasks.map((title) => {
+          const estimatedTime = estimateTimeByKeywords(title)
+          return {
+            title,
+            priority: suggestPriorityByKeywords(title),
+            estimatedTime,
+            estimatedMinutes: parseTimeToMinutes(estimatedTime),
+          }
+        })
+      }
+    }
+
+    for (let i = 0; i < subtasks.length; i++) {
+      const subtask = subtasks[i]
       if (subtask && subtask.trim() !== '') {
         const trimmedSubtask = subtask.trim()
 
@@ -636,7 +669,20 @@ ${todoTexts}
           continue
         }
 
-        const success = await addTodo({ title: trimmedSubtask })
+        // 构建包含重要等级和时间估算的 todo 数据
+        const todoData: any = { title: trimmedSubtask }
+
+        // 如果有 AI 分析结果，添加重要等级和时间估算
+        if (subtaskDetails.length > 0 && subtaskDetails[i]) {
+          const detail = subtaskDetails[i]
+          todoData.priority = detail.priority
+          todoData.estimatedTime = {
+            text: detail.estimatedTime,
+            minutes: detail.estimatedMinutes,
+          }
+        }
+
+        const success = await addTodo(todoData)
 
         if (success) {
           successCount++
@@ -650,6 +696,10 @@ ${todoTexts}
     if (successCount > 0) {
       // 确保数据保存和响应式更新
       saveTodos()
+      await nextTick()
+
+      // 强制触发响应式更新：重新排序并创建新的数组引用
+      todos.value = [...todos.value.sort((a, b) => a.order - b.order)]
       await nextTick()
 
       // 验证新添加的任务都是未完成状态
@@ -666,6 +716,9 @@ ${todoTexts}
           }
         })
         saveTodos()
+        // 再次强制更新
+        todos.value = [...todos.value]
+        await nextTick()
       }
 
       // 如果启用了自动分析，为新添加的子任务进行批量分析
@@ -678,8 +731,41 @@ ${todoTexts}
             .slice(0, successCount)
 
           if (newTodos.length > 0) {
-            // 批量分析日志已移除
-            // 批量分析功能已移除
+            logger.info(
+              'Starting batch analysis for new subtasks',
+              { count: newTodos.length },
+              'TodoManagement'
+            )
+
+            // 为新添加的子任务进行批量分析
+            for (const todo of newTodos) {
+              try {
+                await withRetry(
+                  () =>
+                    analyzeSingleTodo(
+                      todo,
+                      (id: string, updates: Partial<Todo>) => {
+                        updateTodoAIAnalysis(id, {
+                          priority: updates.priority,
+                          estimatedTime: updates.estimatedTime
+                            ? updates.estimatedTime.text
+                            : undefined,
+                          aiAnalyzed: updates.aiAnalyzed,
+                        })
+                      },
+                      { silent: true, showSuccess: false }
+                    ),
+                  AI_RETRY_OPTIONS
+                )
+                logger.info('Subtask analyzed successfully', { todoId: todo.id }, 'TodoManagement')
+              } catch (error) {
+                logger.warn(
+                  'Failed to analyze subtask',
+                  { todoId: todo.id, error },
+                  'TodoManagement'
+                )
+              }
+            }
           }
         } catch (error) {
           // 批量分析错误日志已移除
@@ -698,6 +784,31 @@ ${todoTexts}
     }
 
     return { successCount, duplicateCount }
+  }
+
+  /**
+   * 解析时间文本为分钟数（本地辅助函数）
+   * @param timeText 时间文本
+   * @returns 分钟数
+   */
+  const parseTimeToMinutes = (timeText: string): number => {
+    const text = timeText.toLowerCase().trim()
+    const numberMatch = text.match(/\d+/)
+    if (!numberMatch) return 30
+
+    const number = parseInt(numberMatch[0])
+
+    if (text.includes('分钟') || text.includes('分') || text.includes('min')) {
+      return number
+    } else if (text.includes('小时') || text.includes('时') || text.includes('hour')) {
+      return number * 60
+    } else if (text.includes('天') || text.includes('日') || text.includes('day')) {
+      return number * 8 * 60
+    } else if (text.includes('周') || text.includes('week')) {
+      return number * 5 * 8 * 60
+    }
+
+    return number
   }
 
   /**
