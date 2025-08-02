@@ -115,9 +115,9 @@ const chatHistoryRef = ref<HTMLDivElement | null>(null)
 // ChatMessage 组件引用管理
 const chatMessageRefs = ref<Map<number, InstanceType<typeof ChatMessage>>>(new Map())
 
-const setChatMessageRef = (el: any, index: number) => {
-  if (el) {
-    chatMessageRefs.value.set(index, el)
+const setChatMessageRef = (el: unknown, index: number) => {
+  if (el && typeof el === 'object' && '$' in el) {
+    chatMessageRefs.value.set(index, el as InstanceType<typeof ChatMessage>)
   } else {
     chatMessageRefs.value.delete(index)
   }
