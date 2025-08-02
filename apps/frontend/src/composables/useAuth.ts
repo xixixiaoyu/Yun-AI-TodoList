@@ -3,6 +3,7 @@
  * 管理用户登录状态、令牌存储、自动登录等功能
  */
 
+import { reactive, readonly, toRef } from 'vue'
 import type { AuthResponse, CreateUserDto, LoginDto, PublicUser } from '@shared/types'
 import { authApi } from '../services/authApi'
 import { tokenManager } from '../utils/tokenManager'
@@ -42,6 +43,21 @@ export function useAuth() {
   const isLoading = readonly(toRef(authState, 'isLoading'))
 
   /**
+   * 清除认证状态
+   */
+  const clearAuthState = () => {
+    authState.user = null
+    authState.accessToken = null
+    authState.refreshToken = null
+    authState.isAuthenticated = false
+
+    // 使用令牌管理器清除令牌
+    tokenManager.clearTokens()
+
+    console.log('Auth state cleared')
+  }
+
+  /**
    * 从存储中加载认证状态
    */
   const loadAuthState = (): boolean => {
@@ -66,12 +82,9 @@ export function useAuth() {
           console.log('Auth state loaded from storage')
           return true
         } else {
-          // 令牌过期，尝试刷新
-          if (tokenInfo.refreshToken) {
-            refreshAccessToken()
-          } else {
-            clearAuthState()
-          }
+          // 令牌过期，清除状态
+          console.log('Token expired, clearing auth state')
+          clearAuthState()
         }
       }
     } catch (error) {
@@ -102,21 +115,6 @@ export function useAuth() {
     } catch (error) {
       console.error('Failed to save auth state:', error)
     }
-  }
-
-  /**
-   * 清除认证状态
-   */
-  const clearAuthState = () => {
-    authState.user = null
-    authState.accessToken = null
-    authState.refreshToken = null
-    authState.isAuthenticated = false
-
-    // 使用令牌管理器清除令牌
-    tokenManager.clearTokens()
-
-    console.log('Auth state cleared')
   }
 
   /**
@@ -258,6 +256,79 @@ export function useAuth() {
   }
 
   /**
+   * 检查令牌是否过期
+   */
+  const isTokenExpired = (): boolean => {
+    const tokenInfo = tokenManager.getTokenInfo()
+    if (!tokenInfo) {
+      return true
+    }
+    return tokenManager.isTokenExpired(tokenInfo)
+  }
+
+  /**
+   * 自动刷新令牌（如果即将过期）
+   */
+  const autoRefreshToken = async (): Promise<boolean> => {
+    const tokenInfo = tokenManager.getTokenInfo()
+    if (!tokenInfo || !tokenInfo.refreshToken) {
+      return false
+    }
+
+    // 检查令牌是否即将过期（5分钟内）
+    const expiresAt = tokenInfo.expiresAt
+    const now = Date.now()
+    const fiveMinutes = 5 * 60 * 1000
+
+    if (expiresAt - now <= fiveMinutes) {
+      return await refreshAccessToken()
+    }
+
+    return true
+  }
+
+  /**
+   * 检查会话是否有效
+   */
+  const checkSession = async (): Promise<boolean> => {
+    if (isTokenExpired()) {
+      if (authState.refreshToken) {
+        return await refreshAccessToken()
+      }
+      return false
+    }
+    return true
+  }
+
+  /**
+   * 检查用户是否具有指定角色
+   */
+  const hasRole = (role: string): boolean => {
+    if (!authState.user) return false
+    const userRoles = (authState.user as PublicUser & { roles?: string[] }).roles || []
+    return Array.isArray(userRoles) && userRoles.includes(role)
+  }
+
+  /**
+   * 检查用户是否具有指定权限
+   */
+  const hasPermission = (permission: string): boolean => {
+    if (!authState.user) return false
+    // 简单的权限检查逻辑，可以根据实际需求扩展
+    const userRoles = (authState.user as PublicUser & { roles?: string[] }).roles || []
+    if (userRoles.includes('admin')) return true
+
+    // 基本权限映射
+    const rolePermissions: Record<string, string[]> = {
+      user: ['read'],
+      moderator: ['read', 'write'],
+      admin: ['read', 'write', 'delete', 'manage'],
+    }
+
+    return userRoles.some((role: string) => rolePermissions[role]?.includes(permission))
+  }
+
+  /**
    * 获取认证头
    */
   const getAuthHeaders = (): Record<string, string> => {
@@ -303,6 +374,11 @@ export function useAuth() {
     sendVerificationCode,
     verifyEmailCode,
     refreshAccessToken,
+    isTokenExpired,
+    autoRefreshToken,
+    checkSession,
+    hasRole,
+    hasPermission,
     getAuthHeaders,
     initAuth,
     clearAuthState,

@@ -7,6 +7,8 @@ export function useErrorHandler() {
   const error = ref('')
   const success = ref('')
   const errorHistory = ref<Array<{ message: string; timestamp: string }>>([])
+  let errorTimer: ReturnType<typeof setTimeout> | null = null
+  let successTimer: ReturnType<typeof setTimeout> | null = null
 
   const showError = (message: string) => {
     const translatedMessage = typeof message === 'string' ? message : String(message)
@@ -18,8 +20,14 @@ export function useErrorHandler() {
 
     logger.info('Error message displayed', { message: translatedMessage }, 'ErrorHandler')
 
-    setTimeout(() => {
+    // 清除之前的错误定时器
+    if (errorTimer) {
+      clearTimeout(errorTimer)
+    }
+
+    errorTimer = setTimeout(() => {
       error.value = ''
+      errorTimer = null
     }, 5000)
   }
 
@@ -30,8 +38,14 @@ export function useErrorHandler() {
 
       logger.info('Success message displayed', { message: translatedMessage }, 'ErrorHandler')
 
-      setTimeout(() => {
+      // 清除之前的成功定时器
+      if (successTimer) {
+        clearTimeout(successTimer)
+      }
+
+      successTimer = setTimeout(() => {
         success.value = ''
+        successTimer = null
       }, duration)
     } catch (err) {
       logger.error('Error in success handler', err, 'ErrorHandler')
@@ -39,10 +53,18 @@ export function useErrorHandler() {
   }
 
   const clearError = () => {
+    if (errorTimer) {
+      clearTimeout(errorTimer)
+      errorTimer = null
+    }
     error.value = ''
   }
 
   const clearSuccess = () => {
+    if (successTimer) {
+      clearTimeout(successTimer)
+      successTimer = null
+    }
     success.value = ''
   }
 

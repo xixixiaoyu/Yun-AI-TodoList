@@ -1,5 +1,12 @@
 import { computed, readonly, toRef, onMounted, onUnmounted, reactive } from 'vue'
 
+// 声明全局类型
+declare global {
+  interface Navigator {
+    connection?: NetworkConnection
+  }
+}
+
 interface NetworkConnection {
   effectiveType?: string
   type?: string
