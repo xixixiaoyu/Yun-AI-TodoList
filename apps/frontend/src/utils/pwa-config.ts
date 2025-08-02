@@ -111,8 +111,8 @@ export function configurePWAThemeColor() {
   // 获取当前主题
   const isDarkTheme = document.documentElement.getAttribute('data-theme') === 'dark'
 
-  // 设置主题色
-  const themeColor = isDarkTheme ? '#1e2329' : '#8cb9a8'
+  // 设置主题色 - 使用柔和护眼的配色
+  const themeColor = isDarkTheme ? '#1a1f24' : '#7db3a5'
 
   // 更新 meta 标签
   let themeColorMeta = document.querySelector('meta[name="theme-color"]')

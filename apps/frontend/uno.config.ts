@@ -126,11 +126,11 @@ export default defineConfig({
       '3xl': '1536px', // 超宽屏幕（大桌面）
     },
     colors: {
-      // 基于现有 CSS 变量定义的颜色系统
+      // 基于现有 CSS 变量定义的颜色系统 - 柔和护眼配色
       primary: {
-        DEFAULT: '#79b4a6',
-        hover: '#68a295',
-        rgb: '121, 180, 166',
+        DEFAULT: '#7db3a5',
+        hover: '#6ba092',
+        rgb: '125, 179, 165',
       },
       bg: {
         DEFAULT: 'var(--bg-color)',
