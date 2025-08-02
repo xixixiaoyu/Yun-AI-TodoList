@@ -66,6 +66,7 @@ export default [
         localStorage: 'readonly',
         sessionStorage: 'readonly',
         console: 'readonly',
+        getComputedStyle: 'readonly',
 
         fetch: 'readonly',
         URL: 'readonly',
@@ -296,6 +297,7 @@ export default [
         localStorage: 'readonly',
         sessionStorage: 'readonly',
         console: 'readonly',
+        getComputedStyle: 'readonly',
 
         fetch: 'readonly',
         URL: 'readonly',

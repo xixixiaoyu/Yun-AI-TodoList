@@ -130,7 +130,7 @@
         :config="subtaskConfig"
         @confirm="handleSubtaskConfirm"
         @cancel="hideSubtaskDialog"
-        @keepOriginal="handleSubtaskKeepOriginal"
+        @keep-original="handleSubtaskKeepOriginal"
         @regenerate="handleSubtaskRegenerate"
       />
     </div>
