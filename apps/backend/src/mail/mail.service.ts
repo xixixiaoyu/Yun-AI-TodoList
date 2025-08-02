@@ -17,29 +17,44 @@ export class MailService {
     const smtpPort = this.configService.get<number>('SMTP_PORT', 587)
     const smtpUser = this.configService.get<string>('SMTP_USER')
     const smtpPassword = this.configService.get<string>('SMTP_PASSWORD')
+    const smtpSecure = this.configService.get<string>('SMTP_SECURE', 'false') === 'true'
 
     if (!smtpHost || !smtpUser || !smtpPassword) {
       this.logger.warn('SMTP configuration is incomplete. Email functionality will be disabled.')
       return
     }
 
+    // QQ邮箱特殊配置
+    const isQQMail = smtpHost.includes('qq.com')
+
     this.transporter = nodemailer.createTransport({
       host: smtpHost,
       port: smtpPort,
-      secure: smtpPort === 465, // true for 465, false for other ports
+      secure: smtpSecure || smtpPort === 465, // 使用配置的secure值或端口465时为true
       auth: {
         user: smtpUser,
         pass: smtpPassword,
       },
       tls: {
         rejectUnauthorized: false, // 允许自签名证书
+        // QQ邮箱需要特殊的TLS配置
+        ...(isQQMail && {
+          ciphers: 'SSLv3',
+        }),
       },
       connectionTimeout: 10000, // 10秒连接超时
       greetingTimeout: 5000, // 5秒问候超时
       socketTimeout: 15000, // 15秒套接字超时
+      // QQ邮箱需要启用STARTTLS
+      requireTLS: !smtpSecure && smtpPort === 587,
     })
 
-    this.logger.log('Mail transporter created successfully')
+    this.logger.log(`Mail transporter created successfully for ${smtpHost}:${smtpPort}`)
+
+    // 测试连接
+    this.testConnection().catch((error) => {
+      this.logger.error('SMTP connection test failed:', error)
+    })
   }
 
   async sendPasswordResetEmail(email: string, resetToken: string): Promise<void> {

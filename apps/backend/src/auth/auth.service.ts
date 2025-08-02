@@ -2,6 +2,7 @@ import {
   BadRequestException,
   ConflictException,
   Injectable,
+  Logger,
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common'
@@ -23,6 +24,8 @@ import { VerifyEmailCodeDto } from './dto/verify-email-code.dto'
 
 @Injectable()
 export class AuthService {
+  private readonly logger = new Logger(AuthService.name)
+
   constructor(
     private readonly usersService: UsersService,
     private readonly jwtService: JwtService,
@@ -33,24 +36,16 @@ export class AuthService {
   ) {}
 
   /**
-   * 使用独立验证码服务验证验证码
+   * 使用验证码服务验证验证码
    */
-  private async verifyCodeWithStandaloneService(
+  private async verifyCodeWithService(
     email: string,
     code: string,
     type: 'register' | 'login' | 'reset_password'
   ): Promise<void> {
     try {
-      // 调用独立验证码服务的验证接口
-      const response = await fetch('http://localhost:3000/api/v1/verification/verify-code', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email, code, type }),
-      })
-
-      const result = (await response.json()) as { success: boolean; message?: string }
+      // 直接调用验证码服务的验证方法
+      const result = await this.verificationService.verifyCode(email, code, type)
 
       if (!result.success) {
         throw new BadRequestException(result.message || '验证码验证失败')
@@ -59,6 +54,7 @@ export class AuthService {
       if (error instanceof BadRequestException) {
         throw error
       }
+      this.logger.error('验证码验证失败:', error)
       throw new BadRequestException('验证码验证失败')
     }
   }
@@ -426,24 +422,17 @@ export class AuthService {
   }
 
   /**
-   * 发送邮箱验证码（使用独立服务）
+   * 发送邮箱验证码（直接使用验证码服务）
    */
   async sendVerificationCode(sendCodeDto: SendVerificationCodeDto): Promise<{ message: string }> {
     const { email, type, username } = sendCodeDto
 
     try {
-      // 调用独立验证码服务的发送接口
-      const response = await fetch('http://localhost:3000/api/v1/verification/send-code', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email, type, username }),
-      })
-
-      const result = (await response.json()) as { message: string }
+      // 直接调用验证码服务
+      const result = await this.verificationService.sendVerificationCode(email, type, username)
       return { message: result.message || '验证码已发送，请查收邮件' }
-    } catch {
+    } catch (error) {
+      this.logger.error('发送验证码失败:', error)
       throw new BadRequestException('发送验证码失败，请稍后重试')
     }
   }
@@ -455,7 +444,7 @@ export class AuthService {
     const { email, code } = verifyCodeDto
 
     // 使用独立验证码服务验证
-    await this.verifyCodeWithStandaloneService(email, code, 'register')
+    await this.verifyCodeWithService(email, code, 'register')
 
     return { message: '邮箱验证成功' }
   }

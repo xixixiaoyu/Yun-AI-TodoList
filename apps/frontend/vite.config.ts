@@ -239,7 +239,9 @@ export default defineConfig({
     host: true,
     proxy: {
       '/api': {
-        target: process.env.DOCKER_ENV ? 'http://backend-dev:8888' : 'http://localhost:8888',
+        target: process.env.DOCKER_ENV
+          ? 'http://yun-todolist-backend:3000'
+          : 'http://localhost:8888',
         changeOrigin: true,
         secure: false,
       },

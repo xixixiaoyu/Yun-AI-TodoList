@@ -65,9 +65,9 @@ class AuthApi {
    */
   async sendVerificationCode(data: SendVerificationCodeDto): Promise<{ message: string }> {
     try {
-      // 使用独立的验证码 API
+      // 使用认证服务的验证码发送接口
       const response = await httpClient.post<{ message: string }>(
-        `/api/v1/verification/send-code`,
+        `${this.baseEndpoint}/send-verification-code`,
         data
       )
 
@@ -94,13 +94,13 @@ class AuthApi {
    */
   async verifyEmailCode(data: VerifyEmailCodeDto): Promise<{ message: string; valid: boolean }> {
     try {
-      // 使用独立的验证码 API
-      const response = await httpClient.post<{ success: boolean; message: string }>(
-        `/api/v1/verification/verify-code`,
-        { email: data.email, code: data.code, type: data.type }
+      // 使用认证服务的验证码验证接口
+      const response = await httpClient.post<{ message: string }>(
+        `${this.baseEndpoint}/verify-email-code`,
+        { email: data.email, code: data.code }
       )
 
-      return { message: response.message, valid: response.success }
+      return { message: response.message, valid: true }
     } catch (error) {
       if (error instanceof ApiError) {
         if (error.status === 400) {
