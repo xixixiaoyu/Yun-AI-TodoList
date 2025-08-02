@@ -22,7 +22,7 @@
           <textarea
             ref="editTextareaRef"
             v-model="editContent"
-            class="w-full min-h-[80px] p-3 rounded-lg border border-gray-300/50 dark:border-gray-600/50 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm resize-none focus:outline-none focus:ring-2 focus:ring-button-bg/50 focus:border-button-bg/50 transition-all duration-200"
+            class="w-full min-h-[120px] p-4 rounded-lg border border-gray-300/50 dark:border-gray-600/50 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm resize-none focus:outline-none focus:ring-2 focus:ring-button-bg/50 focus:border-button-bg/50 transition-all duration-200 text-base leading-relaxed"
             :placeholder="t('editMessage')"
             @keydown="handleEditKeydown"
           />
@@ -58,7 +58,7 @@
             >
               <!-- 编辑按钮 -->
               <button
-                class="edit-button p-2 rounded-lg cursor-pointer bg-gray-100/80 hover:bg-gray-200/90 dark:bg-gray-700/80 dark:hover:bg-gray-600/90 border border-gray-300/50 hover:border-gray-400/70 dark:border-gray-600/50 dark:hover:border-gray-500/70 text-gray-700 hover:text-gray-900 dark:text-gray-300 dark:hover:text-gray-100 text-sm font-medium transition-all duration-300 hover:scale-105 active:scale-95 backdrop-blur-sm shadow-sm hover:shadow-md"
+                class="edit-button flex items-center justify-center w-8 h-8 rounded-lg cursor-pointer bg-gray-100/80 hover:bg-gray-200/90 dark:bg-gray-700/80 dark:hover:bg-gray-600/90 border border-gray-300/50 hover:border-gray-400/70 dark:border-gray-600/50 dark:hover:border-gray-500/70 text-gray-700 hover:text-gray-900 dark:text-gray-300 dark:hover:text-gray-100 text-sm font-medium transition-all duration-300 hover:scale-105 active:scale-95 backdrop-blur-sm shadow-sm hover:shadow-md"
                 :title="t('editMessage')"
                 @click="startEdit"
               >
@@ -245,9 +245,20 @@ const handleEditKeydown = (event: KeyboardEvent) => {
 const adjustTextareaHeight = () => {
   if (editTextareaRef.value) {
     editTextareaRef.value.style.height = 'auto'
-    editTextareaRef.value.style.height = `${Math.max(80, editTextareaRef.value.scrollHeight)}px`
+    editTextareaRef.value.style.height = `${Math.max(120, editTextareaRef.value.scrollHeight)}px`
   }
 }
+
+// 重置编辑状态的方法
+const resetEditState = () => {
+  isEditing.value = false
+  editContent.value = ''
+}
+
+// 暴露重置方法给父组件
+defineExpose({
+  resetEditState,
+})
 
 defineOptions({
   name: 'ChatMessage',

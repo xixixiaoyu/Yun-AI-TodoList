@@ -13,6 +13,7 @@
       />
       <!-- 消息内容 -->
       <ChatMessage
+        :ref="(el) => setChatMessageRef(el, index)"
         :message="message"
         :message-index="index"
         :is-retrying="
@@ -75,7 +76,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref, watch } from 'vue'
+import { onMounted, ref, watch, nextTick } from 'vue'
 import { useMarkdown } from '../../composables/useMarkdown'
 import type { ChatMessage as ChatMessageType } from '../../services/types'
 import ChatMessage from './ChatMessage.vue'
@@ -110,6 +111,26 @@ const emit = defineEmits<{
 
 const { sanitizeContent, extractThinkingContent, setupCodeCopyFunction } = useMarkdown()
 const chatHistoryRef = ref<HTMLDivElement | null>(null)
+
+// ChatMessage 组件引用管理
+const chatMessageRefs = ref<Map<number, InstanceType<typeof ChatMessage>>>(new Map())
+
+const setChatMessageRef = (el: any, index: number) => {
+  if (el) {
+    chatMessageRefs.value.set(index, el)
+  } else {
+    chatMessageRefs.value.delete(index)
+  }
+}
+
+// 重置所有消息的编辑状态
+const resetAllEditStates = () => {
+  chatMessageRefs.value.forEach((chatMessageRef) => {
+    if (chatMessageRef && typeof chatMessageRef.resetEditState === 'function') {
+      chatMessageRef.resetEditState()
+    }
+  })
+}
 
 // 扩展消息类型以包含思考内容
 type ExtendedMessage = ChatMessageType & {
@@ -158,7 +179,21 @@ const processCurrentResponse = async () => {
 }
 
 // 监听消息变化
-watch(() => props.messages, processSanitizedMessages, { immediate: true, deep: true })
+watch(
+  () => props.messages,
+  async (newMessages, oldMessages) => {
+    await processSanitizedMessages()
+
+    // 当消息数组发生变化时（通常是切换对话），重置所有编辑状态
+    if (newMessages !== oldMessages) {
+      nextTick(() => {
+        resetAllEditStates()
+      })
+    }
+  },
+  { immediate: true, deep: true }
+)
+
 watch(() => props.currentResponse, processCurrentResponse, { immediate: true })
 
 // 移除 getCurrentStreamingContent 函数，现在分别处理思考内容和响应内容
