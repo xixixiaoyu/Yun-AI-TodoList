@@ -101,7 +101,7 @@
         <!-- OAuth 登录按钮 -->
         <div class="oauth-buttons">
           <!-- GitHub 登录按钮 -->
-          <button type="button" class="github-login-button" @click="handleGitHubLogin">
+          <button type="button" class="github-login-button" disabled @click="handleGitHubLogin">
             <div class="github-icon">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
                 <path
@@ -113,7 +113,7 @@
           </button>
 
           <!-- Google 登录按钮 -->
-          <button type="button" class="google-login-button" @click="handleGoogleLogin">
+          <button type="button" class="google-login-button" disabled @click="handleGoogleLogin">
             <div class="google-icon">
               <svg width="18" height="18" viewBox="0 0 24 24">
                 <path
