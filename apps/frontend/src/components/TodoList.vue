@@ -130,7 +130,7 @@
         :config="subtaskConfig"
         @confirm="handleSubtaskConfirm"
         @cancel="hideSubtaskDialog"
-        @keep-original="handleSubtaskKeepOriginal"
+        @keepOriginal="handleSubtaskKeepOriginal"
         @regenerate="handleSubtaskRegenerate"
       />
     </div>
@@ -268,9 +268,7 @@ const handleSubtaskConfirm = async (selectedSubtasks: string[]) => {
 }
 
 // 处理保持原始任务
-const handleSubtaskKeepOriginal: (originalTask: string) => Promise<void> = async (
-  originalTask: string
-) => {
+const handleSubtaskKeepOriginal = async (originalTask: string) => {
   // 关闭对话框
   hideSubtaskDialog()
 

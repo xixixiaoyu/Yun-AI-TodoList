@@ -419,14 +419,17 @@ select {
 
 /* Mermaid 图表样式 */
 .mermaid-container {
-  margin: 16px 0;
-  padding: 20px;
+  margin: 20px 0;
+  padding: 40px;
   background: var(--card-bg-color);
   border-radius: var(--border-radius);
   border: 1px solid var(--input-border-color);
   text-align: center;
-  min-height: 250px;
-  min-width: 100%;
+  min-height: 500px;
+  width: 100%;
+  max-width: 1200px;
+  margin-left: auto;
+  margin-right: auto;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -466,8 +469,9 @@ select {
 .mermaid-container {
   position: relative;
   width: 100%;
-  min-height: 300px;
-  margin: 16px 0;
+  max-width: 1200px;
+  min-height: 500px;
+  margin: 20px auto;
   border: 1px solid var(--input-border-color);
   border-radius: 8px;
   background: var(--card-bg-color);
@@ -477,12 +481,42 @@ select {
 .mermaid-diagram {
   width: 100%;
   max-width: 100%;
-  min-height: 300px;
+  min-height: 500px;
   overflow: auto;
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 20px;
+  padding: 40px;
+}
+
+/* 响应式设计 */
+@media (max-width: 1280px) {
+  .mermaid-container {
+    max-width: 95%;
+    padding: 30px;
+  }
+
+  .mermaid-diagram {
+    padding: 30px;
+  }
+}
+
+@media (max-width: 768px) {
+  .mermaid-container {
+    max-width: 100%;
+    padding: 20px;
+    margin: 15px 0;
+  }
+
+  .mermaid-diagram {
+    padding: 20px;
+    min-height: 400px;
+  }
+
+  .mermaid-diagram svg {
+    transform: scale(var(--mermaid-scale, 1.4))
+      translate(var(--mermaid-translate-x, 0px), var(--mermaid-translate-y, 0px));
+  }
 }
 
 .mermaid-diagram svg {
@@ -493,7 +527,7 @@ select {
   min-height: 150px;
   background: transparent;
   color: var(--text-color);
-  transform: scale(var(--mermaid-scale, 1))
+  transform: scale(var(--mermaid-scale, 1.8))
     translate(var(--mermaid-translate-x, 0px), var(--mermaid-translate-y, 0px));
   transform-origin: center;
   transition: transform 0.1s cubic-bezier(0.25, 0.46, 0.45, 0.94);
@@ -503,9 +537,9 @@ select {
   /* 优化图像渲染质量 */
 }
 
-/* 确保 Mermaid 图表中的文字可见 */
+/* 确保 Mermaid 图表中的文字可见 - 使用 CSS 变量保持主题一致性 */
 .mermaid-diagram svg text {
-  fill: #2c3e50 !important;
+  fill: var(--text-color) !important;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
   font-size: 14px !important;
   opacity: 1 !important;
@@ -513,26 +547,14 @@ select {
 }
 
 .mermaid-diagram svg .label {
-  color: #2c3e50 !important;
-  fill: #2c3e50 !important;
+  color: var(--text-color) !important;
+  fill: var(--text-color) !important;
 }
 
 .mermaid-diagram svg .nodeLabel,
 .mermaid-diagram svg .edgeLabel {
-  color: #2c3e50 !important;
-  fill: #2c3e50 !important;
-}
-
-/* 暗色主题下的文字颜色 */
-[data-theme='dark'] .mermaid-diagram svg text {
-  fill: #f0f4f8 !important;
-}
-
-[data-theme='dark'] .mermaid-diagram svg .label,
-[data-theme='dark'] .mermaid-diagram svg .nodeLabel,
-[data-theme='dark'] .mermaid-diagram svg .edgeLabel {
-  color: #f0f4f8 !important;
-  fill: #f0f4f8 !important;
+  color: var(--text-color) !important;
+  fill: var(--text-color) !important;
 }
 
 .mermaid-diagram svg {

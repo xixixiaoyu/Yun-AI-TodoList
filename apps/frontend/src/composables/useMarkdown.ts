@@ -45,8 +45,16 @@ declare global {
           return
         }
 
+        // 根据屏幕尺寸确定默认缩放比例
+        const getDefaultScale = () => {
+          if (window.innerWidth <= 768) {
+            return '1.4'
+          }
+          return '1.8'
+        }
+
         const currentScale = parseFloat(
-          container.style.getPropertyValue('--mermaid-scale') || '1.8'
+          container.style.getPropertyValue('--mermaid-scale') || getDefaultScale()
         )
         let newScale = currentScale
 
@@ -58,7 +66,8 @@ declare global {
             newScale = Math.max(currentScale / 1.2, 0.5) // 最小0.5倍
             break
           case 'reset':
-            newScale = 1.8 // 默认缩放提升到1.8倍
+            // 根据屏幕尺寸确定重置缩放比例
+            newScale = window.innerWidth <= 768 ? 1.4 : 1.8
             // 重置时也重置位移
             container.style.setProperty('--mermaid-translate-x', '0px')
             container.style.setProperty('--mermaid-translate-y', '0px')
@@ -253,8 +262,13 @@ export function useMarkdown() {
   // 初始化 Mermaid 配置
   const initializeMermaid = (theme: 'default' | 'dark' = 'default') => {
     const isDark = theme === 'dark'
-    const textColor = isDark ? '#ffffff' : '#000000'
-    const backgroundColor = isDark ? '#1a1a1a' : '#ffffff'
+    // 动态获取 CSS 变量值，确保主题一致性
+    const computedStyle = getComputedStyle(document.documentElement)
+    const textColor =
+      computedStyle.getPropertyValue('--text-color').trim() || (isDark ? '#ffffff' : '#000000')
+    const backgroundColor =
+      computedStyle.getPropertyValue('--bg-color').trim() || (isDark ? '#1a1a1a' : '#ffffff')
+    const primaryColor = computedStyle.getPropertyValue('--primary-color').trim() || '#79b4a6'
     const fontStack =
       '-apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Helvetica Neue", Helvetica, Arial, sans-serif'
 
@@ -296,9 +310,9 @@ export function useMarkdown() {
         mainBranchName: 'main',
       },
       themeVariables: {
-        // 基础颜色
-        primaryColor: '#79b4a6',
-        primaryBorderColor: '#79b4a6',
+        // 基础颜色 - 使用动态 CSS 变量
+        primaryColor: primaryColor,
+        primaryBorderColor: primaryColor,
         primaryTextColor: textColor,
 
         // 文字颜色设置 - 更全面的配置
@@ -317,17 +331,21 @@ export function useMarkdown() {
         tertiaryColor: backgroundColor,
 
         // 节点样式
-        nodeBkg: isDark ? '#2a2a2a' : '#ffffff',
-        nodeBorder: '#79b4a6',
+        nodeBkg:
+          computedStyle.getPropertyValue('--card-bg-color').trim() ||
+          (isDark ? '#2a2a2a' : '#ffffff'),
+        nodeBorder: primaryColor,
 
         // 确保标签文字可见
         labelColor: textColor,
         labelBoxBkgColor: backgroundColor,
-        labelBoxBorderColor: '#79b4a6',
+        labelBoxBorderColor: primaryColor,
 
         // 流程图特定设置
-        clusterBkg: isDark ? '#2a2a2a' : '#f9f9f9',
-        clusterBorder: '#79b4a6',
+        clusterBkg:
+          computedStyle.getPropertyValue('--card-bg-color').trim() ||
+          (isDark ? '#2a2a2a' : '#f9f9f9'),
+        clusterBorder: primaryColor,
 
         // 修复可能的黄色背景问题
         c0: backgroundColor,
@@ -412,8 +430,10 @@ export function useMarkdown() {
     })
 
     // 处理块级公式 $$...$$
-    processedMarkdown = processedMarkdown.replace(/\$\$([\s\S]*?)\$\$/g, (match, formula) => {
+    processedMarkdown = processedMarkdown.replace(/\$\$([\s\S]*?)\$\$/g, (match, _formula) => {
       try {
+        // 使用 match 参数来提取公式内容，而不是依赖捕获组
+        const formula = match.slice(2, -2) // 移除前后的$$符号
         const html = katex.renderToString(formula.trim(), {
           displayMode: true,
           throwOnError: false,
@@ -421,8 +441,9 @@ export function useMarkdown() {
         })
         return `<div class="math-block">${html}</div>`
       } catch (error) {
+        // 在错误处理中使用 match 而不是 formula
         console.warn('LaTeX block formula render error:', error)
-        return `<div class="math-error">数学公式渲染错误: ${formula}</div>`
+        return `<div class="math-error">数学公式渲染错误: ${match.slice(2, -2)}</div>`
       }
     })
 
@@ -487,10 +508,10 @@ export function useMarkdown() {
             // 只移除全尺寸的画布背景矩形
             return match.replace(/fill="[^"]*"/, 'fill="transparent"')
           })
-          // 确保所有文本元素可见
-          .replace(/<text([^>]*)>/g, '<text$1 fill="#2d3748" stroke="none">')
-          .replace(/fill="none"/g, 'fill="#2d3748"')
-          .replace(/fill="transparent"/g, 'fill="#2d3748"')
+          // 确保所有文本元素可见，使用 CSS 变量保持主题一致性
+          .replace(/<text([^>]*)>/g, '<text$1 fill="var(--text-color)" stroke="none">')
+          .replace(/fill="none"/g, 'fill="var(--text-color)"')
+          .replace(/fill="transparent"/g, 'fill="var(--text-color)"')
 
         // 将渲染好的 SVG 包装在容器中，添加缩放控制
         const wrappedSvg = `<div class="mermaid-container">
