@@ -86,7 +86,7 @@ export async function validatePWAIcons(): Promise<boolean> {
 
 export function configurePWALogging() {
   // 在生产环境中减少 workbox 日志
-  if ((import.meta as { env: { PROD?: boolean } }).env.PROD) {
+  if ((import.meta as unknown as { env: { PROD?: boolean } }).env?.PROD) {
     // 覆盖 console.log 以过滤 workbox 日志
     const originalLog = console.log
     console.log = (...args: unknown[]) => {
