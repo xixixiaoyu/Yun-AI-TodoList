@@ -46,11 +46,7 @@ export class SettingsService {
         aiModel: updatedPreferences.aiConfig.modelConfig.model,
         aiTemperature: updatedPreferences.aiConfig.modelConfig.temperature,
         aiMaxTokens: updatedPreferences.aiConfig.modelConfig.maxTokens,
-        searchLanguage: updatedPreferences.searchConfig.defaultLanguage,
-        safeSearch: updatedPreferences.searchConfig.safeSearch,
-        defaultResultCount: updatedPreferences.searchConfig.defaultResultCount,
-        searchEngine: updatedPreferences.searchConfig.engineConfig.engine,
-        searchRegion: updatedPreferences.searchConfig.engineConfig.region,
+
         desktopNotifications: updatedPreferences.notifications.desktop,
         emailNotifications: updatedPreferences.notifications.email,
         dueReminder: updatedPreferences.notifications.dueReminder,
@@ -76,11 +72,7 @@ export class SettingsService {
         aiModel: updatedPreferences.aiConfig.modelConfig.model,
         aiTemperature: updatedPreferences.aiConfig.modelConfig.temperature,
         aiMaxTokens: updatedPreferences.aiConfig.modelConfig.maxTokens,
-        searchLanguage: updatedPreferences.searchConfig.defaultLanguage,
-        safeSearch: updatedPreferences.searchConfig.safeSearch,
-        defaultResultCount: updatedPreferences.searchConfig.defaultResultCount,
-        searchEngine: updatedPreferences.searchConfig.engineConfig.engine,
-        searchRegion: updatedPreferences.searchConfig.engineConfig.region,
+
         desktopNotifications: updatedPreferences.notifications.desktop,
         emailNotifications: updatedPreferences.notifications.email,
         dueReminder: updatedPreferences.notifications.dueReminder,
@@ -120,11 +112,7 @@ export class SettingsService {
         aiModel: defaultPreferences.aiConfig.modelConfig.model,
         aiTemperature: defaultPreferences.aiConfig.modelConfig.temperature,
         aiMaxTokens: defaultPreferences.aiConfig.modelConfig.maxTokens,
-        searchLanguage: defaultPreferences.searchConfig.defaultLanguage,
-        safeSearch: defaultPreferences.searchConfig.safeSearch,
-        defaultResultCount: defaultPreferences.searchConfig.defaultResultCount,
-        searchEngine: defaultPreferences.searchConfig.engineConfig.engine,
-        searchRegion: defaultPreferences.searchConfig.engineConfig.region,
+
         desktopNotifications: defaultPreferences.notifications.desktop,
         emailNotifications: defaultPreferences.notifications.email,
         dueReminder: defaultPreferences.notifications.dueReminder,
@@ -150,11 +138,7 @@ export class SettingsService {
         aiModel: defaultPreferences.aiConfig.modelConfig.model,
         aiTemperature: defaultPreferences.aiConfig.modelConfig.temperature,
         aiMaxTokens: defaultPreferences.aiConfig.modelConfig.maxTokens,
-        searchLanguage: defaultPreferences.searchConfig.defaultLanguage,
-        safeSearch: defaultPreferences.searchConfig.safeSearch,
-        defaultResultCount: defaultPreferences.searchConfig.defaultResultCount,
-        searchEngine: defaultPreferences.searchConfig.engineConfig.engine,
-        searchRegion: defaultPreferences.searchConfig.engineConfig.region,
+
         desktopNotifications: defaultPreferences.notifications.desktop,
         emailNotifications: defaultPreferences.notifications.email,
         dueReminder: defaultPreferences.notifications.dueReminder,
@@ -207,11 +191,7 @@ export class SettingsService {
         aiModel: validatedPreferences.aiConfig.modelConfig.model,
         aiTemperature: validatedPreferences.aiConfig.modelConfig.temperature,
         aiMaxTokens: validatedPreferences.aiConfig.modelConfig.maxTokens,
-        searchLanguage: validatedPreferences.searchConfig.defaultLanguage,
-        safeSearch: validatedPreferences.searchConfig.safeSearch,
-        defaultResultCount: validatedPreferences.searchConfig.defaultResultCount,
-        searchEngine: validatedPreferences.searchConfig.engineConfig.engine,
-        searchRegion: validatedPreferences.searchConfig.engineConfig.region,
+
         desktopNotifications: validatedPreferences.notifications.desktop,
         emailNotifications: validatedPreferences.notifications.email,
         dueReminder: validatedPreferences.notifications.dueReminder,
@@ -237,11 +217,7 @@ export class SettingsService {
         aiModel: validatedPreferences.aiConfig.modelConfig.model,
         aiTemperature: validatedPreferences.aiConfig.modelConfig.temperature,
         aiMaxTokens: validatedPreferences.aiConfig.modelConfig.maxTokens,
-        searchLanguage: validatedPreferences.searchConfig.defaultLanguage,
-        safeSearch: validatedPreferences.searchConfig.safeSearch,
-        defaultResultCount: validatedPreferences.searchConfig.defaultResultCount,
-        searchEngine: validatedPreferences.searchConfig.engineConfig.engine,
-        searchRegion: validatedPreferences.searchConfig.engineConfig.region,
+
         desktopNotifications: validatedPreferences.notifications.desktop,
         emailNotifications: validatedPreferences.notifications.email,
         dueReminder: validatedPreferences.notifications.dueReminder,
@@ -274,14 +250,7 @@ export class SettingsService {
           ...(updates.aiConfig?.modelConfig || {}),
         },
       },
-      searchConfig: {
-        ...current.searchConfig,
-        ...updates.searchConfig,
-        engineConfig: {
-          ...current.searchConfig.engineConfig,
-          ...(updates.searchConfig?.engineConfig || {}),
-        },
-      },
+
       notifications: {
         ...current.notifications,
         ...updates.notifications,
@@ -309,15 +278,7 @@ export class SettingsService {
           maxTokens: 1000,
         },
       },
-      searchConfig: {
-        defaultLanguage: 'zh-CN',
-        safeSearch: true,
-        defaultResultCount: 10,
-        engineConfig: {
-          engine: 'google',
-          region: 'CN',
-        },
-      },
+
       notifications: {
         desktop: true,
         email: false,
@@ -347,10 +308,7 @@ export class SettingsService {
         ...defaultPreferences.aiConfig,
         ...((preferences.aiConfig as Partial<UserPreferences['aiConfig']>) || {}),
       },
-      searchConfig: {
-        ...defaultPreferences.searchConfig,
-        ...((preferences.searchConfig as Partial<UserPreferences['searchConfig']>) || {}),
-      },
+
       notifications: {
         ...defaultPreferences.notifications,
         ...((preferences.notifications as Partial<UserPreferences['notifications']>) || {}),

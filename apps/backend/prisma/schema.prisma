@@ -54,12 +54,7 @@ model UserPreferences {
   dueReminder          Boolean  @default(true) /// 到期提醒
   reminderMinutes      Int      @default(30) /// 提醒提前时间（分钟）
 
-  // 搜索配置
-  searchLanguage       String   @default("zh-CN") /// 搜索语言
-  safeSearch           Boolean  @default(true) /// 安全搜索
-  defaultResultCount   Int      @default(10) /// 默认结果数量
-  searchEngine         String   @default("google") /// 搜索引擎
-  searchRegion         String   @default("CN") /// 搜索区域
+
 
   // 存储配置
   storageMode          String   @default("hybrid") /// 存储模式

@@ -43,7 +43,6 @@ export interface UserPreferences {
   theme: ThemeValue
   language: string
   aiConfig: UserAIAnalysisConfig
-  searchConfig: SearchConfig
   notifications: NotificationSettings
   storageConfig: StorageConfig
 }
@@ -111,16 +110,6 @@ export interface UserAIAnalysisConfig {
 }
 
 // 搜索配置
-export interface SearchConfig {
-  defaultLanguage: string
-  safeSearch: boolean
-  defaultResultCount: number
-  engineConfig: {
-    engine: string
-    region: string
-    [key: string]: unknown
-  }
-}
 
 // 通知设置
 export interface NotificationSettings {

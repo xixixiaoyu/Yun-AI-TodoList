@@ -26,10 +26,6 @@ export const configValidationSchema = Joi.object({
   OPENAI_API_KEY: Joi.string().optional(),
   CLAUDE_API_KEY: Joi.string().optional(),
 
-  // 搜索服务配置
-  GOOGLE_SEARCH_API_KEY: Joi.string().optional(),
-  GOOGLE_SEARCH_ENGINE_ID: Joi.string().optional(),
-
   // 文件上传配置
   UPLOAD_MAX_SIZE: Joi.number().default(10 * 1024 * 1024), // 10MB
   UPLOAD_DEST: Joi.string().default('./uploads'),
@@ -47,4 +43,8 @@ export const configValidationSchema = Joi.object({
 
   // 安全配置
   BCRYPT_ROUNDS: Joi.number().default(12),
+
+  // Docker 环境配置
+  DOCKER_ENV: Joi.boolean().default(false),
+  DATABASE_HOST: Joi.string().default('localhost'),
 })

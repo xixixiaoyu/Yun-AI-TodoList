@@ -1,14 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger'
 import { Type } from 'class-transformer'
-import {
-  IsBoolean,
-  IsEnum,
-  IsNumber,
-  IsObject,
-  IsOptional,
-  IsString,
-  ValidateNested,
-} from 'class-validator'
+import { IsBoolean, IsEnum, IsNumber, IsObject, IsOptional, ValidateNested } from 'class-validator'
 
 export enum Theme {
   LIGHT = 'light',
@@ -87,52 +79,6 @@ export class AIConfigDto {
   @IsOptional()
   @IsObject({ message: '模型配置必须是对象' })
   modelConfig?: Record<string, unknown>
-}
-
-export class SearchConfigDto {
-  @ApiProperty({
-    description: '默认搜索语言',
-    example: 'zh-CN',
-    required: false,
-  })
-  @IsOptional()
-  @IsString({ message: '搜索语言必须是字符串' })
-  defaultLanguage?: string
-
-  @ApiProperty({
-    description: '是否启用安全搜索',
-    example: true,
-    required: false,
-  })
-  @IsOptional()
-  @IsBoolean({ message: '安全搜索开关必须是布尔值' })
-  safeSearch?: boolean
-
-  @ApiProperty({
-    description: '默认结果数量',
-    example: 10,
-    required: false,
-  })
-  @IsOptional()
-  defaultResultCount?: number
-
-  @ApiProperty({
-    description: '是否保存搜索历史',
-    example: true,
-    required: false,
-  })
-  @IsOptional()
-  @IsBoolean({ message: '保存历史开关必须是布尔值' })
-  saveHistory?: boolean
-
-  @ApiProperty({
-    description: '搜索引擎配置',
-    example: { engine: 'google', region: 'CN' },
-    required: false,
-  })
-  @IsOptional()
-  @IsObject({ message: '搜索引擎配置必须是对象' })
-  engineConfig?: Record<string, unknown>
 }
 
 export class NotificationConfigDto {
@@ -253,16 +199,6 @@ export class UpdatePreferencesDto {
   @ValidateNested()
   @Type(() => AIConfigDto)
   aiConfig?: AIConfigDto
-
-  @ApiProperty({
-    description: '搜索配置',
-    type: SearchConfigDto,
-    required: false,
-  })
-  @IsOptional()
-  @ValidateNested()
-  @Type(() => SearchConfigDto)
-  searchConfig?: SearchConfigDto
 
   @ApiProperty({
     description: '通知配置',

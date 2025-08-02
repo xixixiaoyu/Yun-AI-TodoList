@@ -1,16 +1,15 @@
 import { Injectable, Logger } from '@nestjs/common'
 import type { UserPreferences } from '@shared/types'
-import {
-  Theme,
-  StorageMode,
-  ConflictResolutionStrategy,
-} from '../settings/dto/update-preferences.dto'
 import { UtilsService } from '../common/services/utils.service'
 import { PrismaService } from '../database/prisma.service'
 import {
+  ConflictResolutionStrategy,
+  StorageMode,
+  Theme,
+} from '../settings/dto/update-preferences.dto'
+import {
   AIConfigDto,
   NotificationConfigDto,
-  SearchConfigDto,
   StorageConfigDto,
   ThemePreferencesDto,
   UpdateUserPreferencesDto,
@@ -186,39 +185,6 @@ export class UserPreferencesService {
   }
 
   // ==========================================
-  // 搜索配置管理
-  // ==========================================
-
-  /**
-   * 更新搜索配置
-   */
-  async updateSearchConfig(
-    userId: string,
-    searchConfig: SearchConfigDto
-  ): Promise<UserPreferences> {
-    try {
-      this.logger.debug(`更新用户搜索配置: ${userId}`, searchConfig)
-
-      const updateData: Record<string, unknown> = {}
-      if (searchConfig.defaultLanguage !== undefined)
-        updateData.searchLanguage = searchConfig.defaultLanguage
-      if (searchConfig.safeSearch !== undefined) updateData.safeSearch = searchConfig.safeSearch
-      if (searchConfig.defaultResultCount !== undefined)
-        updateData.defaultResultCount = searchConfig.defaultResultCount
-      if (searchConfig.engine !== undefined) updateData.searchEngine = searchConfig.engine
-      if (searchConfig.region !== undefined) updateData.searchRegion = searchConfig.region
-
-      const preferences = await this.updatePreferences(userId, updateData)
-
-      this.logger.log(`成功更新用户 ${userId} 的搜索配置`)
-      return preferences
-    } catch (error) {
-      this.logger.error(`更新搜索配置失败: ${userId}`, error)
-      throw error
-    }
-  }
-
-  // ==========================================
   // 通知配置管理
   // ==========================================
 
@@ -324,16 +290,6 @@ export class UserPreferencesService {
         updateData.aiTemperature = updateDto.ai.temperature
       if (updateDto.ai?.maxTokens !== undefined) updateData.aiMaxTokens = updateDto.ai.maxTokens
 
-      // 搜索配置
-      if (updateDto.search?.defaultLanguage !== undefined)
-        updateData.searchLanguage = updateDto.search.defaultLanguage
-      if (updateDto.search?.safeSearch !== undefined)
-        updateData.safeSearch = updateDto.search.safeSearch
-      if (updateDto.search?.defaultResultCount !== undefined)
-        updateData.defaultResultCount = updateDto.search.defaultResultCount
-      if (updateDto.search?.engine !== undefined) updateData.searchEngine = updateDto.search.engine
-      if (updateDto.search?.region !== undefined) updateData.searchRegion = updateDto.search.region
-
       // 通知配置
       if (updateDto.notifications?.desktop !== undefined)
         updateData.desktopNotifications = updateDto.notifications.desktop
@@ -414,15 +370,7 @@ export class UserPreferencesService {
           maxTokens: prismaPrefs.aiMaxTokens as number,
         },
       },
-      searchConfig: {
-        defaultLanguage: prismaPrefs.searchLanguage as string,
-        safeSearch: prismaPrefs.safeSearch as boolean,
-        defaultResultCount: prismaPrefs.defaultResultCount as number,
-        engineConfig: {
-          engine: prismaPrefs.searchEngine as string,
-          region: prismaPrefs.searchRegion as string,
-        },
-      },
+
       notifications: {
         desktop: prismaPrefs.desktopNotifications as boolean,
         email: prismaPrefs.emailNotifications as boolean,

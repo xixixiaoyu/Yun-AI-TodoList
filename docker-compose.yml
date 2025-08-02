@@ -28,7 +28,7 @@ services:
     image: docker.m.daocloud.io/library/redis:7-alpine
     container_name: yun-todolist-redis
     restart: unless-stopped
-    command: redis-server --appendonly yes --requirepass redis123
+    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD:-redis123}
     volumes:
       - redis_data:/data
     ports:
@@ -62,9 +62,9 @@ services:
       DATABASE_PASSWORD: postgres123
       REDIS_HOST: redis
       REDIS_PORT: 6379
-      REDIS_PASSWORD: redis123
+      REDIS_PASSWORD: ${REDIS_PASSWORD:-redis123}
       JWT_SECRET: yun-todo-local-jwt-secret-key-2025-very-secure-change-in-production
-      JWT_EXPIRES_IN: 7d
+      JWT_EXPIRES_IN: 15m
       JWT_REFRESH_SECRET: yun-todo-local-refresh-secret-key-2025-very-secure-change-in-production
       JWT_REFRESH_EXPIRES_IN: 30d
       BCRYPT_ROUNDS: 12
