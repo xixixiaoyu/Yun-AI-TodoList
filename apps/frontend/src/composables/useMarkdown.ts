@@ -1,5 +1,6 @@
 import DOMPurify from 'dompurify'
 import hljs from 'highlight.js'
+import katex from 'katex'
 import type { MarkedOptions } from 'marked'
 import { marked } from 'marked'
 import mermaid from 'mermaid'
@@ -385,6 +386,72 @@ export function useMarkdown() {
     })
   }
 
+  // 预处理 LaTeX 数学公式
+  const preprocessMathFormulas = (markdown: string): string => {
+    // 先保护代码块内容，避免处理其中的 LaTeX 公式
+    const codeBlocks: string[] = []
+    const codeBlockPlaceholders: string[] = []
+
+    // 匹配所有代码块（包括行内代码和代码块）
+    let processedMarkdown = markdown
+
+    // 保护三个反引号的代码块
+    processedMarkdown = processedMarkdown.replace(/```[\s\S]*?```/g, (match) => {
+      const placeholder = `__CODE_BLOCK_${codeBlocks.length}__`
+      codeBlocks.push(match)
+      codeBlockPlaceholders.push(placeholder)
+      return placeholder
+    })
+
+    // 保护行内代码
+    processedMarkdown = processedMarkdown.replace(/`[^`\n]+?`/g, (match) => {
+      const placeholder = `__INLINE_CODE_${codeBlocks.length}__`
+      codeBlocks.push(match)
+      codeBlockPlaceholders.push(placeholder)
+      return placeholder
+    })
+
+    // 处理块级公式 $$...$$
+    processedMarkdown = processedMarkdown.replace(/\$\$([\s\S]*?)\$\$/g, (match, formula) => {
+      try {
+        const html = katex.renderToString(formula.trim(), {
+          displayMode: true,
+          throwOnError: false,
+          strict: false,
+        })
+        return `<div class="math-block">${html}</div>`
+      } catch (error) {
+        console.warn('LaTeX block formula render error:', error)
+        return `<div class="math-error">数学公式渲染错误: ${formula}</div>`
+      }
+    })
+
+    // 处理行内公式 $...$（但不处理已经被 $$ 处理过的）
+    processedMarkdown = processedMarkdown.replace(
+      /(?<!\$)\$(?!\$)([^$\n]+?)\$(?!\$)/g,
+      (match, formula) => {
+        try {
+          const html = katex.renderToString(formula.trim(), {
+            displayMode: false,
+            throwOnError: false,
+            strict: false,
+          })
+          return `<span class="math-inline">${html}</span>`
+        } catch (error) {
+          console.warn('LaTeX inline formula render error:', error)
+          return `<span class="math-error">数学公式渲染错误: ${formula}</span>`
+        }
+      }
+    )
+
+    // 恢复代码块内容
+    codeBlockPlaceholders.forEach((placeholder, index) => {
+      processedMarkdown = processedMarkdown.replace(placeholder, codeBlocks[index])
+    })
+
+    return processedMarkdown
+  }
+
   // 预处理 Mermaid 图表
   const preprocessMermaidDiagrams = async (markdown: string): Promise<string> => {
     const mermaidRegex = /```mermaid\n([\s\S]*?)\n```/g
@@ -494,8 +561,10 @@ export function useMarkdown() {
   } as MarkedOptions)
 
   const sanitizeContent = async (content: string): Promise<string> => {
-    // 首先预处理 Mermaid 图表
-    const processedContent = await preprocessMermaidDiagrams(content)
+    // 首先预处理 LaTeX 数学公式
+    let processedContent = preprocessMathFormulas(content)
+    // 然后预处理 Mermaid 图表
+    processedContent = await preprocessMermaidDiagrams(processedContent)
     const rawHtml = await marked.parse(processedContent)
     return DOMPurify.sanitize(rawHtml as string)
   }
@@ -609,8 +678,11 @@ export function useMarkdown() {
     if (!markdown) return ''
 
     try {
-      // 首先预处理 Mermaid 图表
-      const processedMarkdown = await preprocessMermaidDiagrams(markdown)
+      // 首先预处理 LaTeX 数学公式
+      let processedMarkdown = preprocessMathFormulas(markdown)
+
+      // 然后预处理 Mermaid 图表
+      processedMarkdown = await preprocessMermaidDiagrams(processedMarkdown)
 
       // 使用 marked 解析 markdown
       const html = await marked.parse(processedMarkdown, {
@@ -665,6 +737,40 @@ export function useMarkdown() {
           'defs',
           'marker',
           'button',
+          // KaTeX 数学公式相关标签
+          'math',
+          'semantics',
+          'mrow',
+          'msup',
+          'msub',
+          'msubsup',
+          'mfrac',
+          'msqrt',
+          'mroot',
+          'mi',
+          'mn',
+          'mo',
+          'mtext',
+          'mspace',
+          'menclose',
+          'mpadded',
+          'mphantom',
+          'munder',
+          'mover',
+          'munderover',
+          'mtable',
+          'mtr',
+          'mtd',
+          'mlabeledtr',
+          'maligngroup',
+          'malignmark',
+          'mstyle',
+          'merror',
+          'mfenced',
+          'mmultiscripts',
+          'mprescripts',
+          'none',
+          'annotation',
         ],
         ALLOWED_ATTR: [
           'href',
@@ -706,6 +812,95 @@ export function useMarkdown() {
           'orient',
           'refX',
           'refY',
+          // KaTeX 数学公式相关属性
+          'xmlns',
+          'display',
+          'mathvariant',
+          'mathsize',
+          'mathcolor',
+          'mathbackground',
+          'dir',
+          'fontfamily',
+          'fontsize',
+          'fontweight',
+          'fontstyle',
+          'color',
+          'background',
+          'scriptlevel',
+          'displaystyle',
+          'scriptsizemultiplier',
+          'scriptminsize',
+          'infixlinebreakstyle',
+          'decimalpoint',
+          'fence',
+          'separator',
+          'stretchy',
+          'symmetric',
+          'maxsize',
+          'minsize',
+          'largeop',
+          'movablelimits',
+          'accent',
+          'lspace',
+          'rspace',
+          'linebreak',
+          'lineleading',
+          'linebreakstyle',
+          'linebreakmultchar',
+          'indentalign',
+          'indentshift',
+          'indenttarget',
+          'indentalignfirst',
+          'indentshiftfirst',
+          'indentalignlast',
+          'indentshiftlast',
+          'depth',
+          'lquote',
+          'rquote',
+          'linethickness',
+          'munalign',
+          'denomalign',
+          'bevelled',
+          'voffset',
+          'open',
+          'close',
+          'separators',
+          'notation',
+          'subscriptshift',
+          'superscriptshift',
+          'accentunder',
+          'align',
+          'rowalign',
+          'columnalign',
+          'groupalign',
+          'alignmentscope',
+          'columnwidth',
+          'rowspacing',
+          'columnspacing',
+          'rowlines',
+          'columnlines',
+          'frame',
+          'framespacing',
+          'equalrows',
+          'equalcolumns',
+          'side',
+          'minlabelspacing',
+          'rowspan',
+          'columnspan',
+          'edge',
+          'stackalign',
+          'charalign',
+          'charspacing',
+          'longdivstyle',
+          'position',
+          'shift',
+          'location',
+          'crossout',
+          'length',
+          'leftoverhang',
+          'rightoverhang',
+          'mslinethickness',
+          'selection',
         ],
         ALLOW_DATA_ATTR: true,
       })

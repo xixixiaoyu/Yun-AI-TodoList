@@ -278,6 +278,9 @@ importers:
 
   apps/frontend:
     dependencies:
+      '@types/katex':
+        specifier: ^0.16.7
+        version: 0.16.7
       '@types/lodash-es':
         specifier: 4.17.12
         version: 4.17.12
@@ -308,6 +311,9 @@ importers:
       highlight.js:
         specifier: 11.11.1
         version: 11.11.1
+      katex:
+        specifier: ^0.16.22
+        version: 0.16.22
       lodash-es:
         specifier: 4.17.21
         version: 4.17.21
@@ -2422,6 +2428,9 @@ packages:
 
   '@types/jsonwebtoken@9.0.5':
     resolution: {integrity: sha512-VRLSGzik+Unrup6BsouBeHsf4d1hOEgYWTm/7Nmw1sXoN1+tRly/Gy/po3yeahnP4jfnQWWAhQAqcNfH7ngOkA==}
+
+  '@types/katex@0.16.7':
+    resolution: {integrity: sha512-HMwFiRujE5PjrgwHQ25+bsLJgowjGjm5Z8FVSf0N6PwgJrwxH0QxzHYDcKsTfV3wva0vzrpqMTJS2jXPr5BMEQ==}
 
   '@types/keyv@3.1.4':
     resolution: {integrity: sha512-BQ5aZNSCpj7D6K2ksrRCTmKRLEpnPvWDiLPfoGyhZ++8YtiK9d/3DBKPJgry359X/P1PfruyYwvnvwFjuEiEIg==}
@@ -10345,6 +10354,8 @@ snapshots:
   '@types/jsonwebtoken@9.0.5':
     dependencies:
       '@types/node': 24.0.3
+
+  '@types/katex@0.16.7': {}
 
   '@types/keyv@3.1.4':
     dependencies:

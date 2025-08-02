@@ -866,3 +866,64 @@ select {
 [data-theme='dark'] .hljs-attribute {
   color: #79c0ff;
 }
+
+/* KaTeX 数学公式样式 */
+.math-block {
+  margin: 1rem 0;
+  text-align: center;
+  overflow-x: auto;
+  padding: 0.5rem;
+}
+
+.math-inline {
+  display: inline;
+  margin: 0 0.2rem;
+}
+
+.math-error {
+  color: #ef4444;
+  background-color: #fef2f2;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  font-family: monospace;
+  font-size: 0.875rem;
+}
+
+[data-theme='dark'] .math-error {
+  color: #fca5a5;
+  background-color: #450a0a;
+}
+
+/* KaTeX 在深色主题下的样式调整 */
+[data-theme='dark'] .katex {
+  color: var(--text-color);
+}
+
+[data-theme='dark'] .katex .mord,
+[data-theme='dark'] .katex .mop,
+[data-theme='dark'] .katex .mbin,
+[data-theme='dark'] .katex .mrel,
+[data-theme='dark'] .katex .mopen,
+[data-theme='dark'] .katex .mclose,
+[data-theme='dark'] .katex .mpunct {
+  color: var(--text-color);
+}
+
+/* 确保数学公式在卡片中正确显示 */
+.card .math-block,
+.card .math-inline {
+  color: inherit;
+}
+
+/* 响应式设计 - 移动端数学公式 */
+@media (max-width: 640px) {
+  .math-block {
+    font-size: 0.9rem;
+    padding: 0.25rem;
+    margin: 0.75rem 0;
+  }
+
+  .math-inline {
+    font-size: 0.9rem;
+  }
+}

@@ -1,5 +1,6 @@
 import 'highlight.js/styles/github-dark.css'
 import 'highlight.js/styles/github.css'
+import 'katex/dist/katex.min.css'
 import { registerSW } from 'virtual:pwa-register'
 import 'virtual:uno.css'
 import { createApp } from 'vue'
