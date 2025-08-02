@@ -130,14 +130,14 @@ services:
       - ./apps/frontend/uno.config.ts:/app/apps/frontend/uno.config.ts:cached
       - ./packages/shared/src:/app/packages/shared/src:cached
     ports:
-      - '5173:3000'
+      - '5173:5173'
     depends_on:
       backend:
         condition: service_healthy
     networks:
       - todolist-network
     healthcheck:
-      test: ['CMD', 'curl', '-f', 'http://localhost:3000/']
+      test: ['CMD', 'curl', '-f', 'http://localhost:5173/']
       interval: 30s
       timeout: 5s
       retries: 3

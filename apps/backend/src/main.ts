@@ -146,7 +146,7 @@ async function bootstrap() {
     })
   }
 
-  const port = configService.get('PORT', 8888)
+  const port = configService.get('PORT', 3000)
   const host = configService.get('HOST', '0.0.0.0')
 
   await app.listen(port, host)

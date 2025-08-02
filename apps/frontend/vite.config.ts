@@ -233,7 +233,7 @@ export default defineConfig({
     dedupe: ['vue', 'vue-router', 'vue-i18n'],
   },
   server: {
-    port: 3001,
+    port: 5173,
     open: false,
     cors: true,
     host: true,
@@ -241,7 +241,7 @@ export default defineConfig({
       '/api': {
         target: process.env.DOCKER_ENV
           ? 'http://yun-todolist-backend:3000'
-          : 'http://localhost:8888',
+          : 'http://localhost:3000',
         changeOrigin: true,
         secure: false,
       },

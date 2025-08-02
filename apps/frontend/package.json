@@ -5,7 +5,7 @@
   "description": "Vue 3 frontend for Yun AI TodoList",
   "type": "module",
   "scripts": {
-    "dev": "vite --port 3000",
+    "dev": "vite",
     "build": "vue-tsc && vite build",
     "preview": "vite preview",
     "test": "vitest",
@@ -20,7 +20,7 @@
     "format": "prettier --cache --write \"src/**/*.{js,ts,json,css,scss,vue,html,md}\" --ignore-unknown",
     "type-check": "vue-tsc --noEmit",
     "clean": "rimraf dist",
-    "electron:serve": "concurrently \"vite --port 3000\" \"wait-on tcp:3000 && cross-env NODE_ENV=development ELECTRON_START_URL=http://localhost:3000 electron ../../electron/main.js\"",
+    "electron:serve": "concurrently \"vite\" \"wait-on tcp:5173 && cross-env NODE_ENV=development ELECTRON_START_URL=http://localhost:5173 electron ../../electron/main.js\"",
     "electron:dev": "pnpm run electron:serve"
   },
   "dependencies": {
