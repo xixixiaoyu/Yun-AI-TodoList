@@ -9,17 +9,11 @@
  */
 export function checkAIAvailability(): boolean {
   try {
-    // 首先检查本地存储的 API 密钥
+    // 检查本地存储的 API 密钥
     const localDeepseekKey = localStorage.getItem('deepseek_api_key')
-    if (localDeepseekKey && localDeepseekKey.trim() !== '') {
-      return true
-    }
+    const localOpenaiKey = localStorage.getItem('openai_api_key')
 
-    // 然后检查环境变量中的 API 密钥（作为备选）
-    const deepseekKey = import.meta.env.VITE_DEEPSEEK_API_KEY
-    const openaiKey = import.meta.env.VITE_OPENAI_API_KEY
-
-    return !!(deepseekKey || openaiKey)
+    return !!(localDeepseekKey?.trim() || localOpenaiKey?.trim())
   } catch {
     return false
   }

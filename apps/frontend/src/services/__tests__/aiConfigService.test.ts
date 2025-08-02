@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { checkAIAvailability, getAIStatusMessage } from '../aiConfigService'
 
 // Mock localStorage
@@ -13,56 +13,40 @@ Object.defineProperty(window, 'localStorage', {
   value: mockLocalStorage,
 })
 
-// Mock import.meta.env
-const originalEnv = import.meta.env
-
 describe('aiConfigService', () => {
   beforeEach(() => {
     vi.clearAllMocks()
-    // 重置环境变量
-    Object.assign(import.meta.env, {
-      VITE_DEEPSEEK_API_KEY: '',
-      VITE_OPENAI_API_KEY: '',
-    })
-  })
-
-  afterEach(() => {
-    // 恢复原始环境变量
-    Object.assign(import.meta.env, originalEnv)
   })
 
   describe('checkAIAvailability', () => {
     it('应该在本地存储有 Deepseek API 密钥时返回 true', () => {
-      mockLocalStorage.getItem.mockReturnValue('test-deepseek-key')
+      mockLocalStorage.getItem.mockImplementation((key) => {
+        if (key === 'deepseek_api_key') return 'test-deepseek-key'
+        return null
+      })
 
       const result = checkAIAvailability()
 
       expect(result).toBe(true)
       expect(mockLocalStorage.getItem).toHaveBeenCalledWith('deepseek_api_key')
+      expect(mockLocalStorage.getItem).toHaveBeenCalledWith('openai_api_key')
     })
 
-    it('应该在本地存储的密钥为空时检查环境变量', () => {
-      mockLocalStorage.getItem.mockReturnValue('')
-      import.meta.env.VITE_DEEPSEEK_API_KEY = 'env-deepseek-key'
+    it('应该在本地存储有 OpenAI API 密钥时返回 true', () => {
+      mockLocalStorage.getItem.mockImplementation((key) => {
+        if (key === 'openai_api_key') return 'test-openai-key'
+        return null
+      })
 
       const result = checkAIAvailability()
 
       expect(result).toBe(true)
-    })
-
-    it('应该在有 OpenAI 环境变量时返回 true', () => {
-      mockLocalStorage.getItem.mockReturnValue('')
-      import.meta.env.VITE_OPENAI_API_KEY = 'env-openai-key'
-
-      const result = checkAIAvailability()
-
-      expect(result).toBe(true)
+      expect(mockLocalStorage.getItem).toHaveBeenCalledWith('deepseek_api_key')
+      expect(mockLocalStorage.getItem).toHaveBeenCalledWith('openai_api_key')
     })
 
     it('应该在没有任何 API 密钥时返回 false', () => {
-      mockLocalStorage.getItem.mockReturnValue('')
-      import.meta.env.VITE_DEEPSEEK_API_KEY = ''
-      import.meta.env.VITE_OPENAI_API_KEY = ''
+      mockLocalStorage.getItem.mockReturnValue(null)
 
       const result = checkAIAvailability()
 
@@ -80,9 +64,11 @@ describe('aiConfigService', () => {
     })
 
     it('应该忽略空白字符串密钥', () => {
-      mockLocalStorage.getItem.mockReturnValue('   ')
-      import.meta.env.VITE_DEEPSEEK_API_KEY = ''
-      import.meta.env.VITE_OPENAI_API_KEY = ''
+      mockLocalStorage.getItem.mockImplementation((key) => {
+        if (key === 'deepseek_api_key') return '   '
+        if (key === 'openai_api_key') return '\t\n'
+        return null
+      })
 
       const result = checkAIAvailability()
 
@@ -92,7 +78,10 @@ describe('aiConfigService', () => {
 
   describe('getAIStatusMessage', () => {
     it('应该在 AI 可用时返回空字符串', () => {
-      mockLocalStorage.getItem.mockReturnValue('test-key')
+      mockLocalStorage.getItem.mockImplementation((key) => {
+        if (key === 'deepseek_api_key') return 'test-key'
+        return null
+      })
 
       const result = getAIStatusMessage()
 
@@ -100,9 +89,7 @@ describe('aiConfigService', () => {
     })
 
     it('应该在 AI 不可用时返回配置提示消息', () => {
-      mockLocalStorage.getItem.mockReturnValue('')
-      import.meta.env.VITE_DEEPSEEK_API_KEY = ''
-      import.meta.env.VITE_OPENAI_API_KEY = ''
+      mockLocalStorage.getItem.mockReturnValue(null)
 
       const result = getAIStatusMessage()
 
@@ -113,22 +100,16 @@ describe('aiConfigService', () => {
   describe('集成测试', () => {
     it('应该正确处理不同的配置状态', () => {
       // 测试无配置状态
-      mockLocalStorage.getItem.mockReturnValue('')
-      import.meta.env.VITE_DEEPSEEK_API_KEY = ''
-      import.meta.env.VITE_OPENAI_API_KEY = ''
+      mockLocalStorage.getItem.mockReturnValue(null)
 
       expect(checkAIAvailability()).toBe(false)
       expect(getAIStatusMessage()).toBe('AI 功能需要配置 API 密钥，请前往设置页面配置')
 
       // 测试有本地配置状态
-      mockLocalStorage.getItem.mockReturnValue('local-key')
-
-      expect(checkAIAvailability()).toBe(true)
-      expect(getAIStatusMessage()).toBe('')
-
-      // 测试有环境变量配置状态
-      mockLocalStorage.getItem.mockReturnValue('')
-      import.meta.env.VITE_DEEPSEEK_API_KEY = 'env-key'
+      mockLocalStorage.getItem.mockImplementation((key) => {
+        if (key === 'deepseek_api_key') return 'local-key'
+        return null
+      })
 
       expect(checkAIAvailability()).toBe(true)
       expect(getAIStatusMessage()).toBe('')
