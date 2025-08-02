@@ -101,13 +101,6 @@ export function useTodoListState() {
 
   const onKeyDown = (event: KeyboardEvent) => {
     originalOnKeyDown(event)
-
-    if (event.ctrlKey || event.metaKey) {
-      if (event.key.toLowerCase() === 'f') {
-        event.preventDefault()
-        toggleSearch()
-      }
-    }
   }
 
   // AI 分析处理函数

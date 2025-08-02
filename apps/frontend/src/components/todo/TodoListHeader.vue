@@ -49,7 +49,7 @@
       <button
         class="icon-button search-button"
         :class="{ active: showSearch }"
-        :title="`${showSearch ? t('closeSearch') : t('openSearch')} (Ctrl+F)`"
+        :title="`${showSearch ? t('closeSearch') : t('openSearch')}`"
         :aria-label="showSearch ? t('closeSearch') : t('openSearch')"
         @click="$emit('toggleSearch')"
       >
