@@ -340,7 +340,7 @@ const handleGenerateChart = async (...args: unknown[]) => {
 1. 使用标准的 mermaid 语法
 2. 选择合适的图表类型（flowchart、sequenceDiagram、pie 等）
 3. 使用简洁的节点标签，避免特殊字符
-4. 如需颜色，使用标准的 style 语法，并使用 # 开头的十六进制柔和颜色代码
+4. 如需颜色，使用标准的 style 语法，并使用 # 开头的十六进制柔和护眼的颜色代码
 5. 确保语法完全正确
 6.请只返回 mermaid 代码块，不要包含其他解释文字。
 
