@@ -564,12 +564,40 @@ onUnmounted(() => {
   }
 
   .todo-grid {
-    @apply h-50vh max-h-150 gap-2 mb-3;
-    padding: 1rem 0.75rem 0.75rem 0;
+    @apply gap-2 mb-3;
+    height: calc(100vh - 350px);
+    max-height: 60vh;
+    min-height: 300px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 0.5rem 0.5rem 0.5rem 0;
+    -webkit-overflow-scrolling: touch;
   }
 
   .todo-card-header {
     @apply mb-2 p-2;
+  }
+}
+
+@media (max-width: 480px) {
+  .todo-container {
+    @apply p-1 pt-1;
+  }
+
+  .todo-list {
+    @apply p-2;
+  }
+
+  .todo-grid {
+    height: calc(100vh - 320px);
+    max-height: 65vh;
+    min-height: 250px;
+    padding: 0.25rem 0.25rem 0.25rem 0;
+    gap: 0.5rem;
+  }
+
+  .todo-card-header {
+    @apply mb-1 p-1.5;
   }
 }
 </style>

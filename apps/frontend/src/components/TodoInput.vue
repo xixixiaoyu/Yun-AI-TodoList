@@ -310,11 +310,19 @@ const addTodo = async () => {
 
 @media (max-width: 768px) {
   .add-todo-form {
-    @apply gap-2;
+    @apply gap-2 p-3;
+    flex-wrap: nowrap;
   }
 
   .input-wrapper {
     min-width: unset;
+    flex: 1;
+    max-width: calc(100% - 80px);
+  }
+
+  .todo-input {
+    width: 100%;
+    min-width: 0;
   }
 
   .add-btn {
@@ -322,44 +330,65 @@ const addTodo = async () => {
     min-width: 60px;
     height: 40px;
     font-size: 0.85rem;
+    flex-shrink: 0;
   }
 }
 
 @media (max-width: 480px) {
   .add-todo-form {
-    @apply gap-1.5 p-3;
+    @apply gap-1.5 p-2;
+    margin: 0 -0.5rem;
+  }
+
+  .input-wrapper {
+    flex: 1;
+    min-width: 0;
+    max-width: calc(100% - 60px);
   }
 
   .todo-input {
     height: 40px;
-    padding: 0.75rem 0.875rem;
+    padding: 0.75rem 0.75rem;
     font-size: 0.9rem;
+    width: 100%;
+    min-width: 0;
   }
 
   .add-btn {
     height: 40px;
     min-width: 50px;
-    padding: 0.5rem 0.75rem;
+    padding: 0.5rem 0.6rem;
     font-size: 0.8rem;
+    flex-shrink: 0;
   }
 }
 
 @media (max-width: 375px) {
   .add-todo-form {
-    @apply gap-1 p-2.5;
+    @apply gap-1 p-1.5;
+    margin: 0 -0.25rem;
+  }
+
+  .input-wrapper {
+    flex: 1;
+    min-width: 0;
+    max-width: calc(100% - 50px);
   }
 
   .todo-input {
     height: 36px;
-    padding: 0.625rem 0.75rem;
+    padding: 0.625rem 0.625rem;
     font-size: 0.85rem;
+    width: 100%;
+    min-width: 0;
   }
 
   .add-btn {
     height: 36px;
     min-width: 45px;
-    padding: 0.4rem 0.6rem;
+    padding: 0.4rem 0.5rem;
     font-size: 0.75rem;
+    flex-shrink: 0;
   }
 }
 </style>

@@ -307,52 +307,65 @@ h1 {
 
 @media (max-width: 768px) {
   .header {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 1rem;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
   }
 
   .header-actions {
-    justify-content: center;
-    margin-left: 0;
-    gap: 0.5rem;
+    justify-content: flex-end;
+    margin-left: auto;
+    gap: 0.75rem;
+  }
+
+  .icon-button {
+    padding: 0.5rem;
+    min-width: 40px;
+    min-height: 40px;
+    border-radius: 10px;
+  }
+
+  .button-icon {
+    width: 20px;
+    height: 20px;
   }
 }
 
 @media (max-width: 480px) {
   .header-actions {
-    gap: 0.2rem;
+    gap: 0.5rem;
   }
 
   .icon-button {
-    padding: 0.3rem;
-    min-width: 28px;
-    min-height: 28px;
-    border-radius: 8px;
+    padding: 0.4rem;
+    min-width: 36px;
+    min-height: 36px;
+    border-radius: 9px;
   }
 
   .button-icon {
-    width: 14px;
-    height: 14px;
+    width: 18px;
+    height: 18px;
   }
 }
 
 /* 超小屏幕进一步优化 */
 @media (max-width: 375px) {
   .header-actions {
-    gap: 0.15rem;
+    gap: 0.4rem;
   }
 
   .icon-button {
-    padding: 0.25rem;
-    min-width: 24px;
-    min-height: 24px;
-    border-radius: 6px;
+    padding: 0.35rem;
+    min-width: 32px;
+    min-height: 32px;
+    border-radius: 8px;
   }
 
   .button-icon {
-    width: 12px;
-    height: 12px;
+    width: 16px;
+    height: 16px;
   }
 }
 </style>

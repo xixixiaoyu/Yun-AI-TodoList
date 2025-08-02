@@ -434,9 +434,15 @@ defineOptions({
 
 /* 移动端优化样式 */
 @media (max-width: 639px) {
+  .relative.flex-grow {
+    display: flex;
+    flex-direction: column;
+  }
+
   textarea {
-    min-height: 2.25rem !important;
-    max-height: 5rem !important;
+    flex: 1;
+    min-height: 2rem !important;
+    max-height: 4rem !important;
     padding: 0.5rem 0.75rem !important;
     font-size: 0.875rem !important;
     line-height: 1.25 !important;

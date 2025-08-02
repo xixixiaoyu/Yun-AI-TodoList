@@ -224,7 +224,7 @@ defineOptions({
 /* 移动端优化 */
 @media (max-width: 639px) {
   .mobile-controls {
-    gap: 0.375rem;
+    gap: 0.5rem;
   }
 
   .send-btn,
