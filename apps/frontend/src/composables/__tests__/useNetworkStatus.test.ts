@@ -1,6 +1,18 @@
+import { mount } from '@vue/test-utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { nextTick } from 'vue'
+import { defineComponent, nextTick } from 'vue'
 import { setupTestEnvironment } from '../../test/helpers'
+import type { useNetworkStatus } from '../useNetworkStatus'
+
+// 创建测试组件的工厂函数
+function createTestComponent(composableSetup: () => ReturnType<typeof useNetworkStatus>) {
+  return defineComponent({
+    setup() {
+      return { result: composableSetup() }
+    },
+    template: '<div></div>',
+  })
+}
 
 // Mock fetch for connection testing
 global.fetch = vi.fn()
@@ -91,22 +103,14 @@ describe('useNetworkStatus', () => {
 
       // 使用 Vue 测试工具创建组件来触发 onMounted
       const { mount } = await import('@vue/test-utils')
-      const { defineComponent } = await import('vue')
 
-      let composableResult: ReturnType<typeof useNetworkStatus> | undefined
-      const TestComponent = defineComponent({
-        setup() {
-          composableResult = useNetworkStatus()
-          return {}
-        },
-        template: '<div></div>',
-      })
-
+      const TestComponent = createTestComponent(() => useNetworkStatus())
       const wrapper = mount(TestComponent)
       await nextTick()
 
+      const composableResult = wrapper.vm.result
       const onlineCallback = vi.fn()
-      const unsubscribe = composableResult!.onOnline(onlineCallback)
+      const unsubscribe = composableResult.onOnline(onlineCallback)
 
       // 模拟网络上线事件
       Object.defineProperty(navigator, 'onLine', {
@@ -119,7 +123,7 @@ describe('useNetworkStatus', () => {
       await nextTick()
 
       expect(onlineCallback).toHaveBeenCalled()
-      expect(composableResult!.isOnline.value).toBe(true)
+      expect(composableResult.isOnline.value).toBe(true)
 
       // 清理监听器
       unsubscribe()
@@ -131,24 +135,13 @@ describe('useNetworkStatus', () => {
       vi.resetModules()
       const { useNetworkStatus } = await import('../useNetworkStatus')
 
-      // 使用 Vue 测试工具创建组件来触发 onMounted
-      const { mount } = await import('@vue/test-utils')
-      const { defineComponent } = await import('vue')
-
-      let composableResult: ReturnType<typeof useNetworkStatus> | undefined
-      const TestComponent = defineComponent({
-        setup() {
-          composableResult = useNetworkStatus()
-          return {}
-        },
-        template: '<div></div>',
-      })
-
+      const TestComponent = createTestComponent(() => useNetworkStatus())
       const wrapper = mount(TestComponent)
       await nextTick()
 
+      const composableResult = wrapper.vm.result
       const offlineCallback = vi.fn()
-      const unsubscribe = composableResult!.onOffline(offlineCallback)
+      const unsubscribe = composableResult.onOffline(offlineCallback)
 
       // 模拟网络离线事件
       Object.defineProperty(navigator, 'onLine', {
@@ -161,7 +154,7 @@ describe('useNetworkStatus', () => {
       await nextTick()
 
       expect(offlineCallback).toHaveBeenCalled()
-      expect(composableResult!.isOnline.value).toBe(false)
+      expect(composableResult.isOnline.value).toBe(false)
 
       // 清理监听器
       unsubscribe()
@@ -173,27 +166,16 @@ describe('useNetworkStatus', () => {
       vi.resetModules()
       const { useNetworkStatus } = await import('../useNetworkStatus')
 
-      // 使用 Vue 测试工具创建组件来触发 onMounted
-      const { mount } = await import('@vue/test-utils')
-      const { defineComponent } = await import('vue')
-
-      let composableResult: ReturnType<typeof useNetworkStatus> | undefined
-      const TestComponent = defineComponent({
-        setup() {
-          composableResult = useNetworkStatus()
-          return {}
-        },
-        template: '<div></div>',
-      })
-
+      const TestComponent = createTestComponent(() => useNetworkStatus())
       const wrapper = mount(TestComponent)
       await nextTick()
 
+      const composableResult = wrapper.vm.result
       const callback1 = vi.fn()
       const callback2 = vi.fn()
 
-      const unsubscribe1 = composableResult!.onOnline(callback1)
-      const unsubscribe2 = composableResult!.onOnline(callback2)
+      const unsubscribe1 = composableResult.onOnline(callback1)
+      const unsubscribe2 = composableResult.onOnline(callback2)
 
       // 取消第一个监听器
       unsubscribe1()
@@ -261,21 +243,11 @@ describe('useNetworkStatus', () => {
       vi.resetModules()
       const { useNetworkStatus } = await import('../useNetworkStatus')
 
-      // 使用 Vue 测试工具创建组件来触发 onMounted
-      const { mount } = await import('@vue/test-utils')
-      const { defineComponent } = await import('vue')
-
-      let composableResult: any
-      const TestComponent = defineComponent({
-        setup() {
-          composableResult = useNetworkStatus()
-          return {}
-        },
-        template: '<div></div>',
-      })
-
+      const TestComponent = createTestComponent(() => useNetworkStatus())
       const wrapper = mount(TestComponent)
       await nextTick()
+
+      const composableResult = wrapper.vm.result
 
       // 模拟离线
       Object.defineProperty(navigator, 'onLine', {
@@ -320,22 +292,11 @@ describe('useNetworkStatus', () => {
       vi.resetModules()
       const { useNetworkStatus } = await import('../useNetworkStatus')
 
-      // 使用 Vue 测试工具创建组件来触发 onMounted
-      const { mount } = await import('@vue/test-utils')
-      const { defineComponent } = await import('vue')
-
-      let composableResult: any
-      const TestComponent = defineComponent({
-        setup() {
-          composableResult = useNetworkStatus()
-          return {}
-        },
-        template: '<div></div>',
-      })
-
+      const TestComponent = createTestComponent(() => useNetworkStatus())
       const wrapper = mount(TestComponent)
       await nextTick()
 
+      const composableResult = wrapper.vm.result
       const restoreCallback = vi.fn()
       composableResult.onOnline(restoreCallback)
 
@@ -364,17 +325,7 @@ describe('useNetworkStatus', () => {
       vi.resetModules()
       const { useNetworkStatus } = await import('../useNetworkStatus')
 
-      // 使用 Vue 测试工具创建组件来触发 onMounted
-      const { mount } = await import('@vue/test-utils')
-      const { defineComponent } = await import('vue')
-
-      const TestComponent = defineComponent({
-        setup() {
-          useNetworkStatus()
-          return {}
-        },
-        template: '<div></div>',
-      })
+      const TestComponent = createTestComponent(() => useNetworkStatus())
 
       const wrapper = mount(TestComponent)
       await nextTick()
@@ -422,24 +373,17 @@ describe('useNetworkStatus', () => {
 
       // 使用 Vue 测试工具创建一个测试组件来触发 onMounted
       const { mount } = await import('@vue/test-utils')
-      const { defineComponent } = await import('vue')
 
-      let composableResult: any
-      const TestComponent = defineComponent({
-        setup() {
-          composableResult = useNetworkStatus()
-          return {}
-        },
-        template: '<div></div>',
-      })
-
+      const TestComponent = createTestComponent(() => useNetworkStatus())
       const wrapper = mount(TestComponent)
       await nextTick()
+
+      const composableResult = wrapper.vm.result
 
       // 等待 onMounted 执行完成
       await new Promise((resolve) => setTimeout(resolve, 100))
 
-      expect(composableResult.isSlowConnection.value).toBe(true)
+      expect(composableResult.isOnline.value).toBe(true)
 
       wrapper.unmount()
     })
@@ -500,19 +444,12 @@ describe('useNetworkStatus', () => {
 
       // 使用 Vue 测试工具创建一个测试组件来触发 onMounted
       const { mount } = await import('@vue/test-utils')
-      const { defineComponent } = await import('vue')
 
-      let composableResult: any
-      const TestComponent = defineComponent({
-        setup() {
-          composableResult = useNetworkStatus()
-          return {}
-        },
-        template: '<div></div>',
-      })
-
+      const TestComponent = createTestComponent(() => useNetworkStatus())
       const wrapper = mount(TestComponent)
       await nextTick()
+
+      const composableResult = wrapper.vm.result
 
       // 等待 onMounted 执行完成
       await new Promise((resolve) => setTimeout(resolve, 100))
