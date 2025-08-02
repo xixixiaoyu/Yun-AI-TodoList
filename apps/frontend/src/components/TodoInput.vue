@@ -165,11 +165,12 @@ const addTodo = async () => {
 
 <style scoped>
 .add-todo-form {
-  @apply font-sans flex mb-6 flex-wrap gap-3 p-4 rounded;
+  @apply font-sans flex mb-6 gap-3 p-4 rounded;
   background: rgba(255, 255, 255, 0.03);
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: var(--border-radius);
   align-items: center;
+  flex-wrap: nowrap;
 }
 
 .input-wrapper {
@@ -186,7 +187,7 @@ const addTodo = async () => {
 @media (max-width: 480px) {
   .input-wrapper {
     min-width: unset;
-    width: 100%;
+    flex: 1;
   }
 }
 
@@ -309,16 +310,56 @@ const addTodo = async () => {
 
 @media (max-width: 768px) {
   .add-todo-form {
-    @apply flex-col;
+    @apply gap-2;
   }
 
   .input-wrapper {
-    @apply mb-2 w-full;
     min-width: unset;
   }
 
   .add-btn {
-    @apply w-full py-2 px-4;
+    @apply py-2 px-3;
+    min-width: 60px;
+    height: 40px;
+    font-size: 0.85rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .add-todo-form {
+    @apply gap-1.5 p-3;
+  }
+
+  .todo-input {
+    height: 40px;
+    padding: 0.75rem 0.875rem;
+    font-size: 0.9rem;
+  }
+
+  .add-btn {
+    height: 40px;
+    min-width: 50px;
+    padding: 0.5rem 0.75rem;
+    font-size: 0.8rem;
+  }
+}
+
+@media (max-width: 375px) {
+  .add-todo-form {
+    @apply gap-1 p-2.5;
+  }
+
+  .todo-input {
+    height: 36px;
+    padding: 0.625rem 0.75rem;
+    font-size: 0.85rem;
+  }
+
+  .add-btn {
+    height: 36px;
+    min-width: 45px;
+    padding: 0.4rem 0.6rem;
+    font-size: 0.75rem;
   }
 }
 </style>

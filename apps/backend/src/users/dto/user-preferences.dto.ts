@@ -66,38 +66,6 @@ export class AIConfigDto {
 }
 
 /**
- * 搜索配置 DTO
- */
-export class SearchConfigDto {
-  @ApiProperty({ description: '搜索语言', example: 'zh-CN' })
-  @IsOptional()
-  @IsString()
-  defaultLanguage?: string
-
-  @ApiProperty({ description: '安全搜索', example: true })
-  @IsOptional()
-  @IsBoolean()
-  safeSearch?: boolean
-
-  @ApiProperty({ description: '默认结果数量', minimum: 1, maximum: 100, example: 10 })
-  @IsOptional()
-  @IsNumber()
-  @Min(1)
-  @Max(100)
-  defaultResultCount?: number
-
-  @ApiProperty({ description: '搜索引擎', example: 'google' })
-  @IsOptional()
-  @IsString()
-  engine?: string
-
-  @ApiProperty({ description: '搜索区域', example: 'CN' })
-  @IsOptional()
-  @IsString()
-  region?: string
-}
-
-/**
  * 通知配置 DTO
  */
 export class NotificationConfigDto {
@@ -182,10 +150,6 @@ export class UpdateUserPreferencesDto {
   @ApiProperty({ description: 'AI配置', type: AIConfigDto })
   @IsOptional()
   ai?: AIConfigDto
-
-  @ApiProperty({ description: '搜索配置', type: SearchConfigDto })
-  @IsOptional()
-  search?: SearchConfigDto
 
   @ApiProperty({ description: '通知配置', type: NotificationConfigDto })
   @IsOptional()

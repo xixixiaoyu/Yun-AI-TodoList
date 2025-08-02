@@ -361,6 +361,59 @@ defineExpose({
 .message-group + .message-group {
   margin-top: 1.5rem;
 }
+
+/* 移动端优化样式 */
+@media (max-width: 639px) {
+  .flex-grow {
+    padding: 1rem 1rem 1rem 1rem !important;
+    gap: 1rem !important;
+    background: linear-gradient(
+      180deg,
+      rgba(var(--bg-color-rgb), 0.02) 0%,
+      transparent 100%
+    ) !important;
+  }
+
+  .message-group {
+    gap: 0.75rem;
+  }
+
+  .message-group + .message-group {
+    margin-top: 1.25rem;
+  }
+}
+
+/* 触摸设备优化 */
+@media (hover: none) and (pointer: coarse) {
+  .flex-grow {
+    padding: 1.25rem 1rem !important;
+    gap: 1.25rem !important;
+  }
+
+  .message-group {
+    gap: 1rem;
+  }
+
+  .message-group + .message-group {
+    margin-top: 1.5rem;
+  }
+}
+
+/* 平板端适配 */
+@media (min-width: 640px) and (max-width: 1024px) {
+  .flex-grow {
+    padding: 1.5rem 1.25rem !important;
+    gap: 1.25rem !important;
+  }
+}
+
+/* 全屏模式下的移动端优化 */
+@media (max-width: 639px) {
+  .ai-sidebar.fullscreen .flex-grow {
+    padding: 1.25rem 1rem !important;
+    background: rgba(var(--bg-color-rgb), 0.98) !important;
+  }
+}
 </style>
 
 <style scoped></style>

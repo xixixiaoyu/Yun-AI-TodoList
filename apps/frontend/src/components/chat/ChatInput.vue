@@ -90,7 +90,7 @@
     </div>
 
     <div
-      class="flex gap-3 px-6 py-2 md:px-4 md:py-3 sticky bottom-0 bg-bg z-10 border-t border-input-border/50"
+      class="flex gap-3 px-6 py-2 md:px-4 md:py-3 bg-bg border-t border-input-border/50 mobile-input-area"
     >
       <ChatTextarea
         ref="inputRef"
@@ -352,5 +352,73 @@ defineOptions({
 [data-theme='dark'] .clear-file-btn:hover {
   background: rgba(248, 113, 113, 0.2);
   border-color: rgba(248, 113, 113, 0.35);
+}
+
+/* 移动端优化样式 */
+@media (max-width: 639px) {
+  .mobile-input-area {
+    padding: 0.5rem;
+    gap: 0.5rem;
+    background: transparent;
+    border-top: none;
+    box-shadow: none;
+    align-items: center;
+    min-height: auto;
+  }
+
+  .uploaded-file-container {
+    margin: 0 -0.75rem 0.5rem -0.75rem;
+    padding: 0.75rem 1rem;
+    background: rgba(var(--input-bg-color-rgb), 0.5);
+    border-top: 1px solid var(--input-border-color);
+  }
+
+  .uploaded-file-content {
+    padding: 0.75rem;
+    border-radius: 12px;
+    background: rgba(var(--card-bg-color-rgb), 0.9);
+    backdrop-filter: blur(8px);
+  }
+
+  .file-name {
+    max-width: 120px;
+    font-size: 0.875rem;
+  }
+
+  .clear-file-btn {
+    width: 2rem;
+    height: 2rem;
+    border-radius: 8px;
+  }
+
+  .clear-icon {
+    width: 1rem;
+    height: 1rem;
+  }
+}
+
+/* 全屏模式下的移动端优化 */
+@media (max-width: 639px) {
+  .ai-sidebar.fullscreen .mobile-input-area {
+    background: rgba(var(--bg-color-rgb), 0.98);
+    border-top: none;
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.12);
+  }
+
+  .ai-sidebar.fullscreen .uploaded-file-container {
+    padding: 0.75rem 1rem;
+  }
+}
+
+/* 触摸设备优化 */
+@media (hover: none) and (pointer: coarse) {
+  .clear-file-btn {
+    min-width: 2.5rem;
+    min-height: 2.5rem;
+  }
+
+  .uploaded-file-content {
+    padding: 1rem;
+  }
 }
 </style>

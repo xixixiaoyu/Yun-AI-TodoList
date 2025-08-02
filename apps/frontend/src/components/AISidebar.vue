@@ -16,8 +16,11 @@
       v-show="isOpen"
       ref="sidebarRef"
       :class="[
-        'fixed top-0 left-0 h-full bg-bg/95 backdrop-blur-xl border-r border-input-border shadow-2xl z-[10000] flex flex-col',
-        { 'fullscreen-mode': isFullscreen },
+        'fixed top-0 left-0 h-full bg-bg/95 backdrop-blur-xl shadow-2xl z-[10000] flex flex-col p-0 m-0',
+        {
+          'fullscreen-mode': isFullscreen,
+          'border-r border-input-border': !isFullscreen,
+        },
       ]"
       :style="sidebarStyle"
     >
@@ -34,47 +37,17 @@
       </div>
       <!-- 侧边栏头部 -->
       <div
-        class="sidebar-header flex items-center justify-between px-4 py-3.5 md:px-3 md:py-3 bg-gradient-to-r from-button-bg to-button-hover text-white shadow-lg border-b border-white/10"
+        class="sidebar-header flex items-center justify-between px-3 py-2.5 md:px-3 md:py-3 bg-gradient-to-r from-button-bg to-button-hover text-white shadow-lg border-b border-white/10"
+        :class="{ 'mobile-simplified': isFullscreen }"
       >
         <!-- 标题和关闭按钮容器 -->
         <div class="header-title-row flex items-center justify-between w-full">
-          <h2 class="m-0 text-base md:text-sm font-semibold text-white leading-tight">
+          <h2 class="m-0 text-sm md:text-sm font-semibold text-white leading-tight flex-1">
             {{ t('aiAssistant') }}
           </h2>
 
           <!-- 移动端按钮组 -->
-          <div class="md:hidden flex items-center gap-2">
-            <!-- 全屏模式切换按钮 - 移动端 -->
-            <button
-              class="fullscreen-btn-mobile p-2 text-white/80 hover:text-white hover:bg-white/10 rounded-lg transition-all duration-200 group"
-              :title="
-                isFullscreen ? t('exitFullscreen', '退出全屏') : t('enterFullscreen', '进入全屏')
-              "
-              @click="toggleFullscreen"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 24 24"
-                width="18"
-                height="18"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                class="group-hover:scale-110 transition-transform duration-200"
-              >
-                <path
-                  v-if="!isFullscreen"
-                  d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"
-                />
-                <path
-                  v-else
-                  d="M8 3v3a2 2 0 0 1-2 2H3m18 0h-3a2 2 0 0 1-2-2V3m0 18v-3a2 2 0 0 1 2-2h3M3 16h3a2 2 0 0 1 2 2v3"
-                />
-              </svg>
-            </button>
-
+          <div class="md:hidden flex items-center">
             <!-- 关闭按钮 - 移动端 -->
             <button
               class="close-btn-mobile p-2 text-white/80 hover:text-white hover:bg-white/10 rounded-lg transition-all duration-200"
@@ -100,7 +73,9 @@
         </div>
 
         <!-- 系统提示词选择器和桌面端关闭按钮 -->
-        <div class="header-controls flex items-center gap-2 w-full md:w-auto mt-3 md:mt-0">
+        <div
+          class="header-controls hidden md:flex items-center gap-2 w-full md:w-auto mt-3 md:mt-0"
+        >
           <div class="relative flex-1 md:flex-none">
             <select
               :value="config.enabled ? config.activePromptId || '' : ''"
@@ -145,9 +120,9 @@
             </div>
           </div>
 
-          <!-- 全屏模式切换按钮 -->
+          <!-- 全屏模式切换按钮 - 桌面端 -->
           <button
-            class="fullscreen-btn flex items-center justify-center p-2 text-white/80 hover:text-white hover:bg-white/10 rounded-lg transition-all duration-200 group"
+            class="fullscreen-btn hidden md:flex items-center justify-center p-2 text-white/80 hover:text-white hover:bg-white/10 rounded-lg transition-all duration-200 group"
             :title="
               isFullscreen ? t('exitFullscreen', '退出全屏') : t('enterFullscreen', '进入全屏')
             "
@@ -675,10 +650,22 @@ defineOptions({
 
   /* 移动端头部优化 */
   .sidebar-header {
-    padding: 0.75rem 1rem;
+    padding: 0.25rem 0.5rem;
     flex-direction: column;
     align-items: stretch;
-    gap: 0.75rem;
+    gap: 0.25rem;
+  }
+
+  /* 移动端全屏模式简化样式 */
+  .sidebar-header.mobile-simplified {
+    padding: 0.125rem 0.25rem;
+    gap: 0;
+    min-height: 1.5rem;
+    background: linear-gradient(90deg, rgba(59, 130, 246, 0.9), rgba(99, 102, 241, 0.9));
+  }
+
+  .sidebar-header.mobile-simplified .header-title-row {
+    justify-content: flex-end;
   }
 
   /* 标题行 */
@@ -692,11 +679,11 @@ defineOptions({
   /* 控制区域 */
   .header-controls {
     width: 100%;
-    margin-top: 0.75rem;
+    margin-top: 0.25rem;
   }
 
   h2 {
-    font-size: 1rem;
+    font-size: 0.875rem;
     margin: 0;
   }
 
@@ -709,16 +696,58 @@ defineOptions({
   .header-controls select {
     width: 100% !important;
     min-width: unset !important;
-    font-size: 0.875rem;
-    padding: 0.5rem 2rem 0.5rem 0.75rem;
+    font-size: 0.75rem;
+    padding: 0.25rem 1.5rem 0.25rem 0.5rem;
   }
 
   /* 移动端按钮优化 */
   .close-btn-mobile,
   .close-btn-desktop {
-    min-height: 44px; /* 符合移动端触摸标准 */
-    min-width: 44px;
-    padding: 0.5rem;
+    min-height: 24px; /* 进一步减小按钮尺寸 */
+    min-width: 24px;
+    padding: 0.125rem;
+  }
+
+  /* 移动端全屏模式头部优化 */
+  .mobile-simplified {
+    padding: 0.125rem 0.25rem !important;
+    background: linear-gradient(
+      135deg,
+      var(--primary-color) 0%,
+      rgba(var(--primary-color-rgb), 0.9) 100%
+    ) !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.15) !important;
+  }
+
+  .mobile-simplified .header-title-row {
+    gap: 0.5rem;
+  }
+
+  .mobile-simplified h2 {
+    font-size: 0.875rem !important;
+    font-weight: 600 !important;
+    letter-spacing: 0.025em;
+  }
+
+  .mobile-simplified .close-btn-mobile {
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 6px;
+    backdrop-filter: blur(8px);
+    min-height: 32px;
+    min-width: 32px;
+    padding: 0.25rem;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+  }
+
+  .mobile-simplified .close-btn-mobile:hover {
+    background: rgba(255, 255, 255, 0.25);
+    transform: scale(1.05);
+  }
+
+  /* 移动端全屏模式按钮图标尺寸 */
+  .mobile-simplified .close-btn-mobile svg {
+    width: 14px;
+    height: 14px;
   }
 }
 
@@ -832,11 +861,18 @@ defineOptions({
   position: fixed !important;
   top: 0 !important;
   left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
   width: 100vw !important;
   height: 100vh !important;
+  max-width: 100vw !important;
+  max-height: 100vh !important;
   z-index: 9999 !important;
   border: none !important;
   border-radius: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  box-sizing: border-box !important;
 }
 
 /* 全屏模式下的头部样式调整 */

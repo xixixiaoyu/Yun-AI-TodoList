@@ -57,11 +57,36 @@ const setFilter = (newFilter: string) => {
 
 @media (max-width: 768px) {
   .filter-buttons {
-    @apply flex-col;
+    @apply gap-3;
   }
 
   .filter-btn {
-    @apply w-full;
+    @apply flex-1 py-2.5 px-3 text-sm;
+    min-width: 80px;
+  }
+}
+
+@media (max-width: 480px) {
+  .filter-buttons {
+    @apply gap-2;
+  }
+
+  .filter-btn {
+    @apply py-2 px-2.5 text-xs;
+    min-width: 70px;
+    border-radius: 16px;
+  }
+}
+
+@media (max-width: 375px) {
+  .filter-buttons {
+    @apply gap-1.5;
+  }
+
+  .filter-btn {
+    @apply py-1.5 px-2 text-xs;
+    min-width: 60px;
+    border-radius: 14px;
   }
 }
 </style>

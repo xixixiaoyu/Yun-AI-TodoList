@@ -34,15 +34,6 @@ describe('UsersController', () => {
           maxTokens: 1000,
         },
       },
-      searchConfig: {
-        defaultLanguage: 'zh-CN',
-        safeSearch: true,
-        defaultResultCount: 10,
-        engineConfig: {
-          engine: 'google',
-          region: 'CN',
-        },
-      },
       notifications: {
         desktop: true,
         email: false,

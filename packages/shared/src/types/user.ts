@@ -109,8 +109,6 @@ export interface UserAIAnalysisConfig {
   }
 }
 
-// 搜索配置
-
 // 通知设置
 export interface NotificationSettings {
   desktop: boolean

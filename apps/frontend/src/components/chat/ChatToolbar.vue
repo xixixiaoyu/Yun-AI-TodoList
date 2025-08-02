@@ -157,3 +157,52 @@ const getButtonTitle = (): string => {
     : t('todoAssistantTitle', '点击激活 Todo 任务助手，AI 将了解您的所有任务信息')
 }
 </script>
+
+<style scoped>
+/* 移动端优化样式 */
+@media (max-width: 639px) {
+  .flex {
+    gap: 0.25rem !important;
+  }
+
+  /* 缩小新对话按钮 */
+  button:first-child {
+    padding: 0.25rem 0.5rem !important;
+    height: 1.75rem !important;
+    font-size: 0.7rem !important;
+    min-width: auto !important;
+    gap: 0.25rem !important;
+  }
+
+  button:first-child svg {
+    width: 0.75rem !important;
+    height: 0.75rem !important;
+  }
+
+  /* 缩小 Todo 助手按钮 */
+  button:nth-child(2) {
+    padding: 0.25rem 0.5rem !important;
+    height: 1.75rem !important;
+    font-size: 0.7rem !important;
+    min-width: auto !important;
+    gap: 0.25rem !important;
+  }
+
+  button:nth-child(2) svg {
+    width: 0.75rem !important;
+    height: 0.75rem !important;
+  }
+
+  /* 缩小历史记录按钮 */
+  button:last-child {
+    padding: 0.25rem !important;
+    height: 1.75rem !important;
+    width: 1.75rem !important;
+  }
+
+  button:last-child svg {
+    width: 0.75rem !important;
+    height: 0.75rem !important;
+  }
+}
+</style>

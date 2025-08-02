@@ -189,15 +189,6 @@ export class UsersService {
             maxTokens: (prefs.aiMaxTokens as number) || 1000,
           },
         },
-        searchConfig: {
-          defaultLanguage: (prefs.searchLanguage as string) || 'zh-CN',
-          safeSearch: (prefs.safeSearch as boolean) ?? true,
-          defaultResultCount: (prefs.defaultResultCount as number) || 10,
-          engineConfig: {
-            engine: (prefs.searchEngine as string) || 'google',
-            region: (prefs.searchRegion as string) || 'CN',
-          },
-        },
         notifications: {
           desktop: (prefs.desktopNotifications as boolean) ?? true,
           email: (prefs.emailNotifications as boolean) ?? false,

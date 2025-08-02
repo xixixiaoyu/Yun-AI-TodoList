@@ -12,8 +12,8 @@ export function useAISidebar() {
   // 是否正在执行动画
   const isAnimating = ref(false)
 
-  // 全屏沉浸模式状态
-  const isFullscreen = ref(false)
+  // 全屏沉浸模式状态 - 移动端默认全屏
+  const isFullscreen = ref(window.innerWidth <= 639)
 
   // 响应式宽度配置
   const getResponsiveConfig = () => {
@@ -114,6 +114,13 @@ export function useAISidebar() {
     isAnimating.value = true
     isOpen.value = true
 
+    // 检查是否为移动端或平板设备（屏幕宽度小于 1024px），如果是则自动进入全屏模式
+    const isMobileOrTablet = window.innerWidth < 1024
+    if (isMobileOrTablet) {
+      isFullscreen.value = true
+      document.documentElement.style.overflow = 'hidden'
+    }
+
     // 防止背景滚动
     document.body.style.overflow = 'hidden'
 
@@ -132,6 +139,12 @@ export function useAISidebar() {
     isAnimating.value = true
     // 立即开始关闭动画
     isOpen.value = false
+
+    // 如果在全屏模式，退出全屏
+    if (isFullscreen.value) {
+      isFullscreen.value = false
+      document.documentElement.style.overflow = ''
+    }
 
     // 恢复背景滚动
     document.body.style.overflow = ''
@@ -153,33 +166,50 @@ export function useAISidebar() {
     }
   }
 
+  // 移动端全屏模式管理（移动端固定全屏，桌面端可切换）
+  const updateFullscreenForViewport = () => {
+    const isMobile = window.innerWidth <= 639
+    if (isMobile) {
+      isFullscreen.value = true
+      document.documentElement.style.overflow = 'hidden'
+      document.body.style.overflow = 'hidden'
+    } else {
+      // 桌面端保持当前状态或默认非全屏
+      if (isFullscreen.value) {
+        document.documentElement.style.overflow = 'hidden'
+        document.body.style.overflow = 'hidden'
+      }
+    }
+  }
+
   /**
-   * 进入全屏沉浸模式
+   * 进入全屏沉浸模式（仅桌面端可用）
    */
   const enterFullscreen = () => {
+    if (window.innerWidth <= 639) return // 移动端固定全屏
     if (!isOpen.value) {
       openSidebar()
     }
     isFullscreen.value = true
-    // 隐藏页面滚动条和其他元素
     document.documentElement.style.overflow = 'hidden'
     document.body.style.overflow = 'hidden'
   }
 
   /**
-   * 退出全屏沉浸模式
+   * 退出全屏沉浸模式（仅桌面端可用）
    */
   const exitFullscreen = () => {
+    if (window.innerWidth <= 639) return // 移动端固定全屏
     isFullscreen.value = false
-    // 恢复页面滚动
     document.documentElement.style.overflow = ''
     document.body.style.overflow = ''
   }
 
   /**
-   * 切换全屏沉浸模式
+   * 切换全屏沉浸模式（仅桌面端可用）
    */
   const toggleFullscreen = () => {
+    if (window.innerWidth <= 639) return // 移动端固定全屏
     if (isFullscreen.value) {
       exitFullscreen()
     } else {
@@ -192,8 +222,11 @@ export function useAISidebar() {
    */
   const handleKeydown = (event: KeyboardEvent) => {
     if (event.key === 'Escape') {
-      if (isFullscreen.value) {
-        // 如果在全屏模式，先退出全屏
+      if (window.innerWidth <= 639) {
+        // 移动端直接关闭侧边栏
+        closeSidebar()
+      } else if (isFullscreen.value) {
+        // 桌面端如果在全屏模式，先退出全屏
         exitFullscreen()
       } else if (isOpen.value) {
         // 如果侧边栏打开但不在全屏模式，关闭侧边栏
@@ -262,6 +295,9 @@ export function useAISidebar() {
     const newConfig = getResponsiveConfig()
     responsiveConfig.value = newConfig
 
+    // 更新全屏模式状态
+    updateFullscreenForViewport()
+
     // 如果当前宽度超出新的限制范围，调整到合适的值
     if (sidebarWidth.value > newConfig.maxWidth) {
       sidebarWidth.value = newConfig.maxWidth
@@ -277,6 +313,8 @@ export function useAISidebar() {
     document.addEventListener('keydown', handleKeydown)
     loadSavedWidth()
     window.addEventListener('resize', handleResize)
+    // 初始化全屏模式状态
+    updateFullscreenForViewport()
   })
 
   // 组件卸载时清理
@@ -302,6 +340,7 @@ export function useAISidebar() {
     enterFullscreen,
     exitFullscreen,
     toggleFullscreen,
+    updateFullscreenForViewport,
     // 宽度管理
     sidebarWidth,
     sidebarStyle,

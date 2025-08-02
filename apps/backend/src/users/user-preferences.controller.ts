@@ -7,7 +7,6 @@ import {
   UpdateUserPreferencesDto,
   ThemePreferencesDto,
   AIConfigDto,
-  SearchConfigDto,
   NotificationConfigDto,
   StorageConfigDto,
 } from './dto/user-preferences.dto'
@@ -49,16 +48,6 @@ export class UserPreferencesController {
     @Body() aiConfig: AIConfigDto
   ): Promise<UserPreferences> {
     return this.userPreferencesService.updateAIConfig(user.id, aiConfig)
-  }
-
-  @Patch('search')
-  @ApiOperation({ summary: '更新搜索配置' })
-  @ApiResponse({ status: 200, description: '更新成功' })
-  async updateSearchConfig(
-    @CurrentUser() user: User,
-    @Body() searchConfig: SearchConfigDto
-  ): Promise<UserPreferences> {
-    return this.userPreferencesService.updateSearchConfig(user.id, searchConfig)
   }
 
   @Patch('notifications')

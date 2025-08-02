@@ -4,8 +4,8 @@
       ref="textareaRef"
       :value="modelValue"
       :placeholder="t('askAiAssistant')"
-      class="w-full px-4 py-3 text-sm border border-input-border rounded-xl outline-none bg-input-bg text-text resize-none min-h-[80px] max-h-48 font-inherit leading-[1.6] overflow-y-auto focus:border-button-bg focus:shadow-[0_0_0_3px_rgba(121,180,166,0.1)] transition-all duration-200 placeholder:text-text-secondary md:text-[13px] md:min-h-[72px]"
-      :style="{ paddingRight: '96px' }"
+      class="w-full px-4 py-3 text-sm border border-input-border rounded-xl outline-none bg-input-bg text-text resize-none min-h-[80px] max-h-48 font-inherit leading-[1.6] overflow-y-auto focus:border-button-bg focus:shadow-[0_0_0_3px_rgba(121,180,166,0.1)] transition-all duration-200 placeholder:text-text-secondary md:text-[13px] md:min-h-[72px] max-[639px]:min-h-[40px] max-[639px]:py-1 max-[639px]:px-3 max-[639px]:text-[13px]"
+      :style="{ paddingRight: '72px' }"
       @input="$emit('update:modelValue', ($event.target as HTMLTextAreaElement).value)"
       @keydown.enter.exact.prevent="$emit('send')"
       @keydown.enter.shift.exact="$emit('newline', $event)"
@@ -193,8 +193,12 @@ const adjustTextareaHeight = () => {
     textarea.style.height = 'auto'
 
     // 计算内容所需的高度，限制在最小和最大高度之间
-    const minHeight = 90 // 对应 min-h-[80px]
-    const maxHeight = 192 // 对应 max-h-48 (12rem = 192px)
+    // 检查是否为移动端设备
+    const isMobile = window.innerWidth <= 639
+    // 设置最小高度：移动端 40px，桌面端 90px
+    const minHeight = isMobile ? 40 : 90
+    // 设置最大高度：移动端 96px (6rem)，桌面端 192px (12rem)
+    const maxHeight = isMobile ? 96 : 192
     const contentHeight = Math.max(minHeight, Math.min(textarea.scrollHeight, maxHeight))
 
     // 设置新高度
@@ -428,54 +432,89 @@ defineOptions({
   }
 }
 
-/* 响应式调整 */
-@media (max-width: 768px) {
+/* 移动端优化样式 */
+@media (max-width: 639px) {
+  textarea {
+    min-height: 2.25rem !important;
+    max-height: 5rem !important;
+    padding: 0.5rem 0.75rem !important;
+    font-size: 0.875rem !important;
+    line-height: 1.25 !important;
+    border-radius: 0.75rem !important;
+    background: rgba(var(--input-bg-color-rgb), 0.95) !important;
+    backdrop-filter: blur(8px) !important;
+    border: 1px solid rgba(var(--primary-color-rgb), 0.15) !important;
+  }
+
+  textarea:focus {
+    border-color: rgba(var(--primary-color-rgb), 0.3) !important;
+    box-shadow: 0 0 0 2px rgba(var(--primary-color-rgb), 0.1) !important;
+  }
+
+  /* 移动端隐藏文件上传和 AI 增强按钮 */
+  .file-upload-btn,
+  .enhance-btn {
+    display: none !important;
+  }
+
+  /* 隐藏移动端的工具提示 */
+  .file-upload-btn-tooltip,
+  .enhance-btn-tooltip {
+    display: none;
+  }
+}
+
+/* 触摸设备优化 */
+@media (hover: none) and (pointer: coarse) {
+  .file-upload-btn,
+  .enhance-btn {
+    min-width: 1.75rem;
+    min-height: 1.75rem;
+    border-radius: 0.375rem;
+  }
+
   .file-upload-btn {
-    bottom: 10px;
-    right: 44px;
-    width: 24px;
-    height: 24px;
-    border-radius: 4px;
-  }
-
-  .file-upload-btn svg {
-    width: 12px;
-    height: 12px;
-  }
-
-  .file-upload-btn-tooltip {
-    font-size: 10px;
-    padding: 3px 6px;
-    margin-bottom: 4px;
-  }
-
-  .file-upload-btn-tooltip::after {
-    border-width: 2px;
-    right: 6px;
+    right: 2.5rem;
   }
 
   .enhance-btn {
-    bottom: 10px;
-    right: 10px;
-    width: 24px;
-    height: 24px;
-    border-radius: 4px;
+    right: 0.5rem;
   }
 
-  .enhance-btn svg {
-    width: 12px;
-    height: 12px;
+  textarea {
+    padding-right: 3rem !important;
+    min-height: 2.5rem !important;
+    font-size: 0.875rem !important;
+    padding: 0.25rem 3rem 0.25rem 0.75rem;
+    line-height: 1.4 !important;
   }
 
-  .enhance-btn-tooltip {
-    font-size: 10px;
-    padding: 3px 6px;
-    margin-bottom: 4px;
+  /* 增强触摸反馈 */
+  .file-upload-btn:active,
+  .enhance-btn:active {
+    transform: scale(0.9);
+    transition: transform 0.1s ease;
+  }
+}
+
+/* 平板端适配 */
+@media (min-width: 640px) and (max-width: 1024px) {
+  .file-upload-btn {
+    bottom: 0.75rem;
+    right: 3rem;
+    width: 1.75rem;
+    height: 1.75rem;
   }
 
-  .enhance-btn-tooltip::after {
-    border-width: 2px;
-    right: 6px;
+  .enhance-btn {
+    bottom: 0.75rem;
+    right: 0.75rem;
+    width: 1.75rem;
+    height: 1.75rem;
+  }
+
+  textarea {
+    padding-right: 5.5rem !important;
   }
 }
 </style>

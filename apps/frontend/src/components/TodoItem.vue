@@ -718,8 +718,8 @@ onErrorCaptured(handleError)
 @media (max-width: 768px) {
   .card-todo {
     @apply flex-row items-center;
-    padding: 1rem 0.9rem;
-    min-height: 4.5rem;
+    padding: 1.2rem 1rem;
+    min-height: 6.5rem;
   }
 
   .todo-content {
@@ -767,7 +767,8 @@ onErrorCaptured(handleError)
 @media (max-width: 480px) {
   .card-todo {
     @apply flex-row items-center;
-    padding: 0.7rem 0.5rem;
+    padding: 1rem 0.75rem;
+    min-height: 6rem;
   }
 
   .todo-content {

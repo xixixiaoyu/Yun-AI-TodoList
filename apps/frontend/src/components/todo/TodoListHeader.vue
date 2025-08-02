@@ -216,13 +216,13 @@ h1 {
 }
 
 .icon-button.active {
-  color: #ff7e67;
+  color: #ffffff;
   opacity: 1;
-  background: linear-gradient(135deg, rgba(255, 126, 103, 0.1) 0%, rgba(255, 107, 107, 0.05) 100%);
-  border-color: rgba(255, 126, 103, 0.3);
+  background: linear-gradient(135deg, #ff7e67 0%, #ff6b6b 100%);
+  border-color: rgba(255, 126, 103, 0.5);
   box-shadow:
-    0 2px 12px rgba(255, 126, 103, 0.2),
-    inset 0 1px 0 rgba(255, 255, 255, 0.15);
+    0 2px 12px rgba(255, 126, 103, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
 }
 
 .icon-button.active .button-icon {
@@ -321,18 +321,38 @@ h1 {
 
 @media (max-width: 480px) {
   .header-actions {
-    gap: 0.4rem;
+    gap: 0.2rem;
   }
 
   .icon-button {
-    padding: 0.6rem;
-    min-width: 40px;
-    min-height: 40px;
+    padding: 0.3rem;
+    min-width: 28px;
+    min-height: 28px;
+    border-radius: 8px;
   }
 
   .button-icon {
-    width: 20px;
-    height: 20px;
+    width: 14px;
+    height: 14px;
+  }
+}
+
+/* 超小屏幕进一步优化 */
+@media (max-width: 375px) {
+  .header-actions {
+    gap: 0.15rem;
+  }
+
+  .icon-button {
+    padding: 0.25rem;
+    min-width: 24px;
+    min-height: 24px;
+    border-radius: 6px;
+  }
+
+  .button-icon {
+    width: 12px;
+    height: 12px;
   }
 }
 </style>

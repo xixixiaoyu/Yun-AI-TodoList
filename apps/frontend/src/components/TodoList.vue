@@ -564,7 +564,8 @@ onUnmounted(() => {
   }
 
   .todo-grid {
-    @apply h-30vh max-h-100 gap-1.5 mb-3;
+    @apply h-50vh max-h-150 gap-2 mb-3;
+    padding: 1rem 0.75rem 0.75rem 0;
   }
 
   .todo-card-header {

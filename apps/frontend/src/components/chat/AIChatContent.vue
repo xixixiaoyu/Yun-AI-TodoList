@@ -53,7 +53,9 @@
       "
     />
 
-    <div class="sticky bottom-0 bg-bg z-10 flex flex-col gap-1 py-3 sm:py-2">
+    <div
+      class="sticky bottom-0 bg-bg z-10 flex flex-col gap-0.5 py-3 sm:py-2 mobile-input-container"
+    >
       <ChatToolbar
         :is-generating="isGenerating"
         @new="$emit('newConversation')"
@@ -297,6 +299,28 @@ defineOptions({
   opacity: 1;
   transform: translateY(0) scale(1);
   filter: blur(0);
+}
+
+/* 移动端输入框底部固定 */
+@media (max-width: 639px) {
+  .mobile-input-container {
+    position: fixed !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    width: 100% !important;
+    z-index: 1000 !important;
+    background: rgba(var(--bg-color-rgb), 0.98) !important;
+    backdrop-filter: blur(20px) !important;
+    border-top: 1px solid rgba(var(--primary-color-rgb), 0.15) !important;
+    box-shadow: 0 -2px 16px rgba(0, 0, 0, 0.08) !important;
+    padding: 0.5rem 0.75rem !important;
+  }
+
+  /* 为固定输入框预留空间 */
+  .flex-grow {
+    padding-bottom: 100px !important;
+  }
 }
 
 /* 响应式优化 */

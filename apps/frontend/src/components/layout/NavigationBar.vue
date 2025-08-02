@@ -3,44 +3,54 @@
     <button
       class="nav-button"
       :class="{ 'nav-button-active': $route.path === '/' }"
+      :title="t('home')"
       @click="router.push('/')"
     >
-      <i class="i-carbon-task text-sm mr-1"></i>
-      {{ t('home') }}
+      <i class="i-carbon-task text-sm"></i>
+      <span class="nav-text">{{ t('home') }}</span>
     </button>
 
     <button
       class="nav-button"
       :class="{ 'nav-button-active': $route.path === '/calendar' }"
+      :title="t('calendar')"
       @click="router.push('/calendar')"
     >
-      <i class="i-carbon-calendar text-sm mr-1"></i>
-      {{ t('calendar') }}
+      <i class="i-carbon-calendar text-sm"></i>
+      <span class="nav-text">{{ t('calendar') }}</span>
     </button>
 
     <button
       class="nav-button"
       :class="{ 'nav-button-active': $route.path === '/settings' }"
+      :title="t('settings')"
       @click="router.push('/settings')"
     >
-      <i class="i-carbon-settings text-sm mr-1"></i>
-      {{ t('settings') }}
+      <i class="i-carbon-settings text-sm"></i>
+      <span class="nav-text">{{ t('settings') }}</span>
     </button>
 
     <!-- 认证状态按钮 -->
     <div v-if="!isAuthenticated" class="auth-buttons">
-      <button class="nav-button auth-button" @click="router.push('/login')">
-        <i class="i-carbon-login text-sm mr-1"></i>
-        {{ t('auth.login') }}
+      <button
+        class="nav-button auth-button"
+        :title="t('auth.login')"
+        @click="router.push('/login')"
+      >
+        <i class="i-carbon-login text-sm"></i>
+        <span class="nav-text">{{ t('auth.login') }}</span>
       </button>
     </div>
 
     <!-- 用户菜单 -->
     <div v-else ref="userMenuRef" class="user-menu" @click="toggleUserMenu">
-      <button class="nav-button user-button">
-        <i class="i-carbon-user text-sm mr-1"></i>
-        {{ user?.username || user?.email?.split('@')[0] }}
-        <i class="i-carbon-chevron-down text-xs ml-1" :class="{ 'rotate-180': showUserMenu }"></i>
+      <button class="nav-button user-button" :title="user?.username || user?.email?.split('@')[0]">
+        <i class="i-carbon-user text-sm"></i>
+        <span class="nav-text">{{ user?.username || user?.email?.split('@')[0] }}</span>
+        <i
+          class="i-carbon-chevron-down text-xs chevron"
+          :class="{ 'rotate-180': showUserMenu }"
+        ></i>
       </button>
 
       <!-- 用户下拉菜单 -->
@@ -168,11 +178,11 @@ defineOptions({
     right: 0;
     width: 100%;
     background-color: var(--card-bg-color);
-    padding: 0.5rem;
+    padding: 0.2rem;
     margin: 0;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
     justify-content: space-around;
-    gap: 0.25rem;
+    gap: 0.1rem;
     backdrop-filter: blur(10px);
     box-sizing: border-box;
     z-index: 1000;
@@ -181,21 +191,35 @@ defineOptions({
 
   .nav-button {
     flex: 1;
-    font-size: 13px;
-    padding: 12px 8px;
+    font-size: 10px;
+    padding: 4px 2px;
     text-align: center;
-    min-width: 70px;
-    border-radius: 8px;
-    font-weight: 600;
+    min-width: 40px;
+    border-radius: 4px;
+    font-weight: 500;
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 2px;
+    gap: 0px;
+    min-height: 32px;
   }
 
   .nav-button i {
-    font-size: 16px;
+    font-size: 12px;
     margin: 0;
+  }
+
+  .nav-text {
+    font-size: 9px;
+    margin-top: 1px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 100%;
+  }
+
+  .chevron {
+    display: none;
   }
 
   .nav-button:hover {
@@ -206,19 +230,28 @@ defineOptions({
 /* 极小屏幕优化 (320px-375px) */
 @media (max-width: 375px) {
   .nav-bar {
-    gap: 0.15rem;
-    padding: 0.4rem;
+    gap: 0.05rem;
+    padding: 0.1rem;
   }
 
   .nav-button {
-    font-size: 11px;
-    padding: 10px 4px;
-    min-width: 50px;
-    gap: 1px;
+    font-size: 8px;
+    padding: 3px 1px;
+    min-width: 32px;
+    gap: 0px;
+    min-height: 28px;
   }
 
   .nav-button i {
-    font-size: 14px;
+    font-size: 10px;
+  }
+
+  .nav-text {
+    display: none;
+  }
+
+  .chevron {
+    display: none;
   }
 
   /* 用户菜单在极小屏幕下的优化 */

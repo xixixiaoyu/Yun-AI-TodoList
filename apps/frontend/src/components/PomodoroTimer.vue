@@ -672,13 +672,7 @@ button:disabled {
 
 @media (max-width: 768px) {
   .pomodoro-timer {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 0.5rem;
-  }
-
-  .timer-controls {
-    justify-content: center;
+    display: none;
   }
 }
 </style>
