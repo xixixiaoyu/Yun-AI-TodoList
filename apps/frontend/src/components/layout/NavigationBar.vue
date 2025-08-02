@@ -148,6 +148,9 @@ defineOptions({
   white-space: nowrap;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   backdrop-filter: blur(10px);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 
 .nav-button:hover {
@@ -200,7 +203,7 @@ defineOptions({
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 0px;
+    gap: 2px;
     min-height: 32px;
   }
 
@@ -299,7 +302,7 @@ defineOptions({
 }
 
 .user-button {
-  @apply flex items-center bg-primary text-white;
+  @apply flex items-center gap-2 bg-primary text-white;
 }
 
 .user-button:hover {
